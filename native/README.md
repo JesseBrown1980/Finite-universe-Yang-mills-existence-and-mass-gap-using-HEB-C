@@ -1,3 +1,13 @@
+## Stage 2C: periodic 2×2 torus now has an actual 1,393D sparse Hamiltonian
+
+**[Reproducible Stage 2C mathematical report](../STAGE2C_TORUS_1393_SPARSE_REPORT.md)** · **[Rust 1.81 implementation](src/torus2.rs)** · **[CI](.github/workflows/native-rust.yml)**
+
+The periodic torus is now an **eight-link, four-face interacting finite S₃ operator**, exactly projected to **1,393 gauge-invariant orbit-value states** (from 1,679,616 raw configurations). The sparse electric matrix contains **32,385 nonzero entries** and is verified for weighted self-adjointness, gauge invariance and reproducible SHA-committed HBI/HBP records.
+
+The exact electric-only gap is **6×J_E**. Magnetic-only coupling gives **eight degenerate flat-connection ground states** and hence **gap zero**. With both couplings positive, a connected stoquastic electric graph establishes unique ground state and therefore a **qualitatively positive** finite-volume gap. **Mixed-coupling numerical eigenvalue bounds remain uncomputed**, so Issue #2 stays open.
+
+To reproduce from the native directory: *cargo +1.81.0 run --release --offline --locked -- torus2-spectrum 1 1 torus2-evidence*, then *cargo +1.81.0 run --release --offline --locked -- torus2-verify torus2-evidence*.
+
 ## Stage 2B milestone — full interacting double-plaquette spectrum
 
 **[Exact 11D two-plaquette Hamiltonian report](../STAGE2B_DOUBLE_PLAQUETTE_EXACT_SPECTRUM.md)** · **[Rust-native implementation](src/double_plaquette.rs)** · **[Reproducible CI](../.github/workflows/native-rust.yml)**
