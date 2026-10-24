@@ -110,6 +110,28 @@ fn service(port: u16) -> Result<(), String> {
     Ok(())
 }
 
+
+fn cache_demo(args: &[String]) -> Result<(), String> {
+    use hebc_finite_yang_mills::KernelCache;
+    let steps: u64 = argument(args, 2, 243)?;
+    let side: usize = argument(args, 3, 4)?;
+    if steps > 100_000 || !(2..=32).contains(&side) {
+        return Err("invalid cache-demo bounds".into());
+    }
+    let mut cache = KernelCache::new();
+    let start = Instant::now();
+    let first = cache.state_after(side, 0x4845_4243_5353_3331, steps);
+    let compute_ns = start.elapsed().as_nanos();
+    let second_start = Instant::now();
+    let second = cache.state_after(side, 0x4845_4243_5353_3331, steps);
+    let reuse_ns = second_start.elapsed().as_nanos();
+    if first != second || cache.hits != 1 || cache.misses != 1 || cache.active_states() != 1 {
+        return Err("cache consistency failure".into());
+    }
+    println!("CACHE|mode=verified_reuse|steps={steps}|side={side}|states_active=1|hits=1|misses=1|computed_ns={compute_ns}|reuse_ns={reuse_ns}|sha={}|json=0", hex(&sha256(&second)));
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let result = match args.get(1).map(String::as_str) {
@@ -130,11 +152,12 @@ fn main() {
             }
             Err(e) => Err(e),
         },
+        Some("cache-demo") => cache_demo(&args),
         Some("serve") => match argument(&args, 2, 5088u16) {
             Ok(port) => service(port),
             Err(e) => Err(e),
         },
-        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | address [ordinal] | serve [port=5088]".into()),
+        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | cache-demo [steps=243] [side=4] | address [ordinal] | serve [port=5088]".into()),
     };
     if let Err(e) = result {
         eprintln!("FAIL|reason={e}|json=0");
