@@ -2,7 +2,7 @@
 //! No floating point. This is NOT a four-dimensional continuum Yang-Mills theorem.
 #![forbid(unsafe_code)]
 #![deny(clippy::float_arithmetic, clippy::float_cmp, clippy::cast_precision_loss)]
-use crate::{character, inv, mul, PERM};
+use crate::{character, inv, mul};
 
 pub const DENOM: i128 = 65_536; // exact rational eigenvalue enclosure resolution
 pub const MAX_COUPLING: i64 = 100_000;
