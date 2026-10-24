@@ -275,6 +275,102 @@ impl Torus2 {
     }
 }
 
+
+/// Static SHA-committed operator certificate, not a quantum time trajectory.
+/// Verification rebuilds all 7,776 tree-gauge configurations and sparse rows.
+#[derive(Clone,Debug)]
+pub struct TorusCertificate {
+    pub hbp:Vec<u8>,
+    pub hbi:Vec<u8>,
+    pub anchor:String,
+    pub measure:String,
+}
+pub fn certificate(je:i64,jb:i64)->Result<TorusCertificate,String>{
+    use crate::{hex,sha256};
+    let m=Torus2::build()?;
+    m.verify_gauge_representatives()?;
+    let d=m.diagnostics(je,jb)?;
+    let mut raw=Vec::new();
+    raw.extend_from_slice(b"HEBC-S3-TORUS2-1393-V1");
+    for i in 0..DIM {
+        raw.extend_from_slice(&(m.keys[i] as u64).to_le_bytes());
+        raw.extend_from_slice(&m.weights[i].to_le_bytes());
+        raw.extend_from_slice(&m.representatives[i]);
+        raw.extend_from_slice(&m.magnetic[i].to_le_bytes());
+        raw.extend_from_slice(&(m.electric[i].len() as u64).to_le_bytes());
+        for &(j,value) in &m.electric[i] {
+            raw.extend_from_slice(&(j as u64).to_le_bytes());
+            raw.extend_from_slice(&value.to_le_bytes());
+        }
+    }
+    let operator_sha=hex(&sha256(&raw));
+    let sh=&operator_sha[..16];
+    let gap_description=if jb==0 {
+        format!("gap_exact={}",d.electric_only_exact_gap)
+    } else {
+        "gap_exact=NOT_CERTIFIED".to_owned()
+    };
+    let body=format!(
+        "HBP|schema=hebc.s3.torus2.v1|kind=static_sparse_hamiltonian|vertices=4|links=8|faces=4|raw_states=1679616|tree_states=7776|physical_states={DIM}|JE={je}|JB={jb}|operator_sha={operator_sha}|sh={sh}|nnz={}|flat_vacua={}|electric_only_gap=6|{}|qualitative_gap_positive={}|quantitative_gap_certified={}|prev={}",
+        d.nnz_electric,d.magnetic_flat_degeneracy,gap_description,
+        u8::from(d.qualitative_gap_positive),
+        u8::from(d.quantitative_gap_certified),hex(&[0u8;32])
+    );
+    let rec=sha256(body.as_bytes());
+    let mut chain_bytes=Vec::with_capacity(64);
+    chain_bytes.extend_from_slice(&[0u8;32]);
+    chain_bytes.extend_from_slice(&rec);
+    let chain=sha256(&chain_bytes);
+    let hbp=format!("{body}|record_sha={}|chain={}|json=0\n",hex(&rec),hex(&chain)).into_bytes();
+    let hbi=format!(
+        "HBI|schema=hebc.s3.torus2.v1|record=1|offset=0|len={}|sh={sh}|row_sha={}|chain={}|json=0\n",
+        hbp.len(),hex(&sha256(&hbp)),hex(&chain)
+    ).into_bytes();
+    let anchor=format!(
+        "ANCHOR|schema=hebc.s3.torus2.v1|records=1|hbp_sha={}|hbi_sha={}|chain={}|json=0\n",
+        hex(&sha256(&hbp)),hex(&sha256(&hbi)),hex(&chain)
+    );
+    let measure=format!(
+        "TORUS2|result=PASS|vertices=4|links=8|faces=4|raw_states={RAW_STATE_COUNT}|physical_dim={}|nnz={}|JE={je}|JB={jb}|flat_vacua={}|electric_only_gap={}|{}|positive_qualitative={}|quantitative_gap_certified={}|operator_sha={operator_sha}|json=0\n",
+        d.physical_states,d.nnz_electric,d.magnetic_flat_degeneracy,
+        d.electric_only_exact_gap,gap_description,
+        u8::from(d.qualitative_gap_positive),u8::from(d.quantitative_gap_certified)
+    );
+    Ok(TorusCertificate{hbp,hbi,anchor,measure})
+}
+fn field<'a>(record:&'a str,key:&str)->Result<&'a str,String>{
+    let mut value=None;
+    for fragment in record.trim_end_matches('\n').split('|').skip(1){
+        let (name,body)=fragment.split_once('=').ok_or("invalid HBP field")?;
+        if name==key && value.replace(body).is_some(){return Err("duplicate evidence key".into());}
+    }
+    value.ok_or_else(||format!("missing {key}"))
+}
+pub fn verify_certificate(hbp:&[u8],hbi:&[u8],anchor:&str)->Result<(),String>{
+    let record=std::str::from_utf8(hbp).map_err(|_|"non UTF8 receipt")?;
+    let je=field(record,"JE")?.parse::<i64>().map_err(|_|"JE not an integer")?;
+    let jb=field(record,"JB")?.parse::<i64>().map_err(|_|"JB not an integer")?;
+    let recreated=certificate(je,jb)?;
+    if recreated.hbp!=hbp || recreated.hbi!=hbi || recreated.anchor!=anchor {
+        return Err("torus source/matrix/replay HBI/HBP SHA SH HASH mismatch".into());
+    }
+    Ok(())
+}
+pub fn save_certificate(dir:&std::path::Path,item:&TorusCertificate)->Result<(),String>{
+    std::fs::create_dir_all(dir).map_err(|e|e.to_string())?;
+    std::fs::write(dir.join("run.hbp"),&item.hbp).map_err(|e|e.to_string())?;
+    std::fs::write(dir.join("index.hbi"),&item.hbi).map_err(|e|e.to_string())?;
+    std::fs::write(dir.join("run.anchor"),&item.anchor).map_err(|e|e.to_string())?;
+    std::fs::write(dir.join("run.measure"),&item.measure).map_err(|e|e.to_string())?;
+    Ok(())
+}
+pub fn verify_dir(dir:&std::path::Path)->Result<(),String>{
+    let hbp=std::fs::read(dir.join("run.hbp")).map_err(|e|e.to_string())?;
+    let hbi=std::fs::read(dir.join("index.hbi")).map_err(|e|e.to_string())?;
+    let anchor=std::fs::read_to_string(dir.join("run.anchor")).map_err(|e|e.to_string())?;
+    verify_certificate(&hbp,&hbi,&anchor)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -344,6 +440,23 @@ mod tests {
             assert_eq!(d.quantitative_gap_certified,jb==0);
             assert_eq!(d.electric_only_exact_gap,6*je);
         }
+    }
+    #[test]
+    fn indexed_receipts_are_reproducible_and_reject_tampering(){
+        let good=certificate(1,1).unwrap();
+        verify_certificate(&good.hbp,&good.hbi,&good.anchor).unwrap();
+        let copy=certificate(1,1).unwrap();
+        assert_eq!(good.hbp,copy.hbp);
+        assert_eq!(good.hbi,copy.hbi);
+        assert_eq!(good.anchor,copy.anchor);
+        let mut tampered=good.hbp.clone();
+        tampered[90]=b'X';
+        assert!(verify_certificate(&tampered,&good.hbi,&good.anchor).is_err());
+        let mut tampered_index=good.hbi.clone();
+        tampered_index[20]=b'X';
+        assert!(verify_certificate(&good.hbp,&tampered_index,&good.anchor).is_err());
+        assert!(certificate(0,1).unwrap().measure.contains("|positive_qualitative=0|"));
+        assert!(certificate(1,0).unwrap().measure.contains("|gap_exact=6|"));
     }
     #[test]
     fn torus_fail_closed_matrix_bounds_and_gauge_negative_controls(){
