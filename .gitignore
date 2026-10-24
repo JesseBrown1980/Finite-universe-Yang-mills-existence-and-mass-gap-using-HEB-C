@@ -7,3 +7,5 @@ native/clasy-*/
 native/evidence*
 native/stress*
 native/clasy*
+native/double-*
+native/torus-*
