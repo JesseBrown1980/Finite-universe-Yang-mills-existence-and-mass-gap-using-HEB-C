@@ -46,7 +46,7 @@ pub struct Lattice {
 
 impl Lattice {
     pub fn new(side: usize, mut seed: u64) -> Self {
-        assert!((2..=128).contains(&side), "side must be 2..128");
+        assert!((2..=512).contains(&side), "side must be 2..512");
         let n = side * side;
         let mut x = Vec::with_capacity(n);
         let mut y = Vec::with_capacity(n);
@@ -561,7 +561,7 @@ mod tests {
 
     #[test]
     fn gauge_invariance_scaled_lattice_sizes() {
-        for side in [2, 3, 4, 8, 16, 32, 64, 128] {
+        for side in [2, 3, 4, 8, 16, 32, 64, 128, 256, 512] {
             let mut l = Lattice::new(side, 0x494e5445474552 ^ side as u64);
             let mut rng = 0x47617567654c6177 ^ side as u64;
             let gauge: Vec<u8> = (0..side * side)
@@ -569,7 +569,7 @@ mod tests {
             let mut g = l.transformed(&gauge);
             assert_eq!(l.action(), g.action(), "side={side}");
             // Exact equivariance under repeated sequential gauge-covariant updates.
-            let ticks = if side <= 16 { 27 } else if side <= 64 { 9 } else { 3 };
+            let ticks = if side <= 16 { 27 } else if side <= 64 { 9 } else if side <= 256 { 3 } else { 1 };
             for _ in 0..ticks {
                 l.advance();
                 g.advance();
