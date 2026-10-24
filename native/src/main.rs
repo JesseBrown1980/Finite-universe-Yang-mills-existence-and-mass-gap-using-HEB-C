@@ -94,6 +94,47 @@ fn service(port: u16) -> Result<(), String> {
             ("200 OK", "HTTP0|health=OK|native=rust1.81|json=0\n".to_owned())
         } else if path == "/gap" {
             ("200 OK", format!("GAP|group=S3|graph_gap=3|certified={}|scope=Cayley_only|json=0\n", u8::from(gap_certificate())))
+        } else if let Some(request) = path.strip_prefix("/clasy/") {
+            let parts:Vec<&str>=request.split('/').collect();
+            if parts.len() != 3 {
+                ("400 Bad Request","HTTP0|error=clasy_requires_ordinal_nu_steps|json=0\n".to_owned())
+            } else {
+                let parsed = (
+                    parts[0].parse::<u64>(),
+                    parts[1].parse::<u64>(),
+                    parts[2].parse::<u64>(),
+                );
+                match parsed {
+                    (Ok(ordinal),Ok(nu),Ok(steps)) if (1..=243).contains(&steps) => {
+                        match hebc_finite_yang_mills::clasy_portal::calculate(ordinal,nu,steps) {
+                            Ok(run) => ("200 OK",run.report),
+                            Err(_) => ("400 Bad Request","HTTP0|error=invalid_clasy_request|json=0\n".to_owned()),
+                        }
+                    }
+                    _ => ("400 Bad Request","HTTP0|error=invalid_clasy_parameters|json=0\n".to_owned()),
+                }
+            }
+        } else if let Some(request) = path.strip_prefix("/spectrum/") {
+            let parts:Vec<&str>=request.split('/').collect();
+            if parts.len()!=2 {
+                ("400 Bad Request","HTTP0|error=missing_couplings|json=0\n".to_owned())
+            } else {
+                match (parts[0].parse::<i64>(),parts[1].parse::<i64>()) {
+                    (Ok(je),Ok(jb)) => {
+                        match hebc_finite_yang_mills::hamiltonian::spectrum(je,jb) {
+                            Ok(e) => (
+                                "200 OK",
+                                format!(
+                                    "HTTP0|kernel=s3_one_plaquette|JE={je}|JB={jb}|gap=[{},{}]/65536|positive={}|json=0\n",
+                                    e.gap_lower,e.gap_upper,u8::from(e.rigorously_positive())
+                                ),
+                            ),
+                            Err(_) => ("400 Bad Request","HTTP0|error=coupling_bounds|json=0\n".to_owned())
+                        }
+                    }
+                    _ => ("400 Bad Request","HTTP0|error=invalid_couplings|json=0\n".to_owned())
+                }
+            }
         } else if let Some(id) = path.strip_prefix("/qtrit/").and_then(|s| s.parse::<u64>().ok()) {
             let mapped = address(id);
             ("200 OK", format!("QTRIT|ordinal={id}|address={mapped}|value={}|allocated=0|json=0\n", virtual_qtrit(id)))
