@@ -1,3 +1,18 @@
+## Stage 2G: rigorously bounded *mixed-coupling* 1,393-state torus gaps
+
+[Mathematical proof and rational results](../STAGE2G_TORUS2_RATIONAL_GAP_CERTIFICATE.md) · [Exact integer verifier](src/torus2_bounds.rs)
+
+The original 1,393-dimensional periodic S3 torus now has additional **conservative exact-rational** E0, E1 and gap enclosures for JE/JB (1,1) and (3,5). Their rigorously positive gap lower bounds are respectively **0.671034** and **0.344589** in existing lattice-energy units. This combines a strictly positive integer Collatz ground-state witness, the previously proved pure-electric gap 6 and a verified weighted-orthogonal Wilson difference trial vector. It is *not* a tight mixed-eigenvalue solver; Issue #2 remains open for sharper bounds and independent spectral verification.
+
+From native/:
+
+```bash
+cargo +1.81.0 run --release --offline --locked -- torus2-bounds 1 1 torus2-bounds-1-1
+cargo +1.81.0 run --release --offline --locked -- torus2-bounds-verify 1 1 torus2-bounds-1-1
+cargo +1.81.0 run --release --offline --locked -- torus2-bounds 3 5 torus2-bounds-3-5
+cargo +1.81.0 run --release --offline --locked -- torus2-bounds-verify 3 5 torus2-bounds-3-5
+```
+
 ## Constellation original-source audit — no replacement engine
 
 **[Sourced integration and outstanding residual bindings](../STAGE2D_CONSTELLATION_SOURCE_AUDIT.md)** · **Pinned original ternary source:** `vendor/constellation_lattice/`.
