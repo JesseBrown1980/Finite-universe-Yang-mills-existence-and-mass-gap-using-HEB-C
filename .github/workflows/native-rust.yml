@@ -99,6 +99,24 @@ jobs:
           cmp stress-512/run.hbp stress-512-replay/run.hbp
           cmp stress-512/index.hbi stress-512-replay/index.hbi
           cmp stress-512/run.anchor stress-512-replay/run.anchor
+      - name: Original Asolaria Constellation integration and honest residual bindings
+        working-directory: native
+        run: |
+          target/release/hebc constellation-audit constellation-evidence
+          target/release/hebc constellation-verify constellation-evidence
+          target/release/hebc constellation-audit constellation-evidence-replay
+          cmp constellation-evidence/run.hbp constellation-evidence-replay/run.hbp
+          cmp constellation-evidence/index.hbi constellation-evidence-replay/index.hbi
+          cmp constellation-evidence/run.anchor constellation-evidence-replay/run.anchor
+          grep 'local_keys=45,405,3645' constellation-evidence/run.measure
+          grep 'torus_orbits=1393' constellation-evidence/run.measure
+          grep 'c1=UNVERIFIED' constellation-evidence/run.measure
+          grep 'z_instant=UNVERIFIED' constellation-evidence/run.measure
+          grep 'shadow_cat_tori=UNVERIFIED' constellation-evidence/run.measure
+          cp -r constellation-evidence constellation-bad
+          printf X | dd of=constellation-bad/index.hbi bs=1 seek=30 conv=notrunc status=none
+          if target/release/hebc constellation-verify constellation-bad; then exit 1; fi
+          echo "PASS: original Constellation transition and torus label audit"
       - name: Pinned Clasy X3 81-mode HTTP-0 and HBP HBI SHA chain
         working-directory: native
         run: |
@@ -179,6 +197,7 @@ jobs:
             native/torus2-0-1/
             native/torus2-1-1/
             native/torus2-3-5/
+            native/constellation-evidence/
             native/clasy-single/
             native/clasy-batch-81/kernel-000/
             native/clasy-batch-81/kernel-080/
