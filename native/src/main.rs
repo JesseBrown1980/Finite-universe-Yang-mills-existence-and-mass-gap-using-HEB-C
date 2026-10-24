@@ -359,6 +359,29 @@ fn torus2_verify(args:&[String])->Result<(),String>{
 }
 
 
+/// Stage 2G: exact rational (conservative) mixed-coupling 1,393-state
+/// E0/E1/gap enclosures, not floating-point estimates or continuum claims.
+fn torus2_bounds_cmd(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::torus2_bounds::{certificate,save,verify};
+    let je:i64=argument(args,2,1)?;
+    let jb:i64=argument(args,3,1)?;
+    let dir=args.get(4).map(String::as_str).unwrap_or("torus2-bounds");
+    let c=certificate(je,jb)?;
+    verify(&c,je,jb)?;
+    save(Path::new(dir),&c)?;
+    print!("{}",c.measure);
+    Ok(())
+}
+fn torus2_bounds_verify(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::torus2_bounds::verify_directory;
+    let je:i64=argument(args,2,1)?;
+    let jb:i64=argument(args,3,1)?;
+    let dir=args.get(4).map(String::as_str).unwrap_or("torus2-bounds");
+    verify_directory(Path::new(dir),je,jb)?;
+    println!("TORUS2BOUNDSVERIFY|result=PASS|JE={je}|JB={jb}|source_recomputed=1|dir={dir}|json=0");
+    Ok(())
+}
+
 fn constellation_audit(args:&[String])->Result<(),String>{
     use hebc_finite_yang_mills::constellation_gate::{generate,save,verify};
     let directory=args.get(2).map(String::as_str).unwrap_or("constellation-evidence");
@@ -441,6 +464,8 @@ fn main() {
         Some("double-verify") => double_verify(&args),
         Some("torus2-spectrum") => torus2_spectrum(&args),
         Some("torus2-verify") => torus2_verify(&args),
+        Some("torus2-bounds") => torus2_bounds_cmd(&args),
+        Some("torus2-bounds-verify") => torus2_bounds_verify(&args),
         Some("constellation-audit") => constellation_audit(&args),
         Some("constellation-verify") => constellation_verify(&args),
         Some("shadow-residual-audit") => shadow_residual_audit(&args),
@@ -453,7 +478,7 @@ fn main() {
             Ok(port) => service(port),
             Err(e) => Err(e),
         },
-        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | double-spectrum [JE=1] [JB=1] [dir] | double-verify [dir] | torus2-spectrum [JE=1] [JB=1] [dir] | torus2-verify [dir] | cache-demo [steps=243] [side=4] | constellation-audit [dir] | constellation-verify [dir] | shadow-residual-audit [dir] | shadow-residual-verify [dir] | rime-gear-audit [dir] | rime-gear-verify [dir] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
+        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | double-spectrum [JE=1] [JB=1] [dir] | double-verify [dir] | torus2-spectrum [JE=1] [JB=1] [dir] | torus2-verify [dir] | torus2-bounds [JE=1] [JB=1] [dir] | torus2-bounds-verify [JE=1] [JB=1] [dir] | cache-demo [steps=243] [side=4] | constellation-audit [dir] | constellation-verify [dir] | shadow-residual-audit [dir] | shadow-residual-verify [dir] | rime-gear-audit [dir] | rime-gear-verify [dir] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
     };
     if let Err(e) = result {
         eprintln!("FAIL|reason={e}|json=0");
