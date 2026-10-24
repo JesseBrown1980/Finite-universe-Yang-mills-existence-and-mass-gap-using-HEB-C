@@ -94,6 +94,11 @@ fn service(port: u16) -> Result<(), String> {
             ("200 OK", "HTTP0|health=OK|native=rust1.81|json=0\n".to_owned())
         } else if path == "/gap" {
             ("200 OK", format!("GAP|group=S3|graph_gap=3|certified={}|scope=Cayley_only|json=0\n", u8::from(gap_certificate())))
+        } else if path == "/constellation" {
+            match hebc_finite_yang_mills::constellation_gate::generate() {
+                Ok(evidence) => ("200 OK",evidence.measure),
+                Err(_) => ("500 Internal Server Error","HTTP0|error=constellation_audit_failed|json=0\n".to_owned())
+            }
         } else if let Some(request) = path.strip_prefix("/clasy/") {
             let parts:Vec<&str>=request.split('/').collect();
             if parts.len() != 3 {
