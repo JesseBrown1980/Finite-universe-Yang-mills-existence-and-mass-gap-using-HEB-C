@@ -34,6 +34,9 @@ cargo +1.81.0 build --release --offline
 ./target/release/hebc verify evidence-native
 ./target/release/hebc cache-demo 243 4
 ./target/release/hebc address 123
+./target/release/hebc clasy-run 0 1 243 clasy-evidence
+./target/release/hebc clasy-verify clasy-evidence
+./target/release/hebc clasy-batch 81 243 clasy-batch
 ./target/release/hebc serve 5088
 \`\`\`
 
@@ -50,5 +53,7 @@ On Windows use \`target\release\hebc.exe\` rather than \`./target/release/hebc\`
 **Benchmarking:** simulation transitions are self-stepping counters. Performance uses the integer nanosecond duration of an independent wall-clock instrument for comparison; the timer does not determine state updates. A disk-free kernel is not thereby proven faster than an optimally cached native in-memory kernel. The physical 300 GB Host8 substrate is not accessed here.
 
 Stage 2 audited spectral and scale results: [report](../STAGE2_SCALING_SPECTRAL_AUDIT_2026-10-24.md). Interacting finite gauge Hamiltonian is currently solved only for the single square (3-dimensional Gauss-invariant basis); larger physical sector dimensions are enumerated but not diagonalized.
+
+**Clasy X3 81-shell integration:** [CLASY_X3_PINNED_REFERENCE.md](../CLASY_X3_PINNED_REFERENCE.md) and [CLASY_X3_CONTINUUM_HURDLES_GUIDE.md](../CLASY_X3_CONTINUUM_HURDLES_GUIDE.md).
 
 See [implementation and research plan](../HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md).

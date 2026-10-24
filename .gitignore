@@ -1,6 +1,9 @@
 /target
 /native/target
 *.lock.d
-native/evidence-native/
-native/evidence-native-again/
-native/evidence-native-corrupted/
+native/evidence-*/
+native/stress-*/
+native/clasy-*/
+native/evidence*
+native/stress*
+native/clasy*

@@ -53,12 +53,24 @@ cargo +1.81.0 build --release --offline
 ./target/release/hebc verify stress-512
 ./target/release/hebc run 243 4 8192 evidence-native
 ./target/release/hebc verify evidence-native
+./target/release/hebc clasy-run 0 1 243 clasy-evidence
+./target/release/hebc clasy-verify clasy-evidence
+./target/release/hebc clasy-batch 81 243 clasy-batch
 ./target/release/hebc serve 5088
 \`\`\`
 
 On Windows use \`target\release\hebc.exe\`.
 
 Read the source-specific instructions at [native/README.md](native/README.md), and the larger research obligations in [HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md](HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md).
+
+## Clasy X3 Continuum Guide & Pinned Reference
+
+- **[CLASY_X3_PINNED_REFERENCE.md](CLASY_X3_PINNED_REFERENCE.md)**: Pinned mathematical reference source and strict integer codec for the 81-mode finite-field shell model ($P=1,000,999$, $K=81$, $W=30,722$, $D=900,647$).
+- **[CLASY_X3_CONTINUUM_HURDLES_GUIDE.md](CLASY_X3_CONTINUUM_HURDLES_GUIDE.md)**: Research guide analyzing the four continuum hurdles separating the finite discrete shell invariants from continuum 4D Yang–Mills field theory:
+  1. **Divergence-Free Field Reconstruction** ($S_3$ links $\to$ Lie algebra connection $A_\mu(x)$).
+  2. **Uniform Unreduced Norm Bounds** (physical $L^2$/Sobolev norms vs modular residues $\bmod P$).
+  3. **Non-Abelian Gauss Law & Exact Sector Projection** (identifying physical loop/flux subspaces).
+  4. **Continuum Mass Gap Persistence** ($\lim_{a \to 0} \Delta E(a) \ge M_0 > 0$).
 
 ## Correct scientific scope
 
