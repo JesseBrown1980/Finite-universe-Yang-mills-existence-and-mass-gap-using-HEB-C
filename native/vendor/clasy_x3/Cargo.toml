@@ -1,0 +1,13 @@
+[package]
+name = "continuum-clay-variation"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.81"
+publish = false
+description = "Pinned Clasy X3 81-mode exact integer shell model, research reference"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+navier-stokes-regularity-spectral = { path = "vendor/navier" }
