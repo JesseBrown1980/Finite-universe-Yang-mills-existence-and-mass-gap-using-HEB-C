@@ -172,7 +172,7 @@ fn positive_rank_matrix(m:&Torus2,v:&[i128],je:i64,jb:i64,tnum:i128)
     // Since the matrix uses denominator DEN*norm, its integer fudge is norm.
     Ok((a,norm))
 }
-fn improved_excited_upper(m:&Torus2,v:&[i128],je:i64,jb:i64)
+fn improved_excited_upper(m:&Torus2,v:&[i128],je:i64,jb:i64,threshold:i128)
     ->Result<i128,String>
 {
     // The x/y Wilson-character difference transforms in an antisymmetric
@@ -205,9 +205,13 @@ fn improved_excited_upper(m:&Torus2,v:&[i128],je:i64,jb:i64)
         dot_w(&z,&hv,&m.weights)?!=0 {
         return Err("excited Wilson trial lost exact H-orthogonality".into());
     }
+    let vv=dot_w(v,v,&m.weights)?;
+    let vhv=dot_w(v,&hv,&m.weights)?;
     let zz=dot_w(&z,&z,&m.weights)?;
     let zhz=dot_w(&z,&hz,&m.weights)?;
-    if zz<=0||zhz<=0 {return Err("invalid excited Rayleigh quotient".into());}
+    if vv<=0||zz<=0||zhz<=0||vhv*DEN>=threshold*vv {
+        return Err("two-vector Ritz ordering not certified".into());
+    }
     Ok(ceil_div(zhz*OUT_DEN,zz))
 }
 pub fn certify(je:i64,jb:i64)->Result<ResultBounds,String> {
@@ -226,7 +230,7 @@ pub fn certify(je:i64,jb:i64)->Result<ResultBounds,String> {
     // nonpositive eigenvalue. A positive definite modified matrix proves
     // the second eigenvalue of H is STRICTLY above t.
     let e1_lower=threshold*(OUT_DEN/DEN);
-    let e1_upper=improved_excited_upper(&m,&v,je,jb)?;
+    let e1_upper=improved_excited_upper(&m,&v,je,jb,threshold)?;
     if e1_upper<=e1_lower {
         return Err("Rayleigh upper below certified inertia threshold".into());
     }
