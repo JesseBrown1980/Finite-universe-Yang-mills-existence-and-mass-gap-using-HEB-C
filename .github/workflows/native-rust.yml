@@ -83,6 +83,28 @@ jobs:
           printf X | dd of=torus2-corrupt/run.hbp bs=1 seek=138 conv=notrunc status=none
           if target/release/hebc torus2-verify torus2-corrupt; then exit 1; fi
           echo 'PASS: 1393D periodic torus, HBI/HBP and strict mixed-gap disclosure'
+      - name: Stage 2G rational mixed-coupling torus eigenvalue and gap bounds
+        working-directory: native
+        run: |
+          for coupling in '1 1' '3 5'; do
+            set -- $coupling
+            dir="torus2-bounds-$1-$2"
+            target/release/hebc torus2-bounds "$1" "$2" "$dir"
+            target/release/hebc torus2-bounds-verify "$1" "$2" "$dir"
+            target/release/hebc torus2-bounds "$1" "$2" "$dir-repeat"
+            cmp "$dir/run.hbp" "$dir-repeat/run.hbp"
+            cmp "$dir/index.hbi" "$dir-repeat/index.hbi"
+            cmp "$dir/run.anchor" "$dir-repeat/run.anchor"
+            grep 'positive=1|rigorous=1|tight=0' "$dir/run.measure"
+          done
+          grep 'E0=\[7634198,7634199\]/1000000' torus2-bounds-1-1/run.measure
+          grep 'gap=\[671034,' torus2-bounds-1-1/run.measure
+          grep 'E0=\[36699227,36699228\]/1000000' torus2-bounds-3-5/run.measure
+          grep 'gap=\[344589,' torus2-bounds-3-5/run.measure
+          cp -r torus2-bounds-1-1 torus2-bounds-forged
+          printf X | dd of=torus2-bounds-forged/run.hbp bs=1 seek=85 conv=notrunc status=none
+          if target/release/hebc torus2-bounds-verify 1 1 torus2-bounds-forged; then exit 1; fi
+          echo 'PASS: rational lower and upper finite torus gap bounds, replay and tamper rejection'
       - name: Multi-scale gauge-lattice stress - 64x64 and 128x128
         working-directory: native
         run: |
@@ -238,6 +260,8 @@ jobs:
             native/torus2-0-1/
             native/torus2-1-1/
             native/torus2-3-5/
+            native/torus2-bounds-1-1/
+            native/torus2-bounds-3-5/
             native/constellation-evidence/
             native/shadow-residual-evidence/
             native/rime-gear-evidence/
