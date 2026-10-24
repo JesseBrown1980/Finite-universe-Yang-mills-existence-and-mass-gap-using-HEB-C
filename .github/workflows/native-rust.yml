@@ -11,6 +11,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install pinned Rust 1.81 and Clippy
         run: rustup toolchain install 1.81.0 --profile minimal --component clippy --component rustfmt
+      - name: Verify vendored constellation source is byte-identical to pinned Clasy blobs
+        run: |
+          test "$(git hash-object native/vendor/constellation_lattice/trit.rs)" = "3fb7ba9228cab4c40cdfc2732588e868a45b76ed"
+          test "$(git hash-object native/vendor/constellation_lattice/oscillator.rs)" = "619344880359eaa5f0fcd0d3e12a83cd39425ff5"
       - name: Independent Rust unit tests (no network dependencies)
         working-directory: native
         run: cargo +1.81.0 test --all-targets --offline --locked
