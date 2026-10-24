@@ -1,0 +1,59 @@
+name: Native HEB-C Rust 1.81 finite gauge verification
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  native-integer-gauge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust 1.81 and Clippy
+        run: rustup toolchain install 1.81.0 --profile minimal --component clippy --component rustfmt
+      - name: Independent Rust unit tests (no network dependencies)
+        working-directory: native
+        run: cargo +1.81.0 test --all-targets --offline
+      - name: Zero-warning Clippy
+        working-directory: native
+        run: cargo +1.81.0 clippy --all-targets --offline -- -D warnings
+      - name: Native optimized binary
+        working-directory: native
+        run: cargo +1.81.0 build --release --offline
+      - name: Finite group spectral certificate
+        working-directory: native
+        run: target/release/hebc gap
+      - name: Headless 243 steps / 23B virtual namespace / indexed evidence
+        working-directory: native
+        run: |
+          target/release/hebc run 243 4 8192 evidence-native
+          target/release/hebc verify evidence-native
+      - name: Bit-exact native replay
+        working-directory: native
+        run: |
+          target/release/hebc run 243 4 8192 evidence-native-again
+          cmp evidence-native/run.hbp evidence-native-again/run.hbp
+          cmp evidence-native/index.hbi evidence-native-again/index.hbi
+          cmp evidence-native/run.anchor evidence-native-again/run.anchor
+      - name: Negative control rejects corrupted evidence
+        working-directory: native
+        run: |
+          cp -r evidence-native evidence-native-corrupted
+          printf X | dd of=evidence-native-corrupted/run.hbp bs=1 seek=45 conv=notrunc status=none
+          if target/release/hebc verify evidence-native-corrupted; then echo 'tampering incorrectly accepted'; exit 1; fi
+          echo "PASS: corrupted HBP rejected"
+      - name: Native loopback wire-adapter smoke test
+        working-directory: native
+        run: |
+          target/release/hebc serve 54881 > /tmp/hebc-http.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          sleep 1
+          curl --fail --silent --show-error http://127.0.0.1:54881/health | grep 'health=OK'
+          curl --fail --silent --show-error http://127.0.0.1:54881/gap | grep 'graph_gap=3'
+          curl --fail --silent --show-error http://127.0.0.1:54881/qtrit/243 | grep 'ordinal=243'
+      - name: Store measured receipts from CI
+        uses: actions/upload-artifact@v4
+        with:
+          name: hecb-rust-native-243-receipts
+          path: native/evidence-native/
