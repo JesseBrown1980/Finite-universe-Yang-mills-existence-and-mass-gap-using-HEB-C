@@ -77,7 +77,7 @@ The two-dimensional compression on \(\operatorname{span}\{v,z\}\) is therefore d
 
 From the repository root:
 
-\`\`\`sh
+```sh
 cd native
 cargo +1.81.0 test --all-targets --offline --locked
 cargo +1.81.0 clippy --all-targets --offline --locked -- -D warnings
@@ -86,10 +86,17 @@ target/release/hebc torus2-inertia 1 1 inertia-1-1
 target/release/hebc torus2-inertia-verify 1 1 inertia-1-1
 target/release/hebc torus2-inertia 3 5 inertia-3-5
 target/release/hebc torus2-inertia-verify 3 5 inertia-3-5
-\`\`\`
+```
 
 Four plain-text files (HBP, HBI, anchor and measure) are written per pair. Both the exact source state and the generated certificate are reproducibly regenerated, with negative controls for tampered receipts. The unkeyed SHA anchor is an integrity record, not an externally authenticated signature.
 
 ## Scientific next step
 
-If this gate passes, Stage 2H substantially narrows the finite-volume spectral enclosures. Stage 2I can then target exact multiplicities, independently implemented rational inertia checks, multiple lattice sizes, and controlled finite-size scaling. None of those finite discrete-group steps substitutes for an independently reviewed construction of four-dimensional continuum Yang–Mills theory.
+The GitHub Actions run at commit `f6facf599a2d23585759ee66a0f3848633ff2cbf` passed Stage 2H's exact numerical gates and tamper controls. Certified finite-volume enclosures, with common denominator 1,000,000, are:
+
+| JE,JB | E0 | E1 | E1−E0 |
+|---|---|---|---|
+| 1,1 | [7,634,198; 7,634,199] | [13,240,000; 13,242,733] | [5,605,801; 5,608,535] |
+| 3,5 | [36,699,227; 36,699,228] | [50,840,000; 50,842,050] | [14,140,772; 14,142,823] |
+
+Stage 2H substantially narrows the finite-volume spectral enclosures. Stage 2I can then target exact multiplicities, independently implemented rational inertia checks, multiple lattice sizes, and controlled finite-size scaling. None of those finite discrete-group steps substitutes for an independently reviewed construction of four-dimensional continuum Yang–Mills theory.
