@@ -1,3 +1,18 @@
+## Clasy X3 integration: separate 81-mode finite-field kernel
+
+The pinned upstream [Clasy X3](https://github.com/JesseBrown1980/Clasy-repo-x-3-/tree/63cbf283b900457f8dfc59ac0e42d3efcbc9aedb) is available as `vendor/clasy_x3/` with an offline path-only Cargo dependency. The adapter in `src/clasy_portal.rs` reconstructs 3 canonical Host8 room stubs per requested virtual HTTP-0 kernel ID, runs the original 81-mode Clasy evolution, independently checks its finite-field drift invariant and transform roundtrip, and writes indexed HBP/HBI/SHA-chain receipts with a verifier that re-executes the trajectory.
+
+```sh
+cargo +1.81.0 run --release --offline --locked -- clasy-run 0 1 243 clasy-single
+cargo +1.81.0 run --release --offline --locked -- clasy-verify clasy-single
+cargo +1.81.0 run --release --offline --locked -- clasy-batch 81 243 clasy-batch-81
+cargo +1.81.0 run --release --offline --locked -- clasy-batch 243 81 clasy-batch-243
+cargo +1.81.0 run --release --offline --locked -- serve 5088
+```
+
+HTTP/1.1 text endpoints: `/clasy/3/1/9` and `/spectrum/1/1`. The internal *HTTP-0* namespace is a computational addressing abstraction, not a wire protocol or 23 billion instantiated services. Clasy shell amplitudes are *not* Yang–Mills gauge field variables. The next mathematical hurdle is the interacting double-plaquette 11-dimensional Hamiltonian; see [the guide](../CLASY_X3_TO_HEBC_HTTP0_NEXT_HURDLES.md).
+
+
 # Native HEB-C finite gauge kernel — Rust 1.81
 
 Canonical no-screen engine. Rust standard library only, no external dependencies, no network for computation, no JavaScript, V8, Node or JSON and no floating-point numeric operations.
