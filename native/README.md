@@ -11,6 +11,7 @@ cargo +1.81.0 build --release --offline
 ./target/release/hebc gap
 ./target/release/hebc run 243 4 8192 evidence-native
 ./target/release/hebc verify evidence-native
+./target/release/hebc cache-demo 243 4
 ./target/release/hebc address 123
 ./target/release/hebc serve 5088
 \`\`\`
