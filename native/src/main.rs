@@ -26,9 +26,9 @@ fn run(args: &[String]) -> Result<(), String> {
     let side: usize = argument(args, 3, 4)?;
     let probes: u64 = argument(args, 4, 8_192)?;
     let directory = args.get(5).map(String::as_str).unwrap_or("evidence-native");
-    if steps == 0 || steps > 100_000 || !(2..=32).contains(&side) ||
+    if steps == 0 || steps > 100_000 || !(2..=128).contains(&side) ||
        probes > 1_000_000 || steps.checked_mul(probes).is_none() {
-        return Err("bounds: steps=1..100000 side=2..32 probes=0..1000000".into());
+        return Err("bounds: steps=1..100000 side=2..128 probes=0..1000000".into());
     }
     if !gap_certificate() { return Err("finite graph gap certificate failed".into()); }
     let mut lattice = Lattice::new(side, 0x4845_4243_5353_3331);
@@ -132,6 +132,44 @@ fn cache_demo(args: &[String]) -> Result<(), String> {
     Ok(())
 }
 
+
+/// Produce a direct, certified finite single-plaquette interacting spectrum.
+/// The eigenvalues are reported as exact *rational intervals* because
+/// irrational algebraic roots cannot be printed as exact finite decimals.
+fn spectrum_cmd(args: &[String]) -> Result<(), String> {
+    use hebc_finite_yang_mills::hamiltonian::{physical_hamiltonian, spectrum, DENOM};
+    let je: i64 = argument(args, 2, 1)?;
+    let jb: i64 = argument(args, 3, 1)?;
+    let h = physical_hamiltonian(je, jb)?;
+    let e = spectrum(je, jb)?;
+    let mut bytes = Vec::new();
+    for row in h {
+        for val in row {
+            bytes.extend_from_slice(&val.to_le_bytes());
+        }
+    }
+    println!(
+        "SPECTRUM|geometry=single_plaquette|gauge_group=S3|links=4|raw_basis=1296|gauss_dim=3|JE={je}|JB={jb}|E0=[{},{}]/{DENOM}|E1=[{},{}]/{DENOM}|E2=[{},{}]/{DENOM}|gap=[{},{}]/{DENOM}|positive={}|hamiltonian_sha256={}|integer_only=1|json=0",
+        e.lower[0], e.upper[0], e.lower[1], e.upper[1], e.lower[2], e.upper[2],
+        e.gap_lower, e.gap_upper, u8::from(e.rigorously_positive()), hex(&sha256(&bytes))
+    );
+    Ok(())
+}
+
+fn sector_cmd(args: &[String]) -> Result<(), String> {
+    use hebc_finite_yang_mills::hamiltonian::gauss_dimension;
+    let (name, vertices, links) = match args.get(2).map(String::as_str) {
+        Some("single") => ("single_open_plaquette", 4, 4),
+        Some("double") => ("double_open_plaquette", 6, 7),
+        Some("torus2") => ("periodic_2x2_torus", 4, 8),
+        _ => return Err("sector requires single|double|torus2".into())
+    };
+    let dim = gauss_dimension(vertices, links)?;
+    let qtrits = 2 * links;
+    println!("GAUSS|geometry={name}|vertices={vertices}|links={links}|link_qtrits={qtrits}|physical_hilbert_dim={dim}|operator=spectrum_only_single|json=0");
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let result = match args.get(1).map(String::as_str) {
@@ -153,11 +191,13 @@ fn main() {
             Err(e) => Err(e),
         },
         Some("cache-demo") => cache_demo(&args),
+        Some("spectrum") => spectrum_cmd(&args),
+        Some("sector") => sector_cmd(&args),
         Some("serve") => match argument(&args, 2, 5088u16) {
             Ok(port) => service(port),
             Err(e) => Err(e),
         },
-        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | cache-demo [steps=243] [side=4] | address [ordinal] | serve [port=5088]".into()),
+        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | cache-demo [steps=243] [side=4] | address [ordinal] | serve [port=5088]".into()),
     };
     if let Err(e) = result {
         eprintln!("FAIL|reason={e}|json=0");
