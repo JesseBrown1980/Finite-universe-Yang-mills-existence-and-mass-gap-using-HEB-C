@@ -121,6 +121,23 @@ jobs:
           printf X | dd of=constellation-bad/index.hbi bs=1 seek=30 conv=notrunc status=none
           if target/release/hebc constellation-verify constellation-bad; then exit 1; fi
           echo "PASS: original Constellation transition and torus label audit"
+      - name: Stage 2E original Shadow Cat order-three flat torus residual vs full Hamiltonian
+        working-directory: native
+        run: |
+          target/release/hebc shadow-residual-audit shadow-residual-evidence
+          target/release/hebc shadow-residual-verify shadow-residual-evidence
+          target/release/hebc shadow-residual-audit shadow-residual-repeat
+          cmp shadow-residual-evidence/run.hbp shadow-residual-repeat/run.hbp
+          cmp shadow-residual-evidence/index.hbi shadow-residual-repeat/index.hbi
+          cmp shadow-residual-evidence/run.anchor shadow-residual-repeat/run.anchor
+          grep 'c3_cycles=2|fixed=2|moving=6' shadow-residual-evidence/run.measure
+          grep 'magnetic_label_quotient=FAIL' shadow-residual-evidence/run.measure
+          grep 'flat_subspace_HE_invariant=0' shadow-residual-evidence/run.measure
+          grep 'full_H_symmetry=NOT_ESTABLISHED' shadow-residual-evidence/run.measure
+          cp -r shadow-residual-evidence shadow-residual-corrupt
+          printf X | dd of=shadow-residual-corrupt/run.hbp bs=1 seek=100 conv=notrunc status=none
+          if target/release/hebc shadow-residual-verify shadow-residual-corrupt; then exit 1; fi
+          echo 'PASS: exact flat C3 winding, gauge equivariance, Hamiltonian obstruction and honest limits'
       - name: Pinned Clasy X3 81-mode HTTP-0 and HBP HBI SHA chain
         working-directory: native
         run: |
@@ -177,6 +194,7 @@ jobs:
           curl --fail --silent --show-error http://127.0.0.1:54881/health | grep 'health=OK'
           curl --fail --silent --show-error http://127.0.0.1:54881/gap | grep 'graph_gap=3'
           curl --fail --silent --show-error http://127.0.0.1:54881/constellation | grep 'c1=UNVERIFIED'
+          curl --fail --silent --show-error http://127.0.0.1:54881/shadow-residual | grep 'full_H_symmetry=NOT_ESTABLISHED'
           curl --fail --silent --show-error http://127.0.0.1:54881/clasy/3/1/9 | grep 'CLASY81|result=PASS'
           curl --fail --silent --show-error http://127.0.0.1:54881/double-spectrum/1/1 | grep 'positive=1'
           curl --fail --silent --show-error http://127.0.0.1:54881/torus2/1/1 | grep 'quantitative_gap_certified=0'
@@ -203,6 +221,7 @@ jobs:
             native/torus2-1-1/
             native/torus2-3-5/
             native/constellation-evidence/
+            native/shadow-residual-evidence/
             native/clasy-single/
             native/clasy-batch-81/kernel-000/
             native/clasy-batch-81/kernel-080/
