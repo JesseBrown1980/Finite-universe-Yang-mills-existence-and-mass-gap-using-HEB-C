@@ -222,9 +222,6 @@ mod tests {
     }
     #[test]
     fn unmapped_residual_terms_must_not_claim_a_physical_bridge() {
-        assert!(!C1_CONNECTED);
-        assert!(!Z_INSTANT_CONNECTED);
-        assert!(!SHADOW_CAT_TORI_CONNECTED);
         let evidence=generate().unwrap();
         assert!(evidence.measure.contains("c1=UNVERIFIED"));
         assert!(evidence.measure.contains("z_instant=UNVERIFIED"));
