@@ -13,6 +13,7 @@ pub mod constellation_gate;
 pub mod hamiltonian;
 pub mod torus2;
 pub mod shadow_residual;
+pub mod rime_gear;
 pub mod double_plaquette;
 pub mod clasy_portal;
 
