@@ -3,5 +3,19 @@
 version = 3
 
 [[package]]
+name = "continuum-clay-variation"
+version = "0.1.0"
+dependencies = [
+ "navier-stokes-regularity-spectral",
+]
+
+[[package]]
 name = "hebc-finite-yang-mills"
+version = "0.1.0"
+dependencies = [
+ "continuum-clay-variation",
+]
+
+[[package]]
+name = "navier-stokes-regularity-spectral"
 version = "0.1.0"
