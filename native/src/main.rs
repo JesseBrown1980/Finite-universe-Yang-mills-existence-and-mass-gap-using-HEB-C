@@ -94,6 +94,12 @@ fn service(port: u16) -> Result<(), String> {
             ("200 OK", "HTTP0|health=OK|native=rust1.81|json=0\n".to_owned())
         } else if path == "/gap" {
             ("200 OK", format!("GAP|group=S3|graph_gap=3|certified={}|scope=Cayley_only|json=0\n", u8::from(gap_certificate())))
+        } else if path == "/shadow-residual" {
+            match hebc_finite_yang_mills::shadow_residual::generate() {
+                Ok(audit) => ("200 OK", audit.measure),
+                Err(_) => ("500 Internal Server Error",
+                    "HTTP0|error=shadow_residual_audit_failed|json=0\n".to_owned())
+            }
         } else if path == "/constellation" {
             match hebc_finite_yang_mills::constellation_gate::generate() {
                 Ok(evidence) => ("200 OK",evidence.measure),
@@ -365,6 +371,24 @@ fn constellation_verify(args:&[String])->Result<(),String>{
     Ok(())
 }
 
+
+fn shadow_residual_audit(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::shadow_residual::{generate,verify,write};
+    let dir=args.get(2).map(String::as_str).unwrap_or("shadow-residual-evidence");
+    let record=generate()?;
+    verify(&record)?;
+    write(Path::new(dir),&record)?;
+    print!("{}",record.measure);
+    Ok(())
+}
+fn shadow_residual_verify(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::shadow_residual::verify_dir;
+    let dir=args.get(2).map(String::as_str).unwrap_or("shadow-residual-evidence");
+    verify_dir(Path::new(dir))?;
+    println!("SHADOWRESIDUALVERIFY|result=PASS|scope=FLAT_S3_ONLY|dir={dir}|json=0");
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let result = match args.get(1).map(String::as_str) {
@@ -395,13 +419,15 @@ fn main() {
         Some("torus2-verify") => torus2_verify(&args),
         Some("constellation-audit") => constellation_audit(&args),
         Some("constellation-verify") => constellation_verify(&args),
+        Some("shadow-residual-audit") => shadow_residual_audit(&args),
+        Some("shadow-residual-verify") => shadow_residual_verify(&args),
         Some("spectrum") => spectrum_cmd(&args),
         Some("sector") => sector_cmd(&args),
         Some("serve") => match argument(&args, 2, 5088u16) {
             Ok(port) => service(port),
             Err(e) => Err(e),
         },
-        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | double-spectrum [JE=1] [JB=1] [dir] | double-verify [dir] | torus2-spectrum [JE=1] [JB=1] [dir] | torus2-verify [dir] | cache-demo [steps=243] [side=4] | constellation-audit [dir] | constellation-verify [dir] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
+        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | double-spectrum [JE=1] [JB=1] [dir] | double-verify [dir] | torus2-spectrum [JE=1] [JB=1] [dir] | torus2-verify [dir] | cache-demo [steps=243] [side=4] | constellation-audit [dir] | constellation-verify [dir] | shadow-residual-audit [dir] | shadow-residual-verify [dir] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
     };
     if let Err(e) = result {
         eprintln!("FAIL|reason={e}|json=0");
