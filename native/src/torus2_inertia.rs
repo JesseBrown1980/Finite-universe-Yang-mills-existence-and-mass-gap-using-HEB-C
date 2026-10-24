@@ -41,7 +41,7 @@ pub struct ResultBounds {
 fn sqrt_floor(n:u128)->u128 {
     if n==0 {return 0;}
     let bits=128-n.leading_zeros();
-    let mut x=1u128<<((bits+1)/2);
+    let mut x=1u128 << bits.div_ceil(2);
     loop {
         let next=(x+n/x)/2;
         if next>=x {return x;}
@@ -50,9 +50,13 @@ fn sqrt_floor(n:u128)->u128 {
 }
 fn div_round(n:i128,d:i128)->i128 {
     assert!(d>0);
-    let q=n.div_euclid(d);
-    let r=n.rem_euclid(d);
-    if r >= (d+1)/2 {q+1} else {q}
+    // Sign-symmetric rounding with ties toward zero. Required to keep
+    // exact antisymmetric Wilson sectors invariant under normalization.
+    let mag=n.abs();
+    let q=mag/d;
+    let r=mag%d;
+    let value=q+if r>d/2 {1} else {0};
+    if n<0 {-value} else {value}
 }
 fn ceil_div(n:i128,d:i128)->i128 {
     assert!(d>0);
@@ -181,10 +185,13 @@ fn improved_excited_upper(m:&Torus2,v:&[i128],je:i64,jb:i64)
     let max_start=z.iter().map(|x|x.abs()).max().ok_or("missing excited trial")?;
     if max_start==0 {return Err("zero excited trial".into());}
     for x in &mut z {*x=div_round(*x*EXCITED_SCALE,max_start);}
+    // Gershgorin upper bound on lambda_max(H). The shift is strictly
+    // above the full spectrum, so positive-spectrum contamination cannot
+    // dominate the repeated (shift*I-H) iteration.
     let shift:i128=m.electric.iter().enumerate().map(|(i,row)|{
         let diag=row.iter().find(|(j,_)|*j==i).map(|(_,x)|*x).unwrap_or(0);
-        i128::from(je)*i128::from(diag)+i128::from(jb)*i128::from(m.magnetic[i])
-    }).max().unwrap_or(0)+24*i128::from(je)+1;
+        2*i128::from(je)*i128::from(diag)+i128::from(jb)*i128::from(m.magnetic[i])
+    }).max().unwrap_or(0)+1;
     for _ in 0..EXCITED_ITERATIONS {
         let hz=m.apply(je,jb,&z)?;
         let next:Vec<i128>=z.iter().zip(&hz).map(|(&x,&h)|shift*x-h).collect();
