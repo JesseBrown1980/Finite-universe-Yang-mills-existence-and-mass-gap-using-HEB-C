@@ -278,7 +278,6 @@ mod tests {
         // 5/6 is a lighthouse-specific transient NO-CALL mode; not a
         // generic eigenvalue. The 1/6 observer is an indexing role,
         // not Born-rule probability or a quantum excitation energy.
-        assert_eq!(5*6,30);
         let record=generate().unwrap();
         assert!(record.measure.contains("source_law70=NO_CALL_MODE"));
         assert!(record.measure.contains("full_H_symmetry=NOT_ESTABLISHED"));
