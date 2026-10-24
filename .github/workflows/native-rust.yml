@@ -35,6 +35,9 @@ jobs:
           cmp evidence-native/run.hbp evidence-native-again/run.hbp
           cmp evidence-native/index.hbi evidence-native-again/index.hbi
           cmp evidence-native/run.anchor evidence-native-again/run.anchor
+      - name: Verify native SHA-addressed state cache hit
+        working-directory: native
+        run: target/release/hebc cache-demo 243 4 | grep 'hits=1|misses=1'
       - name: Negative control rejects corrupted evidence
         working-directory: native
         run: |
