@@ -2,7 +2,7 @@
 
 - Pinned source: [Clasy X3 commit `63cbf28`](https://github.com/JesseBrown1980/Clasy-repo-x-3-/tree/63cbf283b900457f8dfc59ac0e42d3efcbc9aedb), preserved under `native/vendor/clasy_x3/`; its finite-field law `Q(u_t)+t nu D81=Q(u_0) (mod 1,000,999)` is independently checked for 81 shell modes.
 - Native headless HTTP-0 address dispatch is in `native/src/clasy_portal.rs`; it regenerates 3 source room identities using the original Host8 integer codec, applies exactly 81-mode Clasy update, and writes/checks HBP/HBI state hashes and chained anchor receipts.
-- CI separately verifies 81 × 243 and 243 × 81 *actually executed* finite-shell transitions, and a 243-step interacting 3×3 single-plaquette S3 Hamiltonian spectrum command; the S3 spectral command is independent of the Clasy state evolution.
+- CI separately verifies 81 × 243 and 243 × 81 *actually executed* finite-shell transitions, and the independent 3×3 single-plaquette S3 Hamiltonian spectrum calculation; the S3 spectral calculation is not a 243-step simulation and is independent of Clasy's finite-field evolution.
 - [Complete bridge plan and outstanding multi-plaquette hurdles](CLASY_X3_TO_HEBC_HTTP0_NEXT_HURDLES.md).
 
 **The Clasy model does not constitute a Yang–Mills continuum limit, and the 11-dimensional/toroidal interacting Hamiltonians remain unimplemented.**
