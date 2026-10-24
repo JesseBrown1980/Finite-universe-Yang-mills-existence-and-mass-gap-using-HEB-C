@@ -123,6 +123,61 @@ impl Lattice {
     }
 }
 
+
+/// Encode one S3 link as two balanced Q-trits. Six of the nine pairs are valid.
+/// This is a discrete data representation, not a coherent quantum qutrit.
+pub fn link_qtrits(g: u8) -> [i8; 2] {
+    assert!(g < 6);
+    [(g % 3) as i8 - 1, (g / 3) as i8 - 1]
+}
+
+pub fn qtrits_link(q: [i8; 2]) -> Option<u8> {
+    if q.iter().any(|&x| !(-1..=1).contains(&x)) { return None; }
+    let n = (q[0] + 1) + 3 * (q[1] + 1);
+    if n < 6 { Some(n as u8) } else { None }
+}
+
+/// Lazily allocated, version-bound content-addressed final-state cache.
+/// No independent physical state is created for unrequested virtual coordinates.
+/// Replaying with receipts must still recompute per-step states unless those
+/// complete state snapshots have also been stored and authenticated.
+#[derive(Default)]
+pub struct KernelCache {
+    states: std::collections::HashMap<[u8; 32], ([u8; 32], Vec<u8>)>,
+    pub hits: u64,
+    pub misses: u64,
+    pub rejected: u64,
+}
+
+impl KernelCache {
+    pub fn new() -> Self { Self::default() }
+    pub fn active_states(&self) -> usize { self.states.len() }
+
+    pub fn state_after(&mut self, side: usize, seed: u64, steps: u64) -> Vec<u8> {
+        let mut lattice = Lattice::new(side, seed);
+        let source = lattice.bytes();
+        let mut input = b"HEBC-S3-GAUGE-EQUIVARIANT-TOY-V1".to_vec();
+        input.extend_from_slice(&(side as u64).to_le_bytes());
+        input.extend_from_slice(&seed.to_le_bytes());
+        input.extend_from_slice(&steps.to_le_bytes());
+        input.extend_from_slice(&sha256(&source));
+        let key = sha256(&input);
+        if let Some((digest, value)) = self.states.get(&key) {
+            if sha256(value) == *digest {
+                self.hits += 1;
+                return value.clone();
+            }
+            self.rejected += 1;
+            self.states.remove(&key);
+        }
+        self.misses += 1;
+        for _ in 0..steps { lattice.advance(); }
+        let bytes = lattice.bytes();
+        self.states.insert(key, (sha256(&bytes), bytes.clone()));
+        bytes
+    }
+}
+
 pub fn splitmix64(state: &mut u64) -> u64 {
     *state = state.wrapping_add(0x9e37_79b9_7f4a_7c15);
     let mut z = *state;
@@ -474,4 +529,32 @@ mod tests {
         }
         assert_eq!(sha256(&a.bytes()), sha256(&b.bytes()));
     }
+    #[test]
+    fn qtrit_link_canonical_encoding() {
+        for g in 0..6u8 {
+            let q = link_qtrits(g);
+            assert!(q.iter().all(|&v| (-1..=1).contains(&v)));
+            assert_eq!(qtrits_link(q), Some(g));
+        }
+        assert_eq!(qtrits_link([1,1]), None);
+        assert_eq!(qtrits_link([2,0]), None);
+    }
+
+    #[test]
+    fn lazy_cache_misses_then_verifies_and_hits() {
+        let mut cache = KernelCache::new();
+        assert_eq!(cache.active_states(), 0);
+        let a = cache.state_after(4, 1234, 243);
+        let b = cache.state_after(4, 1234, 243);
+        assert_eq!(a, b);
+        assert_eq!(cache.hits, 1);
+        assert_eq!(cache.misses, 1);
+        assert_eq!(cache.rejected, 0);
+        assert_eq!(cache.active_states(), 1);
+        let different = cache.state_after(4, 1234, 244);
+        assert_eq!(cache.misses, 2);
+        assert_eq!(cache.active_states(), 2);
+        assert_ne!(a, different);
+    }
+
 }
