@@ -263,4 +263,44 @@ mod tests {
         assert!(gauss_dimension(0,0).is_err());
         assert!(gauss_dimension(10,1).is_err());
     }
+
+    #[test]
+    fn independent_integer_characteristic_polynomial_certificate() {
+        // Unlike the Sturm recurrence, this is a direct Leibniz determinant
+        // expansion of (lambda*I-H) with exact rational lambda=num/DENOM.
+        fn polynomial(h: [[i64;3];3], num: i128) -> i128 {
+            let mut a = [[0_i128; 3];3];
+            for i in 0..3 {
+                for j in 0..3 {
+                    a[i][j] = if i == j { num } else { 0 } -
+                        (h[i][j] as i128) * DENOM;
+                }
+            }
+            a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1])
+                - a[0][1] * (a[1][0] * a[2][2] - a[1][2] * a[2][0])
+                + a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0])
+        }
+        for je in 0..=32 {
+            for jb in 0..=32 {
+                let h = physical_hamiltonian(je,jb).unwrap();
+                let e = spectrum(je,jb).unwrap();
+                for k in 0..3 {
+                    let at_lo = polynomial(h,e.lower[k]);
+                    let at_hi = polynomial(h,e.upper[k]);
+                    assert!(
+                        at_lo == 0 || at_hi == 0 || at_lo.signum() != at_hi.signum(),
+                        "determinant did not bracket a root je={je} jb={jb} index={k}"
+                    );
+                }
+            }
+        }
+        // Magnetic-only limiting case has exact class-energy levels 0, 2J_B, 3J_B.
+        for jb in 1..=32 {
+            let e = spectrum(0,jb).unwrap();
+            for (k, root) in [0_i128, 2*jb as i128, 3*jb as i128].iter().enumerate() {
+                assert!(e.lower[k] <= root*DENOM && e.upper[k] >= root*DENOM);
+            }
+        }
+    }
+
 }
