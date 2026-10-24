@@ -1,3 +1,17 @@
+## Stage 2B milestone — full interacting double-plaquette spectrum
+
+**[Exact 11D two-plaquette Hamiltonian report](STAGE2B_DOUBLE_PLAQUETTE_EXACT_SPECTRUM.md)** · **[Rust-native implementation](native/src/double_plaquette.rs)** · **[Reproducible CI](.github/workflows/native-rust.yml)**
+
+The active Rust 1.81 engine now constructs the coupled **seven-link, two-plaquette finite S₃ Hamiltonian** from all **279,936** raw configurations and independently verifies the reduction to **11** gauge-invariant orbit states. Unlike the earlier 11-dimensional sector count, this now includes the *actual gauge-invariant electric and magnetic operators* with exact weighted self-adjointness, integer-only Sturm spectral enclosures, and an independent signed-determinant cross-check.
+
+For `J_E=J_B=1`, the double-plaquette interacting excitation gap is **strictly between 10 and 12** lattice-energy units. The `J_E=J_B=0` control is correctly not certified as gapped. The finite 2×2 torus **1,393D Hamiltonian is still outstanding**, and neither finite model proves a 4D continuum Yang–Mills gap.
+
+```bash
+cd native
+cargo +1.81.0 run --release --locked --offline -- double-spectrum 1 1 double-1-1
+cargo +1.81.0 run --release --locked --offline -- double-verify double-1-1
+```
+
 ## Clasy X3 research guide and native HTTP-0 kernels
 
 **[Clasy X3 → HEB-C HTTP-0 → Yang–Mills research roadmap](CLASY_X3_TO_HEBC_HTTP0_NEXT_HURDLES.md)** is now implemented as a pinned path dependency in [native/vendor/clasy_x3/](native/vendor/clasy_x3/), with its original 81-mode finite-field laws preserved separately from the S3 gauge Hamiltonian.
