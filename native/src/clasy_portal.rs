@@ -30,9 +30,7 @@ fn field<'a>(row: &'a str, name: &str) -> Result<&'a str,String> {
     let mut found = None;
     for item in row.split('|').skip(1) {
         let (key,val) = item.split_once('=').ok_or("malformed field")?;
-        if key == name {
-            if found.replace(val).is_some() { return Err("duplicate field".into()); }
-        }
+        if key == name && found.replace(val).is_some() { return Err("duplicate field".into()); }
     }
     found.ok_or_else(|| format!("missing {name}"))
 }
