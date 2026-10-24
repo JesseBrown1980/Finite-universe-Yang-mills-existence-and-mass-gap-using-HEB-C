@@ -112,16 +112,16 @@ fn integer_cholesky_pd(a:&[Vec<i128>],fudge:i128)->Result<(i128,i128),String> {
     }
     let mut min_margin=i128::MAX;
     let mut prefix=0i128;
-    for i in 0..n {
+    for (i,row) in l.iter().enumerate() {
         // For j<i the column-j rounding error is <= ceil(L_jj/2).
         // For j>i the column-i rounding error is <= ceil(L_ii/2).
-        let later=(n-i-1) as i128 * ((l[i][i]+1)/2);
+        let later=(n-i-1) as i128 * ((row[i]+1)/2);
         let radius=prefix.checked_add(later).ok_or("radius overflow")?;
         let margin=fudge.checked_mul(scale2).and_then(|f|f.checked_sub(radius))
             .ok_or("strict PD margin overflow")?;
         if margin<=0 {return Err(format!("Cholesky residual not certified at row {i}"));}
         min_margin=min_margin.min(margin);
-        prefix=prefix.checked_add((l[i][i]+1)/2).ok_or("prefix overflow")?;
+        prefix=prefix.checked_add((row[i]+1)/2).ok_or("prefix overflow")?;
     }
     Ok((min_pivot,min_margin))
 }
