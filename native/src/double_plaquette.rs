@@ -352,6 +352,66 @@ pub fn verify_certificate_dir(dir:&std::path::Path)->Result<(),String>{
 mod tests {
     use super::*;
 
+
+    /// Independent Leibniz determinant calculation via a subset DP. This
+    /// does NOT call the Faddeev-LeVerrier characteristic polynomial or its
+    /// Sturm recurrence; every signed permutation is counted exactly.
+    fn direct_integer_determinant(h:&[[i64;DIM];DIM],n:usize,odd:i128)->i128 {
+        let mut dp=vec![0i128;1usize<<n];
+        dp[0]=1;
+        for mask in 0..(1usize<<n) {
+            let row=mask.count_ones() as usize;
+            if row==n {continue;}
+            for col in 0..n {
+                if mask & (1<<col)!=0 {continue;}
+                let value=2*i128::from(h[row][col]) -
+                    if row==col {odd} else {0};
+                let greater=(mask>>(col+1)).count_ones();
+                let signed=if greater%2==0 {value} else {-value};
+                let added=dp[mask].checked_mul(signed)
+                    .expect("small exact test determinant product fits i128");
+                let next=mask|(1<<col);
+                dp[next]=dp[next].checked_add(added)
+                    .expect("small exact test determinant accumulation fits i128");
+            }
+        }
+        dp[(1<<n)-1]
+    }
+    #[test]
+    fn independent_leibniz_determinants_certify_all_low_energy_brackets(){
+        let m=DoublePlaquette::build().unwrap();
+        for (je,jb) in [(0,0),(1,0),(0,1),(1,1),(3,5)] {
+            let h=m.matrix(je,jb).unwrap();
+            let e=certify_gap(&m,je,jb).unwrap();
+            for &odd in &[
+                e.ground[0],e.ground[1],e.first[0],e.first[1]
+            ]{
+                let mut direct_signs=Vec::with_capacity(DIM);
+                for n in 1..=DIM {
+                    let exact=direct_integer_determinant(&h,n,odd);
+                    assert_ne!(exact,0,"half-integer is not a rational eigenvalue");
+                    let coefficients=char_coefficients(&h,n).unwrap();
+                    assert_eq!(
+                        if exact<0 {-1} else {1},
+                        principal_sign(&coefficients,odd).unwrap(),
+                        "independent determinant disagrees JE={je} JB={jb} n={n} x={odd}/2"
+                    );
+                    direct_signs.push(if exact<0 {-1i8}else{1i8});
+                }
+                let mut previous=1i8;
+                let mut negatives=0;
+                for sign in direct_signs {
+                    if sign!=previous {negatives+=1;}
+                    previous=sign;
+                }
+                assert_eq!(negatives,inertia_at(
+                    &(1..=DIM).map(|n|char_coefficients(&h,n).unwrap()).collect::<Vec<_>>(),
+                    (odd-1)/2
+                ).unwrap(),"Leibniz vs Sturm inertia");
+            }
+        }
+    }
+
     #[test]
     fn double_spectrum_certificate_integrity_and_full_reexecution(){
         let r=certificate(1,1).unwrap();
