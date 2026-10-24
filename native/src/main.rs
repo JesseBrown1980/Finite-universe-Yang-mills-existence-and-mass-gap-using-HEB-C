@@ -114,6 +114,19 @@ fn service(port: u16) -> Result<(), String> {
                     _ => ("400 Bad Request","HTTP0|error=invalid_clasy_parameters|json=0\n".to_owned()),
                 }
             }
+        } else if let Some(request) = path.strip_prefix("/torus2/") {
+            let parts:Vec<&str>=request.split('/').collect();
+            if parts.len()!=2 {
+                ("400 Bad Request","HTTP0|error=torus2_requires_couplings|json=0\n".to_owned())
+            } else {
+                match (parts[0].parse::<i64>(),parts[1].parse::<i64>()) {
+                    (Ok(je),Ok(jb)) => match hebc_finite_yang_mills::torus2::certificate(je,jb) {
+                        Ok(r) => ("200 OK",r.measure),
+                        Err(_) => ("400 Bad Request","HTTP0|error=invalid_torus2_couplings|json=0\n".to_owned()),
+                    },
+                    _ => ("400 Bad Request","HTTP0|error=invalid_torus2_couplings|json=0\n".to_owned()),
+                }
+            }
         } else if let Some(request) = path.strip_prefix("/double-spectrum/") {
             let parts:Vec<&str>=request.split('/').collect();
             if parts.len()!=2 {
@@ -306,6 +319,28 @@ fn double_verify(args:&[String])->Result<(),String> {
     Ok(())
 }
 
+
+/// Exact torus operator reconstruction; mixed-coupling gap is qualitative only.
+/// Never label a Perron-Frobenius uniqueness proof a quantitative spectral bound.
+fn torus2_spectrum(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::torus2::{certificate,save_certificate,verify_certificate};
+    let je:i64=argument(args,2,1)?;
+    let jb:i64=argument(args,3,1)?;
+    let dir=args.get(4).map(String::as_str).unwrap_or("torus2-evidence");
+    let receipt=certificate(je,jb)?;
+    verify_certificate(&receipt.hbp,&receipt.hbi,&receipt.anchor)?;
+    save_certificate(Path::new(dir),&receipt)?;
+    print!("{}",receipt.measure);
+    Ok(())
+}
+fn torus2_verify(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::torus2::verify_dir;
+    let dir=args.get(2).map(String::as_str).unwrap_or("torus2-evidence");
+    verify_dir(Path::new(dir))?;
+    println!("TORUS2VERIFY|result=PASS|reconstructed=1|dir={dir}|json=0");
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let result = match args.get(1).map(String::as_str) {
@@ -332,13 +367,15 @@ fn main() {
         Some("clasy-batch") => clasy_batch(&args),
         Some("double-spectrum") => double_spectrum(&args),
         Some("double-verify") => double_verify(&args),
+        Some("torus2-spectrum") => torus2_spectrum(&args),
+        Some("torus2-verify") => torus2_verify(&args),
         Some("spectrum") => spectrum_cmd(&args),
         Some("sector") => sector_cmd(&args),
         Some("serve") => match argument(&args, 2, 5088u16) {
             Ok(port) => service(port),
             Err(e) => Err(e),
         },
-        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | double-spectrum [JE=1] [JB=1] [dir] | double-verify [dir] | cache-demo [steps=243] [side=4] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
+        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | double-spectrum [JE=1] [JB=1] [dir] | double-verify [dir] | torus2-spectrum [JE=1] [JB=1] [dir] | torus2-verify [dir] | cache-demo [steps=243] [side=4] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
     };
     if let Err(e) = result {
         eprintln!("FAIL|reason={e}|json=0");
