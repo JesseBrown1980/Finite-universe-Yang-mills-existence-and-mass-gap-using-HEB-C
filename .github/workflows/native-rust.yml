@@ -67,6 +67,10 @@ jobs:
           test "$(find clasy-batch-81 -name run.anchor | wc -l)" -eq 81
           target/release/hebc clasy-verify clasy-batch-81/kernel-000
           target/release/hebc clasy-verify clasy-batch-81/kernel-080
+          target/release/hebc clasy-batch 243 81 clasy-batch-243
+          test "$(find clasy-batch-243 -name run.anchor | wc -l)" -eq 243
+          target/release/hebc clasy-verify clasy-batch-243/kernel-000
+          target/release/hebc clasy-verify clasy-batch-243/kernel-242
       - name: Clasy receipt corruption must fail
         working-directory: native
         run: |
@@ -121,3 +125,6 @@ jobs:
             native/clasy-batch-81/kernel-000/
             native/clasy-batch-81/kernel-080/
             native/clasy-batch-81/batch.measure
+            native/clasy-batch-243/kernel-000/
+            native/clasy-batch-243/kernel-242/
+            native/clasy-batch-243/batch.measure
