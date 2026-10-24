@@ -1,3 +1,16 @@
+## Stage 2B milestone — full interacting double-plaquette spectrum
+
+**[Exact 11D two-plaquette Hamiltonian report](../STAGE2B_DOUBLE_PLAQUETTE_EXACT_SPECTRUM.md)** · **[Rust-native implementation](src/double_plaquette.rs)** · **[Reproducible CI](../.github/workflows/native-rust.yml)**
+
+The active Rust 1.81 engine now constructs the coupled **seven-link, two-plaquette finite S₃ Hamiltonian** from all **279,936** raw configurations and independently verifies the reduction to **11** gauge-invariant orbit states. Unlike the earlier 11-dimensional sector count, this now includes the *actual gauge-invariant electric and magnetic operators* with exact weighted self-adjointness, integer-only Sturm spectral enclosures, and an independent signed-determinant cross-check.
+
+For `J_E=J_B=1`, the double-plaquette interacting excitation gap is **strictly between 10 and 12** lattice-energy units. The `J_E=J_B=0` control is correctly not certified as gapped. The finite 2×2 torus **1,393D Hamiltonian is still outstanding**, and neither finite model proves a 4D continuum Yang–Mills gap.
+
+```bash
+cargo +1.81.0 run --release --locked --offline -- double-spectrum 1 1 double-1-1
+cargo +1.81.0 run --release --locked --offline -- double-verify double-1-1
+```
+
 ## Clasy X3 integration: separate 81-mode finite-field kernel
 
 The pinned upstream [Clasy X3](https://github.com/JesseBrown1980/Clasy-repo-x-3-/tree/63cbf283b900457f8dfc59ac0e42d3efcbc9aedb) is available as `vendor/clasy_x3/` with an offline path-only Cargo dependency. The adapter in `src/clasy_portal.rs` reconstructs 3 canonical Host8 room stubs per requested virtual HTTP-0 kernel ID, runs the original 81-mode Clasy evolution, independently checks its finite-field drift invariant and transform roundtrip, and writes indexed HBP/HBI/SHA-chain receipts with a verifier that re-executes the trajectory.
