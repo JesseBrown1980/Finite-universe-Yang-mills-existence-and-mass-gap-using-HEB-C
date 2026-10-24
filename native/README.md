@@ -9,6 +9,12 @@ cargo +1.81.0 test --all-targets --offline
 cargo +1.81.0 clippy --all-targets --offline -- -D warnings
 cargo +1.81.0 build --release --offline
 ./target/release/hebc gap
+./target/release/hebc sector single
+./target/release/hebc sector double
+./target/release/hebc sector torus2
+./target/release/hebc spectrum 1 1
+./target/release/hebc run 3 512 0 stress-512
+./target/release/hebc verify stress-512
 ./target/release/hebc run 243 4 8192 evidence-native
 ./target/release/hebc verify evidence-native
 ./target/release/hebc cache-demo 243 4
@@ -27,5 +33,7 @@ On Windows use \`target\release\hebc.exe\` rather than \`./target/release/hebc\`
 **HTTP-0:** internal name for the address/kernel abstraction, not an HTTP wire-protocol version. The optional loopback adapter offers read-only \`/health\`, \`/gap\` and \`/qtrit/{ordinal}\` over ordinary HTTP/1.1. Nothing is displayed and native \`run\` needs no TCP connection.
 
 **Benchmarking:** simulation transitions are self-stepping counters. Performance uses the integer nanosecond duration of an independent wall-clock instrument for comparison; the timer does not determine state updates. A disk-free kernel is not thereby proven faster than an optimally cached native in-memory kernel. The physical 300 GB Host8 substrate is not accessed here.
+
+Stage 2 audited spectral and scale results: [report](../STAGE2_SCALING_SPECTRAL_AUDIT_2026-10-24.md). Interacting finite gauge Hamiltonian is currently solved only for the single square (3-dimensional Gauss-invariant basis); larger physical sector dimensions are enumerated but not diagonalized.
 
 See [implementation and research plan](../HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md).
