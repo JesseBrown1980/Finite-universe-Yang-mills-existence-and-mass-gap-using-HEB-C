@@ -172,6 +172,7 @@ jobs:
           sleep 1
           curl --fail --silent --show-error http://127.0.0.1:54881/health | grep 'health=OK'
           curl --fail --silent --show-error http://127.0.0.1:54881/gap | grep 'graph_gap=3'
+          curl --fail --silent --show-error http://127.0.0.1:54881/constellation | grep 'c1=UNVERIFIED'
           curl --fail --silent --show-error http://127.0.0.1:54881/clasy/3/1/9 | grep 'CLASY81|result=PASS'
           curl --fail --silent --show-error http://127.0.0.1:54881/double-spectrum/1/1 | grep 'positive=1'
           curl --fail --silent --show-error http://127.0.0.1:54881/torus2/1/1 | grep 'quantitative_gap_certified=0'
