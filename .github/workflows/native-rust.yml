@@ -45,6 +45,15 @@ jobs:
           cmp stress-128/run.hbp stress-128-replay/run.hbp
           cmp stress-128/index.hbi stress-128-replay/index.hbi
           cmp stress-128/run.anchor stress-128-replay/run.anchor
+      - name: Million Q-trit encoded lattice stress - 512x512
+        working-directory: native
+        run: |
+          target/release/hebc run 3 512 0 stress-512
+          target/release/hebc verify stress-512
+          target/release/hebc run 3 512 0 stress-512-replay
+          cmp stress-512/run.hbp stress-512-replay/run.hbp
+          cmp stress-512/index.hbi stress-512-replay/index.hbi
+          cmp stress-512/run.anchor stress-512-replay/run.anchor
       - name: Headless 243 steps / 23B virtual namespace / indexed evidence
         working-directory: native
         run: |
@@ -85,3 +94,4 @@ jobs:
             native/evidence-native/
             native/stress-64/
             native/stress-128/
+            native/stress-512/
