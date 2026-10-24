@@ -15,3 +15,4 @@ name = "hebc"
 path = "src/main.rs"
 
 [dependencies]
+continuum-clay-variation = { path = "vendor/clasy_x3" }
