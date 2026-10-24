@@ -1,3 +1,13 @@
+## Constellation original-source audit — no replacement engine
+
+**[Sourced integration and outstanding residual bindings](../STAGE2D_CONSTELLATION_SOURCE_AUDIT.md)** · **Pinned original ternary source:** `vendor/constellation_lattice/`.
+
+The existing Clasy Constellation oscillator and trit code is now compiled byte-for-byte into the native HEB-C build. The audit executes the *original* 3/27/243 sector transition barriers and all **45/405/3,645** local keys, checks six distinct role types per key, and creates an HBI/HBP/SHA/SH/HASH receipt for a **gauge-invariant but deliberately non-injective** 243-sector index of the 1,393 physical S3 torus orbit labels. This index does **not** evolve the Yang–Mills Hamiltonian.
+
+**C1, Z-instant and connecting Shadow Cat torus residuals remain source-unverified**, not automatically part of the physical computation. Do not interpret the success of these transition/address tests as their scientific verification.
+
+From `native/`: `cargo +1.81.0 run --release --offline --locked -- constellation-audit constellation-evidence`; then `cargo +1.81.0 run --release --offline --locked -- constellation-verify constellation-evidence`. Optional local endpoint: `GET /constellation` (plain text, no screen, no JavaScript).
+
 ## Stage 2C: periodic 2×2 torus now has an actual 1,393D sparse Hamiltonian
 
 **[Reproducible Stage 2C mathematical report](../STAGE2C_TORUS_1393_SPARSE_REPORT.md)** · **[Rust 1.81 implementation](src/torus2.rs)** · **[CI](.github/workflows/native-rust.yml)**
