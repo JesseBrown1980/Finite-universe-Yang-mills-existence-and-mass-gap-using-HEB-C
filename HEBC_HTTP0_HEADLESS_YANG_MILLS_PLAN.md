@@ -1,3 +1,7 @@
+## Implemented Stage 2B: interacting two-plaquette operator
+
+**Milestone passed:** [full 11D Hamiltonian and independent integer spectral audit](STAGE2B_DOUBLE_PLAQUETTE_EXACT_SPECTRUM.md). The original next hurdle (Gauss-projected electric and magnetic Hamiltonian on a shared seven-link two-plaquette geometry) is now implemented and tested. The next **open** finite-volume milestone is the 1,393-dimensional torus Hamiltonian and size/coupling spectral comparison. Clasy X3 remains a distinct 81-mode finite-field kernel and does not replace this gauge-Hamiltonian calculation.
+
 ## Clasy X3 as an exact-integer verification precedent — implementation added
 
 - Pinned source: [Clasy X3 commit `63cbf28`](https://github.com/JesseBrown1980/Clasy-repo-x-3-/tree/63cbf283b900457f8dfc59ac0e42d3efcbc9aedb), preserved under `native/vendor/clasy_x3/`; its finite-field law `Q(u_t)+t nu D81=Q(u_0) (mod 1,000,999)` is independently checked for 81 shell modes.
