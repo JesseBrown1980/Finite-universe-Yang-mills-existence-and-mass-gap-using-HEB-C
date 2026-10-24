@@ -34,6 +34,28 @@ jobs:
           target/release/hebc spectrum 1 1 | grep 'positive=1'
           target/release/hebc spectrum 3 5 | grep 'positive=1'
           target/release/hebc spectrum 0 0 | grep 'positive=0'
+      - name: Seven-link two-plaquette 11D interacting Hamiltonian - exact integer spectra
+        working-directory: native
+        run: |
+          for coupling in '0 0' '1 0' '0 1' '1 1' '3 5'; do
+            set -- $coupling
+            dir="double-$1-$2"
+            target/release/hebc double-spectrum "$1" "$2" "$dir"
+            target/release/hebc double-verify "$dir"
+            target/release/hebc double-spectrum "$1" "$2" "$dir-repeat"
+            cmp "$dir/run.hbp" "$dir-repeat/run.hbp"
+            cmp "$dir/index.hbi" "$dir-repeat/index.hbi"
+            cmp "$dir/run.anchor" "$dir-repeat/run.anchor"
+          done
+          grep 'positive=0' double-0-0/run.measure
+          grep 'positive=1' double-1-0/run.measure
+          grep 'positive=1' double-0-1/run.measure
+          grep 'positive=1' double-1-1/run.measure
+          grep 'positive=1' double-3-5/run.measure
+          cp -r double-1-1 double-corrupt
+          printf X | dd of=double-corrupt/run.hbp bs=1 seek=160 conv=notrunc status=none
+          if target/release/hebc double-verify double-corrupt; then exit 1; fi
+          echo 'PASS: two-plaquette 11D source regeneration and tamper rejection'
       - name: Multi-scale gauge-lattice stress - 64x64 and 128x128
         working-directory: native
         run: |
@@ -110,6 +132,7 @@ jobs:
           curl --fail --silent --show-error http://127.0.0.1:54881/health | grep 'health=OK'
           curl --fail --silent --show-error http://127.0.0.1:54881/gap | grep 'graph_gap=3'
           curl --fail --silent --show-error http://127.0.0.1:54881/clasy/3/1/9 | grep 'CLASY81|result=PASS'
+          curl --fail --silent --show-error http://127.0.0.1:54881/double-spectrum/1/1 | grep 'positive=1'
           curl --fail --silent --show-error http://127.0.0.1:54881/spectrum/1/1 | grep 'positive=1'
           curl --fail --silent --show-error http://127.0.0.1:54881/qtrit/243 | grep 'ordinal=243'
       - name: Store measured receipts from CI
@@ -121,6 +144,11 @@ jobs:
             native/stress-64/
             native/stress-128/
             native/stress-512/
+            native/double-0-0/
+            native/double-1-0/
+            native/double-0-1/
+            native/double-1-1/
+            native/double-3-5/
             native/clasy-single/
             native/clasy-batch-81/kernel-000/
             native/clasy-batch-81/kernel-080/
