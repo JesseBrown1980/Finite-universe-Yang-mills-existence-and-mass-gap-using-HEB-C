@@ -19,6 +19,7 @@ fn decode(mut id:usize)->[u8;7] {
     for v in &mut s { *v=(id%6) as u8; id/=6; }
     s
 }
+#[cfg(test)]
 fn encode(s:[u8;7])->usize {
     let mut id=0;
     let mut scale=1;
@@ -145,9 +146,9 @@ impl DoublePlaquette {
             return Err("integer spectrum couplings must be 0..10".into());
         }
         let mut h=[[0;DIM];DIM];
-        for i in 0..DIM {
-            for j in 0..DIM {
-                h[i][j]=je*self.electric[i][j]+
+        for (i,row) in h.iter_mut().enumerate() {
+            for (j,cell) in row.iter_mut().enumerate() {
+                *cell=je*self.electric[i][j]+
                     if i==j {jb*self.magnetic[i]} else {0};
             }
         }
@@ -158,11 +159,11 @@ impl DoublePlaquette {
 fn mul_matrix(a:&[[i128;DIM];DIM],b:&[[i128;DIM];DIM],n:usize)
     ->Result<[[i128;DIM];DIM],String>{
     let mut out=[[0i128;DIM];DIM];
-    for i in 0..n {
-        for k in 0..n {
-            for j in 0..n {
-                let p=a[i][k].checked_mul(b[k][j]).ok_or("matrix product overflow")?;
-                out[i][j]=out[i][j].checked_add(p).ok_or("matrix sum overflow")?;
+    for (i,row) in out.iter_mut().enumerate().take(n) {
+        for (k,brow) in b.iter().enumerate().take(n) {
+            for (j,cell) in row.iter_mut().enumerate().take(n) {
+                let p=a[i][k].checked_mul(brow[j]).ok_or("matrix product overflow")?;
+                *cell=cell.checked_add(p).ok_or("matrix sum overflow")?;
             }
         }
     }
@@ -208,7 +209,7 @@ fn principal_sign(poly:&[i128],odd:i128)->Result<i8,String> {
             .and_then(|v|c.checked_mul(factor).and_then(|p|v.checked_add(p)))
             .ok_or("rational polynomial evaluation overflow")?;
     }
-    if poly.len()%2==0 {value=-value;}
+    if poly.len()%2==0 {value = -value;}
     if value==0 {return Err("unexpected rational root at half-integer".into());}
     Ok(if value<0 {-1}else{1})
 }
@@ -281,8 +282,8 @@ pub fn certificate(je:i64,jb:i64)->Result<Certificate,String>{
         bytes.push(key);
         bytes.extend_from_slice(&weight.to_le_bytes());
     }
-    for i in 0..DIM {
-        for j in 0..DIM {bytes.extend_from_slice(&mat[i][j].to_le_bytes());}
+    for (i,row) in mat.iter().enumerate() {
+        for val in row {bytes.extend_from_slice(&val.to_le_bytes());}
         bytes.extend_from_slice(&model.magnetic[i].to_le_bytes());
     }
     let source_sha=hex(&sha256(&bytes));
