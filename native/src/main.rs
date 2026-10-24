@@ -26,9 +26,9 @@ fn run(args: &[String]) -> Result<(), String> {
     let side: usize = argument(args, 3, 4)?;
     let probes: u64 = argument(args, 4, 8_192)?;
     let directory = args.get(5).map(String::as_str).unwrap_or("evidence-native");
-    if steps == 0 || steps > 100_000 || !(2..=128).contains(&side) ||
+    if steps == 0 || steps > 100_000 || !(2..=512).contains(&side) ||
        probes > 1_000_000 || steps.checked_mul(probes).is_none() {
-        return Err("bounds: steps=1..100000 side=2..128 probes=0..1000000".into());
+        return Err("bounds: steps=1..100000 side=2..512 probes=0..1000000".into());
     }
     if !gap_certificate() { return Err("finite graph gap certificate failed".into()); }
     let mut lattice = Lattice::new(side, 0x4845_4243_5353_3331);
