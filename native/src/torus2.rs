@@ -271,7 +271,7 @@ impl Torus2 {
             nnz_electric:self.nnz_electric(),
             connected:self.connected(),
             qualitative_gap_positive:positive,
-            quantitative_gap_certified:jb==0,
+            quantitative_gap_certified:je==0 || jb==0,
         })
     }
 }
@@ -306,7 +306,9 @@ pub fn certificate(je:i64,jb:i64)->Result<TorusCertificate,String>{
     }
     let operator_sha=hex(&sha256(&raw));
     let sh=&operator_sha[..16];
-    let gap_description=if jb==0 {
+    let gap_description=if je==0 {
+        "gap_exact=0".to_owned()
+    } else if jb==0 {
         format!("gap_exact={}",d.electric_only_exact_gap)
     } else {
         "gap_exact=NOT_CERTIFIED".to_owned()
@@ -438,7 +440,7 @@ mod tests {
             let d=m.diagnostics(je,jb).unwrap();
             assert!(d.connected);
             assert_eq!(d.qualitative_gap_positive,je>0);
-            assert_eq!(d.quantitative_gap_certified,jb==0);
+            assert_eq!(d.quantitative_gap_certified,je==0 || jb==0);
             assert_eq!(d.electric_only_exact_gap,6*je);
         }
     }
@@ -457,6 +459,7 @@ mod tests {
         tampered_index[20]=b'X';
         assert!(verify_certificate(&good.hbp,&tampered_index,&good.anchor).is_err());
         assert!(certificate(0,1).unwrap().measure.contains("|positive_qualitative=0|"));
+        assert!(certificate(0,1).unwrap().measure.contains("|gap_exact=0|"));
         assert!(certificate(1,0).unwrap().measure.contains("|gap_exact=6|"));
     }
     #[test]
