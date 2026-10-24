@@ -170,6 +170,64 @@ fn sector_cmd(args: &[String]) -> Result<(), String> {
     Ok(())
 }
 
+
+/// Clasy X3 finite shell evolution on a single virtual HTTP-0 address, with
+/// full HBI/HBP/SHA/SH/HASH record and an independently recalculated replay.
+fn clasy_run(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::clasy_portal::{calculate,save,verify};
+    let ordinal:u64=argument(args,2,0)?;
+    let nu:u64=argument(args,3,1)?;
+    let steps:u64=argument(args,4,243)?;
+    let directory=args.get(5).map(String::as_str).unwrap_or("clasy-evidence");
+    let record=calculate(ordinal,nu,steps)?;
+    let verified=verify(&record.hbp,&record.hbi,&record.anchor)?;
+    save(Path::new(directory),&record)?;
+    print!("{}",record.report);
+    println!("CLASYVERIFY|records={verified}|complete_reexecution=PASS|dir={directory}|json=0");
+    Ok(())
+}
+
+fn clasy_verify(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::clasy_portal::load_and_verify;
+    let directory=args.get(2).map(String::as_str).unwrap_or("clasy-evidence");
+    let records=load_and_verify(Path::new(directory))?;
+    println!("CLASYVERIFY|result=PASS|records={records}|dir={directory}|json=0");
+    Ok(())
+}
+
+/// A bounded collection of *actual* independent 81-mode computations.
+/// The virtual namespace does not allocate inactive kernels.
+fn clasy_batch(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::clasy_portal::{calculate,save,verify};
+    use continuum_clay_variation::P;
+    let count:u64=argument(args,2,81)?;
+    let steps:u64=argument(args,3,243)?;
+    let directory=args.get(4).map(String::as_str).unwrap_or("clasy-batch");
+    if count==0 || count>243 || steps==0 || steps>243 {
+        return Err("batch range: count=1..243 steps=1..243".into());
+    }
+    let root=Path::new(directory);
+    fs::create_dir_all(root).map_err(|e|e.to_string())?;
+    let start=Instant::now();
+    let mut digest_input=Vec::new();
+    for ordinal in 0..count {
+        let nu=[0,1,P-1,P,P+1,u64::MAX][(ordinal%6) as usize];
+        let record=calculate(ordinal,nu,steps)?;
+        verify(&record.hbp,&record.hbi,&record.anchor)?;
+        save(&root.join(format!("kernel-{ordinal:03}")),&record)?;
+        digest_input.extend_from_slice(&sha256(record.anchor.as_bytes()));
+    }
+    let elapsed_ns=start.elapsed().as_nanos();
+    let bundle_sha=hex(&sha256(&digest_input));
+    let report=format!(
+        "CLASYBATCH|result=PASS|kernels={count}|ticks_per_kernel={steps}|actual_steps={}|modes_per_kernel=81|virtual_namespace={VIRTUAL_KERNELS}|bundle_sha={bundle_sha}|elapsed_ns={elapsed_ns}|json=0\n",
+        count*steps
+    );
+    fs::write(root.join("batch.measure"),&report).map_err(|e|e.to_string())?;
+    print!("{report}");
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let result = match args.get(1).map(String::as_str) {
@@ -191,13 +249,16 @@ fn main() {
             Err(e) => Err(e),
         },
         Some("cache-demo") => cache_demo(&args),
+        Some("clasy-run") => clasy_run(&args),
+        Some("clasy-verify") => clasy_verify(&args),
+        Some("clasy-batch") => clasy_batch(&args),
         Some("spectrum") => spectrum_cmd(&args),
         Some("sector") => sector_cmd(&args),
         Some("serve") => match argument(&args, 2, 5088u16) {
             Ok(port) => service(port),
             Err(e) => Err(e),
         },
-        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | cache-demo [steps=243] [side=4] | address [ordinal] | serve [port=5088]".into()),
+        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | cache-demo [steps=243] [side=4] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
     };
     if let Err(e) = result {
         eprintln!("FAIL|reason={e}|json=0");
