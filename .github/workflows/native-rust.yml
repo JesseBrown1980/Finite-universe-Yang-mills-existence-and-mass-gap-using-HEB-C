@@ -23,6 +23,28 @@ jobs:
       - name: Finite group spectral certificate
         working-directory: native
         run: target/release/hebc gap
+      - name: Exact Gauss-sector counts and interacting spectrum certification
+        working-directory: native
+        run: |
+          target/release/hebc sector single | grep 'physical_hilbert_dim=3'
+          target/release/hebc sector double | grep 'physical_hilbert_dim=11'
+          target/release/hebc sector torus2 | grep 'physical_hilbert_dim=1393'
+          target/release/hebc spectrum 1 0 | grep 'positive=1'
+          target/release/hebc spectrum 0 1 | grep 'positive=1'
+          target/release/hebc spectrum 1 1 | grep 'positive=1'
+          target/release/hebc spectrum 3 5 | grep 'positive=1'
+          target/release/hebc spectrum 0 0 | grep 'positive=0'
+      - name: Multi-scale gauge-lattice stress - 64x64 and 128x128
+        working-directory: native
+        run: |
+          target/release/hebc run 81 64 4096 stress-64
+          target/release/hebc verify stress-64
+          target/release/hebc run 9 128 0 stress-128
+          target/release/hebc verify stress-128
+          target/release/hebc run 9 128 0 stress-128-replay
+          cmp stress-128/run.hbp stress-128-replay/run.hbp
+          cmp stress-128/index.hbi stress-128-replay/index.hbi
+          cmp stress-128/run.anchor stress-128-replay/run.anchor
       - name: Headless 243 steps / 23B virtual namespace / indexed evidence
         working-directory: native
         run: |
@@ -59,4 +81,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: hecb-rust-native-243-receipts
-          path: native/evidence-native/
+          path: |
+            native/evidence-native/
+            native/stress-64/
+            native/stress-128/
