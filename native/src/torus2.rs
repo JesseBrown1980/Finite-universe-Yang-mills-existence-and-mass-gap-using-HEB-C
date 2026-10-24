@@ -175,10 +175,12 @@ impl Torus2 {
                 let term=i128::from(v).checked_mul(f[j]).ok_or("electric multiplication overflow")?;
                 e=e.checked_add(term).ok_or("electric addition overflow")?;
             }
-            y[i]=i128::from(je).checked_mul(e)
-                .and_then(|u|i128::from(jb).checked_mul(i128::from(self.magnetic[i]))
-                    .and_then(|v|v.checked_mul(f[i]))
-                    .and_then(|v|u.checked_add(v))))
+            let electric=i128::from(je).checked_mul(e)
+                .ok_or("electric coupling multiplication overflow")?;
+            let magnetic=i128::from(jb).checked_mul(i128::from(self.magnetic[i]))
+                .and_then(|v|v.checked_mul(f[i]))
+                .ok_or("magnetic coupling multiplication overflow")?;
+            y[i]=electric.checked_add(magnetic)
                 .ok_or("Hamiltonian application overflow")?;
         }
         Ok(y)
