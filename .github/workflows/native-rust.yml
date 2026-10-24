@@ -13,13 +13,13 @@ jobs:
         run: rustup toolchain install 1.81.0 --profile minimal --component clippy --component rustfmt
       - name: Independent Rust unit tests (no network dependencies)
         working-directory: native
-        run: cargo +1.81.0 test --all-targets --offline
+        run: cargo +1.81.0 test --all-targets --offline --locked
       - name: Zero-warning Clippy
         working-directory: native
-        run: cargo +1.81.0 clippy --all-targets --offline -- -D warnings
+        run: cargo +1.81.0 clippy --all-targets --offline --locked -- -D warnings
       - name: Native optimized binary
         working-directory: native
-        run: cargo +1.81.0 build --release --offline
+        run: cargo +1.81.0 build --release --offline --locked
       - name: Finite group spectral certificate
         working-directory: native
         run: target/release/hebc gap
@@ -54,6 +54,26 @@ jobs:
           cmp stress-512/run.hbp stress-512-replay/run.hbp
           cmp stress-512/index.hbi stress-512-replay/index.hbi
           cmp stress-512/run.anchor stress-512-replay/run.anchor
+      - name: Pinned Clasy X3 81-mode HTTP-0 and HBP HBI SHA chain
+        working-directory: native
+        run: |
+          target/release/hebc clasy-run 0 1 243 clasy-single
+          target/release/hebc clasy-verify clasy-single
+          target/release/hebc clasy-run 0 1 243 clasy-repeat
+          cmp clasy-single/run.hbp clasy-repeat/run.hbp
+          cmp clasy-single/index.hbi clasy-repeat/index.hbi
+          cmp clasy-single/run.anchor clasy-repeat/run.anchor
+          target/release/hebc clasy-batch 81 243 clasy-batch-81
+          test "$(find clasy-batch-81 -name run.anchor | wc -l)" -eq 81
+          target/release/hebc clasy-verify clasy-batch-81/kernel-000
+          target/release/hebc clasy-verify clasy-batch-81/kernel-080
+      - name: Clasy receipt corruption must fail
+        working-directory: native
+        run: |
+          cp -r clasy-single clasy-corrupt
+          printf X | dd of=clasy-corrupt/run.hbp bs=1 seek=180 conv=notrunc status=none
+          if target/release/hebc clasy-verify clasy-corrupt; then exit 1; fi
+          echo "PASS: Clasy chain rejects corrupted evidence"
       - name: Headless 243 steps / 23B virtual namespace / indexed evidence
         working-directory: native
         run: |
@@ -85,6 +105,8 @@ jobs:
           sleep 1
           curl --fail --silent --show-error http://127.0.0.1:54881/health | grep 'health=OK'
           curl --fail --silent --show-error http://127.0.0.1:54881/gap | grep 'graph_gap=3'
+          curl --fail --silent --show-error http://127.0.0.1:54881/clasy/3/1/9 | grep 'CLASY81|result=PASS'
+          curl --fail --silent --show-error http://127.0.0.1:54881/spectrum/1/1 | grep 'positive=1'
           curl --fail --silent --show-error http://127.0.0.1:54881/qtrit/243 | grep 'ordinal=243'
       - name: Store measured receipts from CI
         uses: actions/upload-artifact@v4
@@ -95,3 +117,7 @@ jobs:
             native/stress-64/
             native/stress-128/
             native/stress-512/
+            native/clasy-single/
+            native/clasy-batch-81/kernel-000/
+            native/clasy-batch-81/kernel-080/
+            native/clasy-batch-81/batch.measure
