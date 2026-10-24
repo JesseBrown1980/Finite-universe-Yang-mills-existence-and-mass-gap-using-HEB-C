@@ -138,6 +138,23 @@ jobs:
           printf X | dd of=shadow-residual-corrupt/run.hbp bs=1 seek=100 conv=notrunc status=none
           if target/release/hebc shadow-residual-verify shadow-residual-corrupt; then exit 1; fi
           echo 'PASS: exact flat C3 winding, gauge equivariance, Hamiltonian obstruction and honest limits'
+      - name: Original Law70 2/3 reality and Law71 -1/3 mediated three torus Rime gears
+        working-directory: native
+        run: |
+          target/release/hebc rime-gear-audit rime-gear-evidence
+          target/release/hebc rime-gear-verify rime-gear-evidence
+          target/release/hebc rime-gear-audit rime-gear-repeat
+          cmp rime-gear-evidence/run.hbp rime-gear-repeat/run.hbp
+          cmp rime-gear-evidence/index.hbi rime-gear-repeat/index.hbi
+          cmp rime-gear-evidence/run.anchor rime-gear-repeat/run.anchor
+          grep 'retained=2/3|passed=1/3' rime-gear-evidence/run.measure
+          grep 'signed=-1/3' rime-gear-evidence/run.measure
+          grep 'remote_auto_update=0' rime-gear-evidence/run.measure
+          grep 'ftl_proven=0' rime-gear-evidence/run.measure
+          cp -r rime-gear-evidence rime-gear-corrupt
+          printf X | dd of=rime-gear-corrupt/run.hbp bs=1 seek=90 conv=notrunc status=none
+          if target/release/hebc rime-gear-verify rime-gear-corrupt; then exit 1; fi
+          echo 'PASS: exact thirds and mediated Rime, fail-closed causal provenance'
       - name: Pinned Clasy X3 81-mode HTTP-0 and HBP HBI SHA chain
         working-directory: native
         run: |
@@ -195,6 +212,7 @@ jobs:
           curl --fail --silent --show-error http://127.0.0.1:54881/gap | grep 'graph_gap=3'
           curl --fail --silent --show-error http://127.0.0.1:54881/constellation | grep 'c1=UNVERIFIED'
           curl --fail --silent --show-error http://127.0.0.1:54881/shadow-residual | grep 'full_H_symmetry=NOT_ESTABLISHED'
+          curl --fail --silent --show-error http://127.0.0.1:54881/rime-gear | grep 'ftl_proven=0'
           curl --fail --silent --show-error http://127.0.0.1:54881/clasy/3/1/9 | grep 'CLASY81|result=PASS'
           curl --fail --silent --show-error http://127.0.0.1:54881/double-spectrum/1/1 | grep 'positive=1'
           curl --fail --silent --show-error http://127.0.0.1:54881/torus2/1/1 | grep 'quantitative_gap_certified=0'
@@ -222,6 +240,7 @@ jobs:
             native/torus2-3-5/
             native/constellation-evidence/
             native/shadow-residual-evidence/
+            native/rime-gear-evidence/
             native/clasy-single/
             native/clasy-batch-81/kernel-000/
             native/clasy-batch-81/kernel-080/
