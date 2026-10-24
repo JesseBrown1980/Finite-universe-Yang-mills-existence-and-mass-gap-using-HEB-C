@@ -259,9 +259,109 @@ pub fn certify_gap(model:&DoublePlaquette,je:i64,jb:i64)->Result<GapInterval,Str
     Ok(GapInterval {ground,first,gap,denom:2,positive:gap[0]>0})
 }
 
+
+/// This is a *static spectral calculation*, not a fictitious 243-tick evolution.
+/// The one-record HBP/HBI receipt contains the complete matrix-derived
+/// certificate, and verification recomputes the original orbit projection.
+#[derive(Debug,Clone)]
+pub struct Certificate {
+    pub hbp:Vec<u8>,
+    pub hbi:Vec<u8>,
+    pub anchor:String,
+    pub report:String,
+}
+pub fn certificate(je:i64,jb:i64)->Result<Certificate,String>{
+    use crate::{hex,sha256};
+    let model=DoublePlaquette::build()?;
+    let mat=model.matrix(je,jb)?;
+    let gap=certify_gap(&model,je,jb)?;
+    let mut bytes=Vec::new();
+    bytes.extend_from_slice(b"HEBC-S3-DOUBLE7-11D-V1");
+    for (&key,&weight) in model.keys.iter().zip(&model.weights) {
+        bytes.push(key);
+        bytes.extend_from_slice(&weight.to_le_bytes());
+    }
+    for i in 0..DIM {
+        for j in 0..DIM {bytes.extend_from_slice(&mat[i][j].to_le_bytes());}
+        bytes.extend_from_slice(&model.magnetic[i].to_le_bytes());
+    }
+    let source_sha=hex(&sha256(&bytes));
+    let sh=&source_sha[..16];
+    let genesis=[0u8;32];
+    let body=format!(
+        "HBP|schema=HEBC-S3-DOUBLE7-11D-V1|kind=interacting_static_spectrum|vertices=6|links=7|physical_dim=11|raw_states=279936|JE={je}|JB={jb}|matrix_sha={source_sha}|sh={sh}|denom={}|E0_low={}|E0_high={}|E1_low={}|E1_high={}|gap_low={}|gap_high={}|positive={}|prev={}",
+        gap.denom,gap.ground[0],gap.ground[1],gap.first[0],gap.first[1],
+        gap.gap[0],gap.gap[1],u8::from(gap.positive),hex(&genesis)
+    );
+    let rec=sha256(body.as_bytes());
+    let mut link=Vec::with_capacity(64);
+    link.extend_from_slice(&genesis);
+    link.extend_from_slice(&rec);
+    let chain=sha256(&link);
+    let row=format!("{body}|record_sha={}|chain={}|json=0\n",hex(&rec),hex(&chain));
+    let index=format!(
+        "HBI|schema=HEBC-S3-DOUBLE7-11D-V1|record=1|offset=0|len={}|sh={sh}|row_sha={}|chain={}|json=0\n",
+        row.len(),hex(&sha256(row.as_bytes())),hex(&chain)
+    );
+    let anchor=format!(
+        "ANCHOR|schema=HEBC-S3-DOUBLE7-11D-V1|records=1|hbp_sha={}|hbi_sha={}|chain={}|json=0\n",
+        hex(&sha256(row.as_bytes())),hex(&sha256(index.as_bytes())),hex(&chain)
+    );
+    let report=format!(
+        "DOUBLE_GAP|model=S3_two_plaquette|vertices=6|links=7|raw_states=279936|gauss_dim=11|JE={je}|JB={jb}|E0=[{},{}]/2|E1=[{},{}]/2|gap=[{},{}]/2|positive={}|matrix_sha={source_sha}|json=0\n",
+        gap.ground[0],gap.ground[1],gap.first[0],gap.first[1],
+        gap.gap[0],gap.gap[1],u8::from(gap.positive)
+    );
+    Ok(Certificate{hbp:row.into_bytes(),hbi:index.into_bytes(),anchor,report})
+}
+fn read_field<'a>(text:&'a str,key:&str)->Result<&'a str,String>{
+    let mut found=None;
+    for item in text.trim_end_matches('\n').split('|').skip(1){
+        let (k,v)=item.split_once('=').ok_or("broken field")?;
+        if k==key && found.replace(v).is_some(){return Err("duplicate field".into());}
+    }
+    found.ok_or_else(||format!("missing {key}"))
+}
+pub fn verify_certificate(hbp:&[u8],hbi:&[u8],anchor:&str)->Result<(),String>{
+    let row=std::str::from_utf8(hbp).map_err(|_|"HBP utf8")?;
+    let je=read_field(row,"JE")?.parse::<i64>().map_err(|_|"JE integer")?;
+    let jb=read_field(row,"JB")?.parse::<i64>().map_err(|_|"JB integer")?;
+    let fresh=certificate(je,jb)?;
+    if fresh.hbp!=hbp || fresh.hbi!=hbi || fresh.anchor!=anchor {
+        return Err("exact matrix reconstruction / HBI / HBP / HASH mismatch".into());
+    }
+    Ok(())
+}
+pub fn save_certificate(dir:&std::path::Path,certificate:&Certificate)->Result<(),String>{
+    std::fs::create_dir_all(dir).map_err(|e|e.to_string())?;
+    std::fs::write(dir.join("run.hbp"),&certificate.hbp).map_err(|e|e.to_string())?;
+    std::fs::write(dir.join("index.hbi"),&certificate.hbi).map_err(|e|e.to_string())?;
+    std::fs::write(dir.join("run.anchor"),&certificate.anchor).map_err(|e|e.to_string())?;
+    std::fs::write(dir.join("run.measure"),&certificate.report).map_err(|e|e.to_string())?;
+    Ok(())
+}
+pub fn verify_certificate_dir(dir:&std::path::Path)->Result<(),String>{
+    let hbp=std::fs::read(dir.join("run.hbp")).map_err(|e|e.to_string())?;
+    let hbi=std::fs::read(dir.join("index.hbi")).map_err(|e|e.to_string())?;
+    let anchor=std::fs::read_to_string(dir.join("run.anchor")).map_err(|e|e.to_string())?;
+    verify_certificate(&hbp,&hbi,&anchor)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn double_spectrum_certificate_integrity_and_full_reexecution(){
+        let r=certificate(1,1).unwrap();
+        verify_certificate(&r.hbp,&r.hbi,&r.anchor).unwrap();
+        let mut tampered=r.hbp.clone();
+        let first=tampered.iter().position(|v|*v==b'E').unwrap();
+        tampered[first]=b'X';
+        assert!(verify_certificate(&tampered,&r.hbi,&r.anchor).is_err());
+        let r0=certificate(0,0).unwrap();
+        assert!(r0.report.contains("|positive=0|"));
+    }
     #[test]
     fn full_gauss_projection_and_integer_hermiticity(){
         let m=DoublePlaquette::build().unwrap();
