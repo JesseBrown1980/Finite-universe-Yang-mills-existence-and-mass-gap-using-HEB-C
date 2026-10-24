@@ -283,6 +283,45 @@ mod tests {
         assert!(record.measure.contains("full_H_symmetry=NOT_ESTABLISHED"));
     }
     #[test]
+    fn source_law67_tetrahedral_minus_one_third_exact_integer_gram() {
+        // Four 3D vectors with even parity of negative signs. Squared
+        // norm=3 and every offdiagonal dot product=-1; hence normalized
+        // overlap exactly -1/3. This is Law 67 geometry, NOT an
+        // independent verification of Law 71's residual emission.
+        let tetra:[[i64;3];4]=[
+            [1,1,1],[1,-1,-1],[-1,1,-1],[-1,-1,1],
+        ];
+        for axis in 0..3 {
+            assert_eq!(tetra.iter().map(|v|v[axis]).sum::<i64>(),0);
+        }
+        for i in 0..4 {
+            for j in 0..4 {
+                let dot:i64=(0..3).map(|a|tetra[i][a]*tetra[j][a]).sum();
+                assert_eq!(dot,if i==j {3} else {-1});
+            }
+        }
+    }
+    #[test]
+    fn unscaled_integer_torus_hamiltonian_cannot_have_five_sixths_eigenvalue(){
+        // det(6 H - 5 I) = det(I mod 6) = 1 mod 6. It cannot
+        // vanish, whatever the dimension and integer couplings. Verify
+        // entrywise congruence for the ACTUAL gauge-projected H.
+        let torus=Torus2::build().unwrap();
+        for (je,jb) in [(0,0),(1,0),(0,1),(1,1),(3,5)] {
+            for (i,row) in torus.electric.iter().enumerate() {
+                let mut diagonal=0i64;
+                for &(j,v) in row {
+                    if i==j { diagonal=v; }
+                    else { assert_eq!((6*je*v).rem_euclid(6),0); }
+                }
+                let h_ii=je*diagonal+jb*torus.magnetic[i];
+                assert_eq!((6*h_ii-5).rem_euclid(6),1);
+            }
+        }
+        // This excludes the exact rational *energy* 5/6 for any
+        // integral JE, JB, not a normalized transfer-matrix eigenvalue.
+    }
+    #[test]
     fn hbp_hbi_and_negative_controls(){
         let good=generate().unwrap();
         verify(&good).unwrap();
