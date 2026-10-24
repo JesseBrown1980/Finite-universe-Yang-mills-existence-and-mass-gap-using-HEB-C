@@ -12,7 +12,6 @@ pub const DIM: usize = 1_393;
 pub const TREE_STATE_COUNT: usize = 7_776;
 pub const RAW_STATE_COUNT: usize = 1_679_616;
 pub const GAUGE_TREE_MULTIPLICITY: usize = 216;
-const TREE: [usize;3] = [0,1,4];
 const FREE: [usize;5] = [2,3,5,6,7];
 const TRANS: [u8;3] = [1,2,5];
 const EDGES: [(usize,usize);8] = [
