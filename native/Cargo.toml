@@ -1,0 +1,17 @@
+[package]
+name = "hebc-finite-yang-mills"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.81"
+publish = false
+description = "Headless integer-only non-Abelian finite-gauge HEB-C HTTP-0 research kernel"
+
+[lib]
+name = "hebc_finite_yang_mills"
+path = "src/lib.rs"
+
+[[bin]]
+name = "hebc"
+path = "src/main.rs"
+
+[dependencies]
