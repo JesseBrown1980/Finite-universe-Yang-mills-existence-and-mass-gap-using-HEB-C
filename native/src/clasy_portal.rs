@@ -60,6 +60,7 @@ pub fn calculate(ordinal: u64, nu: u64, steps: u64) -> Result<Run,String> {
     let virtual_id = address(ordinal);
     let (room_bytes,base) = room_input(virtual_id)?;
     let source_sha = hex(&sha256(&room_bytes));
+    let sh = &source_sha[..16];
     let room = OmegaOmnibitRoom::from_bytes(&room_bytes);
     let mut model = ShellModel81::from_room(room,nu,333_360);
     let initial = model.u;
@@ -80,7 +81,7 @@ pub fn calculate(ordinal: u64, nu: u64, steps: u64) -> Result<Run,String> {
         }
         let state_sha = hex(&sha256(&state_bytes(&model.u)));
         let body = format!(
-            "HBP|schema=hebc.clasy81.v1|kernel={MODEL}|source_commit={CLASY_UPSTREAM}|ordinal={ordinal}|virtual_id={virtual_id}|room_base={base}|source_sha={source_sha}|nu={nu}|tick={tick}|q0={q0}|qnow={}|drift={DRIFT81}|invariant={q0}|state_sha={state_sha}|prev={}",
+            "HBP|schema=hebc.clasy81.v1|kernel={MODEL}|source_commit={CLASY_UPSTREAM}|ordinal={ordinal}|virtual_id={virtual_id}|room_base={base}|source_sha={source_sha}|sh={sh}|nu={nu}|tick={tick}|q0={q0}|qnow={}|drift={DRIFT81}|invariant={q0}|state_sha={state_sha}|prev={}",
             shell_total81(&model.u), hex(&chain)
         );
         let rec_sha = sha256(body.as_bytes());
@@ -91,7 +92,7 @@ pub fn calculate(ordinal: u64, nu: u64, steps: u64) -> Result<Run,String> {
         let row = format!("{body}|record_sha={}|chain={}|json=0\n",hex(&rec_sha),hex(&chain));
         let off = hbp.len();
         let index = format!(
-            "HBI|schema=hebc.clasy81.v1|tick={tick}|offset={off}|len={}|row_sha={}|chain={}|json=0\n",
+            "HBI|schema=hebc.clasy81.v1|tick={tick}|sh={sh}|offset={off}|len={}|row_sha={}|chain={}|json=0\n",
             row.len(), hex(&sha256(row.as_bytes())),hex(&chain)
         );
         hbp.extend_from_slice(row.as_bytes());
@@ -162,6 +163,10 @@ pub fn verify(hbp: &[u8],hbi: &[u8],anchor: &str) -> Result<usize,String> {
         let vid=field(r,"virtual_id")?.parse::<u64>().map_err(|_|"virtual_id")?;
         let nu=field(r,"nu")?.parse::<u64>().map_err(|_|"nu")?;
         let source_sha=field(r,"source_sha")?.to_string();
+        if source_sha.len()!=64 || field(r,"sh")? != &source_sha[..16] ||
+           field(idx,"sh")? != &source_sha[..16] {
+            return Err("SHA-to-SH locator disagreement".into());
+        }
         if vid != address(ordinal) ||
            field(r,"room_base")? != (vid%(TOTAL_ROOMS/3)*3).to_string() ||
            field(r,"drift")? != DRIFT81.to_string() ||
