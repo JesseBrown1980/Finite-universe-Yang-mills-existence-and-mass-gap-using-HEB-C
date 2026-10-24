@@ -114,6 +114,19 @@ fn service(port: u16) -> Result<(), String> {
                     _ => ("400 Bad Request","HTTP0|error=invalid_clasy_parameters|json=0\n".to_owned()),
                 }
             }
+        } else if let Some(request) = path.strip_prefix("/double-spectrum/") {
+            let parts:Vec<&str>=request.split('/').collect();
+            if parts.len()!=2 {
+                ("400 Bad Request","HTTP0|error=double_requires_couplings|json=0\n".to_owned())
+            } else {
+                match (parts[0].parse::<i64>(),parts[1].parse::<i64>()) {
+                    (Ok(je),Ok(jb)) => match hebc_finite_yang_mills::double_plaquette::certificate(je,jb) {
+                        Ok(r) => ("200 OK",r.report),
+                        Err(_) => ("400 Bad Request","HTTP0|error=invalid_double_couplings|json=0\n".to_owned()),
+                    },
+                    _ => ("400 Bad Request","HTTP0|error=invalid_double_couplings|json=0\n".to_owned()),
+                }
+            }
         } else if let Some(request) = path.strip_prefix("/spectrum/") {
             let parts:Vec<&str>=request.split('/').collect();
             if parts.len()!=2 {
@@ -269,6 +282,30 @@ fn clasy_batch(args:&[String])->Result<(),String>{
     Ok(())
 }
 
+
+/// True interacting S3 two-plaquette spectrum, fully Gauss projected from
+/// 6^7 raw configurations. This is a static Hamiltonian spectral certificate.
+fn double_spectrum(args:&[String])->Result<(),String> {
+    use hebc_finite_yang_mills::double_plaquette::{
+        certificate,save_certificate,verify_certificate,
+    };
+    let je:i64=argument(args,2,1)?;
+    let jb:i64=argument(args,3,1)?;
+    let directory=args.get(4).map(String::as_str).unwrap_or("double-evidence");
+    let data=certificate(je,jb)?;
+    verify_certificate(&data.hbp,&data.hbi,&data.anchor)?;
+    save_certificate(Path::new(directory),&data)?;
+    print!("{}",data.report);
+    Ok(())
+}
+fn double_verify(args:&[String])->Result<(),String> {
+    use hebc_finite_yang_mills::double_plaquette::verify_certificate_dir;
+    let directory=args.get(2).map(String::as_str).unwrap_or("double-evidence");
+    verify_certificate_dir(Path::new(directory))?;
+    println!("DOUBLEVERIFY|result=PASS|regenerated=1|dir={directory}|json=0");
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let result = match args.get(1).map(String::as_str) {
@@ -293,13 +330,15 @@ fn main() {
         Some("clasy-run") => clasy_run(&args),
         Some("clasy-verify") => clasy_verify(&args),
         Some("clasy-batch") => clasy_batch(&args),
+        Some("double-spectrum") => double_spectrum(&args),
+        Some("double-verify") => double_verify(&args),
         Some("spectrum") => spectrum_cmd(&args),
         Some("sector") => sector_cmd(&args),
         Some("serve") => match argument(&args, 2, 5088u16) {
             Ok(port) => service(port),
             Err(e) => Err(e),
         },
-        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | cache-demo [steps=243] [side=4] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
+        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | double-spectrum [JE=1] [JB=1] [dir] | double-verify [dir] | cache-demo [steps=243] [side=4] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
     };
     if let Err(e) = result {
         eprintln!("FAIL|reason={e}|json=0");
