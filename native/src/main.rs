@@ -341,6 +341,25 @@ fn torus2_verify(args:&[String])->Result<(),String>{
     Ok(())
 }
 
+
+fn constellation_audit(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::constellation_gate::{generate,save,verify};
+    let directory=args.get(2).map(String::as_str).unwrap_or("constellation-evidence");
+    let audit=generate()?;
+    verify(&audit)?;
+    save(Path::new(directory),&audit)?;
+    print!("{}",audit.measure);
+    Ok(())
+}
+
+fn constellation_verify(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::constellation_gate::verify_directory;
+    let directory=args.get(2).map(String::as_str).unwrap_or("constellation-evidence");
+    verify_directory(Path::new(directory))?;
+    println!("CONSTELLATIONVERIFY|result=PASS|scope=SOURCE_AND_INDEX_ONLY|dir={directory}|json=0");
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let result = match args.get(1).map(String::as_str) {
@@ -369,13 +388,15 @@ fn main() {
         Some("double-verify") => double_verify(&args),
         Some("torus2-spectrum") => torus2_spectrum(&args),
         Some("torus2-verify") => torus2_verify(&args),
+        Some("constellation-audit") => constellation_audit(&args),
+        Some("constellation-verify") => constellation_verify(&args),
         Some("spectrum") => spectrum_cmd(&args),
         Some("sector") => sector_cmd(&args),
         Some("serve") => match argument(&args, 2, 5088u16) {
             Ok(port) => service(port),
             Err(e) => Err(e),
         },
-        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | double-spectrum [JE=1] [JB=1] [dir] | double-verify [dir] | torus2-spectrum [JE=1] [JB=1] [dir] | torus2-verify [dir] | cache-demo [steps=243] [side=4] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
+        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | double-spectrum [JE=1] [JB=1] [dir] | double-verify [dir] | torus2-spectrum [JE=1] [JB=1] [dir] | torus2-verify [dir] | cache-demo [steps=243] [side=4] | constellation-audit [dir] | constellation-verify [dir] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
     };
     if let Err(e) = result {
         eprintln!("FAIL|reason={e}|json=0");
