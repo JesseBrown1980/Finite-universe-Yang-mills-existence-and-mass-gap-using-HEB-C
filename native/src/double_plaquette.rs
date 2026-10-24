@@ -378,6 +378,18 @@ mod tests {
         dp[(1<<n)-1]
     }
     #[test]
+    fn negative_controls_reject_false_hermiticity_and_forged_gauge_observable(){
+        let mut corrupted=DoublePlaquette::build().unwrap();
+        corrupted.electric[0][1]+=1;
+        assert!(corrupted.validate().is_err(),
+            "non-self-adjoint physical matrix must fail");
+        let mut forged=DoublePlaquette::build().unwrap();
+        forged.magnetic[1]=9;
+        assert!(forged.validate().is_err(),
+            "a gauge observable incompatible with plaquette holonomy must fail");
+    }
+
+    #[test]
     fn independent_leibniz_determinants_certify_all_low_energy_brackets(){
         let m=DoublePlaquette::build().unwrap();
         for (je,jb) in [(0,0),(1,0),(0,1),(1,1),(3,5)] {
