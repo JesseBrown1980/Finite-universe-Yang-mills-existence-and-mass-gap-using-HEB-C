@@ -4,6 +4,7 @@
 #![deny(clippy::float_arithmetic, clippy::float_cmp, clippy::cast_precision_loss)]
 
 pub mod hamiltonian;
+pub mod clasy_portal;
 
 pub const VIRTUAL_KERNELS: u64 = 23_000_000_000;
 pub const COPRIME_STRIDE: u64 = 1_000_003;
