@@ -1,3 +1,20 @@
+## Clasy X3 research guide and native HTTP-0 kernels
+
+**[Clasy X3 → HEB-C HTTP-0 → Yang–Mills research roadmap](CLASY_X3_TO_HEBC_HTTP0_NEXT_HURDLES.md)** is now implemented as a pinned path dependency in [native/vendor/clasy_x3/](native/vendor/clasy_x3/), with its original 81-mode finite-field laws preserved separately from the S3 gauge Hamiltonian.
+
+The headless native HTTP-0 kernel can address **23 billion virtual IDs**, lazily regenerate authentic **three-room Host8 input identities**, execute a bounded Clasy 81-mode state, and emit **HBI/HBP/SHA/SH/HASH receipts**. The CLI also executes batches of **81 × 243** and **243 × 81** actual finite-shell transitions for validation. The optional HTTP/1.1 adapter exposes separate `/clasy/{ordinal}/{nu}/{steps}` and `/spectrum/{JE}/{JB}` plain-text routes. Neither a screen nor a Node/JS/JSON runtime is involved.
+
+```sh
+cd native
+cargo +1.81.0 run --release --offline --locked -- clasy-run 0 1 243 clasy-single
+cargo +1.81.0 run --release --offline --locked -- clasy-verify clasy-single
+cargo +1.81.0 run --release --offline --locked -- clasy-batch 81 243 clasy-batch-81
+cargo +1.81.0 run --release --offline --locked -- clasy-batch 243 81 clasy-batch-243
+```
+
+**Next nontrivial Yang–Mills task:** build the full interacting self-adjoint Gauss-projected Hamiltonian for the **11-dimensional two-plaquette physical sector**, followed by the 1,393-dimensional periodic torus, with exact spectral bounds. Clasy's finite-field all-time invariant is a test and design precedent, *not* that Hamiltonian or a continuum Yang–Mills proof.
+
+
 # Finite-universe Yang–Mills experiments using HEB-C HTTP-0
 
 **Canonical executable: [native/](native/)** · **[Stage 2 audited results](STAGE2_SCALING_SPECTRAL_AUDIT_2026-10-24.md)** · **[Architecture and research plan](HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md)** · **[CI Rust 1.81 tests](../../actions/workflows/native-rust.yml)**
