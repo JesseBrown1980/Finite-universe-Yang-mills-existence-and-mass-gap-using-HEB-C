@@ -3,6 +3,8 @@
 #![forbid(unsafe_code)]
 #![deny(clippy::float_arithmetic, clippy::float_cmp, clippy::cast_precision_loss)]
 
+pub mod hamiltonian;
+
 pub const VIRTUAL_KERNELS: u64 = 23_000_000_000;
 pub const COPRIME_STRIDE: u64 = 1_000_003;
 const TRANS: [u8; 3] = [1, 2, 5];
@@ -44,7 +46,7 @@ pub struct Lattice {
 
 impl Lattice {
     pub fn new(side: usize, mut seed: u64) -> Self {
-        assert!((2..=32).contains(&side), "side must be 2..32");
+        assert!((2..=128).contains(&side), "side must be 2..128");
         let n = side * side;
         let mut x = Vec::with_capacity(n);
         let mut y = Vec::with_capacity(n);
@@ -555,6 +557,42 @@ mod tests {
         assert_eq!(cache.misses, 2);
         assert_eq!(cache.active_states(), 2);
         assert_ne!(a, different);
+    }
+
+    #[test]
+    fn gauge_invariance_scaled_lattice_sizes() {
+        for side in [2, 3, 4, 8, 16, 32, 64, 128] {
+            let mut l = Lattice::new(side, 0x494e5445474552 ^ side as u64);
+            let mut rng = 0x47617567654c6177 ^ side as u64;
+            let gauge: Vec<u8> = (0..side * side)
+                .map(|_| (splitmix64(&mut rng) % 6) as u8).collect();
+            let mut g = l.transformed(&gauge);
+            assert_eq!(l.action(), g.action(), "side={side}");
+            // Exact equivariance under repeated sequential gauge-covariant updates.
+            let ticks = if side <= 16 { 27 } else if side <= 64 { 9 } else { 3 };
+            for _ in 0..ticks {
+                l.advance();
+                g.advance();
+                assert_eq!(l.transformed(&gauge), g, "side={side}");
+                assert_eq!(l.action(), g.action(), "side={side}");
+            }
+            assert_eq!(l.bytes().len(), 2 * side * side);
+        }
+    }
+
+    #[test]
+    fn very_large_logical_namespace_does_not_allocate_states() {
+        let mut cache = KernelCache::new();
+        assert_eq!(cache.active_states(), 0);
+        for n in [0, 1, 81, 243, 9_999_999, 22_999_999_999] {
+            let q = virtual_qtrit(n);
+            assert!((-1..=1).contains(&q));
+            assert!(address(n) < VIRTUAL_KERNELS);
+        }
+        assert_eq!(cache.active_states(), 0);
+        let state = cache.state_after(16, 7, 9);
+        assert_eq!(state.len(), 512);
+        assert_eq!(cache.active_states(), 1);
     }
 
 }
