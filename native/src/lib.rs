@@ -3,6 +3,13 @@
 #![forbid(unsafe_code)]
 #![deny(clippy::float_arithmetic, clippy::float_cmp, clippy::cast_precision_loss)]
 
+// Original Clasy X3 transition lattice, byte-identical to upstream.
+#[path = "../vendor/constellation_lattice/trit.rs"]
+pub mod trit;
+#[path = "../vendor/constellation_lattice/oscillator.rs"]
+pub mod constellation_oscillator;
+pub mod constellation_gate;
+
 pub mod hamiltonian;
 pub mod torus2;
 pub mod double_plaquette;
