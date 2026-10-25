@@ -125,7 +125,8 @@ fn apply_hamiltonian(t:&Torus2,je:i64,jb:i64,state:&[Big],electric:&[Big])->Vec<
         .add(&state[i].mul_int(i128::from(jb)*i128::from(t.magnetic[i])))).collect()
 }
 fn measure(t:&Torus2,state:&[Big],electric:&[Big],je:i64,jb:i64,
-    step:usize,changed:bool)->String{\n    let divisor=4_i128*(48_i128*i128::from(je)+12_i128*i128::from(jb))+1;
+    step:usize,changed:bool)->String{
+    let divisor=4_i128*(48_i128*i128::from(je)+12_i128*i128::from(jb))+1;
     let electric_active=electric.iter().filter(|x|!x.is_zero()).count();
     let magnetic_active=(0..DIM).filter(|&i|t.magnetic[i]!=0&&!state[i].is_zero()).count();
     let flat_active=(0..DIM).filter(|&i|t.magnetic[i]==0&&!state[i].is_zero()).count();
