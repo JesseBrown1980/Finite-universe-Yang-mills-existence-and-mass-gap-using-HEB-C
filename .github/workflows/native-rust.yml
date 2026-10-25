@@ -177,6 +177,24 @@ jobs:
           printf X | dd of=shadow-residual-corrupt/run.hbp bs=1 seek=100 conv=notrunc status=none
           if target/release/hebc shadow-residual-verify shadow-residual-corrupt; then exit 1; fi
           echo 'PASS: exact flat C3 winding, gauge equivariance, Hamiltonian obstruction and honest limits'
+      - name: Stage 2I exact RIME C3 to full Hamiltonian fourth-moment obstruction
+        working-directory: native
+        run: |
+          target/release/hebc rime-hamiltonian-audit rime-hamiltonian-evidence
+          target/release/hebc rime-hamiltonian-verify rime-hamiltonian-evidence
+          target/release/hebc rime-hamiltonian-audit rime-hamiltonian-replay
+          cmp rime-hamiltonian-evidence/run.hbp rime-hamiltonian-replay/run.hbp
+          cmp rime-hamiltonian-evidence/index.hbi rime-hamiltonian-replay/index.hbi
+          cmp rime-hamiltonian-evidence/run.anchor rime-hamiltonian-replay/run.anchor
+          grep 'flat=8|C3=EXACT_FLAT_ONLY' rime-hamiltonian-evidence/run.measure
+          grep 'electric_fourth=417192,416784' rime-hamiltonian-evidence/run.measure
+          grep 'mixed_1_1_fourth=426792,426384' rime-hamiltonian-evidence/run.measure
+          grep 'mixed_3_5_fourth=35123112,35090064' rime-hamiltonian-evidence/run.measure
+          grep 'full_exact_basis_symmetry=NO_GO|broader_bridge=UNRESOLVED' rime-hamiltonian-evidence/run.measure
+          cp -r rime-hamiltonian-evidence rime-hamiltonian-corrupt
+          printf X | dd of=rime-hamiltonian-corrupt/run.hbp bs=1 seek=100 conv=notrunc status=none
+          if target/release/hebc rime-hamiltonian-verify rime-hamiltonian-corrupt; then exit 1; fi
+          echo 'PASS: fourth moment no-go, controlled extension scope, replay and tamper rejection'
       - name: Original Law70 2/3 reality and Law71 -1/3 mediated three torus Rime gears
         working-directory: native
         run: |
