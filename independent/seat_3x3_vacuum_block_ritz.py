@@ -167,7 +167,7 @@ def solve_block_ritz(matrix_path, je, jb, order=3):
         f"E0={e0_lo}/1000000|E1={e1_lo}/1000000|gap=[{gap_lo},{gap_hi}]/1000000|"
         f"upper_gap=[{upper_gap_lo},{upper_gap_hi}]/1000000|"
         f"all_8_vacua_micro={e_str}|symmetry_diff={gap_lo - upper_gap_lo}|"
-        f"ms={elapsed_ms}|kind=VACUUM_BLOCK_RITZ_UPPER_BOUNDS|json=0"
+        f"kind=VACUUM_BLOCK_RITZ_UPPER_BOUNDS|json=0"
     )
     return energies
 
