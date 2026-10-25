@@ -1,0 +1,44 @@
+name: Finite S3 exact adaptive cells and large-r derivative proof
+
+on:
+  push:
+    branches: [seat-yang-mills-adaptive-monotone-cells]
+  pull_request:
+    branches: [seat-yang-mills-global-coupling-bound]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-cells:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Strict integer-only Python numeric AST audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 independent/seat_integer_ratio.py | grep -F 'numeric_runtime=int_only'
+          python3 independent/seat_integer_only_gate.py | grep -F 'float_literals=0|complex_literals=0|json=0'
+      - name: Reconstruct source, prove six exact endpoint cells, verify CONDITIONAL labels
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 independent/seat_adaptive_cells.py | tee /tmp/seat_adaptive_cells.measure
+          cmp /tmp/seat_adaptive_cells.measure independent/seat_adaptive_cells.measure
+          test "$(wc -l < /tmp/seat_adaptive_cells.measure)" -eq 11
+          test "$(grep -c '|json=0$' /tmp/seat_adaptive_cells.measure)" -eq 11
+          test "$(grep -c 'result=PASS|cell=' /tmp/seat_adaptive_cells.measure)" -eq 6
+          grep -F 'cell=4|r=[1,5/3]' /tmp/seat_adaptive_cells.measure
+          grep -F 'cell=5|r=[5/3,2]' /tmp/seat_adaptive_cells.measure
+          grep -F 'result=OPEN|interval_r=(2,10000)' /tmp/seat_adaptive_cells.measure
+          test "$(grep -c 'result=CONDITIONAL_ONLY' /tmp/seat_adaptive_cells.measure)" -eq 2
+          test "$(grep -c 'anchor_certified=0' /tmp/seat_adaptive_cells.measure)" -eq 2
+          grep -F 'claim=R_0_TO_2_VERIFIED|r_2_to_10000_sharp_cells=OPEN' /tmp/seat_adaptive_cells.measure
+      - name: Keep original full-inertia and second-order inputs pinned
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(grep -c 'full_E1_inertia_certified=1|json=0' independent/seat_sturm_full_inertia.measure)" -eq 2
+          grep -F 'PEP=24I8|first_order_gap=0' independent/seat_magnetic_endpoint.measure
