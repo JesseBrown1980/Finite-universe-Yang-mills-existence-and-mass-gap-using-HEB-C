@@ -19,7 +19,7 @@ From `0<=M<=12I`, `E1(r)>=E1(a)-12(a-r)` for `r<=a`, and `E0(r)<=E0(a)+12(r-a)` 
 
 ## Six **proved** cells, no added spectral runs
 
-The script reconstructs the full exact finite operator, checks weighted symmetry, potential range, 8 flat states, and `PEP=24I8`; reads the original certified threshold receipts; and derives all bounds with Python `Fraction` arithmetic.
+The script reconstructs the full exact finite operator, checks weighted symmetry, potential range, 8 flat states, and `PEP=24I8`; reads the original certified threshold receipts; and derives all bounds with Python strict integer-pair arithmetic.
 
 | Electric-chart interval `r` | Strictly positive certified lower bound on `gap(h(r))` |
 |---|---|
@@ -87,3 +87,7 @@ cmp /tmp/seat_adaptive_cells.measure independent/seat_adaptive_cells.measure
 The new CI workflow verifies all 11 exact, zero-JSON output lines, the six positive cell margins, and explicit `OPEN`/`CONDITIONAL_ONLY` markers. This source demonstrates the *mathematical foundation* for adaptive cells, rather than completing the expensive new-inertia anchor schedule.
 
 **Limits:** This is the fixed periodic 2×2 S₃ lattice only. No increase in lattice size, gauge group, or spacetime dimension; no 4D continuum Yang–Mills theorem. No PR was merged.
+
+## Integer-only audited runtime
+
+This verifier imports `seat_integer_ratio.IntegerRatio`, which stores only integer numerators/denominators. Cross-products, division and ordering use integer multiplications and integer floor-division, never IEEE floating-point arithmetic, `fractions.Fraction`, or decimal libraries. The integer-only AST gate and exact receipt replay run in CI. Proof conclusions and HBP/HBI/STURM antecedents remain the same as before refactoring.
