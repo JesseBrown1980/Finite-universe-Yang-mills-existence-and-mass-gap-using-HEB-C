@@ -233,7 +233,8 @@ jobs:
           grep 'c3_blocks=3:0/500,9:0/500,18:0/500,24:0/500,26:0/500,27:500/500' rime-sphere-evidence/run.measure
           grep '|theorem=C1,C2,C3_k27,' rime-sphere-evidence/run.measure
           grep '|observed=C3_k_lt_27_counts,' rime-sphere-evidence/run.measure
-          grep 'carry_ratio=5/2|compression_claimed=0' rime-sphere-evidence/run.measure
+          grep 'carry_ratio=5/2|serialized_carrier_bytes=' rime-sphere-evidence/run.measure
+          grep 'compression_claimed=0' rime-sphere-evidence/run.measure
           target/release/hebc rime-sphere-decode rime-sphere-evidence/carrier.rime rime-sphere-roundtrip.bin
           python3 -c "import sys; sys.exit(open('rime-sphere-roundtrip.bin','rb').read()!=bytes((i*7)%251 for i in range(13500)))"
           target/release/hebc rime-sphere-bridge rime-sphere-real ../README.md
