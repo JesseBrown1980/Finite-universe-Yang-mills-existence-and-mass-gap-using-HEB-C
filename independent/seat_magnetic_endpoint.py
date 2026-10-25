@@ -59,7 +59,7 @@ assert B==[[Q(x) for x in row] for row in expected]
 def mul(a,b):
     return [[sum((a[i][k]*b[k][j] for k in range(8)),Q(0))
              for j in range(8)] for i in range(8)]
-I=[[Q(i==j) for j in range(8)] for i in range(8)]
+I=[[Q(1 if i==j else 0) for j in range(8)] for i in range(8)]
 T=I
 poly=[Q(1)]
 for k in range(1,9):
