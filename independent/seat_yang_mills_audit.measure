@@ -1,0 +1,8 @@
+HEBC-SEAT-AUDIT|result=PASS|model=finite_periodic_2x2_S3|method=permutation_group_and_burnside|json=0
+HEBC-SEAT-AUDIT|burnside_orbits=1393|orbit_weights_sum=7776|nnz=32385|flat_orbits=8|connected=1|gauge_samples=33432|json=0
+HEBC-SEAT-AUDIT|electric_W_selfadjoint=PASS|row_sum_zero=PASS|wilson_gap6_eigenmode=PASS|json=0
+HEBC-SEAT-AUDIT|native_operator_sha_match=PASS|operator_sha=b6c608f50f81f3bf48fb0203b48e0e3bfc867037dc1d0a96633aa80b962137f3|json=0
+HEBC-SEAT-AUDIT|scope=FINITE_S3_ONLY|continuum_YM_proven=0|independent_physical_attestation=0|json=0
+HEBC-SEAT-AUDIT|JE=1|JB=1|E0=[7634198,7634199]/1000000|positive_gap_lower_by_Poincare=671034/1000000|method=COLLATZ_POINCARE_REPLAY|json=0
+HEBC-SEAT-AUDIT|JE=3|JB=5|E0=[36699227,36699228]/1000000|positive_gap_lower_by_Poincare=344589/1000000|method=COLLATZ_POINCARE_REPLAY|json=0
+HEBC-SEAT-AUDIT|NOTE=rank_one_cholesky_E1_intervals_NOT_independently_reproved|json=0
