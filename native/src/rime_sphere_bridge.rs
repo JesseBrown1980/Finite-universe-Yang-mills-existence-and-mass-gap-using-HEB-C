@@ -605,4 +605,56 @@ mod tests {
         assert!(m.contains("serialized_carrier_bytes="));
         assert!(m.contains("compression_claimed=0"));
     }
+
+    /// Review 5643283114: every adversarial fixture must be rejected with an
+    /// `Err`, never accepted and never a panic. `crash_bytes_huge.rime` is
+    /// deliberately absent here: before the fix it aborts the whole process
+    /// (allocation failure), so it is exercised only by the bounded
+    /// subprocess runner `scripts/rime_sphere_adversarial.sh`.
+    #[test]
+    fn adversarial_fixtures_fail_closed() {
+        macro_rules! fx {
+            ($n:literal) => {
+                ($n, &include_bytes!(concat!("../tests/fixtures/rime_sphere/", $n))[..])
+            };
+        }
+        let input = include_bytes!("../tests/fixtures/rime_sphere/input.bin");
+        let bad = [
+            fx!("crash_blocks_huge.rime"),
+            fx!("crash_tail_nonascii.rime"),
+            fx!("bank_g_altered.rime"),
+            fx!("bank_p_altered.rime"),
+            fx!("bank_w_altered.rime"),
+            fx!("bank_p_max_coeff_plus_p.rime"),
+            fx!("coeff_ge_p.rime"),
+            fx!("noncanon_plus_sign.rime"),
+            fx!("noncanon_leading_zero.rime"),
+            fx!("noncanon_upper_tail.rime"),
+            fx!("noncanon_crlf.rime"),
+            fx!("noncanon_unknown_field.rime"),
+            fx!("noncanon_duplicate_field.rime"),
+            fx!("noncanon_tail_first.rime"),
+            fx!("noncanon_trailing_blank_line.rime"),
+            fx!("noncanon_split_tail.rime"),
+            fx!("invalid_utf8.rime"),
+        ];
+        let try_decode = |bytes: &[u8]| -> std::thread::Result<Result<Vec<u8>, String>> {
+            let owned = bytes.to_vec();
+            std::panic::catch_unwind(move || {
+                let text = std::str::from_utf8(&owned).map_err(|e| e.to_string())?;
+                decode(&parse(text)?)
+            })
+        };
+        let (_, valid) = fx!("valid.rime");
+        assert_eq!(try_decode(valid).ok().and_then(Result::ok).as_deref(), Some(&input[..]));
+        let mut wrong = Vec::new();
+        for (name, bytes) in bad {
+            match try_decode(bytes) {
+                Ok(Err(_)) => {}
+                Ok(Ok(_)) => wrong.push(format!("{name}: ACCEPTED")),
+                Err(_) => wrong.push(format!("{name}: PANICKED")),
+            }
+        }
+        assert!(wrong.is_empty(), "fixtures not failing closed:\n  {}", wrong.join("\n  "));
+    }
 }
