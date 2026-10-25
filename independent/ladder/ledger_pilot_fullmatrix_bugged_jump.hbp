@@ -1,0 +1,15 @@
+LADDER|kind=cert|key=faa04e46012260005ace646fa485046be248d562df0375e9ab6f3f52168fb9f4|JE=64|JB=192|t=1348864/1000|count=3|pivots=1393/1393|ms=71191|json=0
+LADDER|kind=cert|key=71b1280cb8508266403e5415db44794a4002265d7616237038bbb2db05e32153|JE=64|JB=192|t=1342016/1000|count=3|pivots=1393/1393|ms=69998|json=0
+LADDER|kind=cert|key=e120a341047aa1e5583b9bbe7dbe6b29b033fe2d7775620877daec94998b6db8|JE=64|JB=192|t=1328320/1000|count=2|pivots=1393/1393|ms=73897|json=0
+LADDER|kind=cert|key=46e5e1b833a28ac2cf99299461f5d50f8a31bb7f727a9f9df54f6b78544b60a2|JE=64|JB=192|t=1300928/1000|count=1|pivots=1393/1393|ms=71842|json=0
+LADDER|kind=anchor|p=192|q=64|r_num=192|r_den=64|E1_lower_milli=20327|tries=4|json=0
+LADDER|kind=cert|key=b62ccbf4504820d61d3412ae7555f66c46b8a7dd23ce0121662dd720b93e84d5|JE=64|JB=193|t=1295040/1000|count=1|pivots=1393/1393|ms=71744|json=0
+LADDER|kind=cert|key=91d5904d33159eb67ebb21066d38f7875b4cf0893eaf944ad0e057bff512efc9|JE=64|JB=193|t=1294080/1000|count=1|pivots=1393/1393|ms=72788|json=0
+LADDER|kind=cert|key=ca48988c268a780ffb322508f847499b5840071367aaed3b6588e7f9813762ea|JE=64|JB=193|t=1301888/1000|count=1|pivots=1393/1393|ms=73155|json=0
+LADDER|kind=cell|r_lo=192/64|r_hi=193/64|E1_lower_at_lo=20327/1000|E0_upper_at_hi=20220/1000|gap_per_JE_gt=107/1000|json=0
+LADDER|kind=anchor|p=193|q=64|r_num=193|r_den=64|E1_lower_milli=20342|tries=2|json=0
+LADDER|kind=cert|key=d1828cadc33917838575f1874f8b40d0a8bba79a49f055e4a9a24c45579e6d78|JE=64|JB=194|t=1296000/1000|count=1|pivots=1393/1393|ms=70959|json=0
+LADDER|kind=cert|key=22177aa1b1fc768e1130cd8527c9833807f2fdca8e57b632a40555ca7d29e329|JE=64|JB=194|t=1295040/1000|count=1|pivots=1393/1393|ms=74515|json=0
+LADDER|kind=cert|key=58d57d3172fd71e750240160b67ae06ee1362ec14de7f7f820ac4325ee9a9706|JE=64|JB=194|t=1302784/1000|count=1|pivots=1393/1393|ms=72627|json=0
+LADDER|kind=cell|r_lo=193/64|r_hi=194/64|E1_lower_at_lo=20342/1000|E0_upper_at_hi=20235/1000|gap_per_JE_gt=107/1000|json=0
+LADDER|kind=anchor|p=194|q=64|r_num=194|r_den=64|E1_lower_milli=20356|tries=2|json=0
