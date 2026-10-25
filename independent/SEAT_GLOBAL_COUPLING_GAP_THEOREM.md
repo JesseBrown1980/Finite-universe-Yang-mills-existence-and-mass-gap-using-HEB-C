@@ -85,3 +85,7 @@ cmp /tmp/seat_global_coupling.measure independent/seat_global_coupling.measure
 ```
 
 No floats, no JSON. Draft PR, separate from the unmerged native-operator verification PRs. No statement about larger tori, mass gap uniform in lattice spacing or volume, 4D continuum gauge theory or the Clay problem follows from the finite theorem.
+
+## Integer-only audited runtime
+
+This verifier imports `seat_integer_ratio.IntegerRatio`, which stores only integer numerators/denominators. Cross-products, division and ordering use integer multiplications and integer floor-division, never IEEE floating-point arithmetic, `fractions.Fraction`, or decimal libraries. The integer-only AST gate and exact receipt replay run in CI. Proof conclusions and HBP/HBI/STURM antecedents remain the same as before refactoring.
