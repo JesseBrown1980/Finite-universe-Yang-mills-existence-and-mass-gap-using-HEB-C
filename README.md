@@ -1,3 +1,51 @@
+## Coupling-gap certificates: status at a glance (2026-10-25)
+
+Documentation only. The code behind everything below lives on draft branches
+and is **not merged**; PRs #4 and #7–#15 stay drafts until independent
+mathematical review. All verification is integer-only and every receipt line
+ends `json=0`. Scope throughout: the finite S₃ gauge model on one 2×2 torus
+(1,393 gauge-orbit states), H = JE·E + JB·M, ratio r = JB/JE.
+
+### Certified (complete, reproducible proof receipts; PRs still in draft review)
+
+| result | evidence |
+|---|---|
+| E₁ > 13.240 at (JE, JB) = (1, 1) and E₁ > 50.840 at (3, 5), with E₀ below each threshold | interval Sturm inertia on all 1,393 pivots, reproduced three ways: GMP verifier in CI (PR #9), an independent Python verifier and a Rust port on separate hardware ([third-seat archive](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/tree/third-seat-sturm-python/independent/third_seat)) |
+| Magnetic end: PEP = 24·I₈ on the 8 flat vacua; second-order spectrum −6 ± √14, −6 ± √6, −6 (×4); gap ≈ (√14 − √6)·JE²/JB, rigorously gap > JE²/JB for JB/JE ≥ 10⁴ | exact arithmetic (PR #11), recomputed independently |
+| Four exact Z₂×Z₂ translation sectors (385 + 336 + 336 + 336); anchors (1,2,18.250), (2,5,34.400), (2,5,39.400), (1,3,19.300) each count exactly 1 | PR #14 in CI; each anchor re-certified on the unreduced full matrix by a separate Rust verifier |
+| Continuous cells: gap/JE > 1.05 on 2 ≤ r ≤ 5/2 and > 0.40 on 5/2 ≤ r ≤ 3 | monotone cell lemma on the PR #14 anchors |
+
+### In progress (reported certificates pending independent review of the published ledger)
+
+The 17-rung gap profile ("the wave": r = 0, 1, 2, 3, 5, 6, 8, 9, 15, 21, 27,
+45, 63, 81, 135, 189, 243) and the adaptive ladder over 3 ≤ r ≤ 10⁴ are
+running. Ledger snapshot [`ec84aec`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/ec84aec/independent/ladder/ledger.hbp)
+(125 certificates). Reported so far:
+
+| r = JB/JE | certified readings (per unit JE) |
+|---|---|
+| 0 | E₀ < 0.001, E₁ > 5.999, gap > 5.998 (exact: 0 and 6) |
+| 1 | E₀ < 7.750, E₁ > 13.187, gap > 5.437 |
+| **2** | **E₀ < 14.375, E₁ > 18.125, gap > 3.750·JE** |
+| 3 | E₀ < 19.244, E₁ > 20.711, gap > 1.467 |
+| 3 → 4.64 | five continuous cells, gap > 0.366, 0.248, 0.195, 0.139, 0.113 |
+
+Method, matrix jumps (scaling, monotone cells, translation sectors,
+predict-then-verify), the SHA-keyed certificate ledger and measured timings
+(about 150 s per certificate on the full matrix, about 6.9 s with sectors):
+[docs/LADDER_METHOD.md](docs/LADDER_METHOD.md), from branch
+`integer-sturm-ladder` at [`70aa7ab`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/tree/70aa7ab/independent/ladder).
+Certificate caching for the HTTP-0 / SG-RAM backend:
+[docs/SGRAM_CERTIFICATE_CACHE_NOTES.md](docs/SGRAM_CERTIFICATE_CACHE_NOTES.md),
+from [`a304596`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/a304596/SGRAM_CERTIFICATE_CACHE_NOTES.md).
+
+### Not established
+
+- A gap bound uniform in the lattice volume (only one 2×2 torus is treated).
+- Any continuum Yang–Mills theorem, or the four-dimensional mass gap.
+- A solution to the Clay Millennium Prize problem.
+- Authenticated provenance: receipts prove integrity relative to trusted inputs, not who produced them.
+
 ## Constellation original-source audit — no replacement engine
 
 **[Sourced integration and outstanding residual bindings](STAGE2D_CONSTELLATION_SOURCE_AUDIT.md)** · **Pinned original ternary source:** `native/vendor/constellation_lattice/`.
