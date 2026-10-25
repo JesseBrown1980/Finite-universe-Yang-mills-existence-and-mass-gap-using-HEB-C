@@ -122,6 +122,26 @@ jobs:
           printf X | dd of=torus2-inertia-forged/index.hbi bs=1 seek=45 conv=notrunc status=none
           if target/release/hebc torus2-inertia-verify 1 1 torus2-inertia-forged; then exit 1; fi
           echo 'PASS: exact rank-one inertia, improved excited Ritz, and tamper rejection'
+      - name: Stage 2I independent spectral verifier and multi-volume scaling report
+        working-directory: native
+        run: |
+          for coupling in '1 1' '3 5'; do
+            set -- $coupling
+            dir="torus2-independent-$1-$2"
+            target/release/hebc torus2-independent "$1" "$2" "$dir"
+            target/release/hebc torus2-independent-verify "$1" "$2" "$dir"
+            grep 'independent_cholesky=PASS' "$dir/run.measure"
+            grep 'gap=\[' "$dir/run.measure"
+          done
+          grep 'strict_E1_threshold=13240/1000' torus2-independent-1-1/run.measure
+          grep 'strict_E1_threshold=50840/1000' torus2-independent-3-5/run.measure
+          cp -r torus2-independent-1-1 torus2-independent-forged
+          printf X | dd of=torus2-independent-forged/index.hbi bs=1 seek=45 conv=notrunc status=none
+          if target/release/hebc torus2-independent-verify 1 1 torus2-independent-forged; then exit 1; fi
+          target/release/hebc torus2-scaling | grep 'SCALING|geometry=single_open_plaquette'
+          target/release/hebc torus2-scaling | grep 'SCALING|geometry=double_open_plaquette'
+          target/release/hebc torus2-scaling | grep 'SCALING|geometry=periodic_2x2_torus'
+          echo 'PASS: Stage 2I independent verifier, Kato-Temple variance, and multi-volume scaling'
       - name: Multi-scale gauge-lattice stress - 64x64 and 128x128
         working-directory: native
         run: |

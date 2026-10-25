@@ -14,6 +14,7 @@ pub mod hamiltonian;
 pub mod torus2;
 pub mod torus2_bounds;
 pub mod torus2_inertia;
+pub mod torus2_independent;
 pub mod shadow_residual;
 pub mod rime_gear;
 pub mod double_plaquette;

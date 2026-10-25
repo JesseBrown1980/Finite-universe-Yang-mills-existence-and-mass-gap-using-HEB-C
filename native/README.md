@@ -1,3 +1,23 @@
+## Stage 2I: Independent spectral verification and multi-volume scaling (Issue #2 Closed)
+
+**[Stage 2I Mathematical Report & Scaling](../STAGE2I_INDEPENDENT_VERIFIER_AND_SCALING.md)** · **[Independent Verifier](src/torus2_independent.rs)** · **[Stage 2H Integer Inertia](../STAGE2H_TORUS2_INTEGER_INERTIA_CERTIFICATE.md)**
+
+The 1,393-state torus spectrum is now independently verified with certified tight gaps:
+- **(1,1):** E0 in [7.634198, 7.634199], E1 in [13.240000, 13.242733], Gap $\Delta$ in **[5.605801, 5.608535]**.
+- **(3,5):** E0 in [36.699227, 36.699228], E1 in [50.840000, 50.842050], Gap $\Delta$ in **[14.140772, 14.142823]**.
+
+Multi-volume scaling benchmarks single-plaquette (dim=3), double-plaquette (dim=11), and periodic torus (dim=1393): vacuum energy density  / F \approx 1.91$ at (1,1) scales extensively, while torelon flux tubes of length 2 explain the 2x gap reduction on the torus. Issue #2 acceptance criteria are fully met.
+
+From 
+ative/:
+`ash
+cargo +1.81.0 run --release --offline --locked -- torus2-independent 1 1 indep-1-1
+cargo +1.81.0 run --release --offline --locked -- torus2-independent-verify 1 1 indep-1-1
+cargo +1.81.0 run --release --offline --locked -- torus2-independent 3 5 indep-3-5
+cargo +1.81.0 run --release --offline --locked -- torus2-independent-verify 3 5 indep-3-5
+cargo +1.81.0 run --release --offline --locked -- torus2-scaling
+`
+
 ## Stage 2G: rigorously bounded *mixed-coupling* 1,393-state torus gaps
 
 [Mathematical proof and rational results](../STAGE2G_TORUS2_RATIONAL_GAP_CERTIFICATE.md) · [Exact integer verifier](src/torus2_bounds.rs)

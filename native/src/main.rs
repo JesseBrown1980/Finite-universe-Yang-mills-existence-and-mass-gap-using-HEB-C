@@ -404,6 +404,43 @@ fn torus2_inertia_verify(args:&[String])->Result<(),String>{
     Ok(())
 }
 
+fn torus2_independent_cmd(args: &[String]) -> Result<(), String> {
+    use hebc_finite_yang_mills::torus2_independent::{certificate, save};
+    let je: i64 = argument(args, 2, 1)?;
+    let jb: i64 = argument(args, 3, 1)?;
+    let dir = args.get(4).map(String::as_str).unwrap_or("torus2-independent");
+    let c = certificate(je, jb)?;
+    save(Path::new(dir), &c)?;
+    print!("{}", c.measure);
+    Ok(())
+}
+
+fn torus2_independent_verify(args: &[String]) -> Result<(), String> {
+    use hebc_finite_yang_mills::torus2_independent::verify_dir;
+    let je: i64 = argument(args, 2, 1)?;
+    let jb: i64 = argument(args, 3, 1)?;
+    let dir = args.get(4).map(String::as_str).unwrap_or("torus2-independent");
+    verify_dir(Path::new(dir), je, jb)?;
+    println!("TORUS2INDEPENDENTVERIFY|result=PASS|JE={je}|JB={jb}|source_recomputed=1|dir={dir}|json=0");
+    Ok(())
+}
+
+fn torus2_scaling_cmd(_args: &[String]) -> Result<(), String> {
+    use hebc_finite_yang_mills::torus2_independent::finite_volume_scaling;
+    let rows = finite_volume_scaling()?;
+    for r in rows {
+        println!(
+            "SCALING|geometry={}|V={}|E={}|faces={}|physical_dim={}|JE={}|JB={}|E0_per_face=[{},{}]/{}|gap=[{},{}]/{}|mode={}|json=0",
+            r.geometry, r.vertices, r.links, r.plaquettes, r.physical_dim,
+            r.je, r.jb,
+            r.e0_lower_per_face, r.e0_upper_per_face, r.e0_denom,
+            r.gap_lower, r.gap_upper, r.gap_denom,
+            r.mode_type
+        );
+    }
+    Ok(())
+}
+
 fn constellation_audit(args:&[String])->Result<(),String>{
     use hebc_finite_yang_mills::constellation_gate::{generate,save,verify};
     let directory=args.get(2).map(String::as_str).unwrap_or("constellation-evidence");
@@ -490,6 +527,9 @@ fn main() {
         Some("torus2-bounds-verify") => torus2_bounds_verify(&args),
         Some("torus2-inertia") => torus2_inertia_cmd(&args),
         Some("torus2-inertia-verify") => torus2_inertia_verify(&args),
+                Some("torus2-independent") => torus2_independent_cmd(&args),
+        Some("torus2-independent-verify") => torus2_independent_verify(&args),
+        Some("torus2-scaling") => torus2_scaling_cmd(&args),
         Some("constellation-audit") => constellation_audit(&args),
         Some("constellation-verify") => constellation_verify(&args),
         Some("shadow-residual-audit") => shadow_residual_audit(&args),
@@ -502,7 +542,7 @@ fn main() {
             Ok(port) => service(port),
             Err(e) => Err(e),
         },
-        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | double-spectrum [JE=1] [JB=1] [dir] | double-verify [dir] | torus2-spectrum [JE=1] [JB=1] [dir] | torus2-verify [dir] | torus2-bounds [JE=1] [JB=1] [dir] | torus2-bounds-verify [JE=1] [JB=1] [dir] | torus2-inertia [JE=1] [JB=1] [dir] | torus2-inertia-verify [JE=1] [JB=1] [dir] | cache-demo [steps=243] [side=4] | constellation-audit [dir] | constellation-verify [dir] | shadow-residual-audit [dir] | shadow-residual-verify [dir] | rime-gear-audit [dir] | rime-gear-verify [dir] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
+        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | double-spectrum [JE=1] [JB=1] [dir] | double-verify [dir] | torus2-spectrum [JE=1] [JB=1] [dir] | torus2-verify [dir] | torus2-bounds [JE=1] [JB=1] [dir] | torus2-bounds-verify [JE=1] [JB=1] [dir] | torus2-inertia [JE=1] [JB=1] [dir] | torus2-inertia-verify [JE=1] [JB=1] [dir] | cache-demo [steps=243] [side=4] | torus2-independent [JE=1] [JB=1] [dir] | torus2-independent-verify [JE=1] [JB=1] [dir] | torus2-scaling | constellation-audit [dir] | constellation-verify [dir] | shadow-residual-audit [dir] | shadow-residual-verify [dir] | rime-gear-audit [dir] | rime-gear-verify [dir] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
     };
     if let Err(e) = result {
         eprintln!("FAIL|reason={e}|json=0");
