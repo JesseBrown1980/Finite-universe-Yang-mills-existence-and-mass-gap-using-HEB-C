@@ -14,7 +14,7 @@ The independently reconstructed and natively hash-matched operator has:
 - `M`: a diagonal magnetic potential, `M_ii∈{0,...,12}`, so `||M||_W <= 12`.
 - The electric offdiagonal graph is connected, so for **JE > 0** its stoquastic Hamiltonian has an irreducible positive ground state (Perron–Frobenius), unique in the finite sector, irrespective of JB≥0. **A strictly positive finite-dimensional gap follows qualitatively for every JE>0, JB≥0.** No quantitative constant uniform over the entire unbounded/open parameter range is asserted.
 
-The linked independently written script `independent/seat_coupling_region.py` regenerates the complete original integer operator from PR #7, checks all 1,393 row sums, Gershgorin conditions, offdiagonal signs, orbit weights, weighted Hermiticity and magnetic bounds, and insists the two pinned PR #9 1,393-pivot complete inertia receipts are present. It uses only Python standard-library `Fraction` arithmetic for the *new* inequalities; no new diagonalization is performed.
+The linked independently written script `independent/seat_coupling_region.py` regenerates the complete original integer operator from PR #7, checks all 1,393 row sums, Gershgorin conditions, offdiagonal signs, orbit weights, weighted Hermiticity and magnetic bounds, and insists the two pinned PR #9 1,393-pivot complete inertia receipts are present. It uses `seat_integer_ratio.IntegerRatio`, whose numerator and denominator are both Python `int` values; comparisons use exact integer cross-products and division constructs reduced integer pairs, never floating point or `fractions.Fraction`. No new diagonalization is performed.
 
 ## Exact Weyl/Lipschitz proof
 
@@ -72,3 +72,7 @@ cmp /tmp/seat_coupling_region.measure independent/seat_coupling_region.measure
 The dedicated GitHub Actions workflow independently executes the mathematical source rebuild, checks exact output and rejects missing anchors. Every line ends `json=0`.
 
 **Remaining scientific gates:** coupling coverage beyond these regions by tighter uniform estimates and a range of lattice sizes, an independently specified continuous-group gauge theory and controlled thermodynamic/continuum limits, and an axiom-compliant 4D quantum Yang–Mills construction. No statement here closes the Clay Millennium problem.
+
+## Integer-only execution invariant
+
+All numerical proof code in this branch represents every exact ratio as a reduced pair of Python integer numerator and integer denominator. No `fractions.Fraction`, native `float`, `Decimal`, complex arithmetic, numerical eigensolver, or floating-point timing is used by these verifier paths. The `seat_integer_only_gate.py` CI gate parses all independent seat Python sources, rejects forbidden numeric constructs, and exercises integer-pair arithmetic self-tests. Pinned certificate text remains byte-identical after the refactor; the mathematical rational endpoints have not changed.
