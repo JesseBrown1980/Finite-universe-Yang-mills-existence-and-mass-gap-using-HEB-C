@@ -19,8 +19,8 @@ ends `json=0`. Scope throughout: the finite S₃ gauge model on one 2×2 torus
 
 The 17-rung gap profile ("the wave": r = 0, 1, 2, 3, 5, 6, 8, 9, 15, 21, 27,
 45, 63, 81, 135, 189, 243) and the adaptive ladder over 3 ≤ r ≤ 10⁴ are
-running. Ledger snapshot [`ec84aec`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/ec84aec/independent/ladder/ledger.hbp)
-(125 certificates). Reported so far:
+running. Ledger snapshot [`d06014a`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/d06014a/independent/ladder/ledger.hbp)
+(297 certificates). Reported so far:
 
 | r = JB/JE | certified readings (per unit JE) |
 |---|---|
@@ -28,7 +28,18 @@ running. Ledger snapshot [`ec84aec`](https://github.com/JesseBrown1980/Finite-un
 | 1 | E₀ < 7.750, E₁ > 13.187, gap > 5.437 |
 | **2** | **E₀ < 14.375, E₁ > 18.125, gap > 3.750·JE** |
 | 3 | E₀ < 19.244, E₁ > 20.711, gap > 1.467 |
-| 3 → 4.64 | five continuous cells, gap > 0.366, 0.248, 0.195, 0.139, 0.113 |
+| 3 → 4.31 | continuous ladder cells, gap > 0.367, 0.253, 0.196, 0.138 |
+| 5 | E₀ < 21.885, E₁ > 22.210, gap > 0.325 |
+| 6 | E₀ < 22.283, E₁ > 22.537, gap > 0.254 |
+| 8 | E₀ < 22.746, E₁ > 22.921, gap > 0.175 |
+| 9 | E₀ < 22.895, E₁ > 23.045, gap > 0.150 |
+| 15 | E₀ < 23.347, E₁ > 23.432, gap > 0.085 |
+
+**Measured, not certified (Euclidean evolution).** Letting H relax under
+v ← (c − H)v from an unsteered integer start vector and reading the gap off
+the decay rate gives 5.999, 5.611, 4.007, 1.473, 0.341, 0.257 at r = 0, 1, 2,
+3, 5, 6, every one inside the certified brackets above. Method, table and
+the HTTP-0 page: [docs/EVOLUTION_TESTGROUND.md](docs/EVOLUTION_TESTGROUND.md).
 
 Method, matrix jumps (scaling, monotone cells, translation sectors,
 predict-then-verify), the SHA-keyed certificate ledger and measured timings
