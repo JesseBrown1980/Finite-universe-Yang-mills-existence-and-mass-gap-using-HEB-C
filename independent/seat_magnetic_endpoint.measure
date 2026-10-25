@@ -1,0 +1,12 @@
+HEBC-MAGNETIC|result=PASS|dim=1393|flat=8|E_psd=GRAPH_LAPLACIAN|E_norm_le=48|M_nonflat_ge=3|M_max=12|json=0
+HEBC-MAGNETIC|result=PASS|flat_keys=0,7,21,1332,1339,3996,4017,4024|PEP=24I8|first_order_gap=0|json=0
+HEBC-MAGNETIC|result=PASS|B_row=0|values=-6,-3,0,-3,0,0,0,0|json=0
+HEBC-MAGNETIC|result=PASS|B_row=1|values=-1,-6,-2,0,-1,0,0,0|json=0
+HEBC-MAGNETIC|result=PASS|B_row=2|values=0,-3,-6,0,0,0,0,0|json=0
+HEBC-MAGNETIC|result=PASS|B_row=3|values=-1,0,0,-6,-1,-2,0,0|json=0
+HEBC-MAGNETIC|result=PASS|B_row=4|values=0,-1,0,-1,-6,0,0,0|json=0
+HEBC-MAGNETIC|result=PASS|B_row=5|values=0,0,0,-3,0,-6,0,0|json=0
+HEBC-MAGNETIC|result=PASS|B_row=6|values=0,0,0,0,0,0,-6,0|json=0
+HEBC-MAGNETIC|result=PASS|B_row=7|values=0,0,0,0,0,0,0,-6|json=0
+HEBC-MAGNETIC|result=PASS|second_order_charpoly=(x+6)^4*(x^2+12x+22)*(x^2+12x+30)|first_gap_coeff=sqrt14_minus_sqrt6|positive=1|json=0
+HEBC-MAGNETIC|result=PASS|s_upper=1/10000|error_coeff_max=120/1249|strict_gap_gt=s^2|in_JE_JB_units=JE^2/JB|scope=FINITE_S3_2X2_ONLY|continuum_proven=0|json=0
