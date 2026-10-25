@@ -1,0 +1,1 @@
+HEBC-TRANSLATION-STURM|result=PASS|JE=10|JB=23|threshold=180000/1000|scale_digits=30|pivots=1393/1393|negative=1|sector_negatives=pp:1,pm:0,mp:0,mm:0|ambiguous=0|method=INTEGER_INTERVAL_SCHUR_DIRECT_SUM|json=0
