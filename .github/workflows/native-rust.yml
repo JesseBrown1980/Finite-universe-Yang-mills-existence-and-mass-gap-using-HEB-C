@@ -141,7 +141,7 @@ jobs:
           target/release/hebc torus2-scaling | grep 'SCALING|geometry=single_open_plaquette'
           target/release/hebc torus2-scaling | grep 'SCALING|geometry=double_open_plaquette'
           target/release/hebc torus2-scaling | grep 'SCALING|geometry=periodic_2x2_torus'
-          echo 'PASS: Stage 2I independent verifier, Kato-Temple variance, and multi-volume scaling'
+          echo 'PASS: Stage 2I reimplemented inertia/minmax, truncated diagnostic, and cross-geometry comparison'
       - name: Multi-scale gauge-lattice stress - 64x64 and 128x128
         working-directory: native
         run: |
