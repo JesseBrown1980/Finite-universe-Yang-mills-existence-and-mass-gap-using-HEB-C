@@ -69,3 +69,16 @@ All numeric state is integer and CI also runs the integer-only AST regression ga
 The next scientific gate is to test **new** integer-coupling Sturm anchors in the interval `2<JB/JE<10000` without silently assuming the threshold or the faster runtime works. A complete full-matrix result is only certified when all four sector eliminations succeed and their summed inertia is correct. Do not mark new adaptive cells PASS until this is done.
 
 **Limits:** Fixed finite S₃, periodic 2×2 spatial torus, no SU(N) continuum, large-volume family, uniform physical mass gap or Clay Millennium proof. Keep draft pending non-author mathematical review.
+
+## Four new integer-sector pilot anchors: sharper cells now reach r=3
+
+The direct-sum integer Sturm verifier has additionally been run on four new integer triples `(JE,JB,T)`: `(1,2,18250)`, `(2,5,34400)`, `(2,5,39400)`, `(1,3,19300)`. All four sectors completed at each threshold with no ambiguous pivots, yielding exactly **one negative eigenvalue** per full direct sum. The canonical deterministic results are in `seat_translation_pilot.measure`, separate from the four original controls.
+
+Because one eigenvalue below `T/1000` means `E0<T/1000<E1`, exact integer cross-products yield continuous normalized cell bounds:
+
+- `2 <= r <= 5/2`: `18250*2-34400=2100>0`, so `gap(E+rM)>2100/2000=21/20`.
+- `5/2 <= r <= 3`: `39400-19300*2=800>0`, so `gap(E+rM)>800/2000=2/5`.
+
+These are two further rigorous *whole-interval* results, not point samples, and require no floating-point eigenvalues or fractional runtime state. Together with the six PR #13 cells, the sharper cell coverage extends over `0<=r<=3` in this fixed finite S₃ model. **`3<r<10000` remains without sharp new cells**. PR #12's extremely weak but positive analytic bound still covers it, and PR #11's rigorous quadratic magnetic-end inequality applies at `r>=10000`.
+
+The SHA check authenticates sector matrix bytes against a fixed trusted pin and detects tampering in CI. It cannot predict an uncomputed spectral answer. A future HBP/HBI/SG-RAM cache must retain the trusted original input hash, exact parameters, verifier version and original observed receipt; this PR does not silently implement an unsigned shared cache.
