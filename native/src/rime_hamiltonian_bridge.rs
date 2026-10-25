@@ -161,7 +161,7 @@ pub fn inspect()->Result<Audit,String> {
     let y=*flats.get(&(0,1)).ok_or("axis y missing")?;
     let axis_swap_equal=[(1,0),(1,1),(3,5)].iter()
         .try_fold(true,|prior,&(je,jb)|{
-            Ok::<bool,String>(prior && moments(&m,x,je,jb)?==moments(&m,y,je,jb)?)
+            Ok::<bool,String>(prior && self::moments(&m,x,je,jb)?==self::moments(&m,y,je,jb)?)
         })?;
     if !axis_swap_equal {return Err("valid square-axis swap control failed".into());}
 
