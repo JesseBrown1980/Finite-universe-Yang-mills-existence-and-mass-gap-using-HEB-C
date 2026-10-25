@@ -32,9 +32,11 @@ pub const C3_KS: [usize; 6] = [3, 9, 18, 24, 26, 27];
 /// The original pipeline's C4 random-address control uses the first 100 blocks.
 pub const C4_BLOCKS: usize = 100;
 const SCHEMA: &str = "hebc.rime.sphere.bridge.v1";
-/// Which results are theorems (hold for every input) and which are
-/// observations (measured on this input only).
-const GUARANTEES: &str = "theorem=C1,C2,C3_k27,C4_wrong_root_byte0,C5_single_label_row_if_blocks,C5_bound_le_max_block_multiplicity|observed=C3_k_lt_27_counts,C4_random_counts,C4_wrong_root_other_bytes,C5_max_exact_value";
+/// Evidence categories (review 5643283114). `theorem`: holds for every input
+/// by mathematics. `tested`: a software property shown by tests and fixtures,
+/// not by proof. `integrity`/`provenance`: what the SHA-256 receipts do and do
+/// not establish. `observed`: measured on this input only.
+const GUARANTEES: &str = "theorem=C1,C3_k27,C4_wrong_root_byte0,C5_single_label_row_if_blocks,C5_bound_le_max_block_multiplicity_given_no_side_information|tested=C2_carrier_roundtrip,canonical_encoding,bank_validation,malformed_carrier_fail_closed|integrity=SHA256_RELATIVE_TO_TRUSTED_INPUT_OR_CARRIER_SHA|provenance=NOT_AUTHENTICATED|observed=C3_k_lt_27_counts,C4_random_counts,C4_wrong_root_other_bytes,C5_max_exact_value";
 
 pub type Block = [u64; N];
 
@@ -409,14 +411,14 @@ pub fn generate(data: &[u8]) -> Result<Audit, String> {
         return Err("bridge did not return the input bytes".into());
     }
     let ctl = controls(data, &c);
-    // PASS gates ONLY on mathematical guarantees, which must hold for every
-    // input: C1/C2 (the NTT is invertible over Z/p because 27 | p-1), C3 at
-    // k=27 (that is C1), wrong-root byte 0 (inverse index 0 is root-free),
-    // and C5's label rows being one positional row for nonempty complete
-    // blocks (zero for tail-only/empty input). The fraction /
-    // random / wrong-root / labels-only RECOVERY COUNTS are observations about
-    // this input and are reported, never required: a constant block, for
-    // example, recovers from one coefficient (see tests).
+    // PASS gates on the theorems (C1; C3 at k=27, which is C1; wrong-root
+    // byte 0, since inverse index 0 is root-free; C5's label rows being one
+    // positional row when complete blocks exist, zero otherwise) plus ONE
+    // tested software property, C2: the serialised carrier round trip, which
+    // depends on the parser, not on mathematics. The fraction / random /
+    // wrong-root / labels-only RECOVERY COUNTS are observations about this
+    // input and are reported, never required: a constant block, for example,
+    // recovers from one coefficient (see tests).
     let full = ctl.c3.last().is_some_and(|&(k, m, t)| k == N && m == t)
         && ctl.c3_blocks.last().is_some_and(|&(k, m, t)| k == N && m == t);
     let w2 = c.bank.w * c.bank.w % P;
@@ -582,7 +584,7 @@ mod tests {
             assert!(bytes >= whole * N, "k={k}");
         }
         let m = generate(&data).unwrap().measure;
-        assert!(m.contains("|c3_bytes=") && m.contains("|c3_blocks=") && m.contains("|theorem=C1,C2,"));
+        assert!(m.contains("|c3_bytes=") && m.contains("|c3_blocks=") && m.contains("|theorem=C1,C3_k27,") && m.contains("|tested=C2_carrier_roundtrip,") && m.contains("|provenance=NOT_AUTHENTICATED|"));
     }
 
     #[test]

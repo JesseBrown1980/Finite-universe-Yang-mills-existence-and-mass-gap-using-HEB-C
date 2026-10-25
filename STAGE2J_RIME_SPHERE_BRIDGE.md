@@ -39,9 +39,31 @@ So the bridge carries the coefficients. The labels are metadata.
 - CLI: `hebc rime-sphere-bridge [dir] [input]`, `rime-sphere-verify [dir] [input]`,
   `rime-sphere-decode CARRIER OUT`.
 
-The Rust and Python carriers and cross-check lines must be **byte-identical**
-(CI `cmp`, and a unit test pins the Python carrier sha
-`6121bb3ff559cf5d…`). Two languages, one transform, one answer.
+### Cross-language checking: what is independent and what is shared
+
+**Independent:**
+- **NTT arithmetic.** Rust's `ntt`/`intt` were written separately; Python
+  imports the original. Over 200 random full-field vectors Rust `ntt` matched
+  the original with 0 mismatches, and 20,000 full-field round trips passed
+  (review 5643283114).
+- **Carrier decoding.** `rime_sphere_carrier.py --decode` validates by a
+  different technique from Rust: one strict whole-document regex grammar,
+  where Rust re-renders and compares. It inverts with the original `intt`.
+  CI runs it on every Rust-written carrier and on all adversarial fixtures.
+- **The original's own controls.** `--compare-original` checks the original
+  script's printed C3 table and C4 random line against the bridge's counts.
+
+**Shared by construction, so not independent evidence:**
+- p, N = 27, and the "smallest primitive root" rule that fixes w. Both
+  halves would agree on a wrong choice; `bank()`'s order check
+  (w²⁷ = 1, w⁹ ≠ 1) mitigates this.
+- Block partitioning, the "first k" C3 address and the C4 random vector,
+  all copied from the original's conventions.
+- The carrier specification. Byte-identical carriers prove the two encoders
+  agree with each other, not that the format is right.
+- Authorship. One author (Claude) wrote both decoders and both encoders.
+  Independent verification still requires a reviewer who wrote neither.
+- Labels and C5 exist only in Rust.
 
 ## Acceptance report
 
@@ -63,17 +85,44 @@ These are different measures and are reported separately (`c3_bytes`,
 | 26 | 0 / 13,500 | 0 / 500 |
 | 27 | 13,500 / 13,500 | 500 / 500 |
 
-### Guaranteed vs observed
+### Evidence categories
 
-**Theorems — hold for every input, including empty or tail-only files; the only things `result=PASS` gates on:**
+The measure line carries five categories, verbatim:
+`theorem=… | tested=… | integrity=… | provenance=NOT_AUTHENTICATED | observed=…`.
+
+**Theorems — hold for every input by mathematics:**
 
 | | why it must hold |
 |---|---|
-| C1 identity, C2 carrier round trip | 27 divides p−1 = 1,000,080, so a primitive 27th root w exists, and 27 is invertible mod p; the NTT is a bijection on Z/p²⁷ |
+| C1 identity | 27 divides p−1 = 1,000,080, so a primitive 27th root w exists, and 27 is invertible mod p; the NTT is a bijection on Z/p²⁷ |
 | C3 at k = 27 | is C1 |
 | C4 wrong root, byte 0 always survives | inverse index 0 is N⁻¹·ΣXₖ, which contains no power of the root |
 | C5 label rows = 1 when any full blocks exist; 0 otherwise | `bt(k)` depends only on position k; files shorter than 27 bytes have no complete block and therefore no label rows |
-| C5 labels-only bound | a decoder that sees only identical labels must emit one fixed block, so it is exact on at most the most-repeated block's count |
+| C5 labels-only bound, **given no side information** | a deterministic decoder whose *only* input is the label row must emit one fixed block, so it is exact on at most the most-repeated block's count. The condition matters: a decoder that also knows the block index can reconstruct the default input `(i*7)%251` from position alone, with no coefficients |
+
+**Tested software properties — shown by tests and fixtures, not by proof:**
+
+| | evidence |
+|---|---|
+| C2 carrier round trip | depends on the serializer and parser, not on mathematics; unit tests plus every CI round trip in both decoders |
+| canonical encoding | `render(parse(t)) == t` (Rust) and a full-match grammar (Python); fixtures for `+`, leading zeros, uppercase hex, CRLF, unknown and duplicate fields, row order, split tail, trailing data |
+| bank validation | p, g and w must equal the supported bank exactly, and every coefficient must be < p; fixtures for altered g, p and w, and for c+p under an inflated p |
+| malformed carriers fail closed | 19 fixtures run as bounded subprocesses (`ulimit -v` 2 GiB, `timeout` 30 s) through both decoders: exit exactly 1 with `FAIL\|reason=`, never a panic (101), abort (134) or silent accept |
+
+`result=PASS` gates on the theorems plus C2.
+
+**Integrity versus provenance:**
+
+- **Integrity (what the SHA-256 receipts give):** modification is detected
+  *relative to trusted input bytes or a trusted `carrier_sha` / anchor
+  obtained out of band*. `verify` regenerates everything from input bytes
+  the verifier must already hold.
+- **Provenance: not authenticated.** Receipts are unsigned, and the chain is
+  one record with `prev = 0…0`. Anyone with the public tool can produce a
+  fully self-consistent evidence directory for any file. The tamper tests
+  show modification detection, not who produced the evidence. Origin
+  attestation would need a signing layer (for example the pending ed25519
+  signatures), not more hashing.
 
 **Observations — measured on this input, reported, never required:**
 
@@ -81,20 +130,25 @@ These are different measures and are reported separately (`c3_bytes`,
 |---|---|---|
 | C3 fails for k < 27 | 0 bytes, 0 blocks | a constant block has X = (27c, 0, …, 0) and recovers from one coefficient; tested in `c3_fraction_failure_is_observed_not_universal`, and the bridge still PASSes on it |
 | C4 random address | 0 / 2,700 | chance matches are possible on other inputs |
-| C4 wrong root, bytes other than 0 | 0 here | on `README.md`: 1,006 / 12,285 = the 455 guaranteed byte-zeros + 551 coincidental matches. Decode still fails closed on the input sha |
+| C4 wrong root, bytes other than 0 | 0 here | on `README.md`: 1,006 / 12,285 = the 455 guaranteed byte-zeros + 551 coincidental matches. Decode still fails closed on the bank check |
 | C5 labels-only maximum | 2 / 500 blocks | equals this input's most-repeated block; an input of one repeated block would give its full count |
 
-The measure line carries this split verbatim:
-`theorem=C1,C2,C3_k27,C4_wrong_root_byte0,C5_single_label_row_if_blocks,C5_bound_le_max_block_multiplicity|observed=C3_k_lt_27_counts,C4_random_counts,C4_wrong_root_other_bytes,C5_max_exact_value`.
+### Review 5643283114 repairs
+
+Evidence first: commit `60db99e` adds the fixtures and regression tests and
+records them failing (14 of 19 regressions, including rc=134 and rc=101).
+The fixes follow, and each commit message records the runner output at
+that point (14 → 8 → 0).
 
 ### Kept in CI
 
-- 74 Rust tests (64 existing + 10 bridge), Clippy `-D warnings`, release build — Rust 1.81.0 (subject to final branch-head CI)
-- original source blobs checked, original script run unmodified
-- cross-language `cmp` of carrier and cross-check line, Python vs Rust
-- bit-exact replay, and receipt + carrier tamper rejection
-- real-file round trip: `README.md` through the bridge and back, `cmp` exact, Python and Rust carriers identical (also run locally on `STAGE2I_INDEPENDENT_VERIFIER_AND_SCALING.md`, 12,256 bytes, 25-byte tail)
-- **boundary cases:** empty input and tail-only input (<27 bytes) yield no complete NTT blocks, zero C5 positional rows and a byte-exact carrier; Rust and Python verify the same output in CI
+- all Rust tests (64 existing + 11 bridge), Clippy `-D warnings`, release build, on Rust 1.81.0
+- original source blobs checked; original script run unmodified, with its C1 line **and** its C3/C4 output compared to the bridge
+- cross-language `cmp` of carrier and cross-check line; the Python decoder decodes every Rust carrier
+- adversarial fixtures regenerated from the original NTT with no diff allowed, then run against both decoders
+- bit-exact replay, and receipt + carrier modification detection (integrity only, see above)
+- real-file round trip: `README.md` through the bridge and back, `cmp` exact in both decoders
+- boundary cases: empty and tail-only (<27 bytes) inputs round-trip byte-exact in both decoders
 
 ## Cost, stated
 
