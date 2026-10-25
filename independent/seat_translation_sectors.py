@@ -53,7 +53,7 @@ def build():
     idx = {key: i for i, key in enumerate(keys)}
     perms = {}
     for dx, dy in ((0, 0), (1, 0), (0, 1), (1, 1)):
-        p = [idx[m["can"](m["fix"](translate(m["rep"](m["dec"](k)), dx, dy)))]
+        p = [idx[m["enc"](m["can"](m["fix"](translate(m["rep"](m["dec"](k)), dx, dy))))]
              for k in keys]
         assert sorted(p) == list(range(n))
         for i in range(n):
