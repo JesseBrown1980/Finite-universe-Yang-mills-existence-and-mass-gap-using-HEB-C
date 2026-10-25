@@ -68,7 +68,7 @@ impl Big {
     }
     fn negated(&self)->Self {
         let mut t=self.clone();
-        if !t.is_zero(){t.negative=!t.negative;}
+        if !t.is_zero(){t.negative = !t.negative;}
         t
     }
     fn add(&self,other:&Self)->Self{
@@ -125,7 +125,7 @@ fn apply_hamiltonian(t:&Torus2,je:i64,jb:i64,state:&[Big],electric:&[Big])->Vec<
         .add(&state[i].mul_int(i128::from(jb)*i128::from(t.magnetic[i])))).collect()
 }
 fn measure(t:&Torus2,state:&[Big],electric:&[Big],je:i64,jb:i64,
-    step:usize,divisor:i128,changed:bool)->String{
+    step:usize,changed:bool)->String{\n    let divisor=4_i128*(48_i128*i128::from(je)+12_i128*i128::from(jb))+1;
     let electric_active=electric.iter().filter(|x|!x.is_zero()).count();
     let magnetic_active=(0..DIM).filter(|&i|t.magnetic[i]!=0&&!state[i].is_zero()).count();
     let flat_active=(0..DIM).filter(|&i|t.magnetic[i]==0&&!state[i].is_zero()).count();
@@ -150,7 +150,7 @@ pub fn evolve(t:&Torus2,je:i64,jb:i64,steps:usize)->Result<String,String>{
     let mut prev=vec![Big::from_int(INITIAL_AMPLITUDE);DIM];
     let mut electric=apply_electric(t,&prev);
     let mut output=format!("HEBC-WAVE|result=PASS|kind=BEGIN|physical_dim={DIM}|JE={je}|JB={jb}|steps={steps}|scheme=EXACT_INTEGER_NUMERATOR_RECURRENCE|division=NONE|rounding=NONE|denominator_base={d}|real_time_unitary=0|continuum_YM_proven=0|json=0\n");
-    output.push_str(&measure(t,&prev,&electric,je,jb,0,d,false));
+    output.push_str(&measure(t,&prev,&electric,je,jb,0,false));
     let start_sha=hash_state(&prev);
     let h0=apply_hamiltonian(t,je,jb,&prev,&electric);
     let mut current=(0..DIM).map(|i|prev[i].mul_int(d).sub(&h0[i])).collect::<Vec<_>>();
@@ -171,7 +171,7 @@ pub fn evolve(t:&Torus2,je:i64,jb:i64,steps:usize)->Result<String,String>{
         mag_ever_active|=mcount>0;
         if let Some(last)=electric_first{electric_varied|=last!=ecount}else{electric_first=Some(ecount)}
         if let Some(last)=magnetic_first{magnetic_varied|=last!=mcount}else{magnetic_first=Some(mcount)}
-        output.push_str(&measure(t,&current,&electric,je,jb,step,d,changed));
+        output.push_str(&measure(t,&current,&electric,je,jb,step,changed));
         if step==steps{break;}
         let h=apply_hamiltonian(t,je,jb,&current,&electric);
         let next=(0..DIM).map(|i|current[i].mul_int(2*d)
