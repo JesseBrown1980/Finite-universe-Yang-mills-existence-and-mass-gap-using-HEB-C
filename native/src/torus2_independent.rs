@@ -8,8 +8,9 @@
 //! 2. Exact finite-volume comparison across single-plaquette (dim=3),
 //!    double-plaquette (dim=11), and periodic torus (dim=1393), accounting for
 //!    energy density E0/F, glueball vs. torelon winding states, and flat vacua.
-//! 3. Kato-Temple spectral variance certificate bounding the distance of the
-//!    antisymmetric trial state z from an exact physical Hamiltonian eigenstate.
+//! 3. Exact Courant-Fischer min-max upper bound via an antisymmetric Wilson
+//!    trial state z. Also record a separate *uncertified* truncated-array
+//!    Cauchy-Schwarz defect diagnostic (legacy field: kato_var_*).
 //! 4. Deterministic HBP/HBI/SHA receipts, replay verification, and tamper rejection.
 //!
 //! Rust 1.81, zero floating-point arithmetic, zero JSON, safe standard library.
@@ -299,8 +300,11 @@ fn excited_witness_and_residual(
         return Err("Ritz ordering not certified".into());
     }
 
-    // Kato-Temple residual variance on scaled vectors to prevent i128 intermediate overflow:
-    // eta^2 = <Hz, Hz>_w / <z, z>_w - (<z, Hz>_w / <z, z>_w)^2
+    // This is NOT an exact Kato-Temple variance for the original z:
+    // z and Hz are separately truncated below, so generally
+    // hz_scaled != H(z_scaled). It is a nonnegative, truncated-pair
+    // Cauchy-Schwarz diagnostic ONLY; it certifies no eigenvalue interval.
+    // The exact min-max E1 upper bound uses the untruncated z and Hz.
     let z_scaled: Vec<i128> = z.iter().map(|&x| x / 1_000).collect();
     let hz_scaled: Vec<i128> = hz.iter().map(|&x| x / 1_000).collect();
     let zz_s = dot_w(&z_scaled, &z_scaled, &m.weights)?;
@@ -370,7 +374,7 @@ pub fn certify_independent(je: i64, jb: i64) -> Result<IndependentResult, String
 pub fn certificate(je: i64, jb: i64) -> Result<Certificate, String> {
     let b = certify_independent(je, jb)?;
     let body = format!(
-        "HBP|schema=hebc.s3.stage2i.independent.v1|JE={je}|JB={jb}|physical_dim={DIM}|threshold_num={}|threshold_den={THRESH_DEN}|E0=[{},{}]/{DENOM}|E1=[{},{}]/{DENOM}|gap=[{},{}]/{DENOM}|rank_strength={INDEPENDENT_RANK_STRENGTH}|factor_scale={FACTOR_SCALE}|ground_iters={GROUND_ITERS}|excited_iters={EXCITED_ITERS}|min_pivot={}|residual_margin={}|kato_var_num={}|kato_var_den={}|witness_sha={}|method=INDEPENDENT_RANK_LIFTING_CHOLESKY_AND_KATO_TEMPLE|continuum_proven=0|prev={}",
+        "HBP|schema=hebc.s3.stage2i.independent.v1|JE={je}|JB={jb}|physical_dim={DIM}|threshold_num={}|threshold_den={THRESH_DEN}|E0=[{},{}]/{DENOM}|E1=[{},{}]/{DENOM}|gap=[{},{}]/{DENOM}|rank_strength={INDEPENDENT_RANK_STRENGTH}|factor_scale={FACTOR_SCALE}|ground_iters={GROUND_ITERS}|excited_iters={EXCITED_ITERS}|min_pivot={}|residual_margin={}|kato_var_num={}|kato_var_den={}|witness_sha={}|method=REIMPLEMENTED_RANK_LIFTING_CHOLESKY_MINMAX_TRUNCATED_DIAGNOSTIC|continuum_proven=0|prev={}",
         b.threshold,
         b.e0_lower,
         b.e0_upper,
@@ -448,7 +452,7 @@ pub fn verify_dir(dir: &Path, je: i64, jb: i64) -> Result<(), String> {
     Ok(())
 }
 
-/// Compute the multi-volume scaling report across all three implemented geometries.
+/// Compare three distinct finite geometries (not a controlled periodic-volume limit).
 pub fn finite_volume_scaling() -> Result<Vec<VolumeScalingRow>, String> {
     let mut rows = Vec::new();
     let double_model = DoublePlaquette::build()?;
@@ -564,7 +568,7 @@ mod tests {
     }
 
     #[test]
-    fn finite_volume_scaling_preserves_extensive_energy_density() {
+    fn cross_geometry_density_comparison_does_not_claim_extensivity() {
         let rows = finite_volume_scaling().unwrap();
         assert_eq!(rows.len(), 6); // 3 geometries * 2 couplings
 
@@ -586,7 +590,8 @@ mod tests {
         let t_dens = torus_11.e0_lower_per_face * 1000 / torus_11.e0_denom;
         assert!((1900..=1920).contains(&t_dens));
 
-        // Gap comparison at (1,1): open single ~11.1, open double ~11.0, periodic torus ~5.61 (torelon)
+        // Gap comparison only. The mode_type strings below are provisional
+        // interpretations, NOT independently certified eigenmode labels.
         assert_eq!(single_11.mode_type, "contractible_0++_glueball");
         assert_eq!(double_11.mode_type, "contractible_0++_glueball");
         assert_eq!(torus_11.mode_type, "noncontractible_torelon_doublet");
