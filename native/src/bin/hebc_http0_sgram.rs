@@ -7,7 +7,7 @@
 #![deny(clippy::float_arithmetic, clippy::float_cmp, clippy::cast_precision_loss)]
 
 use hebc_finite_yang_mills::{
-    address, clasy_portal, hex, sha256, torus2_bounds, virtual_qtrit, VIRTUAL_KERNELS,
+    address, clasy_portal, hex, sha256, torus2_bounds, torus2::Torus2, wave_torus2, virtual_qtrit, VIRTUAL_KERNELS,
 };
 use std::env;
 use std::fs;
@@ -120,7 +120,23 @@ fn route(root:&Path, method:&str, path:&str)->(u16,String){
     if method=="GET" && path=="/health"{
         return(200,format!("HTTP0SGRAM|health=OK|transport=HTTP/1.1|namespace={VIRTUAL_KERNELS}|allocated_namespace_states=0|gpu_required=0|json=0\n"));
     }
+    if method=="GET" && (path=="/" || path=="/observatory") {
+        return(200,include_str!("../../web/s3_wave_observatory.html").to_owned());
+    }
     match (method,path.trim_start_matches('/').split('/').collect::<Vec<_>>().as_slice()){
+        ("GET",["wave",a,b,c])=>match(a.parse::<i64>(),b.parse::<i64>(),c.parse::<usize>()){
+            (Ok(je),Ok(jb),Ok(steps))=>{
+                if !(0..=10).contains(&je)||!(0..=10).contains(&jb)
+                    ||!(1..=243).contains(&steps){
+                    return(400,"HTTP0SGRAM|error=wave_bounds|json=0\n".into());
+                }
+                match Torus2::build().and_then(|torus|wave_torus2::evolve(&torus,je,jb,steps)){
+                    Ok(trace)=>(200,trace),
+                    Err(_)=>(409,"HTTP0SGRAM|error=wave_test_failed|json=0\n".into()),
+                }
+            },
+            _=>(400,"HTTP0SGRAM|error=invalid_wave_request|json=0\n".into()),
+        },
         ("GET",["qtrit",s])=>match s.parse::<u64>(){
             Ok(n)=>(200,format!("HTTP0SGRAM|result=PASS|action=address|ordinal={n}|virtual_id={}|value={}|allocated_namespace_states=0|json=0\n",address(n),virtual_qtrit(n))),
             Err(_)=>(400,"HTTP0SGRAM|error=invalid_ordinal|json=0\n".into()),
@@ -189,7 +205,8 @@ fn handle(mut stream:TcpStream, root:&Path)->Result<(),String>{
     let reason=match status{
         200=>"200 OK",400=>"400 Bad Request",404=>"404 Not Found",_=>"409 Conflict",
     };
-    let header=format!("HTTP/1.1 {reason}\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: {}\r\nConnection: close\r\nCache-Control: no-store\r\n\r\n",body.len());
+    let content_type=if body.starts_with("<!doctype html>"){"text/html; charset=utf-8"}else{"text/plain; charset=utf-8"};
+    let header=format!("HTTP/1.1 {reason}\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\nCache-Control: no-store\r\n\r\n",body.len());
     stream.write_all(header.as_bytes()).map_err(|e|e.to_string())?;
     stream.write_all(body.as_bytes()).map_err(|e|e.to_string())
 }
@@ -262,6 +279,18 @@ fn main(){
 #[cfg(test)]
 mod tests{
     use super::*;
+    #[test]
+    fn observatory_exposes_actual_integer_operator_trace(){
+        assert!(route(Path::new("."),"GET","/observatory").1.contains("1,393"));
+        assert!(route(Path::new("."),"GET","/").1.contains("finite-S"));
+        let (status,body)=route(Path::new("."),"GET","/wave/1/1/9");
+        assert_eq!(status,200);
+        assert!(body.contains("scheme=SECOND_ORDER_INTEGER_QUANTIZED"));
+        assert!(body.contains("real_time_unitary=0"));
+        assert!(body.contains("kind=END|JE=1|JB=1|steps=9"));
+        assert_eq!(route(Path::new("."),"GET","/wave/1/1/244").0,400);
+        assert_eq!(route(Path::new("."),"GET","/wave/x/1/27").0,400);
+    }
     #[test]
     fn virtual_addresses_are_unallocated(){
         assert!(route(Path::new("."),"GET","/health").1.contains("allocated_namespace_states=0"));
