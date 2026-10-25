@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Second-order splitting of eight magnetic-flat states of the finite S3 torus.
-Exact Python Fraction arithmetic. No JSON, floating point or diagonalizer.
+Exact integer-pair arithmetic. No Fraction, floating point, JSON or diagonalizer.
 Uses the independently reconstructed full 1393-state matrix from PR #7.
 """
 from contextlib import redirect_stdout
-from fractions import Fraction as Q
+from seat_integer_ratio import IntegerRatio as Q, selftest as integer_ratio_selftest
 from io import StringIO
 from pathlib import Path
 import runpy
 
+assert integer_ratio_selftest()
 HERE=Path(__file__).resolve().parent
 with redirect_stdout(StringIO()):
     data=runpy.run_path(str(HERE/'seat_yang_mills_audit.py'))
