@@ -30,10 +30,14 @@ fn validate_steps(steps:u64)->Result<(),String>{
 fn shard(root:&Path, ordinal:u64, steps:u64)->PathBuf {
     root.join(format!("kernel-{ordinal:020}-ticks-{steps:03}"))
 }
-fn replay(root:&Path, ordinal:u64, steps:u64)->Result<String,String>{
+fn staging_shard(root:&Path,ordinal:u64,steps:u64)->PathBuf{
+    root.join(format!(".inflight-{ordinal:020}-ticks-{steps:03}"))
+}
+/// Verify a folder against both the original HBI/HBP receipt chain and a
+/// fresh source replay. This works for committed shards and staging shards.
+fn verify_folder(folder:&Path, ordinal:u64, steps:u64)->Result<String,String>{
     validate_steps(steps)?;
-    let folder=shard(root,ordinal,steps);
-    let count=clasy_portal::load_and_verify(&folder)?;
+    let count=clasy_portal::load_and_verify(folder)?;
     if count!=steps as usize {return Err("record count mismatch".into());}
     let calc=clasy_portal::calculate(ordinal,1,steps)?;
     for (filename,original) in [
@@ -49,6 +53,38 @@ fn replay(root:&Path, ordinal:u64, steps:u64)->Result<String,String>{
     Ok(format!("HTTP0SGRAM|result=PASS|action=verify|ordinal={ordinal}|virtual_id={}|ticks={steps}|records={count}|source_sha={}|final_sha={}|anchor_sha={}|json=0\n",
         address(ordinal),calc.source_sha,calc.final_sha,hex(&sha256(calc.anchor.as_bytes()))))
 }
+fn replay(root:&Path, ordinal:u64, steps:u64)->Result<String,String>{
+    verify_folder(&shard(root,ordinal,steps),ordinal,steps)
+}
+/// Explicit offline recovery: promote only a completely replay-verified
+/// staging directory. Never overwrite a previously committed shard.
+fn recover(root:&Path, ordinal:u64, steps:u64)->Result<String,String>{
+    validate_steps(steps)?;
+    let output=shard(root,ordinal,steps);
+    if output.exists(){return Err("committed shard already exists; recovery refused".into());}
+    let staging=staging_shard(root,ordinal,steps);
+    verify_folder(&staging,ordinal,steps)?;
+    if output.exists(){return Err("committed shard appeared; recovery refused".into());}
+    fs::rename(&staging,&output).map_err(|e|e.to_string())?;
+    replay(root,ordinal,steps)?;
+    Ok(format!("HTTP0SGRAM|result=PASS|action=recover|ordinal={ordinal}|ticks={steps}|source=VERIFIED_INFLIGHT|json=0\n"))
+}
+/// Explicit offline quarantine for an incomplete or suspect staging directory.
+/// Does not erase evidence, does not trust its contents, and never replaces a
+/// pre-existing quarantine directory. Operator must stop writers first.
+fn quarantine(root:&Path, ordinal:u64, steps:u64)->Result<String,String>{
+    validate_steps(steps)?;
+    let staging=staging_shard(root,ordinal,steps);
+    if !staging.is_dir(){return Err("staging shard not found".into());}
+    for serial in 0..10_000u16{
+        let candidate=root.join(format!(".quarantine-{ordinal:020}-ticks-{steps:03}-{serial:04}"));
+        if !candidate.exists(){
+            fs::rename(&staging,&candidate).map_err(|e|e.to_string())?;
+            return Ok(format!("HTTP0SGRAM|result=PASS|action=quarantine|ordinal={ordinal}|ticks={steps}|slot={serial}|trusted=0|json=0\n"));
+        }
+    }
+    Err("no quarantine slot available".into())
+}
 fn persist(root:&Path, ordinal:u64, steps:u64)->Result<String,String>{
     validate_steps(steps)?;
     fs::create_dir_all(root).map_err(|e|e.to_string())?;
@@ -56,7 +92,7 @@ fn persist(root:&Path, ordinal:u64, steps:u64)->Result<String,String>{
     if output.exists(){return replay(root,ordinal,steps);}
     // No overwriting committed evidence. A concurrent writer is rejected
     // by exclusive staging-dir creation; interrupted writes remain inspectable.
-    let staging=root.join(format!(".inflight-{ordinal:020}-ticks-{steps:03}"));
+    let staging=staging_shard(root,ordinal,steps);
     fs::create_dir(&staging).map_err(|_|"staging exists or cannot be created")?;
     let data=clasy_portal::calculate(ordinal,1,steps)?;
     clasy_portal::verify(&data.hbp,&data.hbi,&data.anchor)?;
@@ -68,8 +104,17 @@ fn persist(root:&Path, ordinal:u64, steps:u64)->Result<String,String>{
 }
 fn finite_gap(je:i64,jb:i64)->Result<String,String>{
     let b=torus2_bounds::enclose(je,jb)?;
-    Ok(format!("HTTP0SGRAM|result=PASS|action=finite_s3_gap|JE={je}|JB={jb}|physical_dim=1393|E0=[{},{}]/1000000|E1=[{},{}]/1000000|gap=[{},{}]/1000000|continuum_proven=0|json=0\n",
-        b.e0_lower,b.e0_upper,b.e1_lower,b.e1_upper,b.gap_lower,b.gap_upper))
+    // These are Stage 2H thresholds from the native torus2_inertia model,
+    // independently supported by PR #9. They are references, NOT recomputed
+    // here: this route executes only Stage 2G Collatz-Poincare enclose().
+    let stage2h_t=match (je,jb){
+        (1,1)=>13_240,
+        (3,5)=>50_840,
+        _=>return Err("no Stage 2H threshold for coupling".into()),
+    };
+    Ok(format!("HTTP0SGRAM|result=PASS|action=finite_s3_gap|JE={je}|JB={jb}|physical_dim=1393|E0=[{},{}]/1000000|E1=[{},{}]/1000000|gap=[{},{}]/1000000|E1_source=STAGE2G_COLLATZ_POINCARE|E1_stage2g=[{},{}]/1000000|E1_stage2h_strict_gt_reference={stage2h_t}/1000|E1_stage2h_source=NATIVE_STAGE2H_PR9|E1_stage2h_verified_this_request=0|continuum_proven=0|json=0\n",
+        b.e0_lower,b.e0_upper,b.e1_lower,b.e1_upper,b.gap_lower,b.gap_upper,
+        b.e1_lower,b.e1_upper))
 }
 fn route(root:&Path, method:&str, path:&str)->(u16,String){
     if method=="GET" && path=="/health"{
@@ -189,6 +234,14 @@ fn main(){
                 let root=Path::new(args.get(2).ok_or("missing root")?);
                 replay(root,arg(args.get(3),"ordinal")?,arg(args.get(4),"ticks")?)
             }
+            Some("recover")=>{
+                let root=Path::new(args.get(2).ok_or("missing root")?);
+                recover(root,arg(args.get(3),"ordinal")?,arg(args.get(4),"ticks")?)
+            }
+            Some("quarantine")=>{
+                let root=Path::new(args.get(2).ok_or("missing root")?);
+                quarantine(root,arg(args.get(3),"ordinal")?,arg(args.get(4),"ticks")?)
+            }
             Some("finite-gap")=>finite_gap(arg(args.get(2),"JE")?,arg(args.get(3),"JB")?),
             Some("serve")=>{
                 let root=Path::new(args.get(2).ok_or("missing root")?);
@@ -197,7 +250,7 @@ fn main(){
                 serve(root,port,limit)?;
                 Ok("HTTP0SGRAM|server=STOPPED|json=0\n".into())
             }
-            _=>Err("usage: hebc_http0_sgram address ORDINAL | run ROOT ORDINAL TICKS | verify ROOT ORDINAL TICKS | finite-gap JE JB | serve ROOT [PORT=5097] [MAX_REQUESTS=64]".into())
+            _=>Err("usage: hebc_http0_sgram address ORDINAL | run ROOT ORDINAL TICKS | verify ROOT ORDINAL TICKS | recover ROOT ORDINAL TICKS | quarantine ROOT ORDINAL TICKS | finite-gap JE JB | serve ROOT [PORT=5097] [MAX_REQUESTS=64]".into())
         }
     })();
     match result{
@@ -237,6 +290,41 @@ mod tests{
         assert!(response.starts_with("HTTP/1.1 200 OK"),"{response}");
         assert!(response.contains("health=OK"),"{response}");
         assert!(server.join().unwrap().is_ok());
+    }
+    #[test]
+    fn staging_recovery_never_promotes_unverified_content(){
+        let root=std::env::temp_dir().join(format!(
+            "hebc-http0-sgram-recovery-{}",std::process::id()));
+        if root.exists(){fs::remove_dir_all(&root).unwrap();}
+        fs::create_dir_all(&root).unwrap();
+        let stage=staging_shard(&root,19,3);
+        fs::create_dir(&stage).unwrap();
+        fs::write(stage.join("run.hbp"),b"incomplete").unwrap();
+        assert!(recover(&root,19,3).is_err());
+        assert!(!shard(&root,19,3).exists());
+        // Incomplete evidence must remain inspectable in quarantine.
+        assert!(quarantine(&root,19,3).unwrap().contains("trusted=0"));
+        assert!(!stage.exists());
+        let quarantined=root.join(".quarantine-00000000000000000019-ticks-003-0000");
+        assert!(quarantined.join("run.hbp").exists());
+        let valid=clasy_portal::calculate(19,1,3).unwrap();
+        fs::create_dir(&stage).unwrap();
+        clasy_portal::save(&stage,&valid).unwrap();
+        assert!(recover(&root,19,3).unwrap().contains("action=recover"));
+        assert!(replay(&root,19,3).unwrap().contains("result=PASS"));
+        assert!(!stage.exists());
+        assert!(recover(&root,19,3).is_err());
+        fs::remove_dir_all(&root).unwrap();
+    }
+    #[test]
+    fn bound_provenance_does_not_claim_stage2h_execution(){
+        for (je,jb,ref_threshold) in [(1,1,"13240/1000"),(3,5,"50840/1000")] {
+            let line=finite_gap(je,jb).unwrap();
+            assert!(line.contains("E1_source=STAGE2G_COLLATZ_POINCARE"));
+            assert!(line.contains("E1_stage2g=["));
+            assert!(line.contains(&format!("E1_stage2h_strict_gt_reference={ref_threshold}")));
+            assert!(line.contains("E1_stage2h_verified_this_request=0"));
+        }
     }
     #[test]
     fn persist_replay_and_corruption_rejected(){
