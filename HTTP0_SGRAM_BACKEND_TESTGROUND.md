@@ -9,7 +9,7 @@ Status: separate feature branch / draft PR, not a continuum Yang–Mills proof.
 - SG-RAM here denotes stateless-cell, disk-backed evidence. Active Clasy 81-mode computations use real CPU and RAM. The 23,000,000,000 virtual coordinates use no per-coordinate storage or execution.
 - No JSON/JavaScript/GPU dependencies; results end with json=0.
 - Each completed Clasy run saves run.hbp, index.hbi, run.anchor and run.measure in its own ordinal/ticks disk shard. The verifier re-executes the original kernel and compares every file byte-for-byte; it does not trust unsigned self-consistent hashes as origin authentication.
-- An existing shard is replayed rather than overwritten. Exclusive staging directory creation prevents two local writers from sharing an unfinished shard. Interruption can leave staging evidence, which is never automatically accepted.
+- An existing shard is replayed rather than overwritten. Exclusive staging directory creation refuses a second writer for that shard; interrupted staging is not automatically accepted. Explicit offline replay-verified recovery and non-destructive quarantine commands are available, but the operator must ensure no active writer remains.
 
 ## Reproduce
 
@@ -39,6 +39,23 @@ Service accepts at most a caller-chosen bounded number of requests, has a 2048-b
 ## Full acceptance gates
 
 The dedicated .github/workflows/http0-sgram-backend.yml runs Rust 1.81 all-target tests, zero-warning Clippy, release build, full live-loopback smoke on both supported Stage 2G coupling sets, HBP/HBI source replay, corrupt-shard rejection, invalid-request controls, and zero-JSON artifact check. These supplement, rather than replace, PR #9's complete first-excitation inertia certificate and the original native verifier gates.
+
+
+## Explicit interrupted-shard recovery
+
+A crash can leave an incomplete `.inflight-…` directory. **Never** automatically delete or trust it. Stop the HTTP-0 service and every other writer for the same root first; this prototype does not implement a cross-process filesystem lock. Then:
+
+    target/release/hebc_http0_sgram recover /tmp/hebc-sgram 7 3
+
+`recover` checks the full original HBI/HBP chain, regenerates the pinned Clasy computation and compares all four evidence files byte-exactly. It promotes the staging directory only when everything passes and no committed shard exists. Partial/corrupted staging is refused and left untouched. Explicitly quarantine such an interrupted shard:
+
+    target/release/hebc_http0_sgram quarantine /tmp/hebc-sgram 7 3
+
+Quarantine renames the directory into a distinct `.quarantine-…` slot for forensic preservation, then the next ordinary `run` can create fresh evidence. This is an operator action, never an automatic wipe or implicit proof of the quarantined contents. Operators must not call recovery/quarantine while another writer is live.
+
+## Provenance-labelled finite spectral response
+
+`finite-gap` / `GET /finite-gap/:JE/:JB` **computes Stage 2G** Collatz–Poincaré energy enclosures. The legacy `E1=[lower,upper]` field remains for clients, explicitly labelled `E1_source=STAGE2G_COLLATZ_POINCARE` and duplicated as `E1_stage2g`. A separate `E1_stage2h_strict_gt_reference` field shows **13240/1000** at (1,1) or **50840/1000** at (3,5), from the native Stage 2H certificate independently checked in PR #9. Critically `E1_stage2h_verified_this_request=0`: the light HTTP route **does not run** Stage 2H inertia, reproduce PR #9, or replace the original rigorous certificate. Do not compare their execution times as if equal work. These bounds concern the finite S3 Hamiltonian only.
 
 ## Performance boundary
 
