@@ -214,6 +214,40 @@ jobs:
           printf X | dd of=rime-gear-corrupt/run.hbp bs=1 seek=90 conv=notrunc status=none
           if target/release/hebc rime-gear-verify rime-gear-corrupt; then exit 1; fi
           echo 'PASS: exact thirds and mediated Rime, fail-closed causal provenance'
+      - name: Stage 2J RIME sphere bridge - original Python NTT retained, Rust receipts around it
+        working-directory: native
+        run: |
+          test "$(git hash-object vendor/rime_sphere_source/rime_prism_pipeline.py)" = "da8e4c92dabef3702f9d3d4a743bdc5ad6e3da59"
+          test "$(git hash-object vendor/rime_sphere_source/rime_sphere.py)" = "449ac82b82223349ca8fc41d8e9b005fd3beda06"
+          (cd vendor/rime_sphere_source && python3 rime_prism_pipeline.py) | tee original-pipeline.txt
+          grep 'C1 identity.*byte-exact = True' original-pipeline.txt
+          target/release/hebc rime-sphere-bridge rime-sphere-evidence
+          target/release/hebc rime-sphere-verify rime-sphere-evidence
+          python3 scripts/rime_sphere_carrier.py rime-sphere-python
+          cmp rime-sphere-evidence/carrier.rime rime-sphere-python/carrier.rime
+          cmp rime-sphere-evidence/xcheck.measure rime-sphere-python/xcheck.measure
+          target/release/hebc rime-sphere-bridge rime-sphere-repeat
+          for f in carrier.rime run.hbp index.hbi run.anchor run.measure; do cmp rime-sphere-evidence/$f rime-sphere-repeat/$f; done
+          grep 'labels=POSITION_ONLY|coefficients_carried=27/27' rime-sphere-evidence/run.measure
+          grep 'c3_bytes=3:0/13500,9:0/13500,18:0/13500,24:0/13500,26:0/13500,27:13500/13500' rime-sphere-evidence/run.measure
+          grep 'c3_blocks=3:0/500,9:0/500,18:0/500,24:0/500,26:0/500,27:500/500' rime-sphere-evidence/run.measure
+          grep '|theorem=C1,C2,C3_k27,' rime-sphere-evidence/run.measure
+          grep '|observed=C3_k_lt_27_counts,' rime-sphere-evidence/run.measure
+          grep 'carry_ratio=5/2|compression_claimed=0' rime-sphere-evidence/run.measure
+          target/release/hebc rime-sphere-decode rime-sphere-evidence/carrier.rime rime-sphere-roundtrip.bin
+          python3 -c "import sys; sys.exit(open('rime-sphere-roundtrip.bin','rb').read()!=bytes((i*7)%251 for i in range(13500)))"
+          target/release/hebc rime-sphere-bridge rime-sphere-real ../README.md
+          target/release/hebc rime-sphere-decode rime-sphere-real/carrier.rime rime-sphere-real.bin
+          cmp ../README.md rime-sphere-real.bin
+          python3 scripts/rime_sphere_carrier.py rime-sphere-real-python ../README.md
+          cmp rime-sphere-real/carrier.rime rime-sphere-real-python/carrier.rime
+          cp -r rime-sphere-evidence rime-sphere-corrupt
+          printf X | dd of=rime-sphere-corrupt/run.hbp bs=1 seek=100 conv=notrunc status=none
+          if target/release/hebc rime-sphere-verify rime-sphere-corrupt; then exit 1; fi
+          cp -r rime-sphere-evidence rime-sphere-corrupt-carrier
+          sed -i '5s/,/,1/' rime-sphere-corrupt-carrier/carrier.rime
+          if target/release/hebc rime-sphere-verify rime-sphere-corrupt-carrier; then exit 1; fi
+          echo 'PASS: original sphere transform retained, coefficients carried, Python and Rust byte-identical, fail-closed receipts'
       - name: Pinned Clasy X3 81-mode HTTP-0 and HBP HBI SHA chain
         working-directory: native
         run: |

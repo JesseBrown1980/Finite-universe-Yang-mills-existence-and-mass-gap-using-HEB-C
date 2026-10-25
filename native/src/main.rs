@@ -495,6 +495,44 @@ fn rime_gear_verify(args:&[String])->Result<(),String>{
     Ok(())
 }
 
+/// Optional INPUT file; without it, the original pipeline's fallback bytes.
+fn rime_sphere_input(args:&[String])->Result<Vec<u8>,String>{
+    use hebc_finite_yang_mills::rime_sphere_bridge::default_input;
+    match args.get(3) {
+        Some(p) => std::fs::read(p).map_err(|e|format!("{p}: {e}")),
+        None => Ok(default_input()),
+    }
+}
+fn rime_sphere_bridge(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::rime_sphere_bridge::{generate,verify,write};
+    let dir=args.get(2).map(String::as_str).unwrap_or("rime-sphere-evidence");
+    let data=rime_sphere_input(args)?;
+    let a=generate(&data)?;
+    verify(&a,&data)?;
+    write(Path::new(dir),&a)?;
+    print!("{}",a.measure);
+    Ok(())
+}
+fn rime_sphere_verify(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::rime_sphere_bridge::verify_directory;
+    let dir=args.get(2).map(String::as_str).unwrap_or("rime-sphere-evidence");
+    verify_directory(Path::new(dir),&rime_sphere_input(args)?)?;
+    println!("RIMESPHEREVERIFY|result=PASS|dir={dir}|json=0");
+    Ok(())
+}
+fn rime_sphere_decode(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::rime_sphere_bridge::{decode,parse};
+    let (src,out)=match (args.get(2),args.get(3)) {
+        (Some(s),Some(o)) => (s,o),
+        _ => return Err("usage: rime-sphere-decode CARRIER OUT".into()),
+    };
+    let text=std::fs::read_to_string(src).map_err(|e|format!("{src}: {e}"))?;
+    let bytes=decode(&parse(&text)?)?;
+    std::fs::write(out,&bytes).map_err(|e|format!("{out}: {e}"))?;
+    println!("RIMESPHEREDECODE|result=PASS|bytes={}|json=0",bytes.len());
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let result = match args.get(1).map(String::as_str) {
@@ -536,13 +574,16 @@ fn main() {
         Some("shadow-residual-verify") => shadow_residual_verify(&args),
         Some("rime-gear-audit") => rime_gear_audit(&args),
         Some("rime-gear-verify") => rime_gear_verify(&args),
+        Some("rime-sphere-bridge") => rime_sphere_bridge(&args),
+        Some("rime-sphere-verify") => rime_sphere_verify(&args),
+        Some("rime-sphere-decode") => rime_sphere_decode(&args),
         Some("spectrum") => spectrum_cmd(&args),
         Some("sector") => sector_cmd(&args),
         Some("serve") => match argument(&args, 2, 5088u16) {
             Ok(port) => service(port),
             Err(e) => Err(e),
         },
-        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | double-spectrum [JE=1] [JB=1] [dir] | double-verify [dir] | torus2-spectrum [JE=1] [JB=1] [dir] | torus2-verify [dir] | torus2-bounds [JE=1] [JB=1] [dir] | torus2-bounds-verify [JE=1] [JB=1] [dir] | torus2-inertia [JE=1] [JB=1] [dir] | torus2-inertia-verify [JE=1] [JB=1] [dir] | cache-demo [steps=243] [side=4] | torus2-independent [JE=1] [JB=1] [dir] | torus2-independent-verify [JE=1] [JB=1] [dir] | torus2-scaling | constellation-audit [dir] | constellation-verify [dir] | shadow-residual-audit [dir] | shadow-residual-verify [dir] | rime-gear-audit [dir] | rime-gear-verify [dir] | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
+        _ => Err("usage: hebc run [steps=243] [side=4] [probes_per_tick=8192] [dir=evidence-native] | verify [dir] | gap | spectrum [JE=1] [JB=1] | sector single|double|torus2 | double-spectrum [JE=1] [JB=1] [dir] | double-verify [dir] | torus2-spectrum [JE=1] [JB=1] [dir] | torus2-verify [dir] | torus2-bounds [JE=1] [JB=1] [dir] | torus2-bounds-verify [JE=1] [JB=1] [dir] | torus2-inertia [JE=1] [JB=1] [dir] | torus2-inertia-verify [JE=1] [JB=1] [dir] | cache-demo [steps=243] [side=4] | torus2-independent [JE=1] [JB=1] [dir] | torus2-independent-verify [JE=1] [JB=1] [dir] | torus2-scaling | constellation-audit [dir] | constellation-verify [dir] | shadow-residual-audit [dir] | shadow-residual-verify [dir] | rime-gear-audit [dir] | rime-gear-verify [dir] | rime-sphere-bridge [dir] [input] | rime-sphere-verify [dir] [input] | rime-sphere-decode CARRIER OUT | clasy-run [ordinal=0] [nu=1] [steps=243] [dir] | clasy-verify [dir] | clasy-batch [count=81] [steps=243] [dir] | address [ordinal] | serve [port=5088]".into()),
     };
     if let Err(e) = result {
         eprintln!("FAIL|reason={e}|json=0");
