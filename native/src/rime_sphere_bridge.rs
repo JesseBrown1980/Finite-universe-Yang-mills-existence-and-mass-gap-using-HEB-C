@@ -34,7 +34,7 @@ pub const C4_BLOCKS: usize = 100;
 const SCHEMA: &str = "hebc.rime.sphere.bridge.v1";
 /// Which results are theorems (hold for every input) and which are
 /// observations (measured on this input only).
-const GUARANTEES: &str = "theorem=C1,C2,C3_k27,C4_wrong_root_byte0,C5_single_label_row,C5_bound_le_max_block_multiplicity|observed=C3_k_lt_27_counts,C4_random_counts,C4_wrong_root_other_bytes,C5_max_exact_value";
+const GUARANTEES: &str = "theorem=C1,C2,C3_k27,C4_wrong_root_byte0,C5_single_label_row_if_blocks,C5_bound_le_max_block_multiplicity|observed=C3_k_lt_27_counts,C4_random_counts,C4_wrong_root_other_bytes,C5_max_exact_value";
 
 pub type Block = [u64; N];
 
@@ -254,12 +254,13 @@ pub struct Controls {
     /// (k, bytes recovered, bytes total) for the original C3 sweep.
     pub c3: Vec<(usize, usize, usize)>,
     /// (k, whole blocks recovered exactly, blocks total) — block-level C3.
-    /// Individual bytes can match by chance; a whole 27-byte block cannot
-    /// in practice, so this is the stricter recovery measure.
+    /// Individual bytes can match by chance; whole-block success requires
+    /// equality at all 27 positions, and can occur for structured inputs.
     pub c3_blocks: Vec<(usize, usize, usize)>,
     pub c4_random: (usize, usize),
     pub c4_wrong_root: (usize, usize),
-    /// Distinct label rows across all blocks (always 1: labels are positional).
+    /// Distinct label rows across complete blocks (1 when blocks exist;
+    /// 0 when the input has only a tail or is empty).
     pub c5_label_rows_distinct: usize,
     /// Best any labels-only decoder can do: it must emit one fixed block, so
     /// at most the most-repeated block is exact.
@@ -374,7 +375,8 @@ pub fn generate(data: &[u8]) -> Result<Audit, String> {
     // PASS gates ONLY on mathematical guarantees, which must hold for every
     // input: C1/C2 (the NTT is invertible over Z/p because 27 | p-1), C3 at
     // k=27 (that is C1), wrong-root byte 0 (inverse index 0 is root-free),
-    // and C5's label rows being a single positional row. The fraction /
+    // and C5's label rows being one positional row for nonempty complete
+    // blocks (zero for tail-only/empty input). The fraction /
     // random / wrong-root / labels-only RECOVERY COUNTS are observations about
     // this input and are reported, never required: a constant block, for
     // example, recovers from one coefficient (see tests).
@@ -386,7 +388,7 @@ pub fn generate(data: &[u8]) -> Result<Audit, String> {
         && ctl.c2_carrier_roundtrip
         && full
         && byte0_root_free
-        && ctl.c5_label_rows_distinct == 1;
+        && ctl.c5_label_rows_distinct == usize::from(!c.coeffs.is_empty());
     let carrier_sha = hex(&sha256(carrier.as_bytes()));
     let xcheck = xcheck_line(&ctl, &c, &carrier_sha);
     let coeff_bits = (64 - (P - 1).leading_zeros()) as usize;
@@ -571,6 +573,29 @@ mod tests {
         let mut forged = a.clone();
         forged.xcheck.push(' ');
         assert!(verify(&forged, &d).is_err());
+    }
+
+    /// The carrier includes a tail for inputs shorter than one NTT block.
+    /// These valid byte streams have *zero* positional label rows, not one.
+    #[test]
+    fn empty_and_tail_only_files_roundtrip_and_pass_controls() {
+        for data in [
+            Vec::<u8>::new(),
+            vec![7u8],
+            vec![9u8; N - 1],
+            vec![42u8; N],
+            vec![11u8; N + 1],
+        ] {
+            let a = generate(&data).expect("bridge must support all lengths");
+            let c = parse(&a.carrier).unwrap();
+            assert_eq!(decode(&c).unwrap(), data);
+            verify(&a, &data).unwrap();
+            assert_eq!(c.coeffs.len(), data.len() / N);
+            assert_eq!(c.tail.len(), data.len() % N);
+            let ctl = controls(&data, &c);
+            assert_eq!(ctl.c5_label_rows_distinct, usize::from(data.len() >= N));
+            assert!(a.measure.contains("compression_claimed=0"));
+        }
     }
 
     #[test]
