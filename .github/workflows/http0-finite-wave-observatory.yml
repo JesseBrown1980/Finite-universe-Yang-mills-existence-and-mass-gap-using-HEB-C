@@ -1,0 +1,55 @@
+name: HEB-C finite S3 integer wave observatory (controls and HTTP-0)
+
+on:
+  push:
+    branches: [http0-finite-s3-wave-observation-test]
+  pull_request:
+    branches: [http0-sgram-backend-testground]
+
+permissions:
+  contents: read
+
+jobs:
+  wave-observer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust 1.81 integer-only tests and Clippy
+        working-directory: native
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal --component clippy
+          cargo +1.81.0 test --all-targets --offline --locked
+          cargo +1.81.0 clippy --all-targets --offline --locked -- -D warnings
+          cargo +1.81.0 build --release --offline --locked --bins
+      - name: Local HTTP-0 observatory full-state tests
+        working-directory: native
+        shell: bash
+        run: |
+          set -euo pipefail
+          target/release/hebc_http0_sgram serve /tmp/hebc-observer 55099 20 > /tmp/hebc-observer-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          for i in $(seq 1 50); do
+            if grep -q 'server=READY' /tmp/hebc-observer-server.log; then break; fi
+            sleep 0.1
+          done
+          curl --fail -sS http://127.0.0.1:55099/observatory > /tmp/hebc-observatory.html
+          grep -F 'Integer finite-S' /tmp/hebc-observatory.html
+          curl --fail -sS http://127.0.0.1:55099/wave/1/0/27 > /tmp/wave-electric.hbp
+          curl --fail -sS http://127.0.0.1:55099/wave/0/1/27 > /tmp/wave-magnetic.hbp
+          curl --fail -sS http://127.0.0.1:55099/wave/1/1/27 > /tmp/wave-coupled.hbp
+          grep 'kind=END|JE=1|JB=0|steps=27|state_changed=0' /tmp/wave-electric.hbp
+          grep 'kind=END|JE=0|JB=1|steps=27|state_changed=1' /tmp/wave-magnetic.hbp
+          grep 'kind=END|JE=1|JB=1|steps=27|state_changed=1' /tmp/wave-coupled.hbp
+          grep 'electric_positive_seen=1' /tmp/wave-coupled.hbp
+          grep -F 'real_time_unitary=0|continuum_YM_proven=0' /tmp/wave-coupled.hbp
+          test "$(grep -c '|mode=INTEGER_DISCRETE_WAVE|step=' /tmp/wave-coupled.hbp)" -eq 28
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:55099/wave/1/1/244)" = 400
+          # A second run must byte match: determinism is not physics validity.
+          curl --fail -sS http://127.0.0.1:55099/wave/1/1/27 > /tmp/wave-coupled-replay.hbp
+          cmp /tmp/wave-coupled.hbp /tmp/wave-coupled-replay.hbp
+          grep -F 'json=0' /tmp/wave-coupled.hbp > /dev/null
+          sha256sum /tmp/wave-electric.hbp /tmp/wave-magnetic.hbp /tmp/wave-coupled.hbp
+          echo 'HEBC-WAVE|result=PASS|scope=INTEGER_FULL_1393_STATE_HTTP_LOCAL_ONLY|json=0'
