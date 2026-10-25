@@ -1,7 +1,7 @@
 name: Native HEB-C Rust 1.81 finite gauge verification
 on:
   push:
-    branches: [main]
+    branches: [main, stage2j-rime-prism-bridge]
   pull_request:
     branches: [main]
 jobs:
