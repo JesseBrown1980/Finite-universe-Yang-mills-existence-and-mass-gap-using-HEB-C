@@ -8,6 +8,7 @@ Routes (127.0.0.1 only, text lines end json=0; no JSON anywhere):
   /                      page: table + one SVG per ratio
   /evolve/JE/JB          one measurement line
   /svg/JE/JB             integer SVG of log2(energy drop) per step
+  /jump/SECTOR/JE/JB/J   matrix-jump evolution P=T^(2^J) on one Z2xZ2 sector
 Integer-only: the plot's y-axis is bit_length() of each drop (exact log2), so
 a clean exponential decay is a straight line whose slope gives the gap.
 """
@@ -15,6 +16,8 @@ import os
 import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+import subprocess
 
 import evolve as V
 
@@ -76,6 +79,24 @@ def svg(je, jb):
             '</svg>' % (W, H, W, H, pad, H - pad, W - pad, H - pad, pad, pad, pad, H - pad, pts, pad, jb, je))
 
 
+JUMP = os.environ.get("HEBC_JUMP", os.path.join(HERE, "evolvers", "target", "release", "jump"))
+SECTOR_DIR = os.environ.get("HEBC_SECTORS", os.path.join(S, "sec", "out"))  # PR #14 sector exports
+SECTORS = {n: os.path.join(SECTOR_DIR, n + ".matrix") for n in ("pp", "pm", "mp", "mm")}
+JCACHE = {}
+
+
+def jump_line(sector, je, jb, j):
+    key = (sector, je, jb, j)
+    with LOCK:
+        if key in JCACHE:
+            return JCACHE[key]
+    out = subprocess.run([JUMP, SECTORS[sector], str(je), str(jb), str(j), "4"],
+                         capture_output=True, text=True, timeout=900).stdout
+    with LOCK:
+        JCACHE[key] = out
+    return out
+
+
 def page():
     cert = certified()
     rows = []
@@ -107,6 +128,11 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if not parts:
                 body, ctype = page(), "text/html; charset=utf-8"
+            elif parts[0] == "jump" and len(parts) == 5 and parts[1] in SECTORS:
+                je, jb, j = int(parts[2]), int(parts[3]), int(parts[4])
+                if not (1 <= je <= 64 and 0 <= jb <= 100000 and 4 <= j <= 40):
+                    raise ValueError
+                body, ctype = jump_line(parts[1], je, jb, j), "text/plain; charset=utf-8"
             elif parts[0] in ("evolve", "svg") and len(parts) == 3:
                 je, jb = int(parts[1]), int(parts[2])
                 if not (1 <= je <= 64 and 0 <= jb <= 1000):
