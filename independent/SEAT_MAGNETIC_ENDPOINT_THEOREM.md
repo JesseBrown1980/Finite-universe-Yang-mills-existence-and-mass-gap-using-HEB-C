@@ -88,6 +88,10 @@ python3 independent/seat_magnetic_endpoint.py > /tmp/magnetic.measure
 cmp /tmp/magnetic.measure independent/seat_magnetic_endpoint.measure
 ```
 
-The script reruns the exact source operator reconstruction, checks graph-Laplacian PSD conditions and `PEP`, verifies every entry of the 8×8 second-order matrix and W symmetry, and computes its full characteristic polynomial using only standard-library rational arithmetic. It tests the rational small-s constants and produces zero-JSON pipe records. CI separately checks the stage-2G-to-stage-2H coupling rectangles in the same branch.
+The script reruns the exact source operator reconstruction, checks graph-Laplacian PSD conditions and `PEP`, verifies every entry of the 8×8 second-order matrix and W symmetry, and computes its full characteristic polynomial using only integer numerator/denominator pairs backed by Python `int` and exact integer division, with no `Fraction`, decimal or floating-point runtime values. It tests the rational small-s constants and produces zero-JSON pipe records. CI separately checks the stage-2G-to-stage-2H coupling rectangles in the same branch.
 
 **Limitations:** Same model as PR #7 and PR #9; no independent new Hamiltonian measurement. No larger lattice sizes, confinement, continuum gauge group, physical host independence, or Clay existence theorem.
+
+## Integer-only execution invariant
+
+All numerical proof code in this branch represents every exact ratio as a reduced pair of Python integer numerator and integer denominator. No `fractions.Fraction`, native `float`, `Decimal`, complex arithmetic, numerical eigensolver, or floating-point timing is used by these verifier paths. The `seat_integer_only_gate.py` CI gate parses all independent seat Python sources, rejects forbidden numeric constructs, and exercises integer-pair arithmetic self-tests. Pinned certificate text remains byte-identical after the refactor; the mathematical rational endpoints have not changed.
