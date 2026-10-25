@@ -10,11 +10,12 @@ No JSON, floating point, continuum inference or eigensolver.
 """
 from collections import deque
 from contextlib import redirect_stdout
-from fractions import Fraction as Q
+from seat_integer_ratio import IntegerRatio as Q, selftest as integer_ratio_selftest
 from io import StringIO
 from pathlib import Path
 import runpy
 
+assert integer_ratio_selftest()
 HERE=Path(__file__).resolve().parent
 with redirect_stdout(StringIO()):
     model=runpy.run_path(str(HERE/"seat_yang_mills_audit.py"))
