@@ -1,0 +1,117 @@
+name: HTTP-0 SG-RAM backend test ground (Rust 1.81, zero JSON)
+
+on:
+  push:
+    branches: [http0-sgram-backend-testground]
+  pull_request:
+    branches: [stage2g-certified-torus-gap]
+
+permissions:
+  contents: read
+
+jobs:
+  http0-sgram:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust and Clippy
+        run: rustup toolchain install 1.81.0 --profile minimal --component clippy
+      - name: Tests and clean Clippy across original HEB-C and new backend
+        working-directory: native
+        run: |
+          set -euo pipefail
+          cargo +1.81.0 test --all-targets --offline --locked
+          cargo +1.81.0 clippy --all-targets --offline --locked -- -D warnings
+          cargo +1.81.0 build --release --offline --locked --bins
+      - name: Stateless address, finite S3 bounds and persistent Clasy shard replay
+        working-directory: native
+        shell: bash
+        run: |
+          set -euo pipefail
+          export BASE=/tmp/hebc-http0-sgram-ci
+          rm -rf "$BASE"
+          target/release/hebc_http0_sgram address 22999999999 | grep 'allocated_namespace_states=0|json=0'
+          target/release/hebc_http0_sgram finite-gap 1 1 | grep -F 'E0=[7634198,7634199]/1000000'
+          target/release/hebc_http0_sgram finite-gap 3 5 | grep -F 'E0=[36699227,36699228]/1000000'
+          target/release/hebc_http0_sgram finite-gap 1 1 | grep -F 'E1_stage2h_strict_gt_reference=13240/1000'
+          target/release/hebc_http0_sgram finite-gap 3 5 | grep -F 'E1_stage2h_strict_gt_reference=50840/1000'
+          target/release/hebc_http0_sgram finite-gap 1 1 | grep -F 'E1_stage2h_verified_this_request=0'
+          target/release/hebc_http0_sgram finite-gap 3 5 | grep -F 'E1_source=STAGE2G_COLLATZ_POINCARE'
+          target/release/hebc_http0_sgram run "$BASE" 7 3 | grep 'action=run'
+          target/release/hebc_http0_sgram run "$BASE" 7 3 | grep 'action=verify'
+          target/release/hebc_http0_sgram verify "$BASE" 7 3 | grep 'result=PASS'
+          test "$(wc -l < "$BASE/kernel-00000000000000000007-ticks-003/run.hbp")" -eq 3
+          test "$(wc -l < "$BASE/kernel-00000000000000000007-ticks-003/index.hbi")" -eq 3
+          cp -a "$BASE" /tmp/hebc-http0-sgram-corrupt
+          printf X | dd of=/tmp/hebc-http0-sgram-corrupt/kernel-00000000000000000007-ticks-003/run.hbp bs=1 seek=15 conv=notrunc status=none
+          if target/release/hebc_http0_sgram verify /tmp/hebc-http0-sgram-corrupt 7 3; then
+            echo 'FAIL corrupted HBP unexpectedly verified'
+            exit 1
+          fi
+          if target/release/hebc_http0_sgram run /tmp/hebc-http0-sgram-corrupt 7 3; then
+            echo 'FAIL corrupt existing evidence was overwritten'
+            exit 1
+          fi
+          # Recovery is an EXPLICIT OFFLINE operator action. Complete
+          # staging can be verified and promoted; incomplete staging can
+          # only be quarantined, never silently adopted or overwritten.
+          export REC=/tmp/hebc-http0-sgram-recovery
+          rm -rf "$REC"
+          mkdir -p "$REC/.inflight-00000000000000000019-ticks-003"
+          echo damaged > "$REC/.inflight-00000000000000000019-ticks-003/run.hbp"
+          if target/release/hebc_http0_sgram recover "$REC" 19 3; then
+            echo 'FAIL: incomplete staging was recovered'
+            exit 1
+          fi
+          test -f "$REC/.inflight-00000000000000000019-ticks-003/run.hbp"
+          target/release/hebc_http0_sgram quarantine "$REC" 19 3 | grep 'trusted=0'
+          test -f "$REC/.quarantine-00000000000000000019-ticks-003-0000/run.hbp"
+          target/release/hebc clasy-run 19 1 3 "$REC/.inflight-00000000000000000019-ticks-003" > /tmp/recovery-source.measure
+          target/release/hebc_http0_sgram recover "$REC" 19 3 | grep 'action=recover'
+          target/release/hebc_http0_sgram verify "$REC" 19 3 | grep 'result=PASS'
+          test ! -e "$REC/.inflight-00000000000000000019-ticks-003"
+          if target/release/hebc_http0_sgram recover "$REC" 19 3; then
+            echo 'FAIL: committed shard was recovered over'
+            exit 1
+          fi
+          if find "$BASE" -name '*.json' | grep -q .; then
+            echo 'FAIL JSON artifact'
+            exit 1
+          fi
+      - name: HTTP/1.1 loopback smoke on virtual HTTP-0 dispatch
+        working-directory: native
+        shell: bash
+        run: |
+          set -euo pipefail
+          export BASE=/tmp/hebc-http0-sgram-http
+          rm -rf "$BASE"
+          target/release/hebc_http0_sgram serve "$BASE" 55097 16 > /tmp/hebc-http0-sgram-serve.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for _ in $(seq 1 40); do
+            if grep -q 'server=READY' /tmp/hebc-http0-sgram-serve.log; then break; fi
+            sleep 0.1
+          done
+          # Simulate a client closing immediately with TCP RST. The listener
+          # must survive that peer's write-side BrokenPipe.
+          python3 - <<'PY'
+          import socket
+          import struct
+          sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+          sock.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", 1, 0))
+          sock.connect(("127.0.0.1", 55097))
+          sock.close()
+          PY
+          sleep 0.1
+          kill -0 "$server_pid"
+          curl --fail --silent --show-error http://127.0.0.1:55097/health | grep -F 'allocated_namespace_states=0'
+          curl --fail --silent --show-error http://127.0.0.1:55097/qtrit/22999999999 | grep -F 'action=address'
+          curl --fail --silent --show-error http://127.0.0.1:55097/finite-gap/1/1 | grep -F 'E0=[7634198,7634199]/1000000'
+          curl --fail --silent --show-error http://127.0.0.1:55097/finite-gap/3/5 | grep -F 'E0=[36699227,36699228]/1000000'
+          curl --fail --silent --show-error http://127.0.0.1:55097/finite-gap/1/1 | grep 'E1_stage2h_verified_this_request=0'
+          curl --fail --silent --show-error -X POST http://127.0.0.1:55097/run/7/3 | grep 'action=run'
+          curl --fail --silent --show-error http://127.0.0.1:55097/verify/7/3 | grep 'action=verify'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:55097/qtrit/NOT_INTEGER)" = 400
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:55097/unknown)" = 404
+          echo 'HTTP0SGRAM|result=PASS|scope=LOOPBACK_SMOKE_AND_DISK_SHARD|json=0'
