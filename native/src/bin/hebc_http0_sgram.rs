@@ -148,14 +148,30 @@ fn handle(mut stream:TcpStream, root:&Path)->Result<(),String>{
     stream.write_all(header.as_bytes()).map_err(|e|e.to_string())?;
     stream.write_all(body.as_bytes()).map_err(|e|e.to_string())
 }
+/// Connection-level failures, including an early disconnect and broken pipe,
+/// are never fatal to the listener. The bounded request count includes failed
+/// accepts and closed clients, so this test server cannot run forever.
+fn serve_listener(listener:TcpListener,root:&Path,max_requests:usize)->Result<(),String>{
+    if max_requests==0||max_requests>10000{return Err("max_requests bound: 1..10000".into());}
+    for connection in listener.incoming().take(max_requests){
+        match connection {
+            Ok(stream)=>{
+                if let Err(_err)=handle(stream,root){
+                    eprintln!("HTTP0SGRAM|event=client_error|action=continue|json=0");
+                }
+            }
+            Err(_err)=>{
+                eprintln!("HTTP0SGRAM|event=accept_error|action=continue|json=0");
+            }
+        }
+    }
+    Ok(())
+}
 fn serve(root:&Path,port:u16,max_requests:usize)->Result<(),String>{
     if max_requests==0||max_requests>10000{return Err("max_requests bound: 1..10000".into());}
     let listener=TcpListener::bind(("127.0.0.1",port)).map_err(|e|e.to_string())?;
     println!("HTTP0SGRAM|server=READY|transport=HTTP/1.1|bind=127.0.0.1|port={port}|max_requests={max_requests}|json=0");
-    for connection in listener.incoming().take(max_requests){
-        handle(connection.map_err(|e|e.to_string())?,root)?;
-    }
-    Ok(())
+    serve_listener(listener,root,max_requests)
 }
 fn main(){
     let args:Vec<String>=env::args().collect();
@@ -200,6 +216,27 @@ mod tests{
         assert_eq!(route(Path::new("."),"GET","/qtrit/x").0,400);
         assert_eq!(route(Path::new("."),"GET","/unknown").0,404);
         assert_eq!(route(Path::new("."),"POST","/run/0/244").0,409);
+    }
+    #[test]
+    fn abandoned_client_cannot_kill_server(){
+        use std::net::Shutdown;
+        use std::thread;
+        let listener=TcpListener::bind("127.0.0.1:0").unwrap();
+        let address=listener.local_addr().unwrap();
+        let root=std::env::temp_dir();
+        let server=thread::spawn(move||serve_listener(listener,&root,2));
+        // A peer can vanish after TCP connect, before sending any HTTP
+        // request. The next valid request must be served by that listener.
+        let abandoned=TcpStream::connect(address).unwrap();
+        abandoned.shutdown(Shutdown::Both).unwrap();
+        drop(abandoned);
+        let mut healthy=TcpStream::connect(address).unwrap();
+        healthy.write_all(b"GET /health HTTP/1.1\r\nHost: localhost\r\n\r\n").unwrap();
+        let mut response=String::new();
+        healthy.read_to_string(&mut response).unwrap();
+        assert!(response.starts_with("HTTP/1.1 200 OK"),"{response}");
+        assert!(response.contains("health=OK"),"{response}");
+        assert!(server.join().unwrap().is_ok());
     }
     #[test]
     fn persist_replay_and_corruption_rejected(){
