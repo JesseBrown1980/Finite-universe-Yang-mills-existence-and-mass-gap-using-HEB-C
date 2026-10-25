@@ -1,7 +1,7 @@
 name: Native HEB-C Rust 1.81 finite gauge verification
 on:
   push:
-    branches: [main]
+    branches: [main, stage2j-rime-prism-bridge]
   pull_request:
     branches: [main]
 jobs:
@@ -214,6 +214,73 @@ jobs:
           printf X | dd of=rime-gear-corrupt/run.hbp bs=1 seek=90 conv=notrunc status=none
           if target/release/hebc rime-gear-verify rime-gear-corrupt; then exit 1; fi
           echo 'PASS: exact thirds and mediated Rime, fail-closed causal provenance'
+      - name: Stage 2J RIME sphere bridge - original Python NTT retained, Rust receipts around it
+        working-directory: native
+        run: |
+          test "$(git hash-object vendor/rime_sphere_source/rime_prism_pipeline.py)" = "da8e4c92dabef3702f9d3d4a743bdc5ad6e3da59"
+          test "$(git hash-object vendor/rime_sphere_source/rime_sphere.py)" = "449ac82b82223349ca8fc41d8e9b005fd3beda06"
+          # HEB-C integer-only rule for the bridge's own scripts (the vendored original is pinned, not edited).
+          python3 scripts/integer_only_audit.py scripts/rime_sphere_carrier.py tests/fixtures/rime_sphere/make_fixtures.py
+          (cd vendor/rime_sphere_source && python3 rime_prism_pipeline.py) | tee original-pipeline.txt
+          grep 'C1 identity.*byte-exact = True' original-pipeline.txt
+          target/release/hebc rime-sphere-bridge rime-sphere-evidence
+          target/release/hebc rime-sphere-verify rime-sphere-evidence
+          python3 scripts/rime_sphere_carrier.py rime-sphere-python
+          cmp rime-sphere-evidence/carrier.rime rime-sphere-python/carrier.rime
+          cmp rime-sphere-evidence/xcheck.measure rime-sphere-python/xcheck.measure
+          target/release/hebc rime-sphere-bridge rime-sphere-repeat
+          for f in carrier.rime run.hbp index.hbi run.anchor run.measure; do cmp rime-sphere-evidence/$f rime-sphere-repeat/$f; done
+          grep 'labels=POSITION_ONLY|coefficients_carried=27/27' rime-sphere-evidence/run.measure
+          grep 'c3_bytes=3:0/13500,9:0/13500,18:0/13500,24:0/13500,26:0/13500,27:13500/13500' rime-sphere-evidence/run.measure
+          grep 'c3_blocks=3:0/500,9:0/500,18:0/500,24:0/500,26:0/500,27:500/500' rime-sphere-evidence/run.measure
+          grep '|theorem=C1,C3_k27,' rime-sphere-evidence/run.measure
+          grep '_given_no_side_information|tested=C2_carrier_roundtrip,' rime-sphere-evidence/run.measure
+          grep '|integrity=SHA256_RELATIVE_TO_TRUSTED_INPUT_OR_CARRIER_SHA|provenance=NOT_AUTHENTICATED|' rime-sphere-evidence/run.measure
+          grep '|observed=C3_k_lt_27_counts,' rime-sphere-evidence/run.measure
+          grep 'carry_ratio=5/2|serialized_carrier_bytes=' rime-sphere-evidence/run.measure
+          grep 'compression_claimed=0' rime-sphere-evidence/run.measure
+          target/release/hebc rime-sphere-decode rime-sphere-evidence/carrier.rime rime-sphere-roundtrip.bin
+          python3 -c "import sys; sys.exit(open('rime-sphere-roundtrip.bin','rb').read()!=bytes((i*7)%251 for i in range(13500)))"
+          # Independent Python decoder (strict grammar + ORIGINAL intt) decodes the Rust carrier.
+          python3 scripts/rime_sphere_carrier.py --decode rime-sphere-evidence/carrier.rime rime-sphere-roundtrip-py.bin
+          cmp rime-sphere-roundtrip.bin rime-sphere-roundtrip-py.bin
+          # The ORIGINAL script's own printed C3 table and C4 random line must equal the bridge's counts.
+          python3 scripts/rime_sphere_carrier.py --compare-original original-pipeline.txt rime-sphere-evidence/run.measure
+          target/release/hebc rime-sphere-bridge rime-sphere-real ../README.md
+          target/release/hebc rime-sphere-decode rime-sphere-real/carrier.rime rime-sphere-real.bin
+          cmp ../README.md rime-sphere-real.bin
+          python3 scripts/rime_sphere_carrier.py rime-sphere-real-python ../README.md
+          cmp rime-sphere-real/carrier.rime rime-sphere-real-python/carrier.rime
+          python3 scripts/rime_sphere_carrier.py --decode rime-sphere-real/carrier.rime rime-sphere-real-py.bin
+          cmp ../README.md rime-sphere-real-py.bin
+          # Review 5643283114 adversarial fixtures: regenerate from the original NTT, must be unchanged,
+          # then every malformed carrier must fail closed in BOTH decoders as a bounded subprocess.
+          python3 tests/fixtures/rime_sphere/make_fixtures.py
+          git diff --exit-code -- tests/fixtures/rime_sphere
+          scripts/rime_sphere_adversarial.sh target/release/hebc rime-sphere-decode
+          scripts/rime_sphere_adversarial.sh python3 scripts/rime_sphere_carrier.py --decode
+          # All byte lengths, including fewer than 27 bytes: no full blocks.
+          : > rime-sphere-empty.bin
+          printf RIME-27 > rime-sphere-tail-only.bin
+          for kind in empty tail-only; do
+            input="rime-sphere-$kind.bin"
+            target/release/hebc rime-sphere-bridge "rime-sphere-$kind" "$input"
+            target/release/hebc rime-sphere-verify "rime-sphere-$kind" "$input"
+            target/release/hebc rime-sphere-decode "rime-sphere-$kind/carrier.rime" "rime-sphere-$kind-roundtrip.bin"
+            cmp "$input" "rime-sphere-$kind-roundtrip.bin"
+            python3 scripts/rime_sphere_carrier.py "rime-sphere-$kind-python" "$input"
+            cmp "rime-sphere-$kind/carrier.rime" "rime-sphere-$kind-python/carrier.rime"
+            cmp "rime-sphere-$kind/xcheck.measure" "rime-sphere-$kind-python/xcheck.measure"
+            python3 scripts/rime_sphere_carrier.py --decode "rime-sphere-$kind/carrier.rime" "rime-sphere-$kind-py.bin"
+            cmp "$input" "rime-sphere-$kind-py.bin"
+          done
+          cp -r rime-sphere-evidence rime-sphere-corrupt
+          printf X | dd of=rime-sphere-corrupt/run.hbp bs=1 seek=100 conv=notrunc status=none
+          if target/release/hebc rime-sphere-verify rime-sphere-corrupt; then exit 1; fi
+          cp -r rime-sphere-evidence rime-sphere-corrupt-carrier
+          sed -i '5s/,/,1/' rime-sphere-corrupt-carrier/carrier.rime
+          if target/release/hebc rime-sphere-verify rime-sphere-corrupt-carrier; then exit 1; fi
+          echo 'PASS: original sphere transform retained, coefficients carried, two decoders agree, malformed carriers fail closed, receipts integrity-checked (provenance not authenticated)'
       - name: Pinned Clasy X3 81-mode HTTP-0 and HBP HBI SHA chain
         working-directory: native
         run: |

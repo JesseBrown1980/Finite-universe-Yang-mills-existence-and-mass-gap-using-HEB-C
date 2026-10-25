@@ -17,6 +17,7 @@ pub mod torus2_inertia;
 pub mod torus2_independent;
 pub mod shadow_residual;
 pub mod rime_gear;
+pub mod rime_sphere_bridge;
 pub mod double_plaquette;
 pub mod clasy_portal;
 

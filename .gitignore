@@ -9,3 +9,4 @@ native/stress*
 native/clasy*
 native/double-*
 native/torus-*
+__pycache__/
