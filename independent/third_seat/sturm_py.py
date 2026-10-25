@@ -16,7 +16,7 @@ of H below t/1000. A pivot is used only if its interval excludes zero.
 Every Schur update x*y/d is enclosed outward: numerator range from the four
 corner products, divided by the extreme denominator in each sign case, floor
 below and ceiling above (Python // is floor division for all signs).
-Integer arithmetic only. Output lines end json=0.
+Integer arithmetic only, timing included (monotonic_ns, integer ms). Output lines end json=0.
 usage: sturm_py.py MATRIX JE JB T_NUM [SCALE_DIGITS]
 """
 import sys
@@ -90,7 +90,7 @@ def certify(a):
     n = len(a)
     active = set(range(n))
     neg = pos = 0
-    t0 = time.time()
+    t0 = time.monotonic_ns()
     for step in range(n):
         best, key = None, None
         for i in active:
@@ -128,7 +128,7 @@ def certify(a):
         a[k].clear()
         active.discard(k)
         if (step + 1) % 100 == 0:
-            print("PROGRESS|pivots=%d/%d|negative=%d|elapsed_s=%.0f|json=0" % (step + 1, n, neg, time.time() - t0),
+            print("PROGRESS|pivots=%d/%d|negative=%d|elapsed_ms=%d|json=0" % (step + 1, n, neg, (time.monotonic_ns() - t0) // 1000000),
                   file=sys.stderr, flush=True)
     return neg, pos, n, "COMPLETE"
 
@@ -139,13 +139,13 @@ def main():
     path, je, jb, tn = sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
     digits = int(sys.argv[5]) if len(sys.argv) > 5 else 80
     a, entries = load(path, je, jb, tn, 10 ** digits)
-    t0 = time.time()
+    t0 = time.monotonic_ns()
     neg, pos, done, status = certify(a)
     ok = status == "COMPLETE" and neg == 1
     print("STURM-PY|result=%s|status=%s|JE=%d|JB=%d|threshold=%d/1000|scale_digits=%d|upper_entries=%d"
-          "|pivots=%d/%d|negative=%d|positive=%d|ambiguous=0|E1_gt_threshold_certified=%d|elapsed_s=%.0f|json=0"
+          "|pivots=%d/%d|negative=%d|positive=%d|ambiguous=0|E1_gt_threshold_certified=%d|elapsed_ms=%d|json=0"
           % ("PASS" if ok else "FAIL", status, je, jb, tn, digits, entries, done, len(a), neg, pos, int(ok),
-             time.time() - t0))
+             (time.monotonic_ns() - t0) // 1000000))
     sys.exit(0 if ok else 2)
 
 

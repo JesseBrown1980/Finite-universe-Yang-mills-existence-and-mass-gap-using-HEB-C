@@ -43,12 +43,16 @@ python3 independent/seat_sturm_integer_matrix.py > m.txt
 sha256sum m.txt   # 137285e0…
 for args in "1 1 13240" "3 5 50840" "1 1 7000" "1 1 13300"; do
   python3 -I independent/third_seat/sturm_py.py m.txt $args 80 2>/dev/null
-done | grep '^STURM-PY' | sed 's/|elapsed_s=[0-9]*//' > out.measure
-sed 's/|elapsed_s=[0-9]*//' independent/third_seat/third_seat_sturm.measure | cmp - out.measure
+done | grep '^STURM-PY' | sed 's/|elapsed_ms=[0-9]*//' > out.measure
+sed 's/|elapsed_ms=[0-9]*//' independent/third_seat/third_seat_sturm.measure | cmp - out.measure
 ```
 
-`elapsed_s` is wall time and varies by machine, so it is stripped before the
+`elapsed_ms` is wall time (integer milliseconds) and varies by machine, so it is stripped before the
 comparison. Every other field must match byte for byte.
+
+Integer-only: the verifier uses integer arithmetic throughout, timing included
+(`time.monotonic_ns`, integer milliseconds); an AST audit finds no float
+literal, true division, float format, `Decimal` or `Fraction`.
 
 Scope: two inequalities on one finite 1,393-state operator. No infinite-volume
 or continuum Yang–Mills claim follows. No JSON (`json=0`).
