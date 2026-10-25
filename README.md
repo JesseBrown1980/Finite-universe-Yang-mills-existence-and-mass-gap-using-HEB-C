@@ -19,8 +19,8 @@ ends `json=0`. Scope throughout: the finite S₃ gauge model on one 2×2 torus
 
 The 17-rung gap profile ("the wave": r = 0, 1, 2, 3, 5, 6, 8, 9, 15, 21, 27,
 45, 63, 81, 135, 189, 243) and the adaptive ladder over 3 ≤ r ≤ 10⁴ are
-running. Ledger snapshot [`d06014a`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/d06014a/independent/ladder/ledger.hbp)
-(297 certificates). Reported so far:
+running. Ledger snapshot [`36c245f`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/36c245f/independent/ladder/ledger.hbp)
+(610 certificates; all 17 rungs complete). Reported so far:
 
 | r = JB/JE | certified readings (per unit JE) |
 |---|---|
@@ -34,11 +34,23 @@ running. Ledger snapshot [`d06014a`](https://github.com/JesseBrown1980/Finite-un
 | 8 | E₀ < 22.746, E₁ > 22.921, gap > 0.175 |
 | 9 | E₀ < 22.895, E₁ > 23.045, gap > 0.150 |
 | 15 | E₀ < 23.347, E₁ > 23.432, gap > 0.085 |
+| 21 | E₀ < 23.536, E₁ > 23.593, gap > 0.057 |
+| 27 | E₀ < 23.639, E₁ > 23.683, gap > 0.044 |
+| 45 | E₀ < 23.787, E₁ > 23.812, gap > 0.025 |
+| 63 | E₀ < 23.846, E₁ > 23.865, gap > 0.019 |
+| 81 | E₀ < 23.882, E₁ > 23.895, gap > 0.013 |
+| 135 | E₀ < 23.930, E₁ > 23.937, gap > 0.007 |
+| 189 | E₀ < 23.951, E₁ > 23.955, gap > 0.004 |
+| 243 | E₀ < 23.961, E₁ > 23.965, gap > 0.004 |
 
 **Measured, not certified (Euclidean evolution).** Letting H relax under
 v ← (c − H)v from an unsteered integer start vector and reading the gap off
 the decay rate gives 5.999, 5.611, 4.007, 1.473, 0.341, 0.257 at r = 0, 1, 2,
-3, 5, 6, every one inside the certified brackets above. Method, table and
+3, 5, 6, every one inside the certified brackets above. A matrix-jump sweep
+(evolution operator squared, 2^J steps per multiply, on the four translation
+sectors) measures all 17 rungs; every one is consistent with its bracket, E₀ and
+E₁ both sit in the vacuum sector for r > 0, and r·gap approaches
+√14 − √6 = 1.29217 (1.2923 at r = 243). Method, table and
 the HTTP-0 page: [docs/EVOLUTION_TESTGROUND.md](docs/EVOLUTION_TESTGROUND.md).
 
 Method, matrix jumps (scaling, monotone cells, translation sectors,
