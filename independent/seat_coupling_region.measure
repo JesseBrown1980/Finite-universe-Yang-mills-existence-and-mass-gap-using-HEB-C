@@ -1,0 +1,4 @@
+HEBC-COUPLING|result=PASS|states=1393|electric_norm_upper=48|magnetic_norm_upper=12|method=WEYL_GERSHGORIN_EXACT_RATIONAL|input_operator_sha=b6c608f50f81f3bf48fb0203b48e0e3bfc867037dc1d0a96633aa80b962137f3|json=0
+HEBC-COUPLING|result=PASS|region=near_1_1|JE=[99/100,101/100]|JB=[19/20,21/20]|base_gap_strict_gt=5605801/1000000|maximum_gap_perturbation=54/25|gap_strict_gt=3445801/1000000|scope=FINITE_S3_2X2_ONLY|json=0
+HEBC-COUPLING|result=PASS|region=near_3_5|JE=[59/20,61/20]|JB=[24/5,26/5]|base_gap_strict_gt=3535193/250000|maximum_gap_perturbation=48/5|gap_strict_gt=1135193/250000|scope=FINITE_S3_2X2_ONLY|json=0
+HEBC-COUPLING|result=PASS|claim=ALL_JE_GT_ZERO_JB_GE_ZERO_QUALITATIVE_GAP|basis=CONNECTED_STOQUASTIC_FINITE_MATRIX|global_uniform_lower_bound=NONE|reason=SCALING_AND_JE_TO_ZERO_MAGNETIC_DEGENERACY|continuum_proven=0|json=0

@@ -1,0 +1,53 @@
+name: Independent finite S3 coupling regions and magnetic 8-flat gap
+
+on:
+  push:
+    branches: [seat-yang-mills-coupling-region-certificates]
+  pull_request:
+    branches: [seat-yang-mills-exact-rational-ldl]
+
+permissions:
+  contents: read
+
+jobs:
+  exact-coupling-theorems:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Strict integer-only Python numeric AST audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 independent/seat_integer_ratio.py | grep -F 'numeric_runtime=int_only'
+          python3 independent/seat_integer_only_gate.py | grep -F 'float_literals=0|complex_literals=0|json=0'
+      - name: Pin exact 1393-state source operator and Stage 2H antecedents
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f independent/seat_yang_mills_audit.py
+          test -f independent/seat_sturm_full_inertia.measure
+          grep -F 'operator_sha=b6c608f50f81f3bf48fb0203b48e0e3bfc867037dc1d0a96633aa80b962137f3' independent/seat_yang_mills_audit.measure
+          grep -F 'JE=1|JB=1|threshold=13240/1000' independent/seat_sturm_full_inertia.measure
+          grep -F 'JE=3|JB=5|threshold=50840/1000' independent/seat_sturm_full_inertia.measure
+      - name: Rebuild finite S3 matrix and prove exact-rational coupling boxes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 independent/seat_coupling_region.py | tee /tmp/coupling_region.measure
+          cmp /tmp/coupling_region.measure independent/seat_coupling_region.measure
+          test "$(wc -l < /tmp/coupling_region.measure)" -eq 4
+          test "$(grep -c '|json=0$' /tmp/coupling_region.measure)" -eq 4
+          grep -F 'gap_strict_gt=3445801/1000000' /tmp/coupling_region.measure
+          grep -F 'gap_strict_gt=1135193/250000' /tmp/coupling_region.measure
+      - name: Exact 8-flat first order and second order polynomial; rigorous magnetic small-s gap
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 independent/seat_magnetic_endpoint.py | tee /tmp/magnetic_endpoint.measure
+          cmp /tmp/magnetic_endpoint.measure independent/seat_magnetic_endpoint.measure
+          test "$(wc -l < /tmp/magnetic_endpoint.measure)" -eq 12
+          test "$(grep -c '|json=0$' /tmp/magnetic_endpoint.measure)" -eq 12
+          grep -F 'PEP=24I8|first_order_gap=0' /tmp/magnetic_endpoint.measure
+          grep -F 'first_gap_coeff=sqrt14_minus_sqrt6|positive=1' /tmp/magnetic_endpoint.measure
+          grep -F 's_upper=1/10000|error_coeff_max=120/1249|strict_gap_gt=s^2' /tmp/magnetic_endpoint.measure
