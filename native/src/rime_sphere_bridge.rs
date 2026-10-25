@@ -421,11 +421,11 @@ pub fn generate(data: &[u8]) -> Result<Audit, String> {
         hex(&sha256(&hbp)), hex(&sha256(&hbi)), hex(&chain)
     );
     let measure = format!(
-        "RIMESPHERE|result={}|source_transform_retained=1|labels=POSITION_ONLY|coefficients_carried={N}/{N}|c1=byte_exact|c2=carrier_roundtrip|c3_bytes={}|c3_blocks={c3b}|{GUARANTEES}|c4_random={}/{}|c4_wrong_root={}/{}|c5_labels_only_max_exact_blocks={}/{}|coeff_bits={coeff_bits}|block_bits={block_bits}|source_block_bits={source_bits}|carry_ratio={}/{}|compression_claimed=0|carrier_sha={carrier_sha}|json=0\n",
+        "RIMESPHERE|result={}|source_transform_retained=1|labels=POSITION_ONLY|coefficients_carried={N}/{N}|c1=byte_exact|c2=carrier_roundtrip|c3_bytes={}|c3_blocks={c3b}|{GUARANTEES}|c4_random={}/{}|c4_wrong_root={}/{}|c5_labels_only_max_exact_blocks={}/{}|coeff_bits={coeff_bits}|block_bits={block_bits}|source_block_bits={source_bits}|carry_ratio={}/{}|serialized_carrier_bytes={}|compression_claimed=0|carrier_sha={carrier_sha}|json=0\n",
         if pass { "PASS" } else { "FAIL" }, c3.join(","),
         ctl.c4_random.0, ctl.c4_random.1, ctl.c4_wrong_root.0, ctl.c4_wrong_root.1,
         ctl.c5_labels_only_max_exact.0, ctl.c5_labels_only_max_exact.1,
-        block_bits / g, source_bits / g
+        block_bits / g, source_bits / g, carrier.len()
     );
     if !pass {
         return Err(format!("controls failed: {measure}"));
@@ -602,6 +602,7 @@ mod tests {
     fn carry_cost_is_stated_not_hidden() {
         let m = generate(&default_input()).unwrap().measure;
         assert!(m.contains("coeff_bits=20|block_bits=540|source_block_bits=216|carry_ratio=5/2"));
+        assert!(m.contains("serialized_carrier_bytes="));
         assert!(m.contains("compression_claimed=0"));
     }
 }
