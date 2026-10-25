@@ -20,8 +20,8 @@ jobs:
         run: |
           set -euo pipefail
           rustup toolchain install 1.81.0 --profile minimal --component clippy
-          cargo +1.81.0 test --all-targets --offline --locked
           cargo +1.81.0 clippy --all-targets --offline --locked -- -D warnings
+          cargo +1.81.0 test --all-targets --offline --locked
           cargo +1.81.0 build --release --offline --locked --bins
       - name: Local HTTP-0 observatory full-state tests
         working-directory: native
