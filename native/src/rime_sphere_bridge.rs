@@ -152,20 +152,36 @@ pub fn encode(data: &[u8], bank: Bank) -> Carrier {
     }
 }
 
-/// Inverse across the bridge. Fails closed: a coefficient outside Z/p, an
-/// inverse value that is not a byte, or a length/sha mismatch is an error.
+/// Inverse across the bridge. Fails closed, and checks everything it can
+/// BEFORE allocating: the bank must be exactly the supported one (p, g and
+/// w all checked, so a carrier cannot declare a different transform), every
+/// coefficient must lie in [0, P), and the declared length must equal
+/// 27·blocks + tail. Then an inverse value that is not a byte, or a sha
+/// mismatch, is also an error.
 pub fn decode(c: &Carrier) -> Result<Vec<u8>, String> {
-    let mut out = Vec::with_capacity(c.input_len);
+    if c.bank != bank()? {
+        return Err("carrier bank is not the supported bank (p=1000081, g=7, w=951846)".into());
+    }
+    if c.coeffs.iter().any(|xf| xf.iter().any(|&v| v >= P)) {
+        return Err("coefficient outside Z/p".into());
+    }
+    let expected = c
+        .coeffs
+        .len()
+        .checked_mul(N)
+        .and_then(|b| b.checked_add(c.tail.len()))
+        .ok_or("carrier length overflows")?;
+    if c.input_len != expected {
+        return Err("declared byte length does not equal 27*blocks + tail".into());
+    }
+    let mut out = Vec::with_capacity(expected);
     for xf in &c.coeffs {
-        if xf.iter().any(|&v| v >= c.bank.p) {
-            return Err("coefficient outside Z/p".into());
-        }
         for v in intt(xf, c.bank.w) {
             out.push(u8::try_from(v).map_err(|_| "inverse value is not a byte".to_string())?);
         }
     }
     out.extend_from_slice(&c.tail);
-    if out.len() != c.input_len || hex(&sha256(&out)) != c.input_sha {
+    if hex(&sha256(&out)) != c.input_sha {
         return Err("decoded bytes do not match the carried input sha".into());
     }
     Ok(out)
@@ -212,7 +228,9 @@ pub fn parse(text: &str) -> Result<Carrier, String> {
         return Err("carrier N is not 27".into());
     }
     let nblocks: usize = num(field(header, "blocks")?)?;
-    let mut coeffs = Vec::with_capacity(nblocks);
+    // Never allocate from a header-declared count: rows are counted as they
+    // are read and compared to `blocks` afterwards.
+    let mut coeffs = Vec::new();
     let mut tail = Vec::new();
     for line in lines {
         if let Some(rest) = line.strip_prefix("B|") {
@@ -224,11 +242,15 @@ pub fn parse(text: &str) -> Result<Carrier, String> {
             let block: Block = vals.try_into().map_err(|_| "block row is not 27 coefficients")?;
             coeffs.push(block);
         } else if let Some(h) = line.strip_prefix("T|") {
-            if h.len() % 2 != 0 {
-                return Err("odd tail hex".into());
+            // Work on bytes, never str slices: a non-ASCII char must be an
+            // error, not a char-boundary panic.
+            let hb = h.as_bytes();
+            if hb.len() % 2 != 0 || !hb.iter().all(u8::is_ascii_hexdigit) {
+                return Err("tail is not even-length ASCII hex".into());
             }
-            for i in (0..h.len()).step_by(2) {
-                tail.push(u8::from_str_radix(&h[i..i + 2], 16).map_err(|_| "bad tail hex")?);
+            for pair in hb.chunks_exact(2) {
+                let s = std::str::from_utf8(pair).map_err(|_| "bad tail hex")?;
+                tail.push(u8::from_str_radix(s, 16).map_err(|_| "bad tail hex")?);
             }
         } else {
             return Err("unknown carrier row".into());
