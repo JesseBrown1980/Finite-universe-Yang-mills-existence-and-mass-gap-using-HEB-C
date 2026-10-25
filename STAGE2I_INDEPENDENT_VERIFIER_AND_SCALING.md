@@ -26,7 +26,7 @@ Both coupling configurations certify **strictly positive finite-volume mass gaps
 The Stage 2I verifier establishes independent mathematical validity through three decoupled components:
 
 ### A. Ground-State Collatz–Wielandt Re-enclosure
-A strictly positive trial vector $v > 0$ is generated using an independent normalized shifted-power iteration on the entrywise nonnegative operator $M = (1 + \max_i H_{ii}) I - H$. For any positive $v$:
+A strictly positive trial vector $v > 0$ is generated using a separately coded normalized shifted-power iteration on the entrywise nonnegative operator $M = (1 + \max_i H_{ii}) I - H$. For any positive $v$:
 \[
 \min_{i} \frac{(H v)_i}{v_i} \le E_0 \le \max_{i} \frac{(H v)_i}{v_i}
 \]
@@ -134,4 +134,4 @@ Adversarial corruption of `run.hbp` or `index.hbi` causes `torus2-independent-ve
   - Quantitative rational bounds on $E_0$, $E_1$, and $\Delta$: Stage 2G ground enclosure plus two implementations of the rank-one inertia/min–max approach. The second implementation shares the Stage 2G ground interval.
   - Finite open-versus-periodic geometry comparisons: implemented. Controlled scaling across increasing periodic volumes and independently proven excitation-sector quantum numbers remain future work.
 - **Scientific Boundary Disclosure**:
-  These computations rigorously prove positive mass gaps for finite-volume $S_3$ lattice gauge models with exact integer arithmetic. They demonstrate non-Abelian confinement and torelon mass hierarchies on discrete lattices, but do **not** constitute a mathematical proof of four-dimensional continuum Yang–Mills existence or mass gap.
+  These computations establish rigorously bounded positive gaps for specific finite $S_3$ lattice Hamiltonians. They do **not** independently prove confinement, string tension, a complete torelon/glueball quantum-number classification, an infinite-volume limit, or the four-dimensional continuum Yang–Mills existence and mass-gap theorem.
