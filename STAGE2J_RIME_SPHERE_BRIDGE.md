@@ -65,14 +65,14 @@ These are different measures and are reported separately (`c3_bytes`,
 
 ### Guaranteed vs observed
 
-**Theorems — hold for every input; the only things `result=PASS` gates on:**
+**Theorems — hold for every input, including empty or tail-only files; the only things `result=PASS` gates on:**
 
 | | why it must hold |
 |---|---|
 | C1 identity, C2 carrier round trip | 27 divides p−1 = 1,000,080, so a primitive 27th root w exists, and 27 is invertible mod p; the NTT is a bijection on Z/p²⁷ |
 | C3 at k = 27 | is C1 |
 | C4 wrong root, byte 0 always survives | inverse index 0 is N⁻¹·ΣXₖ, which contains no power of the root |
-| C5 label rows distinct = 1 | `bt(k)` depends only on the position k, never on the block |
+| C5 label rows = 1 when any full blocks exist; 0 otherwise | `bt(k)` depends only on position k; files shorter than 27 bytes have no complete block and therefore no label rows |
 | C5 labels-only bound | a decoder that sees only identical labels must emit one fixed block, so it is exact on at most the most-repeated block's count |
 
 **Observations — measured on this input, reported, never required:**
@@ -85,15 +85,16 @@ These are different measures and are reported separately (`c3_bytes`,
 | C5 labels-only maximum | 2 / 500 blocks | equals this input's most-repeated block; an input of one repeated block would give its full count |
 
 The measure line carries this split verbatim:
-`theorem=C1,C2,C3_k27,C4_wrong_root_byte0,C5_single_label_row,C5_bound_le_max_block_multiplicity|observed=C3_k_lt_27_counts,C4_random_counts,C4_wrong_root_other_bytes,C5_max_exact_value`.
+`theorem=C1,C2,C3_k27,C4_wrong_root_byte0,C5_single_label_row_if_blocks,C5_bound_le_max_block_multiplicity|observed=C3_k_lt_27_counts,C4_random_counts,C4_wrong_root_other_bytes,C5_max_exact_value`.
 
 ### Kept in CI
 
-- 73 Rust tests (64 existing + 9 bridge), Clippy `-D warnings`, release build — Rust 1.81.0
+- 74 Rust tests (64 existing + 10 bridge), Clippy `-D warnings`, release build — Rust 1.81.0 (subject to final branch-head CI)
 - original source blobs checked, original script run unmodified
 - cross-language `cmp` of carrier and cross-check line, Python vs Rust
 - bit-exact replay, and receipt + carrier tamper rejection
 - real-file round trip: `README.md` through the bridge and back, `cmp` exact, Python and Rust carriers identical (also run locally on `STAGE2I_INDEPENDENT_VERIFIER_AND_SCALING.md`, 12,256 bytes, 25-byte tail)
+- **boundary cases:** empty input and tail-only input (<27 bytes) yield no complete NTT blocks, zero C5 positional rows and a byte-exact carrier; Rust and Python verify the same output in CI
 
 ## Cost, stated
 
@@ -101,7 +102,7 @@ Each coefficient lives in Z/1000081 and needs 20 bits; a 27-byte block (216
 bits) is carried in 540 bits — `carry_ratio=5/2`. The information-theoretic
 floor for a uniform element of Z/1000081 is 27·log₂(1000081) ≈ 538.2 bits, so
 the 20-bit packing wastes under 0.4%. **No compression is claimed**
-(`compression_claimed=0`). The alternative, carrying only a reference to a
+(`compression_claimed=0`). **Important:** `carry_ratio=5/2` refers only to hypothetical packed 20-bit coefficient storage, *not* the actual serialized `carrier.rime` file size. The current carrier stores coefficients as newline-delimited decimal strings with header and hashing metadata, and is materially larger. The `serialized_carrier_bytes` measure reports that actual size; compare it directly to the source file's byte length. Small inputs can have very high overhead. The alternative, carrying only a reference to a
 verified source bank, is cheaper to transmit but recovers nothing when the
 bank is absent — the original C4 "missing bank" control.
 
