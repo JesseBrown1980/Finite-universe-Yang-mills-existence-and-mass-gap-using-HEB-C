@@ -112,19 +112,30 @@ def compare_original_main(original_txt, run_measure):
     text = open(original_txt).read()
     measure = open(run_measure).read()
     bridge = dict(kv.split("=", 1) for kv in measure.strip().split("|")[1:] if "=" in kv)
-    pct = lambda m, t: "%.1f" % (100.0 * m / t)
-    rows = dict(re.findall(r"^\s+(\d+)/27\s+\d+%\s+([0-9.]+)%\s*$", text, re.M))
+    # Integer-only (HEB-C rule): the original prints one-decimal percentages.
+    # Parse each printed value into integer tenths p, then accept it iff it is
+    # a correct rounding of the exact ratio m/t:  2*|1000*m - p*t| <= t.
+    def tenths(s):
+        whole, _, frac = s.partition(".")
+        if not whole.isdigit() or len(frac) != 1 or not frac.isdigit():
+            raise ValueError("unexpected percentage format %r" % s)
+        return int(whole) * 10 + int(frac)
+
+    def consistent(printed, m, t):
+        return printed is not None and 2 * abs(1000 * m - tenths(printed) * t) <= t
+
+    rows = dict(re.findall(r"^\s+(\d+)/27\s+\d+%\s+([0-9]+\.[0-9])%\s*$", text, re.M))
     problems, checked = [], 0
     for item in bridge["c3_bytes"].split(","):
         k, frac = item.split(":")
         m, t = (int(x) for x in frac.split("/"))
-        if rows.get(k) != pct(m, t):
-            problems.append("C3 k=%s original=%s bridge=%s" % (k, rows.get(k), pct(m, t)))
+        if not consistent(rows.get(k), m, t):
+            problems.append("C3 k=%s original=%s bridge=%d/%d" % (k, rows.get(k), m, t))
         checked += 1
-    rnd = re.search(r"random address.*?:\s*([0-9.]+)% recovered", text)
+    rnd = re.search(r"random address.*?:\s*([0-9]+\.[0-9])% recovered", text)
     m, t = (int(x) for x in bridge["c4_random"].split("/"))
-    if not rnd or rnd.group(1) != pct(m, t):
-        problems.append("C4 random original=%s bridge=%s" % (rnd and rnd.group(1), pct(m, t)))
+    if not consistent(rnd and rnd.group(1), m, t):
+        problems.append("C4 random original=%s bridge=%d/%d" % (rnd and rnd.group(1), m, t))
     checked += 1
     if problems:
         sys.stderr.write("FAIL|reason=%s|json=0\n" % "; ".join(problems))

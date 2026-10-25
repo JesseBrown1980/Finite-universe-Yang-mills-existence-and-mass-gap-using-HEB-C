@@ -219,6 +219,8 @@ jobs:
         run: |
           test "$(git hash-object vendor/rime_sphere_source/rime_prism_pipeline.py)" = "da8e4c92dabef3702f9d3d4a743bdc5ad6e3da59"
           test "$(git hash-object vendor/rime_sphere_source/rime_sphere.py)" = "449ac82b82223349ca8fc41d8e9b005fd3beda06"
+          # HEB-C integer-only rule for the bridge's own scripts (the vendored original is pinned, not edited).
+          python3 scripts/integer_only_audit.py scripts/rime_sphere_carrier.py tests/fixtures/rime_sphere/make_fixtures.py
           (cd vendor/rime_sphere_source && python3 rime_prism_pipeline.py) | tee original-pipeline.txt
           grep 'C1 identity.*byte-exact = True' original-pipeline.txt
           target/release/hebc rime-sphere-bridge rime-sphere-evidence
