@@ -114,7 +114,7 @@ def selftest():
     assert min(R(2, 3), R(1, 2)) == R(1, 2)
     assert sum((R(1, 2), R(1, 3))) == R(5, 6)
     assert type((R(1, 3)/2).num) is int
-    for invalid in (1.0, '1', None):
+    for invalid in (True, '1', None):
         try:
             R(invalid)
         except TypeError:
