@@ -111,7 +111,7 @@ print("HEBC-CELLS|result=OPEN|interval_r=(2,10000)|needs=new_E0_E1_endpoint_cert
 # This DOES NOT assert g(a)>=1/a at either illustrative knot.
 for r in (Q(100),Q(10000)):
     L=slope_bound_at(r)
-    h=Q(1,2*r)/L
+    h=Q(1,2)/r/L
     assert energy_drift(r,r+h)<Q(1,2*r)
     print(f"HEBC-CELLS|result=CONDITIONAL_ONLY|r={r}|slope_le={L}|if_anchor_gap_ge=1/{r}|width_le={h}|then_cell_gap_gt={Q(1,2*r)}*JE|anchor_certified=0|json=0")
 print("HEBC-CELLS|result=PASS|method=MONOTONE_CELL_AND_LOW_ENERGY_DERIVATIVE|claim=R_0_TO_2_VERIFIED|r_2_to_10000_sharp_cells=OPEN|continuum_YM_proven=0|json=0")
