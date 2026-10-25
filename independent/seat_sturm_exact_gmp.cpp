@@ -124,8 +124,12 @@ static Matrix load(const char* path,int je,int jb,int t){
 static void selftest(){
     Matrix a(2);put(a,0,1,R(2));put(a,1,1,R(3));
     auto p=exact_inertia(a,2,0);
-    if(p.negative!=1||p.positive!=1||p.zero!=0||p.blocks2!=1)
-        throw std::runtime_error("2x2 pivot test");
+    if(p.negative!=1||p.positive!=1||p.zero!=0)
+        throw std::runtime_error("mixed diagonal inertia test");
+    Matrix z(2);put(z,0,1,R(2));
+    auto pair=exact_inertia(z,2,0);
+    if(pair.negative!=1||pair.positive!=1||pair.zero!=0||pair.blocks2!=1)
+        throw std::runtime_error("forced symmetric 2x2 pivot test");
     Matrix b(3);put(b,0,0,R(4));put(b,1,1,R(-2));
     auto q=exact_inertia(b,3,0);
     if(q.negative!=1||q.positive!=1||q.zero!=1)
