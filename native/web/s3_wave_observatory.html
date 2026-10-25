@@ -38,13 +38,22 @@ table{width:100%;border-collapse:collapse;font-size:12px}td,th{border-bottom:1px
 (()=>{
 const by=id=>document.getElementById(id);
 const parse=line=>Object.fromEntries(line.split("|").filter(s=>s.includes("=")).map(s=>{let n=s.indexOf("=");return [s.slice(0,n),s.slice(n+1)];}));
-const valid=(s,min,max)=>/^(0|[1-9][0-9]*)$/.test(s)&&s.length<=3&&Number(s)>=min&&Number(s)<=max;
+const valid=(s,min,max)=>/^(0|[1-9][0-9]*)$/.test(s)&&s.length<=3&&BigInt(s)>=BigInt(min)&&BigInt(s)<=BigInt(max);
 const line=(points,color)=>{let p=document.createElementNS("http://www.w3.org/2000/svg","polyline");p.setAttribute("points",points);p.setAttribute("fill","none");p.setAttribute("stroke",color);p.setAttribute("stroke-width","2");by("chart").appendChild(p);};
 function draw(rows){
  const svg=by("chart");svg.replaceChildren();if(!rows.length)return;
- const width=880,height=226,margin=12;
- const maxV=Math.max(1,...rows.map(r=>Number(r.magnetic_milli)),...rows.map(r=>Number(r.electric_milli)));
- function poly(field){return rows.map((r,i)=>(margin+(width*i/Math.max(1,rows.length-1))).toFixed(1)+","+(margin+height-height*Number(r[field])/maxV).toFixed(1)).join(" ");}
+ const width=880n,height=226n,margin=12n;
+ const maxV=rows.reduce((x,r)=>{
+   const m=BigInt(r.magnetic_milli),e=BigInt(r.electric_milli);
+   return x>m&&x>e?x:(m>e?m:e);
+ },1n);
+ function poly(field){
+  return rows.map((r,i)=>{
+   const x=margin+(width*BigInt(i))/BigInt(rows.length>1?rows.length-1:1);
+   const y=margin+height-(height*BigInt(r[field]))/maxV;
+   return x.toString()+","+y.toString();
+  }).join(" ");
+ }
  line(poly("magnetic_milli"),"#61a6ff");line(poly("electric_milli"),"#58d6b3");
 }
 async function run(){
