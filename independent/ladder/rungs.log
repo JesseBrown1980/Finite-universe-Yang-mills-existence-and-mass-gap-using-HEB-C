@@ -1,0 +1,10 @@
+rung r=0     E0 < 1/1000   E1 > 5999/1000   gap/JE > 5998/1000   (2 certs)
+rung r=1     E0 < 7750/1000   E1 > 13187/1000   gap/JE > 5437/1000   (16 certs)
+rung r=2     E0 < 14375/1000   E1 > 18125/1000   gap/JE > 3750/1000   (16 certs)
+rung r=3     E0 < 19313/1000   E1 > 20625/1000   gap/JE > 1312/1000   (16 certs)
+rung r=5     E0 < 21885/1000   E1 > 22210/1000   gap/JE > 325/1000   (16 certs)
+LADDER|error=no_E1_lower|p=6|q=1|json=0
+rung r=6     E0 < 22283/1000   E1 > 22537/1000   gap/JE > 254/1000   (17 certs)
+rung r=8     E0 < 22746/1000   E1 > 22921/1000   gap/JE > 175/1000   (17 certs)
+rung r=9     E0 < 22895/1000   E1 > 23045/1000   gap/JE > 150/1000   (17 certs)
+rung r=15    E0 < 23347/1000   E1 > 23432/1000   gap/JE > 85/1000   (17 certs)
