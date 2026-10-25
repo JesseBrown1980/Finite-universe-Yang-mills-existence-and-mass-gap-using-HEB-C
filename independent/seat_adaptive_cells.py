@@ -4,14 +4,15 @@
 Works only with the original finite 1393-state S3 2x2 torus. Existing
 stage-2G E0, stage-2H/PR9 E1, and PR11 PEP receipts are antecedents.
 No new eigenvalue solves, no fake successful coverage of 2<r<10000.
-All comparisons use Fraction integers. No JSON or floating-point.
+All numeric state uses exact integer-pair arithmetic. No Fraction, JSON or floating-point.
 """
 from contextlib import redirect_stdout
-from fractions import Fraction as Q
+from seat_integer_ratio import IntegerRatio as Q, selftest as integer_ratio_selftest
 from io import StringIO
 from pathlib import Path
 import runpy
 
+assert integer_ratio_selftest()
 HERE=Path(__file__).resolve().parent
 with redirect_stdout(StringIO()):
     model=runpy.run_path(str(HERE/"seat_yang_mills_audit.py"))
