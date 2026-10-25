@@ -15,6 +15,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Strict integer-only Python numeric AST audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 independent/seat_integer_ratio.py | grep -F 'numeric_runtime=int_only'
+          python3 independent/seat_integer_only_gate.py | grep -F 'float_literals=0|complex_literals=0|json=0'
       - name: Reconstruct source, prove six exact endpoint cells, verify CONDITIONAL labels
         shell: bash
         run: |
