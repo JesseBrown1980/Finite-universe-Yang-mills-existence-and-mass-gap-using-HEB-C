@@ -209,7 +209,14 @@ fn field<'a>(header: &'a str, key: &str) -> Result<&'a str, String> {
         .ok_or_else(|| format!("carrier header missing {key}"))
 }
 
+/// Canonical non-negative decimal only: ASCII digits, no sign, no leading
+/// zeros (except "0" itself). `str::parse` alone would also accept "+5"
+/// and "0005", which are alternate encodings of the same value.
 fn num<T: std::str::FromStr>(s: &str) -> Result<T, String> {
+    let digits = !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
+    if !digits || (s.len() > 1 && s.starts_with('0')) {
+        return Err(format!("non-canonical number {s:?}"));
+    }
     s.parse::<T>().map_err(|_| format!("bad number {s}"))
 }
 
@@ -259,13 +266,21 @@ pub fn parse(text: &str) -> Result<Carrier, String> {
     if coeffs.len() != nblocks || tail.len() != num::<usize>(field(header, "tail")?)? {
         return Err("carrier row counts disagree with header".into());
     }
-    Ok(Carrier {
+    let carrier = Carrier {
         bank,
         input_len: num(field(header, "bytes")?)?,
         input_sha: field(header, "input_sha")?.to_owned(),
         coeffs,
         tail,
-    })
+    };
+    // One decoded carrier has exactly one permitted text: the one `render`
+    // produces. This single rule rejects every alternate encoding (field
+    // order, unknown or duplicate header keys, letter case, CR/LF, row order,
+    // split or empty rows, trailing data), so `carrier_sha` identifies content.
+    if render(&carrier) != text {
+        return Err("non-canonical carrier encoding".into());
+    }
+    Ok(carrier)
 }
 
 /// Measured controls. C1–C4 are the original script's; C5 is new.
