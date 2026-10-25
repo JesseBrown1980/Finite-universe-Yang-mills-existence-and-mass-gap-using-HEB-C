@@ -16,9 +16,21 @@ It writes two files that the Rust bridge must reproduce byte-for-byte:
 usage: rime_sphere_carrier.py OUT_DIR [INPUT_FILE]
 Without INPUT_FILE it uses the original pipeline's own fallback bytes,
 bytes((i*7)%251 for i in range(13500)).
+
+       rime_sphere_carrier.py --decode CARRIER OUT
+Independent decoder (review 5643283114). It validates with a different
+technique from the Rust side: a strict whole-document grammar (one regex
+full-match on the raw bytes), where Rust re-renders and compares. It then
+inverts with the ORIGINAL intt. Any rejection prints FAIL|reason=... and
+exits 1.
+
+       rime_sphere_carrier.py --compare-original ORIGINAL_OUTPUT RUN_MEASURE
+Checks the original script's OWN printed C3 table and C4 random line against
+the bridge's c3_bytes / c4_random counts for the same input.
 """
 import hashlib
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -38,7 +50,93 @@ def default_input():
     return bytes((i * 7) % 251 for i in range(13500))
 
 
+_NUM = rb"(?:0|[1-9][0-9]*)"
+_CARRIER = re.compile(
+    rb"RIMECARRIER\|schema=hebc\.rime\.sphere\.carrier\.v1"
+    rb"\|p=(" + _NUM + rb")\|g=(" + _NUM + rb")\|w=(" + _NUM + rb")\|N=27"
+    rb"\|bytes=(" + _NUM + rb")\|blocks=(" + _NUM + rb")\|tail=(" + _NUM + rb")"
+    rb"\|input_sha=([0-9a-f]{64})\|json=0\n"
+    rb"((?:B\|" + _NUM + rb"\|" + _NUM + rb"(?:," + _NUM + rb"){26}\n)*)"
+    rb"(?:T\|((?:[0-9a-f]{2})+)\n)?"
+)
+
+
+class Reject(Exception):
+    pass
+
+
+def decode_carrier(raw):
+    m = _CARRIER.fullmatch(raw)
+    if not m:
+        raise Reject("carrier does not match the canonical grammar")
+    p, g, w, nbytes, nblocks, ntail = (int(x) for x in m.groups()[:6])
+    sha = m.group(7).decode()
+    rows = m.group(8).split(b"\n")[:-1] if m.group(8) else []
+    tail = bytes.fromhex(m.group(9).decode()) if m.group(9) else b""
+    eg = primitive_root(P)
+    if (p, g, w) != (P, eg, pow(eg, (P - 1) // N, P)):
+        raise Reject("carrier bank is not the supported bank")
+    if len(rows) != nblocks or len(tail) != ntail:
+        raise Reject("carrier row counts disagree with header")
+    if nbytes != N * nblocks + ntail:
+        raise Reject("declared byte length does not equal 27*blocks + tail")
+    out = bytearray()
+    for i, row in enumerate(rows):
+        idx, vals = row[2:].split(b"|")
+        if int(idx) != i:
+            raise Reject("block rows out of order")
+        X = [int(v) for v in vals.split(b",")]
+        if any(v >= P for v in X):
+            raise Reject("coefficient outside Z/p")
+        r = intt(X, w, P, N)  # original, unmodified
+        if any(v > 255 for v in r):
+            raise Reject("inverse value is not a byte")
+        out.extend(r)
+    out.extend(tail)
+    if hashlib.sha256(bytes(out)).hexdigest() != sha:
+        raise Reject("decoded bytes do not match the carried input sha")
+    return bytes(out)
+
+
+def decode_main(src, dst):
+    try:
+        data = decode_carrier(open(src, "rb").read())
+    except Reject as e:
+        sys.stderr.write("FAIL|reason=%s|json=0\n" % e)
+        sys.exit(1)
+    open(dst, "wb").write(data)
+    print("RIMESPHEREDECODE-PY|result=PASS|bytes=%d|json=0" % len(data))
+
+
+def compare_original_main(original_txt, run_measure):
+    text = open(original_txt).read()
+    measure = open(run_measure).read()
+    bridge = dict(kv.split("=", 1) for kv in measure.strip().split("|")[1:] if "=" in kv)
+    pct = lambda m, t: "%.1f" % (100.0 * m / t)
+    rows = dict(re.findall(r"^\s+(\d+)/27\s+\d+%\s+([0-9.]+)%\s*$", text, re.M))
+    problems, checked = [], 0
+    for item in bridge["c3_bytes"].split(","):
+        k, frac = item.split(":")
+        m, t = (int(x) for x in frac.split("/"))
+        if rows.get(k) != pct(m, t):
+            problems.append("C3 k=%s original=%s bridge=%s" % (k, rows.get(k), pct(m, t)))
+        checked += 1
+    rnd = re.search(r"random address.*?:\s*([0-9.]+)% recovered", text)
+    m, t = (int(x) for x in bridge["c4_random"].split("/"))
+    if not rnd or rnd.group(1) != pct(m, t):
+        problems.append("C4 random original=%s bridge=%s" % (rnd and rnd.group(1), pct(m, t)))
+    checked += 1
+    if problems:
+        sys.stderr.write("FAIL|reason=%s|json=0\n" % "; ".join(problems))
+        sys.exit(1)
+    print("ORIGINAL-VS-BRIDGE|result=PASS|c3_rows=%d|c4_random=1|checked=%d|json=0" % (checked - 1, checked))
+
+
 def main():
+    if len(sys.argv) >= 2 and sys.argv[1] == "--decode":
+        return decode_main(sys.argv[2], sys.argv[3])
+    if len(sys.argv) >= 2 and sys.argv[1] == "--compare-original":
+        return compare_original_main(sys.argv[2], sys.argv[3])
     if len(sys.argv) < 2:
         sys.exit("usage: rime_sphere_carrier.py OUT_DIR [INPUT_FILE]")
     out = sys.argv[1]

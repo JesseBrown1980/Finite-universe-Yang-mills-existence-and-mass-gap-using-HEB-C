@@ -237,11 +237,24 @@ jobs:
           grep 'compression_claimed=0' rime-sphere-evidence/run.measure
           target/release/hebc rime-sphere-decode rime-sphere-evidence/carrier.rime rime-sphere-roundtrip.bin
           python3 -c "import sys; sys.exit(open('rime-sphere-roundtrip.bin','rb').read()!=bytes((i*7)%251 for i in range(13500)))"
+          # Independent Python decoder (strict grammar + ORIGINAL intt) decodes the Rust carrier.
+          python3 scripts/rime_sphere_carrier.py --decode rime-sphere-evidence/carrier.rime rime-sphere-roundtrip-py.bin
+          cmp rime-sphere-roundtrip.bin rime-sphere-roundtrip-py.bin
+          # The ORIGINAL script's own printed C3 table and C4 random line must equal the bridge's counts.
+          python3 scripts/rime_sphere_carrier.py --compare-original original-pipeline.txt rime-sphere-evidence/run.measure
           target/release/hebc rime-sphere-bridge rime-sphere-real ../README.md
           target/release/hebc rime-sphere-decode rime-sphere-real/carrier.rime rime-sphere-real.bin
           cmp ../README.md rime-sphere-real.bin
           python3 scripts/rime_sphere_carrier.py rime-sphere-real-python ../README.md
           cmp rime-sphere-real/carrier.rime rime-sphere-real-python/carrier.rime
+          python3 scripts/rime_sphere_carrier.py --decode rime-sphere-real/carrier.rime rime-sphere-real-py.bin
+          cmp ../README.md rime-sphere-real-py.bin
+          # Review 5643283114 adversarial fixtures: regenerate from the original NTT, must be unchanged,
+          # then every malformed carrier must fail closed in BOTH decoders as a bounded subprocess.
+          python3 tests/fixtures/rime_sphere/make_fixtures.py
+          git diff --exit-code -- tests/fixtures/rime_sphere
+          scripts/rime_sphere_adversarial.sh target/release/hebc rime-sphere-decode
+          scripts/rime_sphere_adversarial.sh python3 scripts/rime_sphere_carrier.py --decode
           # All byte lengths, including fewer than 27 bytes: no full blocks.
           : > rime-sphere-empty.bin
           printf RIME-27 > rime-sphere-tail-only.bin
@@ -254,6 +267,8 @@ jobs:
             python3 scripts/rime_sphere_carrier.py "rime-sphere-$kind-python" "$input"
             cmp "rime-sphere-$kind/carrier.rime" "rime-sphere-$kind-python/carrier.rime"
             cmp "rime-sphere-$kind/xcheck.measure" "rime-sphere-$kind-python/xcheck.measure"
+            python3 scripts/rime_sphere_carrier.py --decode "rime-sphere-$kind/carrier.rime" "rime-sphere-$kind-py.bin"
+            cmp "$input" "rime-sphere-$kind-py.bin"
           done
           cp -r rime-sphere-evidence rime-sphere-corrupt
           printf X | dd of=rime-sphere-corrupt/run.hbp bs=1 seek=100 conv=notrunc status=none
