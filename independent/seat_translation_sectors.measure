@@ -1,0 +1,5 @@
+HEBC-TRANSLATION|result=PASS|sector=pp|states=385|nnz=7593|matrix_sha256=fb6dbb3acbd411f61779f98881e6545d21ab7a39816c351d755fafe2c3f2c652|json=0
+HEBC-TRANSLATION|result=PASS|sector=pm|states=336|nnz=6526|matrix_sha256=9dc22f4bb6f410ebfcdc0bfb3854bf6d2827901ee379ed685772649d28315d48|json=0
+HEBC-TRANSLATION|result=PASS|sector=mp|states=336|nnz=6526|matrix_sha256=88eb8250eaf85815f155f09656f8a4dd19733148dd9e4505af978bed5974a75b|json=0
+HEBC-TRANSLATION|result=PASS|sector=mm|states=336|nnz=6400|matrix_sha256=d7dce164177f2b5498a367c9df78ff8d64c8d173a262daa65815b321ff21b653|json=0
+HEBC-TRANSLATION|result=PASS|sum_dim=1393|sum_sector_nnz=27045|action=Z2xZ2|weights=POSITIVE|invariance=EXACT_INTEGER|intertwining=EXACT_INTEGER|operator_sha=b6c608f50f81f3bf48fb0203b48e0e3bfc867037dc1d0a96633aa80b962137f3|json=0
