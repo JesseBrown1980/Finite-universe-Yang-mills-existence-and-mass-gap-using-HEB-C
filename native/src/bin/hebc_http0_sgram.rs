@@ -126,7 +126,7 @@ fn route(root:&Path, method:&str, path:&str)->(u16,String){
     match (method,path.trim_start_matches('/').split('/').collect::<Vec<_>>().as_slice()){
         ("GET",["wave",a,b,c])=>match(a.parse::<i64>(),b.parse::<i64>(),c.parse::<usize>()){
             (Ok(je),Ok(jb),Ok(steps))=>{
-                if !(0..=10).contains(&je)||!(0..=10).contains(&jb)
+                if !(0..=10).contains(&je)||!(0..=10_000).contains(&jb)
                     ||!(1..=243).contains(&steps){
                     return(400,"HTTP0SGRAM|error=wave_bounds|json=0\n".into());
                 }
@@ -285,7 +285,7 @@ mod tests{
         assert!(route(Path::new("."),"GET","/").1.contains("finite-S"));
         let (status,body)=route(Path::new("."),"GET","/wave/1/1/9");
         assert_eq!(status,200);
-        assert!(body.contains("scheme=SECOND_ORDER_INTEGER_QUANTIZED"));
+        assert!(body.contains("scheme=EXACT_INTEGER_NUMERATOR_RECURRENCE|division=NONE|rounding=NONE"));
         assert!(body.contains("real_time_unitary=0"));
         assert!(body.contains("kind=END|JE=1|JB=1|steps=9"));
         assert_eq!(route(Path::new("."),"GET","/wave/1/1/244").0,400);

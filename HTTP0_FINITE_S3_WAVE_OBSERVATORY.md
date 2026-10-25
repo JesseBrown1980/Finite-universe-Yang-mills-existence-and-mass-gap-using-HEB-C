@@ -1,5 +1,7 @@
 # HTTP-0 finite-S₃ interaction observatory: exact operator, controlled integer wave update
 
+> **PR #17 arithmetic correction:** The original PR #16 recurrence below describes an earlier *rounded* implementation, retained for historical comparison. **It is not the active algorithm on this branch.** See [HTTP0_EXACT_INTEGER_NO_ROUNDING.md](HTTP0_EXACT_INTEGER_NO_ROUNDING.md): the active HTTP-0 /wave route uses exact arbitrary-length integer numerators N[t] with denominator D^t and **no rounding or division in its evolution**. The page now displays exact integer activity counts, not integer-truncated Rayleigh energies. Do not interpret the historical formula or moment output below as current.
+
 **Status:** Isolated development branch, based on the existing PR #10 HTTP-0 / SG-RAM backend. No changes to the PR #10 branch or `main`. No new continuum theorem or physical Yang–Mills claim.
 
 ## Motivation and boundary

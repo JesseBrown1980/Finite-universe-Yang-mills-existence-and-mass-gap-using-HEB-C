@@ -18,11 +18,11 @@ table{width:100%;border-collapse:collapse;font-size:12px}td,th{border-bottom:1px
 </style></head><body>
 <small>HEB-C / HTTP-0 namespace · local HTTP/1.1 transport · native Rust 1.81</small>
 <h1>Integer finite-S₃ interaction observatory</h1>
-<p class="muted">Watch a deterministic integer-quantized wave equation on all 1,393 gauge-invariant states. Compare electric-only, magnetic-only and coupled controls.</p>
+<p class="muted">Watch an exact integer-numerator recurrence on all 1,393 gauge-invariant states, with amplitudes represented by integer numerator and common integer denominator. Compare electric-only, magnetic-only and coupled controls.</p>
 <div class="warning"><b>Research limit:</b> These are measurements of a deliberately chosen discrete wave update, not a unitary quantum Yang–Mills real-time evolution, an automatically fitted spectral gap, or a continuum 4D simulation. The initial amplitude field is uniform. Never treat oscillations in this chart as experimental particles or proof of confinement.</div>
 <section><div class="controls">
 <label>J<sub>E</sub> (integer 0–10)<input id="je" value="1" inputmode="numeric"></label>
-<label>J<sub>B</sub> (integer 0–10)<input id="jb" value="1" inputmode="numeric"></label>
+<label>J<sub>B</sub> (integer 0–10000)<input id="jb" value="1" inputmode="numeric"></label>
 <label>Steps 1–243<input id="steps" value="81" inputmode="numeric"></label>
 <button id="run">Run wave update</button>
 <button class="secondary" data-params="1,0,81">Electric control</button>
@@ -30,21 +30,21 @@ table{width:100%;border-collapse:collapse;font-size:12px}td,th{border-bottom:1px
 <button class="secondary" data-params="1,1,81">Coupled</button>
 </div><p id="status" class="status">Idle. No GPU or per-virtual-address allocation.</p></section>
 <section><h2>Evolution trace</h2>
-<p class="muted">Graph units: integer moment per 1,000. Blue = magnetic moment; green = electric moment. Scaling is visual only.</p><svg id="chart" viewBox="0 0 900 260" role="img" aria-label="Integer moments over discrete evolution steps"></svg>
-<div class="scroll"><table><thead><tr><th>Step</th><th>Magnetic /1000</th><th>Electric /1000</th><th>Flat /1000</th><th>Changed</th><th>SHA prefix</th></tr></thead><tbody id="data"></tbody></table></div>
+<p class="muted">Exact integer site counts, not energy or spectral gaps. Blue = magnetic-active sites; green = electric-operator-active sites. State amplitudes use a common unrounded integer denominator.</p><svg id="chart" viewBox="0 0 900 260" role="img" aria-label="Exact integer activity counts over discrete evolution steps"></svg>
+<div class="scroll"><table><thead><tr><th>Step</th><th>Magnetic active</th><th>Electric active</th><th>Flat active</th><th>Changed</th><th>SHA prefix</th></tr></thead><tbody id="data"></tbody></table></div>
 </section>
 <section><h2>Original machine-readable integer receipt</h2><pre id="receipt">No run.</pre></section>
 <script>
 (()=>{
 const by=id=>document.getElementById(id);
 const parse=line=>Object.fromEntries(line.split("|").filter(s=>s.includes("=")).map(s=>{let n=s.indexOf("=");return [s.slice(0,n),s.slice(n+1)];}));
-const valid=(s,min,max)=>/^(0|[1-9][0-9]*)$/.test(s)&&s.length<=3&&BigInt(s)>=BigInt(min)&&BigInt(s)<=BigInt(max);
+const valid=(s,min,max)=>/^(0|[1-9][0-9]*)$/.test(s)&&s.length<=5&&BigInt(s)>=BigInt(min)&&BigInt(s)<=BigInt(max);
 const line=(points,color)=>{let p=document.createElementNS("http://www.w3.org/2000/svg","polyline");p.setAttribute("points",points);p.setAttribute("fill","none");p.setAttribute("stroke",color);p.setAttribute("stroke-width","2");by("chart").appendChild(p);};
 function draw(rows){
  const svg=by("chart");svg.replaceChildren();if(!rows.length)return;
  const width=880n,height=226n,margin=12n;
  const maxV=rows.reduce((x,r)=>{
-   const m=BigInt(r.magnetic_milli),e=BigInt(r.electric_milli);
+   const m=BigInt(r.magnetic_active),e=BigInt(r.electric_active);
    return x>m&&x>e?x:(m>e?m:e);
  },1n);
  function poly(field){
@@ -54,20 +54,20 @@ function draw(rows){
    return x.toString()+","+y.toString();
   }).join(" ");
  }
- line(poly("magnetic_milli"),"#61a6ff");line(poly("electric_milli"),"#58d6b3");
+ line(poly("magnetic_active"),"#61a6ff");line(poly("electric_active"),"#58d6b3");
 }
 async function run(){
  const je=by("je").value,jb=by("jb").value,steps=by("steps").value;
- if(!valid(je,0,10)||!valid(jb,0,10)||!valid(steps,1,243)){by("status").textContent="Rejected: integer bounds exceeded";return;}
+ if(!valid(je,0,10)||!valid(jb,0,10000)||!valid(steps,1,243)){by("status").textContent="Rejected: integer bounds exceeded";return;}
  const button=by("run");button.disabled=true;by("status").textContent="Running full 1,393-state integer operator…";
  try{
   const reply=await fetch("/wave/"+je+"/"+jb+"/"+steps,{cache:"no-store"});
   const raw=await reply.text();by("receipt").textContent=raw;
   if(!reply.ok)throw Error("Backend rejected request: HTTP "+reply.status);
-  const lines=raw.trim().split("\n").map(parse);const frames=lines.filter(x=>x.mode==="INTEGER_DISCRETE_WAVE"&&x.step!==undefined);
+  const lines=raw.trim().split("\n").map(parse);const frames=lines.filter(x=>x.mode==="EXACT_INTEGER_SCALED"&&x.step!==undefined);
   draw(frames);const tbody=by("data");tbody.replaceChildren();
   for(const frame of frames){const tr=document.createElement("tr");
-    for(const v of [frame.step,frame.magnetic_milli,frame.electric_milli,frame.flat_weight_milli,frame.changed,(frame.state_sha||"").slice(0,16)]){
+    for(const v of [frame.step,frame.magnetic_active,frame.electric_active,frame.flat_active,frame.changed,(frame.state_sha||"").slice(0,16)]){
       const td=document.createElement("td");td.textContent=v;tr.appendChild(td);
     }tbody.appendChild(tr);
   }

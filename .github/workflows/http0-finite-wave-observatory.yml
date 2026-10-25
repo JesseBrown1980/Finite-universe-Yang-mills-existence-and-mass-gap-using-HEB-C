@@ -2,9 +2,9 @@ name: HEB-C finite S3 integer wave observatory (controls and HTTP-0)
 
 on:
   push:
-    branches: [http0-finite-s3-wave-observation-test]
+    branches: [http0-wave-exact-integer-no-rounding]
   pull_request:
-    branches: [http0-sgram-backend-testground]
+    branches: [http0-finite-s3-wave-observation-test]
 
 permissions:
   contents: read
@@ -20,8 +20,8 @@ jobs:
         run: |
           set -euo pipefail
           rustup toolchain install 1.81.0 --profile minimal --component clippy
-          cargo +1.81.0 test --all-targets --offline --locked
           cargo +1.81.0 clippy --all-targets --offline --locked -- -D warnings
+          cargo +1.81.0 test --all-targets --offline --locked
           cargo +1.81.0 build --release --offline --locked --bins
       - name: Local HTTP-0 observatory full-state tests
         working-directory: native
@@ -43,22 +43,30 @@ jobs:
           grep 'kind=END|JE=1|JB=0|steps=27|state_changed=0' /tmp/wave-electric.hbp
           grep 'kind=END|JE=0|JB=1|steps=27|state_changed=1' /tmp/wave-magnetic.hbp
           grep 'kind=END|JE=1|JB=1|steps=27|state_changed=1' /tmp/wave-coupled.hbp
-          grep 'electric_positive_seen=1' /tmp/wave-coupled.hbp
+          grep 'electric_active_seen=1' /tmp/wave-coupled.hbp
+          grep -F 'scheme=EXACT_INTEGER_NUMERATOR_RECURRENCE|division=NONE|rounding=NONE' /tmp/wave-coupled.hbp
+          grep -F 'denominator_base=' /tmp/wave-coupled.hbp
+          grep -F 'denominator_power=27' /tmp/wave-coupled.hbp
           grep -F 'real_time_unitary=0|continuum_YM_proven=0' /tmp/wave-coupled.hbp
-          test "$(grep -c '|mode=INTEGER_DISCRETE_WAVE|step=' /tmp/wave-coupled.hbp)" -eq 28
+          test "$(grep -c '|mode=EXACT_INTEGER_SCALED|step=' /tmp/wave-coupled.hbp)" -eq 28
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:55099/wave/1/1/244)" = 400
           # Run the maximal 243-step bounded trajectory; no extrapolation or
           # cached spectral statement is substituted for actual H applications.
           curl --fail -sS http://127.0.0.1:55099/wave/2/5/243 > /tmp/wave-243.hbp
-          test "$(grep -c '|mode=INTEGER_DISCRETE_WAVE|step=' /tmp/wave-243.hbp)" -eq 244
+          test "$(grep -c '|mode=EXACT_INTEGER_SCALED|step=' /tmp/wave-243.hbp)" -eq 244
           grep 'kind=END|JE=2|JB=5|steps=243|state_changed=1' /tmp/wave-243.hbp
           grep 'real_time_unitary=0|continuum_YM_proven=0' /tmp/wave-243.hbp
           # UI presentation must not perform floating-point arithmetic:
           # draw with BigInt numerator/denominator integer coordinates.
-          grep -F 'BigInt(r.magnetic_milli)' /tmp/hebc-observatory.html
+          grep -F 'BigInt(r.magnetic_active)' /tmp/hebc-observatory.html
           if grep -E 'Number\(|toFixed\(|Math\.' /tmp/hebc-observatory.html; then
             echo 'FAIL browser float visualization'; exit 1
           fi
+          # Test a magnetic-ratio rung from the 17-rung plan without
+          # converting JB into a rounded coupling or numerical spectrum.
+          curl --fail -sS http://127.0.0.1:55099/wave/1/243/27 > /tmp/wave-rung243.hbp
+          grep -F 'denominator_power=27' /tmp/wave-rung243.hbp
+          grep 'kind=END|JE=1|JB=243|steps=27|state_changed=1' /tmp/wave-rung243.hbp
           # A second run must byte match: determinism is not physics validity.
           curl --fail -sS http://127.0.0.1:55099/wave/1/1/27 > /tmp/wave-coupled-replay.hbp
           cmp /tmp/wave-coupled.hbp /tmp/wave-coupled-replay.hbp
