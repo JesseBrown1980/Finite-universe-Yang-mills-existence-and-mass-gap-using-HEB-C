@@ -39,6 +39,21 @@ specs: sector/LX/LY/SX/SY  flatcomp/LX/LY/SX/SY  cluster/LX/LY/SX/SY/JE/JB/WANT/
        count/LX/LY/SX/SY/JE/JB/T/FDIG/TOL  countcols/LX/LY/SX/SY/JE/JB/T/FDIG/TOL/A/B
 ```
 
+## Split Schur columns (large cores)
+
+`countcols` jobs compute disjoint column ranges of the Schur complement and
+emit one `SCOL` record per core entry. `countmerge` merges the run.hbp files
+placed in `ROOT/scol/<count id>/`. The merge (HEB-C `shellschur`) requires:
+- exactly one record for every (row, column) of the core, with duplicates
+  and missing entries rejected;
+- the same run tag on every record (n, JE, JB, t, shell_max, core size, a
+  64-bit fingerprint of the ordered core indices, F).
+
+A merge that passes reproduces the unsplit count (2×2, core 87: 27 = 27; core
+662: 135 = 135). The dense interval LDLᵀ of the merged core is the remaining
+serial step: 152,908 ms for the 1,137-state 3×3 (+,+) core at r = 9 on a GitHub
+runner (sealed receipt, The-matrix-law-essentials).
+
 ## Build
 
 ```

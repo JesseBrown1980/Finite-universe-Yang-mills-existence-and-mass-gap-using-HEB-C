@@ -220,9 +220,15 @@ fn run() -> Result<(), String> {
         Some((x.parse().ok()?, y.parse().ok()?))
     });
     let merge: Option<String> = std::env::var("SHELLSCHUR_MERGE").ok();
-    let tag = format!("n={n}|JE={je}|JB={jb}|t_milli={tn}|shell_max={shell_max}|core={m}|F=10^{fdig}");
+    // core fingerprint: a 64-bit polynomial digest of the ordered core indices, so
+    // SCOL lines from a different core (same size) are rejected at merge time.
+    // A consistency guard, not a cryptographic hash; matrix identity is checked
+    // by SHA-256 at the backend level.
+    let core_fp = cidx.iter().fold(0xcbf2_9ce4_8422_2325u64, |h, &k| (h ^ (k as u64)).wrapping_mul(0x0100_0000_01b3));
+    let tag = format!("n={n}|JE={je}|JB={jb}|t_milli={tn}|shell_max={shell_max}|core={m}|core_fp={core_fp:016x}|F=10^{fdig}");
     if let Some(files) = &merge {
-        let mut seen = vec![false; m];
+        // exactly one record for every (row, column) of the m x m core block
+        let mut seen = vec![vec![false; m]; m];
         for path in files.split(',') {
             let text = std::fs::read_to_string(path).map_err(|e| format!("read {path}: {e}"))?;
             for line in text.lines().filter(|l| l.starts_with("SCOL|")) {
@@ -238,13 +244,16 @@ fn run() -> Result<(), String> {
                 }
                 s_lo[ca][cb] = fld("lo=")?;
                 s_hi[ca][cb] = fld("hi=")?;
-                seen[cb] = true;
+                if seen[ca][cb] {
+                    return Err(format!("duplicate SCOL record ca={ca} cb={cb}"));
+                }
+                seen[ca][cb] = true;
                 sweeps_max = sweeps_max.max(usize::try_from(fld("sweeps=")?).unwrap_or(0));
                 width_max = width_max.max(fld("ywidth=")?);
             }
         }
-        if seen.iter().any(|x| !x) {
-            return Err("merge is missing core columns".into());
+        if seen.iter().any(|row| row.iter().any(|x| !x)) {
+            return Err("merge is missing SCOL records (every core entry is required)".into());
         }
     }
     for (cb, &c) in cidx.iter().enumerate() {

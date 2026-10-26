@@ -25,6 +25,8 @@
 //!   cluster/LX/LY/SX/SY/JE/JB/WANT/GUARD
 //!   count/LX/LY/SX/SY/JE/JB/T/FDIG/TOL          (shellschur, MAXSWEEP 4000)
 //!   countcols/LX/LY/SX/SY/JE/JB/T/FDIG/TOL/A/B  (shellschur columns A..B-1)
+//!   countmerge/LX/LY/SX/SY/JE/JB/T/FDIG/TOL     (merge ROOT/scol/<count id>/*.hbp:
+//!       the countcols shards' run.hbp files; every core entry exactly once)
 //! usage: hebc_ym_http0 job ROOT SPEC | verify ROOT SPEC | cat ROOT SPEC |
 //!        quarantine ROOT SPEC | serve ROOT PORT MAX_REQUESTS        json=0
 #![forbid(unsafe_code)]
@@ -53,7 +55,7 @@ fn parse_spec(spec: &str) -> Result<Spec, String> {
     let want = match kind.as_str() {
         "sector" | "flatcomp" => 4,
         "cluster" => 8,
-        "count" => 9,
+        "count" | "countmerge" => 9,
         "countcols" => 11,
         _ => return Err(format!("unknown job kind {kind}")),
     };
@@ -151,9 +153,26 @@ fn execute(root: &Path, s: &Spec) -> Result<(String, Vec<(String, String)>), Str
         }
         "flatcomp" => run_tool("flatcomp", &[checked_matrix(root, s)?.display().to_string()], &[]),
         "cluster" => run_tool("cluster", &[checked_matrix(root, s)?.display().to_string(), st(4), st(5), st(6), st(7)], &[]),
-        "count" | "countcols" => {
+        "count" | "countcols" | "countmerge" => {
             let m = checked_matrix(root, s)?.display().to_string();
-            let envs = if s.kind == "countcols" { vec![("SHELLSCHUR_COLS", format!("{}:{}", n[9], n[10]))] } else { vec![] };
+            let envs = match s.kind.as_str() {
+                "countcols" => vec![("SHELLSCHUR_COLS", format!("{}:{}", n[9], n[10]))],
+                "countmerge" => {
+                    let cs = Spec { kind: "count".into(), nums: n.clone() };
+                    let dir = root.join("scol").join(shard_id(&cs));
+                    let mut files: Vec<String> = fs::read_dir(&dir)
+                        .map_err(|_| format!("missing {}", dir.display()))?
+                        .filter_map(|e| e.ok().map(|e| e.path().display().to_string()))
+                        .filter(|p| p.ends_with(".hbp"))
+                        .collect();
+                    files.sort();
+                    if files.is_empty() {
+                        return Err("no SCOL files to merge".into());
+                    }
+                    vec![("SHELLSCHUR_MERGE", files.join(","))]
+                }
+                _ => vec![],
+            };
             run_tool("shellschur", &[m, st(4), st(5), st(6), "-1".into(), st(7), st(8), "4000".into()], &envs)
         }
         _ => Err("unknown kind".into()),
