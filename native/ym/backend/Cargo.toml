@@ -1,0 +1,14 @@
+[package]
+name = "hebc-ym-backend"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.81"
+publish = false
+description = "HEB-C HTTP-0 execution and verification layer for the finite S3 Yang-Mills sector tools"
+
+[[bin]]
+name = "hebc_ym_http0"
+path = "src/main.rs"
+
+[dependencies]
+hebc-finite-yang-mills = { path = "../.." }

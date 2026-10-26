@@ -1,0 +1,172 @@
+# Fresh, independent-machine regeneration of the frozen 3x3 certificates
+# (The-matrix-law-essentials 8fd12e6) through the HEB-C HTTP-0 backend
+# (native/ym/backend, hebc_ym_http0). GitRAM coordinates; the backend executes
+# and verifies. Every cell starts from an empty shard root with HEBC_YM_FRESH=1
+# (no cached shard is accepted), builds the Rust 1.81 tools offline from the
+# vendored sources, builds its sector matrix, runs one job, then `verify`
+# re-executes that job and compares run.hbp / index.hbi / run.anchor byte for byte.
+# Fan-in: all 25 cells, every sector matrix SHA-256 equal to the pinned value and
+# identical across cells, flatcomp lines equal to the reference, certificates
+# rebuilt from the regenerated shards only and compared line for line with
+# native/ym/reference/ym3x3_frozen_8fd12e6.hbp. This proves reproducibility on
+# fresh machines from the same source; it is not an independently implemented
+# verifier. Integer-only, json=0.
+name: HEB-C YM 3x3 fresh regeneration (25 cells)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [http0-ym-backend-finite-volumes]
+    paths: ['.github/workflows/hebc-ym-3x3-regenerate.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hebc-ym-3x3-regenerate-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  gates:
+    name: Rust 1.81 gates + headless/HTTP-0 route identity
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain 1.81
+        run: |
+          rustup toolchain install 1.81.0 --profile minimal --component clippy
+          rustup override set 1.81.0
+      - name: Build and lint offline from vendored sources
+        working-directory: native/ym
+        run: |
+          cargo build --release --offline --locked
+          cargo clippy --release --all-targets --offline --locked -- -D warnings
+      - name: Route identity on the 2x2 sectors
+        working-directory: native/ym
+        run: |
+          scripts/route_identity.sh target/release /tmp/ri 5191 sector/2/2/1/1 sector/2/2/-1/-1 flatcomp/2/2/1/1 count/2/2/1/1/1/27/64000/15/10 count/2/2/-1/-1/1/9/64000/15/10 cluster/2/2/1/1/1/27/12/4 | tee /tmp/ri.txt
+          grep -q '^ROUTE_IDENTITY|shards=6|identical=6|.*|result=PASS|' /tmp/ri.txt
+
+  cell:
+    name: Cell ${{ matrix.id }} ${{ matrix.spec }}
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include:
+          - {id: "01", spec: "flatcomp/3/3/1/1"}
+          - {id: "02", spec: "flatcomp/3/3/-1/-1"}
+          - {id: "03", spec: "flatcomp/3/3/1/-1"}
+          - {id: "04", spec: "flatcomp/3/3/-1/1"}
+          - {id: "05", spec: "cluster/3/3/1/1/1/27/12/4"}
+          - {id: "06", spec: "cluster/3/3/-1/-1/1/27/12/4"}
+          - {id: "07", spec: "count/3/3/1/1/1000/27000/53493345/13/10"}
+          - {id: "08", spec: "count/3/3/1/1/1000/27000/53495357/13/10"}
+          - {id: "09", spec: "count/3/3/-1/-1/1000/27000/53495357/13/10"}
+          - {id: "10", spec: "count/3/3/1/1/1000/27000/53505037/12/1000"}
+          - {id: "11", spec: "count/3/3/-1/-1/1000/27000/53505037/12/1000"}
+          - {id: "12", spec: "count/3/3/1/1/1000/27000/133667000/12/1000"}
+          - {id: "13", spec: "count/3/3/-1/-1/1000/27000/133667000/12/1000"}
+          - {id: "14", spec: "count/3/3/1/-1/1000/27000/133667000/12/1000"}
+          - {id: "15", spec: "count/3/3/-1/1/1000/27000/133667000/12/1000"}
+          - {id: "16", spec: "cluster/3/3/1/1/1/243/12/4"}
+          - {id: "17", spec: "cluster/3/3/-1/-1/1/243/12/4"}
+          - {id: "18", spec: "count/3/3/1/1/1000/243000/53944108/13/10"}
+          - {id: "19", spec: "count/3/3/-1/-1/1000/243000/53944108/13/10"}
+          - {id: "20", spec: "count/3/3/1/1/1000/243000/53944779/12/1000"}
+          - {id: "21", spec: "count/3/3/-1/-1/1000/243000/53944779/12/1000"}
+          - {id: "22", spec: "count/3/3/1/1/1000/243000/782856000/12/1000"}
+          - {id: "23", spec: "count/3/3/-1/-1/1000/243000/782856000/12/1000"}
+          - {id: "24", spec: "count/3/3/1/-1/1000/243000/782856000/12/1000"}
+          - {id: "25", spec: "count/3/3/-1/1/1000/243000/782856000/12/1000"}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain 1.81
+        run: |
+          rustup toolchain install 1.81.0 --profile minimal
+          rustup override set 1.81.0
+      - name: Build offline from vendored sources
+        working-directory: native/ym
+        run: cargo build --release --offline --locked
+      - name: Fresh sector build + job + byte-for-byte re-execution
+        working-directory: native/ym
+        env:
+          HEBC_YM_FRESH: "1"
+        run: |
+          set -euo pipefail
+          B=target/release/hebc_ym_http0; R=$RUNNER_TEMP/root; spec="${{ matrix.spec }}"
+          sec="sector/$(echo $spec | cut -d/ -f2-5)"
+          mkdir -p out
+          o=out/cell-${{ matrix.id }}.hbp
+          $B job $R $sec | tee $o
+          $B verify $R $sec | tee -a $o
+          $B job $R $spec | tee -a $o
+          $B verify $R $spec | tee -a $o
+          test "$(grep -c '^HEBC_YM|result=PASS|action=verify|' $o)" = 2
+          id_sec=$(echo $sec | tr / _); id=$(echo $spec | tr / _)
+          for d in $id_sec $id; do sed "s/^/SHARD|$d|/" $R/shards/$d/run.hbp >> $o; sed "s/^/ANCHOR_OF|$d|/" $R/shards/$d/run.anchor >> $o; done
+          mkdir -p out/shards; cp -r $R/shards/$id_sec $R/shards/$id out/shards/
+          echo "GITRAM_CELL|id=${{ matrix.id }}|spec=$spec|json=0" >> $o
+          (cd out && sha256sum cell-${{ matrix.id }}.hbp > cell-${{ matrix.id }}.sha256)
+          echo GITRAM_SHARD_PASS
+      - name: Upload the self-contained cell checkpoint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cell-${{ matrix.id }}
+          retention-days: 30
+          if-no-files-found: error
+          path: native/ym/out
+
+  fan-in:
+    name: Verify ALL 25 cells, pinned shas, rebuild certificates, compare with frozen reference, seal
+    needs: [gates, cell]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cell-*
+          path: fan-in
+      - name: Check, rebuild, compare, seal
+        run: |
+          set -euo pipefail
+          test "${{ needs.gates.result }}" = success
+          count=$(ls fan-in/*/cell-*.hbp | wc -l); echo "returned=$count expected=25"
+          for d in fan-in/*/; do (cd $d && sha256sum -c cell-*.sha256); done
+          test "$count" -eq 25
+          ref=native/ym/reference/ym3x3_frozen_8fd12e6.hbp
+          cat fan-in/*/cell-*.hbp > all.hbp
+          # every sector matrix: one sha across all cells, equal to the pinned one
+          for f in s33_1_1 s33_-1_-1 s33_1_-1 s33_-1_1; do
+            want=$(grep "^PINNED_MATRIX|file=$f.matrix|" $ref | sed 's/.*sha256=\([0-9a-f]*\).*/\1/')
+            got=$(grep "^SHARD|sector_3_3_.*|MATRIX_SHA|.*|file=$f.matrix|" all.hbp | sed 's/.*sha256=\([0-9a-f]*\).*/\1/' | sort -u)
+            echo "$f pinned=$want regenerated=$got"; test "$got" = "$want"
+          done
+          # sector shards identical across cells (cross-machine reproducibility)
+          k=$(grep '^ANCHOR_OF|sector_' all.hbp | sort -u | cut -d'|' -f2 | uniq -d | wc -l); echo "sector shards with differing anchors: $k"; test "$k" = 0
+          # flatcomp lines equal to the reference
+          grep '^SHARD|flatcomp_' all.hbp | cut -d'|' -f3- | sort > flat.new; grep '^FLATCOMP|' $ref | sort > flat.ref; diff flat.ref flat.new
+          # rebuild certificates from regenerated shards only
+          grep '^SHARD|cluster_3_3_' all.hbp | sed -E 's/^SHARD\|cluster_3_3_(-?1)_(-?1)_1_([0-9]+)_12_4\|CLUSTER/YM3X3_S\1_\2_r\3_CLUSTER/' > clusters.hbp
+          grep '^SHARD|count_3_3_' all.hbp | cut -d'|' -f3- > counts.hbp
+          for r in 27 243; do python3 native/ym/python/shell_gap_cert.py clusters.hbp $r counts.hbp; done > certs.new
+          grep -E '^SHELL_(GAP|CLUSTER)_CERT' $ref > certs.ref
+          cat certs.new; diff certs.ref certs.new && st=PASS || st=FAIL
+          cat all.hbp certs.new > HEBC-YM-3X3-REGENERATION.hbp
+          echo "GITRAM_SEAL|cells=$count|expected=25|pinned_shas=4/4|flatcomp_equal=1|certificates_equal_frozen_reference=$st|kind=REPRODUCIBILITY_fresh_machines_same_source|status=$st|json=0" >> HEBC-YM-3X3-REGENERATION.hbp
+          sha256sum HEBC-YM-3X3-REGENERATION.hbp > HEBC-YM-3X3-REGENERATION.sha256
+          test "$st" = PASS
+      - name: Upload the sealed receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-hebc-ym-3x3-regeneration
+          retention-days: 30
+          if-no-files-found: error
+          path: HEBC-YM-3X3-REGENERATION.*
