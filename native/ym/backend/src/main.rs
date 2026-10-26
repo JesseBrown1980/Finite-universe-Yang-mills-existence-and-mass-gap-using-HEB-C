@@ -153,30 +153,97 @@ fn execute(root: &Path, s: &Spec) -> Result<(String, Vec<(String, String)>), Str
         }
         "flatcomp" => run_tool("flatcomp", &[checked_matrix(root, s)?.display().to_string()], &[]),
         "cluster" => run_tool("cluster", &[checked_matrix(root, s)?.display().to_string(), st(4), st(5), st(6), st(7)], &[]),
-        "count" | "countcols" | "countmerge" => {
-            let m = checked_matrix(root, s)?.display().to_string();
-            let envs = match s.kind.as_str() {
-                "countcols" => vec![("SHELLSCHUR_COLS", format!("{}:{}", n[9], n[10]))],
-                "countmerge" => {
-                    let cs = Spec { kind: "count".into(), nums: n.clone() };
-                    let dir = root.join("scol").join(shard_id(&cs));
-                    let mut files: Vec<String> = fs::read_dir(&dir)
-                        .map_err(|_| format!("missing {}", dir.display()))?
-                        .filter_map(|e| e.ok().map(|e| e.path().display().to_string()))
-                        .filter(|p| p.ends_with(".hbp"))
-                        .collect();
-                    files.sort();
-                    if files.is_empty() {
-                        return Err("no SCOL files to merge".into());
-                    }
-                    vec![("SHELLSCHUR_MERGE", files.join(","))]
-                }
-                _ => vec![],
-            };
-            run_tool("shellschur", &[m, st(4), st(5), st(6), "-1".into(), st(7), st(8), "4000".into()], &envs)
+        "count" | "countcols" => {
+            let mp = checked_matrix(root, s)?;
+            let m = mp.display().to_string();
+            let envs = if s.kind == "countcols" { vec![("SHELLSCHUR_COLS", format!("{}:{}", n[9], n[10]))] } else { vec![] };
+            let (mut out, meta) = run_tool("shellschur", &[m, st(4), st(5), st(6), "-1".into(), st(7), st(8), "4000".into()], &envs)?;
+            if s.kind == "countcols" {
+                // bind every SCOL record of this shard to the matrix that produced it
+                out.push_str(&format!("INPUT_MATRIX|sha256={}|file={}|json=0\n", file_sha(&mp)?, mp.file_name().and_then(|f| f.to_str()).unwrap_or("")));
+            }
+            Ok((out, meta))
+        }
+        "countmerge" => {
+            let mp = checked_matrix(root, s)?;
+            let msha = file_sha(&mp)?;
+            let (inputs, listing) = merge_inputs(root, s, &msha)?;
+            let mut files: Vec<String> = Vec::new();
+            for (k, body) in inputs.iter().enumerate() {
+                let f = root.join("scol").join(format!(".merge-input-{}-{k}.hbp", std::process::id()));
+                fs::write(&f, body).map_err(|e| e.to_string())?;
+                files.push(f.display().to_string());
+            }
+            let r = run_tool("shellschur", &[mp.display().to_string(), st(4), st(5), st(6), "-1".into(), st(7), st(8), "4000".into()], &[("SHELLSCHUR_MERGE", files.join(","))]);
+            for f in &files {
+                let _ = fs::remove_file(f);
+            }
+            let (out, meta) = r?;
+            Ok((format!("{listing}INPUT_MATRIX|sha256={msha}|file={}|json=0\n{out}", mp.file_name().and_then(|f| f.to_str()).unwrap_or("")), meta))
         }
         _ => Err("unknown kind".into()),
     }
+}
+
+/// Collect the countcols shards for a countmerge job from ROOT/scol/<count id>/<shard dirs>.
+/// Each must: pass shard integrity (index.hbi and run.anchor regenerated from
+/// run.hbp, byte for byte); carry the same count parameters in its spec; record
+/// INPUT_MATRIX equal to the merge's matrix SHA-256; and the column ranges must
+/// partition 0..core exactly. Returns the run.hbp bodies and a canonical listing
+/// of the inputs (spec + run.hbp SHA-256, in column order).
+fn merge_inputs(root: &Path, s: &Spec, msha: &str) -> Result<(Vec<String>, String), String> {
+    let cs = Spec { kind: "count".into(), nums: s.nums.clone() };
+    let dir = root.join("scol").join(shard_id(&cs));
+    let mut items: Vec<(i64, i64, String, String)> = Vec::new();
+    let mut core: Option<i64> = None;
+    for e in fs::read_dir(&dir).map_err(|_| format!("missing {}", dir.display()))? {
+        let p = e.map_err(|e| e.to_string())?.path();
+        if !p.is_dir() {
+            continue;
+        }
+        let rd = |f: &str| fs::read_to_string(p.join(f)).map_err(|_| format!("{} lacks {f}", p.display()));
+        let (hbp, hbi, anchor, spec) = (rd("run.hbp")?, rd("index.hbi")?, rd("run.anchor")?, rd("spec")?);
+        let spec = spec.trim().to_string();
+        let want_anchor = format!("ANCHOR|spec={spec}|hbp_sha256={}|hbi_sha256={}|lines={}|json=0\n", hex(&sha256(hbp.as_bytes())), hex(&sha256(index(&hbp).as_bytes())), hbp.lines().count());
+        if index(&hbp) != hbi || want_anchor != anchor {
+            return Err(format!("countcols shard {} fails integrity", p.display()));
+        }
+        let ps = parse_spec(&spec)?;
+        if ps.kind != "countcols" || ps.nums[..9] != s.nums[..] {
+            return Err(format!("shard {spec} is not a countcols shard of this count"));
+        }
+        if !hbp.lines().any(|l| l == format!("INPUT_MATRIX|sha256={msha}|file={}|json=0", matrix_path(root, s).file_name().and_then(|f| f.to_str()).unwrap_or(""))) {
+            return Err(format!("shard {spec} was not produced from matrix {msha}"));
+        }
+        let c: i64 = hbp
+            .lines()
+            .find(|l| l.starts_with("SHELL_SCHUR_COLS|"))
+            .and_then(|l| l.split('|').find_map(|f| f.strip_prefix("core=")))
+            .and_then(|v| v.parse().ok())
+            .ok_or(format!("shard {spec} lacks SHELL_SCHUR_COLS core"))?;
+        if core.is_some_and(|x| x != c) {
+            return Err("countcols shards disagree on core size".into());
+        }
+        core = Some(c);
+        items.push((ps.nums[9], ps.nums[10].min(c), spec, hbp));
+    }
+    items.sort();
+    let core = core.ok_or("no countcols shards to merge")?;
+    let mut next = 0i64;
+    for (a, b, spec, _) in &items {
+        if *a != next || b <= a {
+            return Err(format!("column ranges do not partition 0..{core} at {spec}"));
+        }
+        next = *b;
+    }
+    if next != core {
+        return Err(format!("column ranges end at {next}, core is {core}"));
+    }
+    let mut listing = String::new();
+    for (a, b, spec, hbp) in &items {
+        listing.push_str(&format!("MERGE_INPUT|cols={a}:{b}|spec={spec}|hbp_sha256={}|json=0\n", hex(&sha256(hbp.as_bytes()))));
+    }
+    Ok((items.into_iter().map(|t| t.3).collect(), listing))
 }
 
 /// Split each line into canonical text and removed runtime fields.
@@ -257,7 +324,15 @@ fn job(root: &Path, spec_text: &str) -> Result<String, String> {
     let stage = staging(root, &id);
     fs::create_dir(&stage).map_err(|_| format!("staging {id} exists: another writer or an interrupted run; operator must quarantine"))?;
     let t0 = Instant::now();
-    let (raw, meta) = execute(root, &s)?;
+    let (raw, meta) = match execute(root, &s) {
+        Ok(x) => x,
+        Err(e) => {
+            // a clean, reported failure leaves nothing in staging: remove it only
+            // if it is empty (anything written there is kept for quarantine)
+            let _ = fs::remove_dir(&stage);
+            return Err(e);
+        }
+    };
     let (hs, hbp) = write_shard(&stage, &spec, &raw, &meta, t0.elapsed().as_millis())?;
     fs::rename(&stage, &out).map_err(|e| e.to_string())?;
     Ok(format!("HEBC_YM|result=PASS|action=run|spec={spec}|hbp_sha256={hs}|verdicts={}|json=0\n", result_fields(&hbp)))
