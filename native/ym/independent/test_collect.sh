@@ -2,9 +2,10 @@
 # Fail-closed controls for collect.py with synthetic records (verdict behaviour
 # only; no physical results). Exit 0 only if every case gives its required verdict.
 set -u
+COL=$(cd "$(dirname "$0")" && pwd)/collect.py
 D=$(mktemp -d); trap 'rm -rf $D' EXIT; cd $D
 C=0ed8b129e5e52cf67d3a42dcd5a490082ef8720d19c6b8071e978c3a4a8c532e; SC=2x2:9:1393:7776:8
-EX=23746649:8,46576000:8,90123457:616; COL=$(dirname "$(readlink -f "$0")")/collect.py
+EX=23746649:8,46576000:8,90123457:616
 mk(){ printf 'INDEP_RUN|code_sha256=%s|command=x|seed=1|json=0\nINDEP_BUILD|L=2x2|gauge_orbits=1393|burnside=1393|weight_sum=7776|six_pow_free=7776|free_links=5|tree_links=3|flat_states=8|WA_symmetric=PASS|json=0\nINDEP_COUNT|L=2x2|r=%s|t_milli=%s|N=%s|seed=1|hadamard_bits=1|primes_31bit=2|reshuffle_retries=0|result=%s|json=0\n' "${5:-$C}" "${4:-9}" $1 $2 $3; }
 fails=0
 case_(){ want=$1; shift; label=$1; shift; python3 $COL --code $C --scope $SC $EX "$@" > out.txt; e=$?
