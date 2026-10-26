@@ -15,7 +15,8 @@ Ray (optional, --ray U8): if E8(r) <= U8 for every r (flatcomp: the eight
 flat states carry M = 0, no mutual coupling and electric diagonal 54, so
 U8 = 54*10^6 micro-units by Courant-Fischer), then for r >= rmax,
     E9(r) - E8(r) >= E9(rmax) - U8 >= tB(rmax) - U8,
-which extends the certificate to [rmin, infinity).
+which extends the certificate to [rmin, infinity). With --ray a single point
+suffices: for r >= r0, E9(r) - E8(r) >= tB(r0) - U8.
 --lattice LXxLY (optional, default 3x3) restricts to that lattice's lines and
 labels the output; the ray bound for LX x LY is 3*(2*LX*LY)*10^6 (electric
 diagonal of a flat state, as measured by flatcomp).
@@ -44,8 +45,8 @@ def main():
             tb = int(re.search(r"\|tB=(\d+)/1000000\|", line).group(1))
             pts[r] = (t1, tb)
     rs = sorted(pts)
-    if len(rs) < 2:
-        print("MONOTONE_CELLS|result=FAIL|reason=need_two_points|json=0")
+    if len(rs) < 2 and (ray is None or not rs):
+        print("MONOTONE_CELLS|result=FAIL|reason=need_two_points_or_one_point_with_ray|json=0")
         sys.exit(2)
     worst = None
     ok = True
@@ -59,7 +60,7 @@ def main():
     if ray is not None:
         rb = pts[rs[-1]][1] - ray
         ok = ok and rb > 0
-        worst = min(worst, rb)
+        worst = rb if worst is None else min(worst, rb)
         top = "infinity"
         print("MONOTONE_RAY|L=%s|r_in=[%d,infinity)|tB(rmax)=%d/1000000|E8_upper_all_r=%d/1000000|gap_E9_minus_E8_ge=%d/1000000|certified=%d|json=0"
               % (lat, rs[-1], pts[rs[-1]][1], ray, rb, int(rb > 0)))
