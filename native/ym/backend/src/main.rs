@@ -23,6 +23,7 @@
 //!   sector/LX/LY/SX/SY
 //!   flatcomp/LX/LY/SX/SY
 //!   cluster/LX/LY/SX/SY/JE/JB/WANT/GUARD
+//!   ddcore/LX/LY/SX/SY/JE/JB/T                  (diagonal-dominance core size at T)
 //!   count/LX/LY/SX/SY/JE/JB/T/FDIG/TOL          (shellschur, MAXSWEEP 4000)
 //!   countcols/LX/LY/SX/SY/JE/JB/T/FDIG/TOL/A/B  (shellschur columns A..B-1)
 //!   countmerge/LX/LY/SX/SY/JE/JB/T/FDIG/TOL     (merge ROOT/scol/<count id>/*.hbp:
@@ -53,7 +54,7 @@ struct Spec {
 }
 
 const MODES: [&str; 6] = ["tx", "ty", "td", "ta", "r", ""];
-const BASES: [&str; 6] = ["sector", "flatcomp", "cluster", "countcols", "countmerge", "count"];
+const BASES: [&str; 7] = ["sector", "flatcomp", "cluster", "countcols", "countmerge", "count", "ddcore"];
 
 impl Spec {
     /// Sector mode prefix of the kind:
@@ -96,6 +97,7 @@ fn parse_spec(spec: &str) -> Result<Spec, String> {
     let base = &kind[mode.len()..];
     let want = match base {
         "sector" | "flatcomp" => 4,
+        "ddcore" => 7,
         "cluster" => 8,
         "count" | "countmerge" => 9,
         "countcols" => 11,
@@ -195,6 +197,7 @@ fn execute(root: &Path, s: &Spec) -> Result<(String, Vec<(String, String)>), Str
             Ok((out, meta))
         }
         "flatcomp" => run_tool("flatcomp", &[checked_matrix(root, s)?.display().to_string()], &[]),
+        "ddcore" => run_tool("ddcore", &[checked_matrix(root, s)?.display().to_string(), st(4), st(5), st(6)], &[]),
         "cluster" => run_tool("cluster", &[checked_matrix(root, s)?.display().to_string(), st(4), st(5), st(6), st(7)], &[]),
         "count" | "countcols" => {
             let mp = checked_matrix(root, s)?;
