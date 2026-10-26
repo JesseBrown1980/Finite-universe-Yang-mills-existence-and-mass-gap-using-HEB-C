@@ -295,6 +295,10 @@ def main(argv):
         f"|free_links={k}|tree_links={len(tor.tree)}|flat_states={flat}|WA_symmetric=PASS|json=0",
         flush=True,
     )
+    if n != burnside or sum(weight) != 6**k:
+        print("INDEP_BUILD|result=FAIL|reason=structure_mismatch|json=0", flush=True)
+        sys.exit(1)
+    failed = False
     for t in ts:
         try:
             neg = count_below(n, weight, rows, mag, r, t, seed)
@@ -304,7 +308,14 @@ def main(argv):
                 flush=True,
             )
         except RuntimeError as e:
-            print(f"INDEP_COUNT|L={lx}x{ly}|r={r}|t_milli={t}|seed={seed}|result=INCONCLUSIVE|reason={str(e).replace(' ', '_')}|json=0", flush=True)
+            failed = True
+            print(
+                f"INDEP_COUNT|L={lx}x{ly}|r={r}|t_milli={t}|seed={seed}|result=INCONCLUSIVE|reason={str(e).replace(' ', '_')}"
+                f"|hadamard_bits={LAST.get('hadamard_bits', '-')}|primes_31bit={LAST.get('primes', '-')}|reshuffle_retries={LAST.get('retries', '-')}|json=0",
+                flush=True,
+            )
+    if failed:
+        sys.exit(2)
 
 
 if __name__ == "__main__":

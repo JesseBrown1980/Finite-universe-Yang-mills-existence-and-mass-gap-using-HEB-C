@@ -39,19 +39,29 @@ The N-Nest gate runs on the assembled tree.
 
 ## Certificate arithmetic, fixed now
 
-**PASS.** N_full(t1) = 8 and N_full(t_F) = 8.
-- At r = 9, E₈ < t1 and E₉ ≥ t_F, so E₉ − E₈ > 71.900000 − 52.533422 =
-  **19.366578 J_E**, over the full physical space.
-- For all r ≥ 9, E₉(r) is non-decreasing in r (M ⪰ 0), so E₉(r) ≥ 71.9.
-  flatcomp gives E₈ ≤ 54, from 8 flat states with electric diagonal 54. So
-  E₉ − E₈ ≥ 71.9 − 54 = **17.9 J_E** for all r ≥ 9, over the full physical space.
+| Verdict | Outcome |
+|---|---|
+| PASS | (N_full(t1), N_full(t_F)) = (8, 8), with every gate below passing |
+| MISMATCH | any other successfully computed and assembled pair |
+| INCONCLUSIVE | any count AMBIGUOUS or failed, or any integrity or assembly gate failed |
 
-**MISMATCH with the zero-momentum ordering.** N_full(t_F) > 8. The count above
-8 is the number of states, at any momentum, below 71.9 J_E. It is reported, and
-which isotypic parts carry them is named. A full-space gap then needs lower
-thresholds and a new specification.
+**If PASS, at r = 9.** E₈ < t1, since E₈^full ≤ E₈^(zero momentum) < t1, and
+E₉ ≥ t_F. So E₉ − E₈ > 71.900000 − 52.533422 = **19.366578 J_E** over the full
+physical space.
 
-**INCONCLUSIVE.** Any count AMBIGUOUS or failed, or any assembly check failed.
+**If PASS, for all r ≥ 9.** E₉(r) is non-decreasing in r (M ⪰ 0), so
+E₉(r) ≥ 71.9. The flat trial space bounds E₈ ≤ 54: it has 8 states with M = 0,
+electric diagonal 54 and zero flat–flat electric couplings (stage A flatcomp).
+So E₉ − E₈ ≥ 71.9 − 54 = **17.9 J_E** for all r ≥ 9, over the full physical
+space.
+
+**If MISMATCH with N_full(t_F) > 8.** The count above 8 is the number of
+states, at any momentum, below 71.9 J_E. It is reported along with the
+isotypic parts that carry them. A full-space gap then needs lower thresholds
+and a new specification.
+
+**If MISMATCH otherwise**, for example (7, 7) or (7, 8): the pair is reported
+as computed.
 
 The certificate's scope is the full physical space of the 3×3 torus at
 coupling r = 9, and for all r ≥ 9 through the one-point ray. Uniformity in
