@@ -1,68 +1,143 @@
 """Fail-closed collector for independent-verifier runs (integer only, json=0).
 
-Reads INDEP_* records from one or more output files and requires:
-  * one INDEP_RUN and one INDEP_BUILD per file, identical code hash and build;
-  * gauge_orbits == burnside and weight_sum == six_pow_free;
-  * every INDEP_COUNT has result=COMPUTED (any INCONCLUSIVE fails, whatever the
-    process exit status was);
-  * the computed counts equal the expected production counts.
-Verdict: AGREE (exit 0), MISMATCH (exit 1), INCONCLUSIVE (exit 2).
-usage: python collect.py EXPECT FILE...      EXPECT = t_milli:N[,t_milli:N...]
+Protocol: one verifier process per threshold, one output file each. Every gate
+below must pass before any count is compared; anything missing, duplicated,
+malformed or out of scope is INCONCLUSIVE.
+
+Per file, exactly one INDEP_RUN, one INDEP_BUILD and one INDEP_COUNT:
+  RUN    code_sha256 equals the pinned reviewed hash (--code), seed present
+  BUILD  L, gauge_orbits, burnside, weight_sum, six_pow_free and flat_states
+         equal the pinned scope (--scope), and gauge_orbits = burnside,
+         weight_sum = six_pow_free
+  COUNT  L and r equal the pinned scope; t_milli is one of the expected
+         thresholds; result=COMPUTED; N, hadamard_bits, primes_31bit and
+         reshuffle_retries are integers
+Across files every expected threshold appears exactly once, and nothing else.
+Only then are the counts compared with the expected production counts.
+
+Verdict: AGREE (exit 0), MISMATCH (exit 1), INCONCLUSIVE (exit 2). Any
+exception while reading or parsing is INCONCLUSIVE.
+
+usage: python collect.py --code SHA256 --scope L:r:orbits:weights:flat EXPECT FILE...
+       EXPECT = t_milli:N[,t_milli:N...]
 """
 
 import sys
 
 
+class Reject(Exception):
+    pass
+
+
 def fields(line):
-    return dict(p.split("=", 1) for p in line.strip().split("|")[1:] if "=" in p)
+    out = {}
+    for part in line.strip().split("|")[1:]:
+        if "=" in part:
+            k, v = part.split("=", 1)
+            if k in out:
+                raise Reject(f"duplicate_field_{k}")
+            out[k] = v
+    return out
 
 
-def main(argv):
-    expect = {int(a): int(b) for a, b in (x.split(":") for x in argv[0].split(","))}
-    runs, builds, counts = [], [], {}
-    for f in argv[1:]:
-        for line in open(f):
+def need(d, key):
+    if key not in d:
+        raise Reject(f"missing_field_{key}")
+    return d[key]
+
+
+def as_int(d, key):
+    v = need(d, key)
+    if not (v.isdigit() or (v.startswith("-") and v[1:].isdigit())):
+        raise Reject(f"malformed_{key}")
+    return int(v)
+
+
+def parse_args(argv):
+    if len(argv) < 6 or argv[0] != "--code" or argv[2] != "--scope":
+        raise Reject("usage")
+    code = argv[1]
+    sl = argv[3].split(":")
+    if len(sl) != 5:
+        raise Reject("bad_scope")
+    scope = {"L": sl[0], "r": int(sl[1]), "orbits": int(sl[2]), "weights": int(sl[3]), "flat": int(sl[4])}
+    expect = {}
+    for item in argv[4].split(","):
+        t, n = item.split(":")
+        if int(t) in expect:
+            raise Reject("duplicate_expected_threshold")
+        expect[int(t)] = int(n)
+    return code, scope, expect, argv[5:]
+
+
+def check_file(path, code, scope, expect):
+    runs, builds, counts = [], [], []
+    with open(path) as fh:
+        for line in fh:
             tag = line.split("|", 1)[0]
             if tag == "INDEP_RUN":
                 runs.append(fields(line))
             elif tag == "INDEP_BUILD":
                 builds.append(fields(line))
             elif tag == "INDEP_COUNT":
-                d = fields(line)
-                counts[int(d["t_milli"])] = d
-    out = []
-    verdict = "AGREE"
-    codes = {r["code_sha256"] for r in runs}
-    struct_ok = (
-        len(runs) == len(argv) - 1
-        and len(builds) == len(argv) - 1
-        and len(codes) == 1
-        and all("result" not in b for b in builds)
-        and all(b["gauge_orbits"] == b["burnside"] and b["weight_sum"] == b["six_pow_free"] for b in builds)
-        and len({(b["L"], b["gauge_orbits"], b["weight_sum"], b["flat_states"]) for b in builds}) == 1
-    )
-    if not struct_ok:
-        verdict = "INCONCLUSIVE"
-    for t, n in sorted(expect.items()):
-        d = counts.get(t)
-        if d is None or d.get("result") != "COMPUTED":
-            verdict = "INCONCLUSIVE"
-            out.append(f"INDEP_CHECK|t_milli={t}|expected={n}|got=-|status=INCONCLUSIVE|json=0")
-            continue
-        got = int(d["N"])
-        st = "AGREE" if got == n else "MISMATCH"
-        if st == "MISMATCH" and verdict == "AGREE":
-            verdict = "MISMATCH"
-        out.append(
-            f"INDEP_CHECK|t_milli={t}|expected={n}|got={got}|hadamard_bits={d['hadamard_bits']}"
-            f"|primes_31bit={d['primes_31bit']}|reshuffle_retries={d['reshuffle_retries']}|status={st}|json=0"
-        )
-    b = builds[0] if builds else {}
-    out.insert(0, f"INDEP_COLLECT|code_sha256={','.join(sorted(codes))}|L={b.get('L', '-')}|gauge_orbits={b.get('gauge_orbits', '-')}"
-                  f"|burnside={b.get('burnside', '-')}|weight_sum={b.get('weight_sum', '-')}|structure={'PASS' if struct_ok else 'FAIL'}|json=0")
-    out.append(f"INDEP_VERDICT|{verdict}|json=0")
-    print("\n".join(out))
-    sys.exit({"AGREE": 0, "MISMATCH": 1, "INCONCLUSIVE": 2}[verdict])
+                counts.append(fields(line))
+    if (len(runs), len(builds), len(counts)) != (1, 1, 1):
+        raise Reject(f"records_per_file_{len(runs)}_{len(builds)}_{len(counts)}")
+    run, build, count = runs[0], builds[0], counts[0]
+    if need(run, "code_sha256") != code:
+        raise Reject("code_hash_not_pinned_value")
+    as_int(run, "seed")
+    if "result" in build:
+        raise Reject("build_failed")
+    if need(build, "L") != scope["L"]:
+        raise Reject("build_lattice")
+    g, b = as_int(build, "gauge_orbits"), as_int(build, "burnside")
+    w, s = as_int(build, "weight_sum"), as_int(build, "six_pow_free")
+    if not (g == b == scope["orbits"] and w == s == scope["weights"] and as_int(build, "flat_states") == scope["flat"]):
+        raise Reject("build_structure")
+    if need(count, "L") != scope["L"] or as_int(count, "r") != scope["r"]:
+        raise Reject("count_scope")
+    t = as_int(count, "t_milli")
+    if t not in expect:
+        raise Reject(f"unexpected_threshold_{t}")
+    if need(count, "result") != "COMPUTED":
+        raise Reject(f"count_not_computed_t{t}")
+    for key in ("hadamard_bits", "primes_31bit", "reshuffle_retries"):
+        as_int(count, key)
+    return t, as_int(count, "N"), count
+
+
+def main(argv):
+    rows = []
+    try:
+        code, scope, expect, files = parse_args(argv)
+        seen = {}
+        for f in files:
+            t, n, count = check_file(f, code, scope, expect)
+            if t in seen:
+                raise Reject(f"duplicate_threshold_{t}")
+            seen[t] = (n, count)
+        if set(seen) != set(expect):
+            raise Reject("missing_thresholds_" + "_".join(str(t) for t in sorted(set(expect) - set(seen))))
+        verdict = "AGREE"
+        for t in sorted(expect):
+            n, count = seen[t]
+            st = "AGREE" if n == expect[t] else "MISMATCH"
+            if st == "MISMATCH":
+                verdict = "MISMATCH"
+            rows.append(
+                f"INDEP_CHECK|L={scope['L']}|r={scope['r']}|t_milli={t}|expected={expect[t]}|got={n}"
+                f"|hadamard_bits={count['hadamard_bits']}|primes_31bit={count['primes_31bit']}"
+                f"|reshuffle_retries={count['reshuffle_retries']}|status={st}|json=0"
+            )
+        rows.insert(0, f"INDEP_COLLECT|code_sha256={code}|L={scope['L']}|r={scope['r']}|gauge_orbits={scope['orbits']}"
+                       f"|weight_sum={scope['weights']}|flat_states={scope['flat']}|files={len(files)}|gates=PASS|json=0")
+    except (Reject, OSError, ValueError, KeyError, IndexError) as e:
+        print("\n".join(rows + [f"INDEP_COLLECT|gates=FAIL|reason={str(e).replace(' ', '_') or type(e).__name__}|json=0",
+                                "INDEP_VERDICT|INCONCLUSIVE|json=0"]))
+        sys.exit(2)
+    print("\n".join(rows + [f"INDEP_VERDICT|{verdict}|json=0"]))
+    sys.exit(0 if verdict == "AGREE" else 1)
 
 
 if __name__ == "__main__":
