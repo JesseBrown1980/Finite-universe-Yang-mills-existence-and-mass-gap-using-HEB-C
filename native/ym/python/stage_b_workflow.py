@@ -211,6 +211,11 @@ jobs:
           python3 $P/verify_shard_integrity.py arts/shards | tee seal.hbp
           grep -q '|failed=0|.*|result=PASS|' seal.hbp
           (cd $(dirname {rel}) && sha256sum -c $(basename {rel}).sha256)
+          # the ray's E8 bound comes from flatcomp in the sealed stage A receipt
+          u={flat // 1000000}; fl="$u"; for k in 2 3 4 5 6 7; do fl="$fl,$u"; done
+          grep -q "^SHARD|flatcomp_{lx}_{ly}_1_1|FLATCOMP|.*|flat_states=7|flat_electric_diag=\\[$fl\\]|flat_diag_max=$u|flat_flat_couplings=0|" {rel}
+          grep -q "^SHARD|flatcomp_{lx}_{ly}_-1_-1|FLATCOMP|.*|flat_states=1|flat_electric_diag=\\[$u\\]|flat_diag_max=$u|flat_flat_couplings=0|" {rel}
+          [ "$(grep -c "^SHARD|flatcomp_{lx}_{ly}_.*|FLATCOMP|.*|flat_states=0|.*|flat_flat_couplings=0|" {rel})" = 2 ]
           grep '^SHARD|cluster_' {rel} | sed -E 's/^SHARD\\|cluster_{lx}_{ly}_(-?1)_(-?1)_1_([0-9]+)_12_4\\|CLUSTER/YM{lx}X{ly}_S\\1_\\2_r\\3_CLUSTER/' > clusters.hbp
           cat arts/shards/count_*/run.hbp arts/shards/countmerge_*/run.hbp 2>/dev/null > counts.hbp
           for r in {" ".join(map(str, want))}; do python3 $P/shell_gap_cert.py --lattice {lat} clusters.hbp $r counts.hbp; done | tee -a seal.hbp
