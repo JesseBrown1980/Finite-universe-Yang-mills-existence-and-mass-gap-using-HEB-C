@@ -1,127 +1,132 @@
-## Stage 2I: Independent spectral verification and multi-volume scaling (Issue #2 Closed)
-
-**[Stage 2I Mathematical Report & Scaling](../STAGE2I_INDEPENDENT_VERIFIER_AND_SCALING.md)** · **[Independent Verifier](src/torus2_independent.rs)** · **[Stage 2H Integer Inertia](../STAGE2H_TORUS2_INTEGER_INERTIA_CERTIFICATE.md)**
-
-The 1,393-state torus spectrum is now independently verified with certified tight gaps:
-- **(1,1):** E0 in [7.634198, 7.634199], E1 in [13.240000, 13.242733], Gap $\Delta$ in **[5.605801, 5.608535]**.
-- **(3,5):** E0 in [36.699227, 36.699228], E1 in [50.840000, 50.842050], Gap $\Delta$ in **[14.140772, 14.142823]**.
-
-Multi-volume scaling benchmarks single-plaquette (dim=3), double-plaquette (dim=11), and periodic torus (dim=1393): vacuum energy density  / F \approx 1.91$ at (1,1) scales extensively, while torelon flux tubes of length 2 explain the 2x gap reduction on the torus. Issue #2 acceptance criteria are fully met.
-
-From 
-ative/:
-`ash
-cargo +1.81.0 run --release --offline --locked -- torus2-independent 1 1 indep-1-1
-cargo +1.81.0 run --release --offline --locked -- torus2-independent-verify 1 1 indep-1-1
-cargo +1.81.0 run --release --offline --locked -- torus2-independent 3 5 indep-3-5
-cargo +1.81.0 run --release --offline --locked -- torus2-independent-verify 3 5 indep-3-5
-cargo +1.81.0 run --release --offline --locked -- torus2-scaling
-`
-
-## Stage 2G: rigorously bounded *mixed-coupling* 1,393-state torus gaps
-
-[Mathematical proof and rational results](../STAGE2G_TORUS2_RATIONAL_GAP_CERTIFICATE.md) · [Exact integer verifier](src/torus2_bounds.rs)
-
-The original 1,393-dimensional periodic S3 torus now has additional **conservative exact-rational** E0, E1 and gap enclosures for JE/JB (1,1) and (3,5). Their rigorously positive gap lower bounds are respectively **0.671034** and **0.344589** in existing lattice-energy units. This combines a strictly positive integer Collatz ground-state witness, the previously proved pure-electric gap 6 and a verified weighted-orthogonal Wilson difference trial vector. It is *not* a tight mixed-eigenvalue solver; Issue #2 remains open for sharper bounds and independent spectral verification.
-
-From native/:
-
-```bash
-cargo +1.81.0 run --release --offline --locked -- torus2-bounds 1 1 torus2-bounds-1-1
-cargo +1.81.0 run --release --offline --locked -- torus2-bounds-verify 1 1 torus2-bounds-1-1
-cargo +1.81.0 run --release --offline --locked -- torus2-bounds 3 5 torus2-bounds-3-5
-cargo +1.81.0 run --release --offline --locked -- torus2-bounds-verify 3 5 torus2-bounds-3-5
-```
-
-## Constellation original-source audit — no replacement engine
-
-**[Sourced integration and outstanding residual bindings](../STAGE2D_CONSTELLATION_SOURCE_AUDIT.md)** · **Pinned original ternary source:** `vendor/constellation_lattice/`.
-
-The existing Clasy Constellation oscillator and trit code is now compiled byte-for-byte into the native HEB-C build. The audit executes the *original* 3/27/243 sector transition barriers and all **45/405/3,645** local keys, checks six distinct role types per key, and creates an HBI/HBP/SHA/SH/HASH receipt for a **gauge-invariant but deliberately non-injective** 243-sector index of the 1,393 physical S3 torus orbit labels. This index does **not** evolve the Yang–Mills Hamiltonian.
-
-**C1, Z-instant and connecting Shadow Cat torus residuals remain source-unverified**, not automatically part of the physical computation. Do not interpret the success of these transition/address tests as their scientific verification.
-
-From `native/`: `cargo +1.81.0 run --release --offline --locked -- constellation-audit constellation-evidence`; then `cargo +1.81.0 run --release --offline --locked -- constellation-verify constellation-evidence`. Optional local endpoint: `GET /constellation` (plain text, no screen, no JavaScript).
-
-## Stage 2C: periodic 2×2 torus now has an actual 1,393D sparse Hamiltonian
-
-**[Reproducible Stage 2C mathematical report](../STAGE2C_TORUS_1393_SPARSE_REPORT.md)** · **[Rust 1.81 implementation](src/torus2.rs)** · **[CI](.github/workflows/native-rust.yml)**
-
-The periodic torus is now an **eight-link, four-face interacting finite S₃ operator**, exactly projected to **1,393 gauge-invariant orbit-value states** (from 1,679,616 raw configurations). The sparse electric matrix contains **32,385 nonzero entries** and is verified for weighted self-adjointness, gauge invariance and reproducible SHA-committed HBI/HBP records.
-
-The exact electric-only gap is **6×J_E**. Magnetic-only coupling gives **eight degenerate flat-connection ground states** and hence **gap zero**. With both couplings positive, a connected stoquastic electric graph establishes unique ground state and therefore a **qualitatively positive** finite-volume gap. **Mixed-coupling numerical eigenvalue bounds remain uncomputed**, so Issue #2 stays open.
-
-To reproduce from the native directory: *cargo +1.81.0 run --release --offline --locked -- torus2-spectrum 1 1 torus2-evidence*, then *cargo +1.81.0 run --release --offline --locked -- torus2-verify torus2-evidence*.
-
-## Stage 2B milestone — full interacting double-plaquette spectrum
-
-**[Exact 11D two-plaquette Hamiltonian report](../STAGE2B_DOUBLE_PLAQUETTE_EXACT_SPECTRUM.md)** · **[Rust-native implementation](src/double_plaquette.rs)** · **[Reproducible CI](../.github/workflows/native-rust.yml)**
-
-The active Rust 1.81 engine now constructs the coupled **seven-link, two-plaquette finite S₃ Hamiltonian** from all **279,936** raw configurations and independently verifies the reduction to **11** gauge-invariant orbit states. Unlike the earlier 11-dimensional sector count, this now includes the *actual gauge-invariant electric and magnetic operators* with exact weighted self-adjointness, integer-only Sturm spectral enclosures, and an independent signed-determinant cross-check.
-
-For `J_E=J_B=1`, the double-plaquette interacting excitation gap is **strictly between 10 and 12** lattice-energy units. The `J_E=J_B=0` control is correctly not certified as gapped. The finite 2×2 torus **1,393D Hamiltonian is still outstanding**, and neither finite model proves a 4D continuum Yang–Mills gap.
-
-```bash
-cargo +1.81.0 run --release --locked --offline -- double-spectrum 1 1 double-1-1
-cargo +1.81.0 run --release --locked --offline -- double-verify double-1-1
-```
-
-## Clasy X3 integration: separate 81-mode finite-field kernel
-
-The pinned upstream [Clasy X3](https://github.com/JesseBrown1980/Clasy-repo-x-3-/tree/63cbf283b900457f8dfc59ac0e42d3efcbc9aedb) is available as `vendor/clasy_x3/` with an offline path-only Cargo dependency. The adapter in `src/clasy_portal.rs` reconstructs 3 canonical Host8 room stubs per requested virtual HTTP-0 kernel ID, runs the original 81-mode Clasy evolution, independently checks its finite-field drift invariant and transform roundtrip, and writes indexed HBP/HBI/SHA-chain receipts with a verifier that re-executes the trajectory.
-
-```sh
-cargo +1.81.0 run --release --offline --locked -- clasy-run 0 1 243 clasy-single
-cargo +1.81.0 run --release --offline --locked -- clasy-verify clasy-single
-cargo +1.81.0 run --release --offline --locked -- clasy-batch 81 243 clasy-batch-81
-cargo +1.81.0 run --release --offline --locked -- clasy-batch 243 81 clasy-batch-243
-cargo +1.81.0 run --release --offline --locked -- serve 5088
-```
-
-HTTP/1.1 text endpoints: `/clasy/3/1/9` and `/spectrum/1/1`. The internal *HTTP-0* namespace is a computational addressing abstraction, not a wire protocol or 23 billion instantiated services. Clasy shell amplitudes are *not* Yang–Mills gauge field variables. The next mathematical hurdle is the interacting double-plaquette 11-dimensional Hamiltonian; see [the guide](../CLASY_X3_TO_HEBC_HTTP0_NEXT_HURDLES.md).
-
-
 # Native HEB-C finite gauge kernel — Rust 1.81
 
-Canonical no-screen engine. Rust standard library only, no external dependencies, no network for computation, no JavaScript, V8, Node or JSON and no floating-point numeric operations.
+The canonical headless engine. It uses the Rust standard library only, integer
+arithmetic only, and plain-text receipts. Inside it are the S₃ finite-group
+gauge lattice, the exact single-plaquette, two-plaquette and 2×2 torus
+Hamiltonians with their certificates, virtual HTTP-0 addressing, and the
+vendored Clasy X3 kernel. The sector tools and the HTTP-0 execution backend for
+larger lattices are in [`ym/`](ym/README.md).
 
-Quick start:
+## Quick start
 
-\`\`\`sh
+```sh
 cargo +1.81.0 test --all-targets --offline
 cargo +1.81.0 clippy --all-targets --offline -- -D warnings
 cargo +1.81.0 build --release --offline
 ./target/release/hebc gap
-./target/release/hebc sector single
-./target/release/hebc sector double
 ./target/release/hebc sector torus2
 ./target/release/hebc spectrum 1 1
-./target/release/hebc run 3 512 0 stress-512
-./target/release/hebc verify stress-512
 ./target/release/hebc run 243 4 8192 evidence-native
 ./target/release/hebc verify evidence-native
-./target/release/hebc cache-demo 243 4
-./target/release/hebc address 123
 ./target/release/hebc clasy-run 0 1 243 clasy-evidence
 ./target/release/hebc clasy-verify clasy-evidence
-./target/release/hebc clasy-batch 81 243 clasy-batch
 ./target/release/hebc serve 5088
-\`\`\`
+```
 
-On Windows use \`target\release\hebc.exe\` rather than \`./target/release/hebc\`.
+On Windows use `target\release\hebc.exe`.
 
-**The model:** S3 non-Abelian six-element finite group, oriented links on a *two-dimensional* periodic finite lattice, exact local gauge transformations and gauge-invariant integer plaquette action \`sum(2 - character_2(P))\`. The \`advance\` operation is a mathematically gauge-equivariant **toy** deterministic link rule, not a quantum field Hamiltonian or invertible quantum unitary. The graph-gap certificate checks the six-vertex S3 central Cayley Laplacian generated by three transpositions; its exact spectrum is \`0,3,3,3,3,6\`, hence positive **finite graph** gap 3, *not* a measured physical Yang–Mills excitation mass or the Clay continuum conjecture.
+## The 2×2 torus: 1,393 states
 
-**Q-trits:** \`-1/0/+1\` are virtual discrete values. They are not arbitrary coherent quantum qutrit amplitudes. There are 23,000,000,000 addressable *identifiers*, not that many instantiated executing kernels, states, sockets, or particles. Only requested probes are actually evaluated.
+- **Stage 2C, the operator** ([report](../STAGE2C_TORUS_1393_SPARSE_REPORT.md),
+  [`src/torus2.rs`](src/torus2.rs)). An eight-link, four-face S₃ operator,
+  exactly projected from 1,679,616 raw configurations to 1,393 gauge-invariant
+  orbit states, with 32,385 nonzeros. It is weighted self-adjoint and gauge
+  invariant. Its electric-only gap is 6·J_E, and the magnetic end has 8 flat
+  ground states.
+- **Stage 2G, rational bounds** ([report](../STAGE2G_TORUS2_RATIONAL_GAP_CERTIFICATE.md),
+  [`src/torus2_bounds.rs`](src/torus2_bounds.rs)). Exact-rational E₀, E₁ and gap
+  enclosures, with gap lower bounds 0.671034 at (1, 1) and 0.344589 at (3, 5).
+  They come from a positive Collatz ground-state witness and a weighted
+  orthogonal Wilson trial vector.
+- **Stage 2H–2I, tight certificates and an independent verifier**
+  ([2H](../STAGE2H_TORUS2_INTEGER_INERTIA_CERTIFICATE.md),
+  [2I](../STAGE2I_INDEPENDENT_VERIFIER_AND_SCALING.md),
+  [`src/torus2_independent.rs`](src/torus2_independent.rs)).
+  - **(1, 1):** E₀ ∈ [7.634198, 7.634199], E₁ ∈ [13.240000, 13.242733], gap ∈ [5.605801, 5.608535].
+  - **(3, 5):** E₀ ∈ [36.699227, 36.699228], E₁ ∈ [50.840000, 50.842050], gap ∈ [14.140772, 14.142823].
+  - **Scaling:** the vacuum energy is about 1.91 per plaquette at (1, 1) and
+    scales extensively across the 3-, 11- and 1,393-state systems.
 
-**Receipt chain:** \`run.hbp\` contains one record per model transition; \`index.hbi\` gives exact seek offsets, \`run.anchor\` pins the HBP/HBI digests and final chain hash, and \`run.measure\` is plain text metrics. A SHA-256 digest is an integrity fingerprint, *not* a compressed reversible state or proof of experimental provenance. The anchor needs independent pinning outside the same directory for external provenance. The \`verify\` command checks recorded bytes; unit tests and deterministic replay execute separate checks.
+```sh
+cargo +1.81.0 run --release --offline --locked -- torus2-spectrum 1 1 torus2-evidence
+cargo +1.81.0 run --release --offline --locked -- torus2-bounds 1 1 torus2-bounds-1-1
+cargo +1.81.0 run --release --offline --locked -- torus2-independent 1 1 indep-1-1
+cargo +1.81.0 run --release --offline --locked -- torus2-independent-verify 1 1 indep-1-1
+cargo +1.81.0 run --release --offline --locked -- torus2-scaling
+```
 
-**HTTP-0:** internal name for the address/kernel abstraction, not an HTTP wire-protocol version. The optional loopback adapter offers read-only \`/health\`, \`/gap\` and \`/qtrit/{ordinal}\` over ordinary HTTP/1.1. Nothing is displayed and native \`run\` needs no TCP connection.
+## Stage 2B: the two-plaquette Hamiltonian
 
-**Benchmarking:** simulation transitions are self-stepping counters. Performance uses the integer nanosecond duration of an independent wall-clock instrument for comparison; the timer does not determine state updates. A disk-free kernel is not thereby proven faster than an optimally cached native in-memory kernel. The physical 300 GB Host8 substrate is not accessed here.
+[Report](../STAGE2B_DOUBLE_PLAQUETTE_EXACT_SPECTRUM.md),
+[`src/double_plaquette.rs`](src/double_plaquette.rs).
+- **The operator.** A seven-link, two-plaquette S₃ Hamiltonian built from all
+  279,936 raw configurations and reduced to 11 gauge-invariant orbit states.
+  It is weighted self-adjoint, with integer Sturm enclosures and a
+  signed-determinant cross-check.
+- **The gap.** At J_E = J_B = 1 the gap is strictly between 10 and 12.
 
-Stage 2 audited spectral and scale results: [report](../STAGE2_SCALING_SPECTRAL_AUDIT_2026-10-24.md). Interacting finite gauge Hamiltonian is currently solved only for the single square (3-dimensional Gauss-invariant basis); larger physical sector dimensions are enumerated but not diagonalized.
+```sh
+cargo +1.81.0 run --release --locked --offline -- double-spectrum 1 1 double-1-1
+cargo +1.81.0 run --release --locked --offline -- double-verify double-1-1
+```
 
-**Clasy X3 81-shell integration:** [CLASY_X3_PINNED_REFERENCE.md](../CLASY_X3_PINNED_REFERENCE.md) and [CLASY_X3_CONTINUUM_HURDLES_GUIDE.md](../CLASY_X3_CONTINUUM_HURDLES_GUIDE.md).
+## Constellation source audit
 
-See [implementation and research plan](../HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md).
+[Audit](../STAGE2D_CONSTELLATION_SOURCE_AUDIT.md); source pinned in
+`vendor/constellation_lattice/`.
+- **The original code.** The Clasy Constellation oscillator and trit code is
+  compiled byte for byte into the build.
+- **What runs.** The audit executes the original 3/27/243 sector transition
+  barriers and all 45/405/3,645 local keys, with six role types per key.
+- **The index.** A gauge-invariant 243-sector index of the 1,393 torus orbit
+  labels is written with HBI/HBP/SHA/SH/HASH receipts.
+- **Next bindings.** The C1, Z-instant and Shadow Cat torus residual bindings
+  are the next items to source.
+
+```sh
+cargo +1.81.0 run --release --offline --locked -- constellation-audit constellation-evidence
+cargo +1.81.0 run --release --offline --locked -- constellation-verify constellation-evidence
+```
+
+## Clasy X3 kernel
+
+[Clasy X3](https://github.com/JesseBrown1980/Clasy-repo-x-3-/tree/63cbf283b900457f8dfc59ac0e42d3efcbc9aedb)
+is vendored at `vendor/clasy_x3/` as an offline path dependency.
+`src/clasy_portal.rs` reconstructs three canonical Host8 room stubs per virtual
+kernel ID and runs the 81-mode evolution. It checks the finite-field drift
+invariant and the transform round trip, and writes HBP/HBI/SHA-chain receipts
+whose verifier re-executes the trajectory. Batches of 81 × 243 and 243 × 81
+transitions run in CI. Guides: [pinned reference](../CLASY_X3_PINNED_REFERENCE.md),
+[continuum guide](../CLASY_X3_CONTINUUM_HURDLES_GUIDE.md),
+[roadmap](../CLASY_X3_TO_HEBC_HTTP0_NEXT_HURDLES.md).
+
+```sh
+cargo +1.81.0 run --release --offline --locked -- clasy-batch 81 243 clasy-batch-81
+cargo +1.81.0 run --release --offline --locked -- clasy-batch 243 81 clasy-batch-243
+```
+
+## Kernel details
+
+- **Lattice.** S₃ links on a periodic two-dimensional lattice, with exact
+  local gauge transformations and the integer plaquette action
+  Σ(2 − χ₂(P)). `advance` is a gauge-equivariant deterministic link rule used
+  for replay and stress tests. The six-vertex Cayley Laplacian generated by
+  the three transpositions has exact spectrum 0, 3, 3, 3, 3, 6.
+- **HTTP-0 addressing.** 23,000,000,000 addressable Q-trit identifiers taking
+  values −1/0/+1. Only the requested probes are evaluated. The loopback
+  HTTP/1.1 adapter serves `/health`, `/gap`, `/qtrit/{ordinal}`,
+  `/clasy/{ordinal}/{nu}/{steps}`, `/spectrum/{JE}/{JB}` and `/constellation`.
+- **Receipts.**
+  - `run.hbp` holds one record per transition.
+  - `index.hbi` gives exact seek offsets.
+  - `run.anchor` pins the HBP/HBI digests and the final chain hash.
+  - `run.measure` holds plain-text metrics.
+  - `verify` checks the recorded bytes, and pinning the anchor externally gives
+    outside provenance.
+- **Benchmarking.** State updates count transitions. Timing uses integer
+  nanoseconds from an independent clock.
+- **Stress.** A 512×512 lattice: 524,288 links and 1,048,576 canonically
+  encoded Q-trits, with exact steps and identical replay.
+
+Plan: [HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md](../HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md).
+Stage 2 audit: [STAGE2_SCALING_SPECTRAL_AUDIT_2026-10-24.md](../STAGE2_SCALING_SPECTRAL_AUDIT_2026-10-24.md).
