@@ -248,6 +248,25 @@ def leading_minor_signs(B: list[list[int]]) -> list[int]:
     return signs
 
 
+KERNEL = __import__("os").environ.get("INDEP_MINORS", "")
+
+
+def kernel_signs(B: list[list[int]]) -> list[int]:
+    """Leading-minor signs from the standalone Rust kernel (independent/minors)."""
+    import subprocess
+
+    n = len(B)
+    text = f"{n}\n" + "\n".join(" ".join(map(str, row)) for row in B) + "\n"
+    env = dict(__import__("os").environ)
+    out = subprocess.run([KERNEL], input=text, capture_output=True, text=True, env=env)
+    line = out.stdout.strip()
+    if out.returncode != 0 or "signs=" not in line:
+        raise RuntimeError("kernel_failed")
+    f = dict(p.split("=", 1) for p in line.split("|")[1:] if "=" in p)
+    LAST.update(hadamard_bits=int(f["hadamard_bits"]), primes=int(f["primes"]))
+    return [1 if c == "+" else (-1 if c == "-" else 0) for c in f["signs"]]
+
+
 def count_below(n, weight, rows, mag, r, t_milli, seed):
     """#eigenvalues of A = E + r M below t_milli/1e6 (strict), A in the orbit basis."""
     rng = random.Random(seed)
@@ -265,7 +284,7 @@ def count_below(n, weight, rows, mag, r, t_milli, seed):
                 B[ii][pos[j]] -= weight[i] * c * 1_000_000
             B[ii][ii] += weight[i] * (diag_e * 1_000_000 + r * 1_000_000 * mag[i] - t_milli)
         try:
-            signs = leading_minor_signs(B)
+            signs = kernel_signs(B) if KERNEL else leading_minor_signs(B)
         except RuntimeError:
             continue
         if 0 in signs:
@@ -285,7 +304,8 @@ def main(argv):
     ts = [int(x) for x in argv[3].split(",")]
     seed = int(argv[4]) if len(argv) > 4 else 1
     code = hashlib.sha256(open(__file__, "rb").read()).hexdigest()
-    print(f"INDEP_RUN|code_sha256={code}|command=python indep_verify.py {' '.join(argv)}|seed={seed}|json=0", flush=True)
+    kern = hashlib.sha256(open(KERNEL, "rb").read()).hexdigest() if KERNEL else "python"
+    print(f"INDEP_RUN|code_sha256={code}|minor_kernel_sha256={kern}|command=python indep_verify.py {' '.join(argv)}|seed={seed}|json=0", flush=True)
     tor, n, weight, rows, mag = build(lx, ly)
     flat = sum(1 for m in mag if m == 0)
     k = len(tor.free)
@@ -302,9 +322,10 @@ def main(argv):
     for t in ts:
         try:
             neg = count_below(n, weight, rows, mag, r, t, seed)
+            pk = "primes_62bit" if KERNEL else "primes_31bit"
             print(
                 f"INDEP_COUNT|L={lx}x{ly}|r={r}|t_milli={t}|N={neg}|method=multimodular_leading_minors_random_permutation|seed={seed}"
-                f"|hadamard_bits={LAST['hadamard_bits']}|primes_31bit={LAST['primes']}|reshuffle_retries={LAST['retries']}|result=COMPUTED|json=0",
+                f"|hadamard_bits={LAST['hadamard_bits']}|{pk}={LAST['primes']}|reshuffle_retries={LAST['retries']}|result=COMPUTED|json=0",
                 flush=True,
             )
         except RuntimeError as e:
