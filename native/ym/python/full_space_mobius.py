@@ -98,12 +98,24 @@ def sectors(points):
 def read_count(root, prefix, lx, ly, sx, sy, rest):
     sid = "_".join([f"{prefix}count", str(lx), str(ly), str(sx), str(sy), *map(str, rest)])
     hbp = Path(root) / "shards" / sid / "run.hbp"
+    if not hbp.exists():  # a split count: its countmerge shard holds the result
+        sid = sid.replace(f"{prefix}count_", f"{prefix}countmerge_", 1)
+        hbp = Path(root) / "shards" / sid / "run.hbp"
     text = hbp.read_text()
     line_ = next(l for l in text.splitlines() if l.startswith("SHELL_SCHUR|"))
     f = dict(p.split("=", 1) for p in line_.split("|")[1:] if "=" in p)
     if f.get("result") != "PASS" or f.get("ambiguous") != "0":
         raise SystemExit(f"FULL_SPACE|error=count_not_certified|shard={sid}|json=0")
     return int(f["negative"]), sid
+
+
+def read_dims(root, prefix, lx, ly, sx, sy):
+    """sector_states and gauge_orbits recorded by the sector shard."""
+    sid = f"{prefix}sector_{lx}_{ly}_{sx}_{sy}"
+    hbp = Path(root) / "shards" / sid / "run.hbp"
+    line_ = next(l for l in hbp.read_text().splitlines() if l.startswith("YMSEC|"))
+    f = dict(p.split("=", 1) for p in line_.split("|")[1:] if "=" in p)
+    return int(f["sector_states"]), int(f["gauge_orbits"])
 
 
 def main(argv):
@@ -148,7 +160,28 @@ def main(argv):
         iso[k] = nk[k] - sum(iso[j] for j in iso if j > k)
         lines.append(f"ISOTYPIC|kernel={names[k] or 'T'}|count={iso[k]}|json=0")
     full = sum(iso.values())
-    lines.append(f"FULL_SPACE_COUNT|L={lx}x{ly}|t_milli={rest[2]}|N={full}|json=0")
+    nonneg = all(v >= 0 for v in iso.values())
+    # dimension reconciliation: the same Mobius sum over sector dimensions must
+    # give the number of gauge orbits (the whole physical space)
+    dk, orbits = {}, set()
+    for k in ks:
+        pts = point_ops(k, lx, ly) if k != T else [0, 1, 2, 3]
+        tot = 0
+        for sx, sy in sectors(pts):
+            d, g = read_dims(root, names[k], lx, ly, sx, sy)
+            tot += d
+            orbits.add(g)
+        dk[k] = tot
+    diso = {}
+    for k in sorted(ks, key=len, reverse=True):
+        diso[k] = dk[k] - sum(diso[j] for j in diso if j > k)
+    dim_full = sum(diso.values())
+    dim_ok = len(orbits) == 1 and dim_full == next(iter(orbits)) and all(v >= 0 for v in diso.values())
+    lines.append(f"DIMENSION|L={lx}x{ly}|mobius_dimension={dim_full}|gauge_orbits={','.join(map(str, sorted(orbits)))}|isotypic_dims={','.join(str(diso[k]) for k in sorted(ks, key=len, reverse=True))}|result={'PASS' if dim_ok else 'FAIL'}|json=0")
+    lines.append(f"FULL_SPACE_COUNT|L={lx}x{ly}|t_milli={rest[2]}|N={full}|isotypic_nonnegative={int(nonneg)}|dimension_reconciled={int(dim_ok)}|json=0")
+    if not (nonneg and dim_ok):
+        print("\n".join(lines))
+        raise SystemExit(f"FULL_SPACE|error=reconciliation_failed|nonnegative={int(nonneg)}|dimension={int(dim_ok)}|json=0")
     print("\n".join(lines))
 
 
