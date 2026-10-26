@@ -217,6 +217,8 @@ jobs:
           python3 $P/monotone_cells.py --lattice {lat} --ray {flat} seal.hbp | tee -a seal.hbp
           g=$(grep -c '^SHELL_GAP_CERT|.*|result=PASS|' seal.hbp); r=$(grep -c '^MONOTONE_CELLS|.*|result=PASS|' seal.hbp)
           if [ "$g" = {len(want)} ] && [ "$r" = 1 ]; then st=PASS; else st=FAIL; fi
+          # provenance of every merged count: its input shards and matrix
+          for f in arts/shards/countmerge_*/run.hbp; do grep -h -e '^MERGE_INPUT|' -e '^INPUT_MATRIX|' $f | sed "s#^#$(basename $(dirname $f))|#" >> seal.hbp; done
           cat arts/shards/*/run.anchor >> seal.hbp
           echo "GITRAM_SEAL|lattice={lat}|couplings={cps}|gap_certs=$g/{len(want)}|ray_E8_upper={flat}/1000000|status=$st|json=0" >> seal.hbp
           mv seal.hbp HEBC-YM-{lat.upper()}-STAGE-B.hbp; sha256sum HEBC-YM-{lat.upper()}-STAGE-B.hbp > HEBC-YM-{lat.upper()}-STAGE-B.sha256
