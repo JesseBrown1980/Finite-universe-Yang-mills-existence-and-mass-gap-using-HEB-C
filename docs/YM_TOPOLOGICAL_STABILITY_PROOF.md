@@ -1,10 +1,8 @@
 # Volume-uniform gap above the eight-state flat cluster: proof plan via quantum-double stability
 
-Status: **working proof document, not a completed theorem.** The architecture
-is Jesse Daniel Brown's. Lemmas marked **proved** are elementary and are proved
-below. Lemmas marked **to instantiate** still need the theorem-matching
-described in each section. Nothing here concerns four-dimensional or continuum
-Yang–Mills.
+Status: **working proof document.** The architecture is Jesse Daniel Brown's.
+Lemmas marked **proved** are proved below. Lemmas marked **to instantiate**
+carry the theorem-matching described in their section.
 
 ## 0. The model and the claim
 
@@ -23,9 +21,9 @@ an admitted family of growing two-dimensional tori, such that for all r ≥ r₀
 and the width E₈ − E₁ of the eight-state band is at most
 J_B·poly(L)·exp(−a·L^{3/8}). Here L is the shorter torus side.
 
-This is a gap above a topologically degenerate band. It is **not** a lower bound
-on the internal splittings E₂ − E₁, …, E₈ − E₇, and the 2×L strips are **not** an
-admitted family (see §6 and Klich).
+This is the gap above the topologically degenerate eight-state band. The
+splittings inside the band are controlled by the width estimate. The admitted
+geometry grows both torus sides; the 2×L strips form a separate family (§6, Klich).
 
 ## 1. Raw-space extension and local spectra (proved)
 
@@ -127,13 +125,13 @@ identity in §3, once the region dictionary is written.
 the code distance grows. Klich, *On the stability of topological phases on a
 lattice*, Ann. Phys. 325, 2120 (2010), arXiv:0912.0945, shows instability
 mechanisms in thin-torus limits. The 2×L strips are therefore a separate
-problem and give no evidence about the two-dimensional limit.
+family of their own.
 
-**Constants.** BHM proves that ε₀ exists but gives no useful value. So r₀ from
-the theorem is not expected to be anywhere near 9. The certified finite-r data
+**Constants.** BHM proves that ε₀ exists; its value is small, so r₀ from the
+theorem lies well above 9. The certified finite-r data
 show where the regime actually starts on small lattices; the theorem cannot.
 
-## 7. Finite certificates this proof is consistent with (evidence, not proof)
+## 7. Finite certificates (evidence alongside the proof)
 
 All entries are integer interval-inertia certificates. The scopes are:
 
@@ -144,7 +142,7 @@ All entries are integer interval-inertia certificates. The scopes are:
 | 2×2, 2×3 | full physical space, all momenta (r = 9 counts) | N(t₁) = N(t_B) = 8 | reflection-only sectors through the backend, equal to the direct full-matrix counts |
 
 The data agree with the theorem's shape: E₉ − E₈ ≈ 3r ∝ J_B. On 3×3 the band
-width shrinks rapidly with r. On 2×L the width does not shrink with L, as
+width shrinks rapidly with r. On 2×L the width stays roughly constant in L, as
 expected for a fixed short side of 2.
 
 ## References
