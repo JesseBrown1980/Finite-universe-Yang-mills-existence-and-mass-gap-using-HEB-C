@@ -1,3 +1,98 @@
+## Repository map and status (2026-10-26)
+
+One place for the finite-lattice S₃ Yang–Mills work. Results are labelled by
+what they are:
+- **certified:** integer interval-inertia counts with receipts;
+- **reproduced:** regenerated from the same source on fresh machines;
+- **experimental:** still running, not yet certified.
+
+| Area | Where | Status |
+|---|---|---|
+| HEB-C HTTP-0 execution and verification backend for the sector tools (`hebc_ym_http0`; headless command and loopback route share one code path) | [`native/ym/`](native/ym/README.md) | in use; route identity, shard integrity and byte-for-byte re-execution checks |
+| 3×3 zero-momentum certificates (frozen reference, The-matrix-law-essentials `8fd12e6`): E9 − E8 ≥ 23.357514 for every r = JB/JE ≥ 9 | [`native/ym/reference/`](native/ym/reference/ym3x3_frozen_8fd12e6.hbp) | certified (reference) |
+| Fresh-machine regeneration of the 3×3 certificates through the backend | [`native/ym/results/3x3_regeneration/`](native/ym/results/3x3_regeneration/) | **reproduced**: 25 GitRAM cells, pinned matrix SHA-256 4/4, certificates identical to the reference. Same source, so not an independent verifier. |
+| 2×2, 2×3, 2×4 ladder at r = 9, 15, 27, 45, 81, 243 (18 points), continued to all r ≥ 9 | [`native/ym/results/2xL/`](native/ym/results/2xL/README.md) | **certified**; 224/224 shards re-executed byte for byte, `check.sh` rebuilds everything from the shards |
+| Stage B pipeline test (split Schur columns + strict merge) on 2×4 at r = 9 | [`native/ym/results/2x4_stageB_pipeline_test/`](native/ym/results/2x4_stageB_pipeline_test/) | passed; reproduces the 2×4 r = 9 certificate byte for byte |
+| 2×5 volume point | `.github/workflows/hebc-ym-2x5-stage-a.yml` | **experimental**: stage A (cluster intervals) running, stage B (inertia counts) not started; no 2×5 result is claimed |
+| 3×4 feasibility | [`native/ym/benchmarks/onfly_3x4.hbp`](native/ym/benchmarks/onfly_3x4.hbp) | measured: a full inertia certificate is not feasible with the current tools |
+| 2×2 coupling ladder r ∈ [3, 10,022] | branch `integer-sturm-ladder` (`b50b531`), section below | certified cells, pending independent review |
+
+All quantities are for the gap above the eight-state flat-vacuum cluster (E9 − E8),
+the cluster width and the first splitting, in units of JE, on fixed finite
+lattices. Nothing here is uniform in volume. None of it is a continuum or
+four-dimensional Yang–Mills statement.
+
+## Coupling-gap certificates: status at a glance (2026-10-25)
+
+The code behind this 2×2 ladder section lives on draft branches and is
+**not merged**; PRs #4 and #7–#15 stay drafts until independent
+mathematical review. All verification is integer-only and every receipt line
+ends `json=0`. Scope throughout: the finite S₃ gauge model on one 2×2 torus
+(1,393 gauge-orbit states), H = JE·E + JB·M, ratio r = JB/JE.
+
+### Certified (complete, reproducible proof receipts; PRs still in draft review)
+
+| result | evidence |
+|---|---|
+| E₁ > 13.240 at (JE, JB) = (1, 1) and E₁ > 50.840 at (3, 5), with E₀ below each threshold | interval Sturm inertia on all 1,393 pivots, reproduced three ways: GMP verifier in CI (PR #9), an independent Python verifier and a Rust port on separate hardware ([third-seat archive](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/tree/third-seat-sturm-python/independent/third_seat)) |
+| Magnetic end: PEP = 24·I₈ on the 8 flat vacua; second-order spectrum −6 ± √14, −6 ± √6, −6 (×4); gap ≈ (√14 − √6)·JE²/JB, rigorously gap > JE²/JB for JB/JE ≥ 10⁴ | exact arithmetic (PR #11), recomputed independently |
+| Four exact Z₂×Z₂ translation sectors (385 + 336 + 336 + 336); anchors (1,2,18.250), (2,5,34.400), (2,5,39.400), (1,3,19.300) each count exactly 1 | PR #14 in CI; each anchor re-certified on the unreduced full matrix by a separate Rust verifier |
+| Continuous cells: gap/JE > 1.05 on 2 ≤ r ≤ 5/2 and > 0.40 on 5/2 ≤ r ≤ 3 | monotone cell lemma on the PR #14 anchors |
+
+### In progress (reported certificates pending independent review of the published ledger)
+
+The 17-rung gap profile ("the wave": r = 0, 1, 2, 3, 5, 6, 8, 9, 15, 21, 27,
+45, 63, 81, 135, 189, 243) and the adaptive ladder over 3 ≤ r ≤ 10⁴ are
+running. Ledger snapshot [`36c245f`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/36c245f/independent/ladder/ledger.hbp)
+(610 certificates; all 17 rungs complete). Reported so far:
+
+| r = JB/JE | certified readings (per unit JE) |
+|---|---|
+| 0 | E₀ < 0.001, E₁ > 5.999, gap > 5.998 (exact: 0 and 6) |
+| 1 | E₀ < 7.750, E₁ > 13.187, gap > 5.437 |
+| **2** | **E₀ < 14.375, E₁ > 18.125, gap > 3.750·JE** |
+| 3 | E₀ < 19.244, E₁ > 20.711, gap > 1.467 |
+| 3 → 4.31 | continuous ladder cells, gap > 0.367, 0.253, 0.196, 0.138 |
+| 5 | E₀ < 21.885, E₁ > 22.210, gap > 0.325 |
+| 6 | E₀ < 22.283, E₁ > 22.537, gap > 0.254 |
+| 8 | E₀ < 22.746, E₁ > 22.921, gap > 0.175 |
+| 9 | E₀ < 22.895, E₁ > 23.045, gap > 0.150 |
+| 15 | E₀ < 23.347, E₁ > 23.432, gap > 0.085 |
+| 21 | E₀ < 23.536, E₁ > 23.593, gap > 0.057 |
+| 27 | E₀ < 23.639, E₁ > 23.683, gap > 0.044 |
+| 45 | E₀ < 23.787, E₁ > 23.812, gap > 0.025 |
+| 63 | E₀ < 23.846, E₁ > 23.865, gap > 0.019 |
+| 81 | E₀ < 23.882, E₁ > 23.895, gap > 0.013 |
+| 135 | E₀ < 23.930, E₁ > 23.937, gap > 0.007 |
+| 189 | E₀ < 23.951, E₁ > 23.955, gap > 0.004 |
+| 243 | E₀ < 23.961, E₁ > 23.965, gap > 0.004 |
+
+**Measured, not certified (Euclidean evolution).** Letting H relax under
+v ← (c − H)v from an unsteered integer start vector and reading the gap off
+the decay rate gives 5.999, 5.611, 4.007, 1.473, 0.341, 0.257 at r = 0, 1, 2,
+3, 5, 6, every one inside the certified brackets above. A matrix-jump sweep
+(evolution operator squared, 2^J steps per multiply, on the four translation
+sectors) measures all 17 rungs; every one is consistent with its bracket, E₀ and
+E₁ both sit in the vacuum sector for r > 0, and r·gap approaches
+√14 − √6 = 1.29217 (1.2923 at r = 243). Method, table and
+the HTTP-0 page: [docs/EVOLUTION_TESTGROUND.md](docs/EVOLUTION_TESTGROUND.md).
+
+Method, matrix jumps (scaling, monotone cells, translation sectors,
+predict-then-verify), the SHA-keyed certificate ledger and measured timings
+(about 150 s per certificate on the full matrix, about 6.9 s with sectors):
+[docs/LADDER_METHOD.md](docs/LADDER_METHOD.md), from branch
+`integer-sturm-ladder` at [`70aa7ab`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/tree/70aa7ab/independent/ladder).
+Certificate caching for the HTTP-0 / SG-RAM backend:
+[docs/SGRAM_CERTIFICATE_CACHE_NOTES.md](docs/SGRAM_CERTIFICATE_CACHE_NOTES.md),
+from [`a304596`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/a304596/SGRAM_CERTIFICATE_CACHE_NOTES.md).
+
+### Not established
+
+- A gap bound uniform in the lattice volume (only one 2×2 torus is treated).
+- Any continuum Yang–Mills theorem, or the four-dimensional mass gap.
+- A solution to the Clay Millennium Prize problem.
+- Authenticated provenance: receipts prove integrity relative to trusted inputs, not who produced them.
+
 ## Stage 2I: Independent spectral verification and multi-volume scaling (Issue #2 Closed)
 
 **[Stage 2I Mathematical Report & Scaling](STAGE2I_INDEPENDENT_VERIFIER_AND_SCALING.md)** · **[Independent Verifier](native/src/torus2_independent.rs)** · **[Stage 2H Integer Inertia](STAGE2H_TORUS2_INTEGER_INERTIA_CERTIFICATE.md)** · **[Passing CI](.github/workflows/native-rust.yml)**
