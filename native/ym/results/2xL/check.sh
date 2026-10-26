@@ -5,16 +5,18 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 P=../../python
+# cryptographic integrity of every shard (index.hbi and run.anchor regenerated from run.hbp)
+python3 $P/verify_shard_integrity.py 22/shards 23/shards 24/shards | tee /tmp/integrity_2xL
+grep -q "|shards=224|failed=0|.*|result=PASS|" /tmp/integrity_2xL
 for L in "2 2" "2 3" "2 4"; do set -- $L; lat=$1x$2; d=$1$2/shards; u=$((3*2*$1*$2))
   f() { cat $d/flatcomp_$1_$2_$3_$4/run.hbp; }
   f $1 $2 1 1 | grep -q "|flat_states=7|flat_electric_diag=\[$u,$u,$u,$u,$u,$u,$u\]|flat_diag_max=$u|flat_flat_couplings=0|"
   f $1 $2 -1 -1 | grep -q "|flat_states=1|flat_electric_diag=\[$u\]|flat_diag_max=$u|flat_flat_couplings=0|"
   f $1 $2 1 -1 | grep -q "|flat_states=0|"; f $1 $2 -1 1 | grep -q "|flat_states=0|"
-  for a in $d/*/; do grep -q "^ANCHOR|spec=" $a/run.anchor; done
   python3 $P/rebuild_from_shards.py $d $1 $2 > /tmp/certs_$lat.new
   cmp certs_$lat.hbp /tmp/certs_$lat.new
   [ "$(grep -c '^SHELL_GAP_CERT|.*|result=PASS|' certs_$lat.hbp)" = 6 ]
   python3 $P/monotone_cells.py --lattice $lat --ray $((u*1000000)) certs_$lat.hbp | tail -1 | tee /tmp/mono_$lat
   grep -q "|r_range=\[9,infinity\]|cells=5|ray=1|.*|result=PASS|" /tmp/mono_$lat
 done
-echo "CHECK_2XL|lattices=2x2,2x3,2x4|points=18|flat_bound=PASS|certificates_rebuilt_identical=PASS|continuation=[9,infinity)|result=PASS|json=0"
+echo "CHECK_2XL|lattices=2x2,2x3,2x4|points=18|shard_integrity=224/224|flat_bound=PASS|certificates_rebuilt_identical=PASS|continuation=[9,infinity)|result=PASS|json=0"

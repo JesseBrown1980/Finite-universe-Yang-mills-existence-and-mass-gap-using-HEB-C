@@ -9,11 +9,10 @@
 # identical across cells, seal. Integer-only, json=0.
 name: HEB-C YM 2x5 stage A (14 cells)
 
+# Dispatch only: run 40318106269 started from the push trigger; this edit must
+# not start a duplicate run.
 on:
   workflow_dispatch:
-  push:
-    branches: [http0-ym-backend-finite-volumes]
-    paths: ['.github/workflows/hebc-ym-2x5-stage-a.yml']
 
 permissions:
   contents: read
@@ -103,7 +102,9 @@ jobs:
           cat fan-in/*/cell-*.hbp > HEBC-YM-2X5-STAGE-A.hbp
           k=$(grep '^ANCHOR_OF|sector_' HEBC-YM-2X5-STAGE-A.hbp | sort -u | cut -d'|' -f2 | uniq -d | wc -l); echo "sector shards with differing anchors: $k"
           c=$(grep -c '^SHARD|cluster_.*|CLUSTER|.*|converged=1|' HEBC-YM-2X5-STAGE-A.hbp || true)
-          if [ "$count" -eq 14 ] && [ "$k" = 0 ]; then st=PASS; else st=FAIL; fi
+          # scientific PASS requires every cluster run converged: stage B takes its
+          # thresholds from these residual intervals
+          if [ "$count" -eq 14 ] && [ "$k" = 0 ] && [ "$c" = 10 ]; then st=PASS; else st=FAIL; fi
           echo "GITRAM_SEAL|cells=$count|expected=14|sector_shards_consistent=$((k==0))|clusters_converged=$c/10|status=$st|json=0" >> HEBC-YM-2X5-STAGE-A.hbp
           sha256sum HEBC-YM-2X5-STAGE-A.hbp > HEBC-YM-2X5-STAGE-A.sha256
           test "$st" = PASS
