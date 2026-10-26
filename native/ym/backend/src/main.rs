@@ -27,6 +27,10 @@
 //!   countcols/LX/LY/SX/SY/JE/JB/T/FDIG/TOL/A/B  (shellschur columns A..B-1)
 //!   countmerge/LX/LY/SX/SY/JE/JB/T/FDIG/TOL     (merge ROOT/scol/<count id>/*.hbp:
 //!       the countcols shards' run.hbp files; every core entry exactly once)
+//! Every kind takes a sector-mode prefix: none (zero momentum), r (reflections
+//! only, every momentum), or tx / ty / td / ta (translations along one line, the
+//! sectors of V^K). Full space for a non-cyclic translation group by Mobius
+//! inversion over the line subgroups: python/full_space_mobius.py.
 //! usage: hebc_ym_http0 job ROOT SPEC | verify ROOT SPEC | cat ROOT SPEC |
 //!        quarantine ROOT SPEC | serve ROOT PORT MAX_REQUESTS        json=0
 #![forbid(unsafe_code)]
@@ -48,17 +52,39 @@ struct Spec {
     nums: Vec<i64>,
 }
 
+const MODES: [&str; 6] = ["tx", "ty", "td", "ta", "r", ""];
+const BASES: [&str; 6] = ["sector", "flatcomp", "cluster", "countcols", "countmerge", "count"];
+
 impl Spec {
-    /// "r"-prefixed kinds (rsector, rflatcomp, rcluster, rcount, rcountcols,
-    /// rcountmerge) use the reflection-only sectors (G = C2v, every momentum).
-    fn refl(&self) -> bool {
-        self.kind.starts_with('r')
+    /// Sector mode prefix of the kind:
+    /// "r" = reflection-only sectors (G = C2v, every momentum);
+    /// "tx"/"ty"/"td"/"ta" = translations along one line (YMSEC_TRANS = x/y/d/a),
+    /// sectors of V^K for K = that line of translations;
+    /// "" = zero-momentum sectors (all translations).
+    fn mode(&self) -> &str {
+        MODES.iter().copied().find(|m| self.kind.strip_prefix(m).is_some_and(|b| BASES.contains(&b))).unwrap_or("")
     }
     fn base(&self) -> &str {
-        self.kind.strip_prefix('r').unwrap_or(&self.kind)
+        &self.kind[self.mode().len()..]
     }
     fn with_base(&self, base: &str, nums: Vec<i64>) -> Spec {
-        Spec { kind: format!("{}{base}", if self.refl() { "r" } else { "" }), nums }
+        Spec { kind: format!("{}{base}", self.mode()), nums }
+    }
+    fn ymsec_env(&self) -> Vec<(&'static str, String)> {
+        match self.mode() {
+            "r" => vec![("YMSEC_REFLECTIONS_ONLY", "1".to_string())],
+            "tx" => vec![("YMSEC_TRANS", "x".to_string())],
+            "ty" => vec![("YMSEC_TRANS", "y".to_string())],
+            "td" => vec![("YMSEC_TRANS", "d".to_string())],
+            "ta" => vec![("YMSEC_TRANS", "a".to_string())],
+            _ => vec![],
+        }
+    }
+    fn matrix_prefix(&self) -> &str {
+        match self.mode() {
+            "" => "s",
+            m => m,
+        }
     }
 }
 
@@ -66,7 +92,8 @@ fn parse_spec(spec: &str) -> Result<Spec, String> {
     let mut parts = spec.trim_matches('/').split('/');
     let kind = parts.next().ok_or("empty spec")?.to_string();
     let nums: Vec<i64> = parts.map(|p| p.parse::<i64>().map_err(|_| format!("non-integer spec field {p}"))).collect::<Result<_, _>>()?;
-    let base = kind.strip_prefix('r').unwrap_or(kind.as_str());
+    let mode = MODES.iter().copied().find(|m| kind.strip_prefix(m).is_some_and(|b| BASES.contains(&b))).ok_or(format!("unknown job kind {kind}"))?;
+    let base = &kind[mode.len()..];
     let want = match base {
         "sector" | "flatcomp" => 4,
         "cluster" => 8,
@@ -106,7 +133,7 @@ fn tool(name: &str) -> Result<PathBuf, String> {
 }
 
 fn matrix_path(root: &Path, s: &Spec) -> PathBuf {
-    root.join("matrices").join(format!("{}{}{}_{}_{}.matrix", if s.refl() { "r" } else { "s" }, s.nums[0], s.nums[1], s.nums[2], s.nums[3]))
+    root.join("matrices").join(format!("{}{}{}_{}_{}.matrix", s.matrix_prefix(), s.nums[0], s.nums[1], s.nums[2], s.nums[3]))
 }
 
 fn file_sha(p: &Path) -> Result<String, String> {
@@ -159,7 +186,7 @@ fn execute(root: &Path, s: &Spec) -> Result<(String, Vec<(String, String)>), Str
             fs::create_dir_all(root.join("matrices")).map_err(|e| e.to_string())?;
             let m = matrix_path(root, s);
             let tmp = m.with_extension("matrix.part");
-            let env = if s.refl() { vec![("YMSEC_REFLECTIONS_ONLY", "1".to_string())] } else { vec![] };
+            let env = s.ymsec_env();
             let (mut out, meta) = run_tool("ymsec", &[st(0), st(1), st(2), st(3), tmp.display().to_string()], &env)?;
             let sha = file_sha(&tmp)?;
             let bytes = fs::metadata(&tmp).map_err(|e| e.to_string())?.len();
