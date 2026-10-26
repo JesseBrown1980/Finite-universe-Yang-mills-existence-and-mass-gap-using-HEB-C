@@ -95,3 +95,29 @@ before running.
 
 Finite S₃ gauge model on one 2×2 torus. No infinite-volume, continuum or Clay
 Yang–Mills claim follows. Receipts are integrity, not authenticated provenance.
+
+## Ladder 2: micro-energy thresholds, r = 139.16 to 10,022 (2026-10-26)
+
+`ladder2.py` runs the same certificate (interval Sturm count summed over the
+four pinned translation sectors, full-matrix spot check every 10th anchor) in
+per-JE **micro**-energies: r = JB/JE is held as p/64000, and a micro threshold
+x is passed to the verifier as 64·x, exact by the scaling relation. E₀ and E₁
+are bracketed and then bisected, every probe one certificate.
+
+- `ledger2.hbp`: 1,476 certificates and 87 anchors, SHA-keyed as before.
+- `ladder2_run.log`: 84 monotone cells from r = 8906000/64000 (139.16) to
+  r = 641425975/64000 (10,022.3). Two restarts begin a few hundred units of p
+  below the previous end, so consecutive cells overlap and their union is
+  contiguous.
+- Every cell has a positive certified lower bound on gap/JE. The smallest is
+  33/10⁶ on the last cell. The bound falls roughly like 1/r, as the
+  weak-coupling law (√14 − √6)·JE²/JB predicts (about 129/10⁶ at r = 10⁴).
+  The cell lemma loses part of that over the cell's width.
+- Together with ladder 1 (77 cells, r = 3 to 139.16, smallest bound
+  2/1000), the certified cells cover r ∈ [3, 10,022.3]. The point r = 10⁴ is
+  covered, but the interval does not reach r = ∞.
+
+Reported, pending independent review. Receipts are integrity, not
+authenticated provenance. `ladder.py` is updated to the bracket-then-bisect
+search that produced the later ladder-1 certificates; `ledger.hbp` and
+`ladder_run.log` grow append-only (the first 677 ledger lines are unchanged).

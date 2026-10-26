@@ -117,43 +117,53 @@ def pred_e1(p, q):
     return 24000 - (A1 * q + p * 1000 - 1) // (p * 1000)
 
 
-def tight_e1_lower(p, q, guess, step):
-    """Largest certified x with count == 1 found by a short search from guess."""
-    x, best, n = guess, None, 0
-    while n < 8:
+def tight_e1_lower(p, q, guess, step, tol=4, budget=14):
+    """Largest certified x with count == 1 (so E0 < x < E1).
+    Bracket first (count <= 1 below, count >= 2 above), then bisect; every
+    probe is one integer certificate. Never overshoots past a known bracket."""
+    lo, hi, best, n, x = None, None, None, 0, guess
+    while n < budget:
         n += 1
         c = count(p, q, x)
-        if c == 1:
-            best = x
+        if c >= 2:
+            hi = x if hi is None else min(hi, x)
+        else:
+            lo = x if lo is None else max(lo, x)
+            if c == 1:
+                best = x if best is None else max(best, x)
+        if lo is not None and hi is not None:
+            if hi - lo <= tol:
+                break
+            x = (lo + hi) // 2
+        elif hi is None:
             x += step
-        elif best is not None:
-            if step <= 4:
-                return best, n
-            step //= 2
-            x = best + step
-        elif c >= 2:
-            x -= step
             step *= 2
         else:
-            x += step
+            x -= step
             step *= 2
     if best is None:
-        raise SystemExit("LADDER|error=no_E1_lower|p=%d|q=%d|json=0" % (p, q))
+        raise SystemExit("LADDER|error=no_E1_lower|p=%d|q=%d|bracket=%s,%s|json=0" % (p, q, lo, hi))
     return best, n
 
 
-def tight_e0_upper(p, q, start, step):
-    """Smallest certified x with count >= 1, searching down from a certified start."""
-    best, x, n = start, start - step, 0
-    while n < 8 and step > 4:
+def tight_e0_upper(p, q, start, step, tol=4, budget=10):
+    """Smallest certified x with count >= 1 (so E0 < x), bisecting down from a
+    certified start (count(start) >= 1 must already hold)."""
+    hi, lo, n, x = start, None, 0, start - step
+    while n < budget:
         n += 1
         if count(p, q, x) >= 1:
-            best = x
-            x -= step
+            hi = x
         else:
-            step //= 2
-            x = best - step
-    return best, n
+            lo = x
+        if lo is None:
+            x = hi - step
+            step *= 2
+        else:
+            if hi - lo <= tol:
+                break
+            x = (lo + hi) // 2
+    return hi, n
 
 
 def main():
