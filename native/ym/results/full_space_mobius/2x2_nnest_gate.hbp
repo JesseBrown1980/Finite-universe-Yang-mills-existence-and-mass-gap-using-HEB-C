@@ -1,0 +1,11 @@
+C1|NNEST_GATE|tree=R.t23746649|nodes=46|depth=3|green=1|failing=-|json=0
+C1|NNEST_GATE|tree=R.t46576000|nodes=46|depth=3|green=1|failing=-|json=0
+C1|NNEST_GATE|tree=R.t90123457|nodes=46|depth=3|green=1|failing=-|json=0
+C2|rerun_identical=1|json=0
+C3|fraction_of_evidence=one_sector_shard_removed
+C3|depth=3|caught_at_depth=1|tree=R.t90123457|nodes=46|depth=3|green=0|failing=R.t90123457@depth0:MISTAKE_FLAGGED,R.t90123457.kty@depth1:MISTAKE_FLAGGED,R.t90123457.kty.c1_1@depth2:MISTAKE_FLAGGED,R.t90123457.kty.c1_1.s@depth3:MISTAKE_FLAGGED|json=0
+C4|depth=3|caught_at_depth=1|tree=R.t90123457|nodes=46|depth=3|green=0|failing=R.t90123457@depth0:MISTAKE_FLAGGED,R.t90123457.kty@depth1:MISTAKE_FLAGGED,R.t90123457.kty.c1_1@depth2:MISTAKE_FLAGGED,R.t90123457.kty.c1_1.s@depth3:MISTAKE_FLAGGED|json=0
+C4|depth=2|caught_at_depth=1|tree=R.t90123457|nodes=46|depth=3|green=0|failing=R.t90123457@depth0:MISTAKE_FLAGGED,R.t90123457.kty@depth1:MISTAKE_FLAGGED,R.t90123457.kty.c1_1@depth2:MISTAKE_FLAGGED|json=0
+C4|depth=1|caught_at_depth=1|tree=R.t90123457|nodes=46|depth=3|green=0|failing=R.t90123457@depth0:MISTAKE_FLAGGED,R.t90123457.kty@depth1:MISTAKE_FLAGGED|json=0
+C4|depth=0|caught_at_depth=1|tree=R.t90123457|nodes=46|depth=3|green=0|failing=R.t90123457@depth0:MISTAKE_FLAGGED|json=0
+NNEST_VERDICT|clean_green=1|rerun_identical=1|EVERY_DEPTH_CATCHES_FAULT=1|json=0
