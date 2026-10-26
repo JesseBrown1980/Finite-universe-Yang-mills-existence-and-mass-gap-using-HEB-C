@@ -14,8 +14,10 @@ failed cell, never a certificate.
 Completeness (exact): the receipt's SHA-256 must match SEALED.sha256, it must
 carry a GITRAM_SEAL line with status=PASS, and the cluster summaries must be
 exactly one per (vacuum sector, coupling) in the expected set (COUPLINGS,
-default 9,15,27,45,81), all converged, with exactly 12 CLUSTER_LEVEL lines each.
-Missing, duplicated or extra entries fail.
+default 9,15,27,45,81), all converged, with exactly 12 CLUSTER_LEVEL lines each
+whose k indices are exactly 0..11 and whose intervals have lo <= hi. Missing,
+duplicated or extra entries, and any SHARD|cluster_ line not in the expected
+format, fail.
 usage: stage_b_specs.py SEALED_STAGE_A SHA256_FILE LX LY [COUPLINGS]        json=0
 """
 import hashlib
@@ -34,9 +36,12 @@ def main():
     if not any(l.startswith("GITRAM_SEAL|") and "|status=PASS|" in l for l in raw.decode().splitlines()):
         print("STAGE_B|result=FAIL|reason=no_PASS_seal|json=0")
         sys.exit(2)
-    ivs, conv, n_cluster, nlev, dup = {}, {}, 0, {}, 0
+    ivs, conv, n_cluster, nlev, dup, kseen = {}, {}, 0, {}, 0, {}
     pat = re.compile(r"^SHARD\|cluster_%d_%d_(-?1)_(-?1)_1_(\d+)_12_4\|(.*)$" % (lx, ly))
     for line in open(path):
+        if line.startswith("SHARD|cluster_") and not pat.match(line.rstrip("\n")):
+            print("STAGE_B|result=FAIL|reason=unexpected_cluster_shard_format|json=0")
+            sys.exit(2)
         m = pat.match(line.rstrip("\n"))
         if not m:
             continue
@@ -47,14 +52,17 @@ def main():
             conv[(s, r)] = "|converged=1|" in body
         elif body.startswith("CLUSTER_LEVEL|"):
             iv = re.search(r"interval=\[(\d+),(\d+)\]", body)
-            if iv is None:
-                print("STAGE_B|result=FAIL|reason=malformed_cluster_level|json=0")
+            kk = re.match(r"CLUSTER_LEVEL\|k=(\d+)\|", body)
+            if iv is None or kk is None or int(iv.group(1)) > int(iv.group(2)):
+                print("STAGE_B|result=FAIL|reason=malformed_or_reversed_cluster_level|json=0")
                 sys.exit(2)
+            kseen.setdefault((s, r), []).append(int(kk.group(1)))
             ivs.setdefault(r, []).append((int(iv.group(1)), int(iv.group(2)), s))
             nlev[(s, r)] = nlev.get((s, r), 0) + 1
     expected = {(sec, r) for r in couplings for sec in ((1, 1), (-1, -1))}
     if (n_cluster != len(expected) or dup or set(conv) != expected or not all(conv.values())
-            or set(ivs) != set(couplings) or any(nlev.get(k, 0) != 12 for k in expected) or set(nlev) != expected):
+            or set(ivs) != set(couplings) or any(nlev.get(k, 0) != 12 for k in expected) or set(nlev) != expected
+            or any(sorted(kseen.get(k, [])) != list(range(12)) for k in expected)):
         print("STAGE_B|result=FAIL|reason=incomplete_clusters|summaries=%d|expected=%d|converged=%d|duplicates=%d|json=0"
               % (n_cluster, len(expected), sum(conv.values()), dup))
         sys.exit(2)
