@@ -96,8 +96,12 @@ fn main() {
     for id in 0..tree {
         is_key[lat.canonical(&g, &lat.decode(id))] = true;
     }
+    // HEB-C: YMSEC_REFLECTIONS_ONLY=1 uses G = C2v alone (no translations), so the
+    // four sectors together span the WHOLE physical space, every momentum.
+    let refl_only = std::env::var("YMSEC_REFLECTIONS_ONLY").as_deref() == Ok("1");
+    let (tlx, tly) = if refl_only { (1, 1) } else { (lx, ly) };
     let ops: Vec<Op> = (0..4u8)
-        .flat_map(|p| (0..lx).flat_map(move |tx| (0..ly).map(move |ty| Op { tx, ty, p })))
+        .flat_map(|p| (0..tlx).flat_map(move |tx| (0..tly).map(move |ty| Op { tx, ty, p })))
         .collect();
     let chi = |op: &Op| -> i64 {
         match op.p {
@@ -258,6 +262,21 @@ fn main() {
         wts.push(i64::try_from(img.len()).unwrap_or(0) * lat.weight(&g, &q));
     }
     let n = reps.len();
+    // traces of the reflections on the gauge-orbit space (fixed gauge orbits), and
+    // the character formula d_s = (d + Sx Tr Rx + Sy Tr Ry + SxSy Tr Rc2) / |G|,
+    // checked only when G = C2v (otherwise translations enter the formula)
+    let (mut fx, mut fy, mut fc) = (0i64, 0i64, 0i64);
+    if refl_only {
+        for (key, _) in is_key.iter().enumerate().filter(|(_, &k)| k) {
+            let raw = lat.representative(&lat.decode(key));
+            fx += i64::from(key_of(&apply(&g, &lat, opx(0, 0, 1), &raw)) == key);
+            fy += i64::from(key_of(&apply(&g, &lat, opx(0, 0, 2), &raw)) == key);
+            fc += i64::from(key_of(&apply(&g, &lat, opx(0, 0, 3), &raw)) == key);
+        }
+    }
+    let go = i64::try_from(gauge_orbits).unwrap_or(0);
+    let pred_num = go + sxc * fx + syc * fy + sxc * syc * fc;
+    let dims_ok = !refl_only || (pred_num % 4 == 0 && pred_num / 4 == i64::try_from(n).unwrap_or(-1));
     // structural check on representatives with a nontrivial stabiliser
     let stab_keys: Vec<usize> = reps.iter().zip(wts.iter()).filter(|&(&k, &w)| {
         let gw = lat.weight(&g, &lat.decode(k));
@@ -319,16 +338,18 @@ fn main() {
     }
     ok &= out.flush().is_ok();
     println!(
-        "YMSEC|L={lx}x{ly}|sector=Sx{}Sy{}|group={}|gauge_orbits={gauge_orbits}|sector_states={n}|flat_states={flat_states}|nnz={nnz}|group_relations=PASS|commutes_with_H=PASS|structural_samples={}|targeted_samples={special_n}|w_self_adjoint={}|write={}|ms={}|json=0",
+        "YMSEC|L={lx}x{ly}|sector=Sx{}Sy{}|group={}|momenta={}|gauge_orbits={gauge_orbits}|sector_states={n}|trace_Rx={fx}|trace_Ry={fy}|trace_Rc2={fc}|character_formula_dim={}|flat_states={flat_states}|nnz={nnz}|group_relations=PASS|commutes_with_H=PASS|structural_samples={}|targeted_samples={special_n}|w_self_adjoint={}|write={}|ms={}|json=0",
         if sxc > 0 { "+" } else { "-" },
         if syc > 0 { "+" } else { "-" },
         ops.len(),
+        if refl_only { "all" } else { "zero" },
+        if !refl_only { "n/a".to_string() } else if dims_ok { "PASS".to_string() } else { "FAIL".to_string() },
         samples.len(),
         if sa { "PASS" } else { "FAIL" },
         if ok { "ok" } else { "failed" },
         t0.elapsed().as_millis()
     );
-    if !sa || !ok {
+    if !sa || !ok || !dims_ok {
         std::process::exit(2);
     }
 }

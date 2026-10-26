@@ -48,11 +48,26 @@ struct Spec {
     nums: Vec<i64>,
 }
 
+impl Spec {
+    /// "r"-prefixed kinds (rsector, rflatcomp, rcluster, rcount, rcountcols,
+    /// rcountmerge) use the reflection-only sectors (G = C2v, every momentum).
+    fn refl(&self) -> bool {
+        self.kind.starts_with('r')
+    }
+    fn base(&self) -> &str {
+        self.kind.strip_prefix('r').unwrap_or(&self.kind)
+    }
+    fn with_base(&self, base: &str, nums: Vec<i64>) -> Spec {
+        Spec { kind: format!("{}{base}", if self.refl() { "r" } else { "" }), nums }
+    }
+}
+
 fn parse_spec(spec: &str) -> Result<Spec, String> {
     let mut parts = spec.trim_matches('/').split('/');
     let kind = parts.next().ok_or("empty spec")?.to_string();
     let nums: Vec<i64> = parts.map(|p| p.parse::<i64>().map_err(|_| format!("non-integer spec field {p}"))).collect::<Result<_, _>>()?;
-    let want = match kind.as_str() {
+    let base = kind.strip_prefix('r').unwrap_or(kind.as_str());
+    let want = match base {
         "sector" | "flatcomp" => 4,
         "cluster" => 8,
         "count" | "countmerge" => 9,
@@ -91,7 +106,7 @@ fn tool(name: &str) -> Result<PathBuf, String> {
 }
 
 fn matrix_path(root: &Path, s: &Spec) -> PathBuf {
-    root.join("matrices").join(format!("s{}{}_{}_{}.matrix", s.nums[0], s.nums[1], s.nums[2], s.nums[3]))
+    root.join("matrices").join(format!("{}{}{}_{}_{}.matrix", if s.refl() { "r" } else { "s" }, s.nums[0], s.nums[1], s.nums[2], s.nums[3]))
 }
 
 fn file_sha(p: &Path) -> Result<String, String> {
@@ -100,7 +115,7 @@ fn file_sha(p: &Path) -> Result<String, String> {
 
 /// The matrix a job reads must be the one its sector shard recorded.
 fn checked_matrix(root: &Path, s: &Spec) -> Result<PathBuf, String> {
-    let sec = Spec { kind: "sector".into(), nums: s.nums[..4].to_vec() };
+    let sec = s.with_base("sector", s.nums[..4].to_vec());
     let hbp = root.join("shards").join(shard_id(&sec)).join("run.hbp");
     let text = fs::read_to_string(&hbp).map_err(|_| format!("missing sector shard for {}", canonical_spec(&sec)))?;
     let want = text
@@ -139,12 +154,13 @@ fn run_tool(name: &str, args: &[String], envs: &[(&str, String)]) -> Result<(Str
 fn execute(root: &Path, s: &Spec) -> Result<(String, Vec<(String, String)>), String> {
     let n = &s.nums;
     let st = |k: usize| n[k].to_string();
-    match s.kind.as_str() {
+    match s.base() {
         "sector" => {
             fs::create_dir_all(root.join("matrices")).map_err(|e| e.to_string())?;
             let m = matrix_path(root, s);
             let tmp = m.with_extension("matrix.part");
-            let (mut out, meta) = run_tool("ymsec", &[st(0), st(1), st(2), st(3), tmp.display().to_string()], &[])?;
+            let env = if s.refl() { vec![("YMSEC_REFLECTIONS_ONLY", "1".to_string())] } else { vec![] };
+            let (mut out, meta) = run_tool("ymsec", &[st(0), st(1), st(2), st(3), tmp.display().to_string()], &env)?;
             let sha = file_sha(&tmp)?;
             let bytes = fs::metadata(&tmp).map_err(|e| e.to_string())?.len();
             fs::rename(&tmp, &m).map_err(|e| e.to_string())?;
@@ -156,9 +172,9 @@ fn execute(root: &Path, s: &Spec) -> Result<(String, Vec<(String, String)>), Str
         "count" | "countcols" => {
             let mp = checked_matrix(root, s)?;
             let m = mp.display().to_string();
-            let envs = if s.kind == "countcols" { vec![("SHELLSCHUR_COLS", format!("{}:{}", n[9], n[10]))] } else { vec![] };
+            let envs = if s.base() == "countcols" { vec![("SHELLSCHUR_COLS", format!("{}:{}", n[9], n[10]))] } else { vec![] };
             let (mut out, meta) = run_tool("shellschur", &[m, st(4), st(5), st(6), "-1".into(), st(7), st(8), "4000".into()], &envs)?;
-            if s.kind == "countcols" {
+            if s.base() == "countcols" {
                 // bind every SCOL record of this shard to the matrix that produced it
                 out.push_str(&format!("INPUT_MATRIX|sha256={}|file={}|json=0\n", file_sha(&mp)?, mp.file_name().and_then(|f| f.to_str()).unwrap_or("")));
             }
@@ -192,7 +208,7 @@ fn execute(root: &Path, s: &Spec) -> Result<(String, Vec<(String, String)>), Str
 /// partition 0..core exactly. Returns the run.hbp bodies and a canonical listing
 /// of the inputs (spec + run.hbp SHA-256, in column order).
 fn merge_inputs(root: &Path, s: &Spec, msha: &str) -> Result<(Vec<String>, String), String> {
-    let cs = Spec { kind: "count".into(), nums: s.nums.clone() };
+    let cs = s.with_base("count", s.nums.clone());
     let dir = root.join("scol").join(shard_id(&cs));
     let mut items: Vec<(i64, i64, String, String)> = Vec::new();
     let mut core: Option<i64> = None;
@@ -209,7 +225,7 @@ fn merge_inputs(root: &Path, s: &Spec, msha: &str) -> Result<(Vec<String>, Strin
             return Err(format!("countcols shard {} fails integrity", p.display()));
         }
         let ps = parse_spec(&spec)?;
-        if ps.kind != "countcols" || ps.nums[..9] != s.nums[..] {
+        if ps.kind != s.with_base("countcols", vec![]).kind || ps.nums[..9] != s.nums[..] {
             return Err(format!("shard {spec} is not a countcols shard of this count"));
         }
         if !hbp.lines().any(|l| l == format!("INPUT_MATRIX|sha256={msha}|file={}|json=0", matrix_path(root, s).file_name().and_then(|f| f.to_str()).unwrap_or(""))) {
