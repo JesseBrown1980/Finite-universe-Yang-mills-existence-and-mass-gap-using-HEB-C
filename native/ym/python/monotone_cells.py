@@ -16,7 +16,10 @@ flat states carry M = 0, no mutual coupling and electric diagonal 54, so
 U8 = 54*10^6 micro-units by Courant-Fischer), then for r >= rmax,
     E9(r) - E8(r) >= E9(rmax) - U8 >= tB(rmax) - U8,
 which extends the certificate to [rmin, infinity).
-usage: monotone_cells.py [--ray U8_MICRO] CERT_FILE...        json=0
+--lattice LXxLY (optional, default 3x3) restricts to that lattice's lines and
+labels the output; the ray bound for LX x LY is 3*(2*LX*LY)*10^6 (electric
+diagonal of a flat state, as measured by flatcomp).
+usage: monotone_cells.py [--lattice LXxLY] [--ray U8_MICRO] CERT_FILE...        json=0
 """
 import re
 import sys
@@ -24,13 +27,17 @@ import sys
 
 def main():
     args = sys.argv[1:]
-    ray = None
-    if args and args[0] == "--ray":
-        ray, args = int(args[1]), args[2:]
+    ray, lat = None, "3x3"
+    while args and args[0] in ("--ray", "--lattice"):
+        if args[0] == "--ray":
+            ray = int(args[1])
+        else:
+            lat = args[1]
+        args = args[2:]
     pts = {}
     for path in args:
         for line in open(path):
-            if not line.startswith("SHELL_GAP_CERT|") or "|result=PASS|" not in line:
+            if not line.startswith("SHELL_GAP_CERT|L=%s|" % lat) or "|result=PASS|" not in line:
                 continue
             r = int(re.search(r"\|r=(\d+)\|", line).group(1))
             t1 = int(re.search(r"\|t1=(\d+)/1000000\|", line).group(1))
@@ -46,18 +53,18 @@ def main():
         bound = pts[a][1] - pts[b][0]
         ok = ok and bound > 0
         worst = bound if worst is None else min(worst, bound)
-        print("MONOTONE_CELL|L=3x3|r_in=[%d,%d]|tB(ra)=%d/1000000|t1(rb)=%d/1000000|gap_E9_minus_E8_ge=%d/1000000|certified=%d|json=0"
-              % (a, b, pts[a][1], pts[b][0], bound, int(bound > 0)))
+        print("MONOTONE_CELL|L=%s|r_in=[%d,%d]|tB(ra)=%d/1000000|t1(rb)=%d/1000000|gap_E9_minus_E8_ge=%d/1000000|certified=%d|json=0"
+              % (lat, a, b, pts[a][1], pts[b][0], bound, int(bound > 0)))
     top = "%d" % rs[-1]
     if ray is not None:
         rb = pts[rs[-1]][1] - ray
         ok = ok and rb > 0
         worst = min(worst, rb)
         top = "infinity"
-        print("MONOTONE_RAY|L=3x3|r_in=[%d,infinity)|tB(rmax)=%d/1000000|E8_upper_all_r=%d/1000000|gap_E9_minus_E8_ge=%d/1000000|certified=%d|json=0"
-              % (rs[-1], pts[rs[-1]][1], ray, rb, int(rb > 0)))
-    print("MONOTONE_CELLS|L=3x3|points=%s|r_range=[%d,%s]|cells=%d|ray=%d|min_gap_lower_bound=%d/1000000|result=%s|json=0"
-          % (",".join(map(str, rs)), rs[0], top, len(rs) - 1, int(ray is not None), worst, "PASS" if ok else "FAIL"))
+        print("MONOTONE_RAY|L=%s|r_in=[%d,infinity)|tB(rmax)=%d/1000000|E8_upper_all_r=%d/1000000|gap_E9_minus_E8_ge=%d/1000000|certified=%d|json=0"
+              % (lat, rs[-1], pts[rs[-1]][1], ray, rb, int(rb > 0)))
+    print("MONOTONE_CELLS|L=%s|points=%s|r_range=[%d,%s]|cells=%d|ray=%d|min_gap_lower_bound=%d/1000000|result=%s|json=0"
+          % (lat, ",".join(map(str, rs)), rs[0], top, len(rs) - 1, int(ray is not None), worst, "PASS" if ok else "FAIL"))
     if not ok:
         sys.exit(2)
 
