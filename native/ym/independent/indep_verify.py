@@ -204,12 +204,16 @@ def isqrt(n: int) -> int:
     return x
 
 
+LAST = {}
+
+
 def leading_minor_signs(B: list[list[int]]) -> list[int]:
     n = len(B)
     bits = 0
     for row in B:
         bits = max(bits, (isqrt(sum(v * v for v in row)) + 1).bit_length())
     need = (bits * n + 2) // 30 + 2
+    LAST.update(hadamard_bits_per_row=bits, hadamard_bits=bits * n, primes=need)
     mods = primes_below(1 << 31, need, set())
     res = np.zeros((need, n), dtype=np.int64)
     B64 = np.array(B, dtype=np.int64)  # |entries| < 2^63 checked below
@@ -247,7 +251,9 @@ def leading_minor_signs(B: list[list[int]]) -> list[int]:
 def count_below(n, weight, rows, mag, r, t_milli, seed):
     """#eigenvalues of A = E + r M below t_milli/1e6 (strict), A in the orbit basis."""
     rng = random.Random(seed)
+    LAST["retries"] = 0
     for attempt in range(8):
+        LAST["retries"] = attempt
         perm = list(range(n))
         rng.shuffle(perm)
         pos = {v: i for i, v in enumerate(perm)}
@@ -273,15 +279,32 @@ def count_below(n, weight, rows, mag, r, t_milli, seed):
 
 
 def main(argv):
+    import hashlib
+
     lx, ly, r = int(argv[0]), int(argv[1]), int(argv[2])
     ts = [int(x) for x in argv[3].split(",")]
     seed = int(argv[4]) if len(argv) > 4 else 1
+    code = hashlib.sha256(open(__file__, "rb").read()).hexdigest()
+    print(f"INDEP_RUN|code_sha256={code}|command=python indep_verify.py {' '.join(argv)}|seed={seed}|json=0", flush=True)
     tor, n, weight, rows, mag = build(lx, ly)
     flat = sum(1 for m in mag if m == 0)
-    print(f"INDEP_BUILD|L={lx}x{ly}|gauge_orbits={n}|free_links={len(tor.free)}|tree_links={len(tor.tree)}|flat_states={flat}|WA_symmetric=PASS|json=0")
+    k = len(tor.free)
+    burnside = (6**k + 3 * 2**k + 2 * 3**k) // 6
+    print(
+        f"INDEP_BUILD|L={lx}x{ly}|gauge_orbits={n}|burnside={burnside}|weight_sum={sum(weight)}|six_pow_free={6**k}"
+        f"|free_links={k}|tree_links={len(tor.tree)}|flat_states={flat}|WA_symmetric=PASS|json=0",
+        flush=True,
+    )
     for t in ts:
-        neg = count_below(n, weight, rows, mag, r, t, seed)
-        print(f"INDEP_COUNT|L={lx}x{ly}|r={r}|t_milli={t}|N={neg}|method=multimodular_leading_minors_random_permutation|seed={seed}|json=0")
+        try:
+            neg = count_below(n, weight, rows, mag, r, t, seed)
+            print(
+                f"INDEP_COUNT|L={lx}x{ly}|r={r}|t_milli={t}|N={neg}|method=multimodular_leading_minors_random_permutation|seed={seed}"
+                f"|hadamard_bits={LAST['hadamard_bits']}|primes_31bit={LAST['primes']}|reshuffle_retries={LAST['retries']}|result=COMPUTED|json=0",
+                flush=True,
+            )
+        except RuntimeError as e:
+            print(f"INDEP_COUNT|L={lx}x{ly}|r={r}|t_milli={t}|seed={seed}|result=INCONCLUSIVE|reason={str(e).replace(' ', '_')}|json=0", flush=True)
 
 
 if __name__ == "__main__":
