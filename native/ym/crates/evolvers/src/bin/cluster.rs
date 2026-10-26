@@ -24,7 +24,6 @@
 
 use num_bigint::BigInt;
 use num_traits::{Signed, Zero};
-use std::collections::BTreeMap;
 
 const VB: u32 = 40; // vector magnitude bits
 const FX: u32 = 50; // fixed point of the small eigenproblem
@@ -36,40 +35,56 @@ struct Op {
 }
 
 fn load(path: &str, je: i128, jb: i128) -> Result<Op, String> {
+    // HEB-C copy: streaming loader (no token vector, no BTreeMap), so 2x5 sectors
+    // fit in runner memory. Rows are built as (column, value) lists, sorted by
+    // column, duplicates summed and zeros dropped: exactly the BTreeMap result.
     let text = std::fs::read_to_string(path).map_err(|e| format!("read {path}: {e}"))?;
-    let toks: Result<Vec<i128>, String> =
-        text.split_ascii_whitespace().map(|s| s.parse::<i128>().map_err(|_| format!("bad token {s}"))).collect();
-    let toks = toks?;
-    let n = usize::try_from(*toks.first().ok_or("empty")?).map_err(|_| "bad n")?;
-    if toks.len() < 1 + 2 * n || (toks.len() - 1 - 2 * n) % 3 != 0 {
-        return Err("bad layout".to_string());
+    let mut it = text.split_ascii_whitespace().map(|s| s.parse::<i128>().map_err(|_| format!("bad token {s}")));
+    let n = usize::try_from(it.next().ok_or("empty")??).map_err(|_| "bad n")?;
+    let mut head = Vec::with_capacity(2 * n);
+    for _ in 0..2 * n {
+        head.push(it.next().ok_or("bad layout")??);
     }
-    let w = toks[1..1 + n].to_vec();
-    let mag = &toks[1 + n..1 + 2 * n];
-    let mut dense: Vec<BTreeMap<usize, i128>> = vec![BTreeMap::new(); n];
-    for t in toks[1 + 2 * n..].chunks(3) {
-        let (i, j, z) = (usize::try_from(t[0]).map_err(|_| "bad i")?, usize::try_from(t[1]).map_err(|_| "bad j")?, t[2]);
+    let w = head[..n].to_vec();
+    let mag = &head[n..];
+    let mut lists: Vec<Vec<(usize, i128)>> = vec![Vec::new(); n];
+    while let Some(a) = it.next() {
+        let (b, z) = match (it.next(), it.next()) {
+            (Some(b), Some(z)) => (b?, z?),
+            _ => return Err("bad layout".to_string()),
+        };
+        let (i, j) = (usize::try_from(a?).map_err(|_| "bad i")?, usize::try_from(b).map_err(|_| "bad j")?);
         if i >= n || j >= n {
             return Err("index out of range".to_string());
         }
         if z == 0 {
             continue;
         }
-        *dense[i].entry(j).or_insert(0) += 24 * je * z;
+        lists[i].push((j, 24 * je * z));
         if i != j {
             let num = 24 * je * w[i] * z;
             if num % w[j] != 0 {
                 return Err("non-integer 24H entry".to_string());
             }
-            *dense[j].entry(i).or_insert(0) += num / w[j];
+            lists[j].push((i, num / w[j]));
         }
     }
-    let rows = dense
+    let rows = lists
         .into_iter()
         .enumerate()
         .map(|(i, mut d)| {
-            *d.entry(i).or_insert(0) += 24 * jb * mag[i];
-            d.into_iter().filter(|&(_, v)| v != 0).collect()
+            d.push((i, 24 * jb * mag[i]));
+            d.sort_unstable_by_key(|&(c, _)| c);
+            let mut merged: Vec<(usize, i128)> = Vec::with_capacity(d.len());
+            for (c, v) in d {
+                match merged.last_mut() {
+                    Some(last) if last.0 == c => last.1 += v,
+                    _ => merged.push((c, v)),
+                }
+            }
+            merged.retain(|&(_, v)| v != 0);
+            merged.shrink_to_fit();
+            merged
         })
         .collect();
     Ok(Op { n, w, rows })

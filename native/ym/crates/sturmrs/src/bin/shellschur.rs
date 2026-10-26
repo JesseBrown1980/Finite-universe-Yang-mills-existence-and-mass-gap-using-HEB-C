@@ -99,16 +99,18 @@ fn load(path: &str, je: i128, jb: i128, tn: i128) -> Result<Op, String> {
     }
     let mut diag: Vec<i128> = (0..n).map(|k| 1000 * jb * mag[k] * w[k] - tn * w[k]).collect();
     let mut adj: Vec<Vec<(u32, i128)>> = vec![Vec::new(); n];
-    let rest: Vec<i128> = std::iter::from_fn(|| next().ok()).collect();
-    if rest.len() % 3 != 0 {
-        return Err("malformed triples".into());
-    }
-    for t in rest.chunks_exact(3) {
-        let (i, j) = (usize::try_from(t[0]).map_err(|_| "bad i")?, usize::try_from(t[1]).map_err(|_| "bad j")?);
+    // HEB-C copy: triples are consumed as a stream (no token vector), so 2x5
+    // sectors fit in runner memory; the entries and their order are unchanged.
+    while let Ok(t0) = next() {
+        let (t1, t2) = match (next(), next()) {
+            (Ok(a), Ok(b)) => (a, b),
+            _ => return Err("malformed triples".into()),
+        };
+        let (i, j) = (usize::try_from(t0).map_err(|_| "bad i")?, usize::try_from(t1).map_err(|_| "bad j")?);
         if i > j || j >= n {
             return Err("bad entry".into());
         }
-        let v = 1000 * je * w[i] * t[2];
+        let v = 1000 * je * w[i] * t2;
         if i == j {
             diag[i] += v;
         } else if v != 0 {
