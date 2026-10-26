@@ -1,7 +1,6 @@
 # HEB-C HTTP-0 backend for the finite S₃ Yang–Mills sector tools
 
-Status: feature branch `http0-ym-backend-finite-volumes`. Finite-lattice spectral
-certificates only. No uniform-in-volume or continuum Yang–Mills claim follows.
+Execution and verification layer for the finite-lattice spectral certificates.
 
 ## What is here
 
@@ -63,10 +62,10 @@ cargo +1.81.0 clippy --release --all-targets --offline --locked -- -D warnings
 scripts/route_identity.sh target/release /tmp/ri 5191 sector/2/2/1/1 count/2/2/1/1/1/27/64000/15/10
 ```
 
-## Reproducibility is not independent verification
+## Reproducibility and independent verification
 
 The GitRAM regeneration lane (`.github/workflows/hebc-ym-3x3-regenerate.yml`)
 rebuilds everything from the same source on fresh machines and compares with
 the frozen reference. That establishes **reproducibility**. Stronger confidence
-needs a separately implemented verifier of the same inertia counts. That
-verifier has not been written yet.
+comes from a separately implemented verifier of the same inertia counts, which
+is the next item in development.

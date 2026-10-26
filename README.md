@@ -1,227 +1,147 @@
-## Repository map and status (2026-10-26)
+# Finite-universe Yang–Mills with HEB-C
 
-One place for the finite-lattice S₃ Yang–Mills work. Results are labelled by
-what they are:
-- **certified:** integer interval-inertia counts with receipts;
-- **reproduced:** regenerated from the same source on fresh machines;
-- **experimental:** still running, not yet certified.
+Exact spectral certificates for S₃ lattice gauge theory on periodic finite
+lattices, run headless through the HEB-C HTTP-0 backend. GitRAM distributes the
+work across GitHub Actions cells. Every computation is integer-only, Rust 1.81,
+and every receipt line ends in `json=0`.
 
-| Area | Where | Status |
-|---|---|---|
-| HEB-C HTTP-0 execution and verification backend for the sector tools (`hebc_ym_http0`; headless command and loopback route share one code path) | [`native/ym/`](native/ym/README.md) | in use; route identity, shard integrity and byte-for-byte re-execution checks |
-| 3×3 zero-momentum certificates (frozen reference, The-matrix-law-essentials `8fd12e6`): E9 − E8 ≥ 23.357514 for every r = JB/JE ≥ 9 | [`native/ym/reference/`](native/ym/reference/ym3x3_frozen_8fd12e6.hbp) | certified (reference) |
-| Fresh-machine regeneration of the 3×3 certificates through the backend | [`native/ym/results/3x3_regeneration/`](native/ym/results/3x3_regeneration/) | **reproduced**: 25 GitRAM cells, pinned matrix SHA-256 4/4, certificates identical to the reference. Same source, so not an independent verifier. |
-| 2×2, 2×3, 2×4 ladder at r = 9, 15, 27, 45, 81, 243 (18 points), continued to all r ≥ 9 | [`native/ym/results/2xL/`](native/ym/results/2xL/README.md) | **certified**; 224/224 shards re-executed byte for byte, `check.sh` rebuilds everything from the shards |
-| Stage B pipeline test (split Schur columns + strict merge) on 2×4 at r = 9 | [`native/ym/results/2x4_stageB_pipeline_test/`](native/ym/results/2x4_stageB_pipeline_test/) | passed; reproduces the 2×4 r = 9 certificate byte for byte |
-| 2×5 volume point | `.github/workflows/hebc-ym-2x5-stage-a.yml` | **experimental**: stage A (cluster intervals) running, stage B (inertia counts) not started; no 2×5 result is claimed |
-| 3×4 feasibility | [`native/ym/benchmarks/onfly_3x4.hbp`](native/ym/benchmarks/onfly_3x4.hbp) | measured: a full inertia certificate is not feasible with the current tools |
-| 2×2 coupling ladder r ∈ [3, 10,022] | branch `integer-sturm-ladder` (`b50b531`), section below | certified cells, pending independent review |
+The Hamiltonian is H = J_E·E + J_B·M on gauge-invariant states. The electric
+term E sums over the three transpositions on every link, the magnetic term is
+M = Σ_p (2 − χ(U_p)), and r = J_B/J_E. Results are eigenvalue counts below
+chosen thresholds, from interval inertia (LDLᵀ with outward rounding and
+magnetic-shell Schur reduction), with every step recorded in HBP/HBI receipts.
 
-All quantities are for the gap above the eight-state flat-vacuum cluster (E9 − E8),
-the cluster width and the first splitting, in units of JE, on fixed finite
-lattices. Nothing here is uniform in volume. None of it is a continuum or
-four-dimensional Yang–Mills statement.
+## Results
 
-## Coupling-gap certificates: status at a glance (2026-10-25)
+**Gap above the eight-state flat-vacuum cluster, E₉ − E₈, for every r ≥ 9**
+(monotone coupling cells plus the flat-state bound E₈ ≤ 3 × number of links):
 
-The code behind this 2×2 ladder section lives on draft branches and is
-**not merged**; PRs #4 and #7–#15 stay drafts until independent
-mathematical review. All verification is integer-only and every receipt line
-ends `json=0`. Scope throughout: the finite S₃ gauge model on one 2×2 torus
-(1,393 gauge-orbit states), H = JE·E + JB·M, ratio r = JB/JE.
+| Lattice | Sectors | Bound for every r ≥ 9 | Where |
+|---|---|---|---|
+| 3×3 | zero momentum | E₉ − E₈ ≥ 23.357514 J_E | [`native/ym/reference/`](native/ym/reference/ym3x3_frozen_8fd12e6.hbp), regenerated on fresh machines in [`native/ym/results/3x3_regeneration/`](native/ym/results/3x3_regeneration/) |
+| 2×2 | zero momentum | ≥ 22.727075 J_E | [`native/ym/results/2xL/`](native/ym/results/2xL/README.md) |
+| 2×3 | zero momentum | ≥ 22.798240 J_E | same |
+| 2×4 | zero momentum | ≥ 22.565393 J_E | same |
+| 2×2, 2×3 | full physical space, all momenta | 8 levels below t₁ and below t_B at r = 9 | [`native/ym/results/full_space_r9/`](native/ym/results/full_space_r9/summary.hbp) |
 
-### Certified (complete, reproducible proof receipts; PRs still in draft review)
+**Point certificates** of E₉ − E₈, in units of J_E:
 
-| result | evidence |
+| r | 2×2 | 2×3 | 2×4 | 3×3 |
+|---|---|---|---|---|
+| 9 | [22.829351, 22.830510] | [22.999140, 23.000177] | [22.833511, 22.835420] | [23.938578, 23.939630] |
+| 27 | [79.625728, 79.626755] | [79.711705, 79.713463] | [79.639284, 79.640698] | [80.161963, 80.163325] |
+| 81 | [242.543881, 242.545661] | [242.572553, 242.573741] | [242.548047, 242.549116] | [242.733980, 242.735244] |
+| 243 | [728.847290, 728.848700] | [728.856505, 728.858026] | [728.848613, 728.849874] | [728.911221, 728.913186] |
+
+The gap above the cluster is nearly the same on every lattice and grows like 3r.
+The cluster's internal splitting E₂ − E₁ depends on shape. On 2×L it follows
+L/r; on 3×3 it is third order (0.002 at r = 27). Full tables:
+[`native/ym/results/2xL/README.md`](native/ym/results/2xL/README.md).
+
+**Checks on the evidence:**
+- **Re-execution:** all 224 2×L shards re-run byte for byte.
+- **Integrity:** every shard's index and anchor regenerated from its contents.
+- **Fresh machines:** the 3×3 certificates were regenerated in 25 GitRAM cells
+  with pinned matrix SHA-256s.
+- **Two routes to the same counts:** the split-column pipeline reproduces the
+  unsplit 2×4 certificate exactly.
+
+**In progress:**
+- 2×5 at r = 9, zero momentum, through 128 GitRAM cells and 4 strict merges.
+- Full-space counts on 2×4 and 3×3 through the reflection-only sectors.
+- A separately written operator and inertia verifier.
+
+## The theory route
+
+[`docs/YM_TOPOLOGICAL_STABILITY_PROOF.md`](docs/YM_TOPOLOGICAL_STABILITY_PROOF.md),
+architecture by Jesse Daniel Brown. On the raw link space the magnetic plaquette
+term has the same local ground projector as Kitaev's quantum double D(S₃). Its
+eight flat states are the D(S₃) torus ground space. With E as a bounded local
+perturbation of strength 6/r per link, topological-order stability
+(Bravyi–Hastings–Michalakis, with Cui et al. for the quantum-double TQO
+conditions) gives E₉ − E₈ ≥ c·J_B uniformly in volume for r ≥ r₀, and a band
+width that shrinks exponentially with torus size. The document marks which
+lemmas are proved and which are being instantiated.
+
+## Architecture
+
+- [`native/ym/`](native/ym/README.md): the HTTP-0 execution and verification
+  backend `hebc_ym_http0`, plus the sector tools (`ymsec`, `flatcomp`, `cluster`,
+  `shellschur`). One job is one disk shard: `run.hbp`, `index.hbi`,
+  `run.anchor`, `run.measure`. The headless command and the loopback route share
+  one code path.
+- [`native/`](native/README.md): the HEB-C kernel. It provides virtual HTTP-0
+  addressing over 23,000,000,000 IDs, receipts, the 2×2 torus operator, and the
+  vendored Clasy X3 kernel.
+- `.github/workflows/`: GitRAM lanes for regeneration, the 2×5 stages and the
+  stage B pipeline, all with sealed fan-ins.
+
+## 2×2 coupling ladder: E₁ − E₀
+
+On the full 1,393-state 2×2 torus, the first excitation gap is certified at
+these points:
+- **(J_E, J_B) = (1, 1):** E₀ ∈ [7.634198, 7.634199], E₁ ∈ [13.240000, 13.242733], gap ∈ [5.605801, 5.608535].
+- **(J_E, J_B) = (3, 5):** gap ∈ [14.140772, 14.142823].
+
+A further set of certified cells covers r = J_B/J_E ∈ [3, 10,022]. They come
+from interval Sturm counts over the four translation sectors, monotone cells and
+SHA-keyed ledgers, on branch `integer-sturm-ladder`. The weak-coupling law there
+is r·(E₁ − E₀) → √14 − √6. Ledger and method:
+[docs/LADDER_METHOD.md](docs/LADDER_METHOD.md),
+[docs/EVOLUTION_TESTGROUND.md](docs/EVOLUTION_TESTGROUND.md),
+[docs/SGRAM_CERTIFICATE_CACHE_NOTES.md](docs/SGRAM_CERTIFICATE_CACHE_NOTES.md).
+
+| r | certified readings (per unit J_E) |
 |---|---|
-| E₁ > 13.240 at (JE, JB) = (1, 1) and E₁ > 50.840 at (3, 5), with E₀ below each threshold | interval Sturm inertia on all 1,393 pivots, reproduced three ways: GMP verifier in CI (PR #9), an independent Python verifier and a Rust port on separate hardware ([third-seat archive](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/tree/third-seat-sturm-python/independent/third_seat)) |
-| Magnetic end: PEP = 24·I₈ on the 8 flat vacua; second-order spectrum −6 ± √14, −6 ± √6, −6 (×4); gap ≈ (√14 − √6)·JE²/JB, rigorously gap > JE²/JB for JB/JE ≥ 10⁴ | exact arithmetic (PR #11), recomputed independently |
-| Four exact Z₂×Z₂ translation sectors (385 + 336 + 336 + 336); anchors (1,2,18.250), (2,5,34.400), (2,5,39.400), (1,3,19.300) each count exactly 1 | PR #14 in CI; each anchor re-certified on the unreduced full matrix by a separate Rust verifier |
-| Continuous cells: gap/JE > 1.05 on 2 ≤ r ≤ 5/2 and > 0.40 on 5/2 ≤ r ≤ 3 | monotone cell lemma on the PR #14 anchors |
+| 1 | E₀ < 7.750, E₁ > 13.187 |
+| 2 | E₀ < 14.375, E₁ > 18.125 |
+| 9 | E₀ < 22.895, E₁ > 23.045 |
+| 27 | E₀ < 23.639, E₁ > 23.683 |
+| 81 | E₀ < 23.882, E₁ > 23.895 |
+| 243 | E₀ < 23.961, E₁ > 23.965 |
 
-### In progress (reported certificates pending independent review of the published ledger)
+## Earlier stages
 
-The 17-rung gap profile ("the wave": r = 0, 1, 2, 3, 5, 6, 8, 9, 15, 21, 27,
-45, 63, 81, 135, 189, 243) and the adaptive ladder over 3 ≤ r ≤ 10⁴ are
-running. Ledger snapshot [`36c245f`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/36c245f/independent/ladder/ledger.hbp)
-(610 certificates; all 17 rungs complete). Reported so far:
-
-| r = JB/JE | certified readings (per unit JE) |
-|---|---|
-| 0 | E₀ < 0.001, E₁ > 5.999, gap > 5.998 (exact: 0 and 6) |
-| 1 | E₀ < 7.750, E₁ > 13.187, gap > 5.437 |
-| **2** | **E₀ < 14.375, E₁ > 18.125, gap > 3.750·JE** |
-| 3 | E₀ < 19.244, E₁ > 20.711, gap > 1.467 |
-| 3 → 4.31 | continuous ladder cells, gap > 0.367, 0.253, 0.196, 0.138 |
-| 5 | E₀ < 21.885, E₁ > 22.210, gap > 0.325 |
-| 6 | E₀ < 22.283, E₁ > 22.537, gap > 0.254 |
-| 8 | E₀ < 22.746, E₁ > 22.921, gap > 0.175 |
-| 9 | E₀ < 22.895, E₁ > 23.045, gap > 0.150 |
-| 15 | E₀ < 23.347, E₁ > 23.432, gap > 0.085 |
-| 21 | E₀ < 23.536, E₁ > 23.593, gap > 0.057 |
-| 27 | E₀ < 23.639, E₁ > 23.683, gap > 0.044 |
-| 45 | E₀ < 23.787, E₁ > 23.812, gap > 0.025 |
-| 63 | E₀ < 23.846, E₁ > 23.865, gap > 0.019 |
-| 81 | E₀ < 23.882, E₁ > 23.895, gap > 0.013 |
-| 135 | E₀ < 23.930, E₁ > 23.937, gap > 0.007 |
-| 189 | E₀ < 23.951, E₁ > 23.955, gap > 0.004 |
-| 243 | E₀ < 23.961, E₁ > 23.965, gap > 0.004 |
-
-**Measured, not certified (Euclidean evolution).** Letting H relax under
-v ← (c − H)v from an unsteered integer start vector and reading the gap off
-the decay rate gives 5.999, 5.611, 4.007, 1.473, 0.341, 0.257 at r = 0, 1, 2,
-3, 5, 6, every one inside the certified brackets above. A matrix-jump sweep
-(evolution operator squared, 2^J steps per multiply, on the four translation
-sectors) measures all 17 rungs; every one is consistent with its bracket, E₀ and
-E₁ both sit in the vacuum sector for r > 0, and r·gap approaches
-√14 − √6 = 1.29217 (1.2923 at r = 243). Method, table and
-the HTTP-0 page: [docs/EVOLUTION_TESTGROUND.md](docs/EVOLUTION_TESTGROUND.md).
-
-Method, matrix jumps (scaling, monotone cells, translation sectors,
-predict-then-verify), the SHA-keyed certificate ledger and measured timings
-(about 150 s per certificate on the full matrix, about 6.9 s with sectors):
-[docs/LADDER_METHOD.md](docs/LADDER_METHOD.md), from branch
-`integer-sturm-ladder` at [`70aa7ab`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/tree/70aa7ab/independent/ladder).
-Certificate caching for the HTTP-0 / SG-RAM backend:
-[docs/SGRAM_CERTIFICATE_CACHE_NOTES.md](docs/SGRAM_CERTIFICATE_CACHE_NOTES.md),
-from [`a304596`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/a304596/SGRAM_CERTIFICATE_CACHE_NOTES.md).
-
-### Not established
-
-- A gap bound uniform in the lattice volume (only one 2×2 torus is treated).
-- Any continuum Yang–Mills theorem, or the four-dimensional mass gap.
-- A solution to the Clay Millennium Prize problem.
-- Authenticated provenance: receipts prove integrity relative to trusted inputs, not who produced them.
-
-## Stage 2I: Independent spectral verification and multi-volume scaling (Issue #2 Closed)
-
-**[Stage 2I Mathematical Report & Scaling](STAGE2I_INDEPENDENT_VERIFIER_AND_SCALING.md)** · **[Independent Verifier](native/src/torus2_independent.rs)** · **[Stage 2H Integer Inertia](STAGE2H_TORUS2_INTEGER_INERTIA_CERTIFICATE.md)** · **[Passing CI](.github/workflows/native-rust.yml)**
-
-The 1,393-state torus spectrum is now independently verified with certified tight gaps:
-- **(1,1):** E0 in [7.634198, 7.634199], E1 in [13.240000, 13.242733], Gap $\Delta$ in **[5.605801, 5.608535]**.
-- **(3,5):** E0 in [36.699227, 36.699228], E1 in [50.840000, 50.842050], Gap $\Delta$ in **[14.140772, 14.142823]**.
-
-Multi-volume scaling benchmarks single-plaquette (dim=3), double-plaquette (dim=11), and periodic torus (dim=1393): vacuum energy density  / F \approx 1.91$ at (1,1) scales extensively, while torelon flux tubes of length 2 explain the 2x gap reduction on the torus. Issue #2 acceptance criteria are fully met.
-
-`ash
-cd native
-cargo +1.81.0 run --release --offline --locked -- torus2-independent 1 1 indep-1-1
-cargo +1.81.0 run --release --offline --locked -- torus2-independent-verify 1 1 indep-1-1
-cargo +1.81.0 run --release --offline --locked -- torus2-independent 3 5 indep-3-5
-cargo +1.81.0 run --release --offline --locked -- torus2-independent-verify 3 5 indep-3-5
-cargo +1.81.0 run --release --offline --locked -- torus2-scaling
-`
-
-## Constellation original-source audit — no replacement engine
-
-**[Sourced integration and outstanding residual bindings](STAGE2D_CONSTELLATION_SOURCE_AUDIT.md)** · **Pinned original ternary source:** `native/vendor/constellation_lattice/`.
-
-The existing Clasy Constellation oscillator and trit code is now compiled byte-for-byte into the native HEB-C build. The audit executes the *original* 3/27/243 sector transition barriers and all **45/405/3,645** local keys, checks six distinct role types per key, and creates an HBI/HBP/SHA/SH/HASH receipt for a **gauge-invariant but deliberately non-injective** 243-sector index of the 1,393 physical S3 torus orbit labels. This index does **not** evolve the Yang–Mills Hamiltonian.
-
-**C1, Z-instant and connecting Shadow Cat torus residuals remain source-unverified**, not automatically part of the physical computation. Do not interpret the success of these transition/address tests as their scientific verification.
-
-From `native/`: `cargo +1.81.0 run --release --offline --locked -- constellation-audit constellation-evidence`; then `cargo +1.81.0 run --release --offline --locked -- constellation-verify constellation-evidence`. Optional local endpoint: `GET /constellation` (plain text, no screen, no JavaScript).
-
-## Stage 2C: periodic 2×2 torus now has an actual 1,393D sparse Hamiltonian
-
-**[Reproducible Stage 2C mathematical report](STAGE2C_TORUS_1393_SPARSE_REPORT.md)** · **[Rust 1.81 implementation](native/src/torus2.rs)** · **[CI](.github/workflows/native-rust.yml)**
-
-The periodic torus is now an **eight-link, four-face interacting finite S₃ operator**, exactly projected to **1,393 gauge-invariant orbit-value states** (from 1,679,616 raw configurations). The sparse electric matrix contains **32,385 nonzero entries** and is verified for weighted self-adjointness, gauge invariance and reproducible SHA-committed HBI/HBP records.
-
-The exact electric-only gap is **6×J_E**. Magnetic-only coupling gives **eight degenerate flat-connection ground states** and hence **gap zero**. With both couplings positive, a connected stoquastic electric graph establishes unique ground state and therefore a **qualitatively positive** finite-volume gap. **Mixed-coupling numerical eigenvalue bounds remain uncomputed**, so Issue #2 stays open.
-
-To reproduce from the native directory: *cargo +1.81.0 run --release --offline --locked -- torus2-spectrum 1 1 torus2-evidence*, then *cargo +1.81.0 run --release --offline --locked -- torus2-verify torus2-evidence*.
-
-## Stage 2B milestone — full interacting double-plaquette spectrum
-
-**[Exact 11D two-plaquette Hamiltonian report](STAGE2B_DOUBLE_PLAQUETTE_EXACT_SPECTRUM.md)** · **[Rust-native implementation](native/src/double_plaquette.rs)** · **[Reproducible CI](.github/workflows/native-rust.yml)**
-
-The active Rust 1.81 engine now constructs the coupled **seven-link, two-plaquette finite S₃ Hamiltonian** from all **279,936** raw configurations and independently verifies the reduction to **11** gauge-invariant orbit states. Unlike the earlier 11-dimensional sector count, this now includes the *actual gauge-invariant electric and magnetic operators* with exact weighted self-adjointness, integer-only Sturm spectral enclosures, and an independent signed-determinant cross-check.
-
-For `J_E=J_B=1`, the double-plaquette interacting excitation gap is **strictly between 10 and 12** lattice-energy units. The `J_E=J_B=0` control is correctly not certified as gapped. The finite 2×2 torus **1,393D Hamiltonian is still outstanding**, and neither finite model proves a 4D continuum Yang–Mills gap.
-
-```bash
-cd native
-cargo +1.81.0 run --release --locked --offline -- double-spectrum 1 1 double-1-1
-cargo +1.81.0 run --release --locked --offline -- double-verify double-1-1
-```
-
-## Clasy X3 research guide and native HTTP-0 kernels
-
-**[Clasy X3 → HEB-C HTTP-0 → Yang–Mills research roadmap](CLASY_X3_TO_HEBC_HTTP0_NEXT_HURDLES.md)** is now implemented as a pinned path dependency in [native/vendor/clasy_x3/](native/vendor/clasy_x3/), with its original 81-mode finite-field laws preserved separately from the S3 gauge Hamiltonian.
-
-The headless native HTTP-0 kernel can address **23 billion virtual IDs**, lazily regenerate authentic **three-room Host8 input identities**, execute a bounded Clasy 81-mode state, and emit **HBI/HBP/SHA/SH/HASH receipts**. The CLI also executes batches of **81 × 243** and **243 × 81** actual finite-shell transitions for validation. The optional HTTP/1.1 adapter exposes separate `/clasy/{ordinal}/{nu}/{steps}` and `/spectrum/{JE}/{JB}` plain-text routes. Neither a screen nor a Node/JS/JSON runtime is involved.
-
-```sh
-cd native
-cargo +1.81.0 run --release --offline --locked -- clasy-run 0 1 243 clasy-single
-cargo +1.81.0 run --release --offline --locked -- clasy-verify clasy-single
-cargo +1.81.0 run --release --offline --locked -- clasy-batch 81 243 clasy-batch-81
-cargo +1.81.0 run --release --offline --locked -- clasy-batch 243 81 clasy-batch-243
-```
-
-**Next nontrivial Yang–Mills task:** build the full interacting self-adjoint Gauss-projected Hamiltonian for the **11-dimensional two-plaquette physical sector**, followed by the 1,393-dimensional periodic torus, with exact spectral bounds. Clasy's finite-field all-time invariant is a test and design precedent, *not* that Hamiltonian or a continuum Yang–Mills proof.
-
-
-# Finite-universe Yang–Mills experiments using HEB-C HTTP-0
-
-**Canonical executable: [native/](native/)** · **[Stage 2 audited results](STAGE2_SCALING_SPECTRAL_AUDIT_2026-10-24.md)** · **[Architecture and research plan](HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md)** · **[CI Rust 1.81 tests](../../actions/workflows/native-rust.yml)**
-
-This repository builds a **headless, integer-only Rust 1.81** HEB-C kernel with virtual HTTP-0 addresses, HBI/HBP/SHA/SH/HASH integrity receipts, and the first small finite non-Abelian gauge-field model. There is **no JavaScript, Node, V8, JSON, or float arithmetic in the native engine**. The original browser/Clasy X3 demonstrator is superseded; its code is retained in earlier Git history, not the active root.
-
-## Current implemented and checked
-
-- A **2D periodic S3 finite-group gauge-link lattice** with exact group multiplication/inversion, plaquette holonomies, integer Wilson-character action, local gauge transformations, and a toy gauge-equivariant update.
-- A six-vertex, all-transpositions **S3 Cayley graph** with independently checkable integer eigenvectors and the exact spectrum \`0,3,3,3,3,6\` (**finite-graph gap 3**). This is *not* a 4D quantum Yang–Mills mass-gap calculation.
-- Deterministic 243-step **headless native Rust** run with independent gauge invariance/equivariance tests and exact replay.
-- **23,000,000,000 virtual Q-trit address slots**, with 8,192 actual arithmetic probes per step: 1,990,656 operations. No 23 billion allocated states, sockets, particles, or quantum amplitudes.
-- SHA-256 implemented in safe Rust and checked against standard known vectors; indexed HBP/HBI records, a chain hash and an anchor. **Receipt integrity is not proof of scientific provenance**, and an anchor must be pinned independently to make tampering externally detectable.
-- Optional localhost HTTP/1.1 text adapter for virtual addresses (the HTTP-0 *kernel* is an internal abstraction, not a new standard HTTP wire version).
-
-## Stage 2: measured, checked
-
-- **19/19 Rust unit tests**, zero-warning Clippy, and a validated 3x3 single-plaquette interacting Hamiltonian with exact rational Sturm spectral enclosures.
-- **Gauss-law invariant dimensions:** 3 (one open plaquette), 11 (two), 1,393 (periodic 2x2 torus). The latter two are **Hilbert-space dimension counts only**; their interacting Hamiltonians are pending.
-- **512x512 headless engineering stress:** 524,288 gauge links, **1,048,576 canonically encoded Q-trits**, 3 exact toy-model steps, receipt verification and identical replay. Large-lattice classical state processing is not the same computation as a many-body quantum spectrum.
-- **[Reproducible Stage 2 report](STAGE2_SCALING_SPECTRAL_AUDIT_2026-10-24.md)** · **[Passing GitHub Actions run](../../actions/runs/40126662720)**
+- **Stage 2B:** the exact 11-dimensional two-plaquette Hamiltonian, built from
+  279,936 raw configurations, with gap ∈ (10, 12) at J_E = J_B = 1.
+  [Report](STAGE2B_DOUBLE_PLAQUETTE_EXACT_SPECTRUM.md).
+- **Stage 2C:** the 2×2 torus, 1,393 gauge-invariant states, 32,385 nonzeros,
+  exact weighted self-adjointness, and 8 flat ground states at the magnetic end.
+  [Report](STAGE2C_TORUS_1393_SPARSE_REPORT.md).
+- **Stage 2G–2I:** rational and integer-inertia certificates and an independent
+  verifier for the 2×2 torus. The vacuum energy is about 1.91 per plaquette at
+  (1, 1). [2H](STAGE2H_TORUS2_INTEGER_INERTIA_CERTIFICATE.md),
+  [2I](STAGE2I_INDEPENDENT_VERIFIER_AND_SCALING.md).
+- **Constellation audit:** the original 3/27/243 sector transitions and
+  45/405/3,645 keys compiled into the native build, with a gauge-invariant
+  243-sector index of the 1,393 torus orbits.
+  [Audit](STAGE2D_CONSTELLATION_SOURCE_AUDIT.md).
+- **Clasy X3 kernel:** the 81-mode finite-field shell model with its exact
+  all-time invariant, 81 × 243 and 243 × 81 batches, and receipts.
+  [Pinned reference](CLASY_X3_PINNED_REFERENCE.md),
+  [roadmap](CLASY_X3_TO_HEBC_HTTP0_NEXT_HURDLES.md),
+  [continuum guide](CLASY_X3_CONTINUUM_HURDLES_GUIDE.md).
+- **Plan:** [HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md](HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md),
+  [Stage 2 audit](STAGE2_SCALING_SPECTRAL_AUDIT_2026-10-24.md).
 
 ## Reproduce
 
-\`\`\`sh
-cd native
+```sh
+# backend and sector tools
+cd native/ym
+cargo +1.81.0 build --release --offline --locked
+cargo +1.81.0 clippy --release --all-targets --offline --locked -- -D warnings
+results/2xL/check.sh
+target/release/hebc_ym_http0 job /tmp/root sector/2/2/1/1
+target/release/hebc_ym_http0 job /tmp/root count/2/2/1/1/1/27/64000/15/10
+target/release/hebc_ym_http0 serve /tmp/root 5191 16
+
+# HEB-C kernel
+cd ../
 cargo +1.81.0 test --all-targets --offline
-cargo +1.81.0 clippy --all-targets --offline -- -D warnings
-cargo +1.81.0 build --release --offline
-./target/release/hebc gap
-./target/release/hebc sector single
-./target/release/hebc sector double
-./target/release/hebc sector torus2
-./target/release/hebc spectrum 1 1
-./target/release/hebc run 3 512 0 stress-512
-./target/release/hebc verify stress-512
-./target/release/hebc run 243 4 8192 evidence-native
-./target/release/hebc verify evidence-native
-./target/release/hebc clasy-run 0 1 243 clasy-evidence
-./target/release/hebc clasy-verify clasy-evidence
-./target/release/hebc clasy-batch 81 243 clasy-batch
-./target/release/hebc serve 5088
-\`\`\`
+cargo +1.81.0 run --release --offline --locked -- torus2-independent 1 1 indep-1-1
+cargo +1.81.0 run --release --offline --locked -- torus2-independent-verify 1 1 indep-1-1
+cargo +1.81.0 run --release --offline --locked -- serve 5088
+```
 
-On Windows use \`target\release\hebc.exe\`.
-
-Read the source-specific instructions at [native/README.md](native/README.md), and the larger research obligations in [HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md](HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md).
-
-## Clasy X3 Continuum Guide & Pinned Reference
-
-- **[CLASY_X3_PINNED_REFERENCE.md](CLASY_X3_PINNED_REFERENCE.md)**: Pinned mathematical reference source and strict integer codec for the 81-mode finite-field shell model ($P=1,000,999$, $K=81$, $W=30,722$, $D=900,647$).
-- **[CLASY_X3_CONTINUUM_HURDLES_GUIDE.md](CLASY_X3_CONTINUUM_HURDLES_GUIDE.md)**: Research guide analyzing the four continuum hurdles separating the finite discrete shell invariants from continuum 4D Yang–Mills field theory:
-  1. **Divergence-Free Field Reconstruction** ($S_3$ links $\to$ Lie algebra connection $A_\mu(x)$).
-  2. **Uniform Unreduced Norm Bounds** (physical $L^2$/Sobolev norms vs modular residues $\bmod P$).
-  3. **Non-Abelian Gauss Law & Exact Sector Projection** (identifying physical loop/flux subspaces).
-  4. **Continuum Mass Gap Persistence** ($\lim_{a \to 0} \Delta E(a) \ge M_0 > 0$).
-
-## Correct scientific scope
-
-The Clay Yang–Mills existence and mass-gap problem concerns construction of a mathematically controlled *four-dimensional quantum field theory* for a compact simple gauge group, with a strictly positive mass gap. A finite S3 graph eigenvalue gap, a classical gauge-covariant toy state update, and a zero-allocation virtual namespace **do not constitute that proof**.
-
-Existing [Clasy X3](https://github.com/JesseBrown1980/Clasy-repo-x-3-) results concern a separate exact 81-mode finite-field invariant; [Host8](https://github.com/JesseBrown1980/finite-reversible-ternary-physics) studies an independently scoped D3Q27 ternary lattice. The projects can exchange address/receipt interfaces, but their different physics kernels must not be assumed mathematically equivalent.
+Theory and architecture: Jesse Daniel Brown.

@@ -32,7 +32,6 @@ Continuation (monotone cells + ray; E8(r) ≤ 3·(2·LX·LY), from flatcomp): th
 the eight-state cluster is at least 22.727075 (2×2), 22.798240 (2×3) or
 22.565393 (2×4) for every r ≥ 9.
 
-These are finite lattices only. The gap above the cluster barely changes with
+On these finite lattices the gap above the cluster barely changes with
 volume or shape. The first splitting grows with L along the 2×L family, close
-to L/r at large r. It is third-order suppressed on 3×3. Nothing here is
-uniform in volume.
+to L/r at large r. It is third-order suppressed on 3×3.

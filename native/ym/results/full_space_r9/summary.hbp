@@ -1,0 +1,5 @@
+FULL_SPACE|reduction=reflections_only_C2v|momenta=all|r=9|json=0
+FULL_SPACE_COUNT|L=2x2|t_milli=23746649|sum_over_4_reflection_sectors=8|json=0
+FULL_SPACE_COUNT|L=2x2|t_milli=46576000|sum_over_4_reflection_sectors=8|json=0
+FULL_SPACE_COUNT|L=2x3|t_milli=35498860|sum_over_4_reflection_sectors=8|json=0
+FULL_SPACE_COUNT|L=2x3|t_milli=58498000|sum_over_4_reflection_sectors=8|json=0
