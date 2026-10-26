@@ -11,15 +11,30 @@ Prints one backend count spec per line (JE=1000, JB=1000*r): vacuum sectors at
 t0/ts/t1/tB, mixed sectors at tB. Stage B cells must additionally require
 ambiguous=0 and result=PASS in each count line; an AMBIGUOUS count is a
 failed cell, never a certificate.
-usage: stage_b_specs.py SEALED_STAGE_A LX LY        json=0
+Completeness (exact): the receipt's SHA-256 must match SEALED.sha256, it must
+carry a GITRAM_SEAL line with status=PASS, and the cluster summaries must be
+exactly one per (vacuum sector, coupling) in the expected set (COUPLINGS,
+default 9,15,27,45,81), all converged, with exactly 12 CLUSTER_LEVEL lines each.
+Missing, duplicated or extra entries fail.
+usage: stage_b_specs.py SEALED_STAGE_A SHA256_FILE LX LY [COUPLINGS]        json=0
 """
+import hashlib
 import re
 import sys
 
 
 def main():
-    path, lx, ly = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
-    ivs, conv, n_cluster = {}, {}, 0
+    path, shaf, lx, ly = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
+    couplings = tuple(int(x) for x in (sys.argv[5] if len(sys.argv) > 5 else "9,15,27,45,81").split(","))
+    raw = open(path, "rb").read()
+    want_sha = open(shaf).read().split()[0]
+    if hashlib.sha256(raw).hexdigest() != want_sha:
+        print("STAGE_B|result=FAIL|reason=receipt_sha256_mismatch|json=0")
+        sys.exit(2)
+    if not any(l.startswith("GITRAM_SEAL|") and "|status=PASS|" in l for l in raw.decode().splitlines()):
+        print("STAGE_B|result=FAIL|reason=no_PASS_seal|json=0")
+        sys.exit(2)
+    ivs, conv, n_cluster, nlev, dup = {}, {}, 0, {}, 0
     pat = re.compile(r"^SHARD\|cluster_%d_%d_(-?1)_(-?1)_1_(\d+)_12_4\|(.*)$" % (lx, ly))
     for line in open(path):
         m = pat.match(line.rstrip("\n"))
@@ -28,12 +43,20 @@ def main():
         s, r, body = (int(m.group(1)), int(m.group(2))), int(m.group(3)), m.group(4)
         if body.startswith("CLUSTER|"):
             n_cluster += 1
+            dup += int((s, r) in conv)
             conv[(s, r)] = "|converged=1|" in body
         elif body.startswith("CLUSTER_LEVEL|"):
             iv = re.search(r"interval=\[(\d+),(\d+)\]", body)
+            if iv is None:
+                print("STAGE_B|result=FAIL|reason=malformed_cluster_level|json=0")
+                sys.exit(2)
             ivs.setdefault(r, []).append((int(iv.group(1)), int(iv.group(2)), s))
-    if not conv or not all(conv.values()):
-        print("STAGE_B|result=FAIL|reason=clusters_converged=%d/%d|json=0" % (sum(conv.values()), len(conv)))
+            nlev[(s, r)] = nlev.get((s, r), 0) + 1
+    expected = {(sec, r) for r in couplings for sec in ((1, 1), (-1, -1))}
+    if (n_cluster != len(expected) or dup or set(conv) != expected or not all(conv.values())
+            or set(ivs) != set(couplings) or any(nlev.get(k, 0) != 12 for k in expected) or set(nlev) != expected):
+        print("STAGE_B|result=FAIL|reason=incomplete_clusters|summaries=%d|expected=%d|converged=%d|duplicates=%d|json=0"
+              % (n_cluster, len(expected), sum(conv.values()), dup))
         sys.exit(2)
     for r in sorted(ivs):
         v = sorted(ivs[r])
