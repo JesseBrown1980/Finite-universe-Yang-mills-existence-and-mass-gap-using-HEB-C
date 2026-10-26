@@ -44,7 +44,12 @@ def main():
         job(b, root, "flatcomp/%d/%d/%d/%d" % (lx, ly, s[0], s[1]))
     clusters, ivs = [], []
     for s in VAC:
+        # WANT=12 first; if the block solver does not converge (seen in the 84-state
+        # 2x2 (-,-) sector at r >= 81), one documented retry with WANT=4. Both
+        # attempts are shards; the spec in the cluster line records which was used.
         txt = job(b, root, "cluster/%d/%d/%d/%d/1/%d/12/4" % (lx, ly, s[0], s[1], r))
+        if "|converged=1|" not in txt:
+            txt = job(b, root, "cluster/%d/%d/%d/%d/1/%d/4/4" % (lx, ly, s[0], s[1], r))
         for line in txt.splitlines():
             clusters.append("YM%dX%d_S%d_%d_r%d_%s" % (lx, ly, s[0], s[1], r, line))
             if line.startswith("CLUSTER_LEVEL|"):
