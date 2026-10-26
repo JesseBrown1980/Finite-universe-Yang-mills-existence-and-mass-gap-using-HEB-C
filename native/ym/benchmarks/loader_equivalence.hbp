@@ -1,0 +1,3 @@
+LOADER_EQUIV|reference_binaries=The-matrix-law-essentials 8fd12e6 build|new=HEB-C streaming loaders 84c1fe7|compared=stdout with ms= removed, sha256|json=0
+LOADER_EQUIV|L=2x2,2x4|matrices=s22_1_1,s22_-1_-1,s24_1_1,s24_-1_-1|cluster_cases=8(JB=9,81)|shellschur_cases=8|identical=16|different=0|json=0
+LOADER_EQUIV|L=3x3|matrices=s33_1_1,s33_-1_-1|shellschur_cases=4(JB=243000,t1,tB)|identical=4|different=0|json=0
