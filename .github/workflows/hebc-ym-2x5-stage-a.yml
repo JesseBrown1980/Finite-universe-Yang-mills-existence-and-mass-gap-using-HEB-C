@@ -1,0 +1,118 @@
+# GitRAM lane, 2x5 finite volume, stage A, through the HEB-C HTTP-0 backend
+# (native/ym/backend, hebc_ym_http0). Cells: flatcomp for the four zero-momentum
+# C2v sectors, and the block cluster eigensolver (residual intervals) in the two
+# vacuum sectors at r = JB/JE = 9, 15, 27, 45, 81. Each cell starts from an empty
+# shard root (HEBC_YM_FRESH=1), builds its sector matrix (1.56M states for (+,+)),
+# runs one job and re-executes it with `verify` (byte-for-byte). Stage B (the
+# shellschur counts) is written from these receipts with thresholds by the fixed
+# rule of volume_point.py. Fan-in: all 14 cells, one sector shard per sector
+# identical across cells, seal. Integer-only, json=0.
+name: HEB-C YM 2x5 stage A (14 cells)
+
+# Dispatch only: run 40318106269 started from the push trigger; this edit must
+# not start a duplicate run.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hebc-ym-2x5-stage-a-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  cell:
+    name: Cell ${{ matrix.id }} ${{ matrix.spec }}
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include:
+          - {id: "01", spec: "flatcomp/2/5/1/1"}
+          - {id: "02", spec: "flatcomp/2/5/-1/-1"}
+          - {id: "03", spec: "flatcomp/2/5/1/-1"}
+          - {id: "04", spec: "flatcomp/2/5/-1/1"}
+          - {id: "05", spec: "cluster/2/5/1/1/1/9/12/4"}
+          - {id: "06", spec: "cluster/2/5/-1/-1/1/9/12/4"}
+          - {id: "07", spec: "cluster/2/5/1/1/1/15/12/4"}
+          - {id: "08", spec: "cluster/2/5/-1/-1/1/15/12/4"}
+          - {id: "09", spec: "cluster/2/5/1/1/1/27/12/4"}
+          - {id: "10", spec: "cluster/2/5/-1/-1/1/27/12/4"}
+          - {id: "11", spec: "cluster/2/5/1/1/1/45/12/4"}
+          - {id: "12", spec: "cluster/2/5/-1/-1/1/45/12/4"}
+          - {id: "13", spec: "cluster/2/5/1/1/1/81/12/4"}
+          - {id: "14", spec: "cluster/2/5/-1/-1/1/81/12/4"}
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain 1.81
+        run: |
+          rustup toolchain install 1.81.0 --profile minimal
+          rustup override set 1.81.0
+      - name: Build offline from vendored sources
+        working-directory: native/ym
+        run: cargo build --release --offline --locked
+      - name: Fresh sector build + job + byte-for-byte re-execution
+        working-directory: native/ym
+        env:
+          HEBC_YM_FRESH: "1"
+        run: |
+          set -euo pipefail
+          B=target/release/hebc_ym_http0; R=$RUNNER_TEMP/root; spec="${{ matrix.spec }}"
+          sec="sector/$(echo $spec | cut -d/ -f2-5)"
+          mkdir -p out
+          o=out/cell-${{ matrix.id }}.hbp
+          $B job $R $sec | tee $o
+          $B job $R $spec | tee -a $o
+          $B verify $R $spec | tee -a $o
+          test "$(grep -c '^HEBC_YM|result=PASS|action=verify|' $o)" = 1
+          id_sec=$(echo $sec | tr / _); id=$(echo $spec | tr / _)
+          for d in $id_sec $id; do sed "s/^/SHARD|$d|/" $R/shards/$d/run.hbp >> $o; sed "s/^/ANCHOR_OF|$d|/" $R/shards/$d/run.anchor >> $o; sed "s/^/MEASURE_OF|$d|/" $R/shards/$d/run.measure >> $o; done
+          mkdir -p out/shards; cp -r $R/shards/$id_sec $R/shards/$id out/shards/
+          echo "GITRAM_CELL|id=${{ matrix.id }}|spec=$spec|json=0" >> $o
+          (cd out && sha256sum cell-${{ matrix.id }}.hbp > cell-${{ matrix.id }}.sha256)
+          echo GITRAM_SHARD_PASS
+      - name: Upload the self-contained cell checkpoint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cell-${{ matrix.id }}
+          retention-days: 30
+          if-no-files-found: error
+          path: native/ym/out
+
+  fan-in:
+    name: Verify ALL 14 cells, consistent sector shards, seal
+    needs: cell
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cell-*
+          path: fan-in
+      - name: Check and seal
+        run: |
+          set -euo pipefail
+          count=$(ls fan-in/*/cell-*.hbp | wc -l); echo "returned=$count expected=14"
+          for d in fan-in/*/; do (cd $d && sha256sum -c cell-*.sha256); done
+          cat fan-in/*/cell-*.hbp > HEBC-YM-2X5-STAGE-A.hbp
+          k=$(grep '^ANCHOR_OF|sector_' HEBC-YM-2X5-STAGE-A.hbp | sort -u | cut -d'|' -f2 | uniq -d | wc -l); echo "sector shards with differing anchors: $k"
+          c=$(grep -c '^SHARD|cluster_.*|CLUSTER|.*|converged=1|' HEBC-YM-2X5-STAGE-A.hbp || true)
+          # scientific PASS requires every cluster run converged: stage B takes its
+          # thresholds from these residual intervals
+          if [ "$count" -eq 14 ] && [ "$k" = 0 ] && [ "$c" = 10 ]; then st=PASS; else st=FAIL; fi
+          echo "GITRAM_SEAL|cells=$count|expected=14|sector_shards_consistent=$((k==0))|clusters_converged=$c/10|status=$st|json=0" >> HEBC-YM-2X5-STAGE-A.hbp
+          sha256sum HEBC-YM-2X5-STAGE-A.hbp > HEBC-YM-2X5-STAGE-A.sha256
+          test "$st" = PASS
+      - name: Upload the sealed receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-hebc-ym-2x5-stage-a
+          retention-days: 30
+          if-no-files-found: error
+          path: HEBC-YM-2X5-STAGE-A.*

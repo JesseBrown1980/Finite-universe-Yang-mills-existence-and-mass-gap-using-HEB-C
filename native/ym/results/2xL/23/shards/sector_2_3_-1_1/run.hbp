@@ -1,0 +1,2 @@
+YMSEC|L=2x3|sector=Sx-Sy+|group=24|gauge_orbits=47449|sector_states=1692|flat_states=0|nnz=47710|group_relations=PASS|commutes_with_H=PASS|structural_samples=97|targeted_samples=305|w_self_adjoint=PASS|write=ok|json=0
+MATRIX_SHA|sha256=ab9a360203d21efa63fc3fb6c9b4d778de14f24b7839e00bc30b571564db9881|bytes=292657|file=s23_-1_1.matrix|json=0

@@ -1,0 +1,1 @@
+SHELL_SCHUR|matrix=s23_-1_-1.matrix|n=1870|JE=1000|JB=9000|t_milli=58498000|shell_max=-1|core=23|core_edges=23|H=1847|H_min_margin=36048000|H_max_offdiag_over_diag_permille_ceil=953|F=10^12|gs_sweeps_max=17|y_width_max=884|negative=1|positive_core=22|positive_H=1847|eliminated=23|ambiguous=0|result=PASS|json=0

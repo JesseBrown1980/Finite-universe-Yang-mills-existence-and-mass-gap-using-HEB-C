@@ -1,0 +1,5 @@
+CLUSTER_LEVEL|k=0|theta=23925918/1000000|eps_up=1/1000000|interval=[23925917,23925920]/1000000|json=0
+CLUSTER_LEVEL|k=1|theta=343237719/1000000|eps_up=9/1000000|interval=[343237710,343237729]/1000000|json=0
+CLUSTER_LEVEL|k=2|theta=345539229/1000000|eps_up=254/1000000|interval=[345538975,345539484]/1000000|json=0
+CLUSTER_LEVEL|k=3|theta=345956053/1000000|eps_up=530/1000000|interval=[345955523,345956584]/1000000|json=0
+CLUSTER|matrix=s22_-1_-1.matrix|n=84|JE=1|JB=81|block=8|degree=12|outer=9|replaced_vectors=0|converged=1|interval0_disjoint_from_1=1|interval1_disjoint_from_2=1|gap_if_ordered_in=[319311790,319311812]/1000000|ordering=UNVERIFIED_needs_inertia|json=0

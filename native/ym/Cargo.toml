@@ -1,0 +1,6 @@
+[workspace]
+resolver = "2"
+members = ["crates/torusl", "crates/sturmrs", "crates/evolvers", "backend"]
+
+[profile.release]
+opt-level = 3

@@ -1,0 +1,13 @@
+REFERENCE|source=JesseBrown1980/The-matrix-law-essentials|branch=ym-3x3-zero-momentum-sectors|commit=8fd12e6a54354f0b7483e05db56eeec97946a81c|status=FROZEN|json=0
+PINNED_MATRIX|file=s33_1_1.matrix|sha256=ad0168f973d120a0da2b5ebaa33d4e80619ad7704cfca8f45f3e940dc757bd1b|json=0
+PINNED_MATRIX|file=s33_-1_-1.matrix|sha256=67992a047c1d31b8a245a7a323c7e548f79f16ccb705c056263703adaf0f9239|json=0
+PINNED_MATRIX|file=s33_1_-1.matrix|sha256=6c53ff4ac123b610f0d509a228c893be8bf0a088315180b4c381df98dc6d301b|json=0
+PINNED_MATRIX|file=s33_-1_1.matrix|sha256=d8e07b51b835a8499832fc21527cc1b6082cf017760316d2612efd0f94675ddd|json=0
+FLATCOMP|matrix=s33_1_1.matrix|n=288645|flat_states=7|flat_electric_diag=[54,54,54,54,54,54,54]|flat_diag_max=54|flat_flat_couplings=0|json=0
+FLATCOMP|matrix=s33_-1_-1.matrix|n=279386|flat_states=1|flat_electric_diag=[54]|flat_diag_max=54|flat_flat_couplings=0|json=0
+FLATCOMP|matrix=s33_1_-1.matrix|n=277090|flat_states=0|flat_electric_diag=[]|flat_diag_max=0|flat_flat_couplings=0|json=0
+FLATCOMP|matrix=s33_-1_1.matrix|n=277090|flat_states=0|flat_electric_diag=[]|flat_diag_max=0|flat_flat_couplings=0|json=0
+SHELL_GAP_CERT|L=3x3|r=27|N(t1)=8|N(tB)=8|t1=53505037/1000000|tB=133667000/1000000|sector_counts=1,1:7@53505037,1,-1:0@53505037,-1,1:0@53505037,-1,-1:1@53505037,1,1:7@133667000,1,-1:0@133667000,-1,1:0@133667000,-1,-1:1@133667000|E8_in=[53504999,53505037)/1000000|E9_in=[133667000,133668324]/1000000|gap_E9_minus_E8_in=[80161963,80163325]/1000000|cluster_intervals_below_t1=8|cluster_lowest_interval_lo=53493347/1000000|result=PASS|json=0
+SHELL_CLUSTER_CERT|L=3x3|r=27|N(t0)=0|t0=53493345/1000000|E1_in=[53493345,53493390]/1000000|cluster_width_E8_minus_E1_in=[11609,11692]/1000000|N(ts)=1|ts=53495357/1000000|sector_counts_ts=1,1:1@53495357,1,-1:0@53495357,-1,1:0@53495357,-1,-1:0@53495357|E2_in=[53495357,53495404]/1000000|first_splitting_E2_minus_E1_in=[1967,2059]/1000000|result=PASS|json=0
+SHELL_GAP_CERT|L=3x3|r=243|N(t1)=8|N(tB)=8|t1=53944779/1000000|tB=782856000/1000000|sector_counts=1,1:7@53944779,1,-1:0@53944779,-1,1:0@53944779,-1,-1:1@53944779,1,1:7@782856000,1,-1:0@782856000,-1,1:0@782856000,-1,-1:1@782856000|E8_in=[53944352,53944779)/1000000|E9_in=[782856000,782857538]/1000000|gap_E9_minus_E8_in=[728911221,728913186]/1000000|cluster_intervals_below_t1=8|cluster_lowest_interval_lo=53944110/1000000|result=PASS|json=0
+SHELL_CLUSTER_CERT|L=3x3|r=243|N(t0)=0|t0=53944108/1000000|E1_in=[53944108,53944523]/1000000|cluster_width_E8_minus_E1_in=[0,671]/1000000|first_splitting=INCONCLUSIVE(no_threshold_with_N=1;intervals_overlap)|result=PASS|json=0

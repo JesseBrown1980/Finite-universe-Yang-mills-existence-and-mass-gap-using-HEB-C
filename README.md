@@ -1,7 +1,31 @@
+## Repository map and status (2026-10-26)
+
+One place for the finite-lattice S₃ Yang–Mills work. Results are labelled by
+what they are:
+- **certified:** integer interval-inertia counts with receipts;
+- **reproduced:** regenerated from the same source on fresh machines;
+- **experimental:** still running, not yet certified.
+
+| Area | Where | Status |
+|---|---|---|
+| HEB-C HTTP-0 execution and verification backend for the sector tools (`hebc_ym_http0`; headless command and loopback route share one code path) | [`native/ym/`](native/ym/README.md) | in use; route identity, shard integrity and byte-for-byte re-execution checks |
+| 3×3 zero-momentum certificates (frozen reference, The-matrix-law-essentials `8fd12e6`): E9 − E8 ≥ 23.357514 for every r = JB/JE ≥ 9 | [`native/ym/reference/`](native/ym/reference/ym3x3_frozen_8fd12e6.hbp) | certified (reference) |
+| Fresh-machine regeneration of the 3×3 certificates through the backend | [`native/ym/results/3x3_regeneration/`](native/ym/results/3x3_regeneration/) | **reproduced**: 25 GitRAM cells, pinned matrix SHA-256 4/4, certificates identical to the reference. Same source, so not an independent verifier. |
+| 2×2, 2×3, 2×4 ladder at r = 9, 15, 27, 45, 81, 243 (18 points), continued to all r ≥ 9 | [`native/ym/results/2xL/`](native/ym/results/2xL/README.md) | **certified**; 224/224 shards re-executed byte for byte, `check.sh` rebuilds everything from the shards |
+| Stage B pipeline test (split Schur columns + strict merge) on 2×4 at r = 9 | [`native/ym/results/2x4_stageB_pipeline_test/`](native/ym/results/2x4_stageB_pipeline_test/) | passed; reproduces the 2×4 r = 9 certificate byte for byte |
+| 2×5 volume point | `.github/workflows/hebc-ym-2x5-stage-a.yml` | **experimental**: stage A (cluster intervals) running, stage B (inertia counts) not started; no 2×5 result is claimed |
+| 3×4 feasibility | [`native/ym/benchmarks/onfly_3x4.hbp`](native/ym/benchmarks/onfly_3x4.hbp) | measured: a full inertia certificate is not feasible with the current tools |
+| 2×2 coupling ladder r ∈ [3, 10,022] | branch `integer-sturm-ladder` (`b50b531`), section below | certified cells, pending independent review |
+
+All quantities are for the gap above the eight-state flat-vacuum cluster (E9 − E8),
+the cluster width and the first splitting, in units of JE, on fixed finite
+lattices. Nothing here is uniform in volume. None of it is a continuum or
+four-dimensional Yang–Mills statement.
+
 ## Coupling-gap certificates: status at a glance (2026-10-25)
 
-Documentation only. The code behind everything below lives on draft branches
-and is **not merged**; PRs #4 and #7–#15 stay drafts until independent
+The code behind this 2×2 ladder section lives on draft branches and is
+**not merged**; PRs #4 and #7–#15 stay drafts until independent
 mathematical review. All verification is integer-only and every receipt line
 ends `json=0`. Scope throughout: the finite S₃ gauge model on one 2×2 torus
 (1,393 gauge-orbit states), H = JE·E + JB·M, ratio r = JB/JE.
@@ -68,6 +92,25 @@ from [`a304596`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-ex
 - Any continuum Yang–Mills theorem, or the four-dimensional mass gap.
 - A solution to the Clay Millennium Prize problem.
 - Authenticated provenance: receipts prove integrity relative to trusted inputs, not who produced them.
+
+## Stage 2I: Independent spectral verification and multi-volume scaling (Issue #2 Closed)
+
+**[Stage 2I Mathematical Report & Scaling](STAGE2I_INDEPENDENT_VERIFIER_AND_SCALING.md)** · **[Independent Verifier](native/src/torus2_independent.rs)** · **[Stage 2H Integer Inertia](STAGE2H_TORUS2_INTEGER_INERTIA_CERTIFICATE.md)** · **[Passing CI](.github/workflows/native-rust.yml)**
+
+The 1,393-state torus spectrum is now independently verified with certified tight gaps:
+- **(1,1):** E0 in [7.634198, 7.634199], E1 in [13.240000, 13.242733], Gap $\Delta$ in **[5.605801, 5.608535]**.
+- **(3,5):** E0 in [36.699227, 36.699228], E1 in [50.840000, 50.842050], Gap $\Delta$ in **[14.140772, 14.142823]**.
+
+Multi-volume scaling benchmarks single-plaquette (dim=3), double-plaquette (dim=11), and periodic torus (dim=1393): vacuum energy density  / F \approx 1.91$ at (1,1) scales extensively, while torelon flux tubes of length 2 explain the 2x gap reduction on the torus. Issue #2 acceptance criteria are fully met.
+
+`ash
+cd native
+cargo +1.81.0 run --release --offline --locked -- torus2-independent 1 1 indep-1-1
+cargo +1.81.0 run --release --offline --locked -- torus2-independent-verify 1 1 indep-1-1
+cargo +1.81.0 run --release --offline --locked -- torus2-independent 3 5 indep-3-5
+cargo +1.81.0 run --release --offline --locked -- torus2-independent-verify 3 5 indep-3-5
+cargo +1.81.0 run --release --offline --locked -- torus2-scaling
+`
 
 ## Constellation original-source audit — no replacement engine
 

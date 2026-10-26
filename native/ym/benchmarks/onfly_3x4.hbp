@@ -1,0 +1,12 @@
+BENCH|tool=onflybench|machine=2_vCPU_7GB_cloud_sandbox|threads=1|note=timings_are_runtime_metadata_not_results|json=0
+ONFLYBENCH|L=3x3|JE=1|JB=9|step=1|candidates=19|support=19|norm_w=2970|sum_w=0|sa_check=n/a|rows_generated_step=20|step_ms=0|vm_hwm_kb=2216|ms=0|json=0
+ONFLYBENCH|L=3x3|JE=1|JB=9|step=2|candidates=316|support=316|norm_w=9947124|sum_w=-1944|sa_check=PASS|rows_generated_step=335|step_ms=10|vm_hwm_kb=2316|ms=11|json=0
+ONFLYBENCH|L=3x3|JE=1|JB=9|step=3|candidates=3780|support=3780|norm_w=42631834788|sum_w=-93312|sa_check=PASS|rows_generated_step=4096|step_ms=123|vm_hwm_kb=3156|ms=135|json=0
+ONFLYBENCH|L=3x3|JE=1|JB=9|step=4|candidates=35847|support=35847|norm_w=259610498786412|sum_w=5126328|sa_check=PASS|rows_generated_step=39627|step_ms=774|vm_hwm_kb=9740|ms=909|json=0
+ONFLYBENCH|L=3x4|JE=1|JB=9|step=1|candidates=25|support=25|norm_w=5256|sum_w=0|sa_check=n/a|rows_generated_step=26|step_ms=0|vm_hwm_kb=2228|ms=0|json=0
+ONFLYBENCH|L=3x4|JE=1|JB=9|step=2|candidates=565|support=565|norm_w=29969568|sum_w=-2592|sa_check=PASS|rows_generated_step=590|step_ms=15|vm_hwm_kb=2368|ms=16|json=0
+ONFLYBENCH|L=3x4|JE=1|JB=9|step=3|candidates=9572|support=9572|norm_w=198791852400|sum_w=-124416|sa_check=PASS|rows_generated_step=10137|step_ms=260|vm_hwm_kb=4068|ms=277|json=0
+ONFLYBENCH|L=3x4|JE=1|JB=9|step=4|candidates=131123|support=131123|norm_w=1655423224296912|sum_w=11873952|sa_check=PASS|rows_generated_step=140695|step_ms=4065|vm_hwm_kb=30820|ms=4342|json=0
+ESTIMATE|L=3x4|gauge_orbits_burnside=2177317873|group_order=48|states_per_zero_momentum_sector_approx=45360789|measured_rows=140695|measured_ms=4065|ns_per_row=28892|one_matrix_free_pass_over_one_sector_s=1310|json=0
+ESTIMATE|L=3x4|stored_matrix_entries_approx=3402059175|bytes_at_12_per_entry=40824710100|tree_configs_to_canonicalise=13060694016|is_key_vec_bool_bytes=13060694016|json=0
+VERDICT|L=3x4|full_inertia_certificate=NOT_FEASIBLE_with_current_tools|reasons=stored matrix ~40GB exceeds runner RAM and disk; matrix-free row 29 us here (38 us in an earlier run) before sector canonicalisation; one pass over one sector is ~22 min even before the up-to-48 group images per neighbour, and an interval Gauss-Seidel count needs tens of passes per Schur column; current ymsec keeps a 13 GB Vec<bool> over 6^13 tree configs|what_is_feasible=onfly Krylov moments from the flat vacuum (4 steps, 131,123 states, 31 MB) and bounded-row measurements|json=0
