@@ -1,0 +1,6 @@
+SECTOR_TOTAL|kernel=T|states=1122211|json=0
+SECTOR_TOTAL|kernel=tx|states=3366131|json=0
+SECTOR_TOTAL|kernel=ty|states=3366131|json=0
+SECTOR_TOTAL|kernel=td|states=3366131|json=0
+SECTOR_TOTAL|kernel=ta|states=3366131|json=0
+DIMENSION|L=3x3|mobius_dimension=10097891|gauge_orbits=10097891|isotypic_dims=1122211,2243920,2243920,2243920,2243920|symmetric_lines_equal=1|result=PASS|json=0

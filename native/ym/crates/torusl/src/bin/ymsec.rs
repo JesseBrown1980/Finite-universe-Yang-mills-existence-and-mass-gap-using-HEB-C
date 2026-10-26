@@ -28,6 +28,9 @@
 //!   multiplicity), and the magnetic energy of g.x equals that of x.
 //!   Sample size from YMSEC_CHECK_SAMPLES (0 = every gauge orbit; default 97).
 //!
+//! HEB-C additions: YMSEC_REFLECTIONS_ONLY=1 (G = C2v, every momentum) and
+//! YMSEC_TRANS=x|y|d|a (translations along one line only; see main).
+//!
 //! usage: ymsec LX LY SX SY OUT_MATRIX        (SX, SY in {1, -1})     json=0
 #![forbid(unsafe_code)]
 #![deny(clippy::float_arithmetic, clippy::float_cmp, clippy::cast_precision_loss)]
@@ -99,9 +102,49 @@ fn main() {
     // HEB-C: YMSEC_REFLECTIONS_ONLY=1 uses G = C2v alone (no translations), so the
     // four sectors together span the WHOLE physical space, every momentum.
     let refl_only = std::env::var("YMSEC_REFLECTIONS_ONLY").as_deref() == Ok("1");
-    let (tlx, tly) = if refl_only { (1, 1) } else { (lx, ly) };
-    let ops: Vec<Op> = (0..4u8)
-        .flat_map(|p| (0..tlx).flat_map(move |tx| (0..tly).map(move |ty| Op { tx, ty, p })))
+    // HEB-C: YMSEC_TRANS=x|y|d|a keeps only the translations along one line
+    // K = {m*v}: v = (1,0), (0,1), (1,1) or (1,-1). The point operations kept are
+    // those mapping K onto itself, so G' = K x| P is a group. Its sectors hold
+    // V^K, the states invariant under K: the zero-momentum space plus the momenta
+    // k with k.K = 0. Full space by Mobius inversion over these subgroups.
+    let trans_mode = std::env::var("YMSEC_TRANS").unwrap_or_default();
+    let trans: Vec<(usize, usize)> = match trans_mode.as_str() {
+        "" => {
+            let (tlx, tly) = if refl_only { (1, 1) } else { (lx, ly) };
+            (0..tlx).flat_map(|tx| (0..tly).map(move |ty| (tx, ty))).collect()
+        }
+        "x" | "y" | "d" | "a" if !refl_only => {
+            let v = match trans_mode.as_str() {
+                "x" => (1, 0),
+                "y" => (0, 1),
+                "d" => (1, 1),
+                _ => (1, ly - 1),
+            };
+            let mut set: Vec<(usize, usize)> = (0..lx * ly).map(|m| ((m * v.0) % lx, (m * v.1) % ly)).collect();
+            set.sort_unstable();
+            set.dedup();
+            set
+        }
+        _ => {
+            println!("YMSEC|error=bad_YMSEC_TRANS|json=0");
+            std::process::exit(1);
+        }
+    };
+    let point_image = |p: u8, (tx, ty): (usize, usize)| -> (usize, usize) {
+        let fx = p == 1 || p == 3;
+        let fy = p == 2 || p == 3;
+        (if fx { (lx - tx) % lx } else { tx }, if fy { (ly - ty) % ly } else { ty })
+    };
+    let points: Vec<u8> = (0..4u8).filter(|&p| trans.iter().all(|&t| trans.contains(&point_image(p, t)))).collect();
+    // canonical sector labels: a character value of an absent reflection must be +1
+    let has = |p: u8| points.contains(&p);
+    if (!has(1) && !has(3) && sxc != 1) || (!has(2) && !has(3) && syc != 1) || (!has(1) && !has(2) && has(3) && sxc != 1) {
+        println!("YMSEC|error=noncanonical_sector_for_point_group|json=0");
+        std::process::exit(1);
+    }
+    let ops: Vec<Op> = points
+        .iter()
+        .flat_map(|&p| trans.iter().map(move |&(tx, ty)| Op { tx, ty, p }))
         .collect();
     let chi = |op: &Op| -> i64 {
         match op.p {
@@ -266,6 +309,18 @@ fn main() {
     // the character formula d_s = (d + Sx Tr Rx + Sy Tr Ry + SxSy Tr Rc2) / |G|,
     // checked only when G = C2v (otherwise translations enter the formula)
     let (mut fx, mut fy, mut fc) = (0i64, 0i64, 0i64);
+    // subgroup sectors: d_s = (1/|G'|) sum over G' of chi(g) * #(gauge orbits fixed by g)
+    let mut sub_num: i64 = 0;
+    if !trans_mode.is_empty() {
+        for (key, _) in is_key.iter().enumerate().filter(|(_, &k)| k) {
+            let raw = lat.representative(&lat.decode(key));
+            for op in &ops {
+                if key_of(&apply(&g, &lat, *op, &raw)) == key {
+                    sub_num += chi(op);
+                }
+            }
+        }
+    }
     if refl_only {
         for (key, _) in is_key.iter().enumerate().filter(|(_, &k)| k) {
             let raw = lat.representative(&lat.decode(key));
@@ -276,7 +331,14 @@ fn main() {
     }
     let go = i64::try_from(gauge_orbits).unwrap_or(0);
     let pred_num = go + sxc * fx + syc * fy + sxc * syc * fc;
-    let dims_ok = !refl_only || (pred_num % 4 == 0 && pred_num / 4 == i64::try_from(n).unwrap_or(-1));
+    let gsize = i64::try_from(ops.len()).unwrap_or(0);
+    let dims_ok = if refl_only {
+        pred_num % 4 == 0 && pred_num / 4 == i64::try_from(n).unwrap_or(-1)
+    } else if !trans_mode.is_empty() {
+        sub_num % gsize == 0 && sub_num / gsize == i64::try_from(n).unwrap_or(-1)
+    } else {
+        true
+    };
     // structural check on representatives with a nontrivial stabiliser
     let stab_keys: Vec<usize> = reps.iter().zip(wts.iter()).filter(|&(&k, &w)| {
         let gw = lat.weight(&g, &lat.decode(k));
@@ -342,8 +404,18 @@ fn main() {
         if sxc > 0 { "+" } else { "-" },
         if syc > 0 { "+" } else { "-" },
         ops.len(),
-        if refl_only { "all" } else { "zero" },
-        if !refl_only { "n/a".to_string() } else if dims_ok { "PASS".to_string() } else { "FAIL".to_string() },
+        if refl_only {
+            "all".to_string()
+        } else if trans_mode.is_empty() {
+            "zero".to_string()
+        } else {
+            format!("line_{trans_mode}_points_{}", points.iter().map(u8::to_string).collect::<String>())
+        },
+        if refl_only || !trans_mode.is_empty() {
+            if dims_ok { "PASS".to_string() } else { "FAIL".to_string() }
+        } else {
+            "n/a".to_string()
+        },
         samples.len(),
         if sa { "PASS" } else { "FAIL" },
         if ok { "ok" } else { "failed" },

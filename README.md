@@ -57,11 +57,18 @@ L/r; on 3×3 it is third order (0.002 at r = 27). Full tables:
 architecture by Jesse Daniel Brown. On the raw link space the magnetic plaquette
 term has the same local ground projector as Kitaev's quantum double D(S₃). Its
 eight flat states are the D(S₃) torus ground space. With E as a bounded local
-perturbation of strength 6/r per link, topological-order stability
+perturbation of strength 6/r per link, the route is topological-order stability
 (Bravyi–Hastings–Michalakis, with Cui et al. for the quantum-double TQO
-conditions) gives E₉ − E₈ ≥ c·J_B uniformly in volume for r ≥ r₀, and a band
-width that shrinks exponentially with torus size. The document marks which
-lemmas are proved and which are being instantiated.
+conditions).
+
+**What the theorem gives.** Once its TQO, region, buffer and local-gap
+hypotheses are instantiated for this Hamiltonian, it gives r₀ and c > 0 with
+E₉ − E₈ ≥ c·J_B, uniformly over growing two-dimensional tori, for r ≥ r₀. It
+also gives a band width that shrinks exponentially with torus size.
+
+**What is measured, and what is open.** The finite certificates measure the gap
+at r ≥ 9 on each lattice. Two steps are open: completing the instantiation, and
+the value of r₀. The document tracks them lemma by lemma.
 
 ## Architecture
 

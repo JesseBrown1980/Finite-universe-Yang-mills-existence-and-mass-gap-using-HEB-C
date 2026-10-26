@@ -69,3 +69,50 @@ rebuilds everything from the same source on fresh machines and compares with
 the frozen reference. That establishes **reproducibility**. Stronger confidence
 comes from a separately implemented verifier of the same inertia counts, which
 is the next item in development.
+
+## Full space from line sectors
+
+On a non-cyclic translation group, the full physical space splits into isotypic
+parts, one for each subgroup K with T/K cyclic. The `tx`, `ty`, `td` and `ta`
+sector modes build V^K, the states invariant under the translations along one
+line, and [`python/full_space_mobius.py`](python/full_space_mobius.py) recovers
+every part by Möbius inversion. On the 3×3 lattice the eight nonzero momenta
+fall into two orbits of four, {(±1, 0), (0, ±1)} and {(±1, ±1)}. With
+`--orbit`, one representative line per orbit is counted, and the symmetric
+partner reuses it.
+
+[`scripts/full_space_mobius_check.sh`](scripts/full_space_mobius_check.sh)
+runs every job through the HTTP-0 route. It compares the result with the
+reflection-only full-space count. On 2×2 at r = 9 the result is 8 = 8 at the
+gap thresholds, and 616 = 616 at t = 90.123457 J_E, where 449 of the states
+carry nonzero momentum
+([`results/full_space_mobius/`](results/full_space_mobius/)).
+
+## N-Nest gate
+
+[`python/nnest_gate.py`](python/nnest_gate.py) arranges a result as a tree of
+agent reports and independent watchers:
+
+```text
+node_green = (reported == watcher_recomputed) AND all(child_green)
+```
+
+| Depth | Node | Watcher |
+|---|---|---|
+| 0 | full-space count | Möbius sum, plus the reflection-only route |
+| 1 | invariant count N(V^K) | sum of its sector counts |
+| 2 | count shard | re-execution through HTTP-0, byte compared |
+| 3 | sector shard | re-execution through HTTP-0, plus the matrix SHA-256 |
+
+Nodes move through DESCRIBED → EDGE_MINED → PATH_FOUND → CONVERGED or
+MISTAKE_FLAGGED, and a failure is reported with its address path. The
+controls check four things:
+- **C1.** A clean tree is green.
+- **C2.** A re-run gives a byte-identical verdict.
+- **C3.** Removing one leaf's evidence holds the tree: a fraction of the
+  evidence does not certify.
+- **C4.** A fault planted at each depth, 3 down to 0, is flagged first at that
+  depth.
+
+All four pass on the 2×2 validation
+([`2x2_nnest_gate.hbp`](results/full_space_mobius/2x2_nnest_gate.hbp)).

@@ -1,0 +1,128 @@
+# GitRAM lane, 3x3 FULL SPACE (every momentum) at r = 9, stage A, through the
+# HEB-C HTTP-0 backend (native/ym/backend, hebc_ym_http0). The translation group
+# Z3 x Z3 is not cyclic, so the full space is assembled from line-subgroup
+# sectors by Mobius inversion (python/full_space_mobius.py):
+#   zero momentum (all translations): 4 C2v sectors
+#   tx, ty (translations along x / y; momenta (0,+-1) / (+-1,0)): 4 + 4 sectors
+#   td, ta (translations along (1,1) / (1,-1); momenta (+-1,-+1) / (+-1,+-1)): 2 + 2
+# Every line is computed (no orbit reuse), so the symmetry-related lines check
+# each other. Each cell builds its sector from an empty root (HEBC_YM_FRESH=1),
+# runs flatcomp and the diagonal-dominance core at t1 and tB of the zero-momentum
+# r = 9 certificate (t1 = 52.533422, tB = 76.472000 J_E), and re-executes every
+# job with verify. Stage B (the counts) is written from the cores. Integer-only,
+# json=0. Starts on the push that adds or changes this file (workflow_dispatch
+# needs the file on the default branch).
+name: HEB-C YM 3x3 full space stage A r=9 (16 cells)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [http0-ym-backend-finite-volumes]
+    paths: ['.github/workflows/hebc-ym-3x3-fullspace-stage-a-r9.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hebc-ym-3x3-fullspace-stage-a-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  cell:
+    name: Cell ${{ matrix.id }} ${{ matrix.sector }}
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include:
+          - {id: "01", sector: "sector/3/3/1/1"}
+          - {id: "02", sector: "sector/3/3/1/-1"}
+          - {id: "03", sector: "sector/3/3/-1/1"}
+          - {id: "04", sector: "sector/3/3/-1/-1"}
+          - {id: "05", sector: "txsector/3/3/1/1"}
+          - {id: "06", sector: "txsector/3/3/1/-1"}
+          - {id: "07", sector: "txsector/3/3/-1/1"}
+          - {id: "08", sector: "txsector/3/3/-1/-1"}
+          - {id: "09", sector: "tysector/3/3/1/1"}
+          - {id: "10", sector: "tysector/3/3/1/-1"}
+          - {id: "11", sector: "tysector/3/3/-1/1"}
+          - {id: "12", sector: "tysector/3/3/-1/-1"}
+          - {id: "13", sector: "tdsector/3/3/1/1"}
+          - {id: "14", sector: "tdsector/3/3/1/-1"}
+          - {id: "15", sector: "tasector/3/3/1/1"}
+          - {id: "16", sector: "tasector/3/3/1/-1"}
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain 1.81
+        run: |
+          rustup toolchain install 1.81.0 --profile minimal
+          rustup override set 1.81.0
+      - name: Build offline from vendored sources
+        working-directory: native/ym
+        run: cargo build --release --offline --locked
+      - name: Fresh sector build + flatcomp + cores + byte-for-byte re-execution
+        working-directory: native/ym
+        env:
+          HEBC_YM_FRESH: "1"
+        run: |
+          set -euo pipefail
+          B=target/release/hebc_ym_http0; R=$RUNNER_TEMP/root; sec="${{ matrix.sector }}"
+          mode=${sec%%sector/*}; tail=${sec#*sector/}
+          specs="$sec ${mode}flatcomp/$tail ${mode}ddcore/$tail/1000/9000/52533422 ${mode}ddcore/$tail/1000/9000/76472000"
+          mkdir -p out out/shards; o=out/cell-${{ matrix.id }}.hbp
+          for s in $specs; do $B job $R $s | tee -a $o; done
+          for s in $specs; do $B verify $R $s | tee -a $o; done
+          test "$(grep -c '^HEBC_YM|result=PASS|action=verify|' $o)" = 4
+          for s in $specs; do d=$(echo $s | tr / _); sed "s/^/SHARD|$d|/" $R/shards/$d/run.hbp >> $o; sed "s/^/ANCHOR_OF|$d|/" $R/shards/$d/run.anchor >> $o; cp -r $R/shards/$d out/shards/; done
+          echo "GITRAM_CELL|id=${{ matrix.id }}|sector=$sec|json=0" >> $o
+          (cd out && sha256sum cell-${{ matrix.id }}.hbp > cell-${{ matrix.id }}.sha256)
+          echo GITRAM_SHARD_PASS
+      - name: Upload the self-contained cell checkpoint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cell-${{ matrix.id }}
+          retention-days: 30
+          if-no-files-found: error
+          path: native/ym/out
+
+  fan-in:
+    name: Verify ALL 16 cells, write the core table, seal
+    needs: cell
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cell-*
+          path: fan-in
+      - name: Check and seal
+        run: |
+          set -euo pipefail
+          count=$(ls fan-in/*/cell-*.hbp | wc -l); echo "returned=$count expected=16"
+          for d in fan-in/*/; do (cd $d && sha256sum -c cell-*.sha256); done
+          F=HEBC-YM-3X3-FULLSPACE-STAGE-A-R9
+          cat fan-in/*/cell-*.hbp > $F.hbp
+          # core table: one line per count to run in stage B, "spec core_rows"
+          grep '^SHARD|.*ddcore_3_3_.*|DDCORE|' $F.hbp | while IFS='|' read -r _ id rest; do
+            core=$(echo "$rest" | grep -o 'core_rows=[0-9]*' | cut -d= -f2)
+            spec=$(echo "$id" | sed 's/ddcore_/count_/; s/_/\//g' | awk -F/ '{print $1"/"$2"/"$3"/"$4"/"$5"/"$6"/"$7"/"$8"/12/1000"}')
+            echo "CORE|spec=$spec|core_rows=$core|json=0"
+          done | sort >> $F.hbp
+          v=$(grep -c '^HEBC_YM|result=PASS|action=verify|' $F.hbp)
+          c=$(grep -c '^CORE|' $F.hbp)
+          if [ "$count" -eq 16 ] && [ "$v" -eq 64 ] && [ "$c" -eq 32 ]; then st=PASS; else st=FAIL; fi
+          echo "GITRAM_SEAL|cells=$count|expected=16|verified_jobs=$v|core_rows_recorded=$c|status=$st|json=0" >> $F.hbp
+          sha256sum $F.hbp > $F.sha256
+          test "$st" = PASS
+      - name: Upload the sealed receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sealed-hebc-ym-3x3-fullspace-stage-a-r9
+          retention-days: 30
+          if-no-files-found: error
+          path: HEBC-YM-3X3-FULLSPACE-STAGE-A-R9.*

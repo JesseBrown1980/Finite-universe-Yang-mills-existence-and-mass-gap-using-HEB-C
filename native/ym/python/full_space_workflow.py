@@ -1,0 +1,251 @@
+#!/usr/bin/env python3
+"""Write the stage B GitRAM workflows for a full-space (every momentum) count
+from a sealed full-space stage A receipt, through hebc_ym_http0 only.
+
+Stage A records one CORE line per count to run:
+    CORE|spec=<mode>count/LX/LY/SX/SY/JE/JB/T/FDIG/TOL|core_rows=N|json=0
+Counts with core <= SPLIT run as one count cell. Larger counts are split into
+countcols cells of COLS columns and merged by a countmerge job. A GitHub
+workflow holds at most 256 matrix jobs, so the counts are packed into parts of
+at most MAX_CELLS cells. Each part holds complete counts (all of a count's
+countcols cells and its merge) and seals its own count shards. The certify
+workflow downloads the sealed parts by run id and assembles the full space.
+
+usage: full_space_workflow.py SEALED SHA256 OUTDIR NAME [SPLIT=100] [COLS=100] [MAX_CELLS=240]   json=0
+Integer-only.
+"""
+import hashlib
+import os
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+MODES = ("tx", "ty", "td", "ta", "r", "")
+
+
+def split_kind(spec):
+    kind, rest = spec.split("/", 1)
+    mode = next(m for m in MODES if kind.startswith(m) and kind[len(m):] in ("count",))
+    return mode, rest
+
+
+def read_cores(sealed, sha_file):
+    want = open(sha_file).read().split()[0]
+    got = hashlib.sha256(open(sealed, "rb").read()).hexdigest()
+    if want != got:
+        raise SystemExit("FULL_SPACE_WORKFLOW|result=FAIL|reason=stage_A_checksum|json=0")
+    text = open(sealed).read()
+    if "|status=PASS|" not in text.splitlines()[-1]:
+        raise SystemExit("FULL_SPACE_WORKFLOW|result=FAIL|reason=stage_A_not_sealed_PASS|json=0")
+    cores = []
+    for line in text.splitlines():
+        if line.startswith("CORE|"):
+            f = dict(p.split("=", 1) for p in line.split("|")[1:] if "=" in p)
+            cores.append((f["spec"], int(f["core_rows"])))
+    return cores
+
+
+def plan(cores, split, cols):
+    """One entry per count: (count spec, [cell specs], merge spec or None)."""
+    out = []
+    for spec, core in cores:
+        mode, rest = split_kind(spec)
+        if core <= split:
+            out.append((spec, [spec], None))
+        else:
+            cells = [f"{mode}countcols/{rest}/{a}/{min(a + cols, core)}" for a in range(0, core, cols)]
+            out.append((spec, cells, f"{mode}countmerge/{rest}"))
+    return out
+
+
+def parts(entries, max_cells):
+    groups, cur, n = [], [], 0
+    for e in sorted(entries, key=lambda e: -len(e[1])):
+        if len(e[1]) > max_cells:
+            raise SystemExit(f"FULL_SPACE_WORKFLOW|result=FAIL|reason=count_needs_more_than_{max_cells}_cells|spec={e[0]}|json=0")
+        if n + len(e[1]) > max_cells:
+            groups.append(cur)
+            cur, n = [], 0
+        cur.append(e)
+        n += len(e[1])
+    if cur:
+        groups.append(cur)
+    return groups
+
+
+CELL_SCRIPT = r'''          set -euo pipefail
+          B=target/release/hebc_ym_http0; R=$RUNNER_TEMP/root; spec="${{ matrix.spec }}"
+          kind=${spec%%/*}
+          case $kind in *countcols) mode=${kind%countcols} ;; *count) mode=${kind%count} ;; esac
+          sec="${mode}sector/$(echo $spec | cut -d/ -f2-5)"; id=$(echo $spec | tr / _)
+          $B job $R $sec
+          $B job $R $spec | tee job.txt
+          $B verify $R $spec | tee -a job.txt
+          grep -q '^HEBC_YM|result=PASS|action=verify|' job.txt
+          case $kind in *count) grep -q '|ambiguous=0|result=PASS|' $R/shards/$id/run.hbp ;; esac
+          mkdir -p out/shards; cp -r $R/shards/$id out/shards/'''
+
+MERGE_SCRIPT = r'''          set -euo pipefail
+          (cd native/ym && cargo build --release --offline --locked)
+          B=native/ym/target/release/hebc_ym_http0; R=$RUNNER_TEMP/root; spec="${{ matrix.spec }}"
+          kind=${spec%%/*}; mode=${kind%countmerge}; rest=${spec#*/}
+          cid=$(echo "${mode}count/$rest" | tr / _); id=$(echo $spec | tr / _)
+          mkdir -p $R/scol/$cid
+          cp -r cells/shards/${mode}countcols_$(echo $rest | tr / _)_* $R/scol/$cid/
+          $B job $R "${mode}sector/$(echo $rest | cut -d/ -f1-4)"
+          $B job $R $spec | tee job.txt
+          $B verify $R $spec | tee -a job.txt
+          grep -q '^HEBC_YM|result=PASS|action=verify|' job.txt
+          grep -q '|ambiguous=0|result=PASS|' $R/shards/$id/run.hbp
+          mkdir -p out/shards; cp -r $R/shards/$id out/shards/'''
+
+
+def part_workflow(name, idx, total, group, wfrel):
+    cells = [c for e in group for c in e[1]]
+    merges = [e[2] for e in group if e[2]]
+    inc = "\n".join(f'          - {{id: "{i + 1:03d}", spec: "{c}"}}' for i, c in enumerate(cells))
+    minc = "\n".join(f'          - {{id: "m{i + 1:02d}", spec: "{m}"}}' for i, m in enumerate(merges)) or '          - {id: "none", spec: "none"}'
+    finals = [e[2] or e[0] for e in group]
+    final_ids = " ".join(s.replace("/", "_") for s in finals)
+    return f'''# {name} stage B part {idx}/{total}: {len(group)} counts, {len(cells)} cells, {len(merges)} merges.
+# Generated by native/ym/python/full_space_workflow.py. Every count must report
+# ambiguous=0 and result=PASS; split counts are merged by countmerge (input
+# integrity, spec, INPUT_MATRIX, exact column partition). Integer-only, json=0.
+name: HEB-C YM {name} stage B part {idx}/{total} ({len(cells)} cells, {len(merges)} merges)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [http0-ym-backend-finite-volumes]
+    paths: ['{wfrel}']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hebc-ym-{name}-stage-b-{idx}-${{{{ github.ref }}}}
+  cancel-in-progress: false
+
+jobs:
+  cell:
+    name: Cell ${{{{ matrix.id }}}} ${{{{ matrix.spec }}}}
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include:
+{inc}
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain 1.81
+        run: |
+          rustup toolchain install 1.81.0 --profile minimal
+          rustup override set 1.81.0
+      - name: Build offline from vendored sources
+        working-directory: native/ym
+        run: cargo build --release --offline --locked
+      - name: Fresh sector + one job + verify
+        working-directory: native/ym
+        env:
+          HEBC_YM_FRESH: "1"
+        run: |
+{CELL_SCRIPT}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cell-${{{{ matrix.id }}}}
+          retention-days: 30
+          if-no-files-found: error
+          path: native/ym/out
+
+  merge:
+    name: Merge ${{{{ matrix.id }}}} ${{{{ matrix.spec }}}}
+    needs: cell
+    if: always()
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+{minc}
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        if: matrix.spec != 'none'
+      - uses: actions/download-artifact@v4
+        if: matrix.spec != 'none'
+        with:
+          pattern: cell-*
+          path: cells
+          merge-multiple: true
+      - name: Toolchain 1.81
+        if: matrix.spec != 'none'
+        run: |
+          rustup toolchain install 1.81.0 --profile minimal
+          rustup override set 1.81.0
+      - name: countmerge + verify
+        if: matrix.spec != 'none'
+        env:
+          HEBC_YM_FRESH: "1"
+        run: |
+{MERGE_SCRIPT}
+      - uses: actions/upload-artifact@v4
+        if: matrix.spec != 'none'
+        with:
+          name: merge-${{{{ matrix.id }}}}
+          retention-days: 30
+          if-no-files-found: error
+          path: out
+
+  seal:
+    name: Seal part {idx}/{total}
+    needs: [cell, merge]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: arts
+          merge-multiple: true
+      - name: Integrity and seal
+        run: |
+          set -euo pipefail
+          test "${{{{ needs.cell.result }}}}" = success
+          test "${{{{ needs.merge.result }}}}" = success
+          python3 native/ym/python/verify_shard_integrity.py arts/shards | tee seal.hbp
+          grep -q '|failed=0|.*|result=PASS|' seal.hbp
+          mkdir -p sealed/shards
+          for id in {final_ids}; do test -d arts/shards/$id; grep -q '|ambiguous=0|result=PASS|' arts/shards/$id/run.hbp; cp -r arts/shards/$id sealed/shards/; done
+          for id in {final_ids}; do sed "s/^/SHARD|$id|/" arts/shards/$id/run.hbp; done >> seal.hbp
+          echo "GITRAM_SEAL|name={name}|part={idx}/{total}|counts={len(group)}|cells={len(cells)}|merges={len(merges)}|status=PASS|json=0" >> seal.hbp
+          mv seal.hbp sealed/PART-{idx}.hbp; (cd sealed && sha256sum PART-{idx}.hbp > PART-{idx}.sha256)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sealed-part-{idx}
+          retention-days: 30
+          if-no-files-found: error
+          path: sealed
+'''
+
+
+def main():
+    sealed, sha, outdir, name = sys.argv[1:5]
+    split = int(sys.argv[5]) if len(sys.argv) > 5 else 100
+    cols = int(sys.argv[6]) if len(sys.argv) > 6 else 100
+    max_cells = int(sys.argv[7]) if len(sys.argv) > 7 else 240
+    entries = plan(read_cores(sealed, sha), split, cols)
+    groups = parts(entries, max_cells)
+    root = os.path.join(HERE, "..", "..", "..")
+    for i, g in enumerate(groups, 1):
+        path = os.path.join(outdir, f"hebc-ym-{name}-stage-b-part{i}.yml")
+        open(path, "w").write(part_workflow(name, i, len(groups), g, os.path.relpath(path, root)))
+        cells = sum(len(e[1]) for e in g)
+        print(f"FULL_SPACE_WORKFLOW|part={i}/{len(groups)}|counts={len(g)}|cells={cells}|merges={sum(1 for e in g if e[2])}|out={os.path.relpath(path, root)}|json=0")
+    print(f"FULL_SPACE_WORKFLOW|name={name}|counts={len(entries)}|cells={sum(len(e[1]) for e in entries)}|parts={len(groups)}|result=PASS|json=0")
+
+
+if __name__ == "__main__":
+    main()
