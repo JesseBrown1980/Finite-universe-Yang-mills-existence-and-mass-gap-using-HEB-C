@@ -25,6 +25,10 @@ fn read_keys(path: &str) -> Vec<u64> {
         println!("YMPLAY|error=read:{e}|json=0");
         std::process::exit(1)
     });
+    if b.len() % 8 != 0 {
+        println!("YMPLAY|error=truncated_key_file|file={path}|json=0");
+        std::process::exit(2);
+    }
     b.chunks_exact(8).map(|c| u64::from_le_bytes([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7]])).collect()
 }
 
@@ -94,11 +98,17 @@ fn main() {
             let ctx = Ctx::new(&g, &lat);
             let mut s = ctx.scratch();
             let space = 6u64.pow(u32::try_from(lat.free.len()).unwrap_or(0));
-            let addr = Address::new(read_keys(&a[6]), space);
+            let addr = Address::checked(read_keys(&a[6]), space).unwrap_or_else(|e| {
+                println!("YMPLAY|error={e}|json=0");
+                std::process::exit(2)
+            });
             let n = addr.keys.len();
             if a[1] == "row" {
                 let i: usize = arg(&a, 7);
-                let (row, mag, w) = play_row(&ctx, &addr, i, sx, sy, &mut s);
+                let (row, mag, w) = play_row(&ctx, &addr, i, sx, sy, &mut s).unwrap_or_else(|e| {
+                    println!("YMPLAY|error={e}|json=0");
+                    std::process::exit(2)
+                });
                 let r = row.iter().map(|(c, z)| format!("{c}:{z}")).collect::<Vec<_>>().join(",");
                 println!("YMPLAY_ROW|L={lx}x{ly}|sector={sx},{sy}|i={i}|key={}|weight={w}|magnetic={mag}|entries={r}|ms={}|json=0", addr.keys[i], t0.elapsed().as_millis());
                 return;
@@ -107,7 +117,10 @@ fn main() {
             let mut wts = Vec::with_capacity(n);
             let mut mags = Vec::with_capacity(n);
             for i in 0..n {
-                let (row, mag, w) = play_row(&ctx, &addr, i, sx, sy, &mut s);
+                let (row, mag, w) = play_row(&ctx, &addr, i, sx, sy, &mut s).unwrap_or_else(|e| {
+                    println!("YMPLAY|error={e}|json=0");
+                    std::process::exit(2)
+                });
                 rows.push(row);
                 mags.push(mag);
                 wts.push(w);

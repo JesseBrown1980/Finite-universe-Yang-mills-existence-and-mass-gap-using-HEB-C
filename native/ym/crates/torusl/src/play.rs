@@ -187,6 +187,17 @@ pub struct Address {
 }
 
 impl Address {
+    /// Validated address file: keys strictly increasing (sorted, unique) and
+    /// below the configuration space. Anything else is refused.
+    pub fn checked(keys: Vec<u64>, space: u64) -> Result<Address, String> {
+        if let Some(i) = keys.windows(2).position(|w| w[0] >= w[1]) {
+            return Err(format!("address_not_strictly_increasing_at_{}", i + 1));
+        }
+        if keys.last().is_some_and(|&k| k >= space) {
+            return Err("address_key_outside_space".into());
+        }
+        Ok(Address::new(keys, space))
+    }
     pub fn new(keys: Vec<u64>, space: u64) -> Address {
         let n = keys.len().max(1);
         // about one key per bucket: 2^b buckets with 2^b >= n
@@ -206,20 +217,29 @@ impl Address {
         }
         Address { keys, shift, start }
     }
+    /// Position of `key`. The bucket only narrows the search; the binary search
+    /// inside it compares the stored key exactly (worst case O(log n)).
     pub fn find(&self, key: u64) -> Option<usize> {
         let nb = self.start.len() - 1;
         let bk = usize::try_from(key >> self.shift).unwrap_or(0).min(nb - 1);
         let (a, b) = (self.start[bk] as usize, self.start[bk + 1] as usize);
-        self.keys[a..b].binary_search(&key).ok().map(|i| a + i)
+        let pos = self.keys[a..b].binary_search(&key).ok().map(|i| a + i)?;
+        (self.keys[pos] == key).then_some(pos)
     }
 }
 
 /// One generated row of the sector operator (ymsec convention): electric
 /// entries (column, coefficient) with the diagonal 3 nl included, the
 /// magnetic diagonal and the weight.
-pub fn play_row(ctx: &Ctx, addr: &Address, i: usize, sx: i64, sy: i64, s: &mut Scratch) -> (Vec<(usize, i64)>, i64, i64) {
+/// Electric entries (column, coefficient), magnetic diagonal, weight.
+pub type PlayedRow = (Vec<(usize, i64)>, i64, i64);
+
+/// A row whose key is not a representative of this sector, or a signed target
+/// missing from the address file, is an error (wrong-sector or incomplete file).
+pub fn play_row(ctx: &Ctx, addr: &Address, i: usize, sx: i64, sy: i64, s: &mut Scratch) -> Result<PlayedRow, String> {
     let (g, lat) = (ctx.g, ctx.lat);
     let key = addr.keys[i];
+    let orbit = ctx.representative(key, sx, sy, s).ok_or(format!("key_{key}_not_a_sector_representative"))?;
     let q = ctx.decode(key);
     let raw = lat.representative(&q);
     let nl = 2 * lat.n;
@@ -234,13 +254,12 @@ pub fn play_row(ctx: &Ctx, addr: &Address, i: usize, sx: i64, sy: i64, s: &mut S
             if sg == 0 {
                 continue;
             }
-            // a signed target lies in the sector, so its least key is addressed
-            let j = addr.find(kk).unwrap_or_else(|| panic!("target key {kk} missing from the address file"));
+            // a signed target lies in the sector, so its least key must be addressed
+            let j = addr.find(kk).ok_or(format!("target_key_{kk}_missing_from_address_file"))?;
             *row.entry(j).or_insert(0) -= sg;
         }
     }
     row.retain(|_, v| *v != 0);
-    let orbit = ctx.representative(key, sx, sy, s).unwrap_or(0);
     let weight = orbit * lat.weight(g, &q);
-    (row.into_iter().collect(), lat.magnetic(g, &raw), weight)
+    Ok((row.into_iter().collect(), lat.magnetic(g, &raw), weight))
 }
