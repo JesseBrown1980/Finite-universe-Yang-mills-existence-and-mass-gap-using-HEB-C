@@ -127,9 +127,10 @@ lattice*, Ann. Phys. 325, 2120 (2010), arXiv:0912.0945, shows instability
 mechanisms in thin-torus limits. The 2×L strips are therefore a separate
 family of their own.
 
-**Constants.** BHM proves that ε₀ exists; its value is small, so r₀ from the
-theorem lies well above 9. The certified finite-r data
-show where the regime actually starts on small lattices; the theorem cannot.
+**Constants.** BHM proves that ε₀ exists, and the theorem's explicit constants
+fix r₀ once the instantiation is complete. Until then r₀ is not determined. In
+particular, r₀ = 9 is not established. The certified finite-r data show, lattice
+by lattice, the coupling from which the gap is measured.
 
 ## 7. Finite certificates (evidence alongside the proof)
 
