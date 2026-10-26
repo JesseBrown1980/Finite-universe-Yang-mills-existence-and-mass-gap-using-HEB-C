@@ -7,7 +7,7 @@ certificates only. No uniform-in-volume or continuum Yang–Mills claim follows.
 
 | Path | Content |
 |---|---|
-| `crates/torusl`, `crates/evolvers`, `crates/sturmrs` | Copied **unchanged** from The-matrix-law-essentials `8fd12e6` (`ymsec`, `onfly`, `flatcomp`, `ddcore`, `cluster`, `shellschur`, …). The backend does no mathematics of its own. |
+| `crates/torusl`, `crates/evolvers`, `crates/sturmrs` | Copied from The-matrix-law-essentials `8fd12e6` (`ymsec`, `onfly`, `flatcomp`, `ddcore`, `cluster`, `shellschur`, …). One deliberate change: the `ymsec` size guard now admits lx·ly ≤ 10 (was 9), so 2×5 can be built; the mathematics is untouched. The backend does no mathematics of its own. |
 | `backend/` | `hebc_ym_http0`: the HTTP-0 execution and verification layer. |
 | `vendor/`, `.cargo/config.toml` | Vendored `num-bigint`/`num-integer`/`num-traits`/`autocfg`, so every build is `--offline --locked`. |
 | `python/shell_gap_cert.py`, `python/monotone_cells.py` | Certificate builders, copied; `shell_gap_cert.py` gained only a `--lattice LXxLY` parameter (default output is byte-identical to the original on the 3×3 receipts). |

@@ -80,7 +80,8 @@ fn main() {
     let ly: usize = a[2].parse().unwrap_or(0);
     let sxc: i64 = a[3].parse().unwrap_or(0);
     let syc: i64 = a[4].parse().unwrap_or(0);
-    if !(2..=4).contains(&lx) || !(2..=4).contains(&ly) || lx * ly > 9 || sxc.abs() != 1 || syc.abs() != 1 {
+    // HEB-C copy: the only change from 8fd12e6 is this guard, lx*ly <= 10 (was 9), to admit 2x5
+    if !(2..=5).contains(&lx) || !(2..=5).contains(&ly) || lx * ly > 10 || sxc.abs() != 1 || syc.abs() != 1 {
         println!("YMSEC|error=bad_arguments|json=0");
         std::process::exit(1);
     }
