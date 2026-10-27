@@ -1,0 +1,13 @@
+LEAN|toolchain=leanprover/lean4:v4.19.0|lean=Lean_(version_4.19.0,_x86_64-unknown-linux-gnu,_commit_6caaee842e94,_Release)|json=0
+LEAN_SOURCE|file=HebcShadow.lean|sha256=d031e0f100ae9fa9765b7c7321d3eae655018650ee579a1c2ce3d81403903591|json=0
+LEAN_SOURCE|file=HebcShadow/Admission.lean|sha256=9086134ee2765e4488c9a5b5c507c60e1818174a8d4bb4cfccd4d2b4820ae5b9|json=0
+LEAN_SOURCE|file=HebcShadow/Gap.lean|sha256=92f8ddcab6a3ed00d9ff3d6353cc0c074d7dc75ccb52a23b300d1e47558270de|json=0
+LEAN_SOURCE|file=HebcShadow/Partition.lean|sha256=d5901c73f2f526e3d4ecb1d7fce89b23c221dfe10d29e77e2fdf020df8ec3d83|json=0
+LEAN_SOURCE|file=lakefile.lean|sha256=6973613975c9f9f74147fa3955f68bdb86a080e7af684d01f2f9024c3f38f959|json=0
+LEAN_SOURCE|file=lean-toolchain|sha256=55e97be96000b5e9e290c9e74482e5e317861499a5540353ce845471bded8cea|json=0
+LEAN_SOURCE|file=Audit.lean|sha256=80cabedf208e131e7e1b3da417a4349a2c4e2383885887272c55a5d77d97c2be|json=0
+LEAN_THEOREM|name=HebcShadow.admission_12GiB|axioms=propext,Quot.sound|extra_axioms=none|json=0
+LEAN_THEOREM|name=HebcShadow.countmerge_conserves|axioms=propext,Quot.sound|extra_axioms=none|json=0
+LEAN_THEOREM|name=HebcShadow.gap_r9|axioms=propext,Classical.choice,Quot.sound|extra_axioms=none|json=0
+LEAN_THEOREM|name=HebcShadow.gap_all_r|axioms=propext,Quot.sound|extra_axioms=none|json=0
+LEAN_AUDIT|theorems=4|sorry=0|only_standard_axioms=1|result=PASS|json=0

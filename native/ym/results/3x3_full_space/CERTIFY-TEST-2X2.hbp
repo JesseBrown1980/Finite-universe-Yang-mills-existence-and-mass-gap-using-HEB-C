@@ -1,0 +1,13 @@
+CERTIFY_TEST|L=2x2|t1_milli=23746649|tF_milli=46576000|finals=32|merged=2|split=40|json=0
+CONTROL|C1_clean_tree_green|PASS|CERTIFY_VERDICT|PASS|N_full_t1=8|N_full_tF=8|json=0|json=0
+CONTROL|C2_rerun_identical|PASS|json=0
+CONTROL|C3_missing_shard_holds|PASS|json=0
+CONTROL|C4_count_shard|depth=2|PASS|path=node=count_2_2_-1_-1_1000_9000_23746649_12_1000|json=0
+CONTROL|C4_cell_receipt|depth=3|PASS|path=node=txcountcols_2_2_1_1_1000_9000_46576000_12_1000_0_40|json=0
+CONTROL|C4_sector_record|depth=4|PASS|path=node=sector_2_2_-1_-1|json=0
+CONTROL|C4_reported_sum|depth=1|PASS|path=node=t23746649.T|json=0
+CONTROL|C5_sector_before_counts_in_run|PASS|jobs=186|json=0
+CONTROL|C6_request_accounting_fails_closed|PASS|json=0
+CONTROL|C7_plan_over_cap_refused|PASS|json=0
+CONTROL|C8_server_start_failure_refused|PASS|json=0
+CERTIFY_TEST_VERDICT|PASS|json=0
