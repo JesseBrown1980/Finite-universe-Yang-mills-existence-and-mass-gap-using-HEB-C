@@ -8,9 +8,9 @@ threshold or gate. It decides only what is allowed into memory.
 
 ## Quantities (integers, bytes)
 
-- **`BUDGET`:** the memory a runner may give to resident column blocks.
-  `BUDGET = 12 × 2³⁰` (12 GiB), leaving headroom below the hosted runner's 16 GiB for the
-  binary, the sector index and the operating system.
+- **`BUDGET`:** the whole production process's resident memory, the column pool plus
+  `RESERVE`. `BUDGET = 12 × 2³⁰` (12 GiB), leaving headroom below the hosted runner's 16 GiB
+  for the operating system.
 - **`COL_BYTES`:** a **conservative upper bound** on one active column block, including
   its temporary buffers and allocator overhead. It is not an average or a single typical
   observation. The design estimate is about 1.44 × 10⁹. The pilot replaces it with the
