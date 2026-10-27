@@ -100,3 +100,56 @@ and the verdict is written by `python/full_space_certify.py assemble`.
   t = 23.746649 / 46.576000. That is the same pair the independent verifier agreed on.
 - **Workflow code:** the workflow's own watcher shell code, run locally on the 2×2 data,
   reproduced a merge, an unsplit count, a sector and a sampled cell byte for byte.
+
+## Addendum, fixed before the certify step runs (reviewer, 2026-10-27)
+
+**Correctness and cost are separate results.**
+
+| result | what it depends on |
+|---|---|
+| `CERTIFY_CORRECTNESS\|CERTIFIED` | seal integrity, the HTTP-0 request accounting, and every node at depths 0–4 green with nothing held |
+| `CERTIFY_VERDICT` | the stage-B verdict of `STAGE-B-SPEC.md`, issued only after CERTIFIED |
+| `CERTIFY_BUDGET` | `BUDGET_PASS` or `OVER_BUDGET` |
+
+The budget is an operational wall-clock check (certify runner time ≤ ½ × stage-B runner
+time). It can block production acceptance, but it never changes a computed count. It
+is kept apart from the structural work bound `C₀ / (1 − q)`, which describes how the work
+shrinks level by level and is not a timing claim.
+
+**Identity.** The receipt carries `CERTIFY_IDENTITY`:
+
+- both stage-B run ids;
+- the SHA-256 of the core table and of stage A;
+- the HTTP-0 server binary hash and the request cap;
+- the SHA-256 of `CERTIFY-SPEC.md`, `STAGE-B-SPEC.md`, `full_space_certify.py`,
+  `full_space_mobius.py`, `full_space_workflow.py`, `verify_shard_integrity.py` and
+  `http0_jobs.sh`.
+
+A verdict is tied to the rules and code that produced it.
+
+**Coverage, stated exactly.** Depth 3 is a universal hash and partition check on every
+cell, plus **two** full cell regenerations chosen by the frozen hash rule. It is not an
+independent replay of every cell. The receipt line `COVERAGE` records the count of cells
+checked, the rule and the selected cell ids.
+
+**The request cap fails closed.** `scripts/http0_jobs.sh` refuses any plan over the cap
+of 10,000 requests, refuses a server that does not start, and records the requests
+planned and completed, together with the server's exit status. The assembly requires,
+for every one of the 50 watcher jobs:
+
+- a record;
+- `completed = planned`;
+- exit 0;
+- one server binary across all jobs;
+- the job's sector sent before its count in the same server run.
+
+Anything else is `NOT_CERTIFIED`.
+
+**Clean roots.** Every watcher starts from an empty root on a fresh runner. The 2×2 test
+starts from an empty working directory and proves sector-before-count ordering from its
+own job log (control C5), not from the presence of final files.
+
+**2×2 test after the addendum** (`CERTIFY-TEST-2X2.hbp`): C1–C8 PASS, covering the clean
+tree, the rerun, a missing shard, faults at depths 1–4, the run's own order, tampered
+request accounting, a plan over the cap and a server that fails to start. 186 jobs ran,
+all through `scripts/http0_jobs.sh`.

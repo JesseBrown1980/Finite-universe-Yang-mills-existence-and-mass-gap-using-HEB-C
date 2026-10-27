@@ -52,7 +52,7 @@ def main():
             ls $R/scol/$cid | grep -q . || { echo "CERTIFY_WATCH|error=no_cells|spec=$spec|json=0"; exit 1; }
           fi
           if [ "$kind" = "${mode}sector" ]; then specs="$spec"; else specs="$sec $spec"; fi
-          bash native/ym/scripts/http0_jobs.sh $B $R 8100 $specs
+          OUT_ID=out/http0/$id.hbp bash native/ym/scripts/http0_jobs.sh $B $R 8100 $specs
           mkdir -p out/shards; cp -r $R/shards/$id out/shards/'''
     jobs = []
     for kind, label, needs_cells in (("sector", "sectors", False), ("final", "finals", True), ("sample", "sample", True)):
@@ -137,8 +137,9 @@ jobs:
           cp {rel(stage_a)} $R/stageA.hbp; cp {rel(stage_a_sha)} $R/stageA.sha256
           for d in c*/shards; do cp -r $d/* $R/cells/; done
           mv wsector/shards $R/watch/sectors; mv wfinal/shards $R/watch/finals; mv wsample/shards $R/watch/sample
+          mkdir -p $R/watch/http0; for k in wsector wfinal wsample; do cp $k/http0/*.hbp $R/watch/http0/; done
           python3 native/ym/python/certify_timing.py ${{{{ github.repository }}}} ${{{{ github.run_id }}}} {" ".join(runs)} > $R/timing.hbp || true
-          python3 native/ym/python/full_space_certify.py assemble $R {t1} {tf} | tee CERTIFY-{name.upper()}.hbp
+          CERTIFY_RUNS={",".join(runs)} python3 native/ym/python/full_space_certify.py assemble $R {t1} {tf} | tee CERTIFY-{name.upper()}.hbp
           rc=${{PIPESTATUS[0]}}
           sha256sum CERTIFY-{name.upper()}.hbp > CERTIFY-{name.upper()}.sha256
           exit $(( rc == 2 ? 1 : 0 ))

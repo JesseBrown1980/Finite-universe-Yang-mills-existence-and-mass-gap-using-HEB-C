@@ -15,8 +15,6 @@ import os
 import shutil
 import subprocess
 import sys
-import time
-import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -31,51 +29,24 @@ def sh(*a, env=None):
     return r.returncode, r.stdout + r.stderr
 
 
-SERVERS = {}
+PORT = [18300]
+SCRIPT = os.path.join(HERE, "..", "scripts", "http0_jobs.sh")
+ORDER = []          # (root, spec) in the order the jobs were sent: proves sector-before-cells per root
 
 
-def server(b, root):
-    """One HEB-C HTTP-0 server per root: every job and verify goes through the route."""
-    root = os.path.abspath(root)
-    if root not in SERVERS:
-        os.makedirs(root, exist_ok=True)
-        port = 18100 + len(SERVERS)
-        log = open(root + ".serve.log", "w")
-        p = subprocess.Popen([b, "serve", root, str(port), "10000"], stdout=log, stderr=subprocess.STDOUT,
-                             env=dict(os.environ, HEBC_YM_FRESH="1"))
-        for _ in range(200):
-            txt = open(root + ".serve.log").read()
-            if "READY" in txt:
-                break
-            if p.poll() is not None:
-                raise SystemExit("TEST|server_failed|root=%s|%s|json=0" % (root, txt.strip()[:200]))
-            time.sleep(0.05)
-        else:
-            raise SystemExit("TEST|server_not_ready|root=%s|json=0" % root)
-        SERVERS[root] = (p, port)
-    return SERVERS[root][1]
+def http0(b, root, specs, out_id):
+    """Every job and verify through the HEB-C HTTP-0 server, via scripts/http0_jobs.sh."""
+    PORT[0] += 1
+    r = subprocess.run(["bash", SCRIPT, b, os.path.abspath(root), str(PORT[0]), *specs], capture_output=True, text=True,
+                       env=dict(os.environ, HEBC_YM_FRESH="1", OUT_ID=out_id))
+    return r.returncode, r.stdout
 
 
-def http(port, method, path):
-    req = urllib.request.Request("http://127.0.0.1:%d%s" % (port, path), method=method)
-    with urllib.request.urlopen(req, timeout=3600) as r:
-        return r.read().decode()
-
-
-def job(b, root, spec):
-    port = server(b, root)
-    out = http(port, "POST", "/job/" + spec)
-    if not out.startswith("HEBC_YM|result=PASS"):
-        raise SystemExit("TEST|job_failed|spec=%s|%s|json=0" % (spec, out.strip()[:200]))
-    out = http(port, "GET", "/verify/" + spec)
-    if "result=PASS" not in out:
-        raise SystemExit("TEST|verify_failed|spec=%s|%s|json=0" % (spec, out.strip()[:200]))
-
-
-def stop_servers():
-    for p, _ in SERVERS.values():
-        p.terminate()
-        p.wait()
+def job(b, root, *specs, out_id=None):
+    rc, out = http0(b, root, list(specs), out_id or os.path.abspath(root) + ".http0.hbp")
+    if rc != 0:
+        raise SystemExit("TEST|http0_failed|specs=%s|%s|json=0" % (",".join(specs), out.strip()[-300:]))
+    ORDER.extend((os.path.abspath(root), s) for s in specs)
 
 
 def sid(s):
@@ -144,8 +115,7 @@ def build(b, work, t1, tf):
             os.makedirs(dest)
             for c in cells:
                 shutil.copytree(os.path.join(cellroot, "shards", sid(c)), os.path.join(dest, sid(c)))
-            job(b, mroot, count.split("count")[0] + "sector/" + "/".join(count.split("/")[1:5]))
-            job(b, mroot, merge)
+            job(b, mroot, count.split("count")[0] + "sector/" + "/".join(count.split("/")[1:5]), merge)
             src = os.path.join(mroot, "shards", sid(merge))
         else:
             src = os.path.join(cellroot, "shards", sid(count))
@@ -161,7 +131,8 @@ def build(b, work, t1, tf):
         kind = f.get("kind")
         if kind == "sector":
             w = os.path.join(work, "w_" + sid(f["spec"]))
-            job(b, w, f["spec"])
+            os.makedirs(os.path.join(R, "watch", "http0"), exist_ok=True)
+            job(b, w, f["spec"], out_id=os.path.join(R, "watch", "http0", sid(f["spec"]) + ".hbp"))
             shutil.copytree(os.path.join(w, "shards", sid(f["spec"])), os.path.join(R, "watch", "sectors", sid(f["spec"])))
         elif kind in ("final", "sample"):
             spec = f["spec"]
@@ -174,8 +145,8 @@ def build(b, work, t1, tf):
                 for c in os.listdir(os.path.join(R, "cells")):
                     if c.startswith(sid(base + "countcols/" + rest) + "_"):
                         shutil.copytree(os.path.join(R, "cells", c), os.path.join(w, "scol", cid, c))
-            job(b, w, base + "sector/" + "/".join(rest.split("/")[:4]))
-            job(b, w, spec)
+            job(b, w, base + "sector/" + "/".join(rest.split("/")[:4]), spec,
+                out_id=os.path.join(R, "watch", "http0", sid(spec) + ".hbp"))
             dst = "finals" if kind == "final" else "sample"
             shutil.copytree(os.path.join(w, "shards", sid(spec)), os.path.join(R, "watch", dst, sid(spec)))
     return R, merged, len(entries)
@@ -198,10 +169,7 @@ def main():
     b, work, t1, tf = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4])
     shutil.rmtree(work, ignore_errors=True)
     os.makedirs(work)
-    try:
-        R, merged, finals = build(b, work, t1, tf)
-    finally:
-        stop_servers()
+    R, merged, finals = build(b, work, t1, tf)
     out = ["CERTIFY_TEST|L=2x2|t1_milli=%d|tF_milli=%d|finals=%d|merged=%d|split=%d|json=0" % (t1, tf, finals, merged, SPLIT)]
     rc, v1 = certify(R, t1, tf)
     verdict = v1.strip().splitlines()[-1]
@@ -245,6 +213,31 @@ def main():
     caught("sector_record", 4, d)
     d = fresh()
     caught("reported_sum", 1, d, dict(os.environ, CERTIFY_FAULT="sum"))
+    # C5: the run's own order -- in every root, the sector was sent before any count of it
+    first = {}
+    bad_order = 0
+    for root_, spec in ORDER:
+        if "sector/" in spec.split("/", 1)[0] + "/":
+            first.setdefault((root_, spec.split("sector")[0] + "/".join(spec.split("/")[1:5])), True)
+        elif "count" in spec:
+            key = (root_, spec.split("count")[0] + "/".join(spec.split("/")[1:5]))
+            bad_order += key not in first
+    out.append("CONTROL|C5_sector_before_counts_in_run|%s|jobs=%d|json=0" % ("PASS" if bad_order == 0 and ORDER else "FAIL", len(ORDER)))
+    d = fresh()
+    h = os.path.join(d, "watch", "http0", sorted(os.listdir(os.path.join(d, "watch", "http0")))[0])
+    t = open(h).read().replace("|completed=", "|completed=0")
+    open(h, "w").write(t)
+    rc, v = certify(d, t1, tf)
+    out.append("CONTROL|C6_request_accounting_fails_closed|%s|json=0" % ("PASS" if rc == 2 and "NOT_CERTIFIED" in v else "FAIL"))
+    rc, txt = http0(b, os.path.join(work, "capcheck"), ["sector/2/2/1/1"] * 5000, os.path.join(work, "capcheck.id"))
+    out.append("CONTROL|C7_plan_over_cap_refused|%s|json=0" % ("PASS" if rc == 2 and "plan_exceeds_cap" in txt else "FAIL"))
+    import socket
+    blocker = socket.socket()
+    blocker.bind(("127.0.0.1", PORT[0] + 1))
+    blocker.listen(1)
+    rc, txt = http0(b, os.path.join(work, "portcheck"), ["sector/2/2/1/1"], os.path.join(work, "portcheck.id"))
+    blocker.close()
+    out.append("CONTROL|C8_server_start_failure_refused|%s|json=0" % ("PASS" if rc == 2 and "server_not_ready" in txt else "FAIL"))
     print("\n".join(out))
     ok = all("|PASS|" in l for l in out if l.startswith("CONTROL|"))
     print("CERTIFY_TEST_VERDICT|%s|json=0" % ("PASS" if ok else "FAIL"))

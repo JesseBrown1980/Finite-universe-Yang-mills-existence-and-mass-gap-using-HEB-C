@@ -249,24 +249,71 @@ def cmd_assemble(argv):
             pair[t] = mine_full
         shutil.rmtree(asm)
 
-    # ---- budget (infinite-three: certify <= B / 2)
+    # ---- HTTP-0 request accounting and order, for every watcher job (fail closed)
+    hdir = os.path.join(root, "watch", "http0")
+    recs = {}
+    for fn in sorted(os.listdir(hdir)) if os.path.isdir(hdir) else []:
+        lines_h = read(os.path.join(hdir, fn)).decode().splitlines()
+        jobs_ = [fields(l)["spec"] for l in lines_h if l.startswith("HTTP0_JOBS|seq=")]
+        idl = [fields(l) for l in lines_h if l.startswith("HTTP0_IDENTITY|")]
+        recs[fn[:-4]] = (jobs_, idl[-1] if idl else None)
+    binaries, http_ok = set(), True
+    for kind, specs_ in (("sector", sectors), ("final", list(finals)), ("sample", sample)):
+        for spec in specs_:
+            j, idl = recs.get(sid(spec), ([], None))
+            sec = spec.split("/", 1)[0]
+            for suf in ("countmerge", "countcols", "count", "sector"):
+                if sec.endswith(suf):
+                    sec = sec[:-len(suf)] + "sector/" + "/".join(spec.split("/")[1:5])
+                    break
+            want = [spec] if kind == "sector" else [sec, spec]
+            ok = (idl is not None and j == want and idl["completed"] == idl["planned"] == str(2 * len(want) + 1)
+                  and idl["server_exit"] == "0")
+            if idl:
+                binaries.add(idl["binary_sha256"])
+            if not ok:
+                http_ok = False
+                tr.node(5, "http0." + sid(spec), False, "reason=request_accounting_or_order|jobs=%s" % ",".join(j))
+    http_ok &= len(binaries) == 1
+    out.append("HTTP0|watcher_jobs=%d|accounting_and_order=%s|server_binaries=%s|json=0"
+               % (len(sectors) + len(finals) + len(sample), "PASS" if http_ok else "FAIL", ",".join(sorted(binaries)) or "-"))
+
+    # ---- identity: the rules and code that produced this verdict
+    ym = os.path.normpath(os.path.join(HERE, ".."))
+    code = ["python/full_space_certify.py", "python/full_space_mobius.py", "python/full_space_workflow.py",
+            "python/verify_shard_integrity.py", "scripts/http0_jobs.sh",
+            "results/3x3_full_space/CERTIFY-SPEC.md", "results/3x3_full_space/STAGE-B-SPEC.md"]
+    ids = ["%s:%s" % (c, sha(read(os.path.join(ym, c)))[:16]) for c in code if os.path.exists(os.path.join(ym, c))]
+    out.append("CERTIFY_IDENTITY|stage_b_runs=%s|cores_sha256=%s|stageA_sha256=%s|server_binary=%s|request_cap=10000|"
+               "code=%s|json=0" % (os.environ.get("CERTIFY_RUNS", "-"),
+                                   read(os.path.join(root, "cores.sha256")).decode().split()[0],
+                                   read(os.path.join(root, "stageA.sha256")).decode().split()[0],
+                                   ",".join(sorted(binaries)) or "-", ",".join(ids)))
+    ncells = sum(len(e[1]) for e in entries if e[2])
+    out.append("COVERAGE|cells_hash_and_partition_checked=%d|cells_fully_regenerated=%d|rule=smallest_sha256(%s+spec)|"
+               "selected=%s|finals_reexecuted=%d|sectors_rebuilt=%d|json=0"
+               % (ncells, len(sample), SAMPLE_TAG.rstrip("|"), ",".join(sample), len(finals), len(sectors)))
+
+    # ---- budget, an operational wall-clock check kept apart from correctness
     budget = "CERTIFY_BUDGET|unmeasured|json=0"
     tpath = os.path.join(root, "timing.hbp")
     if os.path.exists(tpath):
         tf_ = fields(read(tpath).decode().splitlines()[0])
         b, c = int(tf_["stage_b_seconds"]), int(tf_["certify_seconds"])
         budget = "CERTIFY_BUDGET|stage_b_seconds=%d|certify_seconds=%d|ratio_permille=%d|bound_permille=500|%s|json=0" % (
-            b, c, c * 1000 // max(1, b), "WITHIN_BOUND" if c * 2 <= b else "BUDGET_EXCEEDED")
+            b, c, c * 1000 // max(1, b), "BUDGET_PASS" if c * 2 <= b else "OVER_BUDGET")
 
     out += tr.rows
     out.append(budget)
-    if not seal_ok or tr.held or tr.bad or len(pair) != 2:
-        out.append("CERTIFY_VERDICT|INCONCLUSIVE|seal=%d|held=%s|flagged=%s|json=0"
-                   % (seal_ok, ",".join(tr.held) or "-", ",".join(tr.bad) or "-"))
+    if not seal_ok or not http_ok or tr.held or tr.bad or len(pair) != 2:
+        out.append("CERTIFY_CORRECTNESS|NOT_CERTIFIED|seal=%d|http0=%d|held=%s|flagged=%s|json=0"
+                   % (seal_ok, http_ok, ",".join(tr.held) or "-", ",".join(tr.bad) or "-"))
+        out.append("CERTIFY_VERDICT|INCONCLUSIVE|json=0")
         print("\n".join(out))
         raise SystemExit(2)
+    out.append("CERTIFY_CORRECTNESS|CERTIFIED|depths=0-4|nodes_green=%d|seal=1|http0=1|json=0" % len(tr.rows))
     v = "PASS" if (pair[t1], pair[tf]) == (8, 8) else "MISMATCH"
-    out.append("CERTIFY_VERDICT|%s|N_full_t1=%d|N_full_tF=%d|nodes_green=%d|json=0" % (v, pair[t1], pair[tf], len(tr.rows)))
+    out.append("CERTIFY_VERDICT|%s|N_full_t1=%d|N_full_tF=%d|json=0" % (v, pair[t1], pair[tf]))
     print("\n".join(out))
     raise SystemExit(0 if v == "PASS" else 1)
 
