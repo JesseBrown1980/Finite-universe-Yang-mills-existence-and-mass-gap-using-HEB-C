@@ -1,0 +1,15 @@
+INDEP_RECEIPT|L=2x2|r=9|construction=independent/indep_verify.py (commit cf6a2c9, sha256 ca60e319...)|kernel=independent/minors (built from commit cf6a2c9 source with cargo 1.81 --release, binary sha256 5986c493...)|production_counts=results/full_space_mobius/2x2_validation.hbp|json=0
+RUN_FILE|t=23746649|INDEP_RUN|code_sha256=ca60e319d287daa657d7a1242568e8480b39744b9a465896c080d91b238f42e4|minor_kernel_sha256=5986c493e3950422f46bbd19b7206e4e9146a23e4f6c846479b7cfda181cd375|command=python indep_verify.py 2 2 9 23746649|seed=1|json=0
+RUN_FILE|t=23746649|INDEP_BUILD|L=2x2|gauge_orbits=1393|burnside=1393|weight_sum=7776|six_pow_free=7776|free_links=5|tree_links=3|flat_states=8|WA_symmetric=PASS|json=0
+RUN_FILE|t=23746649|INDEP_COUNT|L=2x2|r=9|t_milli=23746649|N=8|method=multimodular_leading_minors_random_permutation|seed=1|hadamard_bits=43185|primes_62bit=709|reshuffle_retries=0|result=COMPUTED|json=0
+RUN_FILE|t=46576000|INDEP_RUN|code_sha256=ca60e319d287daa657d7a1242568e8480b39744b9a465896c080d91b238f42e4|minor_kernel_sha256=5986c493e3950422f46bbd19b7206e4e9146a23e4f6c846479b7cfda181cd375|command=python indep_verify.py 2 2 9 46576000|seed=1|json=0
+RUN_FILE|t=46576000|INDEP_BUILD|L=2x2|gauge_orbits=1393|burnside=1393|weight_sum=7776|six_pow_free=7776|free_links=5|tree_links=3|flat_states=8|WA_symmetric=PASS|json=0
+RUN_FILE|t=46576000|INDEP_COUNT|L=2x2|r=9|t_milli=46576000|N=8|method=multimodular_leading_minors_random_permutation|seed=1|hadamard_bits=41792|primes_62bit=687|reshuffle_retries=0|result=COMPUTED|json=0
+RUN_FILE|t=90123457|INDEP_RUN|code_sha256=ca60e319d287daa657d7a1242568e8480b39744b9a465896c080d91b238f42e4|minor_kernel_sha256=5986c493e3950422f46bbd19b7206e4e9146a23e4f6c846479b7cfda181cd375|command=python indep_verify.py 2 2 9 90123457|seed=1|json=0
+RUN_FILE|t=90123457|INDEP_BUILD|L=2x2|gauge_orbits=1393|burnside=1393|weight_sum=7776|six_pow_free=7776|free_links=5|tree_links=3|flat_states=8|WA_symmetric=PASS|json=0
+RUN_FILE|t=90123457|INDEP_COUNT|L=2x2|r=9|t_milli=90123457|N=616|method=multimodular_leading_minors_random_permutation|seed=1|hadamard_bits=40399|primes_62bit=664|reshuffle_retries=0|result=COMPUTED|json=0
+INDEP_COLLECT|code_sha256=ca60e319d287daa657d7a1242568e8480b39744b9a465896c080d91b238f42e4|L=2x2|r=9|gauge_orbits=1393|weight_sum=7776|flat_states=8|files=3|gates=PASS|json=0
+INDEP_CHECK|L=2x2|r=9|t_milli=23746649|expected=8|got=8|hadamard_bits=43185|primes=709|reshuffle_retries=0|status=AGREE|json=0
+INDEP_CHECK|L=2x2|r=9|t_milli=46576000|expected=8|got=8|hadamard_bits=41792|primes=687|reshuffle_retries=0|status=AGREE|json=0
+INDEP_CHECK|L=2x2|r=9|t_milli=90123457|expected=616|got=616|hadamard_bits=40399|primes=664|reshuffle_retries=0|status=AGREE|json=0
+INDEP_VERDICT|AGREE|json=0

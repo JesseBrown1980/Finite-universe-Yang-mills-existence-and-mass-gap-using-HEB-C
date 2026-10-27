@@ -309,3 +309,32 @@ jobs:
             native/clasy-batch-243/kernel-000/
             native/clasy-batch-243/kernel-242/
             native/clasy-batch-243/batch.measure
+
+  hebc-ym-workspace:
+    name: native/ym workspace tests, clippy and play certificate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust 1.81 and Clippy
+        run: rustup toolchain install 1.81.0 --profile minimal --component clippy
+      - name: Tests (includes torusl play_index)
+        working-directory: native/ym
+        run: cargo +1.81.0 test --release --all-targets --offline --locked
+      - name: Zero-warning Clippy
+        working-directory: native/ym
+        run: cargo +1.81.0 clippy --release --all-targets --offline --locked -- -D warnings
+      - name: Play certificate (played vs stored matrices, inertia gate, negative controls)
+        working-directory: native/ym
+        run: |
+          cargo +1.81.0 build --release --offline --locked
+          scripts/play_certificate.sh target/release $RUNNER_TEMP/pc 2:2:1:1:2:23746649,46576000 2:2:-1:-1:2:23746649,46576000 2:3:1:1:3:35498860,58498000 | tee play-certificate.hbp
+          grep -q '^PLAY_CERTIFICATE|.*|result=PASS|' play-certificate.hbp
+      - name: Fail-closed collector controls
+        working-directory: native/ym
+        run: independent/test_collect.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hebc-ym-play-certificate
+          retention-days: 30
+          path: native/ym/play-certificate.hbp

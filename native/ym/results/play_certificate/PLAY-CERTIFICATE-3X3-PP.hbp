@@ -1,0 +1,13 @@
+PLAY_MATRIX|case=3x3_1_1|stored_states=288645|classes=2|manifest_sha256=edd911b0d1dc2c280a83ae0efc67119057fe897c98bd8da336ce4ba936a80cbb|byte_identical=1|json=0
+PLAY_INERTIA|case=3x3_1_1|t_milli=52533422|played_negative=7|stored_negative=7|identical_record=1|json=0
+PLAY_INERTIA|case=3x3_1_1|t_milli=60000000|played_negative=7|stored_negative=7|identical_record=1|json=0
+PLAY_CONTROL|case=empty_file|exit=2|fail_closed=1|json=0
+PLAY_CONTROL|case=minus_8_bytes|exit=2|fail_closed=1|json=0
+PLAY_CONTROL|case=missing_residue_class|exit=2|fail_closed=1|json=0
+PLAY_CONTROL|case=wrong_scope|exit=2|fail_closed=1|json=0
+PLAY_CONTROL|case=wrong_expected_count|exit=2|fail_closed=1|json=0
+PLAY_CONTROL|case=manifest_refuses_wrong_count|exit=2|fail_closed=1|json=0
+PLAY_CONTROL|case=wrong_digest|exit=2|fail_closed=1|json=0
+PLAY_CONTROL|case=flipped_byte|exit=2|fail_closed=1|json=0
+PLAY_CONTROL|case=row_out_of_range|exit=2|fail_closed=1|json=0
+PLAY_CERTIFICATE|cases=1|result=PASS|json=0

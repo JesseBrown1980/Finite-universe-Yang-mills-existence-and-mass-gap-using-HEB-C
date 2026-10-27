@@ -18,7 +18,8 @@ Only then are the counts compared with the expected production counts.
 Verdict: AGREE (exit 0), MISMATCH (exit 1), INCONCLUSIVE (exit 2). Any
 exception while reading or parsing is INCONCLUSIVE.
 
-usage: python collect.py --code SHA256 --scope L:r:orbits:weights:flat EXPECT FILE...
+usage: python collect.py [--kernel SHA256] --code SHA256 --scope L:r:orbits:weights:flat EXPECT FILE...
+       (--kernel pins minor_kernel_sha256 when the Rust kernel produced the counts)
        EXPECT = t_milli:N[,t_milli:N...]
 """
 
@@ -54,6 +55,9 @@ def as_int(d, key):
 
 
 def parse_args(argv):
+    kernel = None
+    if len(argv) > 1 and argv[0] == "--kernel":
+        kernel, argv = argv[1], argv[2:]
     if len(argv) < 6 or argv[0] != "--code" or argv[2] != "--scope":
         raise Reject("usage")
     code = argv[1]
@@ -67,10 +71,10 @@ def parse_args(argv):
         if int(t) in expect:
             raise Reject("duplicate_expected_threshold")
         expect[int(t)] = int(n)
-    return code, scope, expect, argv[5:]
+    return code, scope, expect, argv[5:], kernel
 
 
-def check_file(path, code, scope, expect):
+def check_file(path, code, scope, expect, kernel=None):
     runs, builds, counts = [], [], []
     with open(path) as fh:
         for line in fh:
@@ -102,18 +106,25 @@ def check_file(path, code, scope, expect):
         raise Reject(f"unexpected_threshold_{t}")
     if need(count, "result") != "COMPUTED":
         raise Reject(f"count_not_computed_t{t}")
-    for key in ("hadamard_bits", "primes_31bit", "reshuffle_retries"):
+    for key in ("hadamard_bits", "reshuffle_retries"):
         as_int(count, key)
+    pk = [k for k in ("primes_31bit", "primes_62bit") if k in count]
+    if len(pk) != 1:
+        raise Reject("needs_exactly_one_prime_count_field")
+    as_int(count, pk[0])
+    count["primes"] = count[pk[0]]
+    if kernel is not None and need(run, "minor_kernel_sha256") != kernel:
+        raise Reject("minor_kernel_hash_not_pinned_value")
     return t, as_int(count, "N"), count
 
 
 def main(argv):
     rows = []
     try:
-        code, scope, expect, files = parse_args(argv)
+        code, scope, expect, files, kernel = parse_args(argv)
         seen = {}
         for f in files:
-            t, n, count = check_file(f, code, scope, expect)
+            t, n, count = check_file(f, code, scope, expect, kernel)
             if t in seen:
                 raise Reject(f"duplicate_threshold_{t}")
             seen[t] = (n, count)
@@ -127,7 +138,7 @@ def main(argv):
                 verdict = "MISMATCH"
             rows.append(
                 f"INDEP_CHECK|L={scope['L']}|r={scope['r']}|t_milli={t}|expected={expect[t]}|got={n}"
-                f"|hadamard_bits={count['hadamard_bits']}|primes_31bit={count['primes_31bit']}"
+                f"|hadamard_bits={count['hadamard_bits']}|primes={count['primes']}"
                 f"|reshuffle_retries={count['reshuffle_retries']}|status={st}|json=0"
             )
         rows.insert(0, f"INDEP_COLLECT|code_sha256={code}|L={scope['L']}|r={scope['r']}|gauge_orbits={scope['orbits']}"

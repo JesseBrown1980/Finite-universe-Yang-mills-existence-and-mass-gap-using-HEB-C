@@ -5,6 +5,7 @@
 #![deny(clippy::float_arithmetic, clippy::float_cmp, clippy::cast_precision_loss)]
 
 pub mod play;
+pub mod sha;
 
 pub const PERM: [[u8; 3]; 6] = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
 pub const TRANS: [u8; 3] = [1, 2, 5];
