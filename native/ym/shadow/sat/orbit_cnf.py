@@ -133,9 +133,18 @@ def main(argv):
     d = direct_orbits(conj)
     burn = (6 ** K + 3 * 2 ** K + 2 * 3 ** K) // 6
     print("SAT_CNF|object=S3^%d_mod_conjugation|vars=%d|clauses=%d|cnf_sha256=%s|fault=%s|json=0" % (K, f.n, len(f.cl), h, fault or "none"))
+    # the model-by-model bijection, preserved: every decoded model, sorted, is the orbit's lex-min
+    lst = "".join(" ".join(map(str, m)) + "\n" for m in sorted(models))
+    direct = sorted(cfg for cfg in itertools.product(range(6), repeat=K) if lexmin(cfg, conj))
+    if not fault:
+        open("ORBIT-2X2-MODELS.txt", "w").write(lst)
+    print("SAT_BIJECTION|models_sha256=%s|direct_lexmin_sha256=%s|identical_sets=%d|json=0"
+          % (hashlib.sha256(lst.encode()).hexdigest(),
+             hashlib.sha256("".join(" ".join(map(str, m)) + "\n" for m in direct).encode()).hexdigest(),
+             sorted(models) == direct))
     print("SAT_COUNT|E1_pycosat_all_vars=%d|E2_pysat_m22_projected=%d|E3_models_lexmin=%d|E3_distinct=%d|E4_direct=%d|burnside=%d|recorded=%d|json=0"
           % (a, b, int(decoded_ok), len(models), d, burn, EXPECT))
-    ok = a == b == len(models) == d == burn == EXPECT and decoded_ok
+    ok = a == b == len(models) == d == burn == EXPECT and decoded_ok and sorted(models) == direct
     print("SAT_VERDICT|%s|json=0" % ("CERTIFIED" if ok else "NOT_CERTIFIED"))
     return 0 if ok else 2
 

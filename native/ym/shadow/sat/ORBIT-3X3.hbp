@@ -1,0 +1,12 @@
+SAT_CNF|K=5|vars=80|clauses=280|cnf_sha256=899913931be3d191d678595006da0bef109ece95220bf57065cf16ffbd7161d4|fault=none|json=0
+SAT_COUNT|ganak_total=1393|ganak_projected=1393|direct_no_cnf=1393|burnside=1393|recorded=1393|json=0
+SAT_VERDICT|CERTIFIED|json=0
+SAT_CNF|K=10|vars=160|clauses=565|cnf_sha256=a9dae7ae91b9e132a5cfeceddec91723dfe9a162b0a4373d23a3d49df8c05276|fault=none|json=0
+SAT_COUNT|ganak_total=10097891|ganak_projected=10097891|direct_no_cnf=10097891|burnside=10097891|recorded=10097891|json=0
+SAT_VERDICT|CERTIFIED|json=0
+CONTROL_drop_g|SAT_CNF|K=10|vars=160|clauses=545|cnf_sha256=fc2c8442f5f3c8cb8b5da6240f0915ec3f233e881a7af22e05dbd5b092a392c7|fault=drop_g|json=0
+CONTROL_drop_g|SAT_COUNT|ganak_total=16143997|ganak_projected=16143997|direct_no_cnf=10097891|burnside=10097891|recorded=10097891|json=0
+CONTROL_drop_g|SAT_VERDICT|NOT_CERTIFIED|json=0
+CONTROL_loose_aux|SAT_CNF|K=10|vars=160|clauses=564|cnf_sha256=60fd92c4007a4692b61265be4b78db4711e630cb02c2a8c30d3e83651907d387|fault=loose_aux|json=0
+CONTROL_loose_aux|SAT_COUNT|ganak_total=22869534|ganak_projected=16143997|direct_no_cnf=10097891|burnside=10097891|recorded=10097891|json=0
+CONTROL_loose_aux|SAT_VERDICT|NOT_CERTIFIED|json=0
