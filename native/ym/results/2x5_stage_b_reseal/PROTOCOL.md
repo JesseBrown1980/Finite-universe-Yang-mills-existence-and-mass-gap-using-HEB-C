@@ -118,3 +118,26 @@ difference from the fixed generator's certify step is the removal of two lines,
 `test "${{ needs.cell.result }}" = success` and `test "${{ needs.merge.result }}" = success`,
 and the insertion of the seven `RESEAL` binding lines before `mv seal.hbp`. Nothing else
 differs.
+
+## Result (attempt 2, run 40563902487, workflow commit `fe094f3`)
+
+The full chain passed in order:
+
+```text
+RESEAL-MANIFEST sha256 OK; MANIFEST_TOTAL result=PASS; fresh API metadata == frozen manifest (cmp)
+GEN_CONTROL_RESULT|result=PASS                      (on the runner, head fe094f3)
+RESEAL_VERIFY_PHASE1|artifacts=132|size_and_digest=all_match
+RESEAL_VERIFY_PHASE2A|artifacts=132|zip_tested=all|members_exact=all
+RESEAL_VERIFY_PHASE2|artifacts=132|extracted_exact=all|shards_assembled=132
+RESEAL_VERIFY_TOTAL|artifacts=132|result=PASS
+SHARD_INTEGRITY|shards=132|failed=0|...|result=PASS
+SHELL_GAP_CERT|L=2x5|r=9|N(t1)=8|N(tB)=8|...|gap_E9_minus_E8_in=[22613640,22615366]/1000000|...|result=PASS
+MONOTONE_CELLS|L=2x5|points=9|r_range=[9,infinity]|...|min_gap_lower_bound=21778000/1000000|result=PASS
+GITRAM_SEAL|lattice=2x5|couplings=9|gap_certs=1/1|ray_E8_upper=60000000/1000000|status=PASS
+```
+
+The seal's 132 `RESEAL_ARTIFACT` IDs equal the frozen manifest's, line for line. The seal
+is `../2x5_stage_b/HEBC-YM-2X5-STAGE-B.hbp`, SHA-256 checked against its sidecar. The
+`ambiguous=0` condition on every count was enforced where the counts were made: each cell
+and merge job of run 40353983355 required `ambiguous=0` and `result=PASS` before
+uploading.

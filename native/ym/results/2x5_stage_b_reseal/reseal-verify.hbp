@@ -1,0 +1,4 @@
+RESEAL_VERIFY_PHASE1|artifacts=132|size_and_digest=all_match|json=0
+RESEAL_VERIFY_PHASE2A|artifacts=132|zip_tested=all|members_exact=all|json=0
+RESEAL_VERIFY_PHASE2|artifacts=132|extracted_exact=all|shards_assembled=132|json=0
+RESEAL_VERIFY_TOTAL|artifacts=132|result=PASS|json=0
