@@ -105,3 +105,10 @@ The downloaded ZIPs are uploaded unchanged, with 90-day retention, for review.
 - **In the seal.** The seal step's own gates decide the verdict, as the frozen stage B
   rules require: shard integrity, the shell-gap certificate, monotone cells, and
   `status=PASS`.
+
+## Attempts
+
+| attempt | run | workflow commit | outcome |
+|---|---|---|---|
+| 1 | 40563093585 | `b074a36` | **INCONCLUSIVE (infrastructure).** The manifest hash, the generator control (`PASS`) and the fresh-metadata comparison all passed. An artifact download then returned `gh: HTTP 503`, so the step stopped. Verification and certify were skipped, and nothing was aggregated or evaluated. |
+| 2 | (this commit) | see the seal's `RESEAL` line | The fetch now retries each API call up to 6 times with a growing pause (5, 20, 45, 80, 125 s). This changes only the fetch: whether the data is accepted is still decided by the manifest comparison and by phases 1, 2a and 2b. The retry wrapper was tested with a stub: it succeeded after two simulated 503s, and it returned a failure after a persistent one. |

@@ -93,12 +93,15 @@ jobs:
         run: |
           set -euo pipefail
           R=$GITHUB_REPOSITORY
-          for p in 1 2 3; do gh api "repos/$R/actions/runs/{run}/artifacts?per_page=100&page=$p" -q '.artifacts[]|[.id,.name,.size_in_bytes,.digest,.expired,.workflow_run.id,.workflow_run.head_sha]|@tsv'; done > fresh.tsv
+          # bounded retries on API errors (e.g. HTTP 5xx); integrity is still decided by
+          # the manifest comparison and the size/digest verification, never by the fetch
+          get() {{ local n=0; until gh api "$1" "${{@:2}}" > "$RUNNER_TEMP/get.out"; do n=$((n+1)); [ $n -ge 6 ] && return 1; sleep $((n*n*5)); done; cat "$RUNNER_TEMP/get.out"; }}
+          for p in 1 2 3; do get "repos/$R/actions/runs/{run}/artifacts?per_page=100&page=$p" -q '.artifacts[]|[.id,.name,.size_in_bytes,.digest,.expired,.workflow_run.id,.workflow_run.head_sha]|@tsv'; done > fresh.tsv
           python3 native/ym/python/reseal_manifest.py fresh.tsv .github/workflows/hebc-ym-{lat}-stage-b-r9.yml {run} {head} {ncell} {nmerge} > fresh-manifest.hbp
           cmp fresh-manifest.hbp {man}
           mkdir zips
           for id in $(grep '^MANIFEST|' {man} | sed -E 's/.*\\|artifact_id=([0-9]+)\\|.*/\\1/'); do
-            gh api "repos/$R/actions/artifacts/$id/zip" > zips/$id.zip
+            get "repos/$R/actions/artifacts/$id/zip" > zips/$id.zip
           done
           echo "RESEAL_FETCH|zips=$(ls zips | wc -l)|json=0"
       - name: Verify all artifacts before any extraction (all-or-nothing)
