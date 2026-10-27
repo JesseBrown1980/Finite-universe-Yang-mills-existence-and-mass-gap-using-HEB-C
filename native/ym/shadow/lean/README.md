@@ -14,7 +14,7 @@ the trusted base is the Lean kernel. The toolchain is pinned in `lean-toolchain`
 theorem's axioms (`#print axioms`). It passes only if no `sorry` appears and no axiom
 beyond Lean's standard three (`propext`, `Quot.sound`, `Classical.choice`) is used.
 
-These theorems formalize what the receipts' logic claims. They do not re-run the
-production computation. The production counts and the frozen gates still decide
-certification, as the shadow stack's order requires: AI proposes, SAT and #SAT
-challenge, Lean verifies the logic, and the deterministic receipts decide.
+These theorems machine-check the logic the receipts rely on: from checked counts and
+bounds to the stated conclusions. In the shadow stack's order, AI proposes encodings and
+lemmas, SAT and exact #SAT challenge finite claims, Lean verifies the logic, and the
+deterministic receipts and frozen gates decide certification.
