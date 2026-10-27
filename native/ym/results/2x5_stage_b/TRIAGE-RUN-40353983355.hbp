@@ -1,0 +1,10 @@
+TRIAGE|lattice=2x5|stage=B|r=9|run=40353983355|commit=50d6539575b078c23a6402069d27c82ddd523f7a|workflow=.github/workflows/hebc-ym-2x5-stage-b-r9.yml|json=0
+TRIAGE_JOBS|total=133|cell_jobs=132|cell_success=132|seal_job=122291267767|seal_conclusion=failure|json=0
+TRIAGE_ARTIFACTS|shard_artifacts=132|expired=0|earliest_expiry=2026-11-25T19:34:17Z|json=0
+TRIAGE_SEAL_STEP|step=Certify and seal|passed=shard_count_132_of_132,SHARD_INTEGRITY_shards=132_failed=0_PASS|failed_at=sha256sum -c HEBC-YM-2X5-STAGE-A.hbp.sha256|error=No such file or directory|json=0
+TRIAGE_CAUSE|kind=workflow_path_defect|expected_file=HEBC-YM-2X5-STAGE-A.hbp.sha256|present_file=HEBC-YM-2X5-STAGE-A.sha256|origin=native/ym/python/stage_b_workflow.py:213 appends .sha256 to the .hbp name|json=0
+TRIAGE_STAGE_A_RECEIPT|file=native/ym/results/2x5_stage_a/HEBC-YM-2X5-STAGE-A.hbp|sha256=3226ee6a7cfb29d235fff135228ec77a1e754f6845a9e4a2559277ae1e6b0d22|recorded=3226ee6a7cfb29d235fff135228ec77a1e754f6845a9e4a2559277ae1e6b0d22|match=1|json=0
+TRIAGE_GATES_NOT_RUN|SHELL_GAP_CERT,MONOTONE_CELLS,GITRAM_SEAL|counts_read=0|json=0
+TRIAGE_VERDICT|INCONCLUSIVE|reason=infrastructure_seal_step_path_defect|mathematical_result=none_evaluated|json=0
+TRIAGE_EVIDENCE|file=seal-job-122291267767.log|sha256=f4613dbb426c0baac2aa7c512f786b7efc2059fbf21880add8d67c92a0d1671a|json=0
+TRIAGE_EVIDENCE|file=jobs-40353983355.txt|sha256=8db8a487bd007d86939df9f4768aff39d879dca51a5a3f68a7296b99cb26ee37|json=0

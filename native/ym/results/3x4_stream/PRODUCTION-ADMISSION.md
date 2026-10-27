@@ -6,6 +6,12 @@ once. The rule is the Never-Explode bound from the Asolaria reductions work
 only while the resident set stays within a fixed budget. It does not change any count,
 threshold or gate. It decides only what is allowed into memory.
 
+## Status: HOLD (2026-10-27)
+
+The streaming pilot, run 40391283682, sealed `PASS` but measured no memory. `COL_BYTES`
+and `RESERVE` are therefore still unmeasured, and production is not admitted. See
+[`PILOT-ADMISSION-DECISION.md`](PILOT-ADMISSION-DECISION.md).
+
 ## Quantities (integers, bytes)
 
 - **`BUDGET`:** the whole production process's resident memory, the column pool plus

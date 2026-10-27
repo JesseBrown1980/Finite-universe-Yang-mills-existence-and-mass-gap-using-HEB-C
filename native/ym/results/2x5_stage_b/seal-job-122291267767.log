@@ -1,0 +1,845 @@
+﻿2026-10-27T15:44:28.0529081Z Current runner version: '2.338.0'
+2026-10-27T15:44:28.0554769Z ##[group]Runner Image Provisioner
+2026-10-27T15:44:28.0555638Z Hosted Compute Agent
+2026-10-27T15:44:28.0556233Z Version: 20261021.618
+2026-10-27T15:44:28.0556928Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-27T15:44:28.0557693Z Build Date: 2026-10-21T00:45:21Z
+2026-10-27T15:44:28.0558371Z Worker ID: {37bb212f-2d1b-435e-a9a2-acde4c08afec}
+2026-10-27T15:44:28.0559156Z Region: canadaeast
+2026-10-27T15:44:28.0559718Z Cloud: Azure
+2026-10-27T15:44:28.0560381Z ##[endgroup]
+2026-10-27T15:44:28.0562233Z ##[group]Operating System
+2026-10-27T15:44:28.0562858Z Ubuntu
+2026-10-27T15:44:28.0563993Z 24.04.5
+2026-10-27T15:44:28.0564520Z LTS
+2026-10-27T15:44:28.0565066Z ##[endgroup]
+2026-10-27T15:44:28.0565670Z ##[group]Runner Image
+2026-10-27T15:44:28.0566285Z Image: ubuntu-24.04
+2026-10-27T15:44:28.0566912Z Version: 20261012.334.1
+2026-10-27T15:44:28.0568186Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-27T15:44:28.0569816Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-27T15:44:28.0570919Z ##[endgroup]
+2026-10-27T15:44:28.0572622Z ##[group]GITHUB_TOKEN Permissions
+2026-10-27T15:44:28.0575554Z Contents: read
+2026-10-27T15:44:28.0576344Z Metadata: read
+2026-10-27T15:44:28.0576913Z ##[endgroup]
+2026-10-27T15:44:28.0579126Z Secret source: Actions
+2026-10-27T15:44:28.0580072Z Cache mode: write
+2026-10-27T15:44:28.0581099Z Prepare workflow directory
+2026-10-27T15:44:28.0924853Z Prepare all required actions
+2026-10-27T15:44:28.0975622Z Getting action download info
+2026-10-27T15:44:28.4131018Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-27T15:44:28.5658722Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-10-27T15:44:29.0237973Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-27T15:44:29.2759311Z Complete job name: Integrity, certificates, one-point ray, seal
+2026-10-27T15:44:29.3674434Z ##[group]Run actions/checkout@v4
+2026-10-27T15:44:29.3675786Z with:
+2026-10-27T15:44:29.3676660Z   repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+2026-10-27T15:44:29.3680902Z   token: ***
+2026-10-27T15:44:29.3681830Z   ssh-strict: true
+2026-10-27T15:44:29.3682449Z   ssh-user: git
+2026-10-27T15:44:29.3682955Z   persist-credentials: true
+2026-10-27T15:44:29.3683516Z   clean: true
+2026-10-27T15:44:29.3684025Z   sparse-checkout-cone-mode: true
+2026-10-27T15:44:29.3684617Z   fetch-depth: 1
+2026-10-27T15:44:29.3685101Z   fetch-tags: false
+2026-10-27T15:44:29.3685594Z   show-progress: true
+2026-10-27T15:44:29.3686104Z   lfs: false
+2026-10-27T15:44:29.3686583Z   submodules: false
+2026-10-27T15:44:29.3687086Z   set-safe-directory: true
+2026-10-27T15:44:29.3687643Z   allow-unsafe-pr-checkout: false
+2026-10-27T15:44:29.3688740Z ##[endgroup]
+2026-10-27T15:44:29.4766644Z Syncing repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+2026-10-27T15:44:29.4770270Z ##[group]Getting Git version info
+2026-10-27T15:44:29.4773381Z Working directory is '/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C'
+2026-10-27T15:44:29.4776630Z [command]/usr/bin/git version
+2026-10-27T15:44:29.4865240Z git version 2.55.0
+2026-10-27T15:44:29.4893807Z ##[endgroup]
+2026-10-27T15:44:29.4902340Z Temporarily overriding HOME='/home/runner/work/_temp/382af2fe-67fe-4627-9d6b-aea7adc1d9e8' before making global git config changes
+2026-10-27T15:44:29.4904541Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-27T15:44:29.4907304Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+2026-10-27T15:44:29.4959940Z Deleting the contents of '/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C'
+2026-10-27T15:44:29.4971986Z ##[group]Initializing the repository
+2026-10-27T15:44:29.4974899Z [command]/usr/bin/git init /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+2026-10-27T15:44:29.5078572Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-27T15:44:29.5081765Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-27T15:44:29.5083723Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-27T15:44:29.5085184Z hint: call:
+2026-10-27T15:44:29.5086267Z hint:
+2026-10-27T15:44:29.5087266Z hint: 	git config --global init.defaultBranch <name>
+2026-10-27T15:44:29.5088439Z hint:
+2026-10-27T15:44:29.5089595Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-27T15:44:29.5091653Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-27T15:44:29.5092604Z hint:
+2026-10-27T15:44:29.5093287Z hint: 	git branch -m <name>
+2026-10-27T15:44:29.5093923Z hint:
+2026-10-27T15:44:29.5095176Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-27T15:44:29.5098429Z Initialized empty Git repository in /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/.git/
+2026-10-27T15:44:29.5102676Z [command]/usr/bin/git remote add origin https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+2026-10-27T15:44:29.5177157Z ##[endgroup]
+2026-10-27T15:44:29.5178364Z ##[group]Disabling automatic garbage collection
+2026-10-27T15:44:29.5197804Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-27T15:44:29.5231789Z ##[endgroup]
+2026-10-27T15:44:29.5232736Z ##[group]Setting up auth
+2026-10-27T15:44:29.5242492Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-27T15:44:29.5284444Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-27T15:44:29.5672021Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-27T15:44:29.5711738Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-27T15:44:29.5940893Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-27T15:44:29.5981954Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-27T15:44:29.6209788Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-27T15:44:29.6253892Z ##[endgroup]
+2026-10-27T15:44:29.6255595Z ##[group]Fetching the repository
+2026-10-27T15:44:29.6265668Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +50d6539575b078c23a6402069d27c82ddd523f7a:refs/remotes/origin/http0-ym-backend-finite-volumes
+2026-10-27T15:44:30.1443643Z From https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+2026-10-27T15:44:30.1447879Z  * [new ref]         50d6539575b078c23a6402069d27c82ddd523f7a -> origin/http0-ym-backend-finite-volumes
+2026-10-27T15:44:30.1455406Z ##[endgroup]
+2026-10-27T15:44:30.1458073Z ##[group]Determining the checkout info
+2026-10-27T15:44:30.1461479Z ##[endgroup]
+2026-10-27T15:44:30.1463670Z [command]/usr/bin/git sparse-checkout disable
+2026-10-27T15:44:30.1519831Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-27T15:44:30.1552346Z ##[group]Checking out the ref
+2026-10-27T15:44:30.1565428Z [command]/usr/bin/git checkout --progress --force -B http0-ym-backend-finite-volumes refs/remotes/origin/http0-ym-backend-finite-volumes
+2026-10-27T15:44:30.2268547Z Switched to a new branch 'http0-ym-backend-finite-volumes'
+2026-10-27T15:44:30.2274202Z branch 'http0-ym-backend-finite-volumes' set up to track 'origin/http0-ym-backend-finite-volumes'.
+2026-10-27T15:44:30.2285193Z ##[endgroup]
+2026-10-27T15:44:30.2336794Z [command]/usr/bin/git log -1 --format=%H
+2026-10-27T15:44:30.2370001Z 50d6539575b078c23a6402069d27c82ddd523f7a
+2026-10-27T15:44:30.2712030Z ##[group]Run actions/download-artifact@v4
+2026-10-27T15:44:30.2713419Z with:
+2026-10-27T15:44:30.2714323Z   path: arts
+2026-10-27T15:44:30.2715302Z   merge-multiple: true
+2026-10-27T15:44:30.2717750Z   repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+2026-10-27T15:44:30.2719960Z   run-id: 40353983355
+2026-10-27T15:44:30.2720947Z ##[endgroup]
+2026-10-27T15:44:30.4393243Z (node:2289) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-27T15:44:30.4398068Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-27T15:44:30.7846378Z Found 132 artifact(s)
+2026-10-27T15:44:30.7850418Z No input name, artifact-ids or pattern filtered specified, downloading all artifacts
+2026-10-27T15:44:30.7854076Z Preparing to download the following artifacts:
+2026-10-27T15:44:30.7858396Z - merge-m03 (ID: 12746178131, Size: 5600, Expected Digest: sha256:b822cd4832a23609764ad7cc648747197db57c440b367040476f99d9cd68764c)
+2026-10-27T15:44:30.7865069Z - merge-m01 (ID: 12745979110, Size: 7872, Expected Digest: sha256:0f5eade8a6ec730d730a2c092d3bf2b3fbe2ed61e0d58e61954e721f03f685c2)
+2026-10-27T15:44:30.7873176Z - merge-m04 (ID: 12745344070, Size: 4829, Expected Digest: sha256:776446b26a42bb30c80dc3169a8392ae1e4849a40eefcbba48e4c684e18d5ffc)
+2026-10-27T15:44:30.7879802Z - merge-m02 (ID: 12743553495, Size: 5471, Expected Digest: sha256:d452b44570e4d879c06a80f49a9085755c6ca3cea04ce5adaa7a7e0e06476f87)
+2026-10-27T15:44:30.7886931Z - cell-124 (ID: 12743011244, Size: 3308916, Expected Digest: sha256:48015176e0f49b919cf6cf9c1bcefa14d03d3bfc947367d7c562037b41109e0a)
+2026-10-27T15:44:30.7893933Z - cell-127 (ID: 12742099089, Size: 3306844, Expected Digest: sha256:71b0cf165d5246f4d56adb763181d655f833440c4f0f20e8c0ae5f3619b69048)
+2026-10-27T15:44:30.7899743Z - cell-123 (ID: 12741457191, Size: 3310259, Expected Digest: sha256:d1db78f837a46053ef9743238ed91f285411e40b6379a014af2e1c9bf65808ec)
+2026-10-27T15:44:30.7906436Z - cell-126 (ID: 12741444046, Size: 3310386, Expected Digest: sha256:546031a26fc59fd3d450541b3bf1eb12fab8138c6b6f9776f459d489bfd38259)
+2026-10-27T15:44:30.7912452Z - cell-125 (ID: 12740279334, Size: 3312472, Expected Digest: sha256:d557a4ee5e772708dfbd1e82b01dcd85c9d50c102a592c8311e40a21c1be9abc)
+2026-10-27T15:44:30.7918586Z - cell-122 (ID: 12739242918, Size: 3314444, Expected Digest: sha256:acddb0c153ae50b5a4d3fdde76ab6fd38017495d08ef3723b386cdd368dcc25f)
+2026-10-27T15:44:30.7924910Z - cell-128 (ID: 12738830791, Size: 745718, Expected Digest: sha256:d4b1b1053e2d0e5aaabdbb7af9e035bfcc38e95d4b47f713fd25afa62b4e9949)
+2026-10-27T15:44:30.7930867Z - cell-121 (ID: 12735754698, Size: 3314622, Expected Digest: sha256:1c409cdcb3cb134990a1df2cb5e1ebef08da259953e4e5304f5a4a3d1da86dbb)
+2026-10-27T15:44:30.7937176Z - cell-119 (ID: 12735125945, Size: 3312548, Expected Digest: sha256:90571c63c050b06b2ad7b9d1841233c9ed030d0558df772aa504c3fbc5dacbc2)
+2026-10-27T15:44:30.7943552Z - cell-117 (ID: 12734945242, Size: 3311534, Expected Digest: sha256:b5ef7ade28eef5326851f8ba49bc9d9b6f8bd232aa6693d751cc2691519e9d2d)
+2026-10-27T15:44:30.7949825Z - cell-120 (ID: 12734511329, Size: 3313248, Expected Digest: sha256:c01c11cc5f7f057bda8ccbd7b10e6195467abe62f62a091ccab03a5e75fff412)
+2026-10-27T15:44:30.7956263Z - cell-116 (ID: 12733922782, Size: 3312258, Expected Digest: sha256:47681f2030dfc6852c9e950f52907fcd1ccc7d93ded73223f5e7c366f711553c)
+2026-10-27T15:44:30.7963338Z - cell-118 (ID: 12733887297, Size: 3312400, Expected Digest: sha256:464b32068ddfcec537ba0eed8b01a7693d0cd6abdd08658226e9b30b0a0e511f)
+2026-10-27T15:44:30.7969443Z - cell-115 (ID: 12733256111, Size: 3311626, Expected Digest: sha256:675ef57f3647f20979c032c85eed8f11b8a9d1299d8789964ecb8d49b46384f5)
+2026-10-27T15:44:30.7975415Z - cell-114 (ID: 12732519810, Size: 3310002, Expected Digest: sha256:807d158aa35a711170533cd6aa5a35de9aa7ef30907016b80d3666f959c39a3c)
+2026-10-27T15:44:30.7980032Z - cell-112 (ID: 12731592758, Size: 3303737, Expected Digest: sha256:d7569d1387c3b2f070172b2e0baf899ccbf67340a10bf637525fc720beb5714a)
+2026-10-27T15:44:30.7985713Z - cell-113 (ID: 12731203488, Size: 3315976, Expected Digest: sha256:1d0d75d75d9486be3feb493ed37527f83c8a4c343c2fd7003219f5772aa81f59)
+2026-10-27T15:44:30.7991665Z - cell-110 (ID: 12731038225, Size: 3311729, Expected Digest: sha256:0a0191c9c2891c93d03e7db791ef999cd3b077ff1af8b24b0457dacdd8f50a1c)
+2026-10-27T15:44:30.7997502Z - cell-107 (ID: 12730550625, Size: 3304772, Expected Digest: sha256:139977bc7aabb8bd08bdbeadbf70e2457fe1d32891e3c24e2d8ecd898be4306f)
+2026-10-27T15:44:30.8003547Z - cell-111 (ID: 12729615774, Size: 3303433, Expected Digest: sha256:dc9bb0f1335a3d9537ef72103f1cc6a73a5a9d1f3eba068030efee74b4f4ca11)
+2026-10-27T15:44:30.8009398Z - cell-109 (ID: 12729349956, Size: 3313999, Expected Digest: sha256:aaa2e6f46740a2a870096fda5f39cd4cebbbe6cd4ed4d0acd5c85b8e9cd65a6a)
+2026-10-27T15:44:30.8016094Z - cell-105 (ID: 12728492857, Size: 4235890, Expected Digest: sha256:365d2ed7e54817a2f65a74eabf6a70ab9fe74d576c6a93d7d41c1ea8943c353c)
+2026-10-27T15:44:30.8022051Z - cell-108 (ID: 12727528526, Size: 3308890, Expected Digest: sha256:605d5d55d87b94914b0001805a5d82b23d21b6a7108ed7305d0f7abe2e8475a5)
+2026-10-27T15:44:30.8027762Z - cell-102 (ID: 12725683414, Size: 4236488, Expected Digest: sha256:01bf7f67b9285348aeaea765894100bb07317bca31a0b9ed5ccfdb4434f2a0a9)
+2026-10-27T15:44:30.8033717Z - cell-103 (ID: 12725401088, Size: 4234113, Expected Digest: sha256:feeb9fffb9dd645d4571e6ad17aa093ad9134ac722f46ac121a5ebd183b589fb)
+2026-10-27T15:44:30.8039482Z - cell-104 (ID: 12725008471, Size: 4239776, Expected Digest: sha256:90564d9f19c9420b3e8380cc7e77fbb9d72675e3d24893d2c6966431ce43569b)
+2026-10-27T15:44:30.8045325Z - cell-099 (ID: 12724290646, Size: 4239692, Expected Digest: sha256:7f19d6efa30b87e7664c49ab3863ef1194d57787806f79094265a73130b4d264)
+2026-10-27T15:44:30.8051005Z - cell-106 (ID: 12723427225, Size: 1164759, Expected Digest: sha256:4521e2145f7ec786f1d13a2d80ee158ca47283e054816f9c11938fa99b808d31)
+2026-10-27T15:44:30.8056886Z - cell-098 (ID: 12722765875, Size: 4236990, Expected Digest: sha256:43204d0a29a74897086ce8f825735a85bfe1153621fb6f0a471d7e9676f018d9)
+2026-10-27T15:44:30.8063283Z - cell-100 (ID: 12722491931, Size: 4244275, Expected Digest: sha256:f3e0a32c062cbeb816eb2737dff26139de590a5d9623433c036f5cb1d218e9f6)
+2026-10-27T15:44:30.8067475Z - cell-101 (ID: 12722108102, Size: 4247203, Expected Digest: sha256:5f6a676bb104db63fd215f37e90178dccbeee375d2d4a725bc30e6222f9f5ae8)
+2026-10-27T15:44:30.8071061Z - cell-097 (ID: 12721328733, Size: 4242503, Expected Digest: sha256:240bd2963105b54820be19fc0a1fe43d4c861cc31d0d1b595dba632065c1d6ed)
+2026-10-27T15:44:30.8074846Z - cell-095 (ID: 12718850643, Size: 4248507, Expected Digest: sha256:e90bb4384af0cf82db06b9a4490ca0a387973924f75ec33b30ec8215441fd443)
+2026-10-27T15:44:30.8078840Z - cell-096 (ID: 12718666285, Size: 4247535, Expected Digest: sha256:130c4db1def4b0a29cfd8f7b24fefdc970307dd417071b5a959097ef2fd18d3f)
+2026-10-27T15:44:30.8082808Z - cell-094 (ID: 12718003472, Size: 4245725, Expected Digest: sha256:d01b6b2aa4b7ecae702b168b010b94c18efb1d3dc316bd66197226eb6da25667)
+2026-10-27T15:44:30.8086350Z - cell-093 (ID: 12717484610, Size: 4242890, Expected Digest: sha256:2dad317d56238fac5f8bcaded254fd91299cef4fb3e431c7aefcbc5b1f37aeb2)
+2026-10-27T15:44:30.8092378Z - cell-092 (ID: 12717018849, Size: 4244652, Expected Digest: sha256:439ec213594dab3941b25105a2d1ac7963be63f6e0ac258716a7fe5ea7f26b9d)
+2026-10-27T15:44:30.8098633Z - cell-091 (ID: 12716682434, Size: 4248210, Expected Digest: sha256:967209ca22f29a2bd3511d8f5098f76aabe8921c63bfd919e37fe6f25a107c58)
+2026-10-27T15:44:30.8104842Z - cell-087 (ID: 12716641890, Size: 4236618, Expected Digest: sha256:b5cf370279ef916040cd99e6107804d96bbbfdf29e8917117d8438c93076c779)
+2026-10-27T15:44:30.8110766Z - cell-089 (ID: 12716022900, Size: 4247333, Expected Digest: sha256:f32b37c206c3d316457c0670d355ba5e4941e929118779d617377a70e5be7a6e)
+2026-10-27T15:44:30.8117278Z - cell-090 (ID: 12715853992, Size: 4242666, Expected Digest: sha256:acbd8b3aa36841928d6737edd8040ecb214d91774163ba8518b634ca7e928c79)
+2026-10-27T15:44:30.8129311Z - cell-088 (ID: 12715803645, Size: 4245733, Expected Digest: sha256:c7bc8614bde121887b08a7aad8fad5d7119ef195b5c581520a1ed89d2fe77de6)
+2026-10-27T15:44:30.8133654Z - cell-086 (ID: 12713992858, Size: 4246093, Expected Digest: sha256:98e7bc33ac8f8f191d4e8278565c92aba3c40744de2467ce87ce2504a0536d16)
+2026-10-27T15:44:30.8139130Z - cell-084 (ID: 12713121519, Size: 4238571, Expected Digest: sha256:fc85499d5eef43231a0c9ba9e182bc56fabee335593d6311453d09bf282a2c1f)
+2026-10-27T15:44:30.8145875Z - cell-082 (ID: 12712865810, Size: 4241138, Expected Digest: sha256:4b212b458c625e90542590bf4115201c772c693f2b456d6ec4d4f46e8d70d19c)
+2026-10-27T15:44:30.8154258Z - cell-083 (ID: 12712702914, Size: 4237004, Expected Digest: sha256:e69c5df865deab435703f3b722951a5ba7a6ddb88b2ea07ba511f7599a37c7cb)
+2026-10-27T15:44:30.8157759Z - cell-085 (ID: 12712379756, Size: 4242800, Expected Digest: sha256:648110884126a0418c9690d56cfd1581389052189a7d4927503c40ba465f5ced)
+2026-10-27T15:44:30.8161702Z - cell-081 (ID: 12711952637, Size: 4250382, Expected Digest: sha256:a0752faca6ad7af5ed4b838c232c42e941fd4b3614428813db119424e54308c7)
+2026-10-27T15:44:30.8170901Z - cell-079 (ID: 12711683249, Size: 4234229, Expected Digest: sha256:4e1a80edbe8847a4cf57a7739fd2535001a80ceb592850e7451b0424c0f0e8cb)
+2026-10-27T15:44:30.8174806Z - cell-080 (ID: 12711452519, Size: 4253505, Expected Digest: sha256:2a36ed6a98e05fc5a5c09f29e4b7fb10f19fe109bddb2bd53488346765027632)
+2026-10-27T15:44:30.8178238Z - cell-078 (ID: 12708071743, Size: 3650406, Expected Digest: sha256:d59b8a95078da77b1f2c5e4b0541137236132c583a55229d36eb518a2d0b3846)
+2026-10-27T15:44:30.8183385Z - cell-076 (ID: 12706893625, Size: 4187496, Expected Digest: sha256:b6557ac03aad7117918cbde240ad90d8139c6a786ad7228e66f8244ab4d3d721)
+2026-10-27T15:44:30.8186925Z - cell-077 (ID: 12706673939, Size: 4142409, Expected Digest: sha256:0b13cdc65800667b5f2f1307c51e7f5ef329f4bb58b32f3efa7f19a7c8630435)
+2026-10-27T15:44:30.8196777Z - cell-075 (ID: 12704798570, Size: 4133229, Expected Digest: sha256:6dc9cbaca3e79287c5c346cf5f2a294ce96a2192a6503e4782f6dab941b1dea0)
+2026-10-27T15:44:30.8200633Z - cell-074 (ID: 12703011661, Size: 4181002, Expected Digest: sha256:bf0fbd98625f450fb3a832af56cbb2be849a9df322dbb63f6d7e03ea99c4d204)
+2026-10-27T15:44:30.8205752Z - cell-073 (ID: 12702551968, Size: 4169499, Expected Digest: sha256:77ccbda65496c344a4224eb2405abce8e0eb688bebabda464ba29004e288d82e)
+2026-10-27T15:44:30.8210626Z - cell-071 (ID: 12702054026, Size: 4191034, Expected Digest: sha256:08c1fedc5ece8ec92b2b5fd02540dc4d31c636e59eadfa9bcabb9bd6c1ce84bd)
+2026-10-27T15:44:30.8214717Z - cell-072 (ID: 12701509402, Size: 4182585, Expected Digest: sha256:aae40e995ee7d2ed1f428a9f3f82e5c48ce685b168f7b18f7060ee394b38d359)
+2026-10-27T15:44:30.8219111Z - cell-070 (ID: 12701303671, Size: 4192682, Expected Digest: sha256:bf6df58ddda1f53a64094e186673da6b5cb57b643ce48e1e5b240eb9c083e3eb)
+2026-10-27T15:44:30.8224383Z - cell-068 (ID: 12699364079, Size: 4185307, Expected Digest: sha256:aba3c8db3fd1e68822e79a1842162ac6f4a4faeec06fa3f3ce6c8ad44970ba6e)
+2026-10-27T15:44:30.8228307Z - cell-069 (ID: 12699039056, Size: 4195267, Expected Digest: sha256:953a025addb2eccd928e1d5b22f2262a4c528854e23af7c7bf5593840befd416)
+2026-10-27T15:44:30.8233010Z - cell-066 (ID: 12698420512, Size: 4193032, Expected Digest: sha256:aa2d4dd70cb841fd04c53b89363790fc33d05da369588bab0c024bbdd01cd7a0)
+2026-10-27T15:44:30.8237222Z - cell-067 (ID: 12697844474, Size: 4182452, Expected Digest: sha256:98eedd9a6c46a56dc7f55d411f443bc43b9256984feb256b61a2c3c315aeea2c)
+2026-10-27T15:44:30.8241001Z - cell-063 (ID: 12696102747, Size: 4180826, Expected Digest: sha256:70527a3f68a22bc8fd4ee6b7447a29f10a15868b0ef3882e1376145a5bfde43f)
+2026-10-27T15:44:30.8245235Z - cell-062 (ID: 12695443963, Size: 4163266, Expected Digest: sha256:5c1cd725296cb2efa7c3fc3695e9f498d74d855aadd067b9a297abe3b9c1c800)
+2026-10-27T15:44:30.8248824Z - cell-061 (ID: 12695237630, Size: 4183891, Expected Digest: sha256:9e3599913feda1ab0c7269e0f9e697feaf0fd9b700a5aebf86a0550702f97934)
+2026-10-27T15:44:30.8253922Z - cell-065 (ID: 12695128337, Size: 4190430, Expected Digest: sha256:6885e431cb19509d3bac39b9174f65b7df3eeb59261f77827f05e9773cf9b356)
+2026-10-27T15:44:30.8259979Z - cell-060 (ID: 12694750655, Size: 4185543, Expected Digest: sha256:de64cd5c57ae5ebf635162ece7eefa1992c3d749fec23fc4dd22aadc421c4297)
+2026-10-27T15:44:30.8264570Z - cell-064 (ID: 12694437022, Size: 4191304, Expected Digest: sha256:5f14aea12cb4b703ae12af14cbd5099f135d6a8f606f2e6e2a89ed324ac98475)
+2026-10-27T15:44:30.8269404Z - cell-059 (ID: 12693407746, Size: 4185637, Expected Digest: sha256:96f1adc4d7aa386de2109ce351ce9eb609440c46d48c7867126da0ecd71273b6)
+2026-10-27T15:44:30.8275403Z - cell-058 (ID: 12692633543, Size: 4189505, Expected Digest: sha256:5b3ffd4ff1b5d39b7ffe9e4a0ff455436c7f9f67d91a671e39ecaecc262a592c)
+2026-10-27T15:44:30.8279890Z - cell-057 (ID: 12691856473, Size: 4178751, Expected Digest: sha256:d17f63623f0889ca4ae8f2965ae57dd84823e52f85e70cac348978ceb33527e6)
+2026-10-27T15:44:30.8283928Z - cell-053 (ID: 12691665110, Size: 4194865, Expected Digest: sha256:367002582de487456797ad0e4719ddf7b9953b6aa61983092ff4637c0cb0cdca)
+2026-10-27T15:44:30.8287600Z - cell-056 (ID: 12691356462, Size: 4177902, Expected Digest: sha256:56ad3215cb9f8adf79181830aaa80f7a87bbef95bb5d0e76eb23a0e68b66228f)
+2026-10-27T15:44:30.8292340Z - cell-002 (ID: 12691263295, Size: 1725, Expected Digest: sha256:6547c7bc18c4956824aba4b1bf9e5d2431b1af79248b1f223d3b23563aa02e19)
+2026-10-27T15:44:30.8295954Z - cell-055 (ID: 12690221809, Size: 4178929, Expected Digest: sha256:43ab6771b989aea78d3192caed178e8c2dfc283cf759feb405db60f0276d387e)
+2026-10-27T15:44:30.8299834Z - cell-041 (ID: 12689336651, Size: 6994657, Expected Digest: sha256:060a678daa9203c2ec9a2c322fdcf75361cf78fb13a3f85dadaaaaf63e530d9f)
+2026-10-27T15:44:30.8304298Z - cell-049 (ID: 12689162187, Size: 6988262, Expected Digest: sha256:eca18888ac316552b46cad2cdfcb7f066c1d4a92fcb8d9b549ac7f7000fa234c)
+2026-10-27T15:44:30.8309572Z - cell-044 (ID: 12689070355, Size: 6954263, Expected Digest: sha256:8d1aa87783a9f7b6cfc26fb57745624db5c987432082559002615689a39d6d00)
+2026-10-27T15:44:30.8313518Z - cell-054 (ID: 12689047690, Size: 4177449, Expected Digest: sha256:a22ecf58fc704f0b894c209c036c5f74a80f200cdc225ca31b9b5db5b626d66d)
+2026-10-27T15:44:30.8317207Z - cell-052 (ID: 12688614008, Size: 4171594, Expected Digest: sha256:297c2c3e9f309283c7d6d5a6bc860d331ed411285347e63b6880fd4ccbeb59df)
+2026-10-27T15:44:30.8322300Z - cell-001 (ID: 12688380781, Size: 1720, Expected Digest: sha256:a84d25b0042d232e183600c6d4dae4cf3696950a026278f77e03f58565ad0cbb)
+2026-10-27T15:44:30.8326572Z - cell-045 (ID: 12687681690, Size: 6978263, Expected Digest: sha256:2436e9e8ba9364a24b71b72acc66cac90222adb2b1e4f220aa7e5144b7554b65)
+2026-10-27T15:44:30.8330314Z - cell-048 (ID: 12687625948, Size: 6984306, Expected Digest: sha256:474d0e20fd4066112254806b69ce6b1adf440982846a41737ba4d3c68915bd65)
+2026-10-27T15:44:30.8334359Z - cell-050 (ID: 12687484420, Size: 6907569, Expected Digest: sha256:e002ada814fceb4b21bdb9fe0cc808f5d0d3bbe7e65c81a4267f9e843ae1be5f)
+2026-10-27T15:44:30.8338593Z - cell-043 (ID: 12687409600, Size: 6959542, Expected Digest: sha256:bd6ac5d7b933df91351b3f958c1a705da9efea11adbcd9de746309fa9befeded)
+2026-10-27T15:44:30.8342728Z - cell-046 (ID: 12687332657, Size: 6943278, Expected Digest: sha256:9a948de2a902e81ff9b5f6a47c34ce4f197b8d8cc1468bb8da98b83815f1ff10)
+2026-10-27T15:44:30.8346794Z - cell-047 (ID: 12687202901, Size: 6932126, Expected Digest: sha256:7785806a89dcf9e03bc78cf5f74f32b0968d2950c7be9dbcdff0da893a9ab4cd)
+2026-10-27T15:44:30.8350738Z - cell-040 (ID: 12686858147, Size: 6955808, Expected Digest: sha256:9bb44af3ceb390d9722260275b383ee0662b6b3dc12e8d589f0667698307faca)
+2026-10-27T15:44:30.8355345Z - cell-042 (ID: 12686094306, Size: 6893047, Expected Digest: sha256:fa376d06d58b874be238df1382b0319ef71e36bf1476f532beb4195d057389ae)
+2026-10-27T15:44:30.8359932Z - cell-039 (ID: 12686021414, Size: 6933265, Expected Digest: sha256:09a40b3efc9712412f85164f3a63d2e3c578c420da210b7b47b86b3bda70974e)
+2026-10-27T15:44:30.8365534Z - cell-004 (ID: 12683485832, Size: 1744, Expected Digest: sha256:6f2cd7b9fecd8a0992286148b90a0a376adafb02e0908d1504183d42762eac4f)
+2026-10-27T15:44:30.8369839Z - cell-038 (ID: 12682297278, Size: 6923255, Expected Digest: sha256:71f1ba7e95f45cc0c6c2068f6ce756727d2b8ebd6e41547bd29e195c15e20462)
+2026-10-27T15:44:30.8374046Z - cell-032 (ID: 12681709501, Size: 7017465, Expected Digest: sha256:8828a7e304d780be40d338db16a10849cab0669893f7a245605b577f6677b3d1)
+2026-10-27T15:44:30.8377355Z - cell-036 (ID: 12681484429, Size: 6835469, Expected Digest: sha256:cca85e1a2abf05e7699faab35d6614529fc931877f72ec22f81d081530e6a30e)
+2026-10-27T15:44:30.8382190Z - cell-035 (ID: 12681383733, Size: 6889216, Expected Digest: sha256:b335a532f2e3bbc0b046ad98b31cf6a8988716155f1afbd3c27f2ce0d6e17651)
+2026-10-27T15:44:30.8387883Z - cell-034 (ID: 12681124168, Size: 7006999, Expected Digest: sha256:0f73f04aaaec15f3324f0d52c8c80d99b388cd7090a59e2e11f209895b6cf510)
+2026-10-27T15:44:30.8393967Z - cell-051 (ID: 12680834617, Size: 347145, Expected Digest: sha256:fa7ef5fe02a8dc2cbb6b9d673dbc1ac4087fb69a64cd08f843ac02462030e96a)
+2026-10-27T15:44:30.8399759Z - cell-037 (ID: 12680747223, Size: 7002789, Expected Digest: sha256:aac45061d8384723ca5040f02304dd471cbb8078e2dea04c76e49409c2db6f57)
+2026-10-27T15:44:30.8405715Z - cell-026 (ID: 12680610437, Size: 7001772, Expected Digest: sha256:3b6848b38743692cd47d979641222a01dcee457eb75c870e039ba2c37b9a1e62)
+2026-10-27T15:44:30.8411818Z - cell-027 (ID: 12680053750, Size: 7013847, Expected Digest: sha256:dfd5504c1a834f7afa9a49f65384653b0684be63717e18ea2e51c533cf7678cc)
+2026-10-27T15:44:30.8417691Z - cell-029 (ID: 12679805688, Size: 6969099, Expected Digest: sha256:3d8c4ac4b54640ca354ba19c9d5c59f10bcc73bb55719b22b654d25b4f15ac44)
+2026-10-27T15:44:30.8423738Z - cell-028 (ID: 12679484032, Size: 7015588, Expected Digest: sha256:7f81bad605c86389131a415887e865fd5358a8cbf91f7bcf9a94000a23e5d41e)
+2026-10-27T15:44:30.8429546Z - cell-025 (ID: 12679216106, Size: 7011216, Expected Digest: sha256:a2b9f7f30c02a7efe5f1c3331023f128e2f79bc7cd6b9d80cdaec8e7a31ff6ee)
+2026-10-27T15:44:30.8435648Z - cell-022 (ID: 12678648264, Size: 6964344, Expected Digest: sha256:a646ac9d693b672bc9827c3fae448662dde817450460638ed3381f9802cedc08)
+2026-10-27T15:44:30.8439654Z - cell-031 (ID: 12678602926, Size: 7008858, Expected Digest: sha256:be5cebd4538c8c3e56efc4b42c99c462b87b48bf304c297c354e8616ee6f6b4b)
+2026-10-27T15:44:30.8444835Z - cell-033 (ID: 12677973078, Size: 7012936, Expected Digest: sha256:3ddbe6b6cf7847f8eb3418ec6a634ffd55a90bd457275e45546129e1ca221e75)
+2026-10-27T15:44:30.8450241Z - cell-024 (ID: 12677854567, Size: 6975625, Expected Digest: sha256:39efb126a6782a517f124292949ae58407b036705e243a0b31da110252028017)
+2026-10-27T15:44:30.8454323Z - cell-030 (ID: 12677619954, Size: 6985584, Expected Digest: sha256:60f94042ecd1bf2d7d3b8a5ddb93f00731bdab79dbb07a300070c0530b459338)
+2026-10-27T15:44:30.8459889Z - cell-023 (ID: 12677308587, Size: 6989721, Expected Digest: sha256:5f944740d46511bf23f0c28bdd7563d2ea0dc8ae0640d43dea97ae71e85dcf54)
+2026-10-27T15:44:30.8465759Z - cell-021 (ID: 12675422144, Size: 7004457, Expected Digest: sha256:eb50ad7422807a54545cfc304b14863905bf3564ce9616dd00325e8099b14693)
+2026-10-27T15:44:30.8469862Z - cell-010 (ID: 12674385974, Size: 6993683, Expected Digest: sha256:a9f6d2d9d088e69a93c709162ca68036c8f48f4ae202e7e50f884dcefdd2b0ac)
+2026-10-27T15:44:30.8475494Z - cell-017 (ID: 12673467041, Size: 7013612, Expected Digest: sha256:cdbf73388fd181c00e31f1d438aa8f846fef66c31e33eea857487669620a63f1)
+2026-10-27T15:44:30.8481423Z - cell-018 (ID: 12673142132, Size: 6962550, Expected Digest: sha256:3a54836f620cb77e4407c7053816a474423093a7b04d0c6b25ffec1aa8562d3e)
+2026-10-27T15:44:30.8485173Z - cell-003 (ID: 12673126369, Size: 1745, Expected Digest: sha256:1c0b56ab2bdea495401f35723f41e9bb5908ad6aa9faa81b162b9e33f4a19a02)
+2026-10-27T15:44:30.8489025Z - cell-020 (ID: 12672674759, Size: 6963222, Expected Digest: sha256:ca2853568bf592d62bf7528fa21b5dc639dfa3916229eebba4cc151c020fcb3d)
+2026-10-27T15:44:30.8495386Z - cell-019 (ID: 12672436012, Size: 6967158, Expected Digest: sha256:069f7faa61d972a84751bdca950759724c87200cce4b65e374512060158310db)
+2026-10-27T15:44:30.8499710Z - cell-009 (ID: 12672266340, Size: 6991977, Expected Digest: sha256:06fc798c599998acee75c1bfc301800c50f24495ad256a928530598690a839f2)
+2026-10-27T15:44:30.8504077Z - cell-006 (ID: 12672120287, Size: 6803991, Expected Digest: sha256:55e67314e8c295c5f6c625e61364181596ce545de3cf0cd3705988478e9ac4c5)
+2026-10-27T15:44:30.8509010Z - cell-012 (ID: 12671770803, Size: 6983795, Expected Digest: sha256:dbffc2064ad97b4b44b7a3dd4d5b42fa9b6d2090f128b3f308ca874de525bdab)
+2026-10-27T15:44:30.8513097Z - cell-013 (ID: 12671594371, Size: 6989885, Expected Digest: sha256:5cd53cb0faa428fa74b0f86b328509e5ef03679fad2ff32f7897d9652ecc0f7c)
+2026-10-27T15:44:30.8516331Z - cell-007 (ID: 12671334090, Size: 6832363, Expected Digest: sha256:27272fcf40642ad41f9ac83747ce06f03dcf50df001723f710608941da3da48a)
+2026-10-27T15:44:30.8522549Z - cell-015 (ID: 12671026393, Size: 6969393, Expected Digest: sha256:0a6e0d3e61ebf92568be212c271154223eb306dbd9eeec2ca307129899f3e72f)
+2026-10-27T15:44:30.8527149Z - cell-005 (ID: 12670704920, Size: 1764, Expected Digest: sha256:dfe6457c960eeb3fe7fd096aed05489413184c28bceeeaab2779e8e49ab23693)
+2026-10-27T15:44:30.8530531Z - cell-008 (ID: 12670624595, Size: 6987018, Expected Digest: sha256:3fed7840d9ae85d32695b1d8590584a4be77e3c150d67902ad02899ce5218a41)
+2026-10-27T15:44:30.8534037Z - cell-011 (ID: 12670618308, Size: 6931913, Expected Digest: sha256:ea1b9d380da62e298a021172cb6e02b075a516f14d252aed4248ad036560fc39)
+2026-10-27T15:44:30.8539791Z - cell-016 (ID: 12670406281, Size: 6994129, Expected Digest: sha256:1ae643b37cfd730d9483298c6c2f663ed4a1b126fb92d55ccdf5557b42566700)
+2026-10-27T15:44:30.8543996Z - cell-014 (ID: 12670299433, Size: 6960378, Expected Digest: sha256:0e7ebac3ae521e2f0b05c802a2c6e02ddbe91e24bdf0d619ccfd41c446e1edcc)
+2026-10-27T15:44:31.2046616Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-cfde9be0-3be0-505b-bf03-20d9d0866d1b/artifacts/dbab3ec6ae3a2939bab045c3ab309b4e814005aaf9a9afa0a3aea053a6ee9ef6.zip
+2026-10-27T15:44:31.2059191Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.2995891Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-e91632d6-6818-5a22-9935-95e09f6fe2dd/artifacts/4a364dc3a89b0db51d2d152b3f57db8bf891b1099e3ca35e1548d5bb1b8741c7.zip
+2026-10-27T15:44:31.3007695Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3028180Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-87517412-bf9a-55e1-9a5b-e6462dba7ef4/artifacts/4997d541a1c03a097d2495e6b51092320ddc2cb45e65fcba824934379f5a1c39.zip
+2026-10-27T15:44:31.3040072Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3064103Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-115353d0-e675-554e-b8dd-b9a779f2722a/artifacts/13697b67e41ae55be1bb78b31e1887c9e8008ab6b345d552394737ad4ccd762a.zip
+2026-10-27T15:44:31.3076732Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3097936Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-a14d4c0d-54f4-569e-bf1c-6fe5c0e510e8/artifacts/17d9d98f23cd4bb83bb3e518a65d72d746504131ec76d1fbf6d9cd78e639d1d5.zip
+2026-10-27T15:44:31.3109825Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3130925Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-46558af3-3487-5fdf-848f-85c37d7adc3b/artifacts/922107851da8eb5b75484cbbcd60df8e641bdb43d442d942d6659ebfc1e07d55.zip
+2026-10-27T15:44:31.3142822Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3164058Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-8bf76836-ec48-5363-846a-1c64fb22ef6c/artifacts/d531abad20305551c576b974fbc8e9a18279d310841014dc745de5e28e273c52.zip
+2026-10-27T15:44:31.3175599Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3196577Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-a89f5f4e-213f-561d-b561-d105a8a4cb28/artifacts/e6fb019aad994d6af99fd7779b274949ac98262ffde0a30f1b60627c48ed2888.zip
+2026-10-27T15:44:31.3208270Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3229231Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-2fcefc9e-5784-5aae-b6e2-22e2c6ed2de3/artifacts/9700e815e025a46d209079170e33f44ed84a6fc907fba80f51de15efb7be07d7.zip
+2026-10-27T15:44:31.3241534Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3263612Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-25fc604b-3064-53f3-86c2-682d89ba5bd7/artifacts/ba6b0536a6bd53065a47f518cabc060da7e5352d414cf208344e4dde854281f8.zip
+2026-10-27T15:44:31.3275289Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3317439Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-a9356378-3d34-51ad-b682-07b456d940af/artifacts/50be698835d9d08a6180979a4a559045eac2f4893cc91a814a3754eced5b3fd1.zip
+2026-10-27T15:44:31.3328775Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3710329Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-5cbf47c1-b40b-53b4-b6bf-cec8e536e56b/artifacts/88b9620428aaaf8711594eeebe6476d2f5cd1a5e9eeb8e30d86ddd995c3c8a20.zip
+2026-10-27T15:44:31.3722495Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3744954Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-d9ff7839-1c3c-5ab3-8988-ea6223ff9f64/artifacts/ee7fd6118617d07f4bac1659d8b599d7e7d41b2a4025995a5b487d2852488607.zip
+2026-10-27T15:44:31.3757354Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3779557Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-f8e797fa-92d5-57d7-af40-a77b8624ed75/artifacts/ddf1ce151b4494acda25466d6e8800a2c8e97d35d6e1a60b76a683ce824005aa.zip
+2026-10-27T15:44:31.3791562Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3813623Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-e6001d5b-289b-5a29-96ad-7f5318aeb6c9/artifacts/d77131b0461110bfbace3a4ebbe9aea2a0d9136112d9883487fb863a9fc8f411.zip
+2026-10-27T15:44:31.3825637Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3848277Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-385c6a23-c073-5c9d-936e-6ba109f1a5b6/artifacts/deb539b93390931320832a0ac97bf628dfba447fa8b070359789ef52ca1fb6d6.zip
+2026-10-27T15:44:31.3858757Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3878436Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-14ef5ca3-e6a4-5049-b433-d2ca1119ec73/artifacts/88dbf58f3d39ac1e99349b6867c36fcdc45b8ab1b1107ce9ae7ba7f9f75a42c1.zip
+2026-10-27T15:44:31.3889289Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3905824Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-a23fa22a-0b1c-5b29-bc1e-daa8a35c5d97/artifacts/e28eecc5e1d2aab068855bbffb1a38db6c61a120948b939ca1acd430e5ed34fb.zip
+2026-10-27T15:44:31.3916667Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3936191Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-fc868650-ed37-59d6-b59d-0af5a0c8a97d/artifacts/8d45e80034cd404873ac7e5945bc67c3a04282188515209dd2478c171a03622c.zip
+2026-10-27T15:44:31.3947514Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.3967467Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-f1e3fbf2-696d-5d2b-b804-835fe6044adc/artifacts/0301e720b40ca71465232a365a27b63e6cad32e0b3393d5fa4c9f8db7a6280b0.zip
+2026-10-27T15:44:31.3979556Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4003661Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-a7c45cd7-019c-576b-a176-3dc385228a8b/artifacts/a50c36f1d7c0bdb1380f88fda4d2220a826c9995de90366de2f1542e540bf654.zip
+2026-10-27T15:44:31.4014627Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4037881Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-86c50fb7-a78c-534b-89c5-499dee69fd55/artifacts/cb14163e075a696026a94fc0eb7bdb53be9938a6a7a605acabfcb576e6a4131c.zip
+2026-10-27T15:44:31.4049226Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4082168Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-69f251d1-669c-5a3b-9ca1-8b9884e22353/artifacts/bc8dc38c666ddbd19db8fb239aa2f40a2e14f913460c482710ef77e07ccee2a9.zip
+2026-10-27T15:44:31.4095105Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4120869Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-5f494cad-80ad-5daf-b38f-bdc164ecdf33/artifacts/0064326d56866438418e9a955ee03befa19223a232639c21e12909ff1dc6c979.zip
+2026-10-27T15:44:31.4135300Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4167409Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-f4699c77-1458-5ea8-93c2-52f87c74a17c/artifacts/0888dd5c73d5d731e2689003dd73f4e8cb6a033616d040c1c946a462a45e38be.zip
+2026-10-27T15:44:31.4178192Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4209434Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-73f3ccb2-dfa6-5c53-86e7-238f7aac0213/artifacts/a62ccc8319e8f4bc57f63033f69a9cd5cb427609422cc98de5e4d67ea697b064.zip
+2026-10-27T15:44:31.4223660Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4248780Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-fcac27bf-9fa6-52c8-a365-89bd87f6dfb0/artifacts/350632f24783816b590f4ff52c0ca9975fbd12a55879c37c57d4d6449fbd5b96.zip
+2026-10-27T15:44:31.4261937Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4283638Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-f541a32e-39b1-5e57-bfa1-86a3090022de/artifacts/8c904cb9690e058251020475a64a4dbbf32619a3f180bf7b9c9c9b3df0c5d325.zip
+2026-10-27T15:44:31.4296480Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4315367Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-c1d26b76-a37c-5ebe-b7f9-377e378a9755/artifacts/5fd1d5470dbb12f24966dea0f8d66a797fa4eadab9a8ce701c40db1246f361a4.zip
+2026-10-27T15:44:31.4328240Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4356409Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-84025b51-e8da-57e6-bc89-dafc9e044d41/artifacts/ad868214f08df81ff67de61beb8eae3a7c89558c1e34f3094650c79792f5d519.zip
+2026-10-27T15:44:31.4365657Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4388496Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-42eeb257-509e-5860-b439-daa17468ce95/artifacts/699c4b94b72d23edcb16041fb5686edf72eb1e44e243df0622348a6816d4d5ed.zip
+2026-10-27T15:44:31.4399163Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4424026Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-1929b2aa-7eb2-596f-aae1-6f5edcf2c814/artifacts/ead5f2dd8d82b77aabe492cb73b30c6b5e41dab6795d05a377f809ae8106c3a8.zip
+2026-10-27T15:44:31.4433742Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4502827Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-62886d07-66ee-5cc2-8aba-67dbdb615512/artifacts/bc5c9961056b3ecaf93c4bbbb658fb9b157bc99b8b81236cb2bb8ffbae298731.zip
+2026-10-27T15:44:31.4511689Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4531769Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-59661e15-7c98-5d64-aa0f-adff4ab47241/artifacts/c09e6ef0479dd879e08f238dd00d4c098a61d8163560b04ed6b5f3acee8ab2a2.zip
+2026-10-27T15:44:31.4539914Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4565953Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-12304e17-563f-5d77-8f23-e05ac606c3b9/artifacts/0a1ca80460f3adea80766424cd90b42e48231ebd51212d72b91d9ccdcbd5715e.zip
+2026-10-27T15:44:31.4575296Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4604729Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-3029dbbf-d36a-50f5-b5e6-ed4f85774dbe/artifacts/ecae6d0dc1988e630e78191d1c459cb83c8ba55046b31d3cd16d451bfd4d6f56.zip
+2026-10-27T15:44:31.4613721Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4657638Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-0ff9b47e-e58b-5a3e-b61b-a2b22a0c9605/artifacts/4559597ccb9030e47be46c6fa6c7c3f45fc0fc165b700beba70f582b5d7874ea.zip
+2026-10-27T15:44:31.4665528Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4686015Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-b1add419-8f76-5684-8e7d-8331aa55e508/artifacts/e465dd9c629c28631844de004068ddb6ee6c64e2d6cd7c5c1f38919aaa85b1c8.zip
+2026-10-27T15:44:31.4693668Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4709388Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-9c685386-bfb5-553b-8db2-7e0b91a0f578/artifacts/edb53d919d58bdaecf0ad071bec2e57b328ab57fab6cd0d5473dc0054c44dad0.zip
+2026-10-27T15:44:31.4717048Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4800393Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-09f2764d-0133-52a3-bc2c-23bb3188f87e/artifacts/0fa6444e9cbb0ee5efe7e2b508d691f9250c5524cc865e26fe123b56d30e1a29.zip
+2026-10-27T15:44:31.4809339Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4836870Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-fc77f0df-65d1-5ca4-9664-c8454c9b9cb6/artifacts/e22ed8c67a1f43118292d1abf9d168aee7df3d9365a35365691dda70f9481e2c.zip
+2026-10-27T15:44:31.4850982Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4880447Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-bcf0da4c-fcbd-5bca-93dd-37488f064c72/artifacts/effd9486871edb9dbfcbb0db233f9a602effc5f87a51fd933f4a2fe7cb163946.zip
+2026-10-27T15:44:31.4896120Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4936449Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-69fa3b5b-014b-5a69-ba13-edae2e87b8e8/artifacts/4e14a3fd94b81936c234f861912dd718e710161af33dda7e44bfeaab623dca08.zip
+2026-10-27T15:44:31.4950609Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.4988233Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-d92b7c0d-3600-57ea-82ed-a57eccfad7c4/artifacts/03d1419891ffa001892ab0d84587a060322306d7eff6f53eb7ce6f10c2486429.zip
+2026-10-27T15:44:31.4999854Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5027141Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-47de49ff-f83d-578a-9bb5-6d6f36aedf98/artifacts/d926bae23ea10d5562dfc71cb80011a248b8e423184897a71838806406c3a9a7.zip
+2026-10-27T15:44:31.5041602Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5067386Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-c8448fa1-9b39-501d-8f26-a73c2436c1b8/artifacts/4a85f38f91c77ff69da75e834b73ccd80e3b73f6cee29b9e8bf9bc1673220100.zip
+2026-10-27T15:44:31.5100080Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5127134Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-78162dcf-c578-5050-ba28-bec1ba96eb88/artifacts/f2934c90cef1442de5ff4c00d1d4752546535df83ad3dd87997074c09f67010e.zip
+2026-10-27T15:44:31.5139879Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5168327Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-138a8588-6dac-516f-b47c-111e7cb20ce0/artifacts/cb1ce24bb8b235c6b34dc124315582d8527b14d90eec8d4a7abdaa577c91a1dd.zip
+2026-10-27T15:44:31.5178777Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5207469Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-dedb2f87-a0b1-5093-9c9f-7a29b353e979/artifacts/a65cf4ead5831cac0d5f9042a869111fff7ea1fa95215f3d867ed8f481050449.zip
+2026-10-27T15:44:31.5218953Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5248450Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-b80ee4fd-1f14-54ee-b5dc-b1e42b679731/artifacts/ff7a21117924a7e464555c60957f4cc2664c404d987ed9b1bda59015a8c13a81.zip
+2026-10-27T15:44:31.5258594Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5276804Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-3c8ad057-cb65-5ce9-abdc-05e5ac7c9402/artifacts/6acf98e16739c51dd7d08278f85883b35d2b765aad3583c5068e8b9e8998f250.zip
+2026-10-27T15:44:31.5285118Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5303090Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-2de88e15-0aaa-5fce-a11e-62712d236a06/artifacts/7ab159135eb4e25bdaf1f9d922aa6238e542de3dc2377a31c3d36f6ab56f0ef5.zip
+2026-10-27T15:44:31.5311020Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5338247Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-f7d1bf7e-1e25-5217-b9cf-aa1dad84b268/artifacts/abd9ded5a3d1d5180a38ee5df7403a49b2b2cb79d9ed32060ae529051f041b87.zip
+2026-10-27T15:44:31.5346883Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5370307Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-f930e49a-99f0-530f-ac04-97836483f88b/artifacts/67b4e4544c81f5f88eb01270ea41d56c1d0a5af3690f2e05f73aaed8e090c006.zip
+2026-10-27T15:44:31.5378409Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5396460Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-8276a37f-a005-5218-8c79-b467b4c133f1/artifacts/b1e810473613b232782a7a9ab3be72a67a49602a4dd97ee1a7841d836436c8f1.zip
+2026-10-27T15:44:31.5404892Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5422804Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-964231e5-2fdd-5b19-bdf2-6a4647cbe9ac/artifacts/09dc8b0d3c2af18627625e159ae405c54b854be14a405e8995c6ffb8965ad514.zip
+2026-10-27T15:44:31.5430822Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5450261Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-1c71b5fe-eeab-57c6-a6bd-82502e037cdf/artifacts/98e517879ae09668969737b180540a485d868bc2899246b17f7f87eb3112fb95.zip
+2026-10-27T15:44:31.5458594Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5476595Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-310b6f6a-aed1-50b4-97e8-58f484b9f6e8/artifacts/f8c61d8973148fe0eb7d6724e6e8382de451315e69cf98e94716a49c85d7af60.zip
+2026-10-27T15:44:31.5484803Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5503542Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-c2fc09ee-597e-5691-9281-0b54ff3f9c55/artifacts/9727a5fd501eb7c0e461edc9357a6fac11dfe03d3e621193fffd827945783288.zip
+2026-10-27T15:44:31.5512025Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5533015Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-5ba0d3f8-2e46-54f2-862c-4ebe39d5a002/artifacts/241409c811a35296c2cfa281d5acc380a8ae76c82309a6429768c0efef23b53a.zip
+2026-10-27T15:44:31.5541598Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5560198Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-42b188ba-f826-5441-9ed3-b0c1f4c23ca2/artifacts/31f588888cae84e68e791e12f922182479767a72ce886b0826b1745884c85d05.zip
+2026-10-27T15:44:31.5568868Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5588449Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-fb77e10c-0938-528e-bf6a-7123f2d4d5ef/artifacts/cfe9e30143ef8dc7cf61a7ed14463e4c8906e8a10cbea385199500dc7ef283f2.zip
+2026-10-27T15:44:31.5597606Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5616712Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-f25f7629-d60d-5a72-8598-59b5cb07bbbf/artifacts/839d0b3d549716591f4c1214982ffc9f20d0d4fd9cc753e700bef4c24169f49e.zip
+2026-10-27T15:44:31.5625286Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5644915Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-5234b092-a04e-56cb-8364-f69175b8424c/artifacts/ef3b5eb35d77609a03b08eee3a835880e8d79c3f2d9fffef49154e02eccad191.zip
+2026-10-27T15:44:31.5653416Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5676207Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-8e8faa01-b97c-587e-85fb-340ee0a3474a/artifacts/55972d57e10f79dcab9c9f62aa590c81195706e25d1d8af174f0a38ec1917636.zip
+2026-10-27T15:44:31.5687403Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5716930Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-5994afbb-c013-58ee-a2a4-5719d0bc9ab6/artifacts/7f5e2441bcd332b22e72c249f0ffe5a5a21c074274570e4b61d899d6adaf2515.zip
+2026-10-27T15:44:31.5729343Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5751801Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-ca8d1f55-51e1-5f13-bdc5-9076762419e1/artifacts/b3dadfe35a585796d4ca713eb60307d7818ecd0340b6ac21f3b43980ed8ae8e0.zip
+2026-10-27T15:44:31.5764299Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5795723Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-ea820bf0-c266-50ec-a052-00aeda462c79/artifacts/6f45b72d3670fe90d1ed29d8fc15e84b7c08ef0b52ffdb20a317f2b4828f61a2.zip
+2026-10-27T15:44:31.5806871Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5833218Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-660a1b97-4064-5153-9b0b-468962c53b1a/artifacts/c87042d9adec031534c5b1f7583b9e2c07af35e309fe151076077eb12cc9c651.zip
+2026-10-27T15:44:31.5842141Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5863060Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-07624504-cbee-5bfe-9fc5-55e360972c94/artifacts/ba822a3d93ad3ae57a90c8445a378d92d06a3cd2ebaaa88246a246118c9c0d0f.zip
+2026-10-27T15:44:31.5875914Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5918963Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-dc0bb42b-8662-56c7-a7c9-64bfd78e1139/artifacts/5b28ecca0b1aa6cefa0251650d5fb1ca3ef87312040fe75b20224fbcc42d2127.zip
+2026-10-27T15:44:31.5929270Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5950834Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-1811bcf2-85fb-5c60-8e0f-2749403b6af5/artifacts/2af63cdf4d899f15c129c1976c008455be772a47c10b79c74f1580a75de55525.zip
+2026-10-27T15:44:31.5960201Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.5981337Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-2e6de751-1ba3-5b89-a020-3169315e3a4b/artifacts/f0145b5028d675a483dae419a115528efb367d67f9726c43ce8c23cba170743e.zip
+2026-10-27T15:44:31.5990954Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6020674Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-2d8c3db0-617f-5d51-b3eb-d84757e03d7b/artifacts/a8e144426e0fe7c062bc6e0a260a39b9d99891d52b826fbc169c1dce445fb370.zip
+2026-10-27T15:44:31.6029890Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6052118Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-784f94ad-873f-52bf-b749-492145e29438/artifacts/bac8d38501de133576080e80730a8d73b242f19dd2749c66d6ce8c413eee8ed6.zip
+2026-10-27T15:44:31.6060934Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6090962Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-9a698117-fd53-53ad-ad45-21ccc1819dde/artifacts/5811c0f43b49a36331892041d1b914c8dbaf9578dbb35cbcaa9a231e46ed8ab6.zip
+2026-10-27T15:44:31.6102152Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6123348Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-65784962-c442-5de0-8e26-75b18cf02242/artifacts/0dace77c5b255d6c20fa743555456effd8d7fbc99d11744fc9b188d4fece4d63.zip
+2026-10-27T15:44:31.6132800Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6153730Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-8ce81af5-6a2f-5424-bd06-1ba48d2b437a/artifacts/aedb250a6ac768797e085c889f5343ca9e45184417963d3c11501c827098de08.zip
+2026-10-27T15:44:31.6163201Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6194113Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-4b0e7792-1643-5ee3-b234-fefba90f85af/artifacts/2df09ee123968e7d209a3b317f766439cb162d9a5d9a4547ea4103ce33970547.zip
+2026-10-27T15:44:31.6203297Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6227956Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-5ef2cdf8-d9ed-5ee1-8aba-4ace403afb95/artifacts/2e6f6749e22f514435355feabb1dea39e5e2a318e445bcbb0bc40fa4f08bddfe.zip
+2026-10-27T15:44:31.6237390Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6260227Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-6b789875-aed2-5ebe-8e59-eb2d61cbf797/artifacts/acbd13c268865ff3975c2fa157a5a4e788700c7c6ef2a2946a244cf1cd3b0249.zip
+2026-10-27T15:44:31.6269471Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6292750Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-26d33003-a1b6-5a6c-83bf-5f8116118b4c/artifacts/954d443bc8c815af79fa32faedca6fe46e942c7a1f63d048cccb375827f9b841.zip
+2026-10-27T15:44:31.6304379Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6328722Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-fbd1ff38-a9a8-58ad-b051-1c09757ede5d/artifacts/cd7a1a8cda1a9541ae7fdbbd0795beb72390921aaa09f29c442f3fed20191d73.zip
+2026-10-27T15:44:31.6342156Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6364061Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-cb0c4ef5-651c-538e-9d60-324d0ba3d3c5/artifacts/c3c347994497e52e611650574b78b3fc19ef034e966ef9d5a9bbfdeb0cc9d6bd.zip
+2026-10-27T15:44:31.6373535Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6396507Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-f8290f2f-e768-5d86-9ebe-259d09f91e91/artifacts/056af4ba6d37208f810d568124367ae07f25a7909b9fa37823985e37f7853000.zip
+2026-10-27T15:44:31.6413478Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6454706Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-0524a889-d719-5ab9-a4bd-d68d3b692de7/artifacts/381714c1473553d82978b904cd04c769ffda94baedb27baf3689b4675f897d6b.zip
+2026-10-27T15:44:31.6472556Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6515249Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-f646d41d-3613-5545-9e0b-59dce6b58592/artifacts/74ea3b02964d75ba88d24c385005f33cea8a694d34df26a1eae6c720a6416dc1.zip
+2026-10-27T15:44:31.6527317Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6550593Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-537d0d81-a2d0-51d6-9b9e-70913bd00460/artifacts/356cac03c88f15c8e5a16cda327d0b01a9b569dbf571a7e43ac5c2916673f822.zip
+2026-10-27T15:44:31.6559359Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6581663Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-c14d3302-2cd1-5e03-a47b-9408f2bfa89c/artifacts/02a1e14db95235cfde41bf0889da846690414e2bf7370db924b5ad45857d54c9.zip
+2026-10-27T15:44:31.6590731Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6612396Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-2d3d7878-34fc-5fc0-b53d-b3c6e9a9325b/artifacts/1e79b272fa986020963d3da0c7cc95366df482972657db1a804487d12c1983af.zip
+2026-10-27T15:44:31.6620993Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6669708Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-a5c08f9b-4821-5312-97bb-f0713b461e0f/artifacts/0306d96517e64893f68e4019d1f770b6b8a723c28cccb8cf784b471d67775391.zip
+2026-10-27T15:44:31.6678496Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6700761Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-dc7d47eb-83c2-51fa-b700-22e1e52f7be0/artifacts/4d33a62610d5ed2e925fad66cfc0e6a5db770261ef799d8b0553a5b95d8faec4.zip
+2026-10-27T15:44:31.6709828Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6732256Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-ddcbae41-594a-570f-b53a-6ffd073cb55d/artifacts/43cfe0afe623ff1b076a63f490abd103b94d4d0ad57ce7dded52e018c8fb2b39.zip
+2026-10-27T15:44:31.6741053Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6763243Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-554611d0-adf5-5af0-a236-a64c98018efa/artifacts/121096d6db0ec36f0dd6d2a4d7f442aa87ca8ead3dfd22a45e8e599b4d6087d6.zip
+2026-10-27T15:44:31.6772399Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6807553Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-7d0c62c6-5d26-5583-9327-ce03863fa709/artifacts/fc6ddd73ed55ab0206207ffa2fae8cde1664a7c5ed23014ed1ded65c63856081.zip
+2026-10-27T15:44:31.6817413Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6842135Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-e9587990-94c7-5125-a7e7-bf3f4f39516f/artifacts/a58a78979abf8dff1dd2664905ec7e21a6233eae54171cc247c9721e1b0f7462.zip
+2026-10-27T15:44:31.6852998Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6879013Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-23ecf819-f182-55b9-ae16-3d37ff891465/artifacts/10cfd708fb89034e8c744ff2621930fe1c3667e1a700fc32bacfd3e8dfeb3cde.zip
+2026-10-27T15:44:31.6888628Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6913851Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-180e23bb-0611-5d4d-a4b0-363974e32ee1/artifacts/51b634041f879ecfbfa9b9b5620edf60d1aa16ddd108ae79468d462f1fa97e85.zip
+2026-10-27T15:44:31.6923808Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6951995Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-6430d259-260e-5122-a1a4-e9a4dc73d104/artifacts/762ea023fb8498426f33f25045203ea481bb55967e7adf9800aef7a93602ce04.zip
+2026-10-27T15:44:31.6964067Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.6990856Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-bd971f51-52a2-567e-928e-0063b8556e28/artifacts/a438e3af5852de6019ac45fcf677ad6e1a70865122c9571c06450a80e87c0fa4.zip
+2026-10-27T15:44:31.7000461Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7026481Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-42f83067-d883-5e37-ab41-e52027320a2e/artifacts/c31bc0c859e5322dc26d91ab6bdae72335a6d5689ff44d8c2ff7645e4450d9f9.zip
+2026-10-27T15:44:31.7036860Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7063356Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-b6cefa32-1b01-5f02-892e-7a3c34f55f8c/artifacts/175d63c5a9e46a8b9d98cb78fe9a6c75af7cbf55b11c600948e2e042206b9f64.zip
+2026-10-27T15:44:31.7073670Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7099067Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-c80ab9f1-8c02-5bc3-9918-a49fcd3b0d0b/artifacts/0eeb8c51a657e367c45c9b45a829f3652cd840f5016ce43e0769c9d383b2f97d.zip
+2026-10-27T15:44:31.7109492Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7133749Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-144695a9-7711-57de-a140-046c93e401b9/artifacts/42aeb724f9487b2cb37480103e8994cbdb5731a2448793f9f4323b2b898423d5.zip
+2026-10-27T15:44:31.7144726Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7168074Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-40ade521-3eb3-5002-b217-4b7649d0a0fa/artifacts/82903ab4cd8ac17f306b2a28d22f4d26f453bd3ef7392a67131276f91683207b.zip
+2026-10-27T15:44:31.7177845Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7202732Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-517bfc1d-1bd5-5217-b84d-094bac491989/artifacts/10debe932ff5688c7c353183e8789d7bd874279a3028cd316b17492fea23ccdf.zip
+2026-10-27T15:44:31.7212722Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7236345Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-40f099c9-340f-5f5a-86fa-6e2fc1646ef1/artifacts/e1991de0550d3526f209c966ade645bac146cc180ede9bcb6ba157dd0e1b9b02.zip
+2026-10-27T15:44:31.7246375Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7270633Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-6d107139-f81e-54d9-ad5a-85c057027b4c/artifacts/4272a68a1b48aeff2be988e635c2179046b5646e4d3210fdb8f80b4dbb289e04.zip
+2026-10-27T15:44:31.7280222Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7305618Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-f32791be-f7f7-57ce-8bf1-1f7a2f4423cb/artifacts/20d2b43c41f302b5732fc020790b643bfa5a63d1648437ea1dbbe7e9733bc956.zip
+2026-10-27T15:44:31.7316110Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7352602Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-976f9a7a-96b2-506e-8791-b1feb244ffd4/artifacts/e134b24d3f7efa9da6b259d406643096af05007a4daa070a98e3bf4cd9cf9cdc.zip
+2026-10-27T15:44:31.7362386Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7389713Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-e7bbb54a-e02a-5c2b-94b4-23cbe6b970ee/artifacts/83c74bf6d7fa765c1cc605dca776bd20dad91d9bee2d58683a37b127fb3c6531.zip
+2026-10-27T15:44:31.7401422Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7431344Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-46785b8a-a1b4-5a8e-aec9-bdf7201af48e/artifacts/8fe545a4dc9f6a89c1b56f74139179516949b36e264887a677efcbcc00d8e17c.zip
+2026-10-27T15:44:31.7441789Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7469836Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-21d6cd5f-1600-5fdc-8702-f13b39ae1fd0/artifacts/c4f04133544f94af23f43328f187310f7e9ffa4abd8fb2ccd524b86dabe8ba46.zip
+2026-10-27T15:44:31.7479497Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7504601Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-21ced7ad-a491-5f29-86b0-3639b3285f34/artifacts/70855ae7d58ae34fe3f215215e738409ec12d3de1b7b2d69684b288380c15cd7.zip
+2026-10-27T15:44:31.7514806Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7560684Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-f1f693d8-f6ce-5274-87fe-ded393a357ba/artifacts/05549123a9374dc3ee6785e2a823410dcb28b43217ac169a4931814adef48f1b.zip
+2026-10-27T15:44:31.7579243Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7637880Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-1d39c0af-2da9-5b72-940f-64bc763c5c6d/artifacts/0de64424b20eb22bd9526171f19b5cd7e039ba092ff17f5a40065990156e90ac.zip
+2026-10-27T15:44:31.7654776Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7688024Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-d52e4909-ffa1-5e1f-804e-0483b8e4fb17/artifacts/825d238e9617df7ed472c8e48ec90d45304c359b624879aba169dc911cf40365.zip
+2026-10-27T15:44:31.7693848Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7708249Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-423e10da-4fbb-57d8-9c91-5e4309b30045/artifacts/4685af30eef3c6af6bb008f08e469ee3cb696c90de835fcdb61b28c777402b4d.zip
+2026-10-27T15:44:31.7713189Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7724958Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-7a683224-c37b-5662-a9d7-ad387885eaa4/artifacts/8f9e1ba237e622db5d6e6d42948f85ea8e2aba89de02bac19d986882a328184a.zip
+2026-10-27T15:44:31.7729551Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7740212Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-f4f3e09d-2430-5302-b17a-3643c89f0b15/artifacts/3c4ced7a176b0772cc7af41c52c5fd0ec19894ad91dfbe1fb921d34e15f3ebd5.zip
+2026-10-27T15:44:31.7745116Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7756042Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-46c61e0e-2870-5355-af31-211092251a59/artifacts/5a19e6c21cde022b1427d2cbbccd59378db0ca38e8cb7a8eae50c5e5db579503.zip
+2026-10-27T15:44:31.7760730Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7771509Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-bd448ffb-8380-59e3-b2ea-bd1649c27dfe/artifacts/1df45149fbe5e42ab7a5661b4cd5d263d275a918eda7ae2ae33d36fb795f74ab.zip
+2026-10-27T15:44:31.7776118Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7786608Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-e2f11ae1-39c7-56c0-96f9-a3ba51b9dbcd/artifacts/c6f273241a12a416ce9133bb5ea3a14ffb9c90a98c25d108cc0efc6b55f8d242.zip
+2026-10-27T15:44:31.7792486Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7803591Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-462f93d5-4b58-592f-84fa-7bc14d3c6934/artifacts/c5b2c9e3eabeb520f8162ad37e605ea1b6459d1f92e6d4a8f2cb2c43a2a80845.zip
+2026-10-27T15:44:31.7808571Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7819328Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-6191c278-bb05-52d0-9959-54ece67d30b0/artifacts/0dcca6b3537054abdf2f35e41e49c6447d34913d538733c9fd8ff58d7ad2544c.zip
+2026-10-27T15:44:31.7824251Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7834897Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-e2a95597-2d94-5dad-907a-0cc962c02b41/artifacts/c10899c9b712d080da9a7ba92eb637b2d5efdd7ab945a5b620e1b529f9f47ccc.zip
+2026-10-27T15:44:31.7839639Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7850347Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-a302e3ab-59ce-5c5d-ade8-b19d222fc234/artifacts/d11ecab6a5cb69ced9311dbe6eebc859592be111ce93f6a4fb9401d12e94891d.zip
+2026-10-27T15:44:31.7855258Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7867219Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-8d1a27dd-0514-59d4-9d97-4de649c72a24/artifacts/5b7b7006fab50f26fbd6213f318b0a8f2ed27e6946eb191893253ea0d7958b1a.zip
+2026-10-27T15:44:31.7872168Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7883051Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-4aa3a1d6-55e4-5aac-8444-5516cace02f0/artifacts/6a38ddc6e48ce1aca3b9717cabb4d271864c335003c377657f1bc30f77a3acea.zip
+2026-10-27T15:44:31.7888573Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7892855Z (node:2289) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-10-27T15:44:31.7905286Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-363931a6-bfc4-593a-82f3-066963bd1f85/artifacts/62f37561b29aba31c1e02685b9bd5fca5eee1e0e54d928702c5d512fdc843781.zip
+2026-10-27T15:44:31.7910166Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7922424Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-0706043f-ff2c-51e9-97c2-d01f131d22f3/artifacts/78d0f2793f6c4fc49d70acc52389fc2d733439ca52e039102fa1e4bd0027403e.zip
+2026-10-27T15:44:31.7927342Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:31.7939063Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/c1d1be8f-2cae-8822-9922-000bbdca0515/workflow-job-run-9d82b217-2ad0-5acd-8a13-b2a59c9cf12d/artifacts/854224b66932e9a4f3a6332a8a9975c60d5914a893834900f841aeb950f6ff3d.zip
+2026-10-27T15:44:31.7944103Z Starting download of artifact to: /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/arts
+2026-10-27T15:44:32.1604700Z SHA256 digest of downloaded artifact is b822cd4832a23609764ad7cc648747197db57c440b367040476f99d9cd68764c
+2026-10-27T15:44:32.1623561Z Artifact download completed successfully.
+2026-10-27T15:44:32.2458760Z SHA256 digest of downloaded artifact is d452b44570e4d879c06a80f49a9085755c6ca3cea04ce5adaa7a7e0e06476f87
+2026-10-27T15:44:32.2462346Z Artifact download completed successfully.
+2026-10-27T15:44:32.2465690Z SHA256 digest of downloaded artifact is 0f5eade8a6ec730d730a2c092d3bf2b3fbe2ed61e0d58e61954e721f03f685c2
+2026-10-27T15:44:32.2468293Z Artifact download completed successfully.
+2026-10-27T15:44:32.2470964Z SHA256 digest of downloaded artifact is 776446b26a42bb30c80dc3169a8392ae1e4849a40eefcbba48e4c684e18d5ffc
+2026-10-27T15:44:32.2473735Z Artifact download completed successfully.
+2026-10-27T15:44:32.2682979Z SHA256 digest of downloaded artifact is a84d25b0042d232e183600c6d4dae4cf3696950a026278f77e03f58565ad0cbb
+2026-10-27T15:44:32.2693498Z Artifact download completed successfully.
+2026-10-27T15:44:32.2906653Z SHA256 digest of downloaded artifact is 1c0b56ab2bdea495401f35723f41e9bb5908ad6aa9faa81b162b9e33f4a19a02
+2026-10-27T15:44:32.2929205Z Artifact download completed successfully.
+2026-10-27T15:44:32.2932170Z SHA256 digest of downloaded artifact is 6547c7bc18c4956824aba4b1bf9e5d2431b1af79248b1f223d3b23563aa02e19
+2026-10-27T15:44:32.2934518Z Artifact download completed successfully.
+2026-10-27T15:44:32.3176291Z SHA256 digest of downloaded artifact is dfe6457c960eeb3fe7fd096aed05489413184c28bceeeaab2779e8e49ab23693
+2026-10-27T15:44:32.3180837Z Artifact download completed successfully.
+2026-10-27T15:44:32.3814238Z SHA256 digest of downloaded artifact is 6f2cd7b9fecd8a0992286148b90a0a376adafb02e0908d1504183d42762eac4f
+2026-10-27T15:44:32.3818042Z Artifact download completed successfully.
+2026-10-27T15:44:32.8134126Z SHA256 digest of downloaded artifact is fa7ef5fe02a8dc2cbb6b9d673dbc1ac4087fb69a64cd08f843ac02462030e96a
+2026-10-27T15:44:32.8163713Z Artifact download completed successfully.
+2026-10-27T15:44:33.3150120Z SHA256 digest of downloaded artifact is d4b1b1053e2d0e5aaabdbb7af9e035bfcc38e95d4b47f713fd25afa62b4e9949
+2026-10-27T15:44:33.3202962Z Artifact download completed successfully.
+2026-10-27T15:44:33.8049327Z SHA256 digest of downloaded artifact is 4521e2145f7ec786f1d13a2d80ee158ca47283e054816f9c11938fa99b808d31
+2026-10-27T15:44:33.8072813Z Artifact download completed successfully.
+2026-10-27T15:44:36.3095989Z SHA256 digest of downloaded artifact is 71b0cf165d5246f4d56adb763181d655f833440c4f0f20e8c0ae5f3619b69048
+2026-10-27T15:44:36.3098452Z Artifact download completed successfully.
+2026-10-27T15:44:36.3163614Z SHA256 digest of downloaded artifact is 48015176e0f49b919cf6cf9c1bcefa14d03d3bfc947367d7c562037b41109e0a
+2026-10-27T15:44:36.3206371Z Artifact download completed successfully.
+2026-10-27T15:44:36.4773893Z SHA256 digest of downloaded artifact is d7569d1387c3b2f070172b2e0baf899ccbf67340a10bf637525fc720beb5714a
+2026-10-27T15:44:36.4834440Z Artifact download completed successfully.
+2026-10-27T15:44:36.4923562Z SHA256 digest of downloaded artifact is 675ef57f3647f20979c032c85eed8f11b8a9d1299d8789964ecb8d49b46384f5
+2026-10-27T15:44:36.4932262Z Artifact download completed successfully.
+2026-10-27T15:44:36.5108094Z SHA256 digest of downloaded artifact is 546031a26fc59fd3d450541b3bf1eb12fab8138c6b6f9776f459d489bfd38259
+2026-10-27T15:44:36.5111092Z Artifact download completed successfully.
+2026-10-27T15:44:36.5264795Z SHA256 digest of downloaded artifact is 1d0d75d75d9486be3feb493ed37527f83c8a4c343c2fd7003219f5772aa81f59
+2026-10-27T15:44:36.5322487Z Artifact download completed successfully.
+2026-10-27T15:44:36.5325123Z SHA256 digest of downloaded artifact is 1c409cdcb3cb134990a1df2cb5e1ebef08da259953e4e5304f5a4a3d1da86dbb
+2026-10-27T15:44:36.5327513Z Artifact download completed successfully.
+2026-10-27T15:44:36.5330090Z SHA256 digest of downloaded artifact is d1db78f837a46053ef9743238ed91f285411e40b6379a014af2e1c9bf65808ec
+2026-10-27T15:44:36.5332769Z Artifact download completed successfully.
+2026-10-27T15:44:36.5335451Z SHA256 digest of downloaded artifact is 90571c63c050b06b2ad7b9d1841233c9ed030d0558df772aa504c3fbc5dacbc2
+2026-10-27T15:44:36.5382239Z Artifact download completed successfully.
+2026-10-27T15:44:36.5413253Z SHA256 digest of downloaded artifact is aaa2e6f46740a2a870096fda5f39cd4cebbbe6cd4ed4d0acd5c85b8e9cd65a6a
+2026-10-27T15:44:36.5442468Z Artifact download completed successfully.
+2026-10-27T15:44:36.5445370Z SHA256 digest of downloaded artifact is acddb0c153ae50b5a4d3fdde76ab6fd38017495d08ef3723b386cdd368dcc25f
+2026-10-27T15:44:36.5452749Z Artifact download completed successfully.
+2026-10-27T15:44:36.5455704Z SHA256 digest of downloaded artifact is 47681f2030dfc6852c9e950f52907fcd1ccc7d93ded73223f5e7c366f711553c
+2026-10-27T15:44:36.5457691Z Artifact download completed successfully.
+2026-10-27T15:44:36.5504964Z SHA256 digest of downloaded artifact is 464b32068ddfcec537ba0eed8b01a7693d0cd6abdd08658226e9b30b0a0e511f
+2026-10-27T15:44:36.5561640Z Artifact download completed successfully.
+2026-10-27T15:44:36.5591574Z SHA256 digest of downloaded artifact is c01c11cc5f7f057bda8ccbd7b10e6195467abe62f62a091ccab03a5e75fff412
+2026-10-27T15:44:36.5611657Z Artifact download completed successfully.
+2026-10-27T15:44:36.5659737Z SHA256 digest of downloaded artifact is 0a0191c9c2891c93d03e7db791ef999cd3b077ff1af8b24b0457dacdd8f50a1c
+2026-10-27T15:44:36.5702791Z Artifact download completed successfully.
+2026-10-27T15:44:36.5734096Z SHA256 digest of downloaded artifact is b5ef7ade28eef5326851f8ba49bc9d9b6f8bd232aa6693d751cc2691519e9d2d
+2026-10-27T15:44:36.5737926Z Artifact download completed successfully.
+2026-10-27T15:44:36.5739592Z SHA256 digest of downloaded artifact is 139977bc7aabb8bd08bdbeadbf70e2457fe1d32891e3c24e2d8ecd898be4306f
+2026-10-27T15:44:36.5741028Z Artifact download completed successfully.
+2026-10-27T15:44:36.5742833Z SHA256 digest of downloaded artifact is 605d5d55d87b94914b0001805a5d82b23d21b6a7108ed7305d0f7abe2e8475a5
+2026-10-27T15:44:36.5744708Z Artifact download completed successfully.
+2026-10-27T15:44:36.5746188Z SHA256 digest of downloaded artifact is 807d158aa35a711170533cd6aa5a35de9aa7ef30907016b80d3666f959c39a3c
+2026-10-27T15:44:36.5747571Z Artifact download completed successfully.
+2026-10-27T15:44:36.5749021Z SHA256 digest of downloaded artifact is d557a4ee5e772708dfbd1e82b01dcd85c9d50c102a592c8311e40a21c1be9abc
+2026-10-27T15:44:36.5750407Z Artifact download completed successfully.
+2026-10-27T15:44:36.8953709Z SHA256 digest of downloaded artifact is d59b8a95078da77b1f2c5e4b0541137236132c583a55229d36eb518a2d0b3846
+2026-10-27T15:44:36.8972503Z Artifact download completed successfully.
+2026-10-27T15:44:37.1654856Z SHA256 digest of downloaded artifact is 6dc9cbaca3e79287c5c346cf5f2a294ce96a2192a6503e4782f6dab941b1dea0
+2026-10-27T15:44:37.1663767Z Artifact download completed successfully.
+2026-10-27T15:44:37.2667627Z SHA256 digest of downloaded artifact is 5b3ffd4ff1b5d39b7ffe9e4a0ff455436c7f9f67d91a671e39ecaecc262a592c
+2026-10-27T15:44:37.2670159Z Artifact download completed successfully.
+2026-10-27T15:44:37.2692144Z SHA256 digest of downloaded artifact is 2a36ed6a98e05fc5a5c09f29e4b7fb10f19fe109bddb2bd53488346765027632
+2026-10-27T15:44:37.2693821Z Artifact download completed successfully.
+2026-10-27T15:44:37.2723044Z SHA256 digest of downloaded artifact is b6557ac03aad7117918cbde240ad90d8139c6a786ad7228e66f8244ab4d3d721
+2026-10-27T15:44:37.2724943Z Artifact download completed successfully.
+2026-10-27T15:44:37.2823500Z SHA256 digest of downloaded artifact is bf0fbd98625f450fb3a832af56cbb2be849a9df322dbb63f6d7e03ea99c4d204
+2026-10-27T15:44:37.2826179Z Artifact download completed successfully.
+2026-10-27T15:44:37.3147709Z SHA256 digest of downloaded artifact is a22ecf58fc704f0b894c209c036c5f74a80f200cdc225ca31b9b5db5b626d66d
+2026-10-27T15:44:37.3150470Z Artifact download completed successfully.
+2026-10-27T15:44:37.3223290Z SHA256 digest of downloaded artifact is f32b37c206c3d316457c0670d355ba5e4941e929118779d617377a70e5be7a6e
+2026-10-27T15:44:37.3252448Z Artifact download completed successfully.
+2026-10-27T15:44:37.3473986Z SHA256 digest of downloaded artifact is c7bc8614bde121887b08a7aad8fad5d7119ef195b5c581520a1ed89d2fe77de6
+2026-10-27T15:44:37.3519946Z Artifact download completed successfully.
+2026-10-27T15:44:37.3523376Z SHA256 digest of downloaded artifact is 7f19d6efa30b87e7664c49ab3863ef1194d57787806f79094265a73130b4d264
+2026-10-27T15:44:37.3526234Z Artifact download completed successfully.
+2026-10-27T15:44:37.3570949Z SHA256 digest of downloaded artifact is 365d2ed7e54817a2f65a74eabf6a70ab9fe74d576c6a93d7d41c1ea8943c353c
+2026-10-27T15:44:37.3573596Z Artifact download completed successfully.
+2026-10-27T15:44:37.3684337Z SHA256 digest of downloaded artifact is f3e0a32c062cbeb816eb2737dff26139de590a5d9623433c036f5cb1d218e9f6
+2026-10-27T15:44:37.3686757Z Artifact download completed successfully.
+2026-10-27T15:44:37.3689727Z SHA256 digest of downloaded artifact is b5cf370279ef916040cd99e6107804d96bbbfdf29e8917117d8438c93076c779
+2026-10-27T15:44:37.3692311Z Artifact download completed successfully.
+2026-10-27T15:44:37.3773076Z SHA256 digest of downloaded artifact is feeb9fffb9dd645d4571e6ad17aa093ad9134ac722f46ac121a5ebd183b589fb
+2026-10-27T15:44:37.3793997Z Artifact download completed successfully.
+2026-10-27T15:44:37.4197889Z SHA256 digest of downloaded artifact is 0b13cdc65800667b5f2f1307c51e7f5ef329f4bb58b32f3efa7f19a7c8630435
+2026-10-27T15:44:37.4205099Z Artifact download completed successfully.
+2026-10-27T15:44:37.4238237Z SHA256 digest of downloaded artifact is 297c2c3e9f309283c7d6d5a6bc860d331ed411285347e63b6880fd4ccbeb59df
+2026-10-27T15:44:37.4252762Z Artifact download completed successfully.
+2026-10-27T15:44:37.4256846Z SHA256 digest of downloaded artifact is 77ccbda65496c344a4224eb2405abce8e0eb688bebabda464ba29004e288d82e
+2026-10-27T15:44:37.4258299Z Artifact download completed successfully.
+2026-10-27T15:44:37.4457478Z SHA256 digest of downloaded artifact is bf6df58ddda1f53a64094e186673da6b5cb57b643ce48e1e5b240eb9c083e3eb
+2026-10-27T15:44:37.4459331Z Artifact download completed successfully.
+2026-10-27T15:44:37.4478184Z SHA256 digest of downloaded artifact is 96f1adc4d7aa386de2109ce351ce9eb609440c46d48c7867126da0ecd71273b6
+2026-10-27T15:44:37.4490140Z Artifact download completed successfully.
+2026-10-27T15:44:37.4500098Z SHA256 digest of downloaded artifact is 98eedd9a6c46a56dc7f55d411f443bc43b9256984feb256b61a2c3c315aeea2c
+2026-10-27T15:44:37.4502861Z Artifact download completed successfully.
+2026-10-27T15:44:37.4505583Z SHA256 digest of downloaded artifact is aba3c8db3fd1e68822e79a1842162ac6f4a4faeec06fa3f3ce6c8ad44970ba6e
+2026-10-27T15:44:37.4508102Z Artifact download completed successfully.
+2026-10-27T15:44:37.4510729Z SHA256 digest of downloaded artifact is d17f63623f0889ca4ae8f2965ae57dd84823e52f85e70cac348978ceb33527e6
+2026-10-27T15:44:37.4513443Z Artifact download completed successfully.
+2026-10-27T15:44:37.4516090Z SHA256 digest of downloaded artifact is aae40e995ee7d2ed1f428a9f3f82e5c48ce685b168f7b18f7060ee394b38d359
+2026-10-27T15:44:37.4518554Z Artifact download completed successfully.
+2026-10-27T15:44:37.4521472Z SHA256 digest of downloaded artifact is 08c1fedc5ece8ec92b2b5fd02540dc4d31c636e59eadfa9bcabb9bd6c1ce84bd
+2026-10-27T15:44:37.4524034Z Artifact download completed successfully.
+2026-10-27T15:44:37.4526685Z SHA256 digest of downloaded artifact is de64cd5c57ae5ebf635162ece7eefa1992c3d749fec23fc4dd22aadc421c4297
+2026-10-27T15:44:37.4529216Z Artifact download completed successfully.
+2026-10-27T15:44:37.4532405Z SHA256 digest of downloaded artifact is 5c1cd725296cb2efa7c3fc3695e9f498d74d855aadd067b9a297abe3b9c1c800
+2026-10-27T15:44:37.4534856Z Artifact download completed successfully.
+2026-10-27T15:44:37.4537427Z SHA256 digest of downloaded artifact is 5f14aea12cb4b703ae12af14cbd5099f135d6a8f606f2e6e2a89ed324ac98475
+2026-10-27T15:44:37.4539894Z Artifact download completed successfully.
+2026-10-27T15:44:37.4542733Z SHA256 digest of downloaded artifact is 367002582de487456797ad0e4719ddf7b9953b6aa61983092ff4637c0cb0cdca
+2026-10-27T15:44:37.4545261Z Artifact download completed successfully.
+2026-10-27T15:44:37.4548100Z SHA256 digest of downloaded artifact is 953a025addb2eccd928e1d5b22f2262a4c528854e23af7c7bf5593840befd416
+2026-10-27T15:44:37.4550700Z Artifact download completed successfully.
+2026-10-27T15:44:37.4553783Z SHA256 digest of downloaded artifact is 439ec213594dab3941b25105a2d1ac7963be63f6e0ac258716a7fe5ea7f26b9d
+2026-10-27T15:44:37.4556302Z Artifact download completed successfully.
+2026-10-27T15:44:37.4558834Z SHA256 digest of downloaded artifact is 70527a3f68a22bc8fd4ee6b7447a29f10a15868b0ef3882e1376145a5bfde43f
+2026-10-27T15:44:37.4561592Z Artifact download completed successfully.
+2026-10-27T15:44:37.4582266Z SHA256 digest of downloaded artifact is 9e3599913feda1ab0c7269e0f9e697feaf0fd9b700a5aebf86a0550702f97934
+2026-10-27T15:44:37.4592547Z Artifact download completed successfully.
+2026-10-27T15:44:37.4604072Z SHA256 digest of downloaded artifact is 6885e431cb19509d3bac39b9174f65b7df3eeb59261f77827f05e9773cf9b356
+2026-10-27T15:44:37.4606755Z Artifact download completed successfully.
+2026-10-27T15:44:37.4610223Z SHA256 digest of downloaded artifact is 56ad3215cb9f8adf79181830aaa80f7a87bbef95bb5d0e76eb23a0e68b66228f
+2026-10-27T15:44:37.4615753Z Artifact download completed successfully.
+2026-10-27T15:44:37.4619503Z SHA256 digest of downloaded artifact is aa2d4dd70cb841fd04c53b89363790fc33d05da369588bab0c024bbdd01cd7a0
+2026-10-27T15:44:37.4622413Z Artifact download completed successfully.
+2026-10-27T15:44:37.4629044Z SHA256 digest of downloaded artifact is d01b6b2aa4b7ecae702b168b010b94c18efb1d3dc316bd66197226eb6da25667
+2026-10-27T15:44:37.4632845Z Artifact download completed successfully.
+2026-10-27T15:44:37.4638928Z SHA256 digest of downloaded artifact is 90564d9f19c9420b3e8380cc7e77fbb9d72675e3d24893d2c6966431ce43569b
+2026-10-27T15:44:37.4644551Z Artifact download completed successfully.
+2026-10-27T15:44:37.4650598Z SHA256 digest of downloaded artifact is e69c5df865deab435703f3b722951a5ba7a6ddb88b2ea07ba511f7599a37c7cb
+2026-10-27T15:44:37.4656027Z Artifact download completed successfully.
+2026-10-27T15:44:37.4658892Z SHA256 digest of downloaded artifact is 43ab6771b989aea78d3192caed178e8c2dfc283cf759feb405db60f0276d387e
+2026-10-27T15:44:37.4664777Z Artifact download completed successfully.
+2026-10-27T15:44:37.4667457Z SHA256 digest of downloaded artifact is 4b212b458c625e90542590bf4115201c772c693f2b456d6ec4d4f46e8d70d19c
+2026-10-27T15:44:37.4670081Z Artifact download completed successfully.
+2026-10-27T15:44:37.4695082Z SHA256 digest of downloaded artifact is e90bb4384af0cf82db06b9a4490ca0a387973924f75ec33b30ec8215441fd443
+2026-10-27T15:44:37.4696568Z Artifact download completed successfully.
+2026-10-27T15:44:37.4698035Z SHA256 digest of downloaded artifact is 43204d0a29a74897086ce8f825735a85bfe1153621fb6f0a471d7e9676f018d9
+2026-10-27T15:44:37.4699436Z Artifact download completed successfully.
+2026-10-27T15:44:37.4700896Z SHA256 digest of downloaded artifact is 2dad317d56238fac5f8bcaded254fd91299cef4fb3e431c7aefcbc5b1f37aeb2
+2026-10-27T15:44:37.4702926Z Artifact download completed successfully.
+2026-10-27T15:44:37.4704413Z SHA256 digest of downloaded artifact is 240bd2963105b54820be19fc0a1fe43d4c861cc31d0d1b595dba632065c1d6ed
+2026-10-27T15:44:37.4705789Z Artifact download completed successfully.
+2026-10-27T15:44:37.4707228Z SHA256 digest of downloaded artifact is 4e1a80edbe8847a4cf57a7739fd2535001a80ceb592850e7451b0424c0f0e8cb
+2026-10-27T15:44:37.4708609Z Artifact download completed successfully.
+2026-10-27T15:44:37.4710241Z SHA256 digest of downloaded artifact is 648110884126a0418c9690d56cfd1581389052189a7d4927503c40ba465f5ced
+2026-10-27T15:44:37.4712029Z Artifact download completed successfully.
+2026-10-27T15:44:37.4713491Z SHA256 digest of downloaded artifact is acbd8b3aa36841928d6737edd8040ecb214d91774163ba8518b634ca7e928c79
+2026-10-27T15:44:37.4714853Z Artifact download completed successfully.
+2026-10-27T15:44:37.4716334Z SHA256 digest of downloaded artifact is fc85499d5eef43231a0c9ba9e182bc56fabee335593d6311453d09bf282a2c1f
+2026-10-27T15:44:37.4717698Z Artifact download completed successfully.
+2026-10-27T15:44:37.4719338Z SHA256 digest of downloaded artifact is a0752faca6ad7af5ed4b838c232c42e941fd4b3614428813db119424e54308c7
+2026-10-27T15:44:37.4720726Z Artifact download completed successfully.
+2026-10-27T15:44:37.4722910Z SHA256 digest of downloaded artifact is 5f6a676bb104db63fd215f37e90178dccbeee375d2d4a725bc30e6222f9f5ae8
+2026-10-27T15:44:37.4725287Z Artifact download completed successfully.
+2026-10-27T15:44:37.4753825Z SHA256 digest of downloaded artifact is 967209ca22f29a2bd3511d8f5098f76aabe8921c63bfd919e37fe6f25a107c58
+2026-10-27T15:44:37.4793582Z Artifact download completed successfully.
+2026-10-27T15:44:37.4795299Z SHA256 digest of downloaded artifact is 130c4db1def4b0a29cfd8f7b24fefdc970307dd417071b5a959097ef2fd18d3f
+2026-10-27T15:44:37.4796754Z Artifact download completed successfully.
+2026-10-27T15:44:37.4798229Z SHA256 digest of downloaded artifact is 98e7bc33ac8f8f191d4e8278565c92aba3c40744de2467ce87ce2504a0536d16
+2026-10-27T15:44:37.4799640Z Artifact download completed successfully.
+2026-10-27T15:44:37.5506269Z SHA256 digest of downloaded artifact is 01bf7f67b9285348aeaea765894100bb07317bca31a0b9ed5ccfdb4434f2a0a9
+2026-10-27T15:44:37.5512529Z Artifact download completed successfully.
+2026-10-27T15:44:37.9894752Z SHA256 digest of downloaded artifact is dc9bb0f1335a3d9537ef72103f1cc6a73a5a9d1f3eba068030efee74b4f4ca11
+2026-10-27T15:44:37.9897200Z Artifact download completed successfully.
+2026-10-27T15:44:38.2792368Z SHA256 digest of downloaded artifact is a2b9f7f30c02a7efe5f1c3331023f128e2f79bc7cd6b9d80cdaec8e7a31ff6ee
+2026-10-27T15:44:38.2794906Z Artifact download completed successfully.
+2026-10-27T15:44:38.3001982Z SHA256 digest of downloaded artifact is aac45061d8384723ca5040f02304dd471cbb8078e2dea04c76e49409c2db6f57
+2026-10-27T15:44:38.3009325Z Artifact download completed successfully.
+2026-10-27T15:44:38.3012217Z SHA256 digest of downloaded artifact is eb50ad7422807a54545cfc304b14863905bf3564ce9616dd00325e8099b14693
+2026-10-27T15:44:38.3014775Z Artifact download completed successfully.
+2026-10-27T15:44:38.3017528Z SHA256 digest of downloaded artifact is 3b6848b38743692cd47d979641222a01dcee457eb75c870e039ba2c37b9a1e62
+2026-10-27T15:44:38.3020422Z Artifact download completed successfully.
+2026-10-27T15:44:38.3051942Z SHA256 digest of downloaded artifact is 55e67314e8c295c5f6c625e61364181596ce545de3cf0cd3705988478e9ac4c5
+2026-10-27T15:44:38.3064562Z Artifact download completed successfully.
+2026-10-27T15:44:38.3090484Z SHA256 digest of downloaded artifact is 27272fcf40642ad41f9ac83747ce06f03dcf50df001723f710608941da3da48a
+2026-10-27T15:44:38.3093476Z Artifact download completed successfully.
+2026-10-27T15:44:38.3159628Z SHA256 digest of downloaded artifact is cca85e1a2abf05e7699faab35d6614529fc931877f72ec22f81d081530e6a30e
+2026-10-27T15:44:38.3162419Z Artifact download completed successfully.
+2026-10-27T15:44:38.3222088Z SHA256 digest of downloaded artifact is fa376d06d58b874be238df1382b0319ef71e36bf1476f532beb4195d057389ae
+2026-10-27T15:44:38.3226428Z Artifact download completed successfully.
+2026-10-27T15:44:38.3262827Z SHA256 digest of downloaded artifact is b335a532f2e3bbc0b046ad98b31cf6a8988716155f1afbd3c27f2ce0d6e17651
+2026-10-27T15:44:38.3280300Z Artifact download completed successfully.
+2026-10-27T15:44:38.3298820Z SHA256 digest of downloaded artifact is ea1b9d380da62e298a021172cb6e02b075a516f14d252aed4248ad036560fc39
+2026-10-27T15:44:38.3303769Z Artifact download completed successfully.
+2026-10-27T15:44:38.3306822Z SHA256 digest of downloaded artifact is 71f1ba7e95f45cc0c6c2068f6ce756727d2b8ebd6e41547bd29e195c15e20462
+2026-10-27T15:44:38.3310134Z Artifact download completed successfully.
+2026-10-27T15:44:38.3313777Z SHA256 digest of downloaded artifact is 8d1aa87783a9f7b6cfc26fb57745624db5c987432082559002615689a39d6d00
+2026-10-27T15:44:38.3317563Z Artifact download completed successfully.
+2026-10-27T15:44:38.3320333Z SHA256 digest of downloaded artifact is e002ada814fceb4b21bdb9fe0cc808f5d0d3bbe7e65c81a4267f9e843ae1be5f
+2026-10-27T15:44:38.3323147Z Artifact download completed successfully.
+2026-10-27T15:44:38.3326331Z SHA256 digest of downloaded artifact is 9bb44af3ceb390d9722260275b383ee0662b6b3dc12e8d589f0667698307faca
+2026-10-27T15:44:38.3332416Z Artifact download completed successfully.
+2026-10-27T15:44:38.3335560Z SHA256 digest of downloaded artifact is a646ac9d693b672bc9827c3fae448662dde817450460638ed3381f9802cedc08
+2026-10-27T15:44:38.3338234Z Artifact download completed successfully.
+2026-10-27T15:44:38.3341319Z SHA256 digest of downloaded artifact is 0a6e0d3e61ebf92568be212c271154223eb306dbd9eeec2ca307129899f3e72f
+2026-10-27T15:44:38.3343999Z Artifact download completed successfully.
+2026-10-27T15:44:38.3346757Z SHA256 digest of downloaded artifact is 39efb126a6782a517f124292949ae58407b036705e243a0b31da110252028017
+2026-10-27T15:44:38.3349397Z Artifact download completed successfully.
+2026-10-27T15:44:38.3352654Z SHA256 digest of downloaded artifact is 069f7faa61d972a84751bdca950759724c87200cce4b65e374512060158310db
+2026-10-27T15:44:38.3355339Z Artifact download completed successfully.
+2026-10-27T15:44:38.3357975Z SHA256 digest of downloaded artifact is 3a54836f620cb77e4407c7053816a474423093a7b04d0c6b25ffec1aa8562d3e
+2026-10-27T15:44:38.3360486Z Artifact download completed successfully.
+2026-10-27T15:44:38.3363301Z SHA256 digest of downloaded artifact is bd6ac5d7b933df91351b3f958c1a705da9efea11adbcd9de746309fa9befeded
+2026-10-27T15:44:38.3365848Z Artifact download completed successfully.
+2026-10-27T15:44:38.3368500Z SHA256 digest of downloaded artifact is 3fed7840d9ae85d32695b1d8590584a4be77e3c150d67902ad02899ce5218a41
+2026-10-27T15:44:38.3371024Z Artifact download completed successfully.
+2026-10-27T15:44:38.3373814Z SHA256 digest of downloaded artifact is 9a948de2a902e81ff9b5f6a47c34ce4f197b8d8cc1468bb8da98b83815f1ff10
+2026-10-27T15:44:38.3376337Z Artifact download completed successfully.
+2026-10-27T15:44:38.3379020Z SHA256 digest of downloaded artifact is 060a678daa9203c2ec9a2c322fdcf75361cf78fb13a3f85dadaaaaf63e530d9f
+2026-10-27T15:44:38.3381709Z Artifact download completed successfully.
+2026-10-27T15:44:38.3384368Z SHA256 digest of downloaded artifact is 09a40b3efc9712412f85164f3a63d2e3c578c420da210b7b47b86b3bda70974e
+2026-10-27T15:44:38.3386894Z Artifact download completed successfully.
+2026-10-27T15:44:38.3389541Z SHA256 digest of downloaded artifact is be5cebd4538c8c3e56efc4b42c99c462b87b48bf304c297c354e8616ee6f6b4b
+2026-10-27T15:44:38.3392251Z Artifact download completed successfully.
+2026-10-27T15:44:38.3394924Z SHA256 digest of downloaded artifact is 7785806a89dcf9e03bc78cf5f74f32b0968d2950c7be9dbcdff0da893a9ab4cd
+2026-10-27T15:44:38.3397465Z Artifact download completed successfully.
+2026-10-27T15:44:38.3400134Z SHA256 digest of downloaded artifact is a9f6d2d9d088e69a93c709162ca68036c8f48f4ae202e7e50f884dcefdd2b0ac
+2026-10-27T15:44:38.3402825Z Artifact download completed successfully.
+2026-10-27T15:44:38.3405933Z SHA256 digest of downloaded artifact is 1ae643b37cfd730d9483298c6c2f663ed4a1b126fb92d55ccdf5557b42566700
+2026-10-27T15:44:38.3408487Z Artifact download completed successfully.
+2026-10-27T15:44:38.3411323Z SHA256 digest of downloaded artifact is dfd5504c1a834f7afa9a49f65384653b0684be63717e18ea2e51c533cf7678cc
+2026-10-27T15:44:38.3413844Z Artifact download completed successfully.
+2026-10-27T15:44:38.3416513Z SHA256 digest of downloaded artifact is 474d0e20fd4066112254806b69ce6b1adf440982846a41737ba4d3c68915bd65
+2026-10-27T15:44:38.3419237Z Artifact download completed successfully.
+2026-10-27T15:44:38.3422059Z SHA256 digest of downloaded artifact is 2436e9e8ba9364a24b71b72acc66cac90222adb2b1e4f220aa7e5144b7554b65
+2026-10-27T15:44:38.3424590Z Artifact download completed successfully.
+2026-10-27T15:44:38.3427252Z SHA256 digest of downloaded artifact is dbffc2064ad97b4b44b7a3dd4d5b42fa9b6d2090f128b3f308ca874de525bdab
+2026-10-27T15:44:38.3429838Z Artifact download completed successfully.
+2026-10-27T15:44:38.3432641Z SHA256 digest of downloaded artifact is 5f944740d46511bf23f0c28bdd7563d2ea0dc8ae0640d43dea97ae71e85dcf54
+2026-10-27T15:44:38.3435153Z Artifact download completed successfully.
+2026-10-27T15:44:38.3437949Z SHA256 digest of downloaded artifact is 7f81bad605c86389131a415887e865fd5358a8cbf91f7bcf9a94000a23e5d41e
+2026-10-27T15:44:38.3440467Z Artifact download completed successfully.
+2026-10-27T15:44:38.3443274Z SHA256 digest of downloaded artifact is 0f73f04aaaec15f3324f0d52c8c80d99b388cd7090a59e2e11f209895b6cf510
+2026-10-27T15:44:38.3445778Z Artifact download completed successfully.
+2026-10-27T15:44:38.3448423Z SHA256 digest of downloaded artifact is 3d8c4ac4b54640ca354ba19c9d5c59f10bcc73bb55719b22b654d25b4f15ac44
+2026-10-27T15:44:38.3450933Z Artifact download completed successfully.
+2026-10-27T15:44:38.3453927Z SHA256 digest of downloaded artifact is 3ddbe6b6cf7847f8eb3418ec6a634ffd55a90bd457275e45546129e1ca221e75
+2026-10-27T15:44:38.3456471Z Artifact download completed successfully.
+2026-10-27T15:44:38.3459118Z SHA256 digest of downloaded artifact is 5cd53cb0faa428fa74b0f86b328509e5ef03679fad2ff32f7897d9652ecc0f7c
+2026-10-27T15:44:38.3461908Z Artifact download completed successfully.
+2026-10-27T15:44:38.3464808Z SHA256 digest of downloaded artifact is ca2853568bf592d62bf7528fa21b5dc639dfa3916229eebba4cc151c020fcb3d
+2026-10-27T15:44:38.3467623Z Artifact download completed successfully.
+2026-10-27T15:44:38.3470389Z SHA256 digest of downloaded artifact is 0e7ebac3ae521e2f0b05c802a2c6e02ddbe91e24bdf0d619ccfd41c446e1edcc
+2026-10-27T15:44:38.3473396Z Artifact download completed successfully.
+2026-10-27T15:44:38.3476240Z SHA256 digest of downloaded artifact is cdbf73388fd181c00e31f1d438aa8f846fef66c31e33eea857487669620a63f1
+2026-10-27T15:44:38.3478872Z Artifact download completed successfully.
+2026-10-27T15:44:38.3481953Z SHA256 digest of downloaded artifact is 60f94042ecd1bf2d7d3b8a5ddb93f00731bdab79dbb07a300070c0530b459338
+2026-10-27T15:44:38.3484577Z Artifact download completed successfully.
+2026-10-27T15:44:38.3487366Z SHA256 digest of downloaded artifact is 06fc798c599998acee75c1bfc301800c50f24495ad256a928530598690a839f2
+2026-10-27T15:44:38.3490376Z Artifact download completed successfully.
+2026-10-27T15:44:38.3493780Z SHA256 digest of downloaded artifact is eca18888ac316552b46cad2cdfcb7f066c1d4a92fcb8d9b549ac7f7000fa234c
+2026-10-27T15:44:38.3496858Z Artifact download completed successfully.
+2026-10-27T15:44:38.3500017Z SHA256 digest of downloaded artifact is 8828a7e304d780be40d338db16a10849cab0669893f7a245605b577f6677b3d1
+2026-10-27T15:44:38.3503125Z Artifact download completed successfully.
+2026-10-27T15:44:38.3505273Z Total of 132 artifact(s) downloaded
+2026-10-27T15:44:38.3507588Z Download artifact has finished successfully
+2026-10-27T15:44:38.7044994Z ##[group]Run set -euo pipefail
+2026-10-27T15:44:38.7046209Z [36;1mset -euo pipefail[0m
+2026-10-27T15:44:38.7047284Z [36;1mshopt -s nullglob[0m
+2026-10-27T15:44:38.7048329Z [36;1mP=native/ym/python[0m
+2026-10-27T15:44:38.7049394Z [36;1mtest "success" = success[0m
+2026-10-27T15:44:38.7050468Z [36;1mtest "success" = success[0m
+2026-10-27T15:44:38.7052368Z [36;1mn=$(ls -d arts/shards/count_* arts/shards/countcols_* arts/shards/countmerge_* 2>/dev/null | wc -l); echo "shards=$n expected=132"[0m
+2026-10-27T15:44:38.7053919Z [36;1mtest "$n" -eq 132[0m
+2026-10-27T15:44:38.7055215Z [36;1mpython3 $P/verify_shard_integrity.py arts/shards | tee seal.hbp[0m
+2026-10-27T15:44:38.7056540Z [36;1mgrep -q '|failed=0|.*|result=PASS|' seal.hbp[0m
+2026-10-27T15:44:38.7058296Z [36;1m(cd $(dirname native/ym/results/2x5_stage_a/HEBC-YM-2X5-STAGE-A.hbp) && sha256sum -c $(basename native/ym/results/2x5_stage_a/HEBC-YM-2X5-STAGE-A.hbp).sha256)[0m
+2026-10-27T15:44:38.7060453Z [36;1m# the ray's E8 bound comes from flatcomp in the sealed stage A receipt[0m
+2026-10-27T15:44:38.7062011Z [36;1mu=60; fl="$u"; for k in 2 3 4 5 6 7; do fl="$fl,$u"; done[0m
+2026-10-27T15:44:38.7063870Z [36;1mgrep -q "^SHARD|flatcomp_2_5_1_1|FLATCOMP|.*|flat_states=7|flat_electric_diag=\[$fl\]|flat_diag_max=$u|flat_flat_couplings=0|" native/ym/results/2x5_stage_a/HEBC-YM-2X5-STAGE-A.hbp[0m
+2026-10-27T15:44:38.7066218Z [36;1mgrep -q "^SHARD|flatcomp_2_5_-1_-1|FLATCOMP|.*|flat_states=1|flat_electric_diag=\[$u\]|flat_diag_max=$u|flat_flat_couplings=0|" native/ym/results/2x5_stage_a/HEBC-YM-2X5-STAGE-A.hbp[0m
+2026-10-27T15:44:38.7068430Z [36;1m[ "$(grep -c "^SHARD|flatcomp_2_5_.*|FLATCOMP|.*|flat_states=0|.*|flat_flat_couplings=0|" native/ym/results/2x5_stage_a/HEBC-YM-2X5-STAGE-A.hbp)" = 2 ][0m
+2026-10-27T15:44:38.7070633Z [36;1mgrep '^SHARD|cluster_' native/ym/results/2x5_stage_a/HEBC-YM-2X5-STAGE-A.hbp | sed -E 's/^SHARD\|cluster_2_5_(-?1)_(-?1)_1_([0-9]+)_12_4\|CLUSTER/YM2X5_S\1_\2_r\3_CLUSTER/' > clusters.hbp[0m
+2026-10-27T15:44:38.7072747Z [36;1mcat arts/shards/count_*/run.hbp arts/shards/countmerge_*/run.hbp 2>/dev/null > counts.hbp[0m
+2026-10-27T15:44:38.7074455Z [36;1mfor r in 9; do python3 $P/shell_gap_cert.py --lattice 2x5 clusters.hbp $r counts.hbp; done | tee -a seal.hbp[0m
+2026-10-27T15:44:38.7076112Z [36;1mpython3 $P/monotone_cells.py --lattice 2x5 --ray 60000000 seal.hbp | tee -a seal.hbp[0m
+2026-10-27T15:44:38.7077778Z [36;1mg=$(grep -c '^SHELL_GAP_CERT|.*|result=PASS|' seal.hbp); r=$(grep -c '^MONOTONE_CELLS|.*|result=PASS|' seal.hbp)[0m
+2026-10-27T15:44:38.7079335Z [36;1mif [ "$g" = 1 ] && [ "$r" = 1 ]; then st=PASS; else st=FAIL; fi[0m
+2026-10-27T15:44:38.7080718Z [36;1m# provenance of every merged count: its input shards and matrix[0m
+2026-10-27T15:44:38.7082746Z [36;1mfor f in arts/shards/countmerge_*/run.hbp; do grep -h -e '^MERGE_INPUT|' -e '^INPUT_MATRIX|' $f | sed "s#^#$(basename $(dirname $f))|#" >> seal.hbp; done[0m
+2026-10-27T15:44:38.7084470Z [36;1mcat arts/shards/*/run.anchor >> seal.hbp[0m
+2026-10-27T15:44:38.7086011Z [36;1mecho "GITRAM_SEAL|lattice=2x5|couplings=9|gap_certs=$g/1|ray_E8_upper=60000000/1000000|status=$st|json=0" >> seal.hbp[0m
+2026-10-27T15:44:38.7087806Z [36;1mmv seal.hbp HEBC-YM-2X5-STAGE-B.hbp; sha256sum HEBC-YM-2X5-STAGE-B.hbp > HEBC-YM-2X5-STAGE-B.sha256[0m
+2026-10-27T15:44:38.7089199Z [36;1mtest "$st" = PASS[0m
+2026-10-27T15:44:38.8167222Z shell: /usr/bin/bash -e {0}
+2026-10-27T15:44:38.8168995Z ##[endgroup]
+2026-10-27T15:44:38.8535570Z shards=132 expected=132
+2026-10-27T15:44:55.3808691Z SHARD_INTEGRITY|shards=132|failed=0|checked=index.hbi_regenerated,run.anchor_regenerated,spec_matches_dir|result=PASS|json=0
+2026-10-27T15:44:55.3963913Z sha256sum: HEBC-YM-2X5-STAGE-A.hbp.sha256: No such file or directory
+2026-10-27T15:44:55.3980662Z ##[error]Process completed with exit code 1.
+2026-10-27T15:44:55.4122518Z ##[group]Run actions/upload-artifact@v4
+2026-10-27T15:44:55.4123665Z with:
+2026-10-27T15:44:55.4124630Z   name: sealed-hebc-ym-2x5-stage-b
+2026-10-27T15:44:55.4125742Z   retention-days: 30
+2026-10-27T15:44:55.4126741Z   if-no-files-found: error
+2026-10-27T15:44:55.4127765Z   path: HEBC-YM-2X5-STAGE-B.*
+2026-10-27T15:44:55.4128843Z   compression-level: 6
+2026-10-27T15:44:55.4129855Z   overwrite: false
+2026-10-27T15:44:55.4130852Z   include-hidden-files: false
+2026-10-27T15:44:55.4132102Z ##[endgroup]
+2026-10-27T15:44:55.5783380Z (node:2324) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-27T15:44:55.5785124Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-27T15:44:55.5879466Z ##[error]No files were found with the provided path: HEBC-YM-2X5-STAGE-B.*. No artifacts will be uploaded.
+2026-10-27T15:44:55.6258882Z Post job cleanup.
+2026-10-27T15:44:55.7168791Z [command]/usr/bin/git version
+2026-10-27T15:44:55.7214437Z git version 2.55.0
+2026-10-27T15:44:55.7259962Z Temporarily overriding HOME='/home/runner/work/_temp/c8e3d443-39c0-40d9-af9d-bc5e02bc4c65' before making global git config changes
+2026-10-27T15:44:55.7263540Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-27T15:44:55.7266912Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+2026-10-27T15:44:55.7314188Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-27T15:44:55.7355084Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-27T15:44:55.7617451Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-27T15:44:55.7651689Z http.https://github.com/.extraheader
+2026-10-27T15:44:55.7664289Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-27T15:44:55.7700870Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-27T15:44:55.7995893Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-27T15:44:55.8045355Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-27T15:44:55.8484015Z Cleaning up orphan processes
+2026-10-27T15:44:55.8974279Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
