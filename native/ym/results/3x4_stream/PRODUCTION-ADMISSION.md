@@ -36,8 +36,14 @@ Let `S = active · COL_BYTES + RESERVE`. It holds that `S ≤ BUDGET` at the sta
 (`active = 0`, as long as `RESERVE ≤ BUDGET`). An admission happens only when the
 post-admission value satisfies `S + COL_BYTES ≤ BUDGET`, and a release only decreases `S`.
 So `S ≤ BUDGET` is forward-invariant: it holds after every step, for **any** order of
-arrivals and completions. Because `COL_BYTES` and `RESERVE` are upper bounds, the
-process's resident memory can never exceed `BUDGET`, by construction rather than by luck.
+arrivals and completions.
+
+**The guarantee is conditional.** *If* every admitted block's actual memory contribution
+is at most `COL_BYTES`, and all other resident memory is at most `RESERVE`, *then* the
+admission rule keeps the whole process within `BUDGET`. The pilot's largest measurement
+is an empirical bound, not an unconditional worst case for cells it has not seen. The
+runtime gate below is what tests, cell by cell, whether those two assumptions held in
+production.
 
 ## Runtime gate
 
@@ -56,8 +62,10 @@ Every production cell records, as integers:
 | peak resident bytes `> BUDGET` | INCONCLUSIVE (an upper bound was wrong) |
 | the largest projected admission value `> BUDGET` | INCONCLUSIVE (the rule was not obeyed) |
 
-Any of these sends production back to re-measure `COL_BYTES` and `RESERVE`, without
-adjusting any count.
+| an out-of-memory kill, a missing cell receipt, or an incomplete admission log | INCONCLUSIVE, and no production seal |
+
+Any of these blocks the production seal and sends production back to re-measure
+`COL_BYTES` and `RESERVE`, without adjusting any count.
 
 ## Rolling re-proof
 
