@@ -1,4 +1,6 @@
-# 3×3 certify step on Host8 (a separate execution beside GitHub run 40688572522)
+# 3×3 certify step on Host8 (a separate execution beside GitHub run 40688572522) 
+
+**Use only the erratum-1 corrected workflow (SPLIT = 100, COLS = 60). The runner refuses any other.**
 
 `native/ym/scripts/host8_certify.py` runs the same certify step on one machine.
 

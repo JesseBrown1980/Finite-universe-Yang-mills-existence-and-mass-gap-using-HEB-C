@@ -10,8 +10,12 @@ the frozen manifests (certify_admit.py manifest), verifies all of them all-or-no
 inputs downloads only admitted bundles and checks them file by file against
 ADMIT-FILES.sha256 (certify_admit.py check) before use.
 
-usage: full_space_certify_workflow.py CORES CORES_SHA STAGE_A STAGE_A_SHA OUT NAME T1 TF ADMIT_DIR RUN_ID [RUN_ID ...]
+usage: full_space_certify_workflow.py CORES CORES_SHA STAGE_A STAGE_A_SHA OUT NAME T1 TF ADMIT_DIR
+         --split=S --cols=C [--erratum=FILE] RUN_ID [RUN_ID ...]
   ADMIT_DIR holds CERTIFY-ADMIT-MANIFEST-PART<n>.hbp (+ .sha256) for part n = 1.. in RUN_ID order.
+  SPLIT and COLS are required and must be the values the stage B parts were generated with
+  (erratum 1: the 3x3 parts used SPLIT=100, COLS=60). They are passed explicitly to both
+  `full_space_certify.py plan` and `full_space_certify.py assemble`.
 """
 import os
 import subprocess
@@ -43,7 +47,11 @@ def group_of(spec):
 
 def main():
     cores, cores_sha, stage_a, stage_a_sha, out, name, t1, tf, admit_dir = sys.argv[1:10]
-    runs = sys.argv[10:]
+    rest = sys.argv[10:]
+    opt = dict(a[2:].split("=", 1) for a in rest if a.startswith("--"))
+    runs = [a for a in rest if not a.startswith("--")]
+    split, cols = int(opt["split"]), int(opt["cols"])
+    erratum = opt.get("erratum")
     mans = [os.path.join(admit_dir, "CERTIFY-ADMIT-MANIFEST-PART%d.hbp" % i) for i in range(1, len(runs) + 1)]
     groups, totals = set(), [0, 0, 0]
     for m in mans:
@@ -55,7 +63,7 @@ def main():
                 assert f["result"] == "PASS"
                 totals = [totals[0] + int(f["cells"]), totals[1] + int(f["merges"]), totals[2] + int(f["finals"])]
     groups = sorted(groups)
-    plan = subprocess.run([sys.executable, os.path.join(HERE, "full_space_certify.py"), "plan", cores, cores_sha],
+    plan = subprocess.run([sys.executable, os.path.join(HERE, "full_space_certify.py"), "plan", cores, cores_sha, str(split), str(cols)],
                           capture_output=True, text=True, check=True).stdout
     rows = [dict(x.split("=", 1) for x in l.split("|")[1:] if "=" in x) for l in plan.splitlines() if "kind=" in l]
     def grp(r):
@@ -232,9 +240,10 @@ jobs:
           mv wsector/shards $R/watch/sectors; mv wfinal/shards $R/watch/finals; mv wsample/shards $R/watch/sample
           mkdir -p $R/watch/http0; for k in wsector wfinal wsample; do cp $k/http0/*.hbp $R/watch/http0/; done
           python3 native/ym/python/certify_timing.py ${{{{ github.repository }}}} ${{{{ github.run_id }}}} {" ".join(runs)} > $R/timing.hbp || true
-          CERTIFY_RUNS={",".join(runs)} python3 native/ym/python/full_space_certify.py assemble $R {t1} {tf} | tee CERTIFY-{name.upper()}.hbp
+          CERTIFY_RUNS={",".join(runs)} python3 native/ym/python/full_space_certify.py assemble $R {t1} {tf} {split} {cols} | tee CERTIFY-{name.upper()}.hbp
           rc=${{PIPESTATUS[0]}}
           echo "CERTIFY_ADMISSION|admit_files_sha256=$(sha256sum admit/ADMIT-FILES.sha256 | cut -c1-64)|{"|".join(f"manifest_part{i + 1}_sha256=$(sha256sum {relm[i]} | cut -c1-64)" for i in range(len(runs)))}|admit_total=$(grep '^ADMIT_TOTAL|' admit/ADMIT.hbp | cut -d'|' -f2-4)|json=0" >> CERTIFY-{name.upper()}.hbp
+          echo "CERTIFY_PLAN_PARAMS|split={split}|cols={cols}|{("erratum=" + rel(erratum) + "|erratum_sha256=$(sha256sum " + rel(erratum) + " | cut -c1-64)|") if erratum else ""}generator_sha256=$(sha256sum native/ym/python/full_space_certify_workflow.py | cut -c1-64)|certify_py_sha256=$(sha256sum native/ym/python/full_space_certify.py | cut -c1-64)|admit_py_sha256=$(sha256sum native/ym/python/certify_admit.py | cut -c1-64)|workflow_commit=${{{{ github.sha }}}}|json=0" >> CERTIFY-{name.upper()}.hbp
           sha256sum CERTIFY-{name.upper()}.hbp > CERTIFY-{name.upper()}.sha256
           exit $(( rc == 2 ? 1 : 0 ))
       - uses: actions/upload-artifact@v4
@@ -248,8 +257,8 @@ jobs:
 '''
     open(wf, "w").write(text)
     n = {k: sum(1 for r in rows if r["kind"] == k) for k in ("sector", "final", "sample")}
-    print("CERTIFY_WORKFLOW|name=%s|runs=%s|sectors=%d|finals=%d|sample=%d|out=%s|json=0"
-          % (name, ",".join(runs), n["sector"], n["final"], n["sample"], rel(wf)))
+    print("CERTIFY_WORKFLOW|name=%s|runs=%s|split=%d|cols=%d|sectors=%d|finals=%d|sample=%d|out=%s|json=0"
+          % (name, ",".join(runs), split, cols, n["sector"], n["final"], n["sample"], rel(wf)))
 
 
 if __name__ == "__main__":

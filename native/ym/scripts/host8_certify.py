@@ -174,9 +174,11 @@ def main():
            % (asm, prefix, local, strip))
 
     block = step(wf["jobs"]["assemble"], "Certify")
+    if " 52533422 71900000 100 60 " not in block or "CERTIFY_PLAN_PARAMS|split=100|cols=60|" not in block:
+        raise SystemExit("HOST8|error=workflow_not_erratum_1_corrected|json=0")
     subs = {"${{ needs.sectors.result }}": status["sector"], "${{ needs.finals.result }}": status["final"],
             "${{ needs.sample.result }}": status["sample"], "${{ github.repository }}": REPO,
-            "${{ github.run_id }}": "host8"}
+            "${{ github.run_id }}": "host8", "${{ github.sha }}": head}
     for k, v in subs.items():
         block = block.replace(k, v)
     if "${{" in block:
