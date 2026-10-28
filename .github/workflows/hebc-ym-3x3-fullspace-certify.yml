@@ -346,8 +346,8 @@ jobs:
       max-parallel: 20
       matrix:
         include:
-          - {id: "s01", spec: "tdcountcols/3/3/1/-1/1000/9000/71900000/12/1000/0/100", grp: "none"}
-          - {id: "s02", spec: "countcols/3/3/1/1/1000/9000/71900000/12/1000/300/389", grp: "none"}
+          - {id: "s01", spec: "tdcountcols/3/3/1/1/1000/9000/71900000/12/1000/0/60", grp: "none"}
+          - {id: "s02", spec: "tacountcols/3/3/1/-1/1000/9000/71900000/12/1000/1260/1320", grp: "none"}
     runs-on: ubuntu-latest
     timeout-minutes: 355
     steps:
@@ -439,9 +439,10 @@ jobs:
           mv wsector/shards $R/watch/sectors; mv wfinal/shards $R/watch/finals; mv wsample/shards $R/watch/sample
           mkdir -p $R/watch/http0; for k in wsector wfinal wsample; do cp $k/http0/*.hbp $R/watch/http0/; done
           python3 native/ym/python/certify_timing.py ${{ github.repository }} ${{ github.run_id }} 40392589541 40392589603 > $R/timing.hbp || true
-          CERTIFY_RUNS=40392589541,40392589603 python3 native/ym/python/full_space_certify.py assemble $R 52533422 71900000 | tee CERTIFY-3X3-FULLSPACE.hbp
+          CERTIFY_RUNS=40392589541,40392589603 python3 native/ym/python/full_space_certify.py assemble $R 52533422 71900000 100 60 | tee CERTIFY-3X3-FULLSPACE.hbp
           rc=${PIPESTATUS[0]}
           echo "CERTIFY_ADMISSION|admit_files_sha256=$(sha256sum admit/ADMIT-FILES.sha256 | cut -c1-64)|manifest_part1_sha256=$(sha256sum native/ym/results/3x3_full_space/CERTIFY-ADMIT-MANIFEST-PART1.hbp | cut -c1-64)|manifest_part2_sha256=$(sha256sum native/ym/results/3x3_full_space/CERTIFY-ADMIT-MANIFEST-PART2.hbp | cut -c1-64)|admit_total=$(grep '^ADMIT_TOTAL|' admit/ADMIT.hbp | cut -d'|' -f2-4)|json=0" >> CERTIFY-3X3-FULLSPACE.hbp
+          echo "CERTIFY_PLAN_PARAMS|split=100|cols=60|erratum=native/ym/results/3x3_full_space/CERTIFY-ERRATUM-1.md|erratum_sha256=$(sha256sum native/ym/results/3x3_full_space/CERTIFY-ERRATUM-1.md | cut -c1-64)|generator_sha256=$(sha256sum native/ym/python/full_space_certify_workflow.py | cut -c1-64)|certify_py_sha256=$(sha256sum native/ym/python/full_space_certify.py | cut -c1-64)|admit_py_sha256=$(sha256sum native/ym/python/certify_admit.py | cut -c1-64)|workflow_commit=${{ github.sha }}|json=0" >> CERTIFY-3X3-FULLSPACE.hbp
           sha256sum CERTIFY-3X3-FULLSPACE.hbp > CERTIFY-3X3-FULLSPACE.sha256
           exit $(( rc == 2 ? 1 : 0 ))
       - uses: actions/upload-artifact@v4
