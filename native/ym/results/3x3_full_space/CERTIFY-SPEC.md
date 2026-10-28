@@ -247,3 +247,47 @@ sealed merge shards. They come from an admission of the same frozen manifests, r
 separately from the certify workflow. Glucose 4 produces the UNSAT proofs and
 drat-trim `2e3b2dc` checks them. The shadow is a cross-check, not part of the seal. A
 disagreement with the primary chain triggers reconciliation, never selective acceptance.
+
+## Addendum 3: a split-parameter defect, recorded before run 40688572522 finishes (2026-10-28, 16:05 UTC)
+
+This was found while the certify run was in progress, before its `assemble` job had
+started. No certify receipt existed, and no 3×3 full-space count had been aggregated or
+evaluated for a verdict.
+
+**The defect.**
+- **Stage B's split.** The stage-B part workflows (`39f0de1`) were generated with
+  `SPLIT = 100` and **`COLS = 60`**, as the commit message of `39f0de1` says: "60 columns
+  per cell".
+- **The certify step's split.** This spec, and the certify workflow generated from it,
+  use `full_space_certify.py plan` and `assemble` with their defaults, `SPLIT = COLS = 100`.
+  The sentence under "Inputs" saying `SPLIT = COLS = 100` "gives 272 cells … matching the
+  two generated part workflows exactly" is wrong.
+- **Checked by recomputation from the sealed core table.**
+  - With `(100, 60)`, the plan's 292 job specs (272 cells and 20 merges) **equal the two
+    part workflows' 292 specs exactly**.
+  - With `(100, 100)`, the plan has 195 specs and does not match.
+
+**What it does to run 40688572522 (stated before its receipt exists).**
+- **Depth 3 fails closed.** For every merged count, `assemble` compares the sealed
+  `MERGE_INPUT` cell list, which is 60 columns wide, with a 100-wide expected list. Every
+  partition node therefore fails, and the verdict **must be `INCONCLUSIVE`**: a defect in
+  the certify step's own parameters, not a mathematical `MISMATCH`.
+- **The sampled cells don't exist.** The two cells sampled under the 100-wide plan,
+  `tdcountcols/…/0/100` and `countcols/…/300/389`, are not stage-B cells, so their
+  re-executions cannot be compared with anything.
+- **What stays valid.** Admission, the sector rebuilds and the final re-executions are
+  unaffected. The final re-executions take their cells from the admitted stage-B cell
+  shards, not from the plan.
+
+**The correction (frozen now, before any count is read).**
+- **Split.** `SPLIT = 100`, `COLS = 60`, passed explicitly to `plan` and to `assemble`.
+- **Sample.** The two cells are re-selected over the **real** cells by the unchanged rule,
+  the smallest `SHA-256("CERTIFY-3X3-V1|" + cell spec)`:
+  - `tdcountcols/3/3/1/1/1000/9000/71900000/12/1000/0/60`
+  - `tacountcols/3/3/1/-1/1000/9000/71900000/12/1000/1260/1320`
+- **Everything else unchanged.** Thresholds, gates, the verdict rule and admission are
+  untouched.
+
+A corrected certify run, the same workflow generated with `(100, 60)`, is launched only
+on the operator's approval. Run 40688572522 is left to finish, and its verdict is
+recorded as it comes out.
