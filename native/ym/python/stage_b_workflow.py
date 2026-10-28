@@ -68,6 +68,16 @@ def main():
     lat = "%dx%d" % (lx, ly)
     flat = 3 * 2 * lx * ly * 1000000
     rel = os.path.relpath(sealed, os.path.join(HERE, "..", "..", ".."))
+    # One sidecar convention: SEALED is <stem>.hbp, its checksum is <stem>.sha256 in the
+    # same directory, naming the receipt. The workflow checks exactly that file.
+    if not (sealed.endswith(".hbp") and os.path.abspath(sha) == os.path.abspath(sealed[:-4] + ".sha256")):
+        print("STAGE_B_WORKFLOW|result=FAIL|reason=sidecar_not_stem_sha256|sha=%s|json=0" % sha)
+        sys.exit(2)
+    side = open(sha).read().split()
+    if len(side) != 2 or side[1] != os.path.basename(sealed):
+        print("STAGE_B_WORKFLOW|result=FAIL|reason=sidecar_does_not_name_receipt|json=0")
+        sys.exit(2)
+    shbase = os.path.basename(sha)
     wfrel = os.path.relpath(out, os.path.join(HERE, "..", "..", ".."))
     inc = "\n".join('          - {id: "%03d", spec: "%s"}' % (i + 1, c) for i, c in enumerate(cells))
     minc = "\n".join('          - {id: "m%02d", spec: "%s"}' % (i + 1, c.replace("count/", "countmerge/", 1)) for i, c in enumerate(merges))
@@ -210,7 +220,7 @@ jobs:
           test "$n" -eq {n + nm}
           python3 $P/verify_shard_integrity.py arts/shards | tee seal.hbp
           grep -q '|failed=0|.*|result=PASS|' seal.hbp
-          (cd $(dirname {rel}) && sha256sum -c $(basename {rel}).sha256)
+          (cd $(dirname {rel}) && sha256sum -c {shbase})
           # the ray's E8 bound comes from flatcomp in the sealed stage A receipt
           u={flat // 1000000}; fl="$u"; for k in 2 3 4 5 6 7; do fl="$fl,$u"; done
           grep -q "^SHARD|flatcomp_{lx}_{ly}_1_1|FLATCOMP|.*|flat_states=7|flat_electric_diag=\\[$fl\\]|flat_diag_max=$u|flat_flat_couplings=0|" {rel}

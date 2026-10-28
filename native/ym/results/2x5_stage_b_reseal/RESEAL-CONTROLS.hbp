@@ -1,0 +1,14 @@
+RESEAL_CONTROL|case=baseline|expect=PASS|rc=0|assembled=2|got=result=PASS|ok=1|json=0
+RESEAL_CONTROL|case=wrong_digest|expect=digest_mismatch|rc=2|assembled=0|got=reason=digest_mismatch|ok=1|json=0
+RESEAL_CONTROL|case=wrong_size|expect=size_mismatch|rc=2|assembled=0|got=reason=size_mismatch|ok=1|json=0
+RESEAL_CONTROL|case=missing_artifact|expect=missing_artifact|rc=2|assembled=0|got=reason=missing_artifact|ok=1|json=0
+RESEAL_CONTROL|case=unexpected_artifact|expect=unexpected_file|rc=2|assembled=0|got=reason=unexpected_file|ok=1|json=0
+RESEAL_CONTROL|case=duplicate_id|expect=manifest_duplicate|rc=2|assembled=0|got=reason=manifest_duplicate|ok=1|json=0
+RESEAL_CONTROL|case=corrupted_zip|expect=corrupt_|rc=2|assembled=0|got=reason=corrupt_member|ok=1|json=0
+RESEAL_CONTROL|case=manifest_not_pass|expect=manifest_not_pass|rc=2|assembled=0|got=reason=manifest_not_pass|ok=1|json=0
+RESEAL_MANIFEST_CONTROL|case=incomplete_grid|rc=2|first_problem=missing_cell-002|ok=1|json=0
+RESEAL_MANIFEST_CONTROL|case=expired|rc=2|first_problem=expired_cell-001|ok=1|json=0
+RESEAL_MANIFEST_CONTROL|case=wrong_run|rc=2|first_problem=wrong_run_cell-001|ok=1|json=0
+RESEAL_MANIFEST_CONTROL|case=duplicate_id|rc=2|first_problem=duplicate_id_12688380781|ok=1|json=0
+RESEAL_MANIFEST_CONTROL|case=extra_name|rc=2|first_problem=unexpected_cell-999|ok=1|json=0
+RESEAL_CONTROLS_TOTAL|cases=13|ok=13|result=PASS|json=0
