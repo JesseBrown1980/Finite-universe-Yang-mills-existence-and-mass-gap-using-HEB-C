@@ -153,3 +153,141 @@ own job log (control C5), not from the presence of final files.
 tree, the rerun, a missing shard, faults at depths 1–4, the run's own order, tampered
 request accounting, a plan over the cap and a server that fails to start. 186 jobs ran,
 all through `scripts/http0_jobs.sh`.
+
+## Addendum 2: input admission, fixed before the certify step runs (reviewer, 2026-10-28)
+
+Part 1 sealed (run 40392589541: 239 cells, 13 merges, `GITRAM_SEAL … status=PASS`). Part
+2 had already sealed (run 40392589603: 33 cells, 7 merges). No 3×3 stage B count had
+been aggregated or evaluated for a verdict when this addendum was written. **Nothing in
+the mathematics changes:**
+
+- **Thresholds and rules.** t1 = 52.533422 and t_F = 71.900000 stay as they are, as do
+  every sector and dimension rule and every symmetric-line and N-Nest gate.
+- **Code.** The watcher shell code and `full_space_certify.py assemble` are byte-identical
+  to those frozen above.
+- **Verdict.** `PASS` iff `(N_full(t1), N_full(t_F)) = (8, 8)` and every gate passes.
+  Missing, malformed, duplicated, timed-out or unverified evidence is `INCONCLUSIVE`.
+  Only a fully computed, unexpected pair is `MISMATCH`.
+
+What is added is how the inputs are admitted.
+
+**Frozen manifests (metadata only, no content read).** The two files are
+`CERTIFY-ADMIT-MANIFEST-PART1.hbp` and `CERTIFY-ADMIT-MANIFEST-PART2.hbp`, each with its
+own `.sha256`. They are written by `certify_admit.py manifest` from the GitHub API
+listing of each run.
+
+- **What each records.** For every artifact: its artifact ID, size, raw-ZIP SHA-256 and
+  expected identity, taken from the part workflow's own matrices.
+  - `cell-NNN` maps to its cell shard and the count it belongs to.
+  - `merge-mNN` maps to its merge shard.
+  - `sealed-part-n` maps to `PART-n.hbp`, `PART-n.sha256` and the final shard of every
+    count of that part.
+- **Part 1.** 253 artifacts: 239 cells, 13 merges, 13 finals.
+- **Part 2.** 41 artifacts: 33 cells, 7 merges, 19 finals.
+- **Totals.** 272 cells, 20 merges and 32 finals, with zero problems in either part. Both
+  parts are from head `39f0de1`.
+
+**The `admit` job, which runs first and computes nothing.**
+
+1. **Frozen and fresh.** It checks both manifests' SHA-256. Fresh API metadata must
+   reproduce each manifest byte for byte. It then downloads every artifact by ID, with
+   bounded retries.
+2. **Phase 1, before any extraction.** Each part directory holds exactly one
+   `<artifact_id>.zip` per manifest entry and nothing else. Every size and raw SHA-256
+   matches.
+3. **Phase 2a, still no extraction.**
+   - Every ZIP passes `testzip`.
+   - Every ZIP has exactly its expected members: five files per shard, plus `PART-n.*`
+     for a sealed part.
+   - Shard identities are unique across both parts.
+   - The totals are exactly 272, 20 and 32.
+4. **Phase 2b, extraction into a clean root.**
+   - Every `spec` names its shard.
+   - Every `PART-n.sha256` verifies, and each part's last line is `GITRAM_SEAL … status=PASS`.
+   - Every merge artifact equals the sealed final shard of the same ID, byte for byte.
+   - Cells go to `cells/<count id or _unsplit>/`, sealed parts to `parts/`.
+   - The SHA-256 of every extracted file is written to `ADMIT-FILES.sha256`.
+
+Any failure stops the job, and nothing downstream can be certified.
+
+**Consumers use admitted bundles only.**
+
+- **Finals.** A final re-executing a merge downloads only `admitted-cells-<its count>`.
+  It must pass `certify_admit.py check` against `ADMIT-FILES.sha256`: exactly the
+  admitted files, each with its admitted hash.
+- **Assemble.** It requires `needs.admit.result == success`. It downloads
+  `admitted-parts` and every `admitted-cells-*`, and checks both the same way before
+  `assemble` runs.
+- **Sectors and sampled cells.** These are rebuilt from their specs and consume no stage B
+  input.
+
+**Receipt.** `CERTIFY_ADMISSION` adds three things: the SHA-256 of `ADMIT-FILES.sha256`,
+both manifest hashes, and `ADMIT_TOTAL`.
+
+**Controls.** `certify_admit_controls.py` runs on synthetic artifacts, with no real data:
+**24 of 24 pass.** Each mutation must stop with its named reason, before
+`ADMIT-FILES.sha256` exists.
+
+| group | cases |
+|---|---|
+| admission | wrong digest, wrong size, missing artifact, unexpected artifact, corrupted ZIP (CRC), missing member, spec identity, `PART` checksum mismatch, `PART` not `PASS`, merge differing from its sealed shard, wrong totals, duplicate shard across parts |
+| manifest | expired, wrong run, duplicate ID, unexpected name, missing name |
+| consumer check | tampered file, extra file, missing file |
+| baselines | admission; one group; all groups merged; parts |
+
+**Generator diff.** Against the generator on `main`, given the same inputs:
+
+- every watcher step (16 sectors, 32 finals, 2 samples) is identical, and the job matrices
+  differ only by the added `grp` field;
+- the `assemble` step is identical except for the appended `CERTIFY_ADMISSION` line;
+- the old `cell-*` and `sealed-part-*` downloads by run ID are replaced by admitted bundles.
+
+**SAT shadow, run independently.** `shadow/sat/partition_sat.py` runs on part 1's 13
+sealed merge shards. They come from an admission of the same frozen manifests, run
+separately from the certify workflow. Glucose 4 produces the UNSAT proofs and
+drat-trim `2e3b2dc` checks them. The shadow is a cross-check, not part of the seal. A
+disagreement with the primary chain triggers reconciliation, never selective acceptance.
+
+## Addendum 3: a split-parameter defect, recorded before run 40688572522 finishes (2026-10-28, 16:05 UTC)
+
+This was found while the certify run was in progress, before its `assemble` job had
+started. No certify receipt existed, and no 3×3 full-space count had been aggregated or
+evaluated for a verdict.
+
+**The defect.**
+- **Stage B's split.** The stage-B part workflows (`39f0de1`) were generated with
+  `SPLIT = 100` and **`COLS = 60`**, as the commit message of `39f0de1` says: "60 columns
+  per cell".
+- **The certify step's split.** This spec, and the certify workflow generated from it,
+  use `full_space_certify.py plan` and `assemble` with their defaults, `SPLIT = COLS = 100`.
+  The sentence under "Inputs" saying `SPLIT = COLS = 100` "gives 272 cells … matching the
+  two generated part workflows exactly" is wrong.
+- **Checked by recomputation from the sealed core table.**
+  - With `(100, 60)`, the plan's 292 job specs (272 cells and 20 merges) **equal the two
+    part workflows' 292 specs exactly**.
+  - With `(100, 100)`, the plan has 195 specs and does not match.
+
+**What it does to run 40688572522 (stated before its receipt exists).**
+- **Depth 3 fails closed.** For every merged count, `assemble` compares the sealed
+  `MERGE_INPUT` cell list, which is 60 columns wide, with a 100-wide expected list. Every
+  partition node therefore fails, and the verdict **must be `INCONCLUSIVE`**: a defect in
+  the certify step's own parameters, not a mathematical `MISMATCH`.
+- **The sampled cells don't exist.** The two cells sampled under the 100-wide plan,
+  `tdcountcols/…/0/100` and `countcols/…/300/389`, are not stage-B cells, so their
+  re-executions cannot be compared with anything.
+- **What stays valid.** Admission, the sector rebuilds and the final re-executions are
+  unaffected. The final re-executions take their cells from the admitted stage-B cell
+  shards, not from the plan.
+
+**The correction (frozen now, before any count is read).**
+- **Split.** `SPLIT = 100`, `COLS = 60`, passed explicitly to `plan` and to `assemble`.
+- **Sample.** The two cells are re-selected over the **real** cells by the unchanged rule,
+  the smallest `SHA-256("CERTIFY-3X3-V1|" + cell spec)`:
+  - `tdcountcols/3/3/1/1/1000/9000/71900000/12/1000/0/60`
+  - `tacountcols/3/3/1/-1/1000/9000/71900000/12/1000/1260/1320`
+- **Everything else unchanged.** Thresholds, gates, the verdict rule and admission are
+  untouched.
+
+A corrected certify run, the same workflow generated with `(100, 60)`, is launched only
+on the operator's approval. Run 40688572522 is left to finish, and its verdict is
+recorded as it comes out.
