@@ -13,6 +13,7 @@ SUM = ("SHELL_SCHUR|matrix=%s|n=288645|JE=1000|JB=9000|t_milli=90000000|shell_ma
        "positive_core=2894|positive_H=285705|eliminated=2931|ambiguous=%s|result=AMBIGUOUS|ms=%s|json=0")
 COL = "SCOL|n=288645|JE=1000|JB=9000|t_milli=90000000|core=2940|core_fp=abc|F=10^12|cb=%s|ca=%s|lo=-5|hi=%s|sweeps=7|ywidth=2|json=0"
 SPL = "SHELL_SCHUR_COLS|n=288645|cols=%s|gs_sweeps_max=%s|y_width_max=2|ms=%s|json=0"
+RSPL = "SHELL_SCHUR_COLS|n=288645|cols=%s|gs_sweeps_max=%s|y_width_max=2|room_bytes_per_pass=125825024|pass_ms=9,8|payload_merkle=%s|ms=%s|json=0"
 
 
 def text(cols, summ=("a.txt", 9, 100), spl=()):
@@ -42,6 +43,12 @@ CASES = [
      text(BASE_COLS, spl=[("0:2", 7, 1), ("0:2", 7, 5)]), "INCONCLUSIVE"),
     ("duplicate_cols_key_shell_side", text(BASE_COLS, spl=[("0:2", 7, 1), ("0:2", 9, 1)]),
      text(BASE_COLS, spl=[("0:2", 7, 1)]), "INCONCLUSIVE"),
+    ("room_only_fields_on_room_side", text(BASE_COLS, spl=[("0:2", 7, 1), ("2:4", 7, 2)]),
+     text(BASE_COLS) + "".join(RSPL % (c, 7, "m1", 5) + "\n" for c in ("0:2", "2:4")), "AGREE"),
+    ("room_payload_merkle_inconsistent", text(BASE_COLS, spl=[("0:2", 7, 1), ("2:4", 7, 2)]),
+     text(BASE_COLS) + RSPL % ("0:2", 7, "m1", 5) + "\n" + RSPL % ("2:4", 7, "m2", 5) + "\n", "INCONCLUSIVE"),
+    ("room_line_value_differs", text(BASE_COLS, spl=[("0:2", 7, 1)]),
+     text(BASE_COLS) + RSPL % ("0:2", 8, "m1", 5) + "\n", "MISMATCH"),
     ("cols_line_without_key", text(BASE_COLS), text(BASE_COLS) + "SHELL_SCHUR_COLS|n=1|ms=3|json=0\n", "INCONCLUSIVE"),
     ("no_summary_truncated", text(BASE_COLS), text(BASE_COLS, None), "INCONCLUSIVE"),
     ("failed_execution", text(BASE_COLS), "SHELL_SCHUR|result=FAIL|reason=x|json=0\n", "INCONCLUSIVE"),
