@@ -83,6 +83,21 @@ re-executed by `verify` and matched byte for byte:
 
 This is a smoke test of the plumbing on the smallest lattice. It is not P2 or P3.
 
+A second rehearsal ran the workflow's own job scripts, extracted from the generated YAML, on
+3×3 at t = 60,000,000 with the frozen chunks 0:50 and 50:101 on both sides:
+
+- **Merges:** both merged with core 101 (the frozen value), negative 7, result PASS. This is the
+  same count as Host8 test 5.
+- **Comparison:** 10,201 SCOL records compared. `v2` gives AGREE; `v1` gives MISMATCH on the
+  room-only fields only.
+- **P2 on 2×3:** PASS.
+- **Compare step with deliberately missing evidence:** INCONCLUSIVE, as it should be.
+- **Defect found and fixed before the push:** the compare step's P2 check looked for
+  `^ROOM_IDENTITY|`, but the evidence file prefixes that line with `SHARD|roomident_…|`.
+  Before the fix, a good 2×3 result came out INCONCLUSIVE (fail-closed).
+
+These local results do not count toward P2 or P3. Only the CI run does.
+
 ## Outcome record
 
 The receipt `HEBC-YM-ROOM-IDENTITY-CI.hbp` (with its `.sha256`) is uploaded by the `compare`
