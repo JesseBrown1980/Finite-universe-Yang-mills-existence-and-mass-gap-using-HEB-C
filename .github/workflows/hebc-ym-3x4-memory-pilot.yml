@@ -22,6 +22,10 @@ jobs:
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
+        with:
+          # full history: the P1 precondition checks that b45dbe3 is an ancestor of HEAD,
+          # which a depth-1 clone cannot see (run 40968365057 failed closed on it)
+          fetch-depth: 0
 
       - name: P1-P3 preconditions and frozen SHA sidecar
         shell: bash
