@@ -56,9 +56,9 @@ reads arbitrary neighbour rows and a drive answers those at about 70 reads/s.
 | 3 | same, 3×3 | **EXACT** (288,645 states, nnz 15,408,669, sha16 `ad0168f973d120a0`) | 37.6 s |
 | 4 | 3×3 room build | entries 15,408,669 = ymsec nnz; `w_self_adjoint=PASS`; header readback EXACT | 93.8 s |
 | 5 | 3×3 runner, `roomschur` at JE=1000 JB=9000 t=60,000,000 F=10¹² | core 101, negative 7, positive_core 94, 19 sweeps, PASS | 669 s (CPU shared with pass B) |
-| 6 | same threshold, `shellschur` on the ymsec text matrix, record compare | **PENDING** | — |
+| 6 | same threshold, `shellschur` on the ymsec text matrix, record compare | was PENDING; now **AGREE** at t=60,000,000 (see 2026-10-29 update) | — |
 | 7 | **3×4 pass A** | **45,508,080 states, 7 flat**, the same as CI pilot run 40391283682 (`Sx+Sy+ states=45508080`, `flat_states=7`); `passA.bin` SHA-256 `eefd7752…6e3cbc` | **1,399.3 s (23.3 min)**, 8 workers |
-| 8 | 3×4 pass B (keys to 50M rooms, matrix to USB) | running; see the last `PASSB_PROGRESS` row of the receipt | about 2,550 rows/s so far |
+| 8 | 3×4 pass B (keys to 50M rooms, matrix to USB) | was running; finished **FAIL** (header readback mismatch, see update) | 16,998.9 s |
 
 ## Storage measurements (read-only probes, before any write)
 
@@ -83,3 +83,66 @@ reads arbitrary neighbour rows and a drive answers those at about 70 reads/s.
   The memory pilot (`RESERVE`, `COL_BYTES`, peak working set, sweep time) runs first. A
   production count over the 137-column core at t = 60,000,000 follows only on its
   receipts.
+
+## Update 2026-10-29
+
+Rows above are kept as written; corrections sit beside them. Receipts for everything
+below are in `receipts/` (checksums in `receipts/SHA256SUMS`). The large run outputs
+(`roomschur-seg-t*.out`, `shellschur-cols-t*.out`, up to 1.6 GB) are not committed;
+their SHA-256 values are in the receipts.
+
+### Pass B on the USB stick: FAIL
+
+`ymroom build` wrote all 26,850,885,632 stream bytes with 0 OS write errors, then exited 2
+with `header_readback=MISMATCH`. The header, the first 16 MiB and 17 samples across the
+declared extent all read back as zeros. All 33 sampled regions of the stick are
+unchanged, and all logged Pass B stream writes were confined to the declared extent
+`[579,820,584,960, 606,671,470,592)`. No claim is made about unsampled regions. The
+likely cause (CONJECTURE) is that the stick's real capacity is smaller than it reports.
+`receipts/usb-attempt/`.
+
+### Pass B on D: (300 GB Host8 store, sectors 341..374): build integrity PASS (scoped)
+
+Operator direction: put the matrix in the 300 GB store on D:. A new `segio` module lets
+`ymroom` and `roomschur` treat a run of equal-length sector files as one stream. It never
+grows or truncates a sector file.
+
+| item | value |
+|---|---|
+| exit / header readback | 0 / EXACT |
+| rows / rooms / entries | 45,508,080 / 3,356,267,422 / 3,310,759,342 |
+| stream bytes | 26,850,885,632 of 27,200,000,000 capacity (margin 349,114,368) |
+| W-self-adjoint | PASS |
+| payload merkle | `ec03c5f8…072a0b`, equal to the USB attempt's (both 8 workers: repeatability, not worker invariance) |
+| stream SHA-256 | `d8f2f4f5…aae9c254`, recomputed by a separate Python reader |
+| time | 15,547 s, 8 workers |
+| peak working set (Pass B process only) | 2,552,578,048 B |
+| untouched checks | sector 374 tail unchanged; store seal `ROOMS-MAKE.hbp` unchanged; key rooms re-hashed equal |
+
+The 34 prior sector hashes are in `receipts/d300/LEDGER.hbp`. Those sectors can be
+regenerated from the store seed. Other tests that read sectors 341..374 now see matrix bytes.
+
+### Segmented reader on 3×3
+
+`roomschur` was given the same segmented 3×3 store and produced the same summaries as the
+single-file runs: t=60e6 core 101 PASS, t=72e6 core 1,137 PASS, t=90e6 core 2,940
+AMBIGUOUS (exit 2 by design). `receipts/gate3x3-seg/GATE3X3-SEG.hbp`.
+
+### shellschur vs roomschur, record by record
+
+| t | outcome |
+|---|---|
+| 60,000,000 | **AGREE**: 10,201 vs 10,201 `SCOL` records, keyed equal and in the same order, summary equal (excluding `matrix=`, `ms=`) |
+| 72,000,000 | PENDING (running) |
+| 90,000,000 | PENDING (queued). Agreement there would be agreement between implementations, not a spectral PASS. |
+
+An earlier shellschur run is INCONCLUSIVE because I put an argument in the wrong
+position (`SHELL_MAX=12`). The comparator treats a missing key or a differing field as
+MISMATCH. It treats a crash, a duplicate key, truncated output or an unreadable file as
+INCONCLUSIVE. Split-versus-non-split controls agreed on 3 of 3 completed cases; the
+fourth was INCONCLUSIVE because my own timeout cut it off.
+
+### Still open
+
+- The 3×4 memory pilot runs only if all three comparisons AGREE. It has not started.
+- No 3×4 gap verdict. Production HOLD (`PRODUCTION-ADMISSION.md`) unchanged.
