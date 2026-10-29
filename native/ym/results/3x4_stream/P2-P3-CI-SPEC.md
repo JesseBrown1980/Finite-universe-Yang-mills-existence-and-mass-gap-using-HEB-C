@@ -250,3 +250,15 @@ and every integrity and equivalence gate passing.
 - **t = 90,000,000:** the agreement is on AMBIGUOUS. That is implementation agreement, not a
   spectral PASS.
 - **Unchanged:** no 3×4 gap verdict follows, and the production HOLD is unchanged.
+
+**Scope of the code.** The CI run built and tested the sources at `cb7d988`, which are unchanged
+from `c07eef7`:
+
+| file | SHA-256 |
+|---|---|
+| `roomschur.rs` | `8c2ebe8039654017…` |
+| `ymroom.rs` | `51d8d9dab9f53604…` |
+
+P2 and P3 here apply to those sources only. The local lane's later roomschur (segmented store,
+`roomschur.rs` `f213b009…`) and its local `ymroom.rs` are different sources. They are not covered
+by this receipt, and their evidence stays separate.
