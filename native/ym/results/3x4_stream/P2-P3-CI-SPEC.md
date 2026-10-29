@@ -143,3 +143,48 @@ the records are valid and complete, and every integrity gate passes.
 - This decision changes no completed record, threshold, binary or frozen mathematical input.
 - The production HOLD is unchanged until the separate memory pilot and every other admission
   gate pass.
+
+## Addendum: run 40906496344 and the compare-only rerun (frozen before the rerun)
+
+**Run 40906496344 (commit `16ed1a6`).** Every computing job succeeded: the gates, the three P2
+jobs, 116 of 116 column jobs and 6 of 6 merges. The compare job did not finish. The runner
+received a shutdown signal 85 s into the comparison, and no receipt was produced. Under
+fail-closed, P2 and P3 for that run are **INCONCLUSIVE**.
+
+Cause: at t = 90,000,000 each evidence file holds 8,643,600 SCOL records (1.6 GB). The
+comparators keep every record as a Python dict, measured at about 1.94 KB per record, so
+about 17 GB per side against a 16 GB runner.
+
+**Rerun.** `hebc-ym-room-identity-recompare.yml` compares the evidence again. It recomputes
+nothing.
+
+1. **Admission.** The 9 evidence artifacts (p2-0..2 and p3m-{shell,room}-{60,72,90}M) are
+   downloaded by frozen artifact ID. Each zip's SHA-256 must equal the digest GitHub recorded
+   at upload. It is all or nothing; any failure gives INCONCLUSIVE. Each evidence file's own
+   `.sha256` sidecar is then checked.
+2. **Comparator implementation.** `schur_record_compare_stream.py` applies the same rules as v2,
+   or as frozen v1 with `--v1`, using about 1/8 of the memory: the shell side is held as one
+   canonical string per record, and the room side is streamed against it.
+3. **Equivalence, required before any verdict counts.**
+   - all synthetic control cases, each also with sides swapped, against both v2 and frozen v1;
+   - the real t = 60M and 72M pairs, where the originals fit in memory, run four ways (v2, v2
+     stream, v1, v1 stream);
+   - the stream output must be byte-identical to the original's in every case.
+4. **Decision.** The stream implementation of v2 decides P3, under the reviewer decision above.
+   The stream implementation of v1 is reported in full as the strict result.
+5. **P2.** Checked as before: two verify lines and `identical=1` per lattice.
+
+Any admission, integrity or equivalence failure makes P3 INCONCLUSIVE whatever the comparison
+says.
+
+**Local engineering checks before the rerun (not the gate).**
+
+| check | result |
+|---|---|
+| equivalence, cases × references (v2, v1) | 61 × 2, all byte-identical |
+| real t = 72M pair (1,292,769 SCOL records), four ways | byte-identical |
+| peak memory at t = 72M, original comparator | 5.2 GB |
+| peak memory at t = 72M, stream implementation | 0.68 GB |
+
+Reaching the v2 verdict through this new implementation needs the reviewer's acceptance.
+This addendum asks for it and changes nothing else.
