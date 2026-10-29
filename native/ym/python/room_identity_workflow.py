@@ -240,9 +240,9 @@ jobs:
           p2ok=1
           for L in 2x3 2x4 3x3; do
             f=$(ls ev/p2-*/p2-$L.hbp 2>/dev/null | head -1)
-            if [ -n "$f" ] && (cd $(dirname $f) && sha256sum -c --quiet p2-$L.sha256) && [ "$(grep -c '^HEBC_YM|result=PASS|action=verify|' $f)" = 2 ] && grep -q "^ROOM_IDENTITY|.*|identical=1|" $f; then
-              grep "^ROOM_IDENTITY|" $f >> $o; echo "P2|L=$L|result=PASS|json=0" >> $o
-            else p2ok=0; echo "P2|L=$L|result=INCONCLUSIVE_OR_FAIL|json=0" >> $o; [ -n "$f" ] && grep "^ROOM_IDENTITY|" $f >> $o; fi
+            if [ -n "$f" ] && (cd $(dirname $f) && sha256sum -c --quiet p2-$L.sha256) && [ "$(grep -c '^HEBC_YM|result=PASS|action=verify|' $f)" = 2 ] && [ "$(grep -c "^SHARD|roomident_[0-9_]*|ROOM_IDENTITY|.*|identical=1|" $f)" = 1 ]; then
+              grep "^SHARD|roomident_[0-9_]*|ROOM_IDENTITY|" $f >> $o; echo "P2|L=$L|result=PASS|json=0" >> $o
+            else p2ok=0; echo "P2|L=$L|result=INCONCLUSIVE_OR_FAIL|json=0" >> $o; [ -n "$f" ] && grep "|ROOM_IDENTITY|" $f >> $o; fi
           done
           args=""
           for t in 60000000 72000000 90000000; do
