@@ -50,11 +50,9 @@ TEMPLATE = r"""# Room-backed lane identity gates in CI (MEMORY-PILOT-SPEC.md P2 
 # implementation agreement, not a spectral PASS. Integer-only, json=0.
 name: HEB-C YM room-lane identity gates (P2, P3)
 
+# Dispatch-only: a rerun is 116 column jobs and is started by hand, never by a push.
 on:
   workflow_dispatch:
-  push:
-    branches: [ym-room-ci-checks]
-    paths: ['.github/workflows/hebc-ym-room-identity.yml']
 
 permissions:
   contents: read

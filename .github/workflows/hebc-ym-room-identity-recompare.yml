@@ -10,11 +10,9 @@
 # INCONCLUSIVE. Integer-only, json=0.
 name: HEB-C YM room-lane identity gates, compare-only rerun of run 40906496344
 
+# Dispatch-only: its result is recorded in native/ym/results/3x4_stream/ci-40936173167/.
 on:
   workflow_dispatch:
-  push:
-    branches: [ym-room-ci-checks]
-    paths: ['.github/workflows/hebc-ym-room-identity-recompare.yml']
 
 permissions:
   contents: read

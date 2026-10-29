@@ -333,3 +333,10 @@ and the three v2 AGREE results.
 - **Not decided here:** integration of PR #30 (head `9f60d56`) and its exact-head checks, the local
   gate, the local pilot block, binary provenance and any 3×4 gap verdict. The production HOLD is
   unchanged.
+
+## Integration note
+
+On the integration branch, `hebc-ym-room-identity.yml` is regenerated from
+`room_identity_workflow.py`, so its compare step now carries the `set +e` fix as well. Both room
+workflows (`hebc-ym-room-identity.yml` and `-recompare.yml`) are now dispatch-only: no push can
+start them. No job, threshold, comparator rule, record or receipt changed.
