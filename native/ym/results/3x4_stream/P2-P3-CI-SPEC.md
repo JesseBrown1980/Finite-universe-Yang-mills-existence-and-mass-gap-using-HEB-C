@@ -103,3 +103,43 @@ These local results do not count toward P2 or P3. Only the CI run does.
 The receipt `HEBC-YM-ROOM-IDENTITY-CI.hbp` (with its `.sha256`) is uploaded by the `compare`
 job and will be committed with the run ID. The comparison gate stays INCONCLUSIVE until that
 receipt exists and the comparator decision is made.
+
+## Addendum: comparator decision (reviewer, 2026-10-29)
+
+**v2 decides P3**, on the condition that its only relaxation relative to v1 is the exclusion
+of the three roomschur metadata fields. Every mathematical summary field and every required
+record must still be compared. The code difference `9f60d56` → `16ed1a6` was checked against
+that condition:
+
+| field | written by | class | what it records |
+|---|---|---|---|
+| `room_bytes_per_pass` | roomschur only | storage | bytes of the room file streamed per sweep |
+| `payload_merkle` | roomschur only | storage | SHA-256 merkle of the room file's payload (16 MiB chunks) |
+| `pass_ms` | roomschur only | timing | wall-clock milliseconds per pass (also removed by the backend as runtime, like `ms=`) |
+
+What v2 changes and what it leaves alone:
+
+- **Relaxed:** only the three fields above, and only on `SHELL_SCHUR_COLS` lines. The
+  exclusion is by field name, so it would also cover them on the shellschur side. Shellschur
+  writes none of them.
+- **Unchanged from v1:** the `SHELL_SCHUR` summary comparison (excluding only `matrix=` and
+  `ms=`), every SCOL record keyed by `(cb, ca)`, the key sets, the duplicate and missing-key
+  rules, and every other `SHELL_SCHUR_COLS` field.
+- **Added, both stricter or evidence-only:**
+  - all room lines must carry one and the same `payload_merkle`, otherwise the result is
+    INCONCLUSIVE;
+  - the excluded values are printed in every evidence line.
+
+The receipt keeps both verdicts, neither suppressed. The v1 result is preserved verbatim as the
+strict comparator's result. Where v1 reports MISMATCH and v2 reports AGREE, v1's disagreement
+is on those metadata fields. It is not a mathematical-record mismatch under the P3 comparison
+contract.
+
+**P3 is satisfied for a CI run** only if both hold: v2 reports AGREE at all three thresholds;
+the records are valid and complete, and every integrity gate passes.
+
+- AGREE on a shared AMBIGUOUS outcome (expected at t = 90,000,000) is implementation
+  agreement, not a spectral PASS.
+- This decision changes no completed record, threshold, binary or frozen mathematical input.
+- The production HOLD is unchanged until the separate memory pilot and every other admission
+  gate pass.
