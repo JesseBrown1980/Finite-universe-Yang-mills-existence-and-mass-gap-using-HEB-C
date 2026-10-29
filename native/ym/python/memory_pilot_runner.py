@@ -171,6 +171,7 @@ def cgroup_run(parent: Path, k: int, room: Path) -> None:
     tfile = OUT / f"pilot-K{k}.time"
     events = {"oom": 0, "oom_kill": 0}
     anon_max = 0
+    proc = None
     try:
         (cg / "memory.max").write_text(str(BUDGET))
         def join():
@@ -183,7 +184,7 @@ def cgroup_run(parent: Path, k: int, room: Path) -> None:
         t0 = time.monotonic()
         with log.open("w", encoding="utf-8") as stream:
             proc = subprocess.Popen(cmd, stdout=stream, stderr=subprocess.STDOUT,
-                                    env=env, preexec_fn=join)
+                                    env=env, preexec_fn=join, start_new_session=True)
             while proc.poll() is None:
                 stats = (cg / "memory.stat").read_text()
                 m = re.search(r"^anon (\d+)$", stats, re.MULTILINE)
@@ -203,16 +204,31 @@ def cgroup_run(parent: Path, k: int, room: Path) -> None:
         text = log.read_text(errors="replace")
         scol0 = "".join(line + "\n" for line in text.splitlines()
                         if line.startswith("SCOL|") and "|cb=0|" in line)
+        ensure(bool(scol0) or events["oom"] > 0 or events["oom_kill"] > 0,
+               "missing_col0_scol")
         sha = hashlib.sha256(scol0.encode()).hexdigest() if scol0 else "-"
         admitted = next((field(line, "admitted") for line in text.splitlines()
                          if line.startswith("ROOMSCHUR_ADMISSION|")), "0")
-        line = (f"PILOT_RUN|K={k}|ru_maxrss_kib={read_time(tfile)}|anon_max={anon_max}"
+        rss_kib = read_time(tfile) if tfile.exists() else 0
+        ensure(tfile.exists() or events["oom"] > 0 or events["oom_kill"] > 0,
+               "missing_ru_maxrss")
+        line = (f"PILOT_RUN|K={k}|ru_maxrss_kib={rss_kib}|anon_max={anon_max}"
                 f"|memory_peak={mempeak}|oom={events['oom']}|oom_kill={events['oom_kill']}"
                 f"|exit={code}|admitted={admitted}|scol_col0_sha256={sha}|json=0")
         emit(line)
         emit(f"PILOT_RUN_BINDING|K={k}|seconds={secs}|full_log_sha256={digest(log)}|json=0")
         RAW.append(line)
     finally:
+        if proc is not None and proc.poll() is None:
+            try:
+                os.killpg(proc.pid, signal.SIGTERM)
+                proc.wait(timeout=20)
+            except (OSError, subprocess.TimeoutExpired):
+                try:
+                    os.killpg(proc.pid, signal.SIGKILL)
+                except OSError:
+                    pass
+                proc.wait(timeout=20)
         cg.rmdir()
 
 def signal_stop(signum, _frame):
