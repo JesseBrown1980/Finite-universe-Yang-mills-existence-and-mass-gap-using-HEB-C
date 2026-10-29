@@ -1,0 +1,112 @@
+# P4: frozen 3x4 room-backed production-memory pilot.
+# Dispatch-only, main-only. This experiment measures memory; it never admits production.
+# Source specification: native/ym/results/3x4_stream/MEMORY-PILOT-SPEC.md
+# The frozen spec's sidecar is checked; SHA-256 for spec, workflow, controls,
+# runner, derive code, sources and compiled binaries are recorded in the HBP receipt.
+name: HEB-C YM 3x4 frozen memory pilot (P4)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hebc-ym-3x4-memory-pilot
+  cancel-in-progress: false
+
+jobs:
+  frozen-memory-pilot:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: P1-P3 preconditions and frozen SHA sidecar
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          git merge-base --is-ancestor b45dbe3f2d27bd972c90d76a9af18c8fffd4c0cd HEAD
+          (cd native/ym/results/3x4_stream && sha256sum -c MEMORY-PILOT-SPEC.sha256)
+          grep -Fqx 'ROOM_IDENTITY_CI_RESULT|P2=PASS|P3_v2=AGREE|integrity_and_equivalence=1|json=0' \
+            native/ym/results/3x4_stream/ci-40936173167/HEBC-YM-ROOM-IDENTITY-CI.hbp
+          echo "P4_HASH_BINDINGS|head=$(git rev-parse HEAD)|json=0"
+          sha256sum \
+            native/ym/results/3x4_stream/MEMORY-PILOT-SPEC.md \
+            .github/workflows/hebc-ym-3x4-memory-pilot.yml \
+            native/ym/python/memory_pilot_controls.py \
+            native/ym/python/memory_pilot_derive.py \
+            native/ym/python/memory_pilot_runner.py \
+            native/ym/crates/torusl/src/bin/ymroom.rs \
+            native/ym/crates/sturmrs/src/bin/roomschur.rs
+
+      - name: Rust 1.81 offline build and zero-warning Clippy
+        shell: bash
+        working-directory: native/ym
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal --component clippy
+          rustup override set 1.81.0
+          cargo build --release --offline --locked
+          cargo clippy --release --all-targets --offline --locked -- -D warnings
+          test -x target/release/ymroom
+          test -x target/release/roomschur
+
+      - name: Frozen synthetic derivation controls (P4)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 native/ym/python/memory_pilot_controls.py | tee "$RUNNER_TEMP/p4-controls.hbp"
+          grep -Fx 'PILOT_CONTROLS_TOTAL|cases=12|ok=12|result=PASS|json=0' \
+            "$RUNNER_TEMP/p4-controls.hbp"
+          python3 -m py_compile native/ym/python/memory_pilot_runner.py \
+            native/ym/python/memory_pilot_derive.py
+
+      - name: Measure K=1,2,4 using the frozen specification
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p native/ym/out
+          # The internal runner always writes HBP + SHA on normal outcomes.
+          # The outer timeout allows 30 minutes for receipt packaging/upload.
+          timeout --signal=TERM --kill-after=30s 330m \
+            python3 native/ym/python/memory_pilot_runner.py
+          rc=$?
+          echo "P4_RUNNER_EXIT|code=$rc|json=0" | tee native/ym/out/P4-RUNNER-EXIT.hbp
+          exit 0
+
+      - name: Package fail-closed receipt on every completed attempt
+        if: always()
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p native/ym/out
+          f=native/ym/out/HEBC-YM-3X4-MEMORY-PILOT.hbp
+          if [ ! -s "$f" ]; then
+            echo 'PILOT_FAIL|reason=missing_runner_receipt|json=0' > "$f"
+          fi
+          if ! grep -q '^PILOT_OUTCOME|' "$f"; then
+            echo 'PILOT_FAIL|reason=missing_outcome|json=0' >> "$f"
+            echo 'PILOT_OUTCOME|INCONCLUSIVE|reason=interrupted_execution|json=0' >> "$f"
+          fi
+          (cd native/ym/out && sha256sum HEBC-YM-3X4-MEMORY-PILOT.hbp > HEBC-YM-3X4-MEMORY-PILOT.sha256)
+          (cd native/ym/out && sha256sum -c HEBC-YM-3X4-MEMORY-PILOT.sha256)
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hebc-ym-3x4-memory-pilot-p4
+          path: native/ym/out
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Pilot verdict (production HOLD unchanged on every outcome)
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd native/ym/out && sha256sum -c HEBC-YM-3X4-MEMORY-PILOT.sha256)
+          grep -Fx 'PILOT_OUTCOME|PILOT_PASS|reason=all_gates|json=0' \
+            native/ym/out/HEBC-YM-3X4-MEMORY-PILOT.hbp
+          echo 'P4_VERDICT|PILOT_PASS|production_hold=UNCHANGED|json=0'
