@@ -181,7 +181,7 @@ says.
 
 | check | result |
 |---|---|
-| equivalence, cases × references (v2, v1) | 61 × 2, all byte-identical |
+| equivalence, cases × references (v2, v1) | 61 × 2, all byte-identical (the 60 synthetic cases the CI receipt runs, plus the local t = 60M pair counted as a 61st) |
 | real t = 72M pair (1,292,769 SCOL records), four ways | byte-identical |
 | peak memory at t = 72M, original comparator | 5.2 GB |
 | peak memory at t = 72M, stream implementation | 0.68 GB |
@@ -236,9 +236,10 @@ SHA-256s equal those of Host8 run-log tests 1–3.
 | 72,000,000 | 1,292,769 | AGREE | PASS, negative 7 |
 | 90,000,000 | 8,643,600 | AGREE | AMBIGUOUS, negative 37, 9 ambiguous |
 
-**v1 (strict, kept verbatim):** MISMATCH at all three thresholds. The first difference is
-`cols[…].payload_merkle`, with 2, 16 and 40 differences in total. That is one per
-`SHELL_SCHUR_COLS` line, which is the count expected if only the room-only metadata differs.
+**v1 (strict, kept verbatim):** V1 reports MISMATCH with first differences on
+`payload_merkle`, with total difference counts consistent with payload-Merkle-only differences
+across the 58 column lines (2 + 16 + 40). v1 reports only the first differing field of each line,
+so the receipt does not list every differing field. That does not affect the v2-decided result:
 v2 compares every other field of those lines, and every summary field and SCOL record, and finds
 them equal.
 
@@ -300,9 +301,9 @@ v2 and v1 hold every SCOL record as a Python dict, measured at about 1.94 KB per
    string-sorted keys, mixed key-set and field diffs, late malformations, swapped sides, and
    values containing `=`;
 3. byte-identical real pairs at 60M and 72M, in both v2 and v1 modes;
-4. the official streamed 90M result. Its structure is consistent with both the 72M equivalence
-   and the v1 strict result: v1 reports exactly one difference per `SHELL_SCHUR_COLS` line (40),
-   all `payload_merkle`.
+4. the official streamed 90M result. Its structure is consistent with the 72M equivalence and with
+   the v1 strict result, in which v1 reports MISMATCH with first differences on `payload_merkle`
+   and 40 differences in total, one per `SHELL_SCHUR_COLS` line.
 
 This is an argument, not a direct comparison. **No direct old-versus-stream comparison was made
 at 90M.**
@@ -311,3 +312,24 @@ at 90M.**
 at least 40 GB of RAM, or with swap, and compare its stdout byte for byte with the receipt's 90M
 line. Sign-off status: P3 receipt complete; the reviewer's final sign-off on the stream
 implementation is pending.
+
+## Reviewer sign-off (2026-10-29)
+
+The independent reviewer gave this sign-off on the basis of the committed receipt
+(`integrity_and_equivalence=1`), the completed run, the verified sidecar, the full chunk returns
+and the three v2 AGREE results.
+
+- **Stream comparator:** `schur_record_compare_stream.py` (`7b224b21…`) is accepted as the
+  deciding v2 implementation **for run 40936173167**. This is not a general audit of the
+  comparator for unrelated future runs.
+- **P2:** PASS.
+- **P3:** satisfied for run 40936173167, within the receipt's recorded scope: the `c07eef7`
+  sources, `roomschur.rs` `8c2ebe80…` and `ymroom.rs` `51d8d9da…`. It does not cover the local
+  segmented-store sources.
+- **t = 90,000,000:** implementation agreement on AMBIGUOUS (negative 37, 9 ambiguous), not a
+  spectral PASS.
+- **v1 wording:** "V1 reports MISMATCH with first differences on `payload_merkle`, with total
+  difference counts consistent with payload-Merkle-only differences across the 58 column lines."
+- **Not decided here:** integration of PR #30 (head `9f60d56`) and its exact-head checks, the local
+  gate, the local pilot block, binary provenance and any 3×4 gap verdict. The production HOLD is
+  unchanged.
