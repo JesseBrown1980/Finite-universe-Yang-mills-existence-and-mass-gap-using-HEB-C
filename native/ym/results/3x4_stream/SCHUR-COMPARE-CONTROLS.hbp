@@ -1,4 +1,4 @@
-SCHUR_COMPARE_CONTROLS_RECEIPT|tool_sha256=8cbe0015df4310cfebd17913bf7de31f3c7f2264ec59c67e97a2e96477446fdf|controls_sha256=44348dd5abaa2d4e083525678ac01a6ef03822ab1bbd14716690bc8161de8d3a|exclude=matrix,ms|synthetic_only=1|json=0
+SCHUR_COMPARE_CONTROLS_RECEIPT|tool_sha256=977e5e81fc609662cad3a19299928ed8a0545a0add1dae76d04835f29e1a0c62|controls_sha256=8f6334e0ff34d94a1132dd7faef5a1ac61ca5c6015d8c3a47bbd62a1f911d02c|exclude=matrix,ms|room_only_cols_excluded=room_bytes_per_pass,payload_merkle,pass_ms|version=v2|synthetic_only=1|json=0
 SCHUR_COMPARE_CONTROL|case=identical_ambiguous|want=AGREE|got=AGREE|ok=1|json=0
 SCHUR_COMPARE_CONTROL|case=only_matrix_and_ms_differ|want=AGREE|got=AGREE|ok=1|json=0
 SCHUR_COMPARE_CONTROL|case=summary_field_differs|want=MISMATCH|got=MISMATCH|ok=1|json=0
@@ -13,8 +13,11 @@ SCHUR_COMPARE_CONTROL|case=cols_line_value_differs|want=MISMATCH|got=MISMATCH|ok
 SCHUR_COMPARE_CONTROL|case=cols_line_only_one_side|want=MISMATCH|got=MISMATCH|ok=1|json=0
 SCHUR_COMPARE_CONTROL|case=duplicate_cols_key|want=INCONCLUSIVE|got=INCONCLUSIVE|ok=1|json=0
 SCHUR_COMPARE_CONTROL|case=duplicate_cols_key_shell_side|want=INCONCLUSIVE|got=INCONCLUSIVE|ok=1|json=0
+SCHUR_COMPARE_CONTROL|case=room_only_fields_on_room_side|want=AGREE|got=AGREE|ok=1|json=0
+SCHUR_COMPARE_CONTROL|case=room_payload_merkle_inconsistent|want=INCONCLUSIVE|got=INCONCLUSIVE|ok=1|json=0
+SCHUR_COMPARE_CONTROL|case=room_line_value_differs|want=MISMATCH|got=MISMATCH|ok=1|json=0
 SCHUR_COMPARE_CONTROL|case=cols_line_without_key|want=INCONCLUSIVE|got=INCONCLUSIVE|ok=1|json=0
 SCHUR_COMPARE_CONTROL|case=no_summary_truncated|want=INCONCLUSIVE|got=INCONCLUSIVE|ok=1|json=0
 SCHUR_COMPARE_CONTROL|case=failed_execution|want=INCONCLUSIVE|got=INCONCLUSIVE|ok=1|json=0
 SCHUR_COMPARE_CONTROL|case=missing_file|want=INCONCLUSIVE|got=INCONCLUSIVE|ok=1|json=0
-SCHUR_COMPARE_CONTROLS_TOTAL|cases=18|result=PASS|json=0
+SCHUR_COMPARE_CONTROLS_TOTAL|cases=21|result=PASS|json=0
