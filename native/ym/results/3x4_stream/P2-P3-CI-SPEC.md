@@ -188,3 +188,23 @@ says.
 
 Reaching the v2 verdict through this new implementation needs the reviewer's acceptance.
 This addendum asks for it and changes nothing else.
+
+**Rerun attempt 1: run 40925767993 (commit `2ec18ca`). INCONCLUSIVE, workflow defect.** These
+steps completed:
+
+- admission, 9 of 9 artifacts by ID and zip SHA-256;
+- the evidence sidecars;
+- P2 for all three lattices;
+- the synthetic equivalence, 60 of 60.
+
+The step then stopped at the first comparator that exits nonzero by design (v1 at t = 60M,
+exit 2 = MISMATCH). GitHub runs `run:` scripts as `bash -e`, and the script's
+`set -uo pipefail` did not turn `-e` off. The receipt has no comparison lines and no sidecar,
+so this attempt decides nothing.
+
+**Fix.** An explicit `set +e` at the top of the step. The same latent defect is fixed in
+`room_identity_workflow.py`, which generates the compare step of the main workflow. The
+generated YAML is not regenerated here, because that would start another 116-job run; it is
+regenerated before its next run.
+
+No record, threshold, comparator rule or frozen input changed.
