@@ -22,6 +22,8 @@ magnetic-shell Schur reduction), with every step recorded in HBP/HBI receipts.
 | 2×2 | zero momentum | ≥ 22.727075 J_E | [`native/ym/results/2xL/`](native/ym/results/2xL/README.md) |
 | 2×3 | zero momentum | ≥ 22.798240 J_E | same |
 | 2×4 | zero momentum | ≥ 22.565393 J_E | same |
+| 2×5 | zero momentum | ≥ 21.778000 J_E | [`native/ym/results/2x5_stage_b/`](native/ym/results/2x5_stage_b/HEBC-YM-2X5-STAGE-B.hbp), sealed `PASS` |
+| 3×3 | full physical space, all momenta (10,097,891 states) | ≥ 17.9 J_E; at r = 9, > 19.366578 J_E | [`native/ym/results/3x3_full_space/`](native/ym/results/3x3_full_space/CERTIFY-RESULT.md), certify `PASS` |
 | 2×2, 2×3 | full physical space, all momenta | 8 levels below t₁ and below t_B at r = 9 | [`native/ym/results/full_space_r9/`](native/ym/results/full_space_r9/summary.hbp) |
 
 **Point certificates** of E₉ − E₈, in units of J_E:
@@ -32,6 +34,8 @@ magnetic-shell Schur reduction), with every step recorded in HBP/HBI receipts.
 | 27 | [79.625728, 79.626755] | [79.711705, 79.713463] | [79.639284, 79.640698] | [80.161963, 80.163325] |
 | 81 | [242.543881, 242.545661] | [242.572553, 242.573741] | [242.548047, 242.549116] | [242.733980, 242.735244] |
 | 243 | [728.847290, 728.848700] | [728.856505, 728.858026] | [728.848613, 728.849874] | [728.911221, 728.913186] |
+
+2×5 at r = 9, zero momentum: E₉ − E₈ ∈ [22.613640, 22.615366] J_E.
 
 The gap above the cluster is nearly the same on every lattice and grows like 3r.
 The cluster's internal splitting E₂ − E₁ depends on shape. On 2×L it follows
@@ -45,10 +49,20 @@ L/r; on 3×3 it is third order (0.002 at r = 27). Full tables:
   with pinned matrix SHA-256s.
 - **Two routes to the same counts:** the split-column pipeline reproduces the
   unsplit 2×4 certificate exactly.
+- **3×3 full space:** the N-Nest certify tree (depths 0–4) re-executes and checks the
+  stage B evidence: 340 of 340 nodes green, 50 of 50 HTTP-0 watcher jobs
+  (run 40725530804, erratum 1). Two counts make up the result, 8 levels below t₁ =
+  52.533422 and 8 below t_F = 71.9 J_E. They come from the full 10,097,891-dimensional
+  space, by Möbius inversion over the translation-line sectors.
+- **2×5:** 128 GitRAM cells and 4 strict merges. A seal-only run (40563902487) admitted
+  all 132 original artifacts by digest, without recomputing them, and sealed `PASS`.
 
 **In progress:**
-- 2×5 at r = 9, zero momentum, through 128 GitRAM cells and 4 strict merges.
-- Full-space counts on 2×4 and 3×3 through the reflection-only sectors.
+- 3×4, zero momentum: the streaming pilot reconciled 2,177,317,873 gauge orbits
+  and the Sx+Sy+ sector of 45,508,080 states. Production is on HOLD until a memory
+  pilot measures the column-block footprint
+  ([`native/ym/results/3x4_stream/`](native/ym/results/3x4_stream/PRODUCTION-ADMISSION.md)).
+- Full-space counts on 2×4 through the reflection-only sectors.
 - A separately written operator and inertia verifier.
 
 ## The theory route
