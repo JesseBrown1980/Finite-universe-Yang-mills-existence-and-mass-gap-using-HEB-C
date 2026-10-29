@@ -31,6 +31,9 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use torusl::sha::sha256_hex;
 use torusl::{Lat, G, TRANS};
 
+#[path = "../segio.rs"]
+mod segio;
+
 struct Ctx<'a> {
     g: &'a G,
     lat: &'a Lat,
@@ -303,7 +306,10 @@ fn main() {
             if offset % 1_048_576 != 0 {
                 die("offset_not_1MiB_aligned");
             }
-            let mut dev = std::fs::OpenOptions::new().read(true).write(true).open(&a[6]).unwrap_or_else(|_| die("open_dev"));
+            let mut dev = segio::open(&a[6], true).unwrap_or_else(|_| die("open_dev"));
+            if let Some(cap) = dev.capacity() {
+                eprintln!("YMROOM_SEG|files={}|first={}|last={}|capacity_bytes={cap}|json=0", dev.names().len(), dev.names()[0], dev.names()[dev.names().len() - 1]);
+            }
             dev.seek(SeekFrom::Start(offset + 4096)).unwrap_or_else(|_| die("seek_dev"));
             const MIB: usize = 1_048_576;
             let mut pend: Vec<u8> = Vec::with_capacity(64 * MIB);
@@ -378,6 +384,7 @@ fn main() {
             dev.seek(SeekFrom::Start(offset)).unwrap_or_else(|_| die("seek_hdr"));
             dev.write_all(&blk).unwrap_or_else(|_| die("write_hdr"));
             dev.flush().unwrap_or_else(|_| die("flush_dev"));
+            dev.sync().unwrap_or_else(|_| die("sync_dev"));
             // read the header back (wrap-around / lost-write tripwire)
             let mut back = vec![0u8; 4096];
             dev.seek(SeekFrom::Start(offset)).unwrap_or_else(|_| die("seek_back"));

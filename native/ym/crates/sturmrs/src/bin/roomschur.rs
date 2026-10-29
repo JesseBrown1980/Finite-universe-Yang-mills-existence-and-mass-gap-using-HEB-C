@@ -33,6 +33,11 @@ use std::time::Instant;
 #[path = "../../../torusl/src/sha.rs"]
 mod sha;
 
+// writer-side helpers (sync) are unused by this reader
+#[allow(dead_code)]
+#[path = "../../../torusl/src/segio.rs"]
+mod segio;
+
 type Iv = (BigInt, BigInt);
 
 // ---- copied unchanged from shellschur.rs ----
@@ -133,7 +138,7 @@ fn field<'a>(line: &'a str, k: &str) -> Option<&'a str> {
     line.split('|').find_map(|kv| kv.strip_prefix(k))
 }
 
-fn read_hdr(dev: &mut std::fs::File, off: u64) -> Result<Hdr, String> {
+fn read_hdr(dev: &mut segio::Dev, off: u64) -> Result<Hdr, String> {
     let mut blk = vec![0u8; 4096];
     dev.seek(SeekFrom::Start(off)).map_err(|e| format!("seek: {e}"))?;
     dev.read_exact(&mut blk).map_err(|e| format!("read header: {e}"))?;
@@ -155,7 +160,7 @@ struct Row<'a> {
 
 /// Stream every row in index order, calling `f(h, row)` for each complete chunk
 /// of rows. The 16 MiB chunk SHA-256 merkle of the payload is recomputed.
-fn stream<F: FnMut(usize, &[Row])>(dev: &mut std::fs::File, off: u64, hdr: &Hdr, mut f: F) -> Result<(u64, String), String> {
+fn stream<F: FnMut(usize, &[Row])>(dev: &mut segio::Dev, off: u64, hdr: &Hdr, mut f: F) -> Result<(u64, String), String> {
     dev.seek(SeekFrom::Start(off + 4096)).map_err(|e| format!("seek: {e}"))?;
     let mut left = hdr.payload;
     let mut carry: Vec<u8> = Vec::new();
@@ -234,7 +239,10 @@ fn run() -> Result<(), String> {
     let maxsweep = usize::try_from(p(8, 400)).map_err(|_| "bad MAXSWEEP")?;
     let f: i128 = 10i128.pow(fdig);
     let t0 = Instant::now();
-    let mut dev = std::fs::OpenOptions::new().read(true).open(&a[1]).map_err(|e| format!("open {}: {e}", a[1]))?;
+    let mut dev = segio::open(&a[1], false).map_err(|e| format!("open {}: {e}", a[1]))?;
+    if let Some(cap) = dev.capacity() {
+        eprintln!("ROOMSCHUR_SEG|files={}|first={}|capacity_bytes={cap}|json=0", dev.names().len(), dev.names()[0]);
+    }
     let hdr = read_hdr(&mut dev, off)?;
     let n = hdr.n;
     // pass 0: diagonal, full off-diagonal sums, core, core rows kept in RAM
