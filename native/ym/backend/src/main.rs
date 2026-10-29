@@ -28,6 +28,15 @@
 //!   countcols/LX/LY/SX/SY/JE/JB/T/FDIG/TOL/A/B  (shellschur columns A..B-1)
 //!   countmerge/LX/LY/SX/SY/JE/JB/T/FDIG/TOL     (merge ROOT/scol/<count id>/*.hbp:
 //!       the countcols shards' run.hbp files; every core entry exactly once)
+//! Room-backed lane (zero momentum, Sx+Sy+ only: SX = SY = 1, no mode prefix):
+//!   roomident/LX/LY/1/1     `ymroom text` compared byte for byte with the sector
+//!       shard's matrix (builder identity gate P2)
+//!   roombuild/LX/LY/1/1     `ymroom passa` + `ymroom build` into ROOT/rooms
+//!   roomcount/LX/LY/1/1/JE/JB/T/FDIG/TOL          (roomschur, MAXSWEEP 4000)
+//!   roomcountcols/LX/LY/1/1/JE/JB/T/FDIG/TOL/A/B  (roomschur columns A..B-1)
+//!   roomcountmerge/LX/LY/1/1/JE/JB/T/FDIG/TOL     (merge ROOT/scol/<roomcount id>/)
+//!   roomschur runs with ROOMSCHUR_K = 8 and ROOMSCHUR_BUDGET = 12 GiB; every room
+//!   job checks the room file against the SHA-256 its roombuild shard recorded.
 //! Every kind takes a sector-mode prefix: none (zero momentum), r (reflections
 //! only, every momentum), or tx / ty / td / ta (translations along one line, the
 //! sectors of V^K). Full space for a non-cyclic translation group by Mobius
@@ -46,7 +55,9 @@ use std::process::Command;
 use std::time::{Duration, Instant};
 
 const MAX_HEADER: usize = 2048;
-const RUNTIME_FIELDS: [&str; 2] = ["ms=", "elapsed_ms="];
+const RUNTIME_FIELDS: [&str; 3] = ["ms=", "elapsed_ms=", "pass_ms="];
+const ROOM_K: &str = "8";
+const ROOM_BUDGET: u64 = 12 << 30;
 
 struct Spec {
     kind: String,
@@ -54,7 +65,7 @@ struct Spec {
 }
 
 const MODES: [&str; 6] = ["tx", "ty", "td", "ta", "r", ""];
-const BASES: [&str; 7] = ["sector", "flatcomp", "cluster", "countcols", "countmerge", "count", "ddcore"];
+const BASES: [&str; 12] = ["sector", "flatcomp", "cluster", "countcols", "countmerge", "count", "ddcore", "roomident", "roombuild", "roomcountcols", "roomcountmerge", "roomcount"];
 
 impl Spec {
     /// Sector mode prefix of the kind:
@@ -96,11 +107,11 @@ fn parse_spec(spec: &str) -> Result<Spec, String> {
     let mode = MODES.iter().copied().find(|m| kind.strip_prefix(m).is_some_and(|b| BASES.contains(&b))).ok_or(format!("unknown job kind {kind}"))?;
     let base = &kind[mode.len()..];
     let want = match base {
-        "sector" | "flatcomp" => 4,
+        "sector" | "flatcomp" | "roomident" | "roombuild" => 4,
         "ddcore" => 7,
         "cluster" => 8,
-        "count" | "countmerge" => 9,
-        "countcols" => 11,
+        "count" | "countmerge" | "roomcount" | "roomcountmerge" => 9,
+        "countcols" | "roomcountcols" => 11,
         _ => return Err(format!("unknown job kind {kind}")),
     };
     if nums.len() != want {
@@ -108,6 +119,9 @@ fn parse_spec(spec: &str) -> Result<Spec, String> {
     }
     if !(2..=4).contains(&nums[0]) || !(2..=6).contains(&nums[1]) || nums[2].abs() != 1 || nums[3].abs() != 1 {
         return Err("lattice or sector out of range".into());
+    }
+    if base.starts_with("room") && (!mode.is_empty() || nums[2] != 1 || nums[3] != 1 || nums[1] > 4 || nums[0] * nums[1] > 12) {
+        return Err("room jobs are zero-momentum Sx+Sy+ only, LX*LY <= 12".into());
     }
     Ok(Spec { kind, nums })
 }
@@ -160,6 +174,43 @@ fn checked_matrix(root: &Path, s: &Spec) -> Result<PathBuf, String> {
     Ok(m)
 }
 
+fn rooms_dir(root: &Path) -> PathBuf {
+    root.join("rooms")
+}
+
+fn room_path(root: &Path, s: &Spec) -> PathBuf {
+    rooms_dir(root).join(format!("r{}{}_1_1.rooms", s.nums[0], s.nums[1]))
+}
+
+/// The room file a job streams must be the one its roombuild shard recorded.
+fn checked_rooms(root: &Path, s: &Spec) -> Result<PathBuf, String> {
+    let b = Spec { kind: "roombuild".into(), nums: s.nums[..4].to_vec() };
+    let hbp = root.join("shards").join(shard_id(&b)).join("run.hbp");
+    let text = fs::read_to_string(&hbp).map_err(|_| format!("missing roombuild shard for {}", canonical_spec(&b)))?;
+    let want = text
+        .lines()
+        .find_map(|l| l.strip_prefix("ROOM_FILE|sha256=").and_then(|r| r.split('|').next()))
+        .ok_or("roombuild shard lacks ROOM_FILE")?
+        .to_string();
+    let p = room_path(root, s);
+    let got = file_sha(&p)?;
+    if got != want {
+        return Err(format!("room file sha mismatch for {}: {got} != {want}", p.display()));
+    }
+    Ok(p)
+}
+
+fn room_envs(cols: Option<(i64, i64)>, merge: Option<String>) -> Vec<(&'static str, String)> {
+    let mut v = vec![("ROOMSCHUR_K", ROOM_K.to_string()), ("ROOMSCHUR_BUDGET", ROOM_BUDGET.to_string())];
+    if let Some((a, b)) = cols {
+        v.push(("ROOMSCHUR_COLS", format!("{a}:{b}")));
+    }
+    if let Some(m) = merge {
+        v.push(("ROOMSCHUR_MERGE", m));
+    }
+    v
+}
+
 fn run_tool(name: &str, args: &[String], envs: &[(&str, String)]) -> Result<(String, Vec<(String, String)>), String> {
     let path = tool(name)?;
     let mut cmd = Command::new(&path);
@@ -210,10 +261,82 @@ fn execute(root: &Path, s: &Spec) -> Result<(String, Vec<(String, String)>), Str
             }
             Ok((out, meta))
         }
+        "roomident" => {
+            let mp = checked_matrix(root, s)?;
+            fs::create_dir_all(rooms_dir(root)).map_err(|e| e.to_string())?;
+            let tmp = rooms_dir(root).join(format!(".roomtext-{}", std::process::id()));
+            let r = run_tool("ymroom", &["text".into(), st(0), st(1), tmp.display().to_string()], &[]);
+            let room_sha = file_sha(&tmp);
+            let room_bytes = fs::metadata(&tmp).map(|m| m.len());
+            let _ = fs::remove_file(&tmp);
+            let (mut out, meta) = r?;
+            let (room_sha, room_bytes) = (room_sha?, room_bytes.map_err(|e| e.to_string())?);
+            let msha = file_sha(&mp)?;
+            let mbytes = fs::metadata(&mp).map_err(|e| e.to_string())?.len();
+            out.push_str(&format!(
+                "ROOM_IDENTITY|L={}x{}|sector=Sx+Sy+|ymsec_sha256={msha}|ymsec_bytes={mbytes}|ymroom_sha256={room_sha}|ymroom_bytes={room_bytes}|identical={}|json=0\n",
+                n[0],
+                n[1],
+                u8::from(msha == room_sha && mbytes == room_bytes)
+            ));
+            Ok((out, meta))
+        }
+        "roombuild" => {
+            fs::create_dir_all(rooms_dir(root)).map_err(|e| e.to_string())?;
+            let rp = room_path(root, s);
+            let pa = rp.with_extension("passa");
+            let keys = rp.with_extension("keys");
+            let tmp = rp.with_extension("rooms.part");
+            let (mut out, mut meta) = run_tool("ymroom", &["passa".into(), st(0), st(1), pa.display().to_string()], &[])?;
+            let states = fs::metadata(&pa).map_err(|e| e.to_string())?.len() / 16;
+            let kf = fs::File::create(&keys).map_err(|e| e.to_string())?;
+            kf.set_len(8 * states).map_err(|e| e.to_string())?;
+            drop(kf);
+            fs::File::create(&tmp).map_err(|e| e.to_string())?;
+            let (out2, meta2) = run_tool("ymroom", &["build".into(), st(0), st(1), pa.display().to_string(), keys.display().to_string(), tmp.display().to_string(), "0".into()], &[])?;
+            if !out2.contains("|w_self_adjoint=PASS|") || !out2.contains("|header_readback=EXACT|") {
+                return Err("ymroom build did not report w_self_adjoint=PASS and header_readback=EXACT".into());
+            }
+            out.push_str(&out2);
+            meta.extend(meta2);
+            let sha = file_sha(&tmp)?;
+            let bytes = fs::metadata(&tmp).map_err(|e| e.to_string())?.len();
+            fs::rename(&tmp, &rp).map_err(|e| e.to_string())?;
+            out.push_str(&format!("ROOM_FILE|sha256={sha}|bytes={bytes}|file={}|json=0\n", rp.file_name().and_then(|f| f.to_str()).unwrap_or("")));
+            Ok((out, meta))
+        }
+        "roomcount" | "roomcountcols" => {
+            let rp = checked_rooms(root, s)?;
+            let cols = if s.base() == "roomcountcols" { Some((n[9], n[10])) } else { None };
+            let (mut out, meta) = run_tool("roomschur", &[rp.display().to_string(), "0".into(), st(4), st(5), st(6), st(7), st(8), "4000".into()], &room_envs(cols, None))?;
+            if cols.is_some() {
+                out.push_str(&format!("INPUT_ROOMS|sha256={}|file={}|json=0\n", file_sha(&rp)?, rp.file_name().and_then(|f| f.to_str()).unwrap_or("")));
+            }
+            Ok((out, meta))
+        }
+        "roomcountmerge" => {
+            let rp = checked_rooms(root, s)?;
+            let rsha = file_sha(&rp)?;
+            let bind = format!("INPUT_ROOMS|sha256={rsha}|file={}|json=0", rp.file_name().and_then(|f| f.to_str()).unwrap_or(""));
+            let (inputs, listing) = merge_inputs(root, s, "roomcount", "roomcountcols", &bind)?;
+            let mut files: Vec<String> = Vec::new();
+            for (k, body) in inputs.iter().enumerate() {
+                let f = root.join("scol").join(format!(".merge-input-{}-{k}.hbp", std::process::id()));
+                fs::write(&f, body).map_err(|e| e.to_string())?;
+                files.push(f.display().to_string());
+            }
+            let r = run_tool("roomschur", &[rp.display().to_string(), "0".into(), st(4), st(5), st(6), st(7), st(8), "4000".into()], &room_envs(None, Some(files.join(","))));
+            for f in &files {
+                let _ = fs::remove_file(f);
+            }
+            let (out, meta) = r?;
+            Ok((format!("{listing}{bind}\n{out}"), meta))
+        }
         "countmerge" => {
             let mp = checked_matrix(root, s)?;
             let msha = file_sha(&mp)?;
-            let (inputs, listing) = merge_inputs(root, s, &msha)?;
+            let bind = format!("INPUT_MATRIX|sha256={msha}|file={}|json=0", mp.file_name().and_then(|f| f.to_str()).unwrap_or(""));
+            let (inputs, listing) = merge_inputs(root, s, "count", "countcols", &bind)?;
             let mut files: Vec<String> = Vec::new();
             for (k, body) in inputs.iter().enumerate() {
                 let f = root.join("scol").join(format!(".merge-input-{}-{k}.hbp", std::process::id()));
@@ -237,8 +360,8 @@ fn execute(root: &Path, s: &Spec) -> Result<(String, Vec<(String, String)>), Str
 /// INPUT_MATRIX equal to the merge's matrix SHA-256; and the column ranges must
 /// partition 0..core exactly. Returns the run.hbp bodies and a canonical listing
 /// of the inputs (spec + run.hbp SHA-256, in column order).
-fn merge_inputs(root: &Path, s: &Spec, msha: &str) -> Result<(Vec<String>, String), String> {
-    let cs = s.with_base("count", s.nums.clone());
+fn merge_inputs(root: &Path, s: &Spec, count_base: &str, cols_base: &str, bind: &str) -> Result<(Vec<String>, String), String> {
+    let cs = s.with_base(count_base, s.nums.clone());
     let dir = root.join("scol").join(shard_id(&cs));
     let mut items: Vec<(i64, i64, String, String)> = Vec::new();
     let mut core: Option<i64> = None;
@@ -255,11 +378,11 @@ fn merge_inputs(root: &Path, s: &Spec, msha: &str) -> Result<(Vec<String>, Strin
             return Err(format!("countcols shard {} fails integrity", p.display()));
         }
         let ps = parse_spec(&spec)?;
-        if ps.kind != s.with_base("countcols", vec![]).kind || ps.nums[..9] != s.nums[..] {
-            return Err(format!("shard {spec} is not a countcols shard of this count"));
+        if ps.kind != s.with_base(cols_base, vec![]).kind || ps.nums[..9] != s.nums[..] {
+            return Err(format!("shard {spec} is not a {cols_base} shard of this count"));
         }
-        if !hbp.lines().any(|l| l == format!("INPUT_MATRIX|sha256={msha}|file={}|json=0", matrix_path(root, s).file_name().and_then(|f| f.to_str()).unwrap_or(""))) {
-            return Err(format!("shard {spec} was not produced from matrix {msha}"));
+        if !hbp.lines().any(|l| l == bind) {
+            return Err(format!("shard {spec} was not produced from the bound input ({bind})"));
         }
         let c: i64 = hbp
             .lines()
@@ -346,7 +469,7 @@ fn result_fields(hbp: &str) -> String {
     let mut v: Vec<String> = Vec::new();
     for l in hbp.lines() {
         for f in l.split('|') {
-            if ["negative=", "result=", "flat_states=", "sector_states=", "converged=", "w_self_adjoint="].iter().any(|p| f.starts_with(p)) {
+            if ["negative=", "result=", "flat_states=", "sector_states=", "converged=", "w_self_adjoint=", "identical="].iter().any(|p| f.starts_with(p)) {
                 v.push(f.to_string());
             }
         }

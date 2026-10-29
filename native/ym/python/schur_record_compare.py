@@ -7,8 +7,10 @@ For each threshold file pair (shellschur output, roomschur output):
     input's name differs by construction) and `ms=` (wall-clock runtime metadata);
   - every SCOL line, keyed by (cb, ca): every field compared exactly; the key sets must
     be equal (a column present on one side only is a mismatch);
-  - SHELL_SCHUR_COLS lines (split runs), keyed by `cols=`: every field except `ms=`; the
-    key sets must be equal.
+  - SHELL_SCHUR_COLS lines (split runs), keyed by `cols=`: every field except `ms=` and the
+    room-only storage fields (`room_bytes_per_pass=`, `payload_merkle=`, `pass_ms=`, which
+    only roomschur writes); the key sets must be equal. All room lines must agree on one
+    `payload_merkle`, else INCONCLUSIVE.
 Keys are never collapsed: a duplicate SHELL_SCHUR summary, a duplicate SCOL (cb, ca) key,
 a duplicate SHELL_SCHUR_COLS `cols=` key, or a SCOL or SHELL_SCHUR_COLS line without its
 key makes that file malformed, giving INCONCLUSIVE.
@@ -27,6 +29,10 @@ import sys
 
 EXCLUDE_SUMMARY = {"matrix", "ms"}
 EXCLUDE_COLS = {"ms"}
+# Fields only roomschur writes on its SHELL_SCHUR_COLS lines: where the matrix lives and how
+# long a pass took, not the arithmetic. Excluded from equality, printed as evidence; every
+# room line must carry one and the same payload_merkle, or the evidence is INCONCLUSIVE.
+ROOM_ONLY_COLS = {"room_bytes_per_pass", "payload_merkle", "pass_ms"}
 
 
 def parse(path):
@@ -67,6 +73,9 @@ def compare(a_path, b_path):
         return "INCONCLUSIVE", "no_summary_line", 0
     if sa.get("result") == "FAIL" or sb.get("result") == "FAIL":
         return "INCONCLUSIVE", "failed_execution", 0
+    merkles = {x.get("payload_merkle") for x in lb.values()}
+    if len(merkles) > 1:
+        return "INCONCLUSIVE", "room_payload_merkle_inconsistent", 0
     diffs = []
     for k in sorted((set(sa) | set(sb)) - EXCLUDE_SUMMARY):
         if sa.get(k) != sb.get(k):
@@ -81,19 +90,23 @@ def compare(a_path, b_path):
     if set(la) != set(lb):
         diffs.append("cols_line_keys:%d_only_shell,%d_only_room" % (len(set(la) - set(lb)), len(set(lb) - set(la))))
     for k in sorted(set(la) & set(lb)):
-        for f in sorted((set(la[k]) | set(lb[k])) - EXCLUDE_COLS):
+        for f in sorted((set(la[k]) | set(lb[k])) - EXCLUDE_COLS - ROOM_ONLY_COLS):
             if la[k].get(f) != lb[k].get(f):
                 diffs.append("cols[%s].%s" % (k, f))
                 break
     if diffs:
-        return "MISMATCH", diffs[0] + ("|more=%d" % (len(diffs) - 1) if len(diffs) > 1 else "") + ev(sa, sb), len(ca)
-    return "AGREE", "result=%s|negative=%s|ambiguous=%s" % (sa.get("result"), sa.get("negative"), sa.get("ambiguous")) + ev(sa, sb), len(ca)
+        return "MISMATCH", diffs[0] + ("|more=%d" % (len(diffs) - 1) if len(diffs) > 1 else "") + ev(sa, sb, lb), len(ca)
+    return "AGREE", "result=%s|negative=%s|ambiguous=%s" % (sa.get("result"), sa.get("negative"), sa.get("ambiguous")) + ev(sa, sb, lb), len(ca)
 
 
-def ev(sa, sb):
+def ev(sa, sb, lb):
     """The excluded fields, kept as evidence (not compared)."""
-    return "|excluded_shell_matrix=%s|excluded_room_matrix=%s|excluded_shell_ms=%s|excluded_room_ms=%s" % (
-        sa.get("matrix", "-"), sb.get("matrix", "-"), sa.get("ms", "-"), sb.get("ms", "-"))
+    room = sorted(lb.values(), key=lambda x: x["cols"])
+    rb = ",".join(sorted({x.get("room_bytes_per_pass", "-") for x in room})) or "-"
+    mk = ",".join(sorted({x.get("payload_merkle", "-") for x in room})) or "-"
+    return ("|excluded_shell_matrix=%s|excluded_room_matrix=%s|excluded_shell_ms=%s|excluded_room_ms=%s"
+            "|excluded_room_payload_merkle=%s|excluded_room_bytes_per_pass=%s") % (
+        sa.get("matrix", "-"), sb.get("matrix", "-"), sa.get("ms", "-"), sb.get("ms", "-"), mk, rb)
 
 
 def main(argv):
