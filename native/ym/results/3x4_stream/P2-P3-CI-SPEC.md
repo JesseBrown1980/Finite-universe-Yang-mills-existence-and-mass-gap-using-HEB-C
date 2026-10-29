@@ -208,3 +208,45 @@ generated YAML is not regenerated here, because that would start another 116-job
 regenerated before its next run.
 
 No record, threshold, comparator rule or frozen input changed.
+
+## Outcome: rerun attempt 2, run 40936173167 (commit `b028a03`)
+
+The receipt is `ci-40936173167/HEBC-YM-ROOM-IDENTITY-CI.hbp`; `sha256sum -c` passes. It is
+committed unchanged, with `ADMIT.hbp` and `EQUIV.hbp` beside it.
+
+**Admission and integrity.**
+
+- 9 of 9 artifacts of run 40906496344 admitted by ID and zip SHA-256.
+- All 6 evidence sidecars pass.
+- Merge inputs complete: 2, 16 and 40 chunks per side.
+
+**Equivalence of the stream implementation.**
+
+- 60 of 60 synthetic cases.
+- The real t = 60M and 72M pairs are byte-identical to the original v2 and to frozen v1.
+
+**P2.** PASS for 2×3, 2×4 and 3×3: two verify lines and `identical=1` each. The builder
+SHA-256s equal those of Host8 run-log tests 1–3.
+
+**P3, v2 (decides):**
+
+| t (milli-units) | SCOL records | v2 verdict | result on both sides |
+|---|---:|---|---|
+| 60,000,000 | 10,201 | AGREE | PASS, negative 7 |
+| 72,000,000 | 1,292,769 | AGREE | PASS, negative 7 |
+| 90,000,000 | 8,643,600 | AGREE | AMBIGUOUS, negative 37, 9 ambiguous |
+
+**v1 (strict, kept verbatim):** MISMATCH at all three thresholds. The first difference is
+`cols[…].payload_merkle`, with 2, 16 and 40 differences in total. That is one per
+`SHELL_SCHUR_COLS` line, which is the count expected if only the room-only metadata differs.
+v2 compares every other field of those lines, and every summary field and SCOL record, and finds
+them equal.
+
+**Reading under the reviewer decision.** v2 AGREE at all three thresholds, with complete records
+and every integrity and equivalence gate passing.
+
+- **P3 satisfied for this CI run:** if the reviewer accepts the stream implementation as the v2
+  implementation.
+- **t = 90,000,000:** the agreement is on AMBIGUOUS. That is implementation agreement, not a
+  spectral PASS.
+- **Unchanged:** no 3×4 gap verdict follows, and the production HOLD is unchanged.
