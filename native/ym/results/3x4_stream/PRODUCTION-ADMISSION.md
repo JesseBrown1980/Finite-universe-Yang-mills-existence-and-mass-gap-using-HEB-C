@@ -12,6 +12,10 @@ The streaming pilot, run 40391283682, sealed `PASS` but measured no memory. `COL
 and `RESERVE` are therefore still unmeasured, and production is not admitted. See
 [`PILOT-ADMISSION-DECISION.md`](PILOT-ADMISSION-DECISION.md).
 
+How `COL_BYTES` and `RESERVE` will be measured on the hosted runner is frozen in
+[`MEMORY-PILOT-SPEC.md`](MEMORY-PILOT-SPEC.md) (2026-10-29). That spec has not been run,
+and the HOLD stands until a run under it ends `PILOT_PASS`.
+
 ## Quantities (integers, bytes)
 
 - **`BUDGET`:** the whole production process's resident memory, the column pool plus

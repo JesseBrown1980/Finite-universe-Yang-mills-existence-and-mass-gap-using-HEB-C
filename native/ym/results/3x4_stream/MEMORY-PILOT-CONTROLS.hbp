@@ -1,0 +1,13 @@
+PILOT_CONTROL|case=clean_set|want=PILOT_PASS|got=PILOT_PASS|reason=all_gates|ok=1|json=0
+PILOT_CONTROL|case=missing_ru_maxrss|want=INCONCLUSIVE|got=INCONCLUSIVE|reason=missing_or_incomplete_measurement|ok=1|json=0
+PILOT_CONTROL|case=missing_K4|want=INCONCLUSIVE|got=INCONCLUSIVE|reason=missing_or_incomplete_measurement|ok=1|json=0
+PILOT_CONTROL|case=recorded_failure|want=INCONCLUSIVE|got=INCONCLUSIVE|reason=recorded_failure:upload_failed|ok=1|json=0
+PILOT_CONTROL|case=oom_kill|want=NOT_ADMISSIBLE|got=NOT_ADMISSIBLE|reason=oom_event|ok=1|json=0
+PILOT_CONTROL|case=peak_over_budget|want=NOT_ADMISSIBLE|got=NOT_ADMISSIBLE|reason=peak_over_budget|ok=1|json=0
+PILOT_CONTROL|case=reserve_over_budget|want=NOT_ADMISSIBLE|got=NOT_ADMISSIBLE|reason=peak_over_budget|ok=1|json=0
+PILOT_CONTROL|case=column0_differs|want=INCONCLUSIVE|got=INCONCLUSIVE|reason=column0_differs_across_K|ok=1|json=0
+PILOT_CONTROL|case=below_declared_lifted|want=PILOT_PASS|got=PILOT_PASS|reason=all_gates|ok=1|json=0
+PILOT_CONTROL|case=measured_above_declared_used|want=PILOT_PASS|got=PILOT_PASS|reason=all_gates|ok=1|json=0
+PILOT_CONTROL|case=duplicate_K|want=INCONCLUSIVE|got=INCONCLUSIVE|reason=duplicate_K_1|ok=1|json=0
+PILOT_CONTROL|case=not_admitted_line|want=INCONCLUSIVE|got=INCONCLUSIVE|reason=admission_line_not_admitted|ok=1|json=0
+PILOT_CONTROLS_TOTAL|cases=12|ok=12|result=PASS|json=0
