@@ -1,0 +1,120 @@
+# Compare-only rerun of the P2/P3 identity gates for run 40906496344, whose compare job ran out
+# of memory (8,643,600 SCOL records per side at t = 90,000,000; comparator v2 needs ~17 GB per
+# side). Nothing is recomputed: the run's evidence artifacts are admitted by frozen ID and zip
+# SHA-256, then compared with schur_record_compare_stream.py, a memory-lean implementation of
+# the same rules (v2, and the frozen v1 with --v1). Its equivalence with the original comparators
+# is shown first: on every synthetic control case, and on the real t = 60M and 72M pairs, where
+# the originals fit in memory, all four outputs must be byte-identical. Frozen in
+# native/ym/results/3x4_stream/P2-P3-CI-SPEC.md (addendum: compare-only rerun). Fail-closed:
+# any missing artifact, digest mismatch, failed equivalence or comparison failure is
+# INCONCLUSIVE. Integer-only, json=0.
+name: HEB-C YM room-lane identity gates, compare-only rerun of run 40906496344
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ym-room-ci-checks]
+    paths: ['.github/workflows/hebc-ym-room-identity-recompare.yml']
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: hebc-ym-room-identity-recompare-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  recompare:
+    name: Admit run 40906496344 evidence, equivalence, compare, receipt
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Admit evidence by frozen artifact ID and zip SHA-256 (all or nothing)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          mkdir -p ev zips; o=ADMIT.hbp; : > $o; bad=0
+          while read -r name id digest; do
+            if gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" > zips/$name.zip; then
+              got=$(sha256sum zips/$name.zip | cut -c1-64)
+            else got=download_failed; fi
+            ok=0; [ "$got" = "$digest" ] && ok=1; [ $ok = 1 ] || bad=1
+            echo "ADMIT|source_run=40906496344|artifact=$name|id=$id|want_sha256=$digest|got_sha256=$got|ok=$ok|json=0" >> $o
+          done <<'LIST'
+          p2-0 12911961878 6abee0483b009693f0954a2f544d94af3e84463580e6a4110d89dacef79eac6d
+          p2-1 12911911479 727fc5818010c6b371b570735ed07263e2eea3f7ab581810f3664216416dff05
+          p2-2 12912355904 b25fc16382ec89bd867f0605fda156c8c63f23012d476ce184e2f68ccbb3b25a
+          p3m-room-60000000 12915497879 b66cfac0d6ee39306d252ea8c5d942b211e894bc11c1dde75e3561253876ec79
+          p3m-room-72000000 12915409492 2053c6cb87af5ca16664dbe974a0710cae91e3346dbc9884db90ea9b852ca439
+          p3m-room-90000000 12918345397 642cf21634f5baf2936f35dc2aa808fa4610e51ea278e7a9deb052e662b8a739
+          p3m-shell-60000000 12916245716 33540f9acfbe7c677316b9502f5dee32040a9d5db521fde61f6fc15ae4e3989a
+          p3m-shell-72000000 12916026885 f6c44b9d12b10cd26df94cbb615b4f19d8346fa7b8ee9a6961fda6a592a7fb78
+          p3m-shell-90000000 12919527351 b734d41887039f6429d7047e9cbc497fbc0a631ec4ebeeceae0448b53799ff71
+          LIST
+          echo "ADMIT_RESULT|artifacts=9|all_ok=$([ $bad = 0 ] && echo 1 || echo 0)|json=0" >> $o
+          cat $o
+          if [ $bad = 0 ]; then for z in zips/*.zip; do n=$(basename $z .zip); mkdir -p ev/$n && unzip -q $z -d ev/$n; done; rm -rf zips; fi
+      - name: Equivalence, comparison and receipt
+        run: |
+          set -uo pipefail
+          P=native/ym/python; o=HEBC-YM-ROOM-IDENTITY-CI.hbp
+          git show 9f60d568f66aa63989def94c6a7494dd27d5b6ef:native/ym/python/schur_record_compare.py > /tmp/cmp_v1.py
+          echo "ROOM_IDENTITY_CI|source_run=40906496344|source_commit=16ed1a664d12afb83ef0fb5c2a963cbab57a17f0|compare_run=$GITHUB_RUN_ID|compare_commit=$GITHUB_SHA|mode=compare_only_rerun|json=0" > $o
+          cat ADMIT.hbp >> $o
+          admitted=$(grep -c '^ADMIT_RESULT|.*|all_ok=1|' ADMIT.hbp)
+          for f in $P/schur_record_compare.py $P/schur_record_compare_stream.py /tmp/cmp_v1.py; do echo "TOOL|file=$(basename $f)|sha256=$(sha256sum $f | cut -c1-64)|json=0" >> $o; done
+          # P2: two verify lines and identical=1 per lattice
+          p2ok=1
+          for L in 2x3 2x4 3x3; do
+            f=$(ls ev/p2-*/p2-$L.hbp 2>/dev/null | head -1)
+            if [ -n "$f" ] && (cd $(dirname $f) && sha256sum -c --quiet p2-$L.sha256) && [ "$(grep -c '^HEBC_YM|result=PASS|action=verify|' $f)" = 2 ] && [ "$(grep -c "^SHARD|roomident_[0-9_]*|ROOM_IDENTITY|.*|identical=1|" $f)" = 1 ]; then
+              grep "^SHARD|roomident_[0-9_]*|ROOM_IDENTITY|" $f >> $o; echo "P2|L=$L|result=PASS|json=0" >> $o
+            else p2ok=0; echo "P2|L=$L|result=INCONCLUSIVE_OR_FAIL|json=0" >> $o; fi
+          done
+          # P3 evidence integrity
+          evok=1
+          for t in 60000000 72000000 90000000; do for s in shell room; do
+            if (cd ev/p3m-$s-$t 2>/dev/null && sha256sum -c --quiet $s-$t.sha256); then echo "P3_EVIDENCE|side=$s|t_milli=$t|sha256_check=OK|json=0" >> $o
+            else evok=0; echo "P3_EVIDENCE|side=$s|t_milli=$t|sha256_check=FAIL_OR_MISSING|json=0" >> $o; fi
+          done; done
+          grep -h "^P3_MERGE" ev/p3m-*/*.hbp >> $o || true
+          # equivalence: synthetic controls, then real pairs where the originals fit in memory
+          python3 $P/schur_record_compare_stream_controls.py --v1-file /tmp/cmp_v1.py > EQUIV.hbp; eqc=$?
+          grep '^STREAM_EQUIV_TOTAL|' EQUIV.hbp | sed 's/^/SYNTHETIC_/' >> $o
+          eqr=0
+          for t in 60000000 72000000; do
+            a=ev/p3m-shell-$t/shell-$t.hbp; b=ev/p3m-room-$t/room-$t.hbp
+            python3 $P/schur_record_compare.py $a $b > r_v2.txt; python3 $P/schur_record_compare_stream.py $a $b > r_s2.txt
+            python3 /tmp/cmp_v1.py $a $b > r_v1.txt; python3 $P/schur_record_compare_stream.py --v1 $a $b > r_s1.txt
+            i2=0; cmp -s r_v2.txt r_s2.txt && i2=1; i1=0; cmp -s r_v1.txt r_s1.txt && i1=1
+            [ $i2 = 1 ] && [ $i1 = 1 ] || eqr=1
+            echo "REAL_EQUIV|t_milli=$t|v2_vs_stream_identical=$i2|v1_vs_stream_identical=$i1|json=0" >> $o
+          done
+          args="ev/p3m-shell-60000000/shell-60000000.hbp ev/p3m-room-60000000/room-60000000.hbp ev/p3m-shell-72000000/shell-72000000.hbp ev/p3m-room-72000000/room-72000000.hbp ev/p3m-shell-90000000/shell-90000000.hbp ev/p3m-room-90000000/room-90000000.hbp"
+          echo "COMPARATOR|version=v2|implementation=schur_record_compare_stream.py|decides_P3=1|json=0" >> $o
+          python3 $P/schur_record_compare_stream.py $args >> $o; v2rc=$?
+          echo "COMPARATOR|version=v1_9f60d568f66aa63989def94c6a7494dd27d5b6ef|implementation=schur_record_compare_stream.py --v1|decides_P3=0|json=0" >> $o
+          python3 $P/schur_record_compare_stream.py --v1 $args | sed 's/^/V1|/' >> $o
+          p3=$(grep '^SCHUR_COMPARE_VERDICT|' $o | head -1 | cut -d'|' -f3)
+          gate=1; [ "$admitted" = 1 ] && [ $evok = 1 ] && [ $eqc = 0 ] && [ $eqr = 0 ] || gate=0
+          [ $gate = 1 ] || p3=INCONCLUSIVE
+          echo "ROOM_IDENTITY_CI_RESULT|P2=$([ $p2ok = 1 ] && [ "$admitted" = 1 ] && echo PASS || echo INCONCLUSIVE)|P3_v2=$p3|integrity_and_equivalence=$gate|json=0" >> $o
+          sha256sum $o > HEBC-YM-ROOM-IDENTITY-CI.sha256
+          cat $o
+          [ $p2ok = 1 ] && [ $gate = 1 ] && [ $v2rc = 0 ]
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: room-identity-receipt
+          retention-days: 90
+          if-no-files-found: error
+          path: |
+            HEBC-YM-ROOM-IDENTITY-CI.hbp
+            HEBC-YM-ROOM-IDENTITY-CI.sha256
+            ADMIT.hbp
+            EQUIV.hbp
