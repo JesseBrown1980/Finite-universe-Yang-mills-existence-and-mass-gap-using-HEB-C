@@ -234,6 +234,8 @@ jobs:
           path: ev
       - name: Compare and seal
         run: |
+          # GitHub runs this as bash -e; nonzero comparator exits (MISMATCH = 2) are results, not errors
+          set +e
           set -uo pipefail
           o=HEBC-YM-ROOM-IDENTITY-CI.hbp
           echo "ROOM_IDENTITY_CI|run=$GITHUB_RUN_ID|commit=$GITHUB_SHA|gates=${{{{ needs.gates.result }}}}|p2_jobs=${{{{ needs.p2.result }}}}|p3_merges=${{{{ needs.p3merge.result }}}}|cols_jobs_expected={ncols}|json=0" > $o

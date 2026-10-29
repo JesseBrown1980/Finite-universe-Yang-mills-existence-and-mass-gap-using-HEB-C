@@ -61,6 +61,8 @@ jobs:
           if [ $bad = 0 ]; then for z in zips/*.zip; do n=$(basename $z .zip); mkdir -p ev/$n && unzip -q $z -d ev/$n; done; rm -rf zips; fi
       - name: Equivalence, comparison and receipt
         run: |
+          # GitHub runs this as bash -e; nonzero comparator exits (MISMATCH = 2) are results, not errors
+          set +e
           set -uo pipefail
           P=native/ym/python; o=HEBC-YM-ROOM-IDENTITY-CI.hbp
           git show 9f60d568f66aa63989def94c6a7494dd27d5b6ef:native/ym/python/schur_record_compare.py > /tmp/cmp_v1.py
