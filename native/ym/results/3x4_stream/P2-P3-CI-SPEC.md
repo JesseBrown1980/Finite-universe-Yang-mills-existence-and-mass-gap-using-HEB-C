@@ -262,3 +262,52 @@ from `c07eef7`:
 P2 and P3 here apply to those sources only. The local lane's later roomschur (segmented store,
 `roomschur.rs` `f213b009…`) and its local `ymroom.rs` are different sources. They are not covered
 by this receipt, and their evidence stays separate.
+
+## Stream-implementation equivalence: evidence and the 90M limitation
+
+The reviewer's sign-off on using `schur_record_compare_stream.py` as the v2 implementation
+depends on real-pair equivalence. What exists, all inside the official receipt of run
+40936173167:
+
+| evidence | where | result |
+|---|---|---|
+| synthetic controls, 60 cases × {v2, frozen v1} | `EQUIV.hbp`, `SYNTHETIC_STREAM_EQUIV_TOTAL` | 120 of 120 byte-identical |
+| real pair t = 60,000,000 (10,201 SCOL records) | `REAL_EQUIV\|t_milli=60000000` | v2 vs stream identical, v1 vs stream identical |
+| real pair t = 72,000,000 (1,292,769 SCOL records) | `REAL_EQUIV\|t_milli=72000000` | v2 vs stream identical, v1 vs stream identical |
+| real pair t = 90,000,000 (8,643,600 SCOL records) | — | **not run**: limitation below |
+
+**Limitation.** No direct old-versus-stream comparison was made at t = 90,000,000. The original
+v2 and v1 hold every SCOL record as a Python dict, measured at about 1.94 KB per record, so about
+17 GB per side. That cannot fit in a 16 GB runner, and it is why the compare job of run
+40906496344 failed. The 90M verdicts in the receipt come from the stream implementation only.
+
+**The difference between the two implementations, exactly.** It is not I/O alone.
+
+- **Shell side.** Each SCOL record is held as one canonical string (fields sorted by name)
+  instead of a dict. Names contain no `=` or `|` and values contain no `|`, so two strings are
+  equal exactly when the two dicts are equal.
+- **Room side.** It is streamed line by line against the shell records rather than held.
+  - Duplicate and missing-key checks run in file order, so the first malformation reported is the
+    one v2 reports.
+  - Field-level differences are collected per key and sorted at the end, in v2's key order.
+- **Shared code.** Verdict order, diff strings, `EXCLUDE_*` / `ROOM_ONLY_COLS` and the evidence
+  function are v2's own: the stream module imports them.
+
+**Frozen equivalence argument for t = 90,000,000.** It rests on four points:
+
+1. the difference above, which changes representation and order but no comparison rule;
+2. the 120 of 120 byte-identical synthetic comparisons. These include ordering of multiple diffs,
+   string-sorted keys, mixed key-set and field diffs, late malformations, swapped sides, and
+   values containing `=`;
+3. byte-identical real pairs at 60M and 72M, in both v2 and v1 modes;
+4. the official streamed 90M result. Its structure is consistent with both the 72M equivalence
+   and the v1 strict result: v1 reports exactly one difference per `SHELL_SCHUR_COLS` line (40),
+   all `payload_merkle`.
+
+This is an argument, not a direct comparison. **No direct old-versus-stream comparison was made
+at 90M.**
+
+**A direct check that could close it** (not run). Run the original v2 at 90M on a machine with
+at least 40 GB of RAM, or with swap, and compare its stdout byte for byte with the receipt's 90M
+line. Sign-off status: P3 receipt complete; the reviewer's final sign-off on the stream
+implementation is pending.
