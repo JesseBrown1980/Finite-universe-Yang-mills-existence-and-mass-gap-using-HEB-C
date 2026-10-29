@@ -74,6 +74,9 @@ def ensure(cond: bool, reason: str) -> None:
 def git_head() -> str:
     return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
 
+def workers() -> int:
+    return int(subprocess.check_output(["nproc"], text=True).strip())
+
 def capture_identity() -> None:
     paths = [
         "native/ym/results/3x4_stream/MEMORY-PILOT-SPEC.md",
@@ -85,7 +88,7 @@ def capture_identity() -> None:
         "native/ym/crates/torusl/src/bin/ymroom.rs",
         "native/ym/crates/sturmrs/src/bin/roomschur.rs",
     ]
-    emit(f"PILOT_IDENTITY|head={git_head()}|budget={BUDGET}|json=0")
+    emit(f"PILOT_IDENTITY|run={safe(os.environ.get('GITHUB_RUN_ID', '-'))}|head={git_head()}|budget={BUDGET}|json=0")
     for path in paths:
         p = ROOT / path
         ensure(p.is_file(), "missing_identity_file_" + path.replace("/", "_"))
@@ -105,7 +108,7 @@ def capture_identity() -> None:
 def host_identity() -> None:
     emit("PILOT_HOST|ImageOS=" + safe(os.environ.get("ImageOS", "-")) +
          "|ImageVersion=" + safe(os.environ.get("ImageVersion", "-")) +
-         "|nproc=" + str(os.cpu_count()) +
+         "|nproc=" + str(workers()) +
          "|kernel=" + safe(os.uname().release) +
          "|cgroup_v2=" + str(int(Path("/sys/fs/cgroup/cgroup.controllers").exists())) +
          "|json=0")
@@ -177,7 +180,7 @@ def cgroup_run(parent: Path, k: int, room: Path) -> None:
         def join():
             (cg / "cgroup.procs").write_text(str(os.getpid()))
         env = dict(os.environ, ROOMSCHUR_COLS=f"0:{k}", ROOMSCHUR_K=str(k),
-                   ROOMSCHUR_BUDGET=str(BUDGET), WORKERS=str(os.cpu_count() or 1))
+                   ROOMSCHUR_BUDGET=str(BUDGET), WORKERS=str(workers()))
         cmd = ["/usr/bin/time", "-v", "-o", str(tfile),
                str(ROOT / "native/ym/target/release/roomschur"), str(room),
                "0", "1000", "9000", "60000000", "12", "1000", "2"]
@@ -257,15 +260,19 @@ def main() -> int:
             ensure(cp.returncode == 0, "fallocate_failed_" + path.name)
         binary = str(ROOT / "native/ym/target/release/ymroom")
         a_log = OUT / "pilot-passa.hbp"
-        env = dict(os.environ, WORKERS=str(os.cpu_count() or 1))
-        rc, sec = runlog([binary, "passa", "3", "4", str(passa)], a_log, env=env)
+        env = dict(os.environ, WORKERS=str(workers()))
+        atime = OUT / "pilot-passa.time"
+        rc, sec = runlog(["/usr/bin/time", "-v", "-o", str(atime),
+                          binary, "passa", "3", "4", str(passa)], a_log, env=env)
         ensure(rc == 0, "passa_failure")
         ptext = a_log.read_text()
         pa = next((x for x in ptext.splitlines() if x.startswith("YMROOM_PASSA|")), "")
         ensure(field(pa, "states") == str(N_EXPECT), "passa_state_mismatch")
-        emit(f"PILOT_BUILD_A|seconds={sec}|{pa}|sha256={digest(passa)}|json=0")
+        emit(f"PILOT_BUILD_A|seconds={sec}|ru_maxrss_kib={read_time(atime)}|{pa}|sha256={digest(passa)}|json=0")
         b_log = OUT / "pilot-build.hbp"
-        rc, sec = runlog([binary, "build", "3", "4", str(passa), str(keys),
+        btime = OUT / "pilot-build.time"
+        rc, sec = runlog(["/usr/bin/time", "-v", "-o", str(btime),
+                          binary, "build", "3", "4", str(passa), str(keys),
                           str(room), "0"], b_log, env=env)
         ensure(rc == 0, "room_build_failure")
         btext = b_log.read_text()
@@ -274,7 +281,7 @@ def main() -> int:
         ensure(field(hdr, "n") == str(N_EXPECT) and
                field(hdr, "w_self_adjoint") == "PASS" and
                field(build, "header_readback") == "EXACT", "room_build_identity_failure")
-        emit(f"PILOT_BUILD_B|seconds={sec}|{hdr}|{build}|json=0")
+        emit(f"PILOT_BUILD_B|seconds={sec}|ru_maxrss_kib={read_time(btime)}|{hdr}|{build}|json=0")
         nline = f"PILOT_N|n={N_EXPECT}|json=0"
         emit(nline)
         RAW.append(nline)
