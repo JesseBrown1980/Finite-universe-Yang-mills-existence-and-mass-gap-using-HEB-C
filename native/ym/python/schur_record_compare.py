@@ -7,7 +7,12 @@ For each threshold file pair (shellschur output, roomschur output):
     input's name differs by construction) and `ms=` (wall-clock runtime metadata);
   - every SCOL line, keyed by (cb, ca): every field compared exactly; the key sets must
     be equal (a column present on one side only is a mismatch);
-  - SHELL_SCHUR_COLS lines (split runs): every field except `ms=`.
+  - SHELL_SCHUR_COLS lines (split runs), keyed by `cols=`: every field except `ms=`; the
+    key sets must be equal.
+Keys are never collapsed: a duplicate SHELL_SCHUR summary, a duplicate SCOL (cb, ca) key,
+a duplicate SHELL_SCHUR_COLS `cols=` key, or a SCOL or SHELL_SCHUR_COLS line without its
+key makes that file malformed, giving INCONCLUSIVE.
+Excluded from equality, and printed as evidence: matrix= (input label) and ms= (wall clock).
 Outcome per threshold and overall:
   INCONCLUSIVE  a file missing or empty, no SHELL_SCHUR summary line on a side, or a
                 summary with result=FAIL (a failed execution, not a completed count);
@@ -27,7 +32,7 @@ EXCLUDE_COLS = {"ms"}
 def parse(path):
     if not os.path.exists(path) or os.path.getsize(path) == 0:
         return None
-    summ, scol, cols = None, {}, []
+    summ, scol, cols = None, {}, {}
     for line in open(path):
         p = line.rstrip("\n").split("|")
         f = dict(x.split("=", 1) for x in p[1:] if "=" in x)
@@ -36,12 +41,18 @@ def parse(path):
                 return "duplicate_summary"
             summ = f
         elif p[0] == "SCOL":
-            k = (f.get("cb"), f.get("ca"))
+            if "cb" not in f or "ca" not in f:
+                return "scol_without_key"
+            k = (f["cb"], f["ca"])
             if k in scol:
                 return "duplicate_scol"
             scol[k] = f
         elif p[0] == "SHELL_SCHUR_COLS":
-            cols.append(f)
+            if "cols" not in f:
+                return "cols_line_without_key"
+            if f["cols"] in cols:
+                return "duplicate_cols_line"
+            cols[f["cols"]] = f
     return summ, scol, cols
 
 
@@ -67,12 +78,22 @@ def compare(a_path, b_path):
             if ca[k].get(f) != cb[k].get(f):
                 diffs.append("scol[%s,%s].%s" % (k[0], k[1], f))
                 break
-    strip = lambda L: sorted(tuple(sorted((k, v) for k, v in x.items() if k not in EXCLUDE_COLS)) for x in L)
-    if strip(la) != strip(lb):
-        diffs.append("shell_schur_cols_lines")
+    if set(la) != set(lb):
+        diffs.append("cols_line_keys:%d_only_shell,%d_only_room" % (len(set(la) - set(lb)), len(set(lb) - set(la))))
+    for k in sorted(set(la) & set(lb)):
+        for f in sorted((set(la[k]) | set(lb[k])) - EXCLUDE_COLS):
+            if la[k].get(f) != lb[k].get(f):
+                diffs.append("cols[%s].%s" % (k, f))
+                break
     if diffs:
-        return "MISMATCH", diffs[0] + ("|more=%d" % (len(diffs) - 1) if len(diffs) > 1 else ""), len(ca)
-    return "AGREE", "result=%s|negative=%s|ambiguous=%s" % (sa.get("result"), sa.get("negative"), sa.get("ambiguous")), len(ca)
+        return "MISMATCH", diffs[0] + ("|more=%d" % (len(diffs) - 1) if len(diffs) > 1 else "") + ev(sa, sb), len(ca)
+    return "AGREE", "result=%s|negative=%s|ambiguous=%s" % (sa.get("result"), sa.get("negative"), sa.get("ambiguous")) + ev(sa, sb), len(ca)
+
+
+def ev(sa, sb):
+    """The excluded fields, kept as evidence (not compared)."""
+    return "|excluded_shell_matrix=%s|excluded_room_matrix=%s|excluded_shell_ms=%s|excluded_room_ms=%s" % (
+        sa.get("matrix", "-"), sb.get("matrix", "-"), sa.get("ms", "-"), sb.get("ms", "-"))
 
 
 def main(argv):
