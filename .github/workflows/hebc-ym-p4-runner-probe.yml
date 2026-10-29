@@ -1,0 +1,40 @@
+# Read-only probe of the hosted runner for the P4 memory pilot: sudo, cgroup v2 delegation
+# for a dedicated empty parent, memory accounting in a child, and disk that can be freed.
+# Measures nothing about roomschur; decides nothing. Runs only on pushes to its own branch.
+name: P4 runner probe (cgroup and disk, read-only)
+on:
+  push:
+    branches: [ym-p4-runner-probe]
+    paths: ['.github/workflows/hebc-ym-p4-runner-probe.yml']
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Identity and cgroup layout
+        run: |
+          set -x
+          id; sudo -n true && echo "PROBE|sudo=1|json=0" || echo "PROBE|sudo=0|json=0"
+          cat /proc/self/cgroup
+          stat -fc %T /sys/fs/cgroup
+          cat /sys/fs/cgroup/cgroup.controllers /sys/fs/cgroup/cgroup.subtree_control
+          ls -ld "/sys/fs/cgroup$(cut -d: -f3 /proc/self/cgroup)"
+      - name: Dedicated parent cgroup with memory, process moved into a child (root)
+        run: |
+          set -x
+          P=/sys/fs/cgroup/hebc-p4-probe
+          sudo mkdir $P && echo "PROBE|parent_created=1|json=0"
+          echo +memory | sudo tee $P/cgroup.subtree_control && echo "PROBE|parent_memory_enabled=1|json=0"
+          sudo mkdir $P/k1 && ls $P/k1 | grep -E '^memory\.(peak|max|events|stat)$'
+          echo 12884901888 | sudo tee $P/k1/memory.max
+          sudo sh -c "echo \$\$ > $P/k1/cgroup.procs; head -c 268435456 /dev/zero | tail -c 1 >/dev/null; python3 -c 'b=bytearray(300<<20); print(len(b))'"
+          echo "PROBE|k1_memory_peak=$(cat $P/k1/memory.peak)|json=0"
+          grep -E '^(oom|oom_kill) ' $P/k1/memory.events
+          sudo rmdir $P/k1 $P && echo "PROBE|cleanup=1|json=0"
+      - name: Disk before and after removing preinstalled toolchains
+        run: |
+          df -B1 -P | awk 'NR==1||/^\/dev/'
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /usr/local/share/boost /opt/hostedtoolcache/CodeQL || true
+          df -B1 -P | awk 'NR==1||/^\/dev/'
