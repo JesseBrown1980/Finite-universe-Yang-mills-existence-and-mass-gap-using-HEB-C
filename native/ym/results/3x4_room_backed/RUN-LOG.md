@@ -146,3 +146,11 @@ fourth was INCONCLUSIVE because my own timeout cut it off.
 
 - The 3×4 memory pilot runs only if all three comparisons AGREE. It has not started.
 - No 3×4 gap verdict. Production HOLD (`PRODUCTION-ADMISSION.md`) unchanged.
+
+### Update 2026-10-29 13:55
+
+The t=72,000,000 row above said PENDING; it has now completed with **AGREE**: 1,292,769 vs
+1,292,769 `SCOL` records, keyed equal and in the same order, summary equal (excluding
+`matrix=`, `ms=`). This is agreement between implementations only. t=90,000,000 is running.
+The full comparison gate stays INCONCLUSIVE and the 3×4 pilot stays blocked until it
+completes. No 3×4 gap verdict, and production HOLD is unchanged.
