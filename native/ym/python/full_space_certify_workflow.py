@@ -231,6 +231,11 @@ jobs:
         env:
           GH_TOKEN: ${{{{ secrets.GITHUB_TOKEN }}}}
         run: |
+          # packaging fix (2026-10-29): GitHub runs this step under bash -e, which stopped the
+          # step at a non-zero assemble before the admission line and the sidecar were
+          # written. -e is switched off for the whole step; every outcome writes them, and the
+          # step's exit status is decided only from the receipt's own verdict line.
+          set +e
           set -uo pipefail
           test "${{{{ needs.sectors.result }}}}" = success || echo "CERTIFY|watch_sectors=${{{{ needs.sectors.result }}}}|json=0"
           R=root; mkdir -p $R/cells $R/watch
@@ -240,12 +245,17 @@ jobs:
           mv wsector/shards $R/watch/sectors; mv wfinal/shards $R/watch/finals; mv wsample/shards $R/watch/sample
           mkdir -p $R/watch/http0; for k in wsector wfinal wsample; do cp $k/http0/*.hbp $R/watch/http0/; done
           python3 native/ym/python/certify_timing.py ${{{{ github.repository }}}} ${{{{ github.run_id }}}} {" ".join(runs)} > $R/timing.hbp || true
-          CERTIFY_RUNS={",".join(runs)} python3 native/ym/python/full_space_certify.py assemble $R {t1} {tf} {split} {cols} | tee CERTIFY-{name.upper()}.hbp
-          rc=${{PIPESTATUS[0]}}
+          CERTIFY_RUNS={",".join(runs)} python3 native/ym/python/full_space_certify.py assemble $R {t1} {tf} {split} {cols} > CERTIFY-{name.upper()}.hbp 2> assemble.stderr
+          rc=$?
+          cat CERTIFY-{name.upper()}.hbp; cat assemble.stderr >&2
           echo "CERTIFY_ADMISSION|admit_files_sha256=$(sha256sum admit/ADMIT-FILES.sha256 | cut -c1-64)|{"|".join(f"manifest_part{i + 1}_sha256=$(sha256sum {relm[i]} | cut -c1-64)" for i in range(len(runs)))}|admit_total=$(grep '^ADMIT_TOTAL|' admit/ADMIT.hbp | cut -d'|' -f2-4)|json=0" >> CERTIFY-{name.upper()}.hbp
           echo "CERTIFY_PLAN_PARAMS|split={split}|cols={cols}|{("erratum=" + rel(erratum) + "|erratum_sha256=$(sha256sum " + rel(erratum) + " | cut -c1-64)|") if erratum else ""}generator_sha256=$(sha256sum native/ym/python/full_space_certify_workflow.py | cut -c1-64)|certify_py_sha256=$(sha256sum native/ym/python/full_space_certify.py | cut -c1-64)|admit_py_sha256=$(sha256sum native/ym/python/certify_admit.py | cut -c1-64)|workflow_commit=${{{{ github.sha }}}}|json=0" >> CERTIFY-{name.upper()}.hbp
+          v=$(grep -c '^CERTIFY_VERDICT|PASS|' CERTIFY-{name.upper()}.hbp)
+          echo "CERTIFY_EXIT|assemble_rc=$rc|verdict_pass_lines=$v|json=0" >> CERTIFY-{name.upper()}.hbp
           sha256sum CERTIFY-{name.upper()}.hbp > CERTIFY-{name.upper()}.sha256
-          exit $(( rc == 2 ? 1 : 0 ))
+          # green only for a receipt whose verdict is PASS from an assemble that exited 0;
+          # INCONCLUSIVE, MISMATCH and a crash (no verdict line) all fail the step
+          if [ "$rc" -eq 0 ] && [ "$v" -eq 1 ]; then exit 0; else exit 1; fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
