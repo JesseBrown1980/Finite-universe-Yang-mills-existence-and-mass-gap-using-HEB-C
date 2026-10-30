@@ -76,6 +76,7 @@ dependencies = [
  "num-bigint",
  "num-integer",
  "num-traits",
+ "torusl",
 ]
 
 [[package]]
