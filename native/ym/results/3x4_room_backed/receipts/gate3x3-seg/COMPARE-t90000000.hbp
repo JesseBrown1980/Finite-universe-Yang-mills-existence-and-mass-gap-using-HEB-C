@@ -1,0 +1,5 @@
+COMPARE_SIDE|side=A|scol=8643600|core=2940|keys_seen=8643600|dup=None|fail=0|seq_sha256=371f8014ddabfd7dae5b49f3deb353cb126036588ea8e42765e3ad18e600bd24|unpaired={'SHELL_SCHUR_COLS': 1}|ms=5091155|json=0
+COMPARE_SIDE|side=B|scol=8643600|core=2940|keys_seen=8643600|dup=None|fail=0|seq_sha256=371f8014ddabfd7dae5b49f3deb353cb126036588ea8e42765e3ad18e600bd24|unpaired={'ROOMSCHUR_ADMISSION': 1}|ms=21744944|json=0
+COMPARE_SUMMARY|t=90000000|equal=1|excluded=matrix=,ms=|json=0
+COMPARE_SCOL|t=90000000|keyed_equal=1|order_equal=1|json=0
+COMPARE|t=90000000|outcome=AGREE|json=0

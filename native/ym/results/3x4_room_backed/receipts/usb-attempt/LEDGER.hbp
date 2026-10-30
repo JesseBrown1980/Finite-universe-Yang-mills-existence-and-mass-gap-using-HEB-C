@@ -1,0 +1,4 @@
+LEDGER|run=ym-3x4-room-backed|seat=ACER-CLAUDE-FABLE5|pid=8467a937cba309f7|date=2026-10-28|operator_direction=matrix_on_USB_accepting_wrap_risk;50M_rooms_hold_rep_keys|json=0
+OVERWRITE|target=D:/asolaria-rooms-1m-50000000/stubs.hbi|rooms=0..45508079|bytes=0..364064639|prior_sha256=8cff9efdfc11fa30270fcb04e5caee081b8443658a56d2d8cb657223c3af7d54|backup=D:/ym-3x4-room-run/stubs.hbi.backup|backup_sha256_match=1|json=0
+OVERWRITE|target=PhysicalDrive2(General_UDisk,2097152000000,USB)|region=unallocated_tail|offset=579820584960|f_partition_end=537871960064|before_snapshot=USBSNAP-BEFORE.hbp|json=0
+GATE|builder_vs_ymsec=EXACT|lattices=2x3,2x4,3x3|sha16=2bc797fe8bafeb4c,a34d252302eea905,ad0168f973d120a0|json=0

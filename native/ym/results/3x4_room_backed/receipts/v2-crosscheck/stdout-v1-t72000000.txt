@@ -1,0 +1,2 @@
+SCHUR_COMPARE|shell=shell-t72000000.hbp|room=roomschur-seg-t72000000.out|scol_records=1292769|verdict=MISMATCH|cols_line_keys:1_only_shell,0_only_room|excluded_shell_matrix=ymsec-3x3.txt|excluded_room_matrix=sector-|excluded_shell_ms=292012|excluded_room_ms=5732885|json=0
+SCHUR_COMPARE_VERDICT|thresholds=1|MISMATCH|json=0

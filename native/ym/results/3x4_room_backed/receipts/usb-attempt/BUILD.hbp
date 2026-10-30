@@ -1,0 +1,2 @@
+YMROOMHDR|L=3x4|sector=Sx+Sy+|n=45508080|nl=24|rooms=3356267422|entries=3310759342|payload_bytes=26850881536|stream_bytes=26850885632|chunk=16MiB|payload_merkle=ec03c5f8ea5abd37ed8f80e0e9e7f00e37840a753f33a1008fbd090b18072a0b|keys_sha256=bf5a1a43f99f4acd5f73f7da55e628e5bedbd5b4b29ef1b21c87b789d0d13b79|w_self_adjoint=PASS|json=0
+YMROOM_BUILD|dev=//./PhysicalDrive2|offset=579820584960|header_readback=MISMATCH|ms=16998864|json=0

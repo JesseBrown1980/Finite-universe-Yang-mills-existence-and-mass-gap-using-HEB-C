@@ -1,0 +1,5 @@
+error: the listed checksum of `C:\Users\acer\Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-X\native\ym\vendor\num-bigint\src/biguint/multiplication.rs` has changed:
+expected: 414a7d83d554eb7e48fcc36e8f71870f3cdf6f0718a1ffbd580fe83fe0fc0399
+actual:   c51c1d8a598ab0cb5887d79ef9fd18e26c13e80a8e91dc21fa510ce4dfa5bd4b
+
+directory sources are not intended to be edited, if modifications are required then it is recommended that `[patch]` is used with a forked copy of the source
