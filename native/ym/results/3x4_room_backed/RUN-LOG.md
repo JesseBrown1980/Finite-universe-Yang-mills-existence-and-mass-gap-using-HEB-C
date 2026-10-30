@@ -167,3 +167,13 @@ Everything below is local evidence. The segmented-store sources (commit `2e4846e
 - **Embedded build path:** `shellschur.exe` and `roomschur.exe` embed absolute vendored-crate panic paths under this repo's checkout path. The exclusion decision for the rebuild comparison is pending with the operator.
 - **Frozen P4, attempt 3:** dispatched as run 41053502633 on `main` at `6c34c35`. Result pending.
 - **Large raw outputs** are kept outside git and bound by SHA-256 in `receipts/RAW-ARTIFACTS-OFFGIT.hbp`. The new receipt files are covered by `receipts/SHA256SUMS-2026-10-30`, and the original `receipts/SHA256SUMS` is unchanged and still verifies.
+
+## 2026-10-30: clean rebuild attempt 2 (binary provenance PASS)
+
+- **Pre-registration.** Before compiling, everything was frozen in `receipts/rebuild-2e4846e-attempt2/` as HBI → HBP → SHA → SH → HASH. The seal is `f44d920c2a09606534083a1d5321b70060c7d76dd4f0857bf6b087f901f7a830`. The exclusions were only the COFF timestamp, the debug-directory timestamps, the CodeView RSDS GUID/age and the PDB path. The comparator controls passed 8/8.
+- **Procedure.** The operator's checkout was renamed to `.hold`. A fresh clone of `2e4846e` (`core.autocrlf=false`) was made at the identical absolute path, so the embedded vendored-crate panic paths match. Its 1,561 tracked files are byte-identical to the commit. It built from scratch with exit 0, the clone was moved aside, and the checkout was restored. `before_equals_after=1` covers the executables, HEAD, status, `main.rs`, the run log and every tracked file's raw hash.
+- **Result.** `PROVENANCE_PASS`: 0 bytes differ outside the exclusions in all four executables (shellschur, roomschur, ymroom, ymsec). This is binary provenance, not a mathematical result.
+- **CRLF.** The 34 CRLF-only build inputs, including `shellschur.rs` (`809d6330` vs `9bd8d245`), had no effect on the executables for this build. The source-byte difference stays recorded.
+- **First launch.** It aborted at the precondition checks because of a launcher PATH fault. Nothing moved. The abort row is kept, with `LAUNCH1_NOTE` beside it.
+- The rebuilt executables and the temporary clone stay outside git, bound in `receipts/RAW-ARTIFACTS-OFFGIT-rebuild2.hbp`.
+- **Pending:** segmented-store P2/P3 and the frozen P4 result. There is no 3x4 gap verdict, and production HOLD is unchanged.
