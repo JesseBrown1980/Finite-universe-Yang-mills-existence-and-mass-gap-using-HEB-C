@@ -1,0 +1,10 @@
+PERLEVEL_PREREG|date=2026-10-30|seat=ACER-CLAUDE-FABLE5|pid=8467a937cba309f7|operator=OP-JESSE|authorized="yes run the per level test"|json=0
+PERLEVEL_SOURCE|dictionary=https://jessebrown1980.github.io/the-human-based-understanding/|r="the radius, goes straight there bidirectionally"|j="the reverse of the radius ... curved","the tridirectional curve has to come back"|law4="Instant is not always instant, it is instant PER LEVEL, three per level. Something must hold each boundary"|json=0
+PERLEVEL_MODEL|ring=3^N_sites|N=1..5|address=N_base3_digits(canonical_tribit::Zero_digits)|r=R+R^-1(one_step_both_ways)|j_level_l=all-ones_3x3_on_digit_l(identity_on_other_digits)|j_tick=one_level_in_order_1..N|reach=first_tick_site_is_nonzero(nonnegative_integers,no_cancellation)|integer_only=1|json=0
+PERLEVEL_PREDICT_Q1|N=1|r_ticks_to_reach_all=1|j_ticks_to_reach_all=1|meaning=inside_one_level_both_are_instant|json=0
+PERLEVEL_PREDICT_Q2|r_ticks_to_reach_all=(3^N-1)/2|N1..5=1,4,13,40,121|meaning=r_is_light_c=1,grows_with_size|json=0
+PERLEVEL_PREDICT_Q3|j_ticks_to_reach_all=N|N1..5=1,2,3,4,5|per_site=index_of_highest_base3_digit_differing_from_source|after_levels_1..l_reached_set=exactly_the_3^l_block_of_the_source|meaning=instant_per_level,one_tick_holds_each_boundary|json=0
+PERLEVEL_PREDICT_Q4|every_row_of_every_j_level=exactly_3_nonzero|meaning=three_per_level|json=0
+PERLEVEL_PREDICT_Q5|product_jN...j1=all-ones_J_on_3^N(every_entry_exactly_1,every_source)|meaning=j_over_all_levels_is_the_global_instant_layer(J)|json=0
+PERLEVEL_PREDICT_Q6|source=3^(N-1)-1|target=3^(N-1)|ring_distance=1|r_ticks=1|j_ticks=N(for_N>=2)|meaning=r_and_j_measure_different_distances:r_ring_distance,j_level_distance(boundary_must_be_held)|json=0
+PERLEVEL_READING|all_hold=law4_operationalised:j_instant_within_each_level,one_tick_per_level_boundary;r_travels_at_c=1|any_failure=reported_as_is|scope=mathematical_model_not_physical_claim|json=0
