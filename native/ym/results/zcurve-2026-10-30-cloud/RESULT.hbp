@@ -1,0 +1,8 @@
+ZCURVE_SINGLE|det_J=0|det_j=4|det_j_mod3=1|result=PASS|json=0
+ZCURVE|N=3|M=27|neg_entries=351|predicted_neg=351|rank3_Jall=1|rank3_jall=27|distinct_out_Jall=1|distinct_out_jall=27|json=0
+ZCURVE_RESULT|N=3|P1=PASS|P2=PASS|P3=PASS|P4=PASS|P5=PASS|json=0
+ZCURVE|N=4|M=81|neg_entries=3240|predicted_neg=3240|rank3_Jall=1|rank3_jall=81|distinct_out_Jall=1|distinct_out_jall=81|json=0
+ZCURVE_RESULT|N=4|P1=PASS|P2=PASS|P3=PASS|P4=PASS|P5=PASS|json=0
+ZCURVE|N=5|M=243|neg_entries=29403|predicted_neg=29403|rank3_Jall=1|rank3_jall=243|distinct_out_Jall=1|distinct_out_jall=243|json=0
+ZCURVE_RESULT|N=5|P1=PASS|P2=PASS|P3=PASS|P4=PASS|P5=PASS|json=0
+ZCURVE_OVERALL|PASS|json=0
