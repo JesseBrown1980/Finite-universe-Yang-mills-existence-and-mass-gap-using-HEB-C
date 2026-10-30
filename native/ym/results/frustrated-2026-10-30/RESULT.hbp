@@ -1,0 +1,7 @@
+FRUST_BUILD|rustc=rustc_1.81.0_(eeb90cda1_2024-09-04)|clippy_D_warnings=exit0|exe_sha256=16a6e4a639d36ed177e8ac6891f7821c9097821ecb61e95799819789d323a98c|src_sha256=30da41d649c0a137797492eb71a1743d95a0ca057d7b3f05a9353238b094d085|tribit_sha256=50e4cb85f3b8cf91f9e6b162f990eb51e5f984661259563a21188f3a1d560da0|sha_rs_sha256=d5ff519597eb04ff2200dbb8b8f753d9eb4c2f352199dc8fef2d47456ab16db8|prereg_sha256=3b04bdaedfe10be2d51f455cdc8927262ebc0a95aecc1ecefbe46599feeb4b6d|json=0
+FRUST_ROUTE|destinations=27|delivery_HASH=15/27|delivery_EXACT=25/27|delivery_TERNARY=25/27|delivery_FIELD_ONLY=27/27|energy_sum_HASH=7|energy_sum_EXACT=-77|energy_sum_TERNARY=-77|json=0
+FRUST_ROUTE_CHECKS|EXACT_le_HASH=27/27|TERNARY_le_EXACT=27/27|TERNARY_strictly_lower=0/27|json=0
+FRUST_BELL|m=FROZEN-LOCAL|S_micro=-371259|five_sigma_micro=55556|A_max_marginal_diff_micro=6258|B_max_marginal_diff_micro=3298|tolerance_micro=27778|json=0
+FRUST_BELL|m=FROZEN-JOINT|S_micro=-367268|five_sigma_micro=55556|A_max_marginal_diff_micro=3014|B_max_marginal_diff_micro=3005|tolerance_micro=27778|signalling_detected=0|json=0
+FRUST_PREDICTIONS|R1_FIELD_ONLY_27=1|R2_EXACT_le_HASH_27=1|R3_TERNARY_le_EXACT_27=1|B1_LOCAL_bound=1|B2_JOINT=measured(S_micro=-367268,signalling=0)|json=0
+FRUST_EXIT|code=0|json=0
