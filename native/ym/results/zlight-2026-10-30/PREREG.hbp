@@ -1,0 +1,11 @@
+ZLIGHT_PREREG|date=2026-10-30|seat=ACER-CLAUDE-FABLE5|pid=8467a937cba309f7|operator=OP-JESSE|authorized="yes I want you to run the tests to see"|json=0
+ZLIGHT_QUESTION|claim=operator:z_hash_changes_instantly_at_target_when_laser_fires_while_light_travels_at_c=1_per_step|test=does_the_instant_layer_exist_and_can_a_local_observer_use_it|json=0
+ZLIGHT_MODEL|lattice=64x64_torus|cell=tribit::Zero(balanced_trit,canonical_mod.rs_via_path)|rule=s'(x)=bal3(s(x)+s(N)+s(S)+s(E)+s(W))(linear_GF3_von_Neumann)|speed_limit=1_cell_per_step(c=1)|background=deterministic_seeded_trits|integer_only=1|float=0|json=0
+ZLIGHT_HASHES|global_root=Merkle_root_over_4096_leaves_sha256(x,y,digit)|target_local=sha256(target_x,target_y,digit)|target_with_global=sha256(target_local||global_root)|sha=torusl/src/sha.rs_via_path|json=0
+ZLIGHT_VARIANTS|target=(40,32)|V0=no_laser|V1=src_20W_msg+1|V2=src_20W_msg-1|V3=src_24W_msg+1|V4=src_24W_msg-1|V5=src_28N_msg+1|injection=step0_before_first_update|steps=40|json=0
+ZLIGHT_PREDICT_P1|global_root_first_differs_from_V0=step0_for_V1..V5|meaning=z_instant_at_global_layer|json=0
+ZLIGHT_PREDICT_P2|target_local_first_differs_from_V0=exactly_d(20,20,24,24,28)|bound=never_before_d(light_cone)|json=0
+ZLIGHT_PREDICT_P3|distinct_target_local_hashes_across_V0..V5_at_every_step_t<20=1|meaning=zero_information_to_a_local_observer_before_light_arrives|json=0
+ZLIGHT_PREDICT_P4|distinct_global_roots_across_V0..V5_at_step0=6|meaning=global_layer_already_encodes_aim_and_message_at_step0|json=0
+ZLIGHT_PREDICT_P5|target_with_global_first_differs_from_V0=step0|distinct_across_V0..V5_at_step0=6|meaning=target_that_can_read_global_root_learns_aim_and_message_instantly|json=0
+ZLIGHT_READING|if_P1..P5_hold=both_layers_exist:z_instant_globally,light_local;instant_use_requires_reading_global_state|any_failed_prediction=reported_as_is_not_reinterpreted|json=0
