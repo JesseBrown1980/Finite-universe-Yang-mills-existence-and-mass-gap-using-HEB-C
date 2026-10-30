@@ -1,0 +1,5 @@
+ZLIGHT_REPRO|version=final|src_sha256=a52cc547938201caf164665a956ff0bf092e21a0b68562b6f223aa04bbd5b5d5|record=RESULT.hbp|byte_identical=1|json=0
+ZLIGHT_REPRO|version=run1|src_sha256=3134926f841c0ef25cfb3a5374a6fe62ac41305a35e71cd9b58524ec776d1c86|record=RESULT.run1.hbp|byte_identical=1|json=0
+ZLIGHT_CLIPPY|version=final|D_warnings=exit0|json=0
+ZLIGHT_TOOLCHAIN|rustc=rustc_1.81.0_(eeb90cda1_2024-09-04)|json=0
+ZLIGHT_REPRO_EXIT|code=0|json=0
