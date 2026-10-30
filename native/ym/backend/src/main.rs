@@ -242,7 +242,8 @@ fn shard_id(s: &Spec) -> String {
 
 fn tool(name: &str) -> Result<PathBuf, String> {
     let exe = std::env::current_exe().map_err(|e| e.to_string())?;
-    let p = exe.parent().ok_or("no exe dir")?.join(name);
+    // the platform executable suffix: empty on Linux and macOS, ".exe" on Windows
+    let p = exe.parent().ok_or("no exe dir")?.join(format!("{name}{}", std::env::consts::EXE_SUFFIX));
     if !p.exists() {
         return Err(format!("tool {name} not built next to the backend"));
     }
