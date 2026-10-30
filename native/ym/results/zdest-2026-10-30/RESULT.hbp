@@ -1,0 +1,10 @@
+ZDEST_BUILD|rustc=rustc_1.81.0_(eeb90cda1_2024-09-04)|clippy_D_warnings=exit0|exe_sha256=8d12d55b9c965f2a36a0a58937e8aa6e8e92cb3be90ed67e9f7aaa808096a0e2|src_sha256=147bf79f3b557c2c6b7773cb2102342f0544fa7d5c520390584318cad5a706d8|tribit_sha256=50e4cb85f3b8cf91f9e6b162f990eb51e5f984661259563a21188f3a1d560da0|sha_rs_sha256=d5ff519597eb04ff2200dbb8b8f753d9eb4c2f352199dc8fef2d47456ab16db8|prereg_sha256=8f4ec5e9900ced75c6352748e033a43372196692785fb63576e6221eb0322da4|json=0
+ZDEST_RUN|grid=64x64|src=(20,32)|D1=(40,32)|D2=(20,52)|switch_step=5|steps=40|json=0
+ZDEST_M1|rule_z_L1_vs_C0_first_diff=0|rule_z_L2_vs_L1_first_diff=5|json=0
+ZDEST_M2|bookkeeping_z_K1_vs_K2_first_diff=never|json=0
+ZDEST_M3|cell_grids_L1_L2_K1_K2_identical_all_steps=1|json=0
+ZDEST_M4|locality_violations=0|json=0
+ZDEST_M5|D1_own_cell_first_diff=20|D2_own_cell_first_diff=20|json=0
+ZDEST_M6|J_rank_mod3=1|det_J=0|det_I+R-R2=4|mod3=1|rank_mod3=3|det_I-R+R2=4|mod3=1|json=0
+ZDEST_PREDICTIONS|M1_z_pulled_instantly_and_follows_switch=1|M2_bookkeeping_blind_to_switch=1|M3_pull_changes_no_cell=1|M4_locality_intact=1|M5_destination_untouched_until_light=1|M6_rank_claim=1|json=0
+ZDEST_EXIT|code=0|json=0

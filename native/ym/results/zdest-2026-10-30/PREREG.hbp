@@ -1,0 +1,12 @@
+ZDEST_PREREG|date=2026-10-30|seat=ACER-CLAUDE-FABLE5|pid=8467a937cba309f7|operator=OP-JESSE|authorized="Think, then test again, then push results to github into the finite yang mills repo"|json=0
+ZDEST_STATEMENT|operator="No quantum data can leave at c without having z pulled instantly from its destination at n instant ... Anything in the matrix even if locality is considered should not be affected. 1 matrix, 1 universe regardless"|json=0
+ZDEST_MODEL|lattice=64x64_torus|cell=tribit::Zero|rule=s'(x)=bal3(s(x)+4_neighbours)(c=1)|laser=+1_at_S=(20,32)_step0|D1=(40,32)_distance20|D2=(20,52)_distance20|switch_step=k=5|steps=40|json=0
+ZDEST_RULES|RULE(operator)=Z(t)=sha256(global_root(t)||dest_token(t)),dest_token=sha256(dest_x,dest_y,level=1),pulled_at_step0_before_emission_and_re-pulled_on_switch,pull_writes_no_cell|BOOKKEEPING(control)=Z(t)=global_root(t)|json=0
+ZDEST_RUNS|C0=no_laser_no_pull|L1=laser,RULE,dest_D1_throughout|L2=laser,RULE,dest_D1_then_D2_from_step5|K1=laser,BOOKKEEPING,dest_D1|K2=laser,BOOKKEEPING,dest_D1_then_D2_from_step5|json=0
+ZDEST_PREDICT_M1|RULE:Z_L1_first_differs_from_C0=step0|Z_L2_first_differs_from_Z_L1=step5(instant_on_switch,no_light_has_reached_D1_or_D2)|json=0
+ZDEST_PREDICT_M2|BOOKKEEPING:Z_K1_vs_Z_K2_differ_at_steps=none(switch_invisible)|json=0
+ZDEST_PREDICT_M3|cell_grids_L1=L2=K1=K2_at_every_step(the_pull_and_the_switch_change_0_cells)|json=0
+ZDEST_PREDICT_M4|locality:cells_at_distance>t_from_S_equal_C0_at_step_t_for_all_t<=40|violations=0|json=0
+ZDEST_PREDICT_M5|D1_own_cell_first_differs_from_C0=step20|D2_own_cell_first_differs_from_C0=step20|meaning=being_pulled_does_not_touch_the_destination,only_light_does|json=0
+ZDEST_PREDICT_M6|rank_check(other_seat_claim):J_3x3_mod3_rank=1|det(I+R-R^2)=4_over_Z,=1_mod3(invertible)|det(I-R+R^2)=4,=1_mod3|json=0
+ZDEST_READING|all_hold=a_destination-pulled_z_coexists_with_c=1_and_disturbs_no_cell;the_switch_shows_instantly_in_z_and_nowhere_in_the_matrix;bookkeeping_cannot_see_it|scope=software_model_of_the_operator_rule,consistency_not_physical_necessity|failures_reported_as_is|json=0

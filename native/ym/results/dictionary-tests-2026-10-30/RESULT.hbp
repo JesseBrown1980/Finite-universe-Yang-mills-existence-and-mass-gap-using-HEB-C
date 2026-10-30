@@ -1,0 +1,22 @@
+DICT_BUILD|rustc=rustc_1.81.0_(eeb90cda1_2024-09-04)|clippy_D_warnings=exit0|exe_sha256=f9e790df38c5cb9df698e98047513000e1824bb0bed8e4c941980036bf24c789|src_sha256=16dd5760b57539fc14a86a6f5cbb1470978ce6b8eaaf98734446127b6d6bf534|c_script_sha256=12d0051520fcbe47d4e6756081c52952693421581ee8d96a442cc151dbc71fa1|tribit_sha256=50e4cb85f3b8cf91f9e6b162f990eb51e5f984661259563a21188f3a1d560da0|prereg_sha256=38eebadf4c6d582ff98a5ab95a90ad11db0a41258f5dcea4f577dd070d410b7b|json=0
+B_N|N=1|sites=3|r_symmetric=1|jJ_symmetric=1|jc_asymmetric=1|jc_three_per_row=1|jc_transpose_is_I-R+R2=1|jc_ticks_to_reach_all=1|jc_per_site_eq_top_digit=1|jc_blocks_exact=1|jc_boundary_jN=1|jc_product_entries_pm1=1|jc_column_pos=2_neg=1_sum1=1|json=0
+B_N|N=2|sites=9|r_symmetric=1|jJ_symmetric=1|jc_asymmetric=1|jc_three_per_row=1|jc_transpose_is_I-R+R2=1|jc_ticks_to_reach_all=2|jc_per_site_eq_top_digit=1|jc_blocks_exact=1|jc_boundary_jN=1|jc_product_entries_pm1=1|jc_column_pos=5_neg=4_sum1=1|json=0
+B_N|N=3|sites=27|r_symmetric=1|jJ_symmetric=1|jc_asymmetric=1|jc_three_per_row=1|jc_transpose_is_I-R+R2=1|jc_ticks_to_reach_all=3|jc_per_site_eq_top_digit=1|jc_blocks_exact=1|jc_boundary_jN=1|jc_product_entries_pm1=1|jc_column_pos=14_neg=13_sum1=1|json=0
+B_N|N=4|sites=81|r_symmetric=1|jJ_symmetric=1|jc_asymmetric=1|jc_three_per_row=1|jc_transpose_is_I-R+R2=1|jc_ticks_to_reach_all=4|jc_per_site_eq_top_digit=1|jc_blocks_exact=1|jc_boundary_jN=1|jc_product_entries_pm1=1|jc_column_pos=41_neg=40_sum1=1|json=0
+B_N|N=5|sites=243|r_symmetric=1|jJ_symmetric=1|jc_asymmetric=1|jc_three_per_row=1|jc_transpose_is_I-R+R2=1|jc_ticks_to_reach_all=5|jc_per_site_eq_top_digit=1|jc_blocks_exact=1|jc_boundary_jN=1|jc_product_entries_pm1=1|jc_column_pos=122_neg=121_sum1=1|json=0
+B_PREDICTIONS|B1_r_symmetric=1|B2_jJ_symmetric=1|B3_jc_curved_tridirectional=1|B4_reach_unchanged_with_jc=1|B5_jc_all_levels_not_J=1|json=0
+A_TRIT|rotate_cubed_is_identity=1|rotate_ne_anti_rotate_all3=1|mirror_is_involution_with_fixed_Nil=1|json=0
+A_HELD|states_moved=27/27|order=3|json=0
+A_COLLAPSED|states_moved=0/27|json=0
+A_DISTINCT|per_level_turns=27|one_level_turns=3|json=0
+A_OBSERVE|per_level_changed=27/27|summed_changed=0/27|json=0
+A_PREDICTIONS|A1_turn_not_mirror=1|A2_held_moves_all_order3=1|A3_collapsed_identity=1|A4_27_vs_3=1|A5_sum_hides_held_turn=1|json=0
+DICT_EXIT_BA|code=0|json=0
+C_HISTORY|commits=6|head=f38cfec0c910a5997f156e9e599d097cacf0c578|json=0
+C_FIRST|which=X|commit=d2f0693bff27ccd042a9d1a0433ca3e1fd17ecce|date=2026-08-01T21:54:59-03:00|subject=The human-based understanding - the letters are the light|json=0
+C_FIRST|which=Y|commit=b93726eb5da3cef08fc43edfd53269d6a7abfcff|date=2026-08-01T22:50:26-03:00|subject=The whole alphabet, every word of it quoted - this is not the end, this is the aether beginning|json=0
+C_MATCH|which=X_f|line=f   FROM — from the source. To look out FROM something.|json=0
+C_MATCH|which=X_m|line=m   INTELLIGENCE. Reduced from mammal, to man, to human — and then:|json=0
+C_MATCH|which=Y_father|line=ETHER      the father verse — the bare source|json=0
+C_PREDICTION|verdict=HOLDS(X_strict_ancestor_of_Y)|scope=written_record_in_this_repo_only|json=0
+DICT_EXIT_C|code=0|json=0
