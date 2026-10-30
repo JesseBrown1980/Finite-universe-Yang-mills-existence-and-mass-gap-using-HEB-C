@@ -1,0 +1,11 @@
+ZLIGHT_RUN|variant=east_p1|global_root_first_diff_step=0|target_local_first_diff_step=32|predicted_local=32|json=0
+ZLIGHT_RUN|variant=east_p2|global_root_first_diff_step=0|target_local_first_diff_step=32|predicted_local=32|json=0
+ZLIGHT_RUN|variant=east_p3|global_root_first_diff_step=0|target_local_first_diff_step=32|predicted_local=32|json=0
+ZLIGHT_RUN|variant=north_p1|global_root_first_diff_step=0|target_local_first_diff_step=-1|predicted_local=-1|json=0
+ZLIGHT_RUN|variant=north_p2|global_root_first_diff_step=0|target_local_first_diff_step=-1|predicted_local=-1|json=0
+ZLIGHT_RUN|variant=north_p3|global_root_first_diff_step=0|target_local_first_diff_step=-1|predicted_local=-1|json=0
+ZLIGHT_LOCAL|steps=0..31|distinct_target_view_sequences=1|bits_learned_before_arrival=0|json=0
+ZLIGHT_LOCAL|step=32|distinct_target_views=4|json=0
+ZLIGHT_GLOBAL|step=0|distinct_global_roots=4|baseline_root_step0=87b5b5a4011f0bc0b60efe53d4a37f3c0e09800c8a5d9ea05c7f157089feab6a|json=0
+ZLIGHT_POSTHOC|not_preregistered=1|step=1|distinct_global_roots=7|json=0
+ZLIGHT_RESULT|P1=PASS|P2=PASS|P3=PASS|P4=PASS|P5=FAIL|overall=FAIL|json=0
