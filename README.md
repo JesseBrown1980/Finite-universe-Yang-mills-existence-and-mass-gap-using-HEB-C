@@ -140,6 +140,11 @@ SHA/HBI/HBP receipts. PASS/FAIL judgments stay as originally registered.
   Bell states with Bell-state measurements keep S² = 8 exactly through four teleportation steps;
   PR-box correlations under every local wiring fall to the local bound 2 after one step; a global
   z controller keeps any value. Correlations carried by locally composed resources land on 2√2.
+- [Finite-fluid cutoff (zcutoff)](native/ym/results/zcutoff-2026-10-30-cloud/) and
+  [transport on the current gates (zcalib)](native/ym/results/zcalib-2026-10-30-cloud/): in the D3Q27
+  lattice gas, a swirl driven toward zero core radius at 24³, 48³ and 96³ concentrates (axis vorticity
+  681 → 2,011 → 4,078) while its core holds 1/8 of the box, and at 96³ the cells reach the occupancy cap;
+  kinematic viscosity 0.44 and 0.43 at two sizes, c_s² = 2/3 exactly.
 - [PR #42 destination-pull](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/42),
   [PR #43 three prisms](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/43),
   [PR #48 prism-Bell](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/48)
