@@ -204,3 +204,12 @@ Everything below is local evidence. The segmented-store sources (commit `2e4846e
   - Exact matches and appended rows are CR-stripped. Measured: GNU grep 3.0 matched raw CRLF anyway; dry test: 0 CR bytes.
 - **Controls.** Verdict controls 35/35; comparator equivalence unchanged at 60/60. The real command-line path was dry-tested with synthetic evidence only, and the sidecar verifies.
 - **Not run.** Execution needs separate operator authorization. Production HOLD is unchanged, and there is no 3x4 gap verdict.
+
+## 2026-10-30: segmented-store P2/P3 specification, revision 3 (NOT RUN)
+
+- **Why.** The operator's review of revision 2 (`570a2569…`, never run) gave a NO-GO for two evidence-integrity checks. No mathematical rule changed.
+- **Where.** Revision 3 is frozen in `receipts/segp2p3-spec-rev3/` with seal `7cf49f2c9cf6a9770f7ad7ac204a8d0b33c74a8539e38928073ac4b69c404e91`. Revisions 1 and 2 stay unchanged in their own directories.
+- **Fix 1: control files.** The verdict module now re-opens `comparator-controls.hbp` and `verdict-controls.hbp`, re-hashes them, and checks their terminal rows. A missing or altered file is INCONCLUSIVE.
+- **Fix 2: seal anchor.** The pre-registration seal is bound to an anchor supplied at launch from the operator's authorization (`segp2p3.sh <ANCHOR>`), never read from the bundle, because a module cannot contain its own bundle's seal. Both the procedure and, independently, the verdict module recompute the bundle seal and require it to equal the anchor and the seal recorded in PRECONDITIONS.
+- **Controls.** Verdict controls 40/40, adding: control file deleted, control file altered, seal substituted, an unapproved internally consistent bundle, and a spec file altered after sealing. Comparator equivalence unchanged at 60/60. Dry test of the real module: AGREE with the approved anchor, INCONCLUSIVE (`seal_not_operator_anchor`) with a substituted one.
+- **Not run.** Execution needs separate operator authorization naming this seal as the anchor. Production HOLD is unchanged, and there is no 3x4 gap verdict.
