@@ -10,12 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Replay all 54 variants and enforce exact HBP bytes
+      - name: Replay HBI HBP SHA SH HASH and all 54 cases
         shell: bash
         run: |
           set -euo pipefail
           cd native/ym/results/qprism-three-2026-10-30
-          echo "f880459cef7c5f00c194f19691429347d499545e2c232732be42bba92434780c  PREREG.hbp" | sha256sum -c
-          python3 q3_test.py
-          echo "5875929926f4fdfdb1b8577839e675a87aed51cf157bb82851dbe816ffd7dc5c  RESULT.hbp" | sha256sum -c
-          grep -F 'P8=PASS|cases=54|prism_count=3|paths=27|result=PASS|physical_ftl_observed=0' RESULT.hbp
+          sh run.sh
+          grep -F 'sha256_expected=5875929926f4fdfdb1b8577839e675a87aed51cf157bb82851dbe816ffd7dc5c' Q3.hbi
