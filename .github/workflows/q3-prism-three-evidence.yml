@@ -1,0 +1,19 @@
+name: Q3 prism-x3 isolated evidence replay
+on:
+  pull_request:
+    paths:
+      - 'native/ym/results/qprism-three-2026-10-30/**'
+      - '.github/workflows/q3-prism-three-evidence.yml'
+  workflow_dispatch:
+jobs:
+  q3-registered-prism-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replay HBI HBP SHA SH HASH and all 54 cases
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd native/ym/results/qprism-three-2026-10-30
+          sh run.sh
+          grep -F 'sha256_expected=5875929926f4fdfdb1b8577839e675a87aed51cf157bb82851dbe816ffd7dc5c' Q3.hbi
