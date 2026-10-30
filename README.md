@@ -114,16 +114,15 @@ SHA/HBI/HBP receipts. PASS/FAIL judgments stay as originally registered.
   Bell-local models stay within `|S|<=2`. A controller that reads both settings, with a
   balanced shared hidden variable, gives `S=4` with both stations' own counts unchanged
   by the far setting. See also [three-seat control PR #47](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/47).
-- [PR #42 destination-pull](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/42),
-  [PR #43 three prisms](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/43),
-  [PR #48 prism-Bell](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/48)
-  and [PR #49 Cantor](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/49)
-  are open experiments. Cantor's 16 bands are simulated channels, one per Cantor level;
-  all 16 arrive together at step 20. The prism-Bell and Cantor corrections are
-  append-only files beside the original sealed records.
-- The frustrated-orientation benchmark is local-seat evidence, to be committed with its
-  frozen predictions, including the field-only control at 27/27 against frustrated
-  optimization at 25/27.
+- [prism3 (merged, PR #45)](native/ym/results/prism3-2026-10-30/),
+  [prism-Bell (merged, PR #48)](native/ym/results/prismbell-2026-10-30/) and
+  [Cantor (merged, PR #49)](native/ym/results/cantor-2026-10-30/): Cantor's 16 bands are
+  simulated channels, one per Cantor level; all 16 arrive together at step 20. The
+  prism-Bell and Cantor corrections are append-only files beside the original sealed records.
+- [Frustrated-orientation benchmark (merged, PR #51)](native/ym/results/frustrated-2026-10-30/):
+  the field-only control delivers 27/27 and frustrated optimization 25/27, against
+  hash selection's 15/27; energy and Bell outcomes are reported separately.
+- [PR #42 destination-pull](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/42) and [PR #43 three prisms](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/43) are open experiments.
 
 ## The theory route
 
