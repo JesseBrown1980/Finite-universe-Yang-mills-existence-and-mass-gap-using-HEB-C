@@ -71,13 +71,28 @@ jobs:
       - name: Measure K=1,2,4 using the frozen specification
         shell: bash
         run: |
+          # GitHub runs this as bash -e; turn it off so chown, cgroup cleanup and
+          # P4_RUNNER_EXIT run on every outcome (a fail-closed exit 2 included).
+          set +e
           set -uo pipefail
           mkdir -p native/ym/out
+          # Dedicated empty parent cgroup with the memory controller delegated to its children.
+          # Root is required: moving a process between cgroups needs write access to their
+          # common ancestor (run 40968791778 failed closed with cgroup_not_writable).
+          # If either command fails, the runner reports cgroup_parent_missing or
+          # cgroup_parent_memory_not_delegated and fails closed.
+          P=/sys/fs/cgroup/hebc-p4-$GITHUB_RUN_ID
+          sudo mkdir "$P"
+          echo +memory | sudo tee "$P/cgroup.subtree_control" > /dev/null
           # The internal runner always writes HBP + SHA on normal outcomes.
           # The outer timeout allows 30 minutes for receipt packaging/upload.
-          timeout --signal=TERM --kill-after=30s 330m \
-            python3 native/ym/python/memory_pilot_runner.py
-          rc=$?
+          rc=0
+          sudo timeout --signal=TERM --kill-after=30s 330m \
+            env "PATH=$PATH" "GITHUB_RUN_ID=$GITHUB_RUN_ID" "HEBC_P4_CGROUP_PARENT=$P" \
+            python3 native/ym/python/memory_pilot_runner.py || rc=$?
+          sudo chown -R "$(id -u):$(id -g)" native/ym/out
+          sudo find "$P" -mindepth 1 -depth -type d -exec rmdir {} \; 2>/dev/null
+          sudo rmdir "$P" 2>/dev/null
           echo "P4_RUNNER_EXIT|code=$rc|json=0" | tee native/ym/out/P4-RUNNER-EXIT.hbp
           exit 0
 

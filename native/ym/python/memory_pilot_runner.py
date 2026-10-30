@@ -120,10 +120,20 @@ def host_identity() -> None:
 def cgroup_parent() -> Path:
     c = Path("/sys/fs/cgroup")
     ensure((c / "cgroup.controllers").exists(), "no_cgroup_v2")
-    loc = next((l.split("::", 1)[1].strip() for l in Path("/proc/self/cgroup").read_text().splitlines()
-                if l.startswith("0::")), None)
-    ensure(loc is not None, "no_cgroup_path")
-    path = c / loc.lstrip("/")
+    given = os.environ.get("HEBC_P4_CGROUP_PARENT")
+    if given:
+        # A dedicated, empty parent prepared by the workflow (cgroup v2 forbids enabling
+        # controllers for children of a cgroup that itself holds processes).
+        path = Path(given)
+        ensure(path.parent == c and path.exists(), "cgroup_parent_missing")
+        ensure("memory" in (path / "cgroup.subtree_control").read_text().split(),
+               "cgroup_parent_memory_not_delegated")
+        emit(f"PILOT_CGROUP_PARENT|path={safe(path)}|mode=dedicated|json=0")
+    else:
+        loc = next((l.split("::", 1)[1].strip() for l in Path("/proc/self/cgroup").read_text().splitlines()
+                    if l.startswith("0::")), None)
+        ensure(loc is not None, "no_cgroup_path")
+        path = c / loc.lstrip("/")
     ensure(path.exists() and os.access(path, os.W_OK), "cgroup_not_writable")
     controllers = (path / "cgroup.controllers").read_text().split()
     ensure("memory" in controllers, "cgroup_memory_controller_unavailable")
