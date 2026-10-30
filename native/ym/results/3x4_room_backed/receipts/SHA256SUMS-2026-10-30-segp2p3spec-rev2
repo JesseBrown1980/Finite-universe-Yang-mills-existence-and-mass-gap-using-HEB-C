@@ -1,0 +1,15 @@
+6d9b2843bc40e386b7c5fc13ebda79ed6069e0930f686b95163e786f2e16c0ed *./segp2p3-spec-rev2/COMPARATOR-CONTROLS.hbp
+2b8847a8930682d404adf0ed09b1934607d948afb3869f5e8e6f354c07b13ec8 *./segp2p3-spec-rev2/SEGP2P3-SPEC.hbi
+f2620b76299ec7dd664700b19fabc0cabdea741a9d116c83fe4599050bf52986 *./segp2p3-spec-rev2/SEGP2P3-SPEC.hbp
+603e0a7cc75004900c5629eee50a9f6e3afd0a5f1efa1499ee91adc745eacdee *./segp2p3-spec-rev2/SEGP2P3-SPEC.md
+bdf77196ce5ee25d1c29c6854cbccc495b1ce21fb3ee552ae96b8f3a6bdb2f20 *./segp2p3-spec-rev2/SEGP2P3-VERDICT-CONTROLS.hbp
+7cc0b60567642b077014cf32f00e1c6fcee684d49988b1ac7f4e519c55a32558 *./segp2p3-spec-rev2/SEGP2P3.seal
+b029b2d6ef910e1447553ee6c29b320a0868acb0fa5876aa978c23b9efdbab17 *./segp2p3-spec-rev2/SHA256SUMS
+977e5e81fc609662cad3a19299928ed8a0545a0add1dae76d04835f29e1a0c62 *./segp2p3-spec-rev2/code/schur_record_compare.py
+8f6334e0ff34d94a1132dd7faef5a1ac61ca5c6015d8c3a47bbd62a1f911d02c *./segp2p3-spec-rev2/code/schur_record_compare_controls.py
+7b224b21598432db6511fc5a2dd11d382c5c9288967a792fd71efeafa953efa9 *./segp2p3-spec-rev2/code/schur_record_compare_stream.py
+b4e92e79bbf19cc009ba8d2db670c65afb82b6a89ddef2f981bbcb4f1880d431 *./segp2p3-spec-rev2/code/schur_record_compare_stream_controls.py
+8cbe0015df4310cfebd17913bf7de31f3c7f2264ec59c67e97a2e96477446fdf *./segp2p3-spec-rev2/code/schur_record_compare_v1_9f60d56.py
+45f6520ea1b42798d2a45d46ead9bcb9869a2aa7f8f697e92b9e470d59ed7c2c *./segp2p3-spec-rev2/segp2p3.sh
+b10ae6966c158439a0ff1ae499466f0e16e54e42e157807d43476b9d20d0d738 *./segp2p3-spec-rev2/segp2p3_verdict.py
+2131d46bb77b0c9feb3e265b72ebab0fb0d610411f177810c9dc15e6acafd6dc *./segp2p3-spec-rev2/segp2p3_verdict_controls.py

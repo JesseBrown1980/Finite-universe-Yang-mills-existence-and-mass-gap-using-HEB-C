@@ -188,3 +188,19 @@ Everything below is local evidence. The segmented-store sources (commit `2e4846e
 - **Scope.** P3 is scoped to G1 only, and G2 gets builder bytes only. Store identity is not read-path identity. Every verdict row carries `spectral_pass=0`.
 - **Synthetic controls:** comparator equivalence 60/60 (120 comparisons) and verdict logic 24/24.
 - **Not run.** Execution needs separate operator authorization. Duration is CONJECTURE: at least 61,000 s, plausibly 20–35 h. Production HOLD is unchanged, and there is no 3x4 gap verdict.
+
+## 2026-10-30: segmented-store P2/P3 specification, revision 2 (NOT RUN)
+
+- **Why.** The operator's final review gave a NO-GO on revision 1 (`d6666f97…`, never run) for verification and packaging gaps. No mathematical comparison rule changed.
+- **Where.** Revision 2 is frozen in `receipts/segp2p3-spec-rev2/` with seal `570a25699b6dc6ff134372353b39f1383a1507af5cd69fb9f992c735730a8e79`. Revision 1 stays unchanged in `receipts/segp2p3-spec/`, and its manifest still verifies.
+- **Corrections:**
+  - End integrity requires both executable and spec integrity.
+  - P2 requires complete, well-formed evidence, including `P2_SINGLE`, before any comparison, so incomplete evidence is INCONCLUSIVE, never MISMATCH.
+  - Segment controls K0–K5 are checked individually, with a valid setup.
+  - Comparator results (v2, v1 and the 60M single-file vs segmented store control) are bound to their retained stdout bytes by SHA-256 and parsed lines.
+  - A failed segment read gives INCONCLUSIVE.
+  - Aggregates give INCONCLUSIVE precedence over MISMATCH.
+  - The sidecar uses the bare file name.
+  - Exact matches and appended rows are CR-stripped. Measured: GNU grep 3.0 matched raw CRLF anyway; dry test: 0 CR bytes.
+- **Controls.** Verdict controls 35/35; comparator equivalence unchanged at 60/60. The real command-line path was dry-tested with synthetic evidence only, and the sidecar verifies.
+- **Not run.** Execution needs separate operator authorization. Production HOLD is unchanged, and there is no 3x4 gap verdict.
