@@ -1,0 +1,3 @@
+Q3_RECEIPT|date=2026-10-30|prereg_sha256=f880459cef7c5f00c194f19691429347d499545e2c232732be42bba92434780c|expected_result_sha256=5875929926f4fdfdb1b8577839e675a87aed51cf157bb82851dbe816ffd7dc5c|runs=54|prisms=3|branches=27|registered_P1_P8=PASS|physical_quantum_evidence=0|json=0
+Q3_NEGATIVE|global_token_visible_to_local_observer=LEAK|bits=1|json=0
+Q3_HISTORY|v1=oracle_not_independent|v2=closed_form_oracle|v3=forty_leaf_merkle|prereg_unchanged=1|json=0
