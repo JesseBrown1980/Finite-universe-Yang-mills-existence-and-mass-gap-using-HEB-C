@@ -13,7 +13,7 @@ certificate count. Rust 1.81, clippy `-D warnings`, integer arithmetic only, jso
 | Check | Result |
 | --- | --- |
 | Q1 builder and r = 0 | all 6 matrices exactly W-self-adjoint; vacuum 0 and charged 3d certified exactly |
-| Q2 certificates | 24 energies, each enclosed to ≤ 10⁻⁹ J_E (widths 140–264 × 10⁻¹¹ J_E) |
+| Q2 certificates | 24 energies, each enclosed to ≤ 10⁻⁹ J_E (widths 5.19 × 10⁻¹⁰ to 9.78 × 10⁻¹⁰ J_E, i.e. 140 to 264 threshold units of 1/270 000 000 000 J_E) |
 | Q3 second order | at r = 1/27, κ_eff within 1% of κ_g on every geometry and d (15% registered) |
 | Q4 convergence | κ_eff moves toward κ_g as r falls from 1/9 to 1/27, every cell |
 | Q5 local mechanism | κ_eff(L3)/κ_eff(L2) = 1.9999 at r = 1/27 ([1.7, 2.3] registered) |
