@@ -1,8 +1,11 @@
-# Exact-head replay of the cloud seat's result packages (native/ym/results/*-cloud/).
-# For every package present: verify SHA256SUMS and the HASH seal, then run its run.sh, which checks
-# the prediction seal, rebuilds with Rust 1.81, runs clippy -D warnings and checks the output is
-# byte-identical to the recorded HBP. Fail-closed: any missing file, failed sum, seal mismatch,
-# build failure or byte difference fails the job. Integer only, json=0.
+# Exact-head replay of the cloud seat's result packages (native/ym/results/*-cloud/), one job per package.
+# Each job verifies its package's SHA256SUMS and HASH seal, then runs its run.sh, which checks the
+# prediction seals, rebuilds with Rust 1.81, runs clippy -D warnings (and, for HTTP-0 packages, runs every
+# job through `hebc_ym_http0 serve`) and checks the output is byte-identical to the recorded HBP.
+# The final gate keeps the required check name and passes only when every package job passed and the
+# package list below names exactly the package directories present (a new package must be added here).
+# Fail-closed: any missing file, failed sum, seal mismatch, build failure, timeout or byte difference fails.
+# Integer only, json=0.
 name: HEB-C YM cloud-seat result replay (Rust 1.81)
 
 on:
@@ -10,6 +13,11 @@ on:
   pull_request:
     paths:
       - 'native/ym/results/*-cloud/**'
+      - 'native/ym/backend/**'
+      - 'native/ym/crates/**'
+      - 'native/ym/Cargo.toml'
+      - 'native/ym/Cargo.lock'
+      - 'native/src/**'
       - '.github/workflows/hebc-ym-cloud-replay.yml'
 
 permissions:
@@ -17,34 +25,61 @@ permissions:
 
 jobs:
   replay:
-    name: Replay cloud-seat packages on the exact head
+    name: Replay ${{ matrix.package }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - zcalib-2026-10-30-cloud
+          - zconf-2026-10-30-cloud
+          - zconfcert-2026-10-30-cloud
+          - zcutoff-2026-10-30-cloud
+          - zgap2-2026-10-30-cloud
+          - zteleport-2026-10-30-cloud
+          - zwilson-2026-10-30-cloud
     steps:
       - uses: actions/checkout@v4
       - name: Rust 1.81 with clippy
         run: rustup toolchain install 1.81.0 --profile minimal -c clippy
-      - name: Verify chains and replay
+      - name: Verify chain and replay
+        env:
+          PKG: ${{ matrix.package }}
         run: |
           set +e
           set -uo pipefail
-          o=CLOUD-REPLAY.hbp; : > $o; bad=0; n=0
-          echo "CLOUD_REPLAY|run=$GITHUB_RUN_ID|commit=$GITHUB_SHA|json=0" >> $o
-          for d in native/ym/results/*-cloud; do
-            [ -f "$d/run.sh" ] || continue
-            n=$((n+1))
-            seal=$(ls $d/*.seal 2>/dev/null | head -1); hbi=$(ls $d/*.hbi 2>/dev/null | head -1)
-            sums=0; (cd $d && sha256sum -c --quiet SHA256SUMS) && sums=1
-            sealok=0
-            if [ -n "$seal" ] && [ -n "$hbi" ]; then
-              [ "$(cat $d/SHA256SUMS $hbi | sha256sum | cut -c1-64)" = "$(cat $seal)" ] && sealok=1
-            fi
-            bash $d/run.sh > rep.txt 2>&1; rc=$?
-            grep -E '^(REPLAY|ZLIGHT_REPRO|ZLIGHT_CLIPPY|ZLIGHT_TOOLCHAIN|ZLIGHT_REPRO_EXIT)\|' rep.txt | sed "s#^#PKG|dir=$(basename $d)|#" >> $o
-            ok=0; [ $sums = 1 ] && [ $sealok = 1 ] && [ $rc = 0 ] && ok=1; [ $ok = 1 ] || { bad=1; cat rep.txt; }
-            echo "PACKAGE|dir=$(basename $d)|sha256sums=$sums|seal=$sealok|replay_exit=$rc|ok=$ok|json=0" >> $o
-          done
-          [ $n -gt 0 ] || bad=1
-          echo "CLOUD_REPLAY_RESULT|packages=$n|all_ok=$([ $bad = 0 ] && echo 1 || echo 0)|json=0" >> $o
-          cat $o
-          [ $bad = 0 ]
+          d=native/ym/results/$PKG
+          [ -f "$d/run.sh" ] || { echo "PACKAGE|dir=$PKG|result=FAIL|reason=no_run_sh|json=0"; exit 1; }
+          seal=$(ls $d/*.seal 2>/dev/null | head -1); hbi=$(ls $d/*.hbi 2>/dev/null | head -1)
+          sums=0; (cd $d && sha256sum -c --quiet SHA256SUMS) && sums=1
+          sealok=0
+          if [ -n "$seal" ] && [ -n "$hbi" ]; then
+            [ "$(cat $d/SHA256SUMS $hbi | sha256sum | cut -c1-64)" = "$(cat $seal)" ] && sealok=1
+          fi
+          bash $d/run.sh > rep.txt 2>&1; rc=$?
+          ok=0; [ $sums = 1 ] && [ $sealok = 1 ] && [ $rc = 0 ] && ok=1
+          grep -E '^(REPLAY|ZLIGHT_REPRO|ZLIGHT_CLIPPY|ZLIGHT_TOOLCHAIN|ZLIGHT_REPRO_EXIT)\|' rep.txt | sed "s#^#PKG|dir=$PKG|#"
+          echo "PACKAGE|dir=$PKG|commit=$GITHUB_SHA|run=$GITHUB_RUN_ID|sha256sums=$sums|seal=$sealok|replay_exit=$rc|ok=$ok|json=0"
+          [ $ok = 1 ] || { cat rep.txt; exit 1; }
+
+  gate:
+    name: Replay cloud-seat packages on the exact head
+    needs: replay
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Every package job passed and every package is listed
+        env:
+          REPLAY_RESULT: ${{ needs.replay.result }}
+        run: |
+          set -euo pipefail
+          listed=$(sed -n '/^        package:$/,/^    steps:$/p' .github/workflows/hebc-ym-cloud-replay.yml | sed -n 's/^          - //p' | LC_ALL=C sort)
+          present=$(for d in native/ym/results/*-cloud; do [ -f "$d/run.sh" ] && basename "$d"; done | LC_ALL=C sort)
+          complete=0; [ "$listed" = "$present" ] && complete=1
+          [ $complete = 1 ] || { echo "listed vs present:"; diff <(echo "$listed") <(echo "$present") || true; }
+          ok=0; [ "$REPLAY_RESULT" = "success" ] && [ $complete = 1 ] && ok=1
+          echo "CLOUD_REPLAY_RESULT|commit=$GITHUB_SHA|run=$GITHUB_RUN_ID|packages=$(echo "$present" | grep -c .)|package_jobs=$REPLAY_RESULT|list_complete=$complete|all_ok=$ok|json=0"
+          [ $ok = 1 ]
