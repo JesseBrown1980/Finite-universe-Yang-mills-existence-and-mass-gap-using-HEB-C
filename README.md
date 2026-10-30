@@ -80,6 +80,14 @@ remaining drift linear in r. V(d, r) is certified increasing in d at every coupl
 (σ = 2.99995 at r = 1/27, 2.9566 at r = 1). Together with the gap law, this gives exact results from
 both coupling directions: strong electric (r → 0) and strong magnetic (r → ∞).
 
+**Spatial Wilson loops, exact series and certified values**
+([`zwilson`](native/ym/results/zwilson-2026-10-30-cloud/README.md)): on the same open ladder,
+⟨χ_std(U_C)⟩ for the 1×A loop starts exactly at order r^A, with coefficients 1/6, 7/432 and 11/6912
+for A = 1, 2, 3, identical in two independent bases. Certified at finite coupling through HTTP-0 (to
+2.6 × 10⁻⁹, from the concavity of the ground energy in a loop source), the loops match those leading
+terms to within 0.5–2.2% at r = 1/27, converge toward them as r falls, and fall by the same factor per added
+plaquette (0.0036 at r = 1/27, 0.111 at r = 1): the area law, certified.
+
 **Checks on the evidence:**
 - **Re-execution:** all 224 2×L shards re-run byte for byte.
 - **Integrity:** every shard's index and anchor regenerated from its contents.
