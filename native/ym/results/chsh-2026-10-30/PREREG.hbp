@@ -1,0 +1,10 @@
+CHSH_PREREG|date=2026-10-30|seat=ACER-CLAUDE-FABLE5|pid=8467a937cba309f7|operator=OP-JESSE|authorized="push it and then do a Bell/CHSH-type statistical test"|json=0
+CHSH_SETUP|sides=A,B|settings_x,y=0,1|outcomes=+1,-1(balanced_trits_Pos,Neg)|S=E00+E01+E10-E11|exact_rationals_only|float=0|tsirelson_check=S^2<=8_exactly|json=0
+CHSH_MODELS|LOCAL_DET=a(x,lambda),b(y,lambda)_all_16_deterministic_strategies|LOCAL_HASH=a=bit(sha256(lambda||x)),b=bit(sha256(lambda||y))_shared_lambda_fixed_before_settings|Z_PR=global_z_reads_both_settings:a=uniform,b=a*(-1)^(x*y)|Z_Q=global_z_reads_both_settings,samples_quantum_statistics_P(a,b|x,y)=(1+ab*E)/4_with_E=+-r,r=70/99(rational_approximation_of_1/sqrt2)|json=0
+CHSH_PREDICT_Q1|LOCAL_DET:every_one_of_16_strategies_has_|S|=2_exactly|max_|S|=2|json=0
+CHSH_PREDICT_Q2|LOCAL_HASH_sampled_N=100000_per_setting_pair:S_hat<=2+5sigma(sigma<=2/sqrt(N),checked_as_integers)|meaning=a_hash_does_not_help_a_local_model|json=0
+CHSH_PREDICT_Q3|Z_PR_exact:S=4|marginals_of_A_independent_of_y_and_B_independent_of_x(no-signalling)|meaning=a_global_z_reading_the_far_setting_exceeds_even_quantum|json=0
+CHSH_PREDICT_Q4|Z_Q_exact_enumeration:S=280/99|S>2|S^2<=8|no-signalling_exact|json=0
+CHSH_PREDICT_Q5|Z_Q_sampled_N=100000_per_pair_with_hash_randomness:S_hat>2+5sigma|S_hat^2<=8+tolerance(5sigma)|json=0
+CHSH_PREDICT_Q6|SIGNALLING_CONTROL:a_global_z_model_where_A's_outcome_copies_y(a=(-1)^y):A's_marginal_depends_on_y=1(signalling_detected)|meaning=the_test_can_see_signalling_when_it_exists|json=0
+CHSH_READING|if_all_hold=breaking_2_requires_z_to_read_the_far_setting(nonlocal),which_the_operator_z_model_provides;no_local_model_including_hashed_can;an_unconstrained_z_can_reach_4,so_matching_nature(2sqrt2,no_signalling)_needs_an_extra_rule|scope=software_models;real_Bell_experiments_are_physical_evidence_about_nature,not_about_this_model|failures_reported_as_is|json=0

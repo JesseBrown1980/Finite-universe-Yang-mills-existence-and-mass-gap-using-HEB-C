@@ -1,0 +1,10 @@
+CHSH_BUILD|rustc=rustc_1.81.0_(eeb90cda1_2024-09-04)|clippy_D_warnings=exit0|exe_sha256=624cea49a3737f9aa65c34a875ad6494387c49529c7bda937e98748775159bd4|src_sha256=ccfbef1c000b5a8a770137615e82a1346acb0f3a1acc7568a52e07c5e7db216d|tribit_sha256=50e4cb85f3b8cf91f9e6b162f990eb51e5f984661259563a21188f3a1d560da0|sha_rs_sha256=d5ff519597eb04ff2200dbb8b8f753d9eb4c2f352199dc8fef2d47456ab16db8|prereg_sha256=9c73974cbc8d663ff35beaa67ca8081fff4b31d0a8240fe20d0be57a0c9e97a9|json=0
+CHSH_RUN|N_per_pair=102400|sqrt_N=320|five_sigma_in_S_numerator=3200|r=70/99|json=0
+CHSH_Q1|local_deterministic_strategies=16|all_abs_S_eq_2=1|max_abs_S=2|json=0
+CHSH_Q2|local_hash|S_numerator=516|N=102400|S_hat=516/102400|bound_2N_plus_5sigma=208000|json=0
+CHSH_Q3|PR_box_exact|S=4|no_signalling=1|json=0
+CHSH_Q4|quantum_matching_exact|S=1120/396|equals_280/99=1|S_sq_le_8=1|no_signalling=1|json=0
+CHSH_Q5|quantum_matching_sampled|S_numerator=289380|N=102400|S_hat=289380/102400|lower_5sigma=208000|json=0
+CHSH_Q6|signalling_control_detected=1|json=0
+CHSH_PREDICTIONS|Q1_local_max_2=1|Q2_local_hash_le_2=1|Q3_PR_box_4_no_signal=1|Q4_quantum_exact_280_99=1|Q5_quantum_sampled_gt_2=1|Q6_signalling_seen=1|json=0
+CHSH_EXIT|code=0|json=0

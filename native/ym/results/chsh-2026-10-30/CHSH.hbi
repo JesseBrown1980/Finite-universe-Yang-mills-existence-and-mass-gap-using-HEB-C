@@ -1,0 +1,9 @@
+EMIT|family=CHSH-2026-10-30|name=Cargo.toml|sha256=a478b434d0a50bb990e6a24440c0d30f49b2fe385c010d6712d61c3005be32cf|pid=aed9a58b47b896b0|json=0
+EMIT|family=CHSH-2026-10-30|name=Cargo.lock|sha256=a1126cda7caf00f4f88087e6c4dd1aa415c3e51886055e40c4881f8fcb3e6519|pid=46c5fc01474a8be1|json=0
+EMIT|family=CHSH-2026-10-30|name=PREREG.hbp|sha256=9c73974cbc8d663ff35beaa67ca8081fff4b31d0a8240fe20d0be57a0c9e97a9|pid=84c27a88ee44d0f3|json=0
+EMIT|family=CHSH-2026-10-30|name=PREREG.hbp.sha256|sha256=2a01c1f9a49e84f79857394579ece50ce44cd8a92d3ea4deefa3d3e5bc406ee5|pid=e21e920f36910ce5|json=0
+EMIT|family=CHSH-2026-10-30|name=README.md|sha256=f65adaad1da5960d790343aedb12548584f072c86c1d2d5dddcfb5b0effbc8ff|pid=055d1f2af98bdba1|json=0
+EMIT|family=CHSH-2026-10-30|name=RESULT.hbp|sha256=cec2971f454327f93bcad353bed200c5ae9b3caa649a77de347643babe797d82|pid=f7c92475f92f0f3a|json=0
+EMIT|family=CHSH-2026-10-30|name=RESULT.hbp.sha256|sha256=b89df423a45333f2b335488936c514737b5678711e99d600a214b40c066f7028|pid=180032d9a1df4038|json=0
+EMIT|family=CHSH-2026-10-30|name=run.sh|sha256=0b1bc923907b1e3dc39e89e9649e53e2c5915728cbce7dbb8c1b6684003ccd76|pid=2fd37a5ff5904206|json=0
+EMIT|family=CHSH-2026-10-30|name=src/main.rs|sha256=ccfbef1c000b5a8a770137615e82a1346acb0f3a1acc7568a52e07c5e7db216d|pid=e66b2a00b80ada2a|json=0
