@@ -12,8 +12,11 @@
 //! static charge R at b and its conjugate at a, each once. The std sector is selected exactly by the
 //! penalty 10 (E_l - 3)^2 (0 on std, 90 on trivial and sign), which commutes with the Hamiltonian, so the
 //! electric part written is Z = E + 10 (E_l - 3)^2.
+//! Wilson mode (CH = 2, vacuum sector): the diagonal column is JB M + LAM chi_std(U_C) for the rectangle C
+//! on rows 0..1 and columns XA..XB, so sturmrs called with JB = 1 counts H + lambda W(C) with
+//! r = JB/JE and lambda = LAM/JE.
 //! The written operator is checked exactly W-self-adjoint (w_i Z_ij = w_j Z_ji).
-//! usage: ymconf ROWS COLS XA XB CH OUT_MATRIX        json=0
+//! usage: ymconf ROWS COLS XA XB CH OUT_MATRIX [JB LAM]        json=0
 #![forbid(unsafe_code)]
 #![deny(clippy::float_arithmetic, clippy::float_cmp, clippy::cast_precision_loss)]
 
@@ -25,6 +28,9 @@ const PENALTY: i64 = 10;
 
 struct Graph {
     edges: Vec<(usize, usize)>,
+    hid: Vec<usize>,
+    vid: Vec<usize>,
+    cols: usize,
     tree: Vec<usize>,
     free: Vec<usize>,
     plaq: Vec<[usize; 4]>,
@@ -84,7 +90,7 @@ fn graph(rows: usize, cols: usize, charge: Option<(usize, usize)>) -> Graph {
         free.push(edges.len() - 1);
         edges.len() - 1
     });
-    Graph { edges, tree, free, plaq, lattice_links, aux, sites: rows * cols }
+    Graph { edges, hid, vid, cols, tree, free, plaq, lattice_links, aux, sites: rows * cols }
 }
 
 struct Sys<'a> {
@@ -117,6 +123,20 @@ impl Sys<'_> {
     fn key(&self, q: &[u8]) -> u64 {
         self.conjugates(q).into_iter().min().unwrap_or(0)
     }
+    /// chi_std of the rectangle on rows 0..1, columns x0..x1 (counter-clockwise from (x0, 0))
+    fn wilson(&self, l: &[u8], x0: usize, x1: usize) -> i64 {
+        let gr = self.gr;
+        let mut u = 0u8;
+        for x in x0..x1 {
+            u = self.g.m(u, l[gr.hid[x]]);
+        }
+        u = self.g.m(u, l[gr.vid[x1]]);
+        for x in (x0..x1).rev() {
+            u = self.g.m(u, self.g.i(l[gr.hid[gr.cols + x]]));
+        }
+        u = self.g.m(u, self.g.i(l[gr.vid[x0]]));
+        chi_std(u)
+    }
     fn magnetic(&self, l: &[u8]) -> i64 {
         self.gr.plaq.iter().map(|p| 2 - chi_std(self.g.m(self.g.m(self.g.m(l[p[0]], l[p[1]]), self.g.i(l[p[2]])), self.g.i(l[p[3]])))).sum()
     }
@@ -143,16 +163,22 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     let parsed: Option<Vec<usize>> = args.get(1..6).map(|s| s.iter().filter_map(|x| x.parse().ok()).collect());
     let (Some(p), Some(out)) = (parsed.filter(|p| p.len() == 5), args.get(6)) else {
-        eprintln!("usage: ymconf ROWS COLS XA XB CH OUT_MATRIX");
+        eprintln!("usage: ymconf ROWS COLS XA XB CH OUT_MATRIX [JB LAM]");
         std::process::exit(1);
     };
     let (rows, cols, xa, xb, ch) = (p[0], p[1], p[2], p[3], p[4]);
-    if !(2..=3).contains(&rows) || !(2..=5).contains(&cols) || ch > 1 || (ch == 1 && !(xa < xb && xb < cols)) || (ch == 0 && (xa | xb) != 0) {
+    let wl: Option<(i64, i64)> = match (args.get(7).and_then(|v| v.parse().ok()), args.get(8).and_then(|v| v.parse().ok())) {
+        (Some(a), Some(b)) => Some((a, b)),
+        _ => None,
+    };
+    let wilson_ok = ch == 2 && xa < xb && xb < cols && wl.is_some_and(|(jb, _)| jb >= 0);
+    if !(2..=3).contains(&rows) || !(2..=5).contains(&cols) || ch > 2 || (ch == 1 && !(xa < xb && xb < cols)) || (ch == 0 && (xa | xb) != 0) || (ch == 2 && !wilson_ok) {
         eprintln!("CONF_MATRIX|result=FAIL|reason=geometry_out_of_range|json=0");
         std::process::exit(1);
     }
     let g = G::new();
     let gr = graph(rows, cols, if ch == 1 { Some((xa, xb)) } else { None });
+    let ch_label = ch;
     let sys = Sys { g: &g, gr: &gr };
     let nf = gr.free.len();
     let total = 6u64.pow(nf as u32);
@@ -211,7 +237,13 @@ fn main() {
             z[i].retain(|_, v| *v != 0);
         }
     }
-    let mags: Vec<i64> = reps.iter().map(|q| sys.magnetic(&sys.raw(q))).collect();
+    let mags: Vec<i64> = match (ch, wl) {
+        (2, Some((jb, lam))) => reps.iter().map(|q| {
+            let raw = sys.raw(q);
+            jb * sys.magnetic(&raw) + lam * sys.wilson(&raw, xa, xb)
+        }).collect(),
+        _ => reps.iter().map(|q| sys.magnetic(&sys.raw(q))).collect(),
+    };
     let mut adjoint = true;
     for i in 0..n {
         for (&j, &v) in &z[i] {
@@ -229,11 +261,12 @@ fn main() {
     }
     let ok = adjoint && std::fs::File::create(out).and_then(|mut f| f.write_all(text.as_bytes())).is_ok();
     println!(
-        "CONF_MATRIX|rows={rows}|cols={cols}|charge_row={}|xa={xa}|xb={xb}|charged={ch}|lattice_links={}|plaquettes={}|free_links={nf}|configurations={total}|states={n}|upper_entries={entries}|penalty={}|w_self_adjoint={}|json=0",
+        "CONF_MATRIX|rows={rows}|cols={cols}|charge_row={}|xa={xa}|xb={xb}|charged={ch}|{}lattice_links={}|plaquettes={}|free_links={nf}|configurations={total}|states={n}|upper_entries={entries}|penalty={}|w_self_adjoint={}|json=0",
         (rows - 1) / 2,
+        wl.filter(|_| ch == 2).map_or(String::new(), |(jb, lam)| format!("wilson_loop=1x{}|diag=JB*M+LAM*W|JB={jb}|LAM={lam}|", xb - xa)),
         gr.lattice_links,
         gr.plaq.len(),
-        if ch == 1 { PENALTY } else { 0 },
+        if ch_label == 1 { PENALTY } else { 0 },
         if adjoint { "PASS" } else { "FAIL" }
     );
     std::process::exit(if ok { 0 } else { 2 });
