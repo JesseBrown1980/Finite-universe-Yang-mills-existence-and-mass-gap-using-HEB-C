@@ -1,0 +1,9 @@
+CANTOR_BUILD|rustc=rustc_1.81.0_(eeb90cda1_2024-09-04)|clippy_D_warnings=exit0|exe_sha256=60f04e3c039a97b66aa868559f71f58ff21e75daef43d83451a005f5698c62bd|src_sha256=34040807874b5fb0e40d7e2abca4c06055be6f77c2d501abeb2e34f31da3fee2|tribit_sha256=50e4cb85f3b8cf91f9e6b162f990eb51e5f984661259563a21188f3a1d560da0|sha_rs_sha256=d5ff519597eb04ff2200dbb8b8f753d9eb4c2f352199dc8fef2d47456ab16db8|prereg_sha256=96d5364d7b1d3a9b5c5c6f14d751d48ede11199a6addd3a044f116360a1f829d|json=0
+CANTOR_C2|counts_depth1..6=[2, 4, 8, 16, 32, 64]|no_digit_1=1|self_similar=1|json=0
+CANTOR_C1|bands=16|arrivals_all=20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20|all_equal_20=1|json=0
+CANTOR_C1_CONTROL|arrivals=20,40,40,60,40,60,60,80,40,60,60,80,60,80,80,100|dispersion_detected_and_exact=1|json=0
+CANTOR_C3|m=LOCAL|bands=16|S_micro=10875|five_sigma_micro=55556|no_signalling=1|E00=-77/32703|E01=-84/32958|E10=331/32921|E11=-186/32490|json=0
+CANTOR_C3|m=PULL|bands=16|S_micro=-16368|five_sigma_micro=55556|no_signalling=1|E00=-85/32703|E01=-162/32958|E10=-413/32921|E11=-120/32490|json=0
+CANTOR_C3|m=DET|bands=16|S_micro=-2000000|five_sigma_micro=55556|no_signalling=1|E00=-32703/32703|E01=32958/32958|E10=-32921/32921|E11=32490/32490|json=0
+CANTOR_PREDICTIONS|C1_all_bands_arrive_together=1|C1_control_detects_dispersion=1|C2_cantor_structure=1|C3_LOCAL=1|C3_PULL=1|C3_DET_theorem_holds=1|DET_case=no_signalling_and_|S|<=2|json=0
+CANTOR_EXIT|code=0|json=0
