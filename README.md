@@ -42,6 +42,28 @@ The cluster's internal splitting E₂ − E₁ depends on shape. On 2×L it foll
 L/r; on 3×3 it is third order (0.002 at r = 27). Full tables:
 [`native/ym/results/2xL/README.md`](native/ym/results/2xL/README.md).
 
+**Gap law, exact to second order in 1/r**
+([`native/ym/results/zgap2-2026-10-30-cloud/`](native/ym/results/zgap2-2026-10-30-cloud/README.md)):
+
+E₉ − E₈ = 3r·J_E − c_L·J_E/r + O(1/r²)
+
+| Lattice | c_L |
+|---|---|
+| 3×3, 3×4, 4×4 | **21**, the same exact value on all three |
+| 2×4 | 73/2 |
+| 2×3 | 69/2 |
+| 2×2 | 36.762472… |
+
+The leading gap is 3·J_B: the lowest excitation above the flat vacua is a single plaquette carrying a
+3-cycle. First order adds nothing. At second order, both the vacuum and the excited energies shift in
+proportion to the number of links; their difference is local and comes out exactly 21 on every lattice
+of width 3 or more (the integer characteristic polynomial of the reduced operator is (x − 84)³ on
+3×3, 3×4 and 4×4, over 4). The width-2 lattices differ because virtual electric flips wrap their
+short direction. The certified 3×3 values at r = 27, 81 and 243 follow 21 + 43/r. This size-independence
+of the gap correction is the locality the BHM/TQO volume-uniform proof, the immediate research track,
+builds on. Frozen for the first 3×4 full-space certificate: r·(3r − Δ/J_E) at r = 243 in
+[21.095802, 21.573297].
+
 **Checks on the evidence:**
 - **Re-execution:** all 224 2×L shards re-run byte for byte.
 - **Integrity:** every shard's index and anchor regenerated from its contents.
@@ -114,6 +136,10 @@ SHA/HBI/HBP receipts. PASS/FAIL judgments stay as originally registered.
   Bell-local models stay within `|S|<=2`. A controller that reads both settings, with a
   balanced shared hidden variable, gives `S=4` with both stations' own counts unchanged
   by the far setting. See also [three-seat control PR #47](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/47).
+- [Teleportation hierarchy (merged, PR #53)](native/ym/results/zteleport-2026-10-30-cloud/):
+  Bell states with Bell-state measurements keep S² = 8 exactly through four teleportation steps;
+  PR-box correlations under every local wiring fall to the local bound 2 after one step; a global
+  z controller keeps any value. Correlations carried by locally composed resources land on 2√2.
 - [PR #42 destination-pull](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/42),
   [PR #43 three prisms](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/43),
   [PR #48 prism-Bell](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/48)

@@ -1,0 +1,31 @@
+ZGAP_SIZE|L=2x2|vacua=8|m3_orbits=12|json=0
+ZGAP_FIRST|L=2x2|vac_diag={24}|m3_diag={24}|flat_to_flat=0|m3_to_m3=0|d1=0|json=0
+ZGAP_SECOND|L=2x2|Lc0=4|Lc3=4|weights_divide=1|K0_symmetric=1|K0_scalar=0|zero_momentum_classes=3|class_sizes=[4, 4, 4]|R3_symmetric=1|json=0
+ZGAP_C|L=2x2|H0_top_micro=[-2.258343,-2.258342]|lambda_min_H3_micro=[-39.020816,-39.020815]|c_inf_micro=[36.762472,36.762473]|exact_charpoly_kappa_top_minus_R=[]|den=4|json=0
+ZGAP_SIZE|L=2x3|vacua=8|m3_orbits=18|json=0
+ZGAP_FIRST|L=2x3|vac_diag={36}|m3_diag={36}|flat_to_flat=0|m3_to_m3=0|d1=0|json=0
+ZGAP_SECOND|L=2x3|Lc0=4|Lc3=4|weights_divide=1|K0_symmetric=1|K0_scalar=0|zero_momentum_classes=3|class_sizes=[6, 6, 6]|R3_symmetric=1|json=0
+ZGAP_C|L=2x3|H0_top_micro=[-4.500001,-4.500000]|lambda_min_H3_micro=[-39.000001,-39.000000]|c_inf_micro=[34.499999,34.500001]|exact_charpoly_kappa_top_minus_R=[]|den=4|json=0
+ZGAP_SIZE|L=2x4|vacua=8|m3_orbits=24|json=0
+ZGAP_FIRST|L=2x4|vac_diag={48}|m3_diag={48}|flat_to_flat=0|m3_to_m3=0|d1=0|json=0
+ZGAP_SECOND|L=2x4|Lc0=4|Lc3=4|weights_divide=1|K0_symmetric=1|K0_scalar=0|zero_momentum_classes=3|class_sizes=[8, 8, 8]|R3_symmetric=1|json=0
+ZGAP_C|L=2x4|H0_top_micro=[-6.000001,-6.000000]|lambda_min_H3_micro=[-42.500001,-42.500000]|c_inf_micro=[36.499999,36.500001]|exact_charpoly_kappa_top_minus_R=[]|den=4|json=0
+ZGAP_SIZE|L=3x3|vacua=8|m3_orbits=27|json=0
+ZGAP_FIRST|L=3x3|vac_diag={54}|m3_diag={54}|flat_to_flat=0|m3_to_m3=0|d1=0|json=0
+ZGAP_SECOND|L=3x3|Lc0=4|Lc3=4|weights_divide=1|K0_symmetric=1|K0_scalar=1|zero_momentum_classes=3|class_sizes=[9, 9, 9]|R3_symmetric=1|json=0
+ZGAP_C|L=3x3|H0_top_micro=[-13.500001,-13.500000]|lambda_min_H3_micro=[-34.500001,-34.500000]|c_inf_micro=[20.999999,21.000001]|exact_charpoly_kappa_top_minus_R=[1, -252, 21168, -592704]|den=4|json=0
+ZGAP_SIZE|L=3x4|vacua=8|m3_orbits=36|json=0
+ZGAP_FIRST|L=3x4|vac_diag={72}|m3_diag={72}|flat_to_flat=0|m3_to_m3=0|d1=0|json=0
+ZGAP_SECOND|L=3x4|Lc0=4|Lc3=4|weights_divide=1|K0_symmetric=1|K0_scalar=1|zero_momentum_classes=3|class_sizes=[12, 12, 12]|R3_symmetric=1|json=0
+ZGAP_C|L=3x4|H0_top_micro=[-18.000001,-18.000000]|lambda_min_H3_micro=[-39.000001,-39.000000]|c_inf_micro=[20.999999,21.000001]|exact_charpoly_kappa_top_minus_R=[1, -252, 21168, -592704]|den=4|json=0
+ZGAP_SIZE|L=4x4|vacua=8|m3_orbits=48|json=0
+ZGAP_FIRST|L=4x4|vac_diag={96}|m3_diag={96}|flat_to_flat=0|m3_to_m3=0|d1=0|json=0
+ZGAP_SECOND|L=4x4|Lc0=4|Lc3=4|weights_divide=1|K0_symmetric=1|K0_scalar=1|zero_momentum_classes=3|class_sizes=[16, 16, 16]|R3_symmetric=1|json=0
+ZGAP_C|L=4x4|H0_top_micro=[-24.000001,-24.000000]|lambda_min_H3_micro=[-45.000001,-45.000000]|c_inf_micro=[20.999999,21.000001]|exact_charpoly_kappa_top_minus_R=[1, -252, 21168, -592704]|den=4|json=0
+ZGAP_SUMMARY|L=2x2|c_inf_micro=[36.762472,36.762473]|d1=0|json=0
+ZGAP_SUMMARY|L=2x3|c_inf_micro=[34.499999,34.500001]|d1=0|json=0
+ZGAP_SUMMARY|L=2x4|c_inf_micro=[36.499999,36.500001]|d1=0|json=0
+ZGAP_SUMMARY|L=3x3|c_inf_micro=[20.999999,21.000001]|d1=0|json=0
+ZGAP_SUMMARY|L=3x4|c_inf_micro=[20.999999,21.000001]|d1=0|json=0
+ZGAP_SUMMARY|L=4x4|c_inf_micro=[20.999999,21.000001]|d1=0|json=0
+ZGAP_RESULT|P0=PASS|P1=PENDING|P2=FAIL|P2b=FAIL|P3=PASS|P4=PASS|json=0
