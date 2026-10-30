@@ -1,0 +1,13 @@
+PBELL_BUILD|rustc=rustc_1.81.0_(eeb90cda1_2024-09-04)|clippy_D_warnings=exit0|exe_sha256=0dae9438a6207d1f8c9c9d69765eb1fd69ceac279aec3672b939d0f35d749bcb|src_sha256=a4ffd9dab876fed0d3e8355c0bcc247191aab0a71ba43d4ac3d9e32e53f2d386|tribit_sha256=50e4cb85f3b8cf91f9e6b162f990eb51e5f984661259563a21188f3a1d560da0|sha_rs_sha256=d5ff519597eb04ff2200dbb8b8f753d9eb4c2f352199dc8fef2d47456ab16db8|prereg_sha256=72c6daf11bf337287ce233eb39dc1d2f726fc53ccdc4fc3a52759bd114bf217b|addendum_sha256=0dd5b76fca463a00b9beaf8c32e2153dac4c0d6de54b53a0f2529624cf315a41|json=0
+PBELL_MODEL|m=LOCKED|S_micro=-1636|five_sigma_micro=55556|N_min=32490|E00=43/32703|E01=-128/32958|E10=-101/32921|E11=-130/32490|no_signalling=1|all_outcomes_pm1=1|json=0
+PBELL_MODEL|m=PULL|S_micro=-9307|five_sigma_micro=55556|N_min=32490|E00=-215/32703|E01=-54/32958|E10=-115/32921|E11=-78/32490|no_signalling=1|all_outcomes_pm1=1|json=0
+PBELL_MODEL|m=PULL_NOLAMBDA|S_micro=1997736|five_sigma_micro=55556|N_min=32490|E00=32703/32703|E01=-172/32958|E10=32921/32921|E11=-96/32490|no_signalling=0|all_outcomes_pm1=1|json=0
+PBELL_NOLAMBDA_LASER|laser=+1|E_each_pm1=1|S=0|json=0
+PBELL_NOLAMBDA_LASER|laser=-1|E_each_pm1=1|S=4|json=0
+PBELL_MODEL|m=TUNED|S_micro=2833633|five_sigma_micro=55556|N_min=32490|E00=23037/32703|E01=23480/32958|E10=23507/32921|E11=-22832/32490|no_signalling=1|all_outcomes_pm1=1|json=0
+PBELL_PREDICTIONS|P1_LOCKED=1|P2_PULL=1|P3_original=0|P3_addendum_per_laser=1|P4_TUNED=1|P5_no_signalling_all=0|P6_outcomes_pm1_and_counts=1|json=0
+PBELL_EXIT|code=0|json=0
+PBELL_RAW|file=RAW-LOCKED.hbp|rows=131072|sha256=95854c98c9d103ebc8eb9f54836d182517f6ba74f3a704ad41e49f528d9451ae|json=0
+PBELL_RAW|file=RAW-PULL.hbp|rows=131072|sha256=6955d1e47944b79aeb57a760f0b127c4d29be895319dac430bd989fb414b1e90|json=0
+PBELL_RAW|file=RAW-PULL_NOLAMBDA.hbp|rows=131072|sha256=87a4b931fed7ae3fd36c23d87f819cacd5e45d31fb95853134cec50a5e1d773d|json=0
+PBELL_RAW|file=RAW-TUNED.hbp|rows=131072|sha256=6d14db7cd55deefcf72250df77713da8f50c4a15b7cb8b6fcdcd5c6c08abd588|json=0

@@ -1,0 +1,3 @@
+PBELL_ADDENDUM|date=2026-10-30|written=after_PREREG_seal(72c6daf1)_before_any_code_or_run|original_PREREG_unchanged=1|json=0
+PBELL_ADDENDUM_P3|finding_on_review=in_PULL_NOLAMBDA_z=sha256(laser||root||x||y)_and_root_depends_on_laser,so_each_setting_pair_has_two_z(one_per_laser_sign)|consequence=overall_E_xy_need_not_be_+-1;original_P3_KEPT_and_may_FAIL|added_measure=E_xy_restricted_to_each_laser_sign_is_exactly_+1_or_-1,and_S_per_laser_sign_in{-4,-2,0,2,4}|json=0
+PBELL_ADDENDUM_STATS|integer_scaling=S_and_probabilities_in_micro-units(floor),rounding_error<=4e-6|sigma_bound=conservative:2e6/isqrt_floor(N_min)_rounded_up|json=0

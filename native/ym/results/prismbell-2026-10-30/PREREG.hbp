@@ -1,0 +1,13 @@
+PBELL_PREREG|date=2026-10-30|seat=ACER-CLAUDE-FABLE5|pid=8467a937cba309f7|operator=OP-JESSE|authorized="A stronger next test would retain the actual three-prism output patterns and define two physically separated measurement stations, with independently selected settings and recorded raw outcomes"|json=0
+PBELL_MECHANISM|world=prism3_actual_propagation(40_cells,curved_j+-_per_prism,c=1)|laser=+1/-1_per_trial_from_trial_hash|orientation_bits_from_z|json=0
+PBELL_STATIONS|A_reads_subtree_0(final_branches_0..8)|B_reads_subtree_2(final_branches_18..26)|separation=different_first-prism_children(6_hops_via_source)|A_setting_x:0->branch0,1->branch4|B_setting_y:0->branch18,1->branch22|outcome=sign_of_amplitude_at_selected_branch(+1/-1)|json=0
+PBELL_SETTINGS|chosen_per_trial_after_emission_by_independent_station_hashes(sha256(trial||A)),sha256(trial||B))|measurement_independence=settings_not_inputs_to_LOCKED_z|trials_per_model=131072|raw_outcomes_recorded=RAW-<model>.hbp(t,x,y,a,b)|json=0
+PBELL_MODELS|LOCKED=z=sha256(laser||root||trial)_no_settings(local)|PULL=z=sha256(laser||root||trial||x||y)_pulled_from_both_stations(nonlocal)|PULL_NOLAMBDA=z=sha256(laser||root||x||y)_no_per-trial_randomness|TUNED=positive_control:outcomes_from_the_CHSH_quantum-matching_z(E=+-70/99)|json=0
+PBELL_STATS|E_xy=sum(a*b)/N_xy|S=E00+E01+E10-E11|sigma<=2/sqrt(N_min)|checks_exact_in_integers(i128)|json=0
+PBELL_PREDICT_P1|LOCKED:|S|<=2+5sigma(local_model,Bell_bound)|and_|S|<=5sigma(prism-1_factor_is_a_random_sign_so_correlations_vanish)|json=0
+PBELL_PREDICT_P2|PULL:|S|<=5sigma|meaning=access_to_both_settings_is_not_sufficient:hash-scrambled_prism_signs_do_not_produce_Bell_correlations|json=0
+PBELL_PREDICT_P3|PULL_NOLAMBDA:each_E_xy_is_exactly_+1_or_-1|S_in{-4,-2,0,2,4}_exactly|which_value=set_by_4_hash_values(not_predicted,reported)|json=0
+PBELL_PREDICT_P4|TUNED:S>2+5sigma_and_S<=2sqrt2+5sigma|json=0
+PBELL_PREDICT_P5|no-signalling_for_LOCKED,PULL,PULL_NOLAMBDA,TUNED:|P(a=+1|x,y=0)-P(a=+1|x,y=1)|<=5sigma_and_same_for_B|json=0
+PBELL_PREDICT_P6|every_outcome_is_+1_or_-1(no_zero_amplitude)|raw_rows=131072_per_model|json=0
+PBELL_READING|if_P1-P2_hold=the_actual_prism_mechanism,even_with_z_pulled_from_both_stations,does_not_by_itself_produce_Bell_correlations;a_specific_correlation_rule_is_needed(as_in_TUNED)|if_P2_fails=report_as_is(the_mechanism_produces_Bell_correlations)|scope=software_model|json=0
