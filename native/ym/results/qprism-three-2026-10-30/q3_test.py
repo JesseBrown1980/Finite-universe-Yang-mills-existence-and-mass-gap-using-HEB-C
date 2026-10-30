@@ -135,7 +135,7 @@ def main():
     counts["P8"] &= all(len(evolve(1, d)[t]) == 3**t for d in range(27) for t in range(4))
     rows.append("Q3_RETARGET|old=5|new=19|metadata_changed=1|inflight_physically_unchanged=1|stale_token_rejected=1|json=0")
     rows.append("Q3_NEGATIVE|local_reader_with_global_token=LEAK|two_messages_equal_prior=1|mutual_information_bits=1|expected=LEAK|json=0")
-    rows.append("Q3_CURVE|jplus_det_mod3=%s|jminus_det_mod3=%s|curves_transpose=1|orientation_choices_observed=%d|json=0" % (determinant_mod3(plus), determinant_mod3(minus), len(orientations)))
+    rows.append("Q3_CURVE|jplus_det_mod3=%s|jminus_det_mod3=%s|curves_transpose=1|orientation_choices_observed=%d|json=0" % (determinant_mod3(plus),determinant_mod3(minus),len(orientations)))
     status = "PASS" if all(counts.values()) else "FAIL"
     rows.append("Q3_VERDICT|" + "|".join("%s=%s" % (k,"PASS" if v else "FAIL") for k, v in counts.items()) +
                 "|cases=%d|prism_count=3|paths=27|result=%s|physical_ftl_observed=0|json=0" % (total,status))
