@@ -1,0 +1,12 @@
+EMIT|family=YM-SEGP2P3-SPEC|name=SEGP2P3-SPEC.md|sha256=5950096c82d895e098db0e303530b52a5d974b6eeb5a79a25bb5f9e5845235a5|pid=662f6811be160507|json=0
+EMIT|family=YM-SEGP2P3-SPEC|name=SEGP2P3-SPEC.hbp|sha256=12b3e6a60f309e35c8c7f09e95952ef20db154d9439c8d58ad1c524d67261177|pid=213948f935ed5548|json=0
+EMIT|family=YM-SEGP2P3-SPEC|name=segp2p3.sh|sha256=32d46c2fcd452deb975a851ed98bfe785be71ccbbc0dda430c968b8a9e82200c|pid=2e19031f6d48f9b1|json=0
+EMIT|family=YM-SEGP2P3-SPEC|name=segp2p3_verdict.py|sha256=f893725957a6585820138fc2813d08b0ecccda5cd078dc6789b0eee9b57af24f|pid=2f84ea2e86e9cf10|json=0
+EMIT|family=YM-SEGP2P3-SPEC|name=segp2p3_verdict_controls.py|sha256=290d2acf28d1f46afd963930675d11c7e98085072b9ae683adf41fc29cc6bbcc|pid=7ba58b5bfc98b3a0|json=0
+EMIT|family=YM-SEGP2P3-SPEC|name=SEGP2P3-VERDICT-CONTROLS.hbp|sha256=4b257f4ef168cee50ed703fae119bb627b3a0ad9245c8cc5db1010b66dddb85f|pid=29630d23dd945177|json=0
+EMIT|family=YM-SEGP2P3-SPEC|name=COMPARATOR-CONTROLS.hbp|sha256=6d9b2843bc40e386b7c5fc13ebda79ed6069e0930f686b95163e786f2e16c0ed|pid=9d8d9e3cc4401b41|json=0
+EMIT|family=YM-SEGP2P3-SPEC|name=code/schur_record_compare_stream.py|sha256=7b224b21598432db6511fc5a2dd11d382c5c9288967a792fd71efeafa953efa9|pid=ff97961867db6e54|json=0
+EMIT|family=YM-SEGP2P3-SPEC|name=code/schur_record_compare.py|sha256=977e5e81fc609662cad3a19299928ed8a0545a0add1dae76d04835f29e1a0c62|pid=731eb80bf15523f0|json=0
+EMIT|family=YM-SEGP2P3-SPEC|name=code/schur_record_compare_stream_controls.py|sha256=b4e92e79bbf19cc009ba8d2db670c65afb82b6a89ddef2f981bbcb4f1880d431|pid=1e6dcfc68e9efc35|json=0
+EMIT|family=YM-SEGP2P3-SPEC|name=code/schur_record_compare_controls.py|sha256=8f6334e0ff34d94a1132dd7faef5a1ac61ca5c6015d8c3a47bbd62a1f911d02c|pid=f8c7e9523e3b1444|json=0
+EMIT|family=YM-SEGP2P3-SPEC|name=code/schur_record_compare_v1_9f60d56.py|sha256=8cbe0015df4310cfebd17913bf7de31f3c7f2264ec59c67e97a2e96477446fdf|pid=a0618894963ec5d2|json=0

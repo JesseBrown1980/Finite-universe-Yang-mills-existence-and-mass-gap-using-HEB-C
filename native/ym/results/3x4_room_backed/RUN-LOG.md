@@ -177,3 +177,14 @@ Everything below is local evidence. The segmented-store sources (commit `2e4846e
 - **First launch.** It aborted at the precondition checks because of a launcher PATH fault. Nothing moved. The abort row is kept, with `LAUNCH1_NOTE` beside it.
 - The rebuilt executables and the temporary clone stay outside git, bound in `receipts/RAW-ARTIFACTS-OFFGIT-rebuild2.hbp`.
 - **Pending:** segmented-store P2/P3 and the frozen P4 result. There is no 3x4 gap verdict, and production HOLD is unchanged.
+
+## 2026-10-30: segmented-store P2/P3 specification (reviewed, NOT RUN)
+
+- **Spec and procedure.** Frozen in `receipts/segp2p3-spec/` as HBI → HBP → SHA → SH → HASH. The seal is `d6666f9781890a99d031a33315e1b6fa90becb93bdd9704e7d886ee486acfd33`. The superseded pre-review draft seal `f4e557a3…` is kept beside it; it was never committed or run.
+- **P2.** Text identity plus the CI anchors, and store identity: single file vs G1 (40,000,000 B segments) vs G2 (1,048,583 B segments), byte for byte, with a zero tail.
+- **Segment-fault controls.** Planted faults K0–K5 on a 2x3 G3 (16,411 B) store.
+- **P3.** 3x3 on the G1 store with CI's frozen parameters and the same 2/16/40 chunks on both sides. Comparator v2 (stream) decides, v1 is reported verbatim, and there are no new exclusions.
+- **Single-file vs segmented store control at 60M.**
+- **Scope.** P3 is scoped to G1 only, and G2 gets builder bytes only. Store identity is not read-path identity. Every verdict row carries `spectral_pass=0`.
+- **Synthetic controls:** comparator equivalence 60/60 (120 comparisons) and verdict logic 24/24.
+- **Not run.** Execution needs separate operator authorization. Duration is CONJECTURE: at least 61,000 s, plausibly 20–35 h. Production HOLD is unchanged, and there is no 3x4 gap verdict.
