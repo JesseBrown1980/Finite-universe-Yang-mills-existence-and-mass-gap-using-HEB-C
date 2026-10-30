@@ -59,78 +59,71 @@ L/r; on 3×3 it is third order (0.002 at r = 27). Full tables:
 
 **3×4 scaling status (October 30, 2026; production HOLD):**
 
-- The streaming pilot reconciled 2,177,317,873 gauge orbits; the Sx+Sy+
-  sector contains 45,508,080 states. This is a dimension check, not a spectral-gap
-  certificate.
+- Dimension check: the streaming pilot reconciled 2,177,317,873 gauge orbits; the
+  Sx+Sy+ sector contains 45,508,080 states.
 - The **frozen P4 production-memory pilot passed** on main commit `6c34c35`:
   [GitHub Actions run 41053502633](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41053502633).
   Its sealed outcome is `PILOT_OUTCOME|PILOT_PASS|reason=all_gates`. K = 1, 2
   and 4 were admitted with no OOM events; column-zero outputs were byte-identical.
-  Under the frozen 12 GiB resident-memory admission model:
-  `COL_BYTES=889192448`, `RESERVE=2067791872`, `CAP=12`.
-  These are **pilot-derived bounds**, not a production permit or spectral result.
-- The cgroup `memory.peak` reached the 12 GiB limit at each measured K with no OOM;
-  the frozen admission metric uses RSS/anonymous-memory peaks instead. Reclaimable
-  file cache is a possible explanation, **not a verified cause**. Higher-K
-  production still needs its own runtime checks.
-- At thresholds 60M, 72M and 90M, the room-backed and comparison implementations
-  **AGREE within the v2 comparison's scope**. At 90M they agree on an
-  **AMBIGUOUS spectral outcome (9 undecided columns)**. Implementation agreement
-  does not convert an ambiguous count into a spectral certificate.
-- **Production remains on HOLD** until the separate production gates, numerical
-  ambiguity and binary/source provenance requirements are satisfied. Consult
+  The pilot-derived bounds under the frozen 12 GiB resident-memory admission model are
+  `COL_BYTES=889192448` (measured, above the declared 728,129,280), `RESERVE=2067791872`
+  and `CAP=12` = ⌊(12,884,901,888 − 2,067,791,872) / 889,192,448⌋.
+- The cgroup `memory.peak` reached the 12 GiB limit at each measured K with no OOM, while
+  the frozen admission metric uses RSS/anonymous-memory peaks. Reclaimable file cache is
+  the candidate cause; production runtime checks at higher K measure it.
+- At thresholds 60M, 72M and 90M, the room-backed and shell implementations
+  **AGREE under comparator v2**. At 90M both give the same **AMBIGUOUS outcome
+  (negative 37, 9 undecided columns)**.
+- **Production stays on HOLD** until the remaining gates pass: the 90M ambiguity,
+  binary/source provenance and production admission. The memory pilot gate has passed. See
   [the admission rule](native/ym/results/3x4_stream/PRODUCTION-ADMISSION.md),
   [frozen pilot specification](native/ym/results/3x4_stream/MEMORY-PILOT-SPEC.md),
   and [PR #37: local segmented evidence, unmerged](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/37).
-  The admission-rule file still contains the pre-pilot HOLD text and has **not**
-  yet been updated with the October 30 measured values.
+  The admission-rule file carries the pre-pilot HOLD text; the October 30 measured values
+  are recorded here and in the pilot receipt.
 
 **Other in progress:** full-space counts on 2×4 through the reflection-only
 sectors; a separately written operator and inertia verifier.
 
 ### Evidence classes and verification
 
-| Evidence class | What is established | What remains open |
+| Evidence class | What is established | Next |
 |---|---|---|
-| Finite S₃ certificates | 2×L sector results and 3×3 full-space counts with sealed integer receipts and checks | Extension to a volume-uniform theorem and continuum Yang–Mills |
-| 3×4 dimensional and memory pilots | 2,177,317,873 reconciled gauge orbits; P4 memory `PILOT_PASS` and `CAP=12` | 90M spectral ambiguity, provenance, production admission and 3×4 gap verdict |
-| Cross-seat operator experiments | Replayed software reach/curve/hash and CHSH calculations within specified discrete models | Physical z mechanism, quantum transport and any connection to a Yang–Mills gap |
-| Production readiness | No production admission is asserted | All independent scientific and runtime gates must pass |
+| Exact integer-arithmetic certificates of fixed-lattice spectral-gap bounds (S₃) | 2×L sector results and 3×3 full-space counts with sealed integer receipts and checks | The BHM/TQO volume-uniform proof, the immediate research track |
+| 3×4 dimension and memory pilots | 2,177,317,873 reconciled gauge orbits; P4 memory `PILOT_PASS` and `CAP=12` | 90M ambiguity, provenance, production admission, 3×4 gap verdict |
+| Cross-seat operator experiments | Replayed software models of reach, curve, hash and CHSH on discrete lattices | A physical z mechanism; a rule that yields the quantum bound 2√2 from the model |
+| Production | Memory pilot passed | Remaining production gates |
 
-### Separate z/r/j, prism and Bell software experiments
+### z/r/j, prism and Bell software models
 
-The following are **research controls, not Yang–Mills spectral certificates or
-physical evidence of instantaneous signaling or quantum Bell violations**.
-The SHA/HBI/HBP receipts establish reproducibility of their declared software
-models; PASS/FAIL judgments are kept as originally registered.
+Software models of the z/r/j layer on discrete lattices, each with replayed
+SHA/HBI/HBP receipts. PASS/FAIL judgments stay as originally registered.
 
-- [zlight (merged Acer reference)](native/ym/results/zlight-2026-10-30/):
-  immediate centralized global digest changes coexist with local propagation
-  at one cell per step. A global digest is not itself a distant local signal.
+- [zlight (merged acer reference)](native/ym/results/zlight-2026-10-30/):
+  the global digest changes at the step the laser fires, while light moves one cell
+  per step; the target's own cell changes only when the light arrives.
   [Cloud zlight PR #39](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/39)
-  retains its original P5 FAIL.
-- [Per-level r/j (merged Acer reference)](native/ym/results/perlevel-2026-10-30/):
-  ring-neighbor propagation and hierarchical three-per-level connectivity,
-  with their different metric and scheduling assumptions.
+  keeps its original P5 FAIL.
+- [Per-level r/j (merged acer reference)](native/ym/results/perlevel-2026-10-30/):
+  ring-neighbour propagation against hierarchical three-per-level connectivity,
+  each with its own metric and schedule.
   [PR #44](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/44)
-  contains the independent zlevel, signed zcurve and zbell Rust tests,
-  including their registered failures and a dedicated source-replay workflow.
-- [CHSH (merged synthetic software reference)](native/ym/results/chsh-2026-10-30/):
-  Bell-local models obey `|S|<=2`. A centralized joint-setting controller
-  with balanced hidden variables may construct `S=4` without observable
-  signaling in the station marginals; that is not a physical implementation
-  of the proposed global z layer. See also [three-seat control PR #47](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/47).
+  holds the independent zlevel, signed zcurve and zbell Rust tests, their registered
+  failures, and a workflow that rebuilds each with Rust 1.81 and checks byte identity.
+- [CHSH (merged software reference)](native/ym/results/chsh-2026-10-30/):
+  Bell-local models stay within `|S|<=2`. A controller that reads both settings, with a
+  balanced shared hidden variable, gives `S=4` with both stations' own counts unchanged
+  by the far setting. See also [three-seat control PR #47](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/47).
 - [PR #42 destination-pull](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/42),
   [PR #43 three prisms](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/43),
-  [PR #48 prism-Bell](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/48),
+  [PR #48 prism-Bell](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/48)
   and [PR #49 Cantor](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/49)
-  are separate unmerged experiments. Cantor's 16 bands are **mathematical
-  channels**, not physical sound-to-gamma wavelength measurements. The
-  prism-Bell and Cantor corrections are append-only and do not overwrite
-  the original sealed records.
-- The frustrated-orientation benchmark is **local-seat evidence, not yet
-  committed to this repository**. It is not counted as a merged certificate
-  or independent CI replay.
+  are open experiments. Cantor's 16 bands are simulated channels, one per Cantor level;
+  all 16 arrive together at step 20. The prism-Bell and Cantor corrections are
+  append-only files beside the original sealed records.
+- The frustrated-orientation benchmark is local-seat evidence, to be committed with its
+  frozen predictions, including the field-only control at 27/27 against frustrated
+  optimization at 25/27.
 
 ## The theory route
 
