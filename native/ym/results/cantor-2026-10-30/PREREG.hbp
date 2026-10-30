@@ -1,0 +1,10 @@
+CANTOR_PREREG|date=2026-10-30|seat=ACER-CLAUDE-FABLE5|pid=8467a937cba309f7|operator=OP-JESSE|authorized="all three"(run_the_Cantor_all-wavelength_test)|question="does the laser use the cantor signal of ALL wavelengths, not just light? From sound to gamma and beyond"|json=0
+CANTOR_SOURCE|bands=Cantor_set_depth4:addresses_of_4_base3_digits_with_no_digit_1=16_of_81|band_labels=levels_only(no_physical_frequency_mapping_claimed)|amplitude_per_band=balanced_trit|json=0
+CANTOR_PREDICT_C1|each_band_own_ring_channel(length64,rule_s'=bal(s(x-1)+s(x)+s(x+1)),c=1)|source_x=0|target_x=20|arrival_step_every_band=20_exactly(no_dispersion)|json=0
+CANTOR_PREDICT_C1_CONTROL|dispersive_control:band_updates_once_every(1+count_of_digit_2)steps|arrivals_not_all_equal=1|arrival=20*(1+count2)|meaning=the_test_detects_dispersion_when_present|json=0
+CANTOR_PREDICT_C2|kept_counts_depth1..6=2,4,8,16,32,64|no_kept_address_contains_digit_1|each_depth_N_set=({0,2}_prefix)x(depth_N-1_set)|json=0
+CANTOR_C3_MODEL|prism3_mechanism_per_band(curved_j+-,orientation_bits_from_sha256(z||band))|stations_A_subtree0_branch(0|4),B_subtree2_branch(18|22)|settings_by_independent_station_hashes_after_emission|outcome=product_over_16_bands_of_amplitude_at_selected_branch|trials=131072|json=0
+CANTOR_PREDICT_C3_PULL|z=sha256(band_amplitudes||trial||x||y)(per-trial_randomness)|S_within_5sigma_of_0|no_signalling=1|json=0
+CANTOR_PREDICT_C3_DET|deterministic:all_band_amplitudes_+1,z=sha256(x||y),no_trial_randomness|THEOREM(deterministic+no-signalling=>local=>|S|<=2):never_(no_signalling_AND_|S|>2)|which_case_occurs=reported(not_predicted)|json=0
+CANTOR_PREDICT_C3_LOCAL|z=sha256(band_amplitudes||trial)(no_settings)|S_within_5sigma_of_0|no_signalling=1|json=0
+CANTOR_READING|C1_tests_c=1_per_level_for_all_bands|C3_tests_whether_carrying_all_bands_changes_the_prism_Bell_trade-off|scope=software_model;band_labels_are_levels,not_measured_physical_frequencies|failures_reported_as_is|json=0
