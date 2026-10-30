@@ -1,0 +1,10 @@
+EMIT|family=YM-ZLIGHT-2026-10-30|name=.gitattributes|sha256=705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da|pid=74cf66898f2fde33|json=0
+EMIT|family=YM-ZLIGHT-2026-10-30|name=Cargo.lock|sha256=3a86e7919f0a014237c94e53d4d11ed56b824b102e6fcda37a3b57afa96a33e5|pid=c73fb3888fe082e4|json=0
+EMIT|family=YM-ZLIGHT-2026-10-30|name=Cargo.toml|sha256=b9e30aed0b8584a56fd3d5c5abb0f9452a4a518673ad2f0bdbf08ee43aea665c|pid=d0560079dfc91289|json=0
+EMIT|family=YM-ZLIGHT-2026-10-30|name=PREREG.hbp|sha256=37f24de9724161b0379187f601bedea6cb579b595b5a9c2988d587ad359e9656|pid=f3269a24aea8a81a|json=0
+EMIT|family=YM-ZLIGHT-2026-10-30|name=PREREG.hbp.sha256|sha256=fc1b48e4e9932450ac1f9c3373fc34a960589b74f1f3c806079f407a0f2e96f8|pid=5c6e38ff376f927f|json=0
+EMIT|family=YM-ZLIGHT-2026-10-30|name=README.md|sha256=c6aacf0d01f8af7994b5efb3681f14b044a0952bb964a5d29b2d94a0f4b2f00d|pid=48fc2b49e50b7252|json=0
+EMIT|family=YM-ZLIGHT-2026-10-30|name=RESULT.hbp|sha256=d4dbdb73efac1c5c5ab34ebc113edd64357e1cd9c8631704ca7bd10bd640a88f|pid=84f3aa394630d1dc|json=0
+EMIT|family=YM-ZLIGHT-2026-10-30|name=RESULT.hbp.sha256|sha256=653abb8ce583e97c0b51ec9fe4fc983bca4294c53b692b2abef8eaac74c68588|pid=0bc51a7f0ee74f6b|json=0
+EMIT|family=YM-ZLIGHT-2026-10-30|name=run.sh|sha256=eb740ddf93cbb2eecfe968edff2badbe9ec01bac9aeeb143f4149b786ea704e1|pid=92204680458bec64|json=0
+EMIT|family=YM-ZLIGHT-2026-10-30|name=src/main.rs|sha256=407a8162c7ca0b10fe9ac07c07b65fb5b1c7df70f2650a16c97e92ec5bb696ec|pid=1a7b654594ada3fe|json=0

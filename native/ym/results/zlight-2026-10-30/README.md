@@ -65,5 +65,18 @@ results are in `RESULT.hbp`.
   rebuild elsewhere, point both at copies with the hashes above.
 - This directory is not a workspace member, so CI does not build it.
 - Check the records with `sha256sum -c PREREG.hbp.sha256 RESULT.hbp.sha256`.
+
+## Integrity chain (HBI → HBP → SHA → SH → HASH, json=0)
+
+| layer | file | role |
+|---|---|---|
+| HBI | `ZLIGHT.hbi` | One chained `EMIT` row per file, `pid[n] = sha16(pid[n-1]|name)`, seeded from `sha16(EMITTER-SEED|8467a937cba309f7)`. |
+| HBP | `PREREG.hbp`, `RESULT.hbp` | The sealed predictions, and the measurements with their verdicts, as tuple rows. |
+| SHA | `SHA256SUMS`, `*.hbp.sha256` | SHA-256 of every file in this directory. |
+| SH | `run.sh` | The procedure that produced `RESULT.hbp`: check the prediction seal, build, clippy, run, seal. |
+| HASH | `ZLIGHT.seal` | `sha256(SHA256SUMS + ZLIGHT.hbi)`, a single anchor for the whole package. |
+
+To verify: `sha256sum -c SHA256SUMS`, then recompute `cat SHA256SUMS ZLIGHT.hbi | sha256sum` and
+compare with `ZLIGHT.seal`. Nothing in this directory is JSON.
 - One observation is recorded but not interpreted: at step 28 only 2 states are distinct. The
   rule is linear mod 3, so some arriving waves cancel at that cell and step.
