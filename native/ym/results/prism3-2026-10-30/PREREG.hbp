@@ -1,0 +1,12 @@
+PRISM3_PREREG|date=2026-10-30|seat=ACER-CLAUDE-FABLE5|pid=8467a937cba309f7|operator=OP-JESSE|authorized="j curves based on universal hash and particles that approximate before travel based on laser. Try the test with prisms x 3"|role=independent_Rust_1.81_integer_replication_beside_PR43(Python)|json=0
+PRISM3_MODEL|world=source+3_prism_stages=1+3+9+27=40_cells|cell=balanced_trit(tribit::Zero)|prism=tridirectional_curved_j:children(stay,forward,back)_weights_j+=(+1,+1,-1)_or_j-=(+1,-1,+1)|orientation_of_prism_k=bit_k_of_z|z=sha256(laser_amp||destination||merkle_root_of_world_at_step0)|laser_amp=+1_or_-1_at_source|destination=final_branch_0..26|configs=2x27=54|propagation=stage_t_filled_only_at_step_t(c=1)|integer_only=1|json=0
+PRISM3_MODES|LOCKED=orientations_fixed_from_z_at_emission(step0)|LIVE=prism_k_reads_current_z_when_beam_reaches_it(step_k)|switch_test=destination_changed_at_step1|json=0
+PRISM3_PREDICT_P1|occupied_cells_after_steps_0,1,2,3=1,3,9,27|no_stage_t_cell_nonzero_before_step_t|json=0
+PRISM3_PREDICT_P2|forecast_computed_at_step0_from_z_alone_equals_propagated_27_final_amplitudes=54/54|json=0
+PRISM3_PREDICT_P3|all_8_orientation_combinations_occur_across_54_configs=1(risk:hash-dependent,reported_as_is)|json=0
+PRISM3_PREDICT_P4|final_amplitudes_all_nonzero(+-1)=54/54|json=0
+PRISM3_PREDICT_P5_LOCKED|destination_switch_at_step1:z_changes_at_step1|cells_changed_at_any_step=0(no_redirect_of_a_travelling_beam)|json=0
+PRISM3_PREDICT_P5_LIVE|destination_switch_at_step1:z_changes_at_step1|cells_change_only_in_stages>=2_at_steps>=2_and_only_when_switched_z_flips_a_later_orientation|locality_violations=0|json=0
+PRISM3_PREDICT_P6|final-branch_local_detector_without_z:distinct_states_across_54_configs_before_step3=1|with_z_readable_at_step0:distinct_forecasts_across_54_configs=54|meaning=early_knowledge_iff_z_readable|json=0
+PRISM3_PREDICT_P7|classical_controller(same_inputs,same_orientation_function_written_independently,no_hash_object)_outputs_equal_hash-selected_outputs=54/54|meaning=hash-selection_is_a_classical_controller_in_a_deterministic_simulation|json=0
+PRISM3_READING|scope=software_model;beyond-classical_claims_need_a_Bell/CHSH-type_statistical_test,not_more_prisms|failures_reported_as_is|json=0

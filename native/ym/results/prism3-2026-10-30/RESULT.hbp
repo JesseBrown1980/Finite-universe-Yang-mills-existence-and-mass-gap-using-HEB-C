@@ -1,0 +1,12 @@
+PRISM3_BUILD|rustc=rustc_1.81.0_(eeb90cda1_2024-09-04)|clippy_D_warnings=exit0|exe_sha256=9b3ac49d56c4f5d23dc22d94ef519e5d18a92edd464d4a30a6a57205c3aeca07|src_sha256=baafb33c1d224600ced8048f3f5e2cb609cc2822134e8e7aefc95b8a96226dda|tribit_sha256=50e4cb85f3b8cf91f9e6b162f990eb51e5f984661259563a21188f3a1d560da0|sha_rs_sha256=d5ff519597eb04ff2200dbb8b8f753d9eb4c2f352199dc8fef2d47456ab16db8|prereg_sha256=96447279284fbb84e5d0f8563cdf280e959f52c7a9ebd93adf97538fcb023bcf|addendum_sha256=32f1d3998cc7e51a18164ef518e19461eb453199c9cc7bab7d386257ae24b7da|json=0
+PRISM3_RUN|configs=54|cells=40|stages=1,3,9,27|json=0
+PRISM3_P1|occupancy_1_3_9_27_and_nothing_early=1|json=0
+PRISM3_P2|forecast_at_step0_equals_propagated=1|json=0
+PRISM3_P3|distinct_orientation_combos=8|json=0
+PRISM3_P4|final_amplitudes_all_nonzero=1|json=0
+PRISM3_P5_LOCKED|z_follows_switch_at_step1_and_beam_unchanged=1|json=0
+PRISM3_P5_LIVE|configs_redirected=41|redirect_iff_switched_z_flips_a_later_prism=1|locality_violations=0|json=0
+PRISM3_P6|local_distinct_states_before_step3=1|distinct_forecasts=16|distinct_z=54|json=0
+PRISM3_P7|classical_3bit_table_equals_hash_selected=1|json=0
+PRISM3_PREDICTIONS|P1=1|P2=1|P3=1|P4=1|P5_LOCKED=1|P5_LIVE=1|P6_local_zero_info=1|P6_original_forecasts_54=0|P6_addendum_z_54=1|P7=1|json=0
+PRISM3_EXIT|code=0|json=0
