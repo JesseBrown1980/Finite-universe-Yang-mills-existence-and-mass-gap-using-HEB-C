@@ -1,0 +1,11 @@
+FRUST_PREREG|date=2026-10-30|seat=ACER-CLAUDE-FABLE5|pid=8467a937cba309f7|operator=OP-JESSE|authorized=reviewer-relayed_"Frustrated-orientation_benchmark:_Proceed_with_preregistered_comparisons"|source=Exact-Ground-State-of-Frustrated-Quantum-Spin-Glasses(bea0d4c),coupling_idea_only(no_code_reused;its_f64_and_O(M^2)_NTT_not_used)|json=0
+FRUST_MODEL|spins=s1,s2,s3_in{+1,-1}(prism_k_orientation:+1=j+,-1=j-)|couplings_frozen_before_laser=J12=+1,J23=+1,J13=-1(frustrated_triangle)|energy=E(s)=-(J12*s1*s2+J23*s2*s3+J13*s1*s3)-sum(h_k*s_k)|integer_only=1|float=0|json=0
+FRUST_ROUTE|laser=+1|destinations=27|field_h_k=desired_spin_for_delivering_+1(digit0->0,digit1->+1,digit2->-1)|delivery=final_amplitude_at_destination==+1|json=0
+FRUST_CONTROLLERS|HASH=spins_from_bits_of_sha256(laser||dest||root)|EXACT=argmin_E_over_8_binary_states(ties:first_in_enumeration_order)|TERNARY=argmin_E_over_27_states_with_0(neutral),then_0->+1_for_the_prism|FIELD_ONLY=argmin_with_J=0(control)|json=0
+FRUST_PREDICT_R1|FIELD_ONLY_delivery=27/27(control:fields_alone_always_deliver)|json=0
+FRUST_PREDICT_R2|EXACT_energy<=HASH_energy_for_27/27(by_definition_of_argmin)|EXACT_delivery,HASH_delivery,TERNARY_delivery=measured(not_predicted)|json=0
+FRUST_PREDICT_R3|TERNARY_min_energy<=EXACT_min_energy_for_27/27(27-state_superset)|count_strictly_lower=measured|json=0
+FRUST_BELL|prism-Bell_stations(A_subtree0_branch0|4,B_subtree2_branch18|22),settings_by_independent_station_hashes_after_emission,trials=131072|fields_h_k=balanced_trit_from_sha256(z)_byte_k|json=0
+FRUST_PREDICT_B1|FROZEN-LOCAL:z=sha256(laser||root||trial)(no_settings),orientations=EXACT_argmin|THEOREM(local_hidden_variable):S<=2+5sigma|json=0
+FRUST_MEASURE_B2|FROZEN-JOINT:z=sha256(laser||root||trial||x||y)(sees_both_settings),orientations=EXACT_argmin|S,marginal_signalling(A_and_B,micro-units),conditional_leakage(max|P(a=+1|x,y=0)-P(a=+1|x,y=1)|)=MEASURED,NOT_PRESUMED|json=0
+FRUST_READING|route_part=does_frustration_change_delivery_versus_hash_and_classical;Bell_part=local_bound_when_settings_hidden,measured_values_when_seen|scope=software_model,not_physical_correlations|failures_reported_as_is|json=0
