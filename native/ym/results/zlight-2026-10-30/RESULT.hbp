@@ -1,0 +1,15 @@
+ZLIGHT_BUILD|rustc=rustc_1.81.0_(eeb90cda1_2024-09-04)|clippy_D_warnings=exit0|exe_sha256=07f9bf6cffbb0fb287329361345f61c90553455a5c220829a100334f2425dcbe|src_sha256=407a8162c7ca0b10fe9ac07c07b65fb5b1c7df70f2650a16c97e92ec5bb696ec|prereg_sha256=37f24de9724161b0379187f601bedea6cb579b595b5a9c2988d587ad359e9656|json=0
+ZLIGHT_RUN|steps=40|grid=64x64|target=(40,32)|control_root_step0=da31bdbe002819cffb0e73d7a261727a3f3cd6f82d80a816ea92adf6a1aa7ca8|json=0
+ZLIGHT_VARIANT|v=V1|light_distance=20|global_root_first_diff=0|target_local_first_diff=20|target_with_global_first_diff=0|json=0
+ZLIGHT_VARIANT|v=V2|light_distance=20|global_root_first_diff=0|target_local_first_diff=20|target_with_global_first_diff=0|json=0
+ZLIGHT_VARIANT|v=V3|light_distance=24|global_root_first_diff=0|target_local_first_diff=24|target_with_global_first_diff=0|json=0
+ZLIGHT_VARIANT|v=V4|light_distance=24|global_root_first_diff=0|target_local_first_diff=24|target_with_global_first_diff=0|json=0
+ZLIGHT_VARIANT|v=V5|light_distance=28|global_root_first_diff=0|target_local_first_diff=28|target_with_global_first_diff=0|json=0
+ZLIGHT_LOCAL_INFO|step=0|distinct_target_local_across_6_variants=1|json=0
+ZLIGHT_LOCAL_INFO|step=19|distinct_target_local_across_6_variants=1|json=0
+ZLIGHT_LOCAL_INFO|step=20|distinct_target_local_across_6_variants=3|json=0
+ZLIGHT_LOCAL_INFO|step=24|distinct_target_local_across_6_variants=3|json=0
+ZLIGHT_LOCAL_INFO|step=28|distinct_target_local_across_6_variants=2|json=0
+ZLIGHT_GLOBAL_INFO|step=0|distinct_global_roots_across_6_variants=6|distinct_target_with_global_across_6_variants=6|json=0
+ZLIGHT_PREDICTIONS|P1_global_instant=1|P2_local_at_exactly_d=1|P3_no_local_info_before_arrival=1|P4_global_encodes_aim_and_message_at_step0=1|P5_target_reading_global_learns_instantly=1|json=0
+ZLIGHT_EXIT|code=0|json=0
