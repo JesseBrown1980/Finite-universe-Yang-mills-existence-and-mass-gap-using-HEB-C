@@ -1,0 +1,5 @@
+A_MODEL|levels=3|states_per_level=3|turns_per_level=0,1,2|total_combinations=27|start=0,0,0|json=0
+A_HELD|combos=27|distinct=27|returns_start=1|never_returns_start=0|json=0
+A_COLLAPSED|combos=27|distinct=3|preimages_per_state=9,9,9|json=0
+A_TRIPLE_PLUS|held_state=1,1,1|collapsed_state=0,0,0|held_returns_start=0|collapsed_returns_start=1|json=0
+A_VERDICT|original_held_27_distinct=PASS|original_held_never_returns_start=FAIL|original_collapsed_only_3=PASS|three_plus_one_same_level_returns=PASS|overall_original=FAIL|qualified_nonzero_triple_plus_holds=PASS|json=0

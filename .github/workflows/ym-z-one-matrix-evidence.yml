@@ -1,0 +1,31 @@
+name: YM one-matrix z/r/j evidence replay
+
+on:
+  pull_request:
+    paths:
+      - 'native/ym/results/z-one-matrix-20261030/**'
+      - '.github/workflows/ym-z-one-matrix-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm interpreter and frozen output format
+        run: |
+          python3 --version
+          command -v sha256sum
+      - name: Destination token V1 fail-closed and V2 byte replay
+        working-directory: native/ym/results/z-one-matrix-20261030/destination
+        run: sh run.sh
+      - name: Three-per-level Python reference and pair enumeration replay
+        working-directory: native/ym/results/z-one-matrix-20261030/perlevel_crosscheck
+        run: sh run.sh
+      - name: Curved j and three-brake tests plus Git source chronology replay
+        working-directory: native/ym/results/z-one-matrix-20261030/curve_ABC
+        run: sh verify.sh

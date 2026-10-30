@@ -1,0 +1,9 @@
+ZDEST_REV2|date=2026-10-30|reason=rev1_false_unbounded_no_return_claim|discovered_before_revision=1|rev1_preserved=1|json=0
+ZDEST_REV2_MODEL|ring=3^N|N=3,4,5|source_targets=N3:2,8,23;N4:9,29,71;N5:11,71,190|release_tick=1|states=-1,0,+1|no_cancellation_single_pulse=1|json=0
+ZDEST_REV2_P1|physical_merkle_unchanged_under_prelaunch_retarget=1|protocol_z_digest_changed=1|prelaunch_phase_tick=0|json=0
+ZDEST_REV2_P2|no_token=REJECT|stale_token=REJECT|wrong_direction=REJECT|tampered=REJECT|fresh_bound=ACCEPT|json=0
+ZDEST_REV2_P3|beam_to_B|first_change_at_B=release_tick+directed_distance_B|local_B_unchanged_before_arrival=1|unselected_A_unchanged_only_until_first_B_arrival=1|return_after_window_allowed=1|json=0
+ZDEST_REV2_P4|midflight_retarget_is_metadata_only|old_A_packet_not_redirected=1|physical_state_unchanged_at_switch=1|protocol_z_changes_at_switch=1|new_B_unchanged_until_old_A_arrival=1|return_after_window_allowed=1|json=0
+ZDEST_REV2_P5|equal_prior_destination_choice|local_info_before_arrival_bits=0|global_protocol_digest_if_locally_readable_bits=1|global_read_forbidden_for_local_observer=1|json=0
+ZDEST_REV2_B|r_symmetric=1|j_plus_asymmetric=1|j_minus_asymmetric=1|j_plus_transpose_j_minus=1|support_full=1|J_rank_GF3=1|j_plus_and_minus_rank_GF3=3|j_orientation_undetermined=1|json=0
+ZDEST_REV2_SCIENCE|constructive_software_witness=1|nonlocal_physical_z_required=NOT_ESTABLISHED|quantum_dynamics=NOT_MODELED|spectral_pass=0|production=HOLD|json=0
