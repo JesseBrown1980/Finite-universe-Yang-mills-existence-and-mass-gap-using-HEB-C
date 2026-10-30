@@ -37,7 +37,12 @@
 //!   roomcountmerge/LX/LY/1/1/JE/JB/T/FDIG/TOL     (merge ROOT/scol/<roomcount id>/)
 //!   roomschur runs with ROOMSCHUR_K = 8 and ROOMSCHUR_BUDGET = 12 GiB; every room
 //!   job checks the room file against the SHA-256 its roombuild shard recorded.
-//! Every kind takes a sector-mode prefix: none (zero momentum), r (reflections
+//! Static-charge lane (open ROWS x COLS strips, ymconf; CH = 1 charged std pair at (XA,row),(XB,row),
+//! CH = 0 vacuum with XA = XB = 0):
+//!   confmat/ROWS/COLS/XA/XB/CH                    build ROOT/matrices/conf_*.matrix
+//!   confcount/ROWS/COLS/XA/XB/CH/JE/JB/T          sturmrs inertia count at T (milli-units)
+//!   zconf                                         the sealed #56 perturbative calculation (zconfpt)
+//! Every other kind takes a sector-mode prefix: none (zero momentum), r (reflections
 //! only, every momentum), or tx / ty / td / ta (translations along one line, the
 //! sectors of V^K). Full space for a non-cyclic translation group by Mobius
 //! inversion over the line subgroups: python/full_space_mobius.py.
@@ -100,10 +105,61 @@ impl Spec {
     }
 }
 
+const CONF_KINDS: [&str; 3] = ["confmat", "confcount", "zconf"];
+
+fn parse_conf(kind: String, nums: Vec<i64>) -> Result<Spec, String> {
+    let want = match kind.as_str() {
+        "confmat" => 5,
+        "confcount" => 8,
+        _ => 0,
+    };
+    if nums.len() != want {
+        return Err(format!("{kind} needs {want} integer fields"));
+    }
+    if want > 0 {
+        let (rows, cols, xa, xb, ch) = (nums[0], nums[1], nums[2], nums[3], nums[4]);
+        let charged_ok = ch == 1 && 0 <= xa && xa < xb && xb < cols;
+        let vacuum_ok = ch == 0 && xa == 0 && xb == 0;
+        if !(2..=3).contains(&rows) || !(2..=5).contains(&cols) || !(charged_ok || vacuum_ok) {
+            return Err("strip geometry out of range".into());
+        }
+        if want == 8 && (nums[5] <= 0 || nums[6] < 0) {
+            return Err("JE must be positive and JB non-negative".into());
+        }
+    }
+    Ok(Spec { kind, nums })
+}
+
+fn conf_matrix_path(root: &Path, s: &Spec) -> PathBuf {
+    let n = &s.nums;
+    root.join("matrices").join(format!("conf_{}_{}_{}_{}_{}.matrix", n[0], n[1], n[2], n[3], n[4]))
+}
+
+/// The strip matrix a count reads must be the one its confmat shard recorded.
+fn checked_conf_matrix(root: &Path, s: &Spec) -> Result<PathBuf, String> {
+    let m = Spec { kind: "confmat".into(), nums: s.nums[..5].to_vec() };
+    let hbp = root.join("shards").join(shard_id(&m)).join("run.hbp");
+    let text = fs::read_to_string(&hbp).map_err(|_| format!("missing confmat shard for {}", canonical_spec(&m)))?;
+    let want = text
+        .lines()
+        .find_map(|l| l.strip_prefix("MATRIX_SHA|sha256=").and_then(|r| r.split('|').next()))
+        .ok_or("confmat shard lacks MATRIX_SHA")?
+        .to_string();
+    let p = conf_matrix_path(root, &m);
+    let got = file_sha(&p)?;
+    if got != want {
+        return Err(format!("matrix sha mismatch for {}: {got} != {want}", p.display()));
+    }
+    Ok(p)
+}
+
 fn parse_spec(spec: &str) -> Result<Spec, String> {
     let mut parts = spec.trim_matches('/').split('/');
     let kind = parts.next().ok_or("empty spec")?.to_string();
     let nums: Vec<i64> = parts.map(|p| p.parse::<i64>().map_err(|_| format!("non-integer spec field {p}"))).collect::<Result<_, _>>()?;
+    if CONF_KINDS.contains(&kind.as_str()) {
+        return parse_conf(kind, nums);
+    }
     let mode = MODES.iter().copied().find(|m| kind.strip_prefix(m).is_some_and(|b| BASES.contains(&b))).ok_or(format!("unknown job kind {kind}"))?;
     let base = &kind[mode.len()..];
     let want = match base {
@@ -350,6 +406,27 @@ fn execute(root: &Path, s: &Spec) -> Result<(String, Vec<(String, String)>), Str
             let (out, meta) = r?;
             Ok((format!("{listing}INPUT_MATRIX|sha256={msha}|file={}|json=0\n{out}", mp.file_name().and_then(|f| f.to_str()).unwrap_or("")), meta))
         }
+        "confmat" => {
+            fs::create_dir_all(root.join("matrices")).map_err(|e| e.to_string())?;
+            let m = conf_matrix_path(root, s);
+            let tmp = m.with_extension("matrix.part");
+            let (mut out, meta) = run_tool("ymconf", &[st(0), st(1), st(2), st(3), st(4), tmp.display().to_string()], &[])?;
+            if !out.contains("|w_self_adjoint=PASS|") {
+                return Err("ymconf did not report w_self_adjoint=PASS".into());
+            }
+            let sha = file_sha(&tmp)?;
+            let bytes = fs::metadata(&tmp).map_err(|e| e.to_string())?.len();
+            fs::rename(&tmp, &m).map_err(|e| e.to_string())?;
+            out.push_str(&format!("MATRIX_SHA|sha256={sha}|bytes={bytes}|file={}|json=0\n", m.file_name().and_then(|f| f.to_str()).unwrap_or("")));
+            Ok((out, meta))
+        }
+        "confcount" => {
+            let mp = checked_conf_matrix(root, s)?;
+            let (mut out, meta) = run_tool("sturmrs", &[mp.display().to_string(), st(5), st(6), st(7)], &[])?;
+            out.push_str(&format!("INPUT_MATRIX|sha256={}|file={}|json=0\n", file_sha(&mp)?, mp.file_name().and_then(|f| f.to_str()).unwrap_or("")));
+            Ok((out, meta))
+        }
+        "zconf" => run_tool("zconfpt", &[], &[]),
         _ => Err("unknown kind".into()),
     }
 }

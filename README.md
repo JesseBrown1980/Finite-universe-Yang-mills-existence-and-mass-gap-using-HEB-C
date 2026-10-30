@@ -64,6 +64,22 @@ of the gap correction is the locality the BHM/TQO volume-uniform proof, the imme
 builds on. Frozen for the first 3×4 full-space certificate: r·(3r − Δ/J_E) at r = 243 in
 [21.095802, 21.573297].
 
+**Confinement law, exact to second order in r, certified at finite coupling**
+([`zconf`](native/ym/results/zconf-2026-10-30-cloud/README.md),
+[`zconfcert`](native/ym/results/zconfcert-2026-10-30-cloud/README.md)):
+
+V(d, r) = 3d·J_E + n_g·d·(s_str − s_vac)·r²·J_E + O(r³),  s_vac = −1/12,  s_str = −17/144
+
+Two static S3 charges (the 2-dimensional irrep and its conjugate) d links apart are joined by a string of
+`std` links costing exactly 3·J_E per link at r = 0. At second order each plaquette holding a string link
+shifts by s_str instead of s_vac, so the string tension falls by n_g·5/144·r², with n_g the number of
+plaquettes per string link (κ = −5/72 in the 2D bulk). The certified finite-coupling energies, run as
+HTTP-0 jobs, confirm the law: at r = 1/27 κ_eff = −0.034981 on a ladder (n_g = 1, κ_g = −0.034722) and
+−0.069960 on a strip (n_g = 2, κ_g = −0.069444), a ratio of 1.9999, the same for d = 1, 2, 3, with the
+remaining drift linear in r. V(d, r) is certified increasing in d at every coupling measured
+(σ = 2.99995 at r = 1/27, 2.9566 at r = 1). Together with the gap law, this gives exact results from
+both coupling directions: strong electric (r → 0) and strong magnetic (r → ∞).
+
 **Checks on the evidence:**
 - **Re-execution:** all 224 2×L shards re-run byte for byte.
 - **Integrity:** every shard's index and anchor regenerated from its contents.
