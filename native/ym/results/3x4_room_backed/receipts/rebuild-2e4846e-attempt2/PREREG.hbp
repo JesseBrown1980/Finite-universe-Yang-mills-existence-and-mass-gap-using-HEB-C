@@ -1,0 +1,24 @@
+PREREG|date=2026-10-30|purpose=rebuild_attempt2_of_2e4846e_at_identical_absolute_path|operator_decision=Option_A_approved|exclusion_list_expanded=0|seat=ACER-CLAUDE-FABLE5|pid=8467a937cba309f7|json=0
+PREREG_TARGET|commit=2e4846e7440000b2b0ee6b0fabbea65afbfbe17c|path=C:\Users\acer\Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C|clone=--no-local_--no-hardlinks_core.autocrlf=false|hold=<path>.hold|clone_aside=<path>.rebuild2clone(never_deleted_by_script)|json=0
+PREREG_ORIG_EXE|bin=shellschur|sha256=29b6b55078796ad223b31373f063196a7b3a24a5f2396496b129b96c36542dd3|bytes=324096|pe_checksum=0|json=0
+PREREG_ORIG_EXE|bin=roomschur|sha256=a8007c1545a2d8827964fad71a761c1a38744671173bf393f0517e1297434eff|bytes=375296|pe_checksum=0|json=0
+PREREG_ORIG_EXE|bin=ymroom|sha256=a0bc359d88aca652e5b4ec9e192741d8a1c8c501658e7fd0e33055b410c12cc8|bytes=290816|pe_checksum=0|json=0
+PREREG_ORIG_EXE|bin=ymsec|sha256=9fa8232d917892df9c0b071903f258849d40dcd477f984a438fab6a561168607|bytes=267776|pe_checksum=0|json=0
+PREREG_PE_FIELDS|bin=shellschur|coff_timestamp=256+4|debugdir0_type2_ts=280148+4|debugdir1_type12_ts=280176+4|debugdir2_type13_ts=280204+4|rsds_guid_age=280568+20|pdb_path=280588+15(shellschur.pdb\0)|json=0
+PREREG_PE_FIELDS|bin=roomschur|coff_timestamp=256+4|debugdir0_type2_ts=321220+4|debugdir1_type12_ts=321248+4|debugdir2_type13_ts=321276+4|rsds_guid_age=321656+20|pdb_path=321676+14(roomschur.pdb\0)|json=0
+PREREG_PE_FIELDS|bin=ymroom|coff_timestamp=248+4|debugdir0_type2_ts=244004+4|debugdir1_type12_ts=244032+4|debugdir2_type13_ts=244060+4|rsds_guid_age=244344+20|pdb_path=244364+11(ymroom.pdb\0)|json=0
+PREREG_PE_FIELDS|bin=ymsec|coff_timestamp=248+4|debugdir0_type2_ts=231204+4|debugdir1_type12_ts=231232+4|debugdir2_type13_ts=231260+4|rsds_guid_age=231544+20|pdb_path=231564+10(ymsec.pdb\0)|json=0
+PREREG_EXCLUSIONS|only=coff_timestamp,every_debug_directory_entry_timestamp,codeview_rsds_guid_age,codeview_pdb_path|everything_else_compared=1|layout_or_size_differs=INCONCLUSIVE|json=0
+PREREG_ACCEPTANCE|all_four_match_outside_exclusions=PROVENANCE_PASS|any_other_byte_differs=PROVENANCE_MISMATCH(provenance,not_mathematical)|build_fail_or_restore_unsafe_or_unreliable=INCONCLUSIVE|json=0
+PREREG_SOURCE|file=native/ym/crates/torusl/src/segio.rs|blob_sha256=e9253ea2697cf6d5ff98af65ab0d7c0791c57f5492a336099680b806ea331cb5|executed_raw=identical|json=0
+PREREG_SOURCE|file=native/ym/crates/torusl/src/bin/ymroom.rs|blob_sha256=2a8409b1f3e110299688900f59bbb3dcc74687b23dc02b3b42f6179568dbcf9e|executed_raw=identical|json=0
+PREREG_SOURCE|file=native/ym/crates/sturmrs/src/bin/roomschur.rs|blob_sha256=f213b009921ade113325dcbca33b686c6b3f7162b108236eddddffee8447cfec|executed_raw=identical|json=0
+PREREG_SOURCE|file=native/ym/crates/sturmrs/src/bin/shellschur.rs|blob_sha256=9bd8d245046850b254dd1481fc21722b406b74f74a7051607e523272c05c3783|executed_raw_sha256=809d6330ec041c60a84477e6cdd69657cc21dfce32a6c48b7ef531d56fc515a6|executed_CR=378|difference=CRLF_only|stays_recorded_even_if_exe_matches=1|json=0
+PREREG_RAWDIFF|tracked_native_ym_files=1561|raw_differs_from_2e4846e_outside_results=35|crlf_only=34|content_differs=1(native/ym/backend/src/main.rs,uncommitted,not_operator's_chain,not_in_the_four_builds)|crlf_only_includes=Cargo.toml,Cargo.lock,.cargo/config.toml,crates/sturmrs/Cargo.toml,crates/torusl/Cargo.toml,rust-toolchain.toml,shellschur.rs,...|list=rawdiff-classified.txt|vendor_raw_differs=0|json=0
+PREREG_BUILD_INPUT_NOTE|original_build_inputs=CRLF_working_copies_for_the_34_files|rebuild_inputs=LF_blobs|effect_on_executables=UNTESTED(CONJECTURE)|json=0
+PREREG_PATH_EMBED|shellschur_roomschur=absolute_vendored_crate_panic_paths_C:\Users\acer\Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C\native\ym\vendor\|ymroom_ymsec=none|handled_by=identical_build_path|json=0
+PREREG_TOOLCHAIN|cargo=1.81.0(2dbb1af80_2024-08-20)|rustc=1.81.0(eeb90cda1_2024-09-04)|commit_hash=eeb90cda1969383f56a2637cbd3037bdf598841c|host=x86_64-pc-windows-msvc|llvm=18.1.7|env_RUST_CARGO=empty|json=0
+PREREG_COMMANDS|cmd1=cargo +1.81 build --release --offline --locked -p sturmrs --bin roomschur --bin shellschur|cmd2=cargo +1.81 build --release --offline --locked -p torusl --bin ymroom --bin ymsec|json=0
+PREREG_COMPARATOR|file=pecmp.py|controls=pecmp_controls.py|controls_result=8/8_PASS(PECMP-CONTROLS.hbp)|json=0
+PREREG_SAFETY|abort_if=hold_or_aside_exists,linked_worktree_present,chain_or_build_process_running,original_exe_hash_not_recorded,rename_fails|restore=clone_aside_then_hold_back_retry_20x30s|restore_fail=hold_left_intact_INCONCLUSIVE|deletes=0|before_after_checked=exe_hashes,head,branch,status,main.rs,runlog,all_tracked_raw_hashes|json=0
+PREREG_WORKTREE|removed_before_run=C:/Users/acer/ym-evidence-wt(clean,0_uncommitted,HEAD_d5c4e5c=pushed_origin)|branch_kept=local+origin|json=0
