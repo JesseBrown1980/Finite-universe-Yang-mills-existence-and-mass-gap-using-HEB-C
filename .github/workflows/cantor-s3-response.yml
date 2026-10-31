@@ -1,0 +1,50 @@
+name: Cantor 27 finite S3 numerical response
+on:
+  push:
+    branches:
+      - 'cantor-s3-drive-*'
+    paths:
+      - 'native/ym/python/cantor_s3_drive.py'
+      - 'native/ym/python/test_cantor_s3_drive.py'
+      - '.github/workflows/cantor-s3-response.yml'
+  workflow_dispatch:
+jobs:
+  cantor-s3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin numeric libraries
+        run: python -m pip install numpy==2.3.5 scipy==1.17.0
+      - name: Unit and independent small-matrix comparison
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+        run: python -m unittest discover -s native/ym/python -p 'test_cantor_s3_drive.py' -v
+      - name: Build S3 sector generator
+        working-directory: native/ym
+        run: cargo +1.81.0 build --release --offline --locked -p torusl --bin ymsec
+      - name: Generate and check real S3 2x2 sector
+        working-directory: native/ym
+        run: |
+          target/release/ymsec 2 2 1 1 /tmp/cantor-s22.matrix
+          echo '902a8a01d527416ea02d7ce54737fa5513d814046a6e9cdd7f9acf67cc864ccb  /tmp/cantor-s22.matrix' | sha256sum --check --status
+      - name: Replay Cantor 729 through genuine S3 sector
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+        run: |
+          python native/ym/python/cantor_s3_drive.py \
+            --matrix /tmp/cantor-s22.matrix \
+            --out /tmp/cantor-s22-drive \
+            --expected-matrix-sha 902a8a01d527416ea02d7ce54737fa5513d814046a6e9cdd7f9acf67cc864ccb
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cantor-s3-2x2-numerical-receipt
+          path: |
+            /tmp/cantor-s22-drive.hbp
+            /tmp/cantor-s22-drive.hbi
+          if-no-files-found: warn
