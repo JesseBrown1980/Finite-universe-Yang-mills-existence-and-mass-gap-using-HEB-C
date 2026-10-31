@@ -49,6 +49,22 @@ jobs:
             --matrix /tmp/cantor-s22.matrix \
             --receipt /tmp/cantor-s22-drive.hbp \
             --index /tmp/cantor-s22-drive.hbi
+      - name: Higher-coupling r243 real-sector response
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+        run: |
+          python native/ym/python/cantor_s3_drive.py \
+            --matrix /tmp/cantor-s22.matrix --r 243 \
+            --out /tmp/cantor-s22-r243 \
+            --expected-matrix-sha 902a8a01d527416ea02d7ce54737fa5513d814046a6e9cdd7f9acf67cc864ccb
+      - name: Independent SciPy expm replay at r243
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+        run: |
+          python native/ym/python/cantor_s3_verify.py \
+            --matrix /tmp/cantor-s22.matrix \
+            --receipt /tmp/cantor-s22-r243.hbp \
+            --index /tmp/cantor-s22-r243.hbi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -56,4 +72,6 @@ jobs:
           path: |
             /tmp/cantor-s22-drive.hbp
             /tmp/cantor-s22-drive.hbi
+            /tmp/cantor-s22-r243.hbp
+            /tmp/cantor-s22-r243.hbi
           if-no-files-found: warn
