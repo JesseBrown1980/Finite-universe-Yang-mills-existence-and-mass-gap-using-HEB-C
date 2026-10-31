@@ -1,0 +1,7 @@
+SEGP2_VERDICT|L=2x3|verdict=AGREE|why=text_identical_anchor_equal_store_bytes_identical_single_G1_G2|spectral_pass=0|json=0
+SEGP2_VERDICT|L=2x4|verdict=AGREE|why=text_identical_anchor_equal_store_bytes_identical_single_G1_G2|spectral_pass=0|json=0
+SEGP2_VERDICT|L=3x3|verdict=AGREE|why=text_identical_anchor_equal_store_bytes_identical_single_G1_G2|spectral_pass=0|json=0
+SEGP3_VERDICT|t=60000000|verdict=AGREE|why=v2_AGREE|scope=G1_segmented_store|spectral_pass=0|json=0
+SEGP3_VERDICT|t=72000000|verdict=AGREE|why=v2_AGREE|scope=G1_segmented_store|spectral_pass=0|json=0
+SEGP3_VERDICT|t=90000000|verdict=AGREE|why=v2_AGREE|shared_AMBIGUOUS_negative=37_ambiguous=9_spectral_pass=0|scope=G1_segmented_store|spectral_pass=0|json=0
+SEGP2P3_VERDICT|P2=AGREE|P3=AGREE|t90_is_implementation_agreement_only=1|P3_scope=G1_segmented_store_only|G2=P2_builder_bytes_only_not_runner_certified|spectral_pass=0|binary_provenance=PASS(rebuild2)|gap_verdict_3x4=NONE|production_hold=UNCHANGED|json=0
