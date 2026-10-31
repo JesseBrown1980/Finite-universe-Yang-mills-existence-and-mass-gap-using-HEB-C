@@ -6,6 +6,7 @@ on:
     paths:
       - 'native/ym/python/cantor_s3_drive.py'
       - 'native/ym/python/test_cantor_s3_drive.py'
+      - 'native/ym/python/cantor_s3_verify.py'
       - '.github/workflows/cantor-s3-response.yml'
   workflow_dispatch:
 jobs:
@@ -40,6 +41,14 @@ jobs:
             --matrix /tmp/cantor-s22.matrix \
             --out /tmp/cantor-s22-drive \
             --expected-matrix-sha 902a8a01d527416ea02d7ce54737fa5513d814046a6e9cdd7f9acf67cc864ccb
+      - name: Independent SciPy expm replay and HBI audit on real sector
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+        run: |
+          python native/ym/python/cantor_s3_verify.py \
+            --matrix /tmp/cantor-s22.matrix \
+            --receipt /tmp/cantor-s22-drive.hbp \
+            --index /tmp/cantor-s22-drive.hbi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
