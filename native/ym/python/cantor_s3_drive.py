@@ -129,7 +129,7 @@ def run(matrix: Path, basis: int = 0, r: float = 9., coupling: float = 1/27,
         psi, norm_error, inverse_error = replay(pulses, u, basis)
         outputs[name] = (psi, norm_error, inverse_error)
     def fmt(x: float) -> str:
-        return f'{x:.12g}'
+        return f'{x:.17g}'
     lines = [
         'CANTOR_S3|schema=CANTOR-S3-NUMERICAL-V1|model=S3|method=dense_hermitian_eigh|kind=NUMERICAL_TEST_NOT_CERTIFICATE|json=0',
         f'INPUT|matrix_sha256={matrix_hash}|signal_sha256={SIGNAL_SHA256}|states={n}|basis_index={basis}|samples=729|positive=32|negative=32|zero=665|json=0',
