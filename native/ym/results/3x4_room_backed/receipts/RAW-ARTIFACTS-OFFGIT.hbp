@@ -1,0 +1,11 @@
+RAW_OFFGIT|path=ym-3x4-room-run/gate3x3-seg/roomschur-seg-t60000000.out|drive=D|bytes=1848599|sha256=cf010670d2b3b2ca3f3513a92d6ed3793db75bb97e60fa0cdeb1ec51212fbd91|in_git=0|json=0
+RAW_OFFGIT|path=ym-3x4-room-run/gate3x3-seg/roomschur-seg-t72000000.out|drive=D|bytes=239133501|sha256=7a892bdac90d2cc76b0aae9974d3ec714caa766165c452f273a4030aee6b9583|in_git=0|json=0
+RAW_OFFGIT|path=ym-3x4-room-run/gate3x3-seg/roomschur-seg-t90000000.out|drive=D|bytes=1621689908|sha256=8aa62d94912eeaaa874b28bc727d21aefa4fd955d449727166f8165cac1e3a10|in_git=0|json=0
+RAW_OFFGIT|path=ym-3x4-room-run/gate3x3-seg/shellschur-cols-t60000000.out|drive=D|bytes=1848326|sha256=3d672559aea68df7dce95375e6443d0695ee03059b2a910f8bfac63bbd953e7f|in_git=0|json=0
+RAW_OFFGIT|path=ym-3x4-room-run/gate3x3-seg/shellschur-cols-t72000000.out|drive=D|bytes=239133225|sha256=e470191cb564739c71d614e1184449b30f9fe60c350ed18009a13a73f5a10c95|in_git=0|json=0
+RAW_OFFGIT|path=ym-3x4-room-run/gate3x3-seg/shellschur-cols-t90000000.out|drive=D|bytes=1621689625|sha256=26d3b143fd95add717660e69326f96d855a74075fc8f69cf6bb1ba1b4a6e1bbf|in_git=0|json=0
+RAW_OFFGIT|path=ym-3x4-room-run/gate3x3-seg/shellschur-merge-t60000000.out|drive=D|bytes=327|sha256=48056626e7c7617797280a7b139b6c99fb7b708220f35dccfcf5a672a186b374|in_git=0|json=0
+RAW_OFFGIT|path=ym-3x4-room-run/gate3x3-seg/shellschur-merge-t72000000.out|drive=D|bytes=334|sha256=361156d2b2f32b7d0337f059e324529564792198aa5dc1c2356f81f6c5f9d587|in_git=0|json=0
+RAW_OFFGIT|path=ym-3x4-room-run/gate3x3-seg/shellschur-merge-t90000000.out|drive=D|bytes=342|sha256=3f74584b8818be490a6c9e557c52a721a8644fd178f545e77c960b892224be96|in_git=0|json=0
+RAW_OFFGIT|path=ym-3x4-room-run/v2-crosscheck/shell-t60000000.hbp|drive=D|bytes=1848653|sha256=af77563054421a329b608de2348cd70144710489b1e869233a2828ad1a3aac99|in_git=0|json=0
+RAW_OFFGIT|path=ym-3x4-room-run/v2-crosscheck/shell-t72000000.hbp|drive=D|bytes=239133559|sha256=17c8c51bb536cbf3cb7c6ece89a6d6b61732940725177ba86f9a4b8fa4110f5b|in_git=0|json=0

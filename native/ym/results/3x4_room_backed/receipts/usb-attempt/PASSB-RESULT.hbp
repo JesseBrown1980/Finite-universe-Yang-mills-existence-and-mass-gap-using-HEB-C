@@ -1,0 +1,11 @@
+PASSB_RESULT|run=ym-3x4-room-backed|seat=ACER-CLAUDE-FABLE5|pid=8467a937cba309f7|date=2026-10-28|exit=2|verdict=FAIL_HEADER_READBACK|json=0
+PASSB_BUILD|sector=Sx+Sy+|rows=45508080|rooms=3356267422|entries=3310759342|payload_bytes=26850881536|stream_bytes=26850885632|w_self_adjoint=PASS|payload_merkle=ec03c5f8ea5abd37ed8f80e0e9e7f00e37840a753f33a1008fbd090b18072a0b|ms=16998864|json=0
+PASSB_KEYS|target=D:/asolaria-rooms-1m-50000000/stubs.hbi|bytes=0..364064639|keys_sha256=bf5a1a43f99f4acd5f73f7da55e628e5bedbd5b4b29ef1b21c87b789d0d13b79|readback_sha256=bf5a1a43f99f4acd5f73f7da55e628e5bedbd5b4b29ef1b21c87b789d0d13b79|match=1|json=0
+PASSB_USB|dev=PhysicalDrive2(General_UDisk,2097152000000,USB,serial_blank)|offset=579820584960|declared_extent_end=606671470592|os_write_errors=0|header_readback=MISMATCH|json=0
+PASSB_USB_READBACK|header_4096_zero_bytes=4096|payload_first_16MiB_zero=1|extent_samples=17x1MiB|extent_samples_nonzero=0|probe=EXTPROBE.hbp|json=0
+PASSB_USB_SNAP|after=USBSNAP-AFTER.hbp|before=USBSNAP-BEFORE.hbp|rows=33|identical=1|scope=sampled_regions_only|json=0
+PASSB_USB_WRAPCHECK|candidates=OFF_mod_{512,256,128,64,32}GiB=30064771072|ymroomhdr_found=0|content=high_entropy_preexisting_F_data|json=0
+PASSB_MEM|scope=pass_B_process_only|pid=14400|peak_working_set_bytes=2552557568|peak_pagefile_bytes=2918932480|final_state=exited_final|src=PASSB-MEM2.hbp|json=0
+PASSB_INTERPRETATION|tag=CONJECTURE|text=device_accepted_writes_but_does_not_retain_them_at_this_offset;consistent_with_capacity_smaller_than_reported;not_measured_where_writes_went|json=0
+PASSB_MEM_UNITS|scope=pass_B_process_only|peak_working_set_bytes=2552557568|decimal_GB=2.553|binary_GiB=2.377|not_system_memory=1|final_read=after_exit_before_CloseHandle|json=0
+PASSB_USB_WORDING|text=all_sampled_regions_unchanged;all_logged_Pass_B_stream_writes_confined_to_declared_extent[579820584960,606671470592)|no_claim_about_unsampled_regions=1|full_device_compare=0|note=writes_not_retained_at_declared_extent|json=0

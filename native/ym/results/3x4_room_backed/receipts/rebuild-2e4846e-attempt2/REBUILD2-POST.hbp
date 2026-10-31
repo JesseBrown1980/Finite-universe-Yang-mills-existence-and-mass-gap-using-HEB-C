@@ -1,0 +1,13 @@
+CLONE_REMOVED|date=2026-10-30T09:28:21-03:00|path=/c/Users/acer/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C.rebuild2clone|conditions=committed_543ad81,pushed,fresh_clone_verified(3_manifests_0_fails,seal_f44d920c),rebuilt_exes_preserved_on_D,no_dependent_process|operator_permitted=1|json=0
+POST_PROCESS_CHECK|checked_before_removal=2026-10-30T09:27|processes_referencing_clone=0(only_hits_were_the_querying_shells_own_command_lines)|cargo_rustc_mspdbsrv_link_running=0|clone_was_worktree=0|clone_head=2e4846e7440000b2b0ee6b0fabbea65afbfbe17c|clone_origin=C:/Users/acer/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C.hold|guards=head_and_origin_and_path_distinct_from_checkout|json=0
+POST_PRESERVED_EXE|bin=shellschur|path=D:/ym-3x4-room-run/rebuild2-2e4846e/rebuilt/shellschur.exe|sha256=f8128effa9559464e90b997120277f7bd7fff073e2714836e40b22180702010f|equals_clone_target_before_removal=1|json=0
+POST_PRESERVED_EXE|bin=roomschur|path=D:/ym-3x4-room-run/rebuild2-2e4846e/rebuilt/roomschur.exe|sha256=9b73e3f70606ec8765186dfbd43d6255d36b668797f6aafa1fa13809a3226ed2|equals_clone_target_before_removal=1|json=0
+POST_PRESERVED_EXE|bin=ymroom|path=D:/ym-3x4-room-run/rebuild2-2e4846e/rebuilt/ymroom.exe|sha256=679fb0f1d10dc0f0292a8855aa4c16e64c7f4c66788915746dddd7cf639aa63c|equals_clone_target_before_removal=1|json=0
+POST_PRESERVED_EXE|bin=ymsec|path=D:/ym-3x4-room-run/rebuild2-2e4846e/rebuilt/ymsec.exe|sha256=27bc5c0994a691f1e03edb80842931e9b92cf879aeadf5b2cb371b6b547eea1a|equals_clone_target_before_removal=1|json=0
+POST_CLONE_ABSENT|path=/c/Users/acer/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C.rebuild2clone|exists=0|t=2026-10-30T09:30:11-03:00|json=0
+POST_CHECKOUT_EXE|bin=shellschur|sha256=29b6b55078796ad223b31373f063196a7b3a24a5f2396496b129b96c36542dd3|json=0
+POST_CHECKOUT_EXE|bin=roomschur|sha256=a8007c1545a2d8827964fad71a761c1a38744671173bf393f0517e1297434eff|json=0
+POST_CHECKOUT_EXE|bin=ymroom|sha256=a0bc359d88aca652e5b4ec9e192741d8a1c8c501658e7fd0e33055b410c12cc8|json=0
+POST_CHECKOUT_EXE|bin=ymsec|sha256=9fa8232d917892df9c0b071903f258849d40dcd477f984a438fab6a561168607|json=0
+POST_CHECKOUT_REPO|head=2e4846e7440000b2b0ee6b0fabbea65afbfbe17c|branch=ym-3x4-room-backed|status_sha256=e537df1ef654f6e23a6c3ecba733015dbf121d243ecd24a59e444dbdc550a1fc|main_rs_sha256=85fdfbe64c646c6587084c9b15672d0cfa4ce1ae831a18de322f2f04da8e9a8f|runlog_sha256=6b5dbf1362c1f3338880874c5c976b9c7b59f202f5324a200dbee7a82d72c697|tracked_raw_sha256=dc5992fc19d155ef8014e50cbeabfe175780f085bed4ba05d22ad3e6987df8ed|t=2026-10-30T09:30:12-03:00|json=0
+POST_RESTORE_VERIFY|checkout_equals_REBUILD2_BEFORE_state=1|fields=4_exe_hashes,head,branch,status,main_rs,runlog,all_tracked_raw|REBUILD2.hbp_and_seals_unchanged=1|json=0

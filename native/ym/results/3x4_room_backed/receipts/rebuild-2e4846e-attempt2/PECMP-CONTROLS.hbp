@@ -1,0 +1,9 @@
+PECMP_CONTROL|case=identical|want=PASS|got=PASS|ok=1|json=0
+PECMP_CONTROL|case=coff_timestamp_changed|want=PASS|got=PASS|ok=1|json=0
+PECMP_CONTROL|case=debug_timestamp_changed|want=PASS|got=PASS|ok=1|json=0
+PECMP_CONTROL|case=rsds_guid_changed|want=PASS|got=PASS|ok=1|json=0
+PECMP_CONTROL|case=pdb_path_char_changed|want=PASS|got=PASS|ok=1|json=0
+PECMP_CONTROL|case=byte_outside_changed|want=MISMATCH|got=MISMATCH|ok=1|json=0
+PECMP_CONTROL|case=byte_next_to_coff_ts|want=MISMATCH|got=MISMATCH|ok=1|json=0
+PECMP_CONTROL|case=size_differs|want=INCONCLUSIVE|got=INCONCLUSIVE|ok=1|json=0
+PECMP_CONTROLS_TOTAL|cases=8|ok=8|result=PASS|json=0

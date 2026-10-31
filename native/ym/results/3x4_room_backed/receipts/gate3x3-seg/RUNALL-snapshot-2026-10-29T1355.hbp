@@ -1,0 +1,10 @@
+CTL|L=2x3|t=60000000|exit=0,0,0|scol=5476|nonsplit_eq_merge=1|core=74|result=PASS
+CTL|L=2x3|t=90000000|exit=2,0,2|scol=579121|nonsplit_eq_merge=1|core=761|result=AMBIGUOUS
+CTL|L=2x4|t=60000000|exit=0,0,0|scol=10404|nonsplit_eq_merge=1|core=102|result=PASS
+CTL|L=2x4|t=90000000|exit=124,124,1|scol=1135288|nonsplit_eq_merge=0|
+RUNALL|start=2026-10-29T11:07:42-03:00|shellschur_sha256=29b6b55078796ad223b31373f063196a7b3a24a5f2396496b129b96c36542dd3|roomschur_sha256=a8007c1545a2d8827964fad71a761c1a38744671173bf393f0517e1297434eff|compare_sha256=57b4c811ad501340032b08997c1da9e7d05cca80423f3e87adcd143391f6506a|matrix_sha256=ad0168f973d120a0da2b5ebaa33d4e80619ad7704cfca8f45f3e940dc757bd1b|args=JE1000_JB9000_SHELLMAX-1_FDIG12|json=0
+CTL_NOTE|L=2x4|t=90000000|outcome=INCONCLUSIVE|reason=my_600s_timeout_killed_nonsplit_and_cols(exit124);merge_exit1_on_truncated_cols_file|not_a_mismatch=1|controls_agreeing=3/3_completed|json=0
+SHELLRUN|t=60000000|cols_exit=0|merge_exit=0|wall_s=836|scol=10201|cols_sha256=3d672559aea68df7dce95375e6443d0695ee03059b2a910f8bfac63bbd953e7f|merge_sha256=48056626e7c7617797280a7b139b6c99fb7b708220f35dccfcf5a672a186b374|json=0
+COMPARE|t=60000000|outcome=AGREE|json=0
+SHELLRUN|t=72000000|cols_exit=0|merge_exit=0|wall_s=8784|scol=1292769|cols_sha256=e470191cb564739c71d614e1184449b30f9fe60c350ed18009a13a73f5a10c95|merge_sha256=361156d2b2f32b7d0337f059e324529564792198aa5dc1c2356f81f6c5f9d587|json=0
+COMPARE|t=72000000|outcome=AGREE|json=0
