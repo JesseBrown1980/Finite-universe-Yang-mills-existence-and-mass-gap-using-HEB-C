@@ -1,0 +1,12 @@
+ROOMJUMP_POINTPASS|cols=0:4|pass=1|t=3|max_step=26666666667|pass_ms=613035|ms=1837455|json=0
+ROOMJUMP_POINTPASS|cols=0:4|pass=2|t=4|max_step=1140734017|pass_ms=597940|ms=2435427|json=0
+ROOMJUMP_POINTPASS|cols=0:4|pass=3|t=5|max_step=141242116|pass_ms=598495|ms=3033922|json=0
+ROOMJUMP_POINTPASS|cols=0:4|pass=4|t=6|max_step=8603783|pass_ms=599094|ms=3633017|json=0
+ROOMJUMP_POINTPASS|cols=0:4|pass=5|t=7|max_step=863693|pass_ms=600594|ms=4233611|json=0
+ROOMJUMP_POINTPASS|cols=0:4|pass=6|t=8|max_step=100048|pass_ms=604128|ms=4837740|json=0
+ROOMJUMP_POINTPASS|cols=0:4|pass=7|t=9|max_step=13525|pass_ms=602178|ms=5439919|json=0
+ROOMJUMP_POINTPASS|cols=0:4|pass=8|t=10|max_step=1882|pass_ms=603929|ms=6043848|json=0
+ROOMJUMP_POINTPASS|cols=0:4|pass=9|t=11|max_step=277|pass_ms=601808|ms=6645657|json=0
+ROOMJUMP_POINTPASS|cols=0:4|pass=10|t=12|max_step=43|pass_ms=600935|ms=7246594|json=0
+ROOMJUMP_POINTPASS|cols=0:4|pass=11|t=13|max_step=7|pass_ms=603319|ms=7849913|json=0
+ROOMJUMP_CERTPASS|cols=0:4|t=14|after_point=1|max_width=344|ms=8473469|json=0
