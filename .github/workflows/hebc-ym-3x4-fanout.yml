@@ -96,6 +96,12 @@ jobs:
           echo "STORE_DOWNLOAD|secs=$(( $(date +%s)-t0 ))|json=0"
           sha256sum -c SECTORS-341-374.sha256 | tee "$RUNNER_TEMP/store-check.txt"
           test "$(grep -c ': OK$' "$RUNNER_TEMP/store-check.txt")" = 34
+          # roomschur at the pinned source opens one device file, not seg: (control run
+          # 41293163660 failed closed on it). The seg: device is the concatenation of the
+          # sectors in order, so build that one file; the payload merkle is re-checked on
+          # every pass. Sectors are removed as they are appended to bound disk use.
+          for i in $(seq 341 374); do cat "sector-$i.rooms" >> store.rooms; rm "sector-$i.rooms"; done
+          test "$(stat -c %s store.rooms)" = 27200000000
       - name: roomschur on columns ${{ matrix.cols }}
         shell: bash
         run: |
@@ -107,7 +113,7 @@ jobs:
           tag=$(echo "${{ matrix.cols }}" | tr ':' '-')
           t0=$(date +%s)
           ROOMSCHUR_COLS=${{ matrix.cols }} ROOMSCHUR_K=${{ matrix.k }} ROOMSCHUR_BUDGET=$BUDGET WORKERS=$(nproc) \
-            native/ym/target/release/roomschur "seg:341:34:800000000:$RUNNER_TEMP/store/sector-" 0 1000 9000 "$T" 12 "$TOL" 400 \
+            native/ym/target/release/roomschur "$RUNNER_TEMP/store/store.rooms" 0 1000 9000 "$T" 12 "$TOL" 400 \
             > "out/scol-$tag.out" 2> "out/scol-$tag.err"
           rc=$?
           echo "FANOUT_JOB|cols=${{ matrix.cols }}|k=${{ matrix.k }}|t_milli=$T|tol=$TOL|exit=$rc|secs=$(( $(date +%s)-t0 ))|head=$GITHUB_SHA|json=0" | tee "out/job-$tag.hbp"
@@ -163,6 +169,8 @@ jobs:
           echo "9213927b3b60cfbeae8efef10730e8c7df2ad52f56159017b048539377886ce3  SECTORS-341-374.sha256" | sha256sum -c
           for i in $(seq 341 374); do curl -fsSL --retry 5 -o "sector-$i.rooms" "$HF_STORE/sector-$i.rooms"; done
           test "$(sha256sum -c SECTORS-341-374.sha256 | grep -c ': OK$')" = 34
+          for i in $(seq 341 374); do cat "sector-$i.rooms" >> store.rooms; rm "sector-$i.rooms"; done
+          test "$(stat -c %s store.rooms)" = 27200000000
       - name: Completeness, then ROOMSCHUR_MERGE
         shell: bash
         run: |
@@ -173,7 +181,7 @@ jobs:
           test "$cols" = 137
           ! grep -h '^SCOL|' parts/scol-*.out | grep -v 'core_fp=4de7413741e7a4a6'
           files=$(ls parts/scol-*.out | paste -sd, -)
-          ROOMSCHUR_MERGE=$files native/ym/target/release/roomschur "seg:341:34:800000000:$RUNNER_TEMP/store/sector-" 0 1000 9000 "${{ inputs.t_milli }}" 12 "${{ inputs.tol }}" 400 | tee parts/MERGE.out
+          ROOMSCHUR_MERGE=$files native/ym/target/release/roomschur "$RUNNER_TEMP/store/store.rooms" 0 1000 9000 "${{ inputs.t_milli }}" 12 "${{ inputs.tol }}" 400 | tee parts/MERGE.out
           grep '^SHELL_SCHUR|' parts/MERGE.out
           (cd parts && sha256sum MERGE.out job-*.hbp > MERGE.sha256)
       - uses: actions/upload-artifact@v4
