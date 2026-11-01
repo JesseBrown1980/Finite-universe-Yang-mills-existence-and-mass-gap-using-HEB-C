@@ -234,3 +234,11 @@ Everything below is local evidence. The segmented-store sources (commit `2e4846e
 - **Width.** The other 390 intervals are **wider** than the pilot's, and none is narrower: largest width 344 against 248. On 3x3, point mode was narrower than the baseline (358 against 561); on 3x4 it is not. The explanation, that one certification pass after point passes encloses more loosely than 19 refining sweeps, is CONJECTURE. A run with a second certification pass (about 600 s more) would test it, and has not been run.
 - **Where.** `receipts/jump-j2-local/`: `J2.hbp`, `J2-COMPARE.hbp` (sha256 `e6b5e182…ad3398`), `j2.out` (sha256 `9a25b0d8…f373a1`), `j2.err`, `roomjump.exe.sha256`, listed in `receipts/SHA256SUMS-2026-10-31-j2`.
 - **Scope.** Four columns of 137, so J2 gives no 3x4 gap verdict. It is a speed and agreement result for `roomjump` on 3x4, not a spectral result. Production HOLD is unchanged.
+
+## 2026-10-31: 3x4 store published on Hugging Face
+
+- **Where.** https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store, commits `64cc9462` (sectors) and `160726aa` (manifest).
+- **What.** Sectors 341–374 of the 300G store, 34 files × 800,000,000 B, read-only originals. The spec is `seg:341:34:800000000:sector-`, n = 45,508,080, payload merkle `ec03c5f8ea5abd37ed8f80e0e9e7f00e37840a753f33a1008fbd090b18072a0b`.
+- **Checked.** The Hub's LFS SHA-256 and size match the local `SECTORS-341-374.sha256` for 34 of 34 files.
+- **Not checked.** The payload merkle has not been recomputed from a downloaded copy. Any job that uses the store must check the merkle before use, as `roomschur` and `roomjump` already do on every pass.
+- **Receipts.** `receipts/hf-store/`: `STORE.hbp`, `SECTORS-341-374.sha256`, `UPLOAD.hbp` (sha256 `f1184267…5c13`), with sidecars.
