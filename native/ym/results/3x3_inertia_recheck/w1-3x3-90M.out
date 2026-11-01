@@ -1,0 +1,15 @@
+SCHURCERT_INPUT|files=1|n=288645|JE=1000|JB=9000|t_milli=90000000|shell_max=-1|core=2940|core_fp=218dc6ff817d8b5a|F=10^12|m=2940|q=20|k=40|workers=2|read_ms=6965|json=0
+SCHURCERT_STEER|pivots_negative=44|pivots_positive=2896|unpivoted=0|x_bits=42|max_raw_width=2877768000000|rho_raw=1254906189000000|json=0
+SCHURCERT_TIGHTEST|row=1|pivot_micro_JE_w=-60082615|lhs=7937327450984|rhs=1218596977|decided=1|json=0
+SCHURCERT_TIGHTEST|row=2705|pivot_micro_JE_w=-255354444|lhs=16363324656951|rhs=1519233708|decided=1|json=0
+SCHURCERT_TIGHTEST|row=2714|pivot_micro_JE_w=271756059|lhs=16880664103946|rhs=1417590331|decided=1|json=0
+SCHURCERT_TIGHTEST|row=260|pivot_micro_JE_w=24724899|lhs=5091751438456|rhs=424782886|decided=1|json=0
+SCHURCERT_TIGHTEST|row=2809|pivot_micro_JE_w=163468913|lhs=13092344425113|rhs=1091796375|decided=1|json=0
+SCHURCERT_TIGHTEST|row=13|pivot_micro_JE_w=62877645|lhs=8119850370658|rhs=612270874|decided=1|json=0
+SCHURCERT_TIGHTEST|row=17|pivot_micro_JE_w=-91288072|lhs=9783786322037|rhs=631449505|decided=1|json=0
+SCHURCERT_TIGHTEST|row=2693|pivot_micro_JE_w=-122013630|lhs=11311081052657|rhs=621959509|decided=1|json=0
+SCHURCERT_TIGHTEST|row=2509|pivot_micro_JE_w=-350194379|lhs=19162601795372|rhs=890943534|decided=1|json=0
+SCHURCERT_TIGHTEST|row=3|pivot_micro_JE_w=-58404831|lhs=7825720481242|rhs=310304812|decided=1|json=0
+SCHURCERT_TIGHTEST|row=40|pivot_micro_JE_w=-234536404|lhs=15682130651746|rhs=621613797|decided=1|json=0
+SCHURCERT_TIGHTEST|row=677|pivot_micro_JE_w=74774878|lhs=8854780624752|rhs=284382950|decided=1|json=0
+SCHURCERT|method=congruence_gershgorin|widen=1|m=2940|negative=44|positive=2896|ambiguous=0|result=PASS|ms=173568|json=0
