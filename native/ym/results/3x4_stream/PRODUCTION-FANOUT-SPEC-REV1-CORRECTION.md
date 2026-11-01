@@ -32,18 +32,17 @@ to its end as GitHub records them.
 | 136:137 | 1 | 6,958 | 7,783 |
 | 2 jobs at K = 8 | 6 | 13,066 to 14,356 | 13,513 to 14,800 |
 | 3 jobs at K = 8 | 7 | 14,837 to 15,303 | 15,281 to 15,748 |
-| 11 of 12 jobs at K = 8 | 8 | 14,991 to 18,210 | 15,489 to 18,661 |
+| 12 jobs at K = 8 | 8 | 14,991 to 18,455 | 15,489 to 19,106 |
 
-These cover 17 of the 18 jobs. Job 120:128 (8 active) was still running when this was written,
-already past every whole-job time above, so the top of the last row is not yet final.
+These cover all 18 jobs. The slowest, job 120:128 (8 active), finished 1,894 s under the limit. Per-job
+rows are in `production-41321108365/PRODUCTION-RECEIPT.hbp`.
 
 ## 4. What this shows and does not show
 
 - **Less than proportional, on these jobs.** The two 6-active jobs have twice the control's active
   columns and 1.29 and 1.42 times its `roomschur` time. The finished 8-active jobs have 2.67 times
-  the active columns and 1.48 to 1.80 times the time.
-- **Those ratios are not a growth law.** Each job ran on its own runner. Finished jobs with the same
-  active count differ by up to about 21%, and job 40:48 (8 active) finished before job 72:80
-  (7 active).
+  the active columns and 1.48 to 1.82 times the time.
+- **Those ratios are not a growth law.** Each job ran on its own runner. Jobs with the same active
+  count differ by up to about 23%, and job 40:48 (8 active) finished before job 72:80 (7 active).
 - **The cause is still CONJECTURE.** The reason §0 gives, that a sweep re-reads the whole store
   whatever K is, is consistent with these numbers but was not measured separately.
