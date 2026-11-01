@@ -107,6 +107,8 @@ Compare each receipt byte-for-byte across repeated runs. Corrupt a recorded HBP 
 
 ## Remaining Issue #2 requirements
 
+*Note 2026-11-01:* the tighter E1 interval below was delivered by Stage 2H, and Issue #2 is closed as completed. The second method named below was implemented separately in `native/ym` (interval Sturm counts, `docs/LADDER_METHOD.md`) and gives weaker, consistent bounds at (1,1) only.
+
 The current certified lower gap bounds, although positive, are much smaller than the actual spectral gaps appear to be. A tighter fully audited interval for E1 requires an additional independently verified method (for example exact inertia/Sturm counting in the weighted sparse basis, or a validated interval factorization), plus independent low-energy residual checks. The present coarse Poincare certificate is a *first rigorous quantitative stage*, not the final requested tight eigensolver.
 
 The model is a finite, two-dimensional S3 lattice gauge theory with a finite Hilbert space. There is no established continuum or infinite-volume lower bound, no compact-simple-Lie-group continuum construction, and no Clay Millennium Prize theorem here.

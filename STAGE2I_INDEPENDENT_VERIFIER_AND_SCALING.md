@@ -130,6 +130,7 @@ Adversarial corruption of `run.hbp` or `index.hbi` causes `torus2-independent-ve
 ## 5. Formal Resolution of Issue #2 & Scientific Boundary
 
 - **Issue #2 Status: acceptance implementation CI-verified on draft PR #4; GitHub issue closure requires deciding whether feature-branch evidence is sufficient before merge.**
+  - *Note 2026-11-01:* PR #4 was merged by the repository owner on 2026-10-26 with no recorded review, and Issue #2 was closed as completed on 2026-11-01 after rechecking the benchmarks on `main`. The boundary below is unchanged.
   - 1,393-state sparse Hamiltonian: Built, validated, and verified.
   - Quantitative rational bounds on $E_0$, $E_1$, and $\Delta$: Stage 2G ground enclosure plus two implementations of the rank-one inertia/min–max approach. The second implementation shares the Stage 2G ground interval.
   - Finite open-versus-periodic geometry comparisons: implemented. Controlled scaling across increasing periodic volumes and independently proven excitation-sector quantum numbers remain future work.
