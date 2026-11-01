@@ -76,10 +76,20 @@ jobs:
           # the registered rule pins the receipt: its sha256 must appear in the rule
           rs=$(sha256sum "$C/CONTROL-RECEIPT.hbp" | cut -c1-64)
           grep -Fq "CONTROL_RECEIPT_SHA256|$rs|" native/ym/results/3x4_stream/GAP-VERDICT-RULE-3X4.md || { echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=control_receipt_not_pinned_in_rule|json=0'; exit 1; }
+          # CONTROL.hbp is bound to the pinned receipt: the receipt carries its sha256
+          cs=$(sha256sum "$C/CONTROL.hbp" | cut -c1-64)
+          grep -Fq "CONTROL_SHA256|$cs|" "$C/CONTROL-RECEIPT.hbp" || { echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=control_hbp_not_bound_to_receipt|json=0'; exit 1; }
           got=$(gh run view "$rid" -R "$GITHUB_REPOSITORY" --json conclusion,workflowName,headSha --jq '.conclusion+"|"+.workflowName+"|"+.headSha')
           echo "FANOUT_GATE_CONTROL|run_id=$rid|github=$got|json=0"
           case "$got" in "success|HEB-C YM 3x4 production fan-out|"*) ;; *) echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=control_run_not_success|json=0'; exit 1;; esac
-          git merge-base --is-ancestor "${got##*|}" HEAD
+          # it must be a control run: only control runs have this step, and it must have passed
+          st=$(gh run view "$rid" -R "$GITHUB_REPOSITORY" --json jobs --jq '[.jobs[].steps[] | select(.name == "Control C1/C2 against the local pilot") | .conclusion] | join(",")')
+          test "$st" = "success" || { echo "FANOUT_GATE|result=FAIL_CLOSED|reason=run_is_not_a_passed_control|steps=$st|json=0"; exit 1; }
+          # the committed CONTROL.hbp must be byte-identical to that run's own artifact
+          D=$RUNNER_TEMP/control-artifact
+          gh run download "$rid" -R "$GITHUB_REPOSITORY" -n fanout-control-0 -D "$D" || { echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=control_artifact_unavailable|json=0'; exit 1; }
+          cmp -s "$D/CONTROL.hbp" "$C/CONTROL.hbp" || { echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=control_hbp_differs_from_run_artifact|json=0'; exit 1; }
+          git merge-base --is-ancestor "${got##*|}" HEAD || { echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=control_head_not_ancestor|json=0'; exit 1; }
           grep -Fq "GAP_RULE_THRESHOLD|t_milli=${{ inputs.t_milli }}|" "$R" || { echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=t_milli_not_in_rule|json=0'; exit 1; }
           test "${{ inputs.tol }}" = "1000" -o "${{ inputs.tol }}" = "100"
           m='{"include":['
