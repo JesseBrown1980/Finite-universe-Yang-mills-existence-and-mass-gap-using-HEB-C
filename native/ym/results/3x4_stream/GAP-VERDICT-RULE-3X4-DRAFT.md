@@ -69,7 +69,7 @@ J_E expectation is a scaling estimate, not a registered bound.
 - **Expected values (CONJECTURE, not used by the rule).** The gap law at r = 9 gives
   E₉ − E₈ ≈ 3r − 21/r ≈ 24.7 J_E. The 3×3 point value is 23.94. If the 3×4 cluster is near
   70, E₉ is near 94. Then every ladder point should give `7, 0`, and tB* = 88 would certify a
-  sector gap > 16 J_E.
+  sector gap ≥ 16 J_E.
 
 ## 5. Stage V2 rule: the zero-momentum gap E₉ − E₈ (needs three more stores)
 
