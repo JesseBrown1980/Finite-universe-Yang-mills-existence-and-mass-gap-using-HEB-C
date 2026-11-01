@@ -97,7 +97,10 @@ Measuring the core size at each ladder point is cheap: it is printed in the setu
    Enforced by the workflow in PR #69, not yet on `main`. Until #69 is merged, the gate is
    **not enforced** and this rule must not be registered. The receipt is
    `native/ym/results/3x4_stream/control/CONTROL.hbp` plus `CONTROL-RECEIPT.hbp`
-   (`CONTROL_RUN|run_id=<id>|…`), with a `CONTROL-RECEIPT.sha256` sidecar. On registration this
+   (`CONTROL_RUN|run_id=<id>|…` and `CONTROL_SHA256|<sha256 of CONTROL.hbp>|`), with a
+   `CONTROL-RECEIPT.sha256` sidecar. The run must contain the passed step "Control C1/C2 against the
+   local pilot", and the committed `CONTROL.hbp` must be byte-identical to that run's own
+   `fanout-control-0` artifact. On registration this
    rule gains one line, `CONTROL_RECEIPT_SHA256|<sha256 of CONTROL-RECEIPT.hbp>|`, which chains the
    receipt to the rule's own sha. GitHub must report that run as `success`. A control that is
    running or failed has no receipt, so it cannot satisfy the gate.
