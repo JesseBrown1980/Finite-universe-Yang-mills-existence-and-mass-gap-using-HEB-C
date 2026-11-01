@@ -13,8 +13,8 @@ dated note sits beside it. The current results table is in the [README](README.m
 | 3×4 (45,508,080-state (+,+) sector) | control C1–C3 PASS (run 41294035019); gap rule registered (`d635a6e5…`); **60M production run [41321108365](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41321108365) in progress, no result**. 60M gives a vacuum lower bound, not a gap; thresholds above 60M stay on HOLD | [`native/ym/results/3x4_stream/`](native/ym/results/3x4_stream/) |
 | Stage 3, continuum | open; the finite certificates do not establish it | [theory route](docs/YM_TOPOLOGICAL_STABILITY_PROOF.md) |
 
-Issue #2 (the 1,393D Stage 2 operator) is still open on GitHub, although its operator and gap
-are now built and certified; closing it is the operator's call.
+[Issue #2](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/2) (the 1,393D Stage 2 operator) was open until 2026-11-01 and is now closed as
+completed. Its closing comment lists the evidence on `main` and what the closure does not claim.
 
 ## Stage 2C: periodic 2×2 torus now has an actual 1,393D sparse Hamiltonian
 
@@ -27,7 +27,7 @@ The exact electric-only gap is **6×J_E**. Magnetic-only coupling gives **eight 
 *Note 2026-11-01:* mixed-coupling bounds have since been certified on the full 1,393-state torus:
 gap ∈ [5.605801, 5.608535] at (J_E, J_B) = (1, 1) and [14.140772, 14.142823] at (3, 5) (README,
 2×2 coupling ladder; the cells for r ∈ [3, 10,022] are on branch `integer-sturm-ladder`).
-Issue #2 is still open on GitHub.
+Issue #2 is still open on GitHub. *(Later on 2026-11-01: closed as completed; see the status section above.)*
 
 To reproduce from the native directory: *cargo +1.81.0 run --release --offline --locked -- torus2-spectrum 1 1 torus2-evidence*, then *cargo +1.81.0 run --release --offline --locked -- torus2-verify torus2-evidence*.
 

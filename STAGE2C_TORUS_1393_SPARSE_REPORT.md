@@ -67,3 +67,5 @@ The optional localhost adapter exposes GET /torus2/JE/JB over conventional HTTP/
 ## Next exact milestone
 
 Compute tight, **independently certified rational intervals** for the two lowest eigenvalues of the full 1,393-dimensional **mixed-coupling** operator at (J_E,J_B)=(1,1) and (3,5), respecting the correct weighted inner product. The present qualitative Perron–Frobenius check should not be presented as a numerical spectral-gap certificate. This work remains open on [Issue #2](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/2).
+
+*Note 2026-11-01:* the intervals at (1,1) and (3,5) were delivered by Stages 2G–2I and Issue #2 is closed as completed. Stage 2I shares the Stage 2G ground-energy interval, so "independently certified" above is not fully met; the closing comment states this.
