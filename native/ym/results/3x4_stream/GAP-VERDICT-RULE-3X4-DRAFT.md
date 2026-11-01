@@ -94,7 +94,13 @@ Measuring the core size at each ladder point is cheap: it is printed in the setu
 
 1. Control C1–C3 (running, run 41294035019). Production is admitted only against a
    **committed control receipt** with `C1=PASS`, `C2=PASS` and `C3=PASS`, pinned by run ID and SHA-256.
-   The workflow checks this itself. A control that is still running does not satisfy it.
+   Enforced by the workflow in PR #69, not yet on `main`. Until #69 is merged, the gate is
+   **not enforced** and this rule must not be registered. The receipt is
+   `native/ym/results/3x4_stream/control/CONTROL.hbp` plus `CONTROL-RECEIPT.hbp`
+   (`CONTROL_RUN|run_id=<id>|…`), with a `CONTROL-RECEIPT.sha256` sidecar. On registration this
+   rule gains one line, `CONTROL_RECEIPT_SHA256|<sha256 of CONTROL-RECEIPT.hbp>|`, which chains the
+   receipt to the rule's own sha. GitHub must report that run as `success`. A control that is
+   running or failed has no receipt, so it cannot satisfy the gate.
 2. Production at t = 60M (137 columns, current spec). Expect `N = 0`.
 3. P0 (`flatcomp` on the 3×4 (+,+) store).
 4. A spec revision for core-sized job matrices, with the core size measured at 76M first.
