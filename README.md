@@ -103,12 +103,15 @@ plaquette (0.0036 at r = 1/27, 0.111 at r = 1): the area law, certified.
 - **2×5:** 128 GitRAM cells and 4 strict merges. A seal-only run (40563902487) admitted
   all 132 original artifacts by digest, without recomputing them, and sealed `PASS`.
 
-**3×4 production (November 1, 2026): the 60M run is in progress; no result yet.**
+**3×4 production (November 1, 2026): the 60M run passed, `negative=0`, `ambiguous=0`. That is a vacuum lower bound, not a gap.**
 
-- **Production run [41321108365](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41321108365)** was dispatched from `main`
-  `1cc821c` at `t_milli=60000000`, `TOL=1000`. The gate passed, and 18 column jobs are running
-  (17 jobs of 8 columns plus one 1-column job, over the 137 core columns). A count of 0 would show
-  that E₀(+,+) ≥ 60 J_E, a **vacuum lower bound, not a gap**. It has not returned.
+- **Production run [41321108365](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41321108365)** ran from `main`
+  `1cc821c` at `t_milli=60000000`, `TOL=1000`. All 18 column jobs (17 of 8 columns and one of 1, over
+  the 137 core columns) and the merge succeeded, 5 h 34 min from dispatch to the merge row. The merged
+  row gives `negative=0`, `positive_core=137`, `positive_H=45,507,943`, `ambiguous=0`, `result=PASS`: all
+  45,508,080 levels of the (+,+) sector lie above 60 J_E at r = 9. This is a **vacuum lower bound, not a
+  gap**. Receipt: [`production-41321108365/`](native/ym/results/3x4_stream/production-41321108365/)
+  (`PRODUCTION-RECEIPT.hbp`).
 - **Control run [41294035019](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41294035019) passed:** C1 548/548 `SCOL` rows
   byte-identical to the local pilot; C2 10,123 s against the 10,800 s limit; C3 34/34 store
   sectors from [Hugging Face](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store) matched
@@ -126,6 +129,10 @@ plaquette (0.0036 at r = 1/27, 0.111 at r = 1): the area law, certified.
   8-column job time has not been measured; doubling the 4-column control would put it at about
   20,246 s, under the 21,000 s timeout (an estimate). Under revision 1, a job that does not finish is re-run
   locally with the same pinned `roomschur` source after a local 0:4 control, and merged locally.
+  **Correction, November 1:** the estimate above compared `roomschur` time with a limit on the whole
+  job, and it doubled the column count when the control had 3 active columns. On the limit's grain
+  the same doubling is 20,690 to 21,071 s, so "under the timeout" did not follow. Measured times are
+  in the [correction note](native/ym/results/3x4_stream/PRODUCTION-FANOUT-SPEC-REV1-CORRECTION.md).
 - **Not established:** the 3×4 gap. The verdict needs the (+,+) excitation bound of the
   registered rule and, for zero momentum, the other three sectors' stores.
 
@@ -164,9 +171,9 @@ sectors; a separately written operator and inertia verifier.
 | Evidence class | What is established | Next |
 |---|---|---|
 | Exact integer-arithmetic certificates of fixed-lattice spectral-gap bounds (S₃) | 2×L sector results and 3×3 full-space counts with sealed integer receipts and checks | The BHM/TQO volume-uniform proof, the immediate research track |
-| 3×4 dimension, memory and control | 2,177,317,873 reconciled gauge orbits; P4 `PILOT_PASS`, `CAP=12`; hosted control C1–C3 PASS; gap rule registered | 60M production result (running); 90M ambiguity; 3×4 gap verdict |
+| 3×4 dimension, memory and control | 2,177,317,873 reconciled gauge orbits; P4 `PILOT_PASS`, `CAP=12`; hosted control C1–C3 PASS; gap rule registered; 60M production PASS (`negative=0`, `ambiguous=0`) | P0; spec revision for core-sized job matrices; 90M ambiguity; 3×4 gap verdict |
 | Cross-seat operator experiments | Replayed software models of reach, curve, hash and CHSH on discrete lattices | A physical z mechanism; a rule that yields the quantum bound 2√2 from the model |
-| Production | 60M run 41321108365 dispatched November 1 | Merge row `SHELL_SCHUR`; local re-runs under revision 1 if a job does not finish |
+| Production | 60M run 41321108365: 18 of 18 column jobs and the merge succeeded, `negative=0`, `ambiguous=0`; no local re-run was needed | P0, then a spec revision before any threshold above 60M |
 
 ### z/r/j, prism and Bell software models
 

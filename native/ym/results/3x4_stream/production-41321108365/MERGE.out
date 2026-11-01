@@ -1,0 +1,1 @@
+SHELL_SCHUR|matrix=store.rooms|n=45508080|JE=1000|JB=9000|t_milli=60000000|shell_max=-1|core=137|core_edges=177|H=45507943|H_min_margin=252000000|H_max_offdiag_over_diag_permille_ceil=960|F=10^12|gs_sweeps_max=19|y_width_max=492|negative=0|positive_core=137|positive_H=45507943|eliminated=137|ambiguous=0|result=PASS|ms=444251|json=0
