@@ -25,6 +25,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: hebc-ym-3x4-fanout
@@ -43,9 +44,13 @@ jobs:
       matrix: ${{ steps.m.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Frozen spec, pinned source, stage gate
         id: m
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           (cd native/ym/results/3x4_stream && sha256sum -c PRODUCTION-FANOUT-SPEC.sha256)
@@ -54,9 +59,27 @@ jobs:
             echo 'matrix={"include":[{"cols":"0:4","k":"4"}]}' >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          # Ladder thresholds are not admissible until core-sized jobs are specified and
+          # verified (gap rule draft rev 2, review 2026-11-01). The matrix below is the
+          # 137-column t = 60M core only.
+          test "${{ inputs.t_milli }}" = "60000000" || { echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=only_t60M_admissible_until_spec_revision|json=0'; exit 1; }
           R=native/ym/results/3x4_stream/GAP-VERDICT-RULE-3X4.md
           test -f "$R" || { echo 'FANOUT_GATE|stage=production|result=FAIL_CLOSED|reason=gap_verdict_rule_not_registered|json=0'; exit 1; }
           (cd native/ym/results/3x4_stream && sha256sum -c GAP-VERDICT-RULE-3X4.sha256)
+          # Control gate: a committed receipt of a PASSED hosted control, re-checked against
+          # the GitHub record of that run. A running or failed control does not satisfy it.
+          C=native/ym/results/3x4_stream/control
+          (cd "$C" && sha256sum -c CONTROL-RECEIPT.sha256)
+          grep -q '^FANOUT_CONTROL|C1=PASS|scol_rows=548|C2=PASS|.*|C3=PASS|' "$C/CONTROL.hbp" || { echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=control_receipt_not_pass|json=0'; exit 1; }
+          rid=$(grep '^CONTROL_RUN|run_id=' "$C/CONTROL-RECEIPT.hbp" | head -1 | cut -d'|' -f2 | cut -d= -f2)
+          case "$rid" in ''|*[!0-9]*) echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=control_run_id_missing|json=0'; exit 1;; esac
+          # the registered rule pins the receipt: its sha256 must appear in the rule
+          rs=$(sha256sum "$C/CONTROL-RECEIPT.hbp" | cut -c1-64)
+          grep -Fq "CONTROL_RECEIPT_SHA256|$rs|" native/ym/results/3x4_stream/GAP-VERDICT-RULE-3X4.md || { echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=control_receipt_not_pinned_in_rule|json=0'; exit 1; }
+          got=$(gh run view "$rid" -R "$GITHUB_REPOSITORY" --json conclusion,workflowName,headSha --jq '.conclusion+"|"+.workflowName+"|"+.headSha')
+          echo "FANOUT_GATE_CONTROL|run_id=$rid|github=$got|json=0"
+          case "$got" in "success|HEB-C YM 3x4 production fan-out|"*) ;; *) echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=control_run_not_success|json=0'; exit 1;; esac
+          git merge-base --is-ancestor "${got##*|}" HEAD
           grep -Fq "GAP_RULE_THRESHOLD|t_milli=${{ inputs.t_milli }}|" "$R" || { echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=t_milli_not_in_rule|json=0'; exit 1; }
           test "${{ inputs.tol }}" = "1000" -o "${{ inputs.tol }}" = "100"
           m='{"include":['
