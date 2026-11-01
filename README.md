@@ -103,7 +103,34 @@ plaquette (0.0036 at r = 1/27, 0.111 at r = 1): the area law, certified.
 - **2×5:** 128 GitRAM cells and 4 strict merges. A seal-only run (40563902487) admitted
   all 132 original artifacts by digest, without recomputing them, and sealed `PASS`.
 
-**3×4 scaling status (October 30, 2026; production HOLD):**
+**3×4 production (November 1, 2026): the 60M run is in progress; no result yet.**
+
+- **Production run [41321108365](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41321108365)** was dispatched from `main`
+  `1cc821c` at `t_milli=60000000`, `TOL=1000`. The gate passed, and 18 column jobs are running
+  (17 jobs of 8 columns plus one 1-column job, over the 137 core columns). A count of 0 would show
+  that E₀(+,+) ≥ 60 J_E, a **vacuum lower bound, not a gap**. It has not returned.
+- **Control run [41294035019](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41294035019) passed:** C1 548/548 `SCOL` rows
+  byte-identical to the local pilot; C2 10,123 s against the 10,800 s limit; C3 34/34 store
+  sectors from [Hugging Face](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store) matched
+  their SHA-256, with the payload merkle `ec03c5f8…` checked on every pass. Receipt:
+  [`control/`](native/ym/results/3x4_stream/control/) (`CONTROL-RECEIPT.hbp` sha `f1c4d53e…`, PR #70).
+- **Gap-verdict rule registered** (PR #71):
+  [`GAP-VERDICT-RULE-3X4.md`](native/ym/results/3x4_stream/GAP-VERDICT-RULE-3X4.md), sha `d635a6e5…`,
+  chained to the control receipt. Its only admissible threshold is 60M. The 72M–90M ladder is
+  not admissible until a spec revision sizes the job matrix to the larger cores.
+- **Fail-closed gate** ([workflow](.github/workflows/hebc-ym-3x4-fanout.yml), PR #69): refusal
+  runs [41307404040](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41307404040) (rule not yet registered) and
+  [41307428999](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41307428999) (72M) both refused before any column job ran.
+- **Plan:** [frozen fan-out spec](native/ym/results/3x4_stream/PRODUCTION-FANOUT-SPEC.md) plus
+  [revision 1](native/ym/results/3x4_stream/PRODUCTION-FANOUT-SPEC-REV1.md) (PR #72). The
+  8-column job time has not been measured; doubling the 4-column control would put it at about
+  20,246 s, under the 21,000 s timeout (an estimate). Under revision 1, a job that does not finish is re-run
+  locally with the same pinned `roomschur` source after a local 0:4 control, and merged locally.
+- **Not established:** the 3×4 gap. The verdict needs the (+,+) excitation bound of the
+  registered rule and, for zero momentum, the other three sectors' stores.
+
+**3×4 scaling status (October 30, 2026; production HOLD), kept as recorded. The HOLD was lifted on
+November 1 by the control, the rule registration and the operator's dispatch above:**
 
 - Dimension check: the streaming pilot reconciled 2,177,317,873 gauge orbits; the
   Sx+Sy+ sector contains 45,508,080 states.
@@ -136,9 +163,9 @@ sectors; a separately written operator and inertia verifier.
 | Evidence class | What is established | Next |
 |---|---|---|
 | Exact integer-arithmetic certificates of fixed-lattice spectral-gap bounds (S₃) | 2×L sector results and 3×3 full-space counts with sealed integer receipts and checks | The BHM/TQO volume-uniform proof, the immediate research track |
-| 3×4 dimension and memory pilots | 2,177,317,873 reconciled gauge orbits; P4 memory `PILOT_PASS` and `CAP=12` | 90M ambiguity, provenance, production admission, 3×4 gap verdict |
+| 3×4 dimension, memory and control | 2,177,317,873 reconciled gauge orbits; P4 `PILOT_PASS`, `CAP=12`; hosted control C1–C3 PASS; gap rule registered | 60M production result (running); 90M ambiguity; 3×4 gap verdict |
 | Cross-seat operator experiments | Replayed software models of reach, curve, hash and CHSH on discrete lattices | A physical z mechanism; a rule that yields the quantum bound 2√2 from the model |
-| Production | Memory pilot passed | Remaining production gates |
+| Production | 60M run 41321108365 dispatched November 1 | Merge row `SHELL_SCHUR`; local re-runs under revision 1 if a job does not finish |
 
 ### z/r/j, prism and Bell software models
 
