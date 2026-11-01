@@ -1,0 +1,15 @@
+RECHECK_RESULT|run=3x3_90M_inertia_recheck|seat=ACER-CLAUDE-FABLE5|date=2026-11-01|second_seat_review=NOT_DONE|json=0
+RECHECK_TOOL|bin=schurcert|method=congruence_gershgorin|q=20|k=40|exe_sha256=b99b39a25dbf3c60bdb5bd40211344ef8b852a6d7d1fcc65f4e618e07fc435f6|src_sha256=d52414be5d146ab205b0d01b28245f4c889ca73a4d5a37d48204e0c0ada4fcc7|base=09a9945|toolchain=1.81.0|clippy=0|unit_tests=11/11|json=0
+RECHECK_TOOL_FIRST_BUILD|exe_sha256=9809ec8028efb2c7c506fbad829114f0bdc04ca53e811e3fc0c417f0972c754e|src_sha256=6867e9abac0ee2e3729bd0c0b44323946f45563d2784d7492533e01b886862d3|repeats_widen1=6/6_identical|change=row_sum_budget,checked_radius_product,pivot_display_shift|why=release_builds_wrap_and_a_wrapped_row_sum_could_decide_a_row|result_rows_vs_final_build=9/9_identical_apart_from_timing|workers=6_vs_2|json=0
+RECHECK_INPUT|matrix=3x3_90M|file=gate3x3-seg/roomschur-seg-t90000000.out|bytes=1621689908|sha256=8aa62d94912eeaaa874b28bc727d21aefa4fd955d449727166f8165cac1e3a10|n=288645|core=2940|old_merge=negative37_positive2894_ambiguous9|json=0
+RECHECK_INPUT|matrix=3x3_72M|file=gate3x3-seg/roomschur-seg-t72000000.out|bytes=239133501|sha256=7a892bdac90d2cc76b0aae9974d3ec714caa766165c452f273a4030aee6b9583|n=288645|core=1137|json=0
+RECHECK_INPUT|matrix=3x3_60M|file=gate3x3-seg/roomschur-seg-t60000000.out|bytes=1848599|sha256=cf010670d2b3b2ca3f3513a92d6ed3793db75bb97e60fa0cdeb1ec51212fbd91|n=288645|core=101|json=0
+RECHECK_INPUT|matrix=3x4_60M|file=../3x4_stream/production-41321108365/scol-*.out|n=45508080|core=137|json=0
+RECHECK_90M|negative=44|positive=2896|ambiguous=0|result=PASS|within_old_bounds=1|old_undecided_split=7_negative_2_positive|out_sha256=237efd1a535bffe826ec4965b6c51de57191b0a1e4d33011e583a50d107308dd|json=0
+RECHECK_CONTROL|matrix=3x4_60M|m=137|schurcert=0/137|old_merge=0/137|old_ambiguous=0|minors_midpoint=0/137|minors_primes=123|json=0
+RECHECK_CONTROL|matrix=3x3_60M|m=101|schurcert=7/94|old_merge=7/94|old_ambiguous=0|minors_midpoint=7/94|minors_primes=91|json=0
+RECHECK_CONTROL|matrix=3x3_72M|m=1137|schurcert=7/1130|old_merge=7/1130|old_ambiguous=0|minors_midpoint=7/1130|minors_primes=1027|json=0
+RECHECK_SLACK|widen=100,1000,3000,10000|result=PASS_44_2896|widen_fail=100000|ambiguous_at_fail=7|count_at_fail=NONE|certificate_only_at_widen=1|json=0
+RECHECK_MINORS_TOOL|src=native/ym/independent/minors/src/main.rs|src_sha256=dbeba0f610273812ffafa597cf1d8974c12329dd6a3b4be579872806c3305ee6|exe_sha256=8452d3dccac22f099e681022e63a43a604351aed0c761deb5aa0d8ce616f2713|dump_mid_sha256=5732e16a11f3c59364cdfb42d791a6c22c89eafb7c9317d3e00de6e70db22675|count_signs_sha256=7ec5fc2eec7e62a7a505b988f60dd87a907a02c0a0c06091f850f0843c6e6748|json=0
+RECHECK_MINORS_90M|status=RUNNING|started=2026-11-01T23:32:51Z|prediction_written_before_run=1|predicted=44/2896/zero0|workers=6|json=0
+RECHECK_SCOPE|trusts_column_enclosures=1|final_inertia_step_only=1|lattice=3x3|3x4_result=NONE|gap_verdict=NONE|registered_merge_step=0|json=0
