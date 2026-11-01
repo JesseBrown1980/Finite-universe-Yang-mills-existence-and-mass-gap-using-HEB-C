@@ -126,6 +126,10 @@ plaquette (0.0036 at r = 1/27, 0.111 at r = 1): the area law, certified.
   8-column job time has not been measured; doubling the 4-column control would put it at about
   20,246 s, under the 21,000 s timeout (an estimate). Under revision 1, a job that does not finish is re-run
   locally with the same pinned `roomschur` source after a local 0:4 control, and merged locally.
+  **Correction, November 1:** the estimate above compared `roomschur` time with a limit on the whole
+  job, and it doubled the column count when the control had 3 active columns. On the limit's grain
+  the same doubling is 20,690 to 21,071 s, so "under the timeout" did not follow. Measured times are
+  in the [correction note](native/ym/results/3x4_stream/PRODUCTION-FANOUT-SPEC-REV1-CORRECTION.md).
 - **Not established:** the 3×4 gap. The verdict needs the (+,+) excitation bound of the
   registered rule and, for zero momentum, the other three sectors' stores.
 
