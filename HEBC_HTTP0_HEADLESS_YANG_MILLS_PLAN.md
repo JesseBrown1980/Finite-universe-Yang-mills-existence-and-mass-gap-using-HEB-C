@@ -1,3 +1,21 @@
+## Status, November 1, 2026 (read this first)
+
+The plan below is dated 2026-10-24 and kept as written. Where a later result overtakes a sentence, a
+dated note sits beside it. The current results table is in the [README](README.md).
+
+| Stage | State on 2026-11-01 | Where |
+|---|---|---|
+| 2B, 11D two-plaquette | done | [report](STAGE2B_DOUBLE_PLAQUETTE_EXACT_SPECTRUM.md) |
+| 2C, 1,393D 2×2 torus | done; mixed-coupling gap **certified**, e.g. E₁ − E₀ ∈ [5.605801, 5.608535] at (J_E, J_B) = (1, 1) | [README](README.md), section "2×2 coupling ladder" |
+| 2×L sectors (2×2 to 2×5) | E₉ − E₈ certified for every r ≥ 9, zero momentum; 2×5 sealed `PASS` | [`native/ym/results/2xL/`](native/ym/results/2xL/), [`2x5_stage_b/`](native/ym/results/2x5_stage_b/) |
+| 3×3 | zero momentum E₉ − E₈ ≥ 23.357514 J_E for r ≥ 9; full space (10,097,891 states, all momenta) ≥ 17.9 J_E, certify `PASS` | [`3x3_full_space/`](native/ym/results/3x3_full_space/CERTIFY-RESULT.md) |
+| Gap law | E₉ − E₈ = 3r·J_E − c_L·J_E/r + O(1/r²), c_L = 21 on 3×3, 3×4, 4×4 | [`zgap2-2026-10-30-cloud/`](native/ym/results/zgap2-2026-10-30-cloud/) |
+| 3×4 (45,508,080-state (+,+) sector) | control C1–C3 PASS (run 41294035019); gap rule registered (`d635a6e5…`); **60M production run [41321108365](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41321108365) in progress, no result**. 60M gives a vacuum lower bound, not a gap; thresholds above 60M stay on HOLD | [`native/ym/results/3x4_stream/`](native/ym/results/3x4_stream/) |
+| Stage 3, continuum | open; the finite certificates do not establish it | [theory route](docs/YM_TOPOLOGICAL_STABILITY_PROOF.md) |
+
+Issue #2 (the 1,393D Stage 2 operator) is still open on GitHub, although its operator and gap
+are now built and certified; closing it is the operator's call.
+
 ## Stage 2C: periodic 2×2 torus now has an actual 1,393D sparse Hamiltonian
 
 **[Reproducible Stage 2C mathematical report](STAGE2C_TORUS_1393_SPARSE_REPORT.md)** · **[Rust 1.81 implementation](native/src/torus2.rs)** · **[CI](.github/workflows/native-rust.yml)**
@@ -5,6 +23,11 @@
 The periodic torus is now an **eight-link, four-face interacting finite S₃ operator**, exactly projected to **1,393 gauge-invariant orbit-value states** (from 1,679,616 raw configurations). The sparse electric matrix contains **32,385 nonzero entries** and is verified for weighted self-adjointness, gauge invariance and reproducible SHA-committed HBI/HBP records.
 
 The exact electric-only gap is **6×J_E**. Magnetic-only coupling gives **eight degenerate flat-connection ground states** and hence **gap zero**. With both couplings positive, a connected stoquastic electric graph establishes unique ground state and therefore a **qualitatively positive** finite-volume gap. **Mixed-coupling numerical eigenvalue bounds remain uncomputed**, so Issue #2 stays open.
+
+*Note 2026-11-01:* mixed-coupling bounds have since been certified on the full 1,393-state torus:
+gap ∈ [5.605801, 5.608535] at (J_E, J_B) = (1, 1) and [14.140772, 14.142823] at (3, 5) (README,
+2×2 coupling ladder; the cells for r ∈ [3, 10,022] are on branch `integer-sturm-ladder`).
+Issue #2 is still open on GitHub.
 
 To reproduce from the native directory: *cargo +1.81.0 run --release --offline --locked -- torus2-spectrum 1 1 torus2-evidence*, then *cargo +1.81.0 run --release --offline --locked -- torus2-verify torus2-evidence*.
 
@@ -21,6 +44,9 @@ To reproduce from the native directory: *cargo +1.81.0 run --release --offline -
 
 **The Clasy model does not constitute a Yang–Mills continuum limit, and the 11-dimensional/toroidal interacting Hamiltonians remain unimplemented.**
 
+*Note 2026-11-01:* the second half is superseded. The 11D (Stage 2B) and 1,393D toroidal (Stage 2C)
+interacting Hamiltonians are implemented and certified. The first half stands.
+
 
 # HEB-C / HTTP-0: headless finite-universe Yang–Mills implementation plan
 
@@ -28,12 +54,12 @@ Status: implementation roadmap, not a continuum Yang–Mills existence/mass-gap 
 
 ## Canonical execution contract
 
-- **Rust 1.81.0** with \`cargo clippy --all-targets -- -D warnings\`; no unsafe.
+- **Rust 1.81.0** with `cargo clippy --all-targets -- -D warnings`; no unsafe.
 - Integer-only mathematics (no floating-point physics or floats in the native code).
-- **Zero Node.js, V8, JavaScript or JSON in the native engine.** Historical \`index.html\` is an archived, noncanonical prototype. Screens are optional, and there is no display pipeline in the core kernel.
+- **Zero Node.js, V8, JavaScript or JSON in the native engine.** Historical `index.html` is an archived, noncanonical prototype. Screens are optional, and there is no display pipeline in the core kernel.
 - **HTTP-0** names a *virtual addressing and kernel-dispatch abstraction*, not a claim about an official wire protocol. Optional loopback transport uses an ordinary, explicitly identified HTTP/1.1 endpoint for compatibility.
-- **Q-trit** names a three-valued discrete computational variable \`{-1, 0, +1}\`, not an arbitrary quantum qutrit state.
-- Configurable logical kernel namespace: e.g. 23,000,000,000 addresses calculated as \`(ordinal * 1_000_003) mod 23_000_000_000\`. Only active states or cached results use memory; unallocated labels do not run computations.
+- **Q-trit** names a three-valued discrete computational variable `{-1, 0, +1}`, not an arbitrary quantum qutrit state.
+- Configurable logical kernel namespace: e.g. 23,000,000,000 addresses calculated as `(ordinal * 1_000_003) mod 23_000_000_000`. Only active states or cached results use memory; unallocated labels do not run computations.
 - Native headless first. Do not wait for screens; do not read or write the 300 GB Host8 source in the simulation critical loop.
 - Receipt chain: **HBI** seek offsets → **HBP** recorded observations → **SHA-256** input/record digest → **SH** short locator → **HASH** previous-digest chain → external *pinned* anchor. The chain authenticates the bytes relative to its root, but does not by itself establish experiment provenance or correctness.
 - Cache keyed by kernel specification + initial state + step count + executable/code version + exact output digest. A bare SHA-256 digest cannot reconstruct arbitrary missing states; a deterministic rule plus a seed can.
@@ -42,11 +68,11 @@ Status: implementation roadmap, not a continuum Yang–Mills existence/mass-gap 
 ## Scientific stages
 
 **Stage 1 — finite, non-Abelian prototype (this milestone):**
-- Finite gauge group \`S3\` as a deliberately small *non-Abelian* reference, with 2D periodic oriented link variables.
+- Finite gauge group `S3` as a deliberately small *non-Abelian* reference, with 2D periodic oriented link variables.
 - Exact integer link composition and inversion, local gauge transformations, Wilson-character plaquette observables, and explicitly named **toy gauge-equivariant** update rule.
-- Exact 6-vertex Cayley-graph Laplacian built from all three transpositions. Eigenvalues \`0,3,3,3,3,6\`, finite graph spectral gap \`3\` in dimensionless lattice units. **This is not a four-dimensional Yang–Mills mass gap.**
+- Exact 6-vertex Cayley-graph Laplacian built from all three transpositions. Eigenvalues `0,3,3,3,3,6`, finite graph spectral gap `3` in dimensionless lattice units. **This is not a four-dimensional Yang–Mills mass gap.**
 - Verify gauge invariance, equivariance, full group tables, SHA vectors, receipt corruption rejection, deterministic replay, and measured virtual address throughput.
-- Native executable: offline \`run\`, \`verify\`, \`gap\` and optional read-only loopback \`serve\`.
+- Native executable: offline `run`, `verify`, `gap` and optional read-only loopback `serve`.
 
 **Stage 2 — stronger finite-lattice Yang–Mills:**
 - Introduce finite non-Abelian *link Hilbert space* and gauge-invariant Gauss-law sector, an explicit self-adjoint Hamiltonian/transfer operator containing electric and magnetic terms, and exact/rational spectral certification for small lattices. Differentiate a graph-kinetic gap from the interacting gauge-invariant Hamiltonian gap.
@@ -55,12 +81,12 @@ Status: implementation roadmap, not a continuum Yang–Mills existence/mass-gap 
 - Reproduce on multiple machines using independent executable hashes and independently re-executed checks.
 
 **Stage 3 — continuum research obligations:**
-- To approach the Clay problem one must construct a nontrivial four-dimensional quantum Yang–Mills theory for a compact simple Lie group (e.g. \`SU(2)\`), establish the axioms and gauge-invariant Hilbert space, and prove a **strictly positive, uniform** physical mass gap that survives lattice spacing \`a→0\` and infinite volume with controlled renormalization.
-- A finite \`S3\` graph gap, discrete ternary reversibility, modular Clasy X3 conservation law, and an arithmetic 23-billion namespace **do not establish** those obligations.
+- To approach the Clay problem one must construct a nontrivial four-dimensional quantum Yang–Mills theory for a compact simple Lie group (e.g. `SU(2)`), establish the axioms and gauge-invariant Hilbert space, and prove a **strictly positive, uniform** physical mass gap that survives lattice spacing `a→0` and infinite volume with controlled renormalization.
+- A finite `S3` graph gap, discrete ternary reversibility, modular Clasy X3 conservation law, and an arithmetic 23-billion namespace **do not establish** those obligations.
 
 ## Acceptance gates
 
-\`\`\`bash
+```bash
 cd native
 cargo +1.81.0 test --all-targets --offline
 cargo +1.81.0 clippy --all-targets --offline -- -D warnings
@@ -68,6 +94,6 @@ cargo +1.81.0 build --release --offline
 cargo +1.81.0 run --release --offline -- run 243 4 8192 evidence
 cargo +1.81.0 run --release --offline -- verify evidence
 cargo +1.81.0 run --release --offline -- gap
-\`\`\`
+```
 
 Do not mark Rust-native, scientific, or CI gates as passing until the corresponding command actually executes. Do not describe a SHA/checksum alone as a fresh re-execution.
