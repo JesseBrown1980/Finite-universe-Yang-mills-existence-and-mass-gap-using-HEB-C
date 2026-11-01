@@ -1,0 +1,23 @@
+	Command being timed: "/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/native/ym/target/release/ymroom build 3 4 /hebc-p4-41053502633/passa.bin /hebc-p4-41053502633/keys.bin /hebc-p4-41053502633/store.rooms 0"
+	User time (seconds): 58566.88
+	System time (seconds): 107.60
+	Percent of CPU this job got: 395%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 4:07:32
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2340396
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 26317642
+	Voluntary context switches: 505
+	Involuntary context switches: 8204305
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 53156064
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

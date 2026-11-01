@@ -82,3 +82,15 @@ Any of these blocks the production seal and sends production back to re-measure
 Nothing carries over from 3×3. The 3×4 run must earn its own dimension reconciliation
 (Burnside = character formula = Σ sector dimensions), its own core table and its own
 seals, as each lattice size before it did.
+
+## Status update (2026-10-31): measured values, appended beside the HOLD above
+
+The memory pilot P4, run 41053502633, sealed `PILOT_PASS` under `MEMORY-PILOT-SPEC.md`. See
+[`P4-ADMISSION-DECISION.md`](P4-ADMISSION-DECISION.md).
+
+- `COL_BYTES = 889,192,448` (848 MiB, measured).
+- `RESERVE = 2,067,791,872` (1,972 MiB, declared value rounded up, larger than the measured 993,001,472).
+- `CAP = 12` at `BUDGET = 12 × 2³⁰`.
+
+The values apply to `roomschur` at sha `57d8b9e2…` (binary). The HOLD text above is kept as written. Production
+starts only under a frozen production spec and separate operator direction.
