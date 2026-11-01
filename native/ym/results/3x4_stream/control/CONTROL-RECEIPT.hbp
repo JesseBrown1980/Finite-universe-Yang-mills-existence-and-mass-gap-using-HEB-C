@@ -1,0 +1,4 @@
+CONTROL_RUN|run_id=41294035019|workflow=HEB-C YM 3x4 production fan-out|conclusion=success|head=f862b4cd322ceefdb81fb429b7f32d2d58f3022a|artifact=fanout-control-0|json=0
+CONTROL_SHA256|7556225753923fa6d97ed9377b1cf045bceb74b9bfd250045232e831d9e930e5|json=0
+CONTROL_RESULT|C1=PASS|scol_rows=548|scol_vs_pilot3x4_local=byte_identical|C2=PASS|secs=10123|limit=10800|C3=PASS|store_sha256=34/34|payload_merkle=ec03c5f8ea5abd37ed8f80e0e9e7f00e37840a753f33a1008fbd090b18072a0b|merkle_checked_every_pass_from_hf_download=1|core=137|core_fp=4de7413741e7a4a6|gs_sweeps_max=19|y_width_max=248|json=0
+CONTROL_NOTE|C2_margin_secs=677|K8_job_time_not_measured|json=0
