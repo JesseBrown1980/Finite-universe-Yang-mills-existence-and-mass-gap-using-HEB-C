@@ -129,8 +129,9 @@ plaquette (0.0036 at r = 1/27, 0.111 at r = 1): the area law, certified.
 - **Not established:** the 3×4 gap. The verdict needs the (+,+) excitation bound of the
   registered rule and, for zero momentum, the other three sectors' stores.
 
-**3×4 scaling status (October 30, 2026; production HOLD), kept as recorded. The HOLD was lifted on
-November 1 by the control, the rule registration and the operator's dispatch above:**
+**3×4 scaling status (October 30, 2026; production HOLD), kept as recorded. On November 1 the HOLD
+was lifted for `t_milli=60000000` only, with the pinned `roomschur` source `8c2ebe80`. The 90M
+ambiguity remains open, and any threshold above 60M stays on HOLD until a spec revision admits it:**
 
 - Dimension check: the streaming pilot reconciled 2,177,317,873 gauge orbits; the
   Sx+Sy+ sector contains 45,508,080 states.
