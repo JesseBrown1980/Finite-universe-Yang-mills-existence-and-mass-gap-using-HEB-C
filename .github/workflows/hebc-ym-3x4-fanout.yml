@@ -1,0 +1,183 @@
+# 3x4 production fan-out, per native/ym/results/3x4_stream/PRODUCTION-FANOUT-SPEC.md (frozen).
+# Dispatch-only, main-only.
+#   stage=control     runs C1-C3 (columns 0:4) and never admits production.
+#   stage=production  runs the 18 column jobs + merge, and fails closed unless the 3x4
+#                     gap-verdict rule (spec section 7) is registered and lists t_milli.
+name: HEB-C YM 3x4 production fan-out
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: control or production
+        required: true
+        default: control
+        type: choice
+        options: [control, production]
+      t_milli:
+        description: threshold (production only; must be listed in the registered gap rule)
+        required: false
+        default: "60000000"
+      tol:
+        description: TOL (1000 = stage 1; 100 = stage 2 per spec section 6)
+        required: false
+        default: "1000"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hebc-ym-3x4-fanout
+  cancel-in-progress: false
+
+env:
+  HF_STORE: https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve/160726aaaf87386090b2b0b9ecf2815ca2634009
+  ROOMSCHUR_SRC_SHA256: 8c2ebe8039654017ed1510e7e4f18a02dd410efb29e8df6a82bd72c4a2104cbe
+  BUDGET: "12884901888"
+
+jobs:
+  plan:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Frozen spec, pinned source, stage gate
+        id: m
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd native/ym/results/3x4_stream && sha256sum -c PRODUCTION-FANOUT-SPEC.sha256)
+          echo "$ROOMSCHUR_SRC_SHA256  native/ym/crates/sturmrs/src/bin/roomschur.rs" | sha256sum -c
+          if [ "${{ inputs.stage }}" = "control" ]; then
+            echo 'matrix={"include":[{"cols":"0:4","k":"4"}]}' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          R=native/ym/results/3x4_stream/GAP-VERDICT-RULE-3X4.md
+          test -f "$R" || { echo 'FANOUT_GATE|stage=production|result=FAIL_CLOSED|reason=gap_verdict_rule_not_registered|json=0'; exit 1; }
+          (cd native/ym/results/3x4_stream && sha256sum -c GAP-VERDICT-RULE-3X4.sha256)
+          grep -Fq "GAP_RULE_THRESHOLD|t_milli=${{ inputs.t_milli }}|" "$R" || { echo 'FANOUT_GATE|result=FAIL_CLOSED|reason=t_milli_not_in_rule|json=0'; exit 1; }
+          test "${{ inputs.tol }}" = "1000" -o "${{ inputs.tol }}" = "100"
+          m='{"include":['
+          for a in $(seq 0 8 128); do m="$m{\"cols\":\"$a:$((a+8))\",\"k\":\"8\"},"; done
+          m="$m{\"cols\":\"136:137\",\"k\":\"1\"}]}"
+          echo "matrix=$m" >> "$GITHUB_OUTPUT"
+
+  columns:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust 1.81 build and zero-warning Clippy
+        shell: bash
+        working-directory: native/ym
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal --component clippy
+          rustup override set 1.81.0
+          cargo build --release --offline --locked
+          cargo clippy --release --all-targets --offline --locked -- -D warnings
+          test -x target/release/roomschur
+          sha256sum target/release/roomschur
+      - name: Download store from Hugging Face and check sha256 (C3)
+        shell: bash
+        run: |
+          set -euo pipefail
+          S=$RUNNER_TEMP/store; mkdir -p "$S"; cd "$S"
+          curl -fsSL --retry 5 -o SECTORS-341-374.sha256 "$HF_STORE/SECTORS-341-374.sha256"
+          echo "9213927b3b60cfbeae8efef10730e8c7df2ad52f56159017b048539377886ce3  SECTORS-341-374.sha256" | sha256sum -c
+          t0=$(date +%s)
+          for i in $(seq 341 374); do curl -fsSL --retry 5 -o "sector-$i.rooms" "$HF_STORE/sector-$i.rooms"; done
+          echo "STORE_DOWNLOAD|secs=$(( $(date +%s)-t0 ))|json=0"
+          sha256sum -c SECTORS-341-374.sha256 | tee "$RUNNER_TEMP/store-check.txt"
+          test "$(grep -c ': OK$' "$RUNNER_TEMP/store-check.txt")" = 34
+      - name: roomschur on columns ${{ matrix.cols }}
+        shell: bash
+        run: |
+          set +e
+          set -uo pipefail
+          mkdir -p out
+          T=${{ inputs.stage == 'control' && '60000000' || inputs.t_milli }}
+          TOL=${{ inputs.stage == 'control' && '1000' || inputs.tol }}
+          tag=$(echo "${{ matrix.cols }}" | tr ':' '-')
+          t0=$(date +%s)
+          ROOMSCHUR_COLS=${{ matrix.cols }} ROOMSCHUR_K=${{ matrix.k }} ROOMSCHUR_BUDGET=$BUDGET WORKERS=$(nproc) \
+            native/ym/target/release/roomschur "seg:341:34:800000000:$RUNNER_TEMP/store/sector-" 0 1000 9000 "$T" 12 "$TOL" 400 \
+            > "out/scol-$tag.out" 2> "out/scol-$tag.err"
+          rc=$?
+          echo "FANOUT_JOB|cols=${{ matrix.cols }}|k=${{ matrix.k }}|t_milli=$T|tol=$TOL|exit=$rc|secs=$(( $(date +%s)-t0 ))|head=$GITHUB_SHA|json=0" | tee "out/job-$tag.hbp"
+          grep '^ROOMSCHUR_ADMISSION' "out/scol-$tag.out" | grep -q 'admitted=1' || echo 'FANOUT_JOB_FAIL|reason=not_admitted|json=0' >> "out/job-$tag.hbp"
+          grep -q '^SHELL_SCHUR_COLS|' "out/scol-$tag.out" || echo 'FANOUT_JOB_FAIL|reason=no_SHELL_SCHUR_COLS|json=0' >> "out/job-$tag.hbp"
+          (cd out && sha256sum "scol-$tag.out" "scol-$tag.err" "job-$tag.hbp" > "SHA256SUMS-$tag")
+          exit $rc
+      - name: Control C1/C2 against the local pilot
+        if: inputs.stage == 'control'
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep '^SCOL|' out/scol-0-4.out > "$RUNNER_TEMP/hosted.scol"
+          grep '^SCOL|' native/ym/results/3x4_room_backed/receipts/pilot3x4-local/pilot.out > "$RUNNER_TEMP/local.scol"
+          n=$(wc -l < "$RUNNER_TEMP/hosted.scol")
+          c1=FAIL; cmp -s "$RUNNER_TEMP/hosted.scol" "$RUNNER_TEMP/local.scol" && [ "$n" = 548 ] && c1=PASS
+          secs=$(sed -n 's/.*|secs=\([0-9]*\)|.*/\1/p' out/job-0-4.hbp)
+          c2=FAIL; [ "$secs" -lt 10800 ] && c2=PASS
+          echo "FANOUT_CONTROL|C1=$c1|scol_rows=$n|C2=$c2|secs=$secs|C3=PASS|head=$GITHUB_SHA|json=0" | tee out/CONTROL.hbp
+          (cd out && sha256sum CONTROL.hbp > CONTROL.sha256)
+          [ "$c1" = PASS ] && [ "$c2" = PASS ]
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fanout-${{ inputs.stage }}-${{ strategy.job-index }}
+          path: out
+
+  merge:
+    needs: columns
+    if: inputs.stage == 'production'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: parts
+          pattern: fanout-production-*
+          merge-multiple: true
+      - name: Rust 1.81 build
+        shell: bash
+        working-directory: native/ym
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal
+          rustup override set 1.81.0
+          cargo build --release --offline --locked
+      - name: Download store (the merge re-reads the core rows) and check sha256
+        shell: bash
+        run: |
+          set -euo pipefail
+          S=$RUNNER_TEMP/store; mkdir -p "$S"; cd "$S"
+          curl -fsSL --retry 5 -o SECTORS-341-374.sha256 "$HF_STORE/SECTORS-341-374.sha256"
+          echo "9213927b3b60cfbeae8efef10730e8c7df2ad52f56159017b048539377886ce3  SECTORS-341-374.sha256" | sha256sum -c
+          for i in $(seq 341 374); do curl -fsSL --retry 5 -o "sector-$i.rooms" "$HF_STORE/sector-$i.rooms"; done
+          test "$(sha256sum -c SECTORS-341-374.sha256 | grep -c ': OK$')" = 34
+      - name: Completeness, then ROOMSCHUR_MERGE
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(ls parts/scol-*.out | wc -l)" = 18
+          ! grep -h '^FANOUT_JOB_FAIL' parts/job-*.hbp
+          cols=$(grep -h '^SCOL|' parts/scol-*.out | sed -n 's/.*|cb=\([0-9]*\)|.*/\1/p' | sort -n | uniq | wc -l)
+          test "$cols" = 137
+          ! grep -h '^SCOL|' parts/scol-*.out | grep -v 'core_fp=4de7413741e7a4a6'
+          files=$(ls parts/scol-*.out | paste -sd, -)
+          ROOMSCHUR_MERGE=$files native/ym/target/release/roomschur "seg:341:34:800000000:$RUNNER_TEMP/store/sector-" 0 1000 9000 "${{ inputs.t_milli }}" 12 "${{ inputs.tol }}" 400 | tee parts/MERGE.out
+          grep '^SHELL_SCHUR|' parts/MERGE.out
+          (cd parts && sha256sum MERGE.out job-*.hbp > MERGE.sha256)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fanout-merge
+          path: parts
