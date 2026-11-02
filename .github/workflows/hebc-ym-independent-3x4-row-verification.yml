@@ -21,6 +21,14 @@ jobs:
       - name: Check out independent verification workflow
         uses: actions/checkout@v4
 
+      - name: Release unused tooling on disposable hosted runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/powershell /opt/hostedtoolcache/CodeQL
+          docker system prune -af || true
+          df -h .
+
       - name: Verify free disk capacity
         shell: bash
         run: |
