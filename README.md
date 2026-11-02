@@ -133,6 +133,14 @@ plaquette (0.0036 at r = 1/27, 0.111 at r = 1): the area law, certified.
   job, and it doubled the column count when the control had 3 active columns. On the limit's grain
   the same doubling is 20,690 to 21,071 s, so "under the timeout" did not follow. Measured times are
   in the [correction note](native/ym/results/3x4_stream/PRODUCTION-FANOUT-SPEC-REV1-CORRECTION.md).
+- **P0 passed, November 2:** `flatcomp` on the 3×4 store, merkle checked, gives 7 flat states, all diagonals 72 and
+  0 flat-flat couplings, as predicted before the run. This is the registered rule's precondition, not a verdict.
+- **Draft, not run on 3×4: a Perron lower bound.** In the orbit basis every off-diagonal entry of H is ≤ 0, so with the
+  flat rows removed, any positive vector gives a lower bound on the next level in one exact pass, with no Schur
+  complement. On the 3×3 (+,+) store it certifies 76.403 J_E, against the 8 levels below 71.9 of the full-space run.
+  A short derivation lifts the bound to the whole space, and counts by separate code confirm the lift on 2×2 and
+  2×3. No second seat has reviewed it, and it is not a registered rule:
+  [`perron/PERRON-BOUND.md`](native/ym/results/3x4_stream/perron/PERRON-BOUND.md).
 - **Not established:** the 3×4 gap. The verdict needs the (+,+) excitation bound of the
   registered rule and, for zero momentum, the other three sectors' stores.
 
@@ -171,9 +179,9 @@ sectors; a separately written operator and inertia verifier.
 | Evidence class | What is established | Next |
 |---|---|---|
 | Exact integer-arithmetic certificates of fixed-lattice spectral-gap bounds (S₃) | 2×L sector results and 3×3 full-space counts with sealed integer receipts and checks | The BHM/TQO volume-uniform proof, the immediate research track |
-| 3×4 dimension, memory and control | 2,177,317,873 reconciled gauge orbits; P4 `PILOT_PASS`, `CAP=12`; hosted control C1–C3 PASS; gap rule registered; 60M production PASS (`negative=0`, `ambiguous=0`) | P0; spec revision for core-sized job matrices; 90M ambiguity; 3×4 gap verdict |
+| 3×4 dimension, memory and control | 2,177,317,873 reconciled gauge orbits; P4 `PILOT_PASS`, `CAP=12`; hosted control C1–C3 PASS; gap rule registered; 60M production PASS (`negative=0`, `ambiguous=0`); P0 PASS on the store | The Perron run or a spec revision for core-sized job matrices; 90M ambiguity; 3×4 gap verdict |
 | Cross-seat operator experiments | Replayed software models of reach, curve, hash and CHSH on discrete lattices | A physical z mechanism; a rule that yields the quantum bound 2√2 from the model |
-| Production | 60M run 41321108365: 18 of 18 column jobs and the merge succeeded, `negative=0`, `ambiguous=0`; no local re-run was needed | P0, then a spec revision before any threshold above 60M |
+| Production | 60M run 41321108365: 18 of 18 column jobs and the merge succeeded, `negative=0`, `ambiguous=0`; no local re-run was needed | A spec revision before any threshold above 60M |
 
 ### z/r/j, prism and Bell software models
 

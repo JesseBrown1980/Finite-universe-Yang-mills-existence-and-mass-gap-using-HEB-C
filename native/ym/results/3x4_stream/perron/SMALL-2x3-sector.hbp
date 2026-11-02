@@ -1,0 +1,4 @@
+SMALL_DIMS|L=2x3|nl=12|sector_n=2646|sector_flats=7|whole_n=47449|whole_flats=8|json=0
+FLATCOMP|matrix=sector.txt|n=2646|flat_states=7|flat_electric_diag=[36,36,36,36,36,36,36]|flat_diag_max=36|flat_flat_couplings=0|json=0
+FLATCOMP|matrix=whole.txt|n=47449|flat_states=8|flat_electric_diag=[36,36,36,36,36,36,36,36]|flat_diag_max=36|flat_flat_couplings=0|json=0
+S1_SECTOR|lambda1_in=[58441406,58443359]|count_above=1|json=0

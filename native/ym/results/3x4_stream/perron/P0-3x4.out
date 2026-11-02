@@ -1,0 +1,2 @@
+FLATCOMP_STORE|L=3x4|sector=Sx+Sy+|n=45508080|payload_bytes=26850881536|payload_merkle=ec03c5f8ea5abd37ed8f80e0e9e7f00e37840a753f33a1008fbd090b18072a0b|merkle=PASS|flat_rows=0,28,49,44742698,44742719,45507967,45507970|flat_weights=1,3,2,3,3,2,4|ms=972119|json=0
+FLATCOMP|matrix=room|n=45508080|flat_states=7|flat_electric_diag=[72,72,72,72,72,72,72]|flat_diag_max=72|flat_flat_couplings=0|json=0
