@@ -1,0 +1,182 @@
+name: Independent Go Perron certificate audit
+on:
+  push:
+    branches:
+      - audit/independent-go-perron-20261102
+permissions:
+  contents: read
+jobs:
+  independent-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Reconstruct and SHA-256 pin independently authored Go source
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/perron.go.gz.b64 <<'CHECKER'
+          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
+          CHECKER
+          base64 -d /tmp/perron.go.gz.b64 | gzip -d > perron_independent.go
+          echo 'd1c91b342b96722c2ae063a791be7443799f2ed13661ec91fc08a8cdc652c96c  perron_independent.go' | sha256sum -c -
+          go version
+          go build -o independent-checker perron_independent.go
+      - name: Recover disk space for 26.85 GB public data
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h .
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/hostedtoolcache /usr/local/share/powershell /opt/az /usr/local/.ghcup || true
+          df -h .
+      - name: Fetch Hugging Face data without a token
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data
+          BASE='https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve'
+          fetch() { curl -fLsS --retry 8 --retry-delay 3 --retry-all-errors --connect-timeout 30 -o "$2" "$1"; }
+          fetch "$BASE/160726aaaf87386090b2b0b9ecf2815ca2634009/SECTORS-341-374.sha256" data/SECTORS-341-374.sha256
+          echo '9213927b3b60cfbeae8efef10730e8c7df2ad52f56159017b048539377886ce3  data/SECTORS-341-374.sha256' | sha256sum -c -
+          fetch "$BASE/d2630edf882f3d9fa125f25680fd9b6a04c98d31/perron/d93000000.bin" data/d93000000.bin
+          echo '956b73bc6f4ec5712184eb52f67d8e0adab467c1ea843ba257126278368210da  data/d93000000.bin' | sha256sum -c -
+          fetch "$BASE/b33f5a0bf3392ba795f39fe726570ad61311b3d4/perron/start/d93700000-pass5.bin" data/d93700000-pass5.bin
+          echo '34e71facb2689a46a44cb347604f0b361760020c8810748f6e9cc513daa53686  data/d93700000-pass5.bin' | sha256sum -c -
+          for n in $(seq 341 374); do
+            echo "Downloading sector $n"
+            fetch "$BASE/160726aaaf87386090b2b0b9ecf2815ca2634009/sector-$n.rooms" "data/sector-$n.rooms"
+          done
+          df -h .
+      - name: Exact integer certificate and negative controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          declare -a ARGS=(--dir data --control data/d93000000.bin --blind data/d93700000-pass5.bin)
+          /usr/bin/time -p -o timing.txt ./independent-checker "${ARGS[@]}" > certificate.txt
+          grep -Fx 'control t_cert_milli=93061051 min_row=44742735 min_mag=3' certificate.txt
+          grep -Fx 'PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS' certificate.txt
+          for fault in payload d; do
+            if ./independent-checker "${ARGS[@]}" --fault "$fault" > "fault-$fault.stdout" 2> "fault-$fault.stderr"; then
+              echo "FAULT CONTROL $fault INCORRECTLY ACCEPTED" >&2
+              exit 1
+            fi
+            if test -s "fault-$fault.stdout"; then
+              echo "FAULT CONTROL $fault LEAKED CERTIFICATE VALUE" >&2
+              exit 1
+            fi
+            echo "negative control $fault: rejected with no value"
+          done
+          cat certificate.txt timing.txt
+          sha256sum perron_independent.go > source.sha256
+      - name: Publish independent receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: independent-go-perron-audit
+          path: |
+            perron_independent.go
+            source.sha256
+            certificate.txt
+            timing.txt
+            fault-*.stdout
+            fault-*.stderr
+          if-no-files-found: warn
