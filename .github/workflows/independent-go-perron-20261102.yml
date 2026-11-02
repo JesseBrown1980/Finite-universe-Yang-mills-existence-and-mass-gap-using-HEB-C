@@ -133,6 +133,72 @@ jobs:
           echo '273521d2658c5665a4511fe8ab194b3e9ec8df4a63087c8bbb4ef3639b038f65  perron_independent.go' | sha256sum -c -
           go version
           go build -o independent-checker perron_independent.go
+      - name: Verify revised Go checker with strict zero-padding and authenticated raw tail
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('perron_independent.go')
+          s = p.read_text()
+          def change(old, new):
+              global s
+              if s.count(old) != 1: raise SystemExit('source anchor mismatch: '+old[:80])
+              s = s.replace(old, new)
+          change('expectedPayload  int64 = 26850881536', '''expectedPayload  int64 = 26850881536
+              expectedZeroPadding int64 = 742160
+              expectedRawTailBytes int64 = 349114368
+              expectedRawTailNonzero int64 = 347747335''')
+          change('blindHash              = "34e71facb2689a46a44cb347604f0b361760020c8810748f6e9cc513daa53686"', '''blindHash              = "34e71facb2689a46a44cb347604f0b361760020c8810748f6e9cc513daa53686"
+              blind2Hash = "637fe9e293505d950503abbd615840471e4ef14a2a23128d44233992f82999fe"
+              blind3Hash = "f5c5428db1fc5d91d2ab891689f0dac7263dc26c8f9b60a2db82728f6ea0dcd1"''')
+          change('sectors                                          int\n\tfault', 'sectors                                          int\n    paddingBytes, rawTailBytes, rawTailNonzero int64\n\tfault')
+          a=s.index('\tif first, e := payload.ReadByte(); e != io.EOF {')
+          b=s.index('\tif bounded.N != 0 {', a)
+          s=s[:a]+'''    // Check declared-payload zero padding and include it in the Merkle.
+              var insidePadding, paddingNonzero int64
+              var tail [1 << 20]byte
+              for {
+                  got, err := payload.Read(tail[:])
+                  insidePadding += int64(got)
+                  for _, v := range tail[:got] { if v != 0 { paddingNonzero++ } }
+                  if err == io.EOF { break }
+                  if err != nil { return fmt.Errorf("payload padding read: %w",err) }
+              }
+              if insidePadding != c.paddingBytes || paddingNonzero != 0 {
+                  return fmt.Errorf("payload padding mismatch: trailing=%d nonzero=%d expected=%d",insidePadding,paddingNonzero,c.paddingBytes)
+              }
+          '''+s[b:]
+          a=s.index('\t// Consume all bytes after payload; require zero padding, then inspect per-sector SHA-256.')
+          b=s.index('\tfor k, h := range hashes {',a)
+          s=s[:a]+'''    // Bytes after payload are authenticated by sector SHA-256, not Merkle.
+              var rawTailBytes, rawTailNonzero int64
+              var buf [1 << 20]byte
+              for {
+                  n, err := stream.Read(buf[:])
+                  rawTailBytes += int64(n)
+                  for _, v := range buf[:n] { if v != 0 { rawTailNonzero++ } }
+                  if err == io.EOF { break }
+                  if err != nil { return err }
+              }
+              if rawTailBytes != c.rawTailBytes || rawTailNonzero != c.rawTailNonzero {
+                  return fmt.Errorf("raw tail discrepancy: bytes=%d nonzero=%d expected_bytes=%d expected_nonzero=%d",rawTailBytes,rawTailNonzero,c.rawTailBytes,c.rawTailNonzero)
+              }
+          '''+s[b:]
+          change('fmt.Printf("seconds=%d\\n",', '''fmt.Printf("payload_zero_padding=%d raw_tail_bytes=%d raw_tail_nonzero=%d\\n",insidePadding,rawTailBytes,rawTailNonzero)
+              fmt.Printf("seconds=%d\\n",''')
+          change('flag.IntVar(&c.sectors, "sectors", 34, "number of sector files (fixture only)")', '''flag.IntVar(&c.sectors, "sectors", 34, "number of sector files (fixture only)")
+              flag.Int64Var(&c.paddingBytes,"expected-padding",expectedZeroPadding,"zero bytes inside payload (fixture only)")
+              flag.Int64Var(&c.rawTailBytes,"expected-raw-tail",expectedRawTailBytes,"bytes after payload (fixture only)")
+              flag.Int64Var(&c.rawTailNonzero,"expected-raw-tail-nonzero",expectedRawTailNonzero,"nonzero bytes after payload (fixture only)")''')
+          change('c.blindHash != blindHash || c.sectors != 34', '''(c.blindHash != blindHash && c.blindHash != blind2Hash && c.blindHash != blind3Hash) || c.sectors != 34 || c.paddingBytes != expectedZeroPadding || c.rawTailBytes != expectedRawTailBytes || c.rawTailNonzero != expectedRawTailNonzero''')
+          change('c.sectors > 34 {', 'c.sectors > 34 || c.paddingBytes < 0 || c.rawTailBytes < 0 || c.rawTailNonzero < 0 || c.rawTailNonzero > c.rawTailBytes {')
+          p.write_text(s)
+          PY
+          gofmt -w perron_independent.go
+          echo '8009406cfc74f71b415320fff19e2a84866a6d006f1a9be9c01ca07465632d1e  perron_independent.go' | sha256sum -c -
+          sha256sum perron_independent.go > source.sha256
+          go build -o independent-checker perron_independent.go
       - name: Recover disk space for 26.85 GB public data
         shell: bash
         run: |
@@ -156,6 +222,8 @@ jobs:
           # Second blind vector: do not supply an expected certificate value.
           fetch "$BASE/7ed23ce12ffb27fae7b9fd39eb103065f3dd8a37/perron/top/x3-b.bin" data/x3-b.bin
           echo '637fe9e293505d950503abbd615840471e4ef14a2a23128d44233992f82999fe  data/x3-b.bin' | sha256sum -c -
+          fetch "$BASE/29723023f37ade227af51e1b92a4a4d55d4bb3f8/perron/top/x3-c.bin" data/x3-c.bin
+          echo 'f5c5428db1fc5d91d2ab891689f0dac7263dc26c8f9b60a2db82728f6ea0dcd1  data/x3-c.bin' | sha256sum -c -
           for n in $(seq 341 374); do
             echo "Downloading sector $n"
             fetch "$BASE/160726aaaf87386090b2b0b9ecf2815ca2634009/sector-$n.rooms" "data/sector-$n.rooms"
@@ -182,20 +250,22 @@ jobs:
           done
           cat certificate.txt timing.txt
           sha256sum perron_independent.go > source.sha256
-      - name: Independent second blind vector full replay
+      - name: Independent second blind vector exact replay
         shell: bash
         run: |
           set -euo pipefail
-          # Same original independently authored Go verifier, with only the
-          # expected second-vector SHA-256 replaced; no expected result supplied.
-          cp perron_independent.go perron_independent_blind2.go
-          sed -i 's/34e71facb2689a46a44cb347604f0b361760020c8810748f6e9cc513daa53686/637fe9e293505d950503abbd615840471e4ef14a2a23128d44233992f82999fe/g' perron_independent_blind2.go
-          sha256sum perron_independent_blind2.go > blind2-source.sha256
-          go build -o independent-blind2 perron_independent_blind2.go
-          /usr/bin/time -p -o blind2-timing.txt ./independent-blind2 --dir data --control data/d93000000.bin --blind data/x3-b.bin > blind2-certificate.txt
+          /usr/bin/time -p -o blind2-timing.txt ./independent-checker --dir data --control data/d93000000.bin --blind data/x3-b.bin --blind-sha 637fe9e293505d950503abbd615840471e4ef14a2a23128d44233992f82999fe > blind2-certificate.txt
           grep -Fx 'control t_cert_milli=93061051 min_row=44742735 min_mag=3' blind2-certificate.txt
           grep -Fx 'PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS' blind2-certificate.txt
           cat blind2-certificate.txt blind2-timing.txt
+      - name: Independent third blind vector exact replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/time -p -o blind3-timing.txt ./independent-checker --dir data --control data/d93000000.bin --blind data/x3-c.bin --blind-sha f5c5428db1fc5d91d2ab891689f0dac7263dc26c8f9b60a2db82728f6ea0dcd1 > blind3-certificate.txt
+          grep -Fx 'control t_cert_milli=93061051 min_row=44742735 min_mag=3' blind3-certificate.txt
+          grep -Fx 'PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS' blind3-certificate.txt
+          cat blind3-certificate.txt blind3-timing.txt
       - name: Publish independent receipt
         if: always()
         uses: actions/upload-artifact@v4
@@ -204,10 +274,10 @@ jobs:
           path: |
             perron_independent.go
             source.sha256
-            perron_independent_blind2.go
-            blind2-source.sha256
             blind2-certificate.txt
             blind2-timing.txt
+            blind3-certificate.txt
+            blind3-timing.txt
             certificate.txt
             timing.txt
             fault-*.stdout
