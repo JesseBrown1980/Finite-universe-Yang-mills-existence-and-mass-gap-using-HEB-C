@@ -86,10 +86,21 @@ These are the steps most likely to fail, in the order I would test them.
 1. **Are the store's rows really H?** C1 speaks about the rows in the store, and a matching hash proves the bytes are
    unchanged. So far `ymroom text` matched the older builder `ymsec` byte for byte on 2×3, 2×4 and 3×3, the weights in
    `passA.bin` sum to exactly 6¹³, and sector balls read from the store give the same levels as `ball`'s whole-space
-   matrices, to 6 decimals at K = 3. **Open: separate code checking 3×4 rows in general against the definition.** To do
-   that, read `passA.bin`: 16 bytes per row, in row order, with key as u64, weight as u32 and magnetic number as u32,
-   little-endian. A key holds the base-6 digits of the gauge-fixed links. Decode some states, rebuild their rows from the
-   definition of H, and compare. The builder is [`ymroom.rs`](../../../crates/torusl/src/bin/ymroom.rs).
+   matrices, to 6 decimals at K = 3.
+
+   [`verify_sample_rows.py`](verify_sample_rows.py), separately written, rebuilds each row's weight, M and entries from
+   permutations of three objects and compares them with the store. It takes every flat row, a sample at each magnetic number,
+   a uniform sample and any rows you name. It matched every row on 2×2 (211) and 2×3 (2,646), and 2,100 sampled rows on 3×3,
+   and its 12 damage controls all exit 2 ([`VERIFY-CONTROLS.hbp`](VERIFY-CONTROLS.hbp)). **Its 3×4 run is open:**
+
+   ```
+   python3 -I native/ym/results/3x4_stream/perron/verify_sample_rows.py 3 4 341:34:800000000:./sector- passA.bin --rows 44742735
+   ```
+
+   Your own version would be a stronger test. `passA.bin` has 16 bytes per row, in row order, with key as u64, weight as u32
+   and magnetic number as u32, little-endian. A key holds the base-6 digits of the gauge-fixed links, least over the orbit,
+   and the digits name the permutations 012, 021, 102, 120, 201, 210 in that order. The builder is
+   [`ymroom.rs`](../../../crates/torusl/src/bin/ymroom.rs).
 2. **Interlacing in a non-orthonormal basis.** The rows are W-self-adjoint, with W the orbit weights. Check that removing
    the flat rows and columns is a principal compression after the W^(1/2) similarity.
 3. **Barta for that matrix.** H′ = s − N with N ≥ 0 entrywise, and the bound uses ρ(N) ≤ max_h (Nd)_h / d_h. Check that
@@ -119,7 +130,7 @@ the open items below close.
 |---|---|---|
 | 1, 2, 3 | Interlacing, Barta and the W^(1/2) cancellation hold | Accepted on reading |
 | 1, 3 | The lift is valid when the sector is the exact symmetry reduction | Accepted in principle. Attack 1 is open |
-| 1, 2, 3 | Rebuild sampled 3×4 rows from `passA.bin` with separate code | **Open.** The key table is public |
+| 1, 2, 3 | Rebuild sampled 3×4 rows from `passA.bin` with separate code | **Open on 3×4.** `verify_sample_rows.py` matches on 2×2, 2×3 and a 3×3 sample, and the key table is public |
 | 2 | Another seat's pass over the 45.5M rows | **Open.** The data is public |
 | 1 | `check_d_stream.py` should fail closed, and `assert` vanishes under `python -O` | Confirmed by measurement: a changed byte printed `merkle=PASS` under `-O`. Fixed in `check_d_strict.py`. The recorded runs used `-I`, so their rows stand |
 | 2 | Put the 3×4 run and the location of `d` in the PR | Done: rows here, data on Hugging Face |

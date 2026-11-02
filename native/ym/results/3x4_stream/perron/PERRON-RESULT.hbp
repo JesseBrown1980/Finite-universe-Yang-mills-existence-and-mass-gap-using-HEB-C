@@ -21,6 +21,7 @@ RESULT_PERRON_3x4_PREDICTIONS|no_divergence_at_93=MET|t_cert_ge_93_within_15_pas
 RESULT_PERRON_3x4_UPPER_SIDE|t_cert_below_E8_plus_plus_upper_94.6=1|stop_condition_triggered=0|json=0
 RESULT_GAP_ARITHMETIC|meaning=E9_minus_E8_above_the_flat_states|open=row_check_and_outside_rerun|all_r_ge_9=t_cert-72+3(r-9)=21.061051+3(r-9)|r9=t_cert-70.031=23.030051|sector_statement=E8_plus_plus_ge_t_cert|lattice=3x4|verdict=OPEN|json=0
 RESULT_UNITS|t_cert_milli=units_of_1/(1000*JE)_J_E|at_JE_1000=1e-6_J_E|93061051_means=93.061051_J_E|d=little_endian_i64|arithmetic=exact_integers_rounded_down|float_used=0|json=0
+RESULT_ROW_REBUILD|tool=verify_sample_rows.py|separately_written_from=ymroom|lattice_2x2=211/211_all_rows|lattice_2x3=2646/2646_all_rows|lattice_3x3=2100/2100_sampled_with_tightest_row|damage_controls_ok=12/12|lattice_3x4=OPEN|json=0
 RESULT_KEY_TABLE|file=passA.bin|sum_w=6^13=13060694016|min_nonflat_M=3|max_M=36|flat_weights=1,3,2,3,3,2,4|sum_flat_w=18=commuting_pairs_in_S3|json=0
 RESULT_CHECKER_FINDING|file=check_d_stream.py|found_by=external_review_1|python_-O_removes_assert=1|changed_byte_under_-O_printed_merkle_PASS=1|recorded_runs_used_-O=0|recorded_rows_stand=1|replacement=check_d_strict.py|strict_controls_ok=15/15|strict_run_on_3x4=OPEN|json=0
 RESULT_WARMCAL_3x3|start=d75000000.bin|inner=12:200|t76.2=76.221846|t76.3=76.312729|t76.4=76.404038_by_pass_4|t76.43=76.431504_in_8_passes_all_three_checkers|t76.5=diverges_t_cert_negative|t76.7_and_77=stop_with_error|earlier_best_stays_recorded=76.403209|json=0
@@ -51,6 +52,10 @@ RESULT_FILE|SMALL-2x2.hbp|sha256=664e87bca875c7969ce8ea97f02460ae998a2a0192436f9
 RESULT_FILE|SMALL-2x3-direct.hbp|sha256=9dc8318251db4fbfc288e6b80f7bd026fd1fb4abc1c66f785d8d84fa8be61d1d|json=0
 RESULT_FILE|SMALL-2x3-sector.hbp|sha256=73d6514def27c9c9f9f35de59b4ecf9afb3ce74ab40d02ff8bb07ffbcd53f7e6|json=0
 RESULT_FILE|STRICT-CONTROLS.hbp|sha256=1467bee7112dbd7e7378bcb043569c1cc00927a85c459234c79bea4b23fa7a0c|json=0
+RESULT_FILE|VERIFY-2x2.hbp|sha256=ea5c4a432936e9fd7954e57200a6a210ec272716bdf428b0354b5a0d4785de5d|json=0
+RESULT_FILE|VERIFY-2x3.hbp|sha256=3e01bd357f5400857a381f29beded1c8d78d0c12ae4ba56a790a2988afff6f01|json=0
+RESULT_FILE|VERIFY-3x3.hbp|sha256=e21a24987b3c42b402f77bde3af57450f3d5c0317a5ad115f9e73de3334b3e8e|json=0
+RESULT_FILE|VERIFY-CONTROLS.hbp|sha256=27fa3bad1d862c53720ccf997b11cee7f2c2ce4bcd610689e85cb0489374f009|json=0
 RESULT_FILE|WARMCAL-3x3-76200000-12_200.out|sha256=ab51bc6dcd7bc908cd255623734c744e55dd12c2778b7f6d12a19b52154f1380|json=0
 RESULT_FILE|WARMCAL-3x3-76200000.out|sha256=dedecbe3dc89a27376a41256ae4f3f51e1e3e83f576bc82cbcceafcd251836b2|json=0
 RESULT_FILE|WARMCAL-3x3-76300000-12_200.out|sha256=58a1fb7425f13e9e1984e0b41bbc8056f012cb94a001c7bb77d1b815d125bd3c|json=0
@@ -91,5 +96,7 @@ RESULT_FILE|small_direct.py|sha256=8510c60d355c6cddb93b936da0302c36b66cbe023580f
 RESULT_FILE|small_lattice.py|sha256=9b0f511a1894d2d5bc8fe458c97dd4072eb727173f05adcf6777f3c48d69e306|json=0
 RESULT_FILE|solve-3x4-93000000.out|sha256=3dfbe28de095aa072732b3c42a85801c2c0236c6e142c81a3e57e7cc69a9765a|json=0
 RESULT_FILE|test_strict.py|sha256=487943ba73aa952ac3d402dac247d53d650411fd0caa29058290c4f5bfc19f83|json=0
+RESULT_FILE|test_verify_rows.py|sha256=43bf95eeb0be4ac2b326f67cdda7609cf39b188ef51478931855c9a6ac1275d4|json=0
+RESULT_FILE|verify_sample_rows.py|sha256=dc5b9c42a03197b7324c7886b78e071026ea2cd55a8fca47d0fa6b78d4211b01|json=0
 RESULT_FILE|warmcal.py|sha256=04c3ebe2504c6d76029de6681910fbb6ebfe27d0c4dac091b54bae5dd8d62642|json=0
 RESULT_FILE|warmcal33.sh|sha256=046432934932177733bd138037d1b6c682a81e3c0c171b0888a16d3dbfbbb6e6|json=0

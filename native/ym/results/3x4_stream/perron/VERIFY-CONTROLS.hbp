@@ -1,0 +1,13 @@
+VERIFY_BAD|case=row_entry|flags=none|exit=2|expected=row_differs_row_100|ok=1|VERIFY_ROWS_FAIL|reason=row_differs_row_100|json=0|json=0
+VERIFY_BAD|case=row_entry|flags=-O|exit=2|expected=row_differs_row_100|ok=1|VERIFY_ROWS_FAIL|reason=row_differs_row_100|json=0|json=0
+VERIFY_BAD|case=row_target|flags=none|exit=2|expected=row_differs_row_100|ok=1|VERIFY_ROWS_FAIL|reason=row_differs_row_100|json=0|json=0
+VERIFY_BAD|case=row_target|flags=-O|exit=2|expected=row_differs_row_100|ok=1|VERIFY_ROWS_FAIL|reason=row_differs_row_100|json=0|json=0
+VERIFY_BAD|case=store_weight_only|flags=none|exit=2|expected=key_table_and_store_differ_row_100|ok=1|VERIFY_ROWS_FAIL|reason=key_table_and_store_differ_row_100|json=0|json=0
+VERIFY_BAD|case=store_weight_only|flags=-O|exit=2|expected=key_table_and_store_differ_row_100|ok=1|VERIFY_ROWS_FAIL|reason=key_table_and_store_differ_row_100|json=0|json=0
+VERIFY_BAD|case=weight_in_both|flags=none|exit=2|expected=weight_row_100|ok=1|VERIFY_ROWS_FAIL|reason=weight_row_100|json=0|json=0
+VERIFY_BAD|case=weight_in_both|flags=-O|exit=2|expected=weight_row_100|ok=1|VERIFY_ROWS_FAIL|reason=weight_row_100|json=0|json=0
+VERIFY_BAD|case=magnetic_in_both|flags=none|exit=2|expected=magnetic_number_row_100|ok=1|VERIFY_ROWS_FAIL|reason=magnetic_number_row_100|json=0|json=0
+VERIFY_BAD|case=magnetic_in_both|flags=-O|exit=2|expected=magnetic_number_row_100|ok=1|VERIFY_ROWS_FAIL|reason=magnetic_number_row_100|json=0|json=0
+VERIFY_BAD|case=key_not_least|flags=none|exit=2|expected=key_is_not_the_least_in_its_orbit_row_125|ok=1|VERIFY_ROWS_FAIL|reason=key_is_not_the_least_in_its_orbit_row_125|json=0|json=0
+VERIFY_BAD|case=key_not_least|flags=-O|exit=2|expected=key_is_not_the_least_in_its_orbit_row_125|ok=1|VERIFY_ROWS_FAIL|reason=key_is_not_the_least_in_its_orbit_row_125|json=0|json=0
+VERIFY_CONTROLS|failed=0|json=0
