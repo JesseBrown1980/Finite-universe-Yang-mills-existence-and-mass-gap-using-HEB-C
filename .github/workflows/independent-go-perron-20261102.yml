@@ -119,6 +119,18 @@ jobs:
           CHECKER
           base64 -d /tmp/perron.go.gz.b64 | gzip -d > perron_independent.go
           echo 'd1c91b342b96722c2ae063a791be7443799f2ed13661ec91fc08a8cdc652c96c  perron_independent.go' | sha256sum -c -
+          # Diagnostic-only patch: still rejects trailing payload; counts bytes and verifies Merkle on failure.
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("perron_independent.go")
+          s = p.read_text()
+          old = "\tif _, e := payload.ReadByte(); e != io.EOF {\n\t\tif e != nil {\n\t\t\treturn fmt.Errorf(\"payload trailing read: %w\", e)\n\t\t}\n\t\treturn errors.New(\"unconsumed payload bytes after final row\")\n\t}"
+          new = "\tif first, e := payload.ReadByte(); e != io.EOF {\n\t\tif e != nil {\n\t\t\treturn fmt.Errorf(\"payload trailing read: %w\", e)\n\t\t}\n\t\tvar leftover, nonzero int64 = 1, 0\n\t\tif first != 0 {\n\t\t\tnonzero++\n\t\t}\n\t\tvar tail [1 << 20]byte\n\t\tfor {\n\t\t\tgot, readErr := payload.Read(tail[:])\n\t\t\tleftover += int64(got)\n\t\t\tfor _, b := range tail[:got] {\n\t\t\t\tif b != 0 {\n\t\t\t\t\tnonzero++\n\t\t\t\t}\n\t\t\t}\n\t\t\tif readErr == io.EOF {\n\t\t\t\tbreak\n\t\t\t}\n\t\t\tif readErr != nil {\n\t\t\t\treturn fmt.Errorf(\"trailing payload read: %w\", readErr)\n\t\t\t}\n\t\t}\n\t\treturn fmt.Errorf(\"unconsumed payload bytes after final row: trailing=%d nonzero=%d merkle_matches=%v\", leftover, nonzero, m.final() == c.merkleHash)\n\t}"
+          if s.count(old) != 1:
+              raise SystemExit("diagnostic patch anchor mismatch")
+          p.write_text(s.replace(old, new))
+          PY
+          echo '273521d2658c5665a4511fe8ab194b3e9ec8df4a63087c8bbb4ef3639b038f65  perron_independent.go' | sha256sum -c -
           go version
           go build -o independent-checker perron_independent.go
       - name: Recover disk space for 26.85 GB public data
