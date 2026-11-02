@@ -36,11 +36,14 @@ The argument and every bound are in the source header:
 | 3×4 60M, m = 137 | 0 / 137 | 0 / 137 | 0 / 137 |
 | 3×3 60M, m = 101 | 7 / 94 | 7 / 94 | 7 / 94 |
 | 3×3 72M, m = 1,137 | 7 / 1,130 | 7 / 1,130 | 7 / 1,130 |
-| 3×3 90M, m = 2,940 | 37 / 2,894, 9 undecided | 44 / 2,896 | see `RECHECK-RESULT.hbp` |
+| 3×3 90M, m = 2,940 | 37 / 2,894, 9 undecided | 44 / 2,896 | 44 / 2,896 |
 
 The last column comes from [`independent/minors`](../../independent/minors), written separately from
 `schurcert` and `roomschur`. It computes the sign of every leading minor modulo primes up to the Hadamard
 bound, and uses no intervals. It covers only the midpoint matrix, which is one matrix in the enclosures.
+
+At 90M it used 2,652 primes, dropped none, and found no zero minor. The expected count was written to
+[`W2.log`](W2.log) before the run started, and the run took 25,129 s at 6 workers.
 
 **Slack.** `SCHURCERT_WIDEN` multiplies every enclosure radius. The 90M count stays 44 / 2,896 at 100,
 1,000, 3,000 and 10,000 times the radii. At 100,000 times, 7 rows are undecided and the tool gives no
