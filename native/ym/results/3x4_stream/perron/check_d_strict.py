@@ -3,10 +3,12 @@
 # python -O: there, a changed byte still printed merkle=PASS. This file has no assert. Any failed condition prints one
 # CHECK_D_FAIL row and exits 2, and no certified value is printed.
 #
-# usage: check_d_strict.py DEV D_FILE JE JB [--passa FILE] [--self-adjoint SEED]
+# usage: check_d_strict.py DEV D_FILE JE JB [--passa FILE] [--self-adjoint SEED] [--expect-d-sha256 HEX]
 #   DEV           a path, or first:count:seglen:prefix for the sector files <prefix>NNN.rooms
 #   --passa       compare every row's weight and magnetic number with the key table
-#   --self-adjoint  test W H = (W H)^T on all rows, by a random bilinear form modulo a prime (false-pass chance about 1e-18)
+#   --self-adjoint  test W H = (W H)^T on all rows, by a random bilinear form modulo 2^61-1, with the random values drawn from
+#                 SHA-256 of the seed and the row index (false-pass chance about 1e-18)
+#   --expect-d-sha256  fail unless D_FILE has this SHA-256, so a swapped or substituted vector stops the check
 #
 # For every row it also checks: the entries sum to 0 (one -1 per move, diagonal 3*nl minus the moves back), no positive
 # off-diagonal entry, ascending columns in range, and for flat rows a diagonal of 3*nl with no coupling to another flat row.
@@ -66,6 +68,11 @@ def main():
         i = a.index("--self-adjoint")
         seed = int(a[i + 1])
         del a[i : i + 2]
+    expect_d = None
+    if "--expect-d-sha256" in a:
+        i = a.index("--expect-d-sha256")
+        expect_d = a[i + 1]
+        del a[i : i + 2]
     if len(a) != 4:
         fail("usage")
     dev, dfile, je, jb = a[0], a[1], int(a[2]), int(a[3])
@@ -76,7 +83,12 @@ def main():
 
     d = array.array("q")
     with open(dfile, "rb") as f:
-        d.frombytes(f.read())
+        raw_d = f.read()
+    d_sha = hashlib.sha256(raw_d).hexdigest()
+    if expect_d is not None and d_sha != expect_d:
+        fail("d_sha256_mismatch")
+    d.frombytes(raw_d)
+    del raw_d
     s = Stream(dev)
     head = s.read(4096)
     if b"\n" not in head:
@@ -101,12 +113,12 @@ def main():
     x, y, wrow = None, None, 0
     if seed is not None:
         x, y = array.array("Q", bytes(8 * n)), array.array("Q", bytes(8 * n))
-        v = (seed * 0x9E3779B97F4A7C15 + 0x1234567) & 0xFFFFFFFFFFFFFFFF
+        words = struct.Struct("<4Q").unpack
+        tag = str(seed).encode() + b":"
         for i in range(n):
-            v = (v * 0xD1342543DE82EF95 + 0x2545F4914F6CDD1D) & 0xFFFFFFFFFFFFFFFF
-            x[i] = (v >> 3) % P61
-            v = (v * 0xD1342543DE82EF95 + 0x2545F4914F6CDD1D) & 0xFFFFFFFFFFFFFFFF
-            y[i] = (v >> 3) % P61
+            a0, b0, _, _ = words(hashlib.sha256(tag + str(i).encode()).digest())
+            x[i] = a0 % P61
+            y[i] = b0 % P61
     form_a, form_b = 0, 0
 
     u = 1000 * je
@@ -227,7 +239,7 @@ def main():
     if x is not None:
         extra += f"|W_self_adjoint=PASS|seed={seed}"
     print(
-        f"CHECK_D_STRICT|n={n}|flats={len(flats)}|flat_rows={','.join(map(str, flats))}|flat_diag={3 * nl}|flat_flat_couplings=0"
+        f"CHECK_D_STRICT|n={n}|d_sha256={d_sha}|flats={len(flats)}|flat_rows={','.join(map(str, flats))}|flat_diag={3 * nl}|flat_flat_couplings=0"
         f"|t_cert_milli={best_r}|t_cert_JE={best_r}/{den}|min_row={best_h}|min_mag={best_m}|min_nonflat_M={min_nonflat}|max_M={max_mag}"
         f"|positive_offdiag=0|bad_d=0|row_sums_zero=PASS{extra}|merkle=PASS|secs={secs}|json=0",
         flush=True,

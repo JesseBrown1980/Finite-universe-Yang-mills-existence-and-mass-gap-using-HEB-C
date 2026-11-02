@@ -1,6 +1,6 @@
 # Review 1, verbatim
 
-Relayed by the operator on November 2, 2026. The reviewer read the PR at head `155acdd`. This is the summary that reached this seat. The original also offered its full text as a Markdown download.
+Relayed by the operator on November 2, 2026. The reviewer read the PR at head `155acdd`. This is its summary. The full text is [`REVIEW-1-full.md`](REVIEW-1-full.md).
 
 ---
 

@@ -10,7 +10,8 @@
 # Key of a state: gauge-fix to the comb tree, read the free links in ascending link order as base-6 digits, and take the least
 # code over global conjugation and the lattice symmetries. Digits name permutations in the order of PERMS below.
 #
-# usage: verify_sample_rows.py LX LY DEV PASSA [--all] [--per-M K] [--per-sector K] [--uniform U] [--seed S] [--rows a,b,c]
+# usage: verify_sample_rows.py LX LY DEV PASSA [--all] [--pairs] [--per-M K] [--per-sector K] [--uniform U] [--seed S] [--rows a,b,c]
+#   --pairs adds a second pass that checks w_h * z_hj == w_j * z_jh exactly, for every off-diagonal entry of every rebuilt row.
 #   --per-sector K rebuilds K rows chosen at random from each sector file, by where the row starts, and the result row reports
 #   the count for every sector. A sector with no rebuilt row is a failure.
 #   DEV   a path, or first:count:seglen:prefix for the sector files <prefix>NNN.rooms
@@ -239,6 +240,49 @@ def read_rows(dev, wanted, per_sector, seed):
     return n, rows, sector_of, len(s.names)
 
 
+def check_pairs(dev, rows, pa):
+    """Second pass: every off-diagonal entry of a rebuilt row against the matching entry of its partner row, exactly."""
+    need = {}
+    for h, (w, mag, entries) in rows.items():
+        for j, z in entries:
+            if j != h:
+                need.setdefault(j, []).append((h, w * z))
+    s = Stream(dev)
+    head = s.read(4096)
+    fld = dict(x.split("=", 1) for x in head[: head.index(b"\n")].decode().split("|")[1:] if "=" in x)
+    n, payload = int(fld["n"]), int(fld["payload_bytes"])
+    unpack_h = struct.Struct("<IHH").unpack_from
+    unpack_e = struct.Struct("<Ii").iter_unpack
+    left, carry, j = payload, b"", 0
+    pairs = 0
+    while left > 0:
+        chunk = s.read(min(16 * MIB, left))
+        if not chunk:
+            fail("short_read_in_pair_pass")
+        left -= len(chunk)
+        buf = carry + chunk
+        p, end = 0, len(buf)
+        while j < n and p + 8 <= end:
+            w, mag, cnt = unpack_h(buf, p)
+            q = p + 8 + 8 * cnt
+            if q > end:
+                break
+            if j in need:
+                row = dict(unpack_e(buf[p + 8 : q]))
+                for h, wz in need.pop(j):
+                    if w * row.get(h, 0) != wz:
+                        fail(f"weighted_pair_differs_rows_{h}_{j}")
+                    pairs += 1
+            p = q
+            j += 1
+        carry = buf[p:]
+        if j == n:
+            carry = b""
+    if need:
+        fail("pair_partner_missing")
+    return pairs
+
+
 def main():
     t0 = time.monotonic_ns()
     a = sys.argv[1:]
@@ -259,6 +303,9 @@ def main():
     everything = "--all" in a
     if everything:
         a.remove("--all")
+    want_pairs = "--pairs" in a
+    if want_pairs:
+        a.remove("--pairs")
     if len(a) != 4:
         fail("usage")
     lx, ly, dev, passa = int(a[0]), int(a[1]), a[2], a[3]
@@ -353,13 +400,14 @@ def main():
             fail(f"row_differs_row_{h}")
         by_m[mag] = by_m.get(mag, 0) + 1
 
+    pairs = check_pairs(dev, rows, pa) if want_pairs else None
     listing = hashlib.sha256(",".join(map(str, sorted(wanted))).encode()).hexdigest()
     secs = (time.monotonic_ns() - t0) // 1_000_000_000
     hist = ",".join(f"{m}:{by_m[m]}" for m in sorted(by_m))
     sec_hist = ",".join(f"{k}:{by_sector[k]}" for k in sorted(by_sector))
     print(
         f"VERIFY_ROWS|L={lx}x{ly}|n={n}|rows_rebuilt={len(wanted)}|all_rows={int(everything)}|per_M={per_m}|per_sector={per_sector}|uniform={uniform}|seed={seed}"
-        f"|named_rows={extra or 'none'}|rows_sha256={listing}|by_M={hist}|sectors={sectors}|sectors_with_rows={len(by_sector)}|min_rows_in_a_sector={min(by_sector.values())}|by_sector={sec_hist}|matched={len(wanted)}|merkle=PASS|pass_secs={pass_secs}|secs={secs}|json=0",
+        f"|named_rows={extra or 'none'}|rows_sha256={listing}|by_M={hist}|sectors={sectors}|sectors_with_rows={len(by_sector)}|min_rows_in_a_sector={min(by_sector.values())}|by_sector={sec_hist}|matched={len(wanted)}{f"|weighted_pairs_exact={pairs}" if pairs is not None else ""}|merkle=PASS|pass_secs={pass_secs}|secs={secs}|json=0",
         flush=True,
     )
 

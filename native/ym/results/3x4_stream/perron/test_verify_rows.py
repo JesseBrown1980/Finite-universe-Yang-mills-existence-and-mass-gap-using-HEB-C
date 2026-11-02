@@ -131,5 +131,34 @@ case("key_not_least", None, move_key, f"key_is_not_the_least_in_its_orbit_row_{G
 ROW = ROW_SAVED
 
 
+# A symmetric pair broken in the partner row, which the rebuild never reads: only the pair pass can see it.
+_f = open(S + "/dev.bin", "rb")
+_p = 4096
+_row = {}
+for _i in range(len(_keys)):
+    _f.seek(_p)
+    _w, _m, _c = struct.unpack("<IHH", _f.read(8))
+    _row[_i] = (_p, _w, _c)
+    _p += 8 + 8 * _c
+_f.seek(_row[ROW][0] + 8)
+_ents = [struct.unpack("<Ii", _f.read(8)) for _ in range(_row[ROW][2])]
+_j = next(j for j, z in _ents if j != ROW and z < 0)
+_f.seek(_row[_j][0] + 8)
+_back = [struct.unpack("<Ii", _f.read(8)) for _ in range(_row[_j][2])]
+_k = next(i for i, (j, z) in enumerate(_back) if j == ROW)
+_diag = next(i for i, (j, z) in enumerate(_back) if j == _j)
+_f.close()
+_off = _row[_j][0] + 8 + 8 * _k + 4
+_dia = _row[_j][0] + 8 + 8 * _diag + 4
+store = f"{W}/v-pair.bin"
+shutil.copyfile(S + "/dev.bin", store)
+with open(store, "r+b") as f:
+    both(add32(_off, -1), add32(_dia, 1))(f)
+remerkle(store)
+for flags in ([], ["-O"]):
+    r = subprocess.run([PY, "-I", *flags, TOOL, "2", "3", store, S + "/passa.bin", "--per-M", "0", "--per-sector", "0", "--uniform", "0", "--rows", str(ROW), "--pairs"], capture_output=True, text=True)
+    ok = r.returncode == 2 and "weighted_pair_differs" in r.stdout and "VERIFY_ROWS|" not in r.stdout
+    say(f"VERIFY_BAD|case=broken_pair|flags={'-O' if flags else 'none'}|exit={r.returncode}|ok={int(ok)}|{r.stdout.strip()[:90]}|json=0")
+    bad += 0 if ok else 1
 say(f"VERIFY_CONTROLS|failed={bad}|json=0")
 sys.exit(1 if bad else 0)

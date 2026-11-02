@@ -109,12 +109,26 @@ for name, change in (("neg_d", (nonflat, -5)), ("flat_d", (flat, 7))):
     path = f"{W}/bad-{name}.dbin"
     open(path, "wb").write(e.tobytes())
     cases.append((name, STORE, path, "nonpositive_d_row" if name == "neg_d" else "flat_d_nonzero_row"))
+# Swapped d: two entries exchanged. The certificate stays valid but weaker, and the expected-hash option stops it.
+e = array.array("q", d)
+tight = 275450
+partner = next(i for i in range(len(d)) if d[i] != 0 and d[i] < d[tight] // 1000)
+e[tight], e[partner] = e[partner], e[tight]
+swapped = f"{W}/bad-swapped.dbin"
+open(swapped, "wb").write(e.tobytes())
+good_sha = hashlib.sha256(d.tobytes()).hexdigest()
+r = run([], STORE, swapped, "1000", "9000")
+weaker = r.returncode == 0 and "CHECK_D_STRICT" in r.stdout and "t_cert_milli=76041088|" not in r.stdout and good_sha not in r.stdout
+say(f"STRICT_SWAP|case=value_and_hash_change|exit={r.returncode}|ok={int(weaker)}|{r.stdout.strip()[:30]}|json=0")
+bad += 0 if weaker else 1
+cases.append(("swapped_d_with_expected_hash", STORE, swapped, "d_sha256_mismatch"))
 short = f"{W}/bad-short.dbin"
 open(short, "wb").write(d[:-1].tobytes())
 cases.append(("d_length", STORE, short, "d_length"))
 for name, store, dv, want in cases:
     for flags in ([], ["-O"]):
-        r = run(flags, store, dv, "1000", "9000")
+        extra = ["--expect-d-sha256", good_sha] if name == "swapped_d_with_expected_hash" else []
+        r = run(flags, store, dv, "1000", "9000", *extra)
         ok = r.returncode == 2 and want in r.stdout and "CHECK_D_STRICT" not in r.stdout
         say(f"STRICT_BAD|case={name}|flags={'-O' if flags else 'none'}|exit={r.returncode}|expected={want}|ok={int(ok)}|{r.stdout.strip()[:80]}|json=0")
         bad += 0 if ok else 1

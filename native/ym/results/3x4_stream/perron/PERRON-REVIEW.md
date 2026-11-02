@@ -4,8 +4,11 @@ This page is for someone who wants to check this work or break it. A counterexam
 confirmation. Please post either on
 [PR #79](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/79).
 
-**Where it stands:** three reviewers have read the argument and accept it, with the lift conditional on a row check. The
-numbers have been run by the producing seat, and the re-run on another machine is open. The derivation is in
+**Where it stands:** three reviewers have read the argument and accept it, with the lift conditional on a row check. An
+outside seat replayed the row rebuild on GitHub Actions from the public data: 2,564 of 2,564 sampled rows match the definition
+of H, including the tightest row, and the store's merkle recomputed from the download matches. A local run matched 4,264 of
+4,264 rows, with at least 88 from every one of the 34 sectors. The certificate value has been
+run by the producing seat, and its re-run on another machine is open. The derivation is in
 [`PERRON-BOUND.md`](PERRON-BOUND.md), and the measured rows are in [`PERRON-RESULT.hbp`](PERRON-RESULT.hbp).
 
 ## 1. What is being claimed
@@ -18,7 +21,7 @@ states, with E summing over the three transpositions on every link, M = Σ_p (2 
 |---|---|---|
 | C1 | On the store's Sx+Sy+ rows at r = 9, the published `d` gives min_h (H′d)_h / d_h = t_cert, in exact integers, rounded down | MEASURED by two separately written checkers, one author |
 | C2 | E₈ of the Sx+Sy+ sector, which has 7 flat states, is ≥ t_cert | Follows from C1 by interlacing and Barta, given that the rows are H |
-| C3 | E₉ of the whole gauge-invariant space, all momenta and symmetry sectors, is ≥ t_cert | DERIVED. Three reviewers accept the argument. Counted by separate code on 2×2 and 2×3 |
+| C3 | E₉ of the whole gauge-invariant space, all momenta and symmetry sectors, is ≥ t_cert | DERIVED. Three reviewers accept the argument. Counted by separate code on 2×2 and 2×3. 2,564 3×4 rows rebuilt on another machine have the row structure it uses |
 | C4 | E₈ ≤ 72 J_E for every r, and E₈ ≤ 70.031 J_E at r = 9 | MEASURED (flat states, then a count on a whole-space ball), plus min-max |
 | C5 | E₉ − E₈ ≥ t_cert − 72 + 3(r − 9) J_E for every r ≥ 9, and ≥ t_cert − 70.031 J_E at r = 9 | Follows from C1, C3 and C4, with M ≥ 3 MEASURED |
 
@@ -46,7 +49,8 @@ echo "eefd7752031cf6e1cbfd53dd47128805d1a98bb41de0a9e269222d0e2c6e3cbc  passA.bi
 
 ```
 python3 -I native/ym/results/3x4_stream/perron/check_d_strict.py 341:34:800000000:./sector- d93000000.bin 1000 9000 \
-  --passa passA.bin --self-adjoint 27
+  --passa passA.bin --self-adjoint 27 \
+  --expect-d-sha256 956b73bc6f4ec5712184eb52f67d8e0adab467c1ea843ba257126278368210da
 ```
 
 Any failed condition prints one `CHECK_D_FAIL` row and exits 2, with no value. Its controls are in
@@ -91,12 +95,13 @@ These are the steps most likely to fail, in the order I would test them.
    [`verify_sample_rows.py`](verify_sample_rows.py), separately written, rebuilds each row's weight, M and entries from
    permutations of three objects and compares them with the store. It takes every flat row, a sample at each magnetic number,
    a sample from each sector file, a uniform sample and any rows you name, and it reports the count for every sector. It
-   matched every row on 2×2 (211) and 2×3 (2,646), and 2,250 sampled rows on 3×3 across three sector files, and its 12 damage
-   controls all exit 2 ([`VERIFY-CONTROLS.hbp`](VERIFY-CONTROLS.hbp)). **Its 3×4 run is in progress here, with 50 rows from
-   each of the 34 sectors and the tightest row, and an outside seat is running it on GitHub Actions (section 4):**
+   matched every row on 2×2 (211) and 2×3 (2,646), and 2,250 sampled rows on 3×3 across three sector files, and its 14 damage
+   controls all exit 2 ([`VERIFY-CONTROLS.hbp`](VERIFY-CONTROLS.hbp)). `--pairs` also checks w_h·z_hj = w_j·z_jh exactly, on every
+   pair the rebuilt rows touch. **On 3×4, an outside replay on GitHub Actions matched 2,564 of 2,564 rows (section 4), and a local
+   run matched 4,264 of 4,264, with at least 88 rows from every one of the 34 sectors ([`VERIFY34.hbp`](VERIFY34.hbp)). To repeat it:**
 
    ```
-   python3 -I native/ym/results/3x4_stream/perron/verify_sample_rows.py 3 4 341:34:800000000:./sector- passA.bin --rows 44742735
+   python3 -I native/ym/results/3x4_stream/perron/verify_sample_rows.py 3 4 341:34:800000000:./sector- passA.bin --rows 44742735 --pairs
    ```
 
    Your own version would be a stronger test. `passA.bin` has 16 bytes per row, in row order, with key as u64, weight as u32
@@ -125,20 +130,29 @@ level, 94.122 J_E, sits above t_cert, as it must.
 ## 4. Reviews received so far
 
 Three reviews reached this seat through the operator on November 2, 2026. Their full text is attached:
-[`REVIEW-1.md`](REVIEW-1.md), [`REVIEW-2.md`](REVIEW-2.md) and [`REVIEW-3.md`](REVIEW-3.md). They read the argument and the code at
+[`REVIEW-1-full.md`](REVIEW-1-full.md) with its summary [`REVIEW-1.md`](REVIEW-1.md), [`REVIEW-2.md`](REVIEW-2.md) and
+[`REVIEW-3.md`](REVIEW-3.md). They read the argument and the code at
 `155acdd`, and the data went public after that. Reviewers 1 and 2 hold merge of the 3×4 result until the open items below
 close.
 
-**An outside re-run is in progress.** A separate seat started a read-only replay of the row rebuild on GitHub Actions, on the
-pinned public store and key table, with the tool at `2a2e2d4` and the tightest row named:
-[run 41441400030](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41441400030).
+**An outside replay matched.** A separate seat ran the row rebuild on GitHub Actions, [run 41441400030](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41441400030), on a fresh
+runner. All 34 sector files and the key table matched their SHA-256 after download, and the tool at `2a2e2d4` was pinned by hash:
+
+```
+VERIFY_ROWS|L=3x4|n=45508080|rows_rebuilt=2564|seed=27|named_rows=44742735|matched=2564|merkle=PASS|pass_secs=95|secs=175
+```
+
+The sample covers every magnetic number from 3 to 36, including all 3 rows at M = 3 and 52 of the 420 rows at M = 36. The receipt
+is [`REPLAY-41441400030-VERIFY-3X4.hbp`](REPLAY-41441400030-VERIFY-3X4.hbp).
 
 | Reviewer | Point | Status |
 |---|---|---|
 | 1, 2, 3 | Interlacing, Barta and the W^(1/2) cancellation hold | Accepted on reading |
 | 1, 3 | The lift is valid when the sector is the exact symmetry reduction | Accepted in principle. Attack 1 is open |
-| 1, 2, 3 | Rebuild sampled 3×4 rows from `passA.bin` with separate code | **In progress on 3×4,** here and on GitHub Actions. `verify_sample_rows.py` matches on 2×2, 2×3 and a 3×3 sample |
-| 2 | Another seat's pass over the 45.5M rows | **In progress:** the replay above reads the whole store once, and recomputes its merkle |
+| 1, 2, 3 | Rebuild sampled 3×4 rows from `passA.bin` with separate code | **Matched on 3×4:** 2,564 of 2,564 rows on another machine, and 4,264 of 4,264 locally, across all 34 sectors |
+| 2 | Another seat's pass over the 45.5M rows | Done for the row rebuild: the replay read the whole store once, and its merkle matched. **Open:** the certificate check on another machine |
+| 1 | The builder's aggregate symmetry checksum needs an exact check on pairs, preferably all of them | `verify_sample_rows.py --pairs` checks every pair the rebuilt rows touch, exactly. `check_d_strict.py --self-adjoint` tests all pairs by a random bilinear form drawn from SHA-256. Their 3×4 runs are open |
+| 1 | Run negative controls: wrong merkle, swapped `d`, mutated row | Done: [`STRICT-CONTROLS.hbp`](STRICT-CONTROLS.hbp), 18 of 18, and [`VERIFY-CONTROLS.hbp`](VERIFY-CONTROLS.hbp), 14 of 14 |
 | 1 | `check_d_stream.py` should fail closed, and `assert` vanishes under `python -O` | Confirmed by measurement: a changed byte printed `merkle=PASS` under `-O`. Fixed in `check_d_strict.py`. The recorded runs used `-I`, so their rows stand |
 | 2 | Put the 3×4 run and the location of `d` in the PR | Done: rows here, data on Hugging Face |
 | 2 | Match the rule text to the run | Done. The vector for 93 J_E was solved from d = 0, and the warm start at 93.7 J_E starts from it |
