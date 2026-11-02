@@ -1,0 +1,92 @@
+name: Independent 3x4 Hamiltonian row verification
+
+on:
+  push:
+    branches:
+      - ym-3x4-independent-row-verification-20261102
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: independent-ym-3x4-rows
+  cancel-in-progress: false
+
+jobs:
+  independent-sampled-rows:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Check out independent verification workflow
+        uses: actions/checkout@v4
+
+      - name: Verify free disk capacity
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h .
+          avail=$(df -B1 . | awk 'NR==2 {print $4}')
+          test "$avail" -ge 32000000000 || { echo 'VERIFY_ROWS_FAIL|reason=insufficient_disk_capacity|json=0'; exit 2; }
+
+      - name: Fetch exact verifier from PR 79 tested head
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p independent-3x4
+          cd independent-3x4
+          curl --retry 5 --retry-delay 10 --connect-timeout 60 -fLsS \
+            'https://raw.githubusercontent.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/2a2e2d4862777cebc3edc735d6d54a199dec4a57/native/ym/results/3x4_stream/perron/verify_sample_rows.py' \
+            -o verify_sample_rows.py
+          printf '%s  %s\n' 'dc5b9c42a03197b7324c7886b78e071026ea2cd55a8fca47d0fa6b78d4211b01' verify_sample_rows.py | sha256sum -c
+
+      - name: Download 34 fixed sector files from Hugging Face
+        shell: bash
+        timeout-minutes: 100
+        run: |
+          set -euo pipefail
+          cd independent-3x4
+          BASE='https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve/160726aaaf87386090b2b0b9ecf2815ca2634009'
+          curl --retry 5 --retry-delay 10 --connect-timeout 60 -fLsS "$BASE/SECTORS-341-374.sha256" -o SECTORS-341-374.sha256
+          printf '%s  %s\n' '9213927b3b60cfbeae8efef10730e8c7df2ad52f56159017b048539377886ce3' SECTORS-341-374.sha256 | sha256sum -c
+          for n in $(seq 341 374); do
+            echo "YM3X4_DOWNLOAD|sector=$n|json=0"
+            curl --retry 5 --retry-delay 10 --connect-timeout 60 -fLsS "$BASE/sector-$n.rooms" -o "sector-$n.rooms"
+            test "$(stat -c '%s' "sector-$n.rooms")" = "800000000"
+          done
+          sha256sum -c SECTORS-341-374.sha256
+          echo 'YM3X4_STORE|sectors=34|sha256=PASS|json=0'
+
+      - name: Download and hash key table
+        shell: bash
+        timeout-minutes: 25
+        run: |
+          set -euo pipefail
+          cd independent-3x4
+          curl --retry 5 --retry-delay 10 --connect-timeout 60 -fLsS \
+            'https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve/d2630edf882f3d9fa125f25680fd9b6a04c98d31/perron/passA.bin' -o passA.bin
+          printf '%s  %s\n' 'eefd7752031cf6e1cbfd53dd47128805d1a98bb41de0a9e269222d0e2c6e3cbc' passA.bin | sha256sum -c
+
+      - name: Rebuild sampled 3x4 rows from permutations and compare
+        shell: bash
+        timeout-minutes: 210
+        run: |
+          set -euo pipefail
+          cd independent-3x4
+          python3 -I verify_sample_rows.py 3 4 "341:34:800000000:$PWD/sector-" passA.bin --rows 44742735 2>&1 | tee VERIFY-3X4.hbp
+          grep -q '^VERIFY_ROWS|L=3x4|n=45508080|' VERIFY-3X4.hbp
+          grep -q '|merkle=PASS|' VERIFY-3X4.hbp
+          grep -q '|matched=' VERIFY-3X4.hbp
+          sha256sum VERIFY-3X4.hbp > VERIFY-3X4.sha256
+          echo 'VERIFY_ROWS_REPLAY|independent_host=github_actions|status=PASS|script_head=2a2e2d4862777cebc3edc735d6d54a199dec4a57|json=0'
+
+      - name: Publish independent verification receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: independent-3x4-rows
+          path: |
+            independent-3x4/VERIFY-3X4.hbp
+            independent-3x4/VERIFY-3X4.sha256
+          if-no-files-found: warn
+          retention-days: 90
