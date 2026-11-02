@@ -4,14 +4,14 @@ This page is for someone who wants to check this work or break it. A counterexam
 confirmation. Please post either on
 [PR #79](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/79).
 
-**Where it stands, November 2, evening:** the bound stands at **94.070673 J_E**, certified by the author's two checkers on `x3-c.bin`, with λ₁(H′) ≤ 94.070936 from the same store ([`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md)). The independent
-verdict is pending until an outside seat's Go checker passes. A second seat tried to refute the new work and refuted no printed bound ([`REVIEW-OPUS55.md`](REVIEW-OPUS55.md)). Every 3×4 row is being recomputed from the rules. Earlier the same day:
+**Where it stands, November 2, evening:** the bound stands at **94.070673 J_E**, certified by the author's two checkers on `x3-c.bin`, with λ₁(H′) ≤ 94.070936 from the same store ([`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md)). An outside seat's Go checker, written separately from this page's formats,
+prints the same value, row and M on `x3-c.bin` and on two other vectors, as predicted in writing beforehand ([run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749)). A second seat tried to refute the new work and refuted no printed bound ([`REVIEW-OPUS55.md`](REVIEW-OPUS55.md)). Every 3×4 row is being recomputed from the rules. Earlier the same day:
 three reviewers have read the argument and accept it, with the lift conditional on a row check. An
 outside seat replayed the row rebuild on GitHub Actions from the public data: 2,564 of 2,564 sampled rows match the definition
 of H, including the tightest row, and the store's merkle recomputed from the download matches. A local run matched 4,264 of
 4,264 rows, with at least 88 from every one of the 34 sectors. The same outside seat then re-ran the certificate on another
 machine, [run 41444444894](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41444444894): the same 93.061051, row and M, with row sums, the key table and W-self-adjointness passing on
-all rows, and 385,827 exact weighted pairs. Open: a checker written by someone else, and a registered rule. The derivation is in
+all rows, and 385,827 exact weighted pairs. Open: the all-rows rebuild, a registered rule and the operator's word on a verdict, then uniformity in volume and the continuum limit, since each result here is a statement about one finite lattice. The derivation is in
 [`PERRON-BOUND.md`](PERRON-BOUND.md), and the measured rows are in [`PERRON-RESULT.hbp`](PERRON-RESULT.hbp).
 
 ## 1. What is being claimed
@@ -165,8 +165,19 @@ VERIFY_ROWS|L=3x4|n=45508080|rows_rebuilt=5556|named_rows=44742735|sectors=34|se
 ```
 
 The receipts are [`REPLAY-41444444894-CHECK-3X4-STRICT.hbp`](REPLAY-41444444894-CHECK-3X4-STRICT.hbp) and
-[`REPLAY-41444444894-VERIFY-3X4-PAIRS.hbp`](REPLAY-41444444894-VERIFY-3X4-PAIRS.hbp). The tools have one author, so a checker written by
-someone else is still open.
+[`REPLAY-41444444894-VERIFY-3X4-PAIRS.hbp`](REPLAY-41444444894-VERIFY-3X4-PAIRS.hbp). These two tools have one author.
+
+**A checker written by someone else matched.** The outside seat wrote its own in Go from this page's formats. [run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749) fetched the public files without a token, each pinned by SHA-256, and printed:
+
+```
+PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS
+control t_cert_milli=93061051 min_row=44742735 min_mag=3
+blind t_cert_milli=94070673 min_row=45507968 min_mag=3
+flat_rows=7 min_nonzero_mag=3 max_mag=36 weighted_residual=0
+```
+
+That is the third of three replays. The others gave 93718415 and 94065384 on `d93700000-pass5.bin` and `x3-b.bin`. All four values, rows and M were predicted in writing before the first checker step. Its log, artifact and source are in
+[`outside-go-41509351749/`](outside-go-41509351749/), and [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 5, has its scope: a self-adjoint test on x, y in −3..3, and fault controls that stop at the merkle and at positivity.
 
 | Reviewer | Point | Status |
 |---|---|---|
@@ -176,7 +187,7 @@ someone else is still open.
 | 2 | Another seat's pass over the 45.5M rows | Done: run 41444444894 read all 45.5M rows with `check_d_strict.py`, with the same value, row and M |
 | 1 | The builder's aggregate symmetry checksum needs an exact check on pairs, preferably all of them | `verify_sample_rows.py --pairs` checks every pair the rebuilt rows touch, exactly. `check_d_strict.py --self-adjoint` tests all pairs by a random bilinear form drawn from SHA-256. Both ran on 3×4 in run 41444444894: 385,827 exact pairs, and `W_self_adjoint=PASS` |
 | Second seat | Refutation of the new tools and the two-sided claims: 8 of 8 claims survived, with 8 findings in wording, labels, provenance and out-of-range input | [`REVIEW-OPUS55.md`](REVIEW-OPUS55.md), and what changed in [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 6 |
-| Outside seat | Its own Go checker from this page's formats | It stopped on a wrong line of this page, corrected in section 2. Its certificate values are pending |
+| Outside seat | Its own Go checker from this page's formats | It stopped first on a wrong line of this page, corrected in section 2. Then [run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749) printed the predicted value, row and M on all four vectors. Open on it: a wider x, y range in its self-adjoint test, where one bad pair passes at 289 of 2,401, and a fault control that reaches that test |
 | 1 | Run negative controls: wrong merkle, swapped `d`, mutated row | Done: [`STRICT-CONTROLS.hbp`](STRICT-CONTROLS.hbp), 18 of 18, and [`VERIFY-CONTROLS.hbp`](VERIFY-CONTROLS.hbp), 14 of 14 |
 | 1 | `check_d_stream.py` should fail closed, and `assert` vanishes under `python -O` | Confirmed by measurement: a changed byte printed `merkle=PASS` under `-O`. Fixed in `check_d_strict.py`. The recorded runs used `-I`, so their rows stand |
 | 2 | Put the 3×4 run and the location of `d` in the PR | Done: rows here, data on Hugging Face |

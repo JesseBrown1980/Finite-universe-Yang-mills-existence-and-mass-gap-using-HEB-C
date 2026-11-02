@@ -3,7 +3,7 @@
 **On 3×4, 94.070673 ≤ λ₁(H′) ≤ 94.070936 J_E,** a bracket 0.000263 J_E wide. One exact pass over the store bounds λ₁(H′) from above as well
 as from below, and one more pass raises the side from below using vectors that are already solved. Claims are tagged MEASURED, DERIVED (a short
 proof written here) or CONJECTURE. Each number below names the tool that measured it. A number here counts as certified, by the author's tools, when `perroncert check` and
-`check_d_strict.py` agree on it. The independent verdict is pending until the Go checker in section 7 passes. The tool that proposes vectors, [`perronritz.rs`](../../../crates/evolvers/src/bin/perronritz.rs), measures in
+`check_d_strict.py` agree on it. An outside seat's Go checker, written separately, prints the same values, rows and M on these vectors, as predicted in writing beforehand: section 5. The tool that proposes vectors, [`perronritz.rs`](../../../crates/evolvers/src/bin/perronritz.rs), measures in
 one pass and stands behind those two for the side from below.
 
 A separate seat tried to refute all of this: [`REVIEW-OPUS55.md`](REVIEW-OPUS55.md). Every printed bound it could test holds, and section 6 lists
@@ -114,14 +114,14 @@ Rows: [`TWO-SIDED-3x4.hbp`](TWO-SIDED-3x4.hbp), with the predictions written bef
 
 | Vector | `t_cert` (J_E) | Tightest row | Measured by |
 |---|---|---|---|
-| T = 93, 12 passes | 93.061051 | 44,742,735 | `perroncert check`, `check_d_stream.py`, and `check_d_strict.py` on another machine |
-| T = 93.7, 5 passes | 93.718415 | 44,742,735 | `perronritz pass` |
+| T = 93, 12 passes | 93.061051 | 44,742,735 | `perroncert check`, `check_d_stream.py`, `check_d_strict.py` on another machine, and the outside seat's Go checker |
+| T = 93.7, 5 passes | 93.718415 | 44,742,735 | `perronritz pass`, and the outside seat's Go checker |
 | T = 93.95, 3 passes | 93.955575 | 44,742,735 | `perronritz pass` |
 | X₂ on 93, 93.7, plus γ d | 94.002305 | 44,742,735 | `perronritz pass` |
 | T = 94.058, 9 passes, hosted climb, [run 41448187715](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41448187715) | 94.058570 | 44,742,735 | `perroncert check` and `check_d_strict.py` on that runner |
 | X₃ on 93, 93.7, 93.95, γ = 316 | 94.064904 | 44,742,735 | `perronritz grid` |
-| X₃ on 93, 93.7, 93.95 converged, γ = 0 | 94.065384 | 44,742,735 | `perronritz grid`, `perroncert check`, `check_d_strict.py` |
-| X₃ on 93.7, 93.95 converged, 94.058, γ = 2 | **94.070673** | 45,507,968 | `perronritz grid`, `perroncert check`, `check_d_strict.py` |
+| X₃ on 93, 93.7, 93.95 converged, γ = 0 | 94.065384 | 44,742,735 | `perronritz grid`, `perroncert check`, `check_d_strict.py`, and the outside seat's Go checker |
+| X₃ on 93.7, 93.95 converged, 94.058, γ = 2 | **94.070673** | 45,507,968 | `perronritz grid`, `perroncert check`, `check_d_strict.py`, and the outside seat's Go checker |
 
 The hosted climb reached 94.058570 at 12,110 s. The divided difference of its T = 94.058 vector with two lower ones took one more pass.
 
@@ -146,6 +146,38 @@ and the local restart from `cf273fbf…`.
 
 `perroncert check` at JB = 7000 on that vector prints 79745170, row 44,743,136, M = 8, as predicted in writing beforehand. The table passes the flat bound of 72 at r = 6.076 (exactly 1093567/180000 = 6.075372 by
 the second seat), so E₉ − E₈ > 0 for every r ≥ 6.076 on 3×4, subject to the same items. A solve at a lower coupling is open.
+
+### The outside seat's Go checker
+
+An outside seat wrote this checker in Go, standard library and exact integers, from the wire format in [`PERRON-REVIEW.md`](PERRON-REVIEW.md). Its source is pinned by hash, `8009406c…`.
+On a fresh hosted runner, [run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749) fetched all 34 sectors and the four vectors from Hugging Face without a token, each pinned by SHA-256. Its log and artifact are in
+[`outside-go-41509351749/`](outside-go-41509351749/). This seat's prediction is in [`TWO-SIDED-3x4.hbp`](TWO-SIDED-3x4.hbp), written at 19:25:15Z, and the first checker step began at 19:29:07Z.
+
+| Vector | Predicted `t_cert_milli`, row, M | Printed by the Go checker |
+|---|---|---|
+| `d93000000.bin`, the control, in all 3 replays | 93061051, 44,742,735, 3 | 93061051, 44,742,735, 3 |
+| `d93700000-pass5.bin` | 93718415, 44,742,735, 3 | 93718415, 44,742,735, 3 |
+| `x3-b.bin` | 94065384, 44,742,735, 3 | 94065384, 44,742,735, 3 |
+| `x3-c.bin` | **94070673**, 45,507,968, 3 | **94070673**, 45,507,968, 3 |
+
+Each of the three replays also printed:
+
+```
+PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS
+flat_rows=7 min_nonzero_mag=3 max_mag=36 weighted_residual=0
+payload_zero_padding=742160 raw_tail_bytes=349114368 raw_tail_nonzero=347747335
+```
+
+Two fault controls ran, each rejected with empty standard output. One flipped payload byte stopped at the merkle comparison, and d = 0 on the first non-flat row stopped at the positivity test:
+`FAIL: non-flat row 1 has nonpositive d: 0 / 2094576564`.
+
+The scope of this check:
+
+- **The values are computed.** The source floors (9,000,000·M·d_h + 1,000,000·Σ z d_j) / d_h on every non-flat row, and holds none of the blind values. The workflow states an expected value for the control alone.
+  The blinding was partial: this seat's status messages named these values before the run.
+- **Self-adjointness.** It draws x and y from −3..3 with one fixed seed. One bad pair (h, j) passes when x_h y_j = y_h x_j, which 289 of the 2,401 tuples satisfy (0.12036…, by enumeration). `check_d_strict.py` tests the same
+  property modulo 2⁶¹ − 1, with a false-pass chance of about 10⁻¹⁸. The Go checker's two fault controls stop before that test, so a fault control that reaches its row-sum and self-adjoint gates is open: section 7.
+- **The rows.** It reads them as stored, with the merkle and the sector hashes checked. `fullrebuild` compares them with the definition of H: section 7.
 
 ### Which tool made which row
 
@@ -178,8 +210,10 @@ Its first objections as a hostile reader stand as open items: the upper side bou
 
 | Item | Run that measures it |
 |---|---|
-| The independent verdict: a checker written by someone else, on these vectors | Pending until it passes. The outside seat's Go checker, [`independent-go-perron-20261102.yml`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/audit/independent-go-perron-20261102/.github/workflows/independent-go-perron-20261102.yml) on its branch. Its first runs stopped after the row loop on the format text this seat gave it, corrected in `PERRON-REVIEW.md`. Its row conditions passed on all rows. Its diagnostic run [41499253445](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41499253445) printed `trailing=742160 nonzero=0 merkle_matches=true`, as predicted in writing beforehand. A later build, with the corrected format and all three vectors, is running: [run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749). Its certificate values are open |
+| The outside seat's Go checker, further | Its values are measured, in section 5. Open: a wider range for x and y in its self-adjoint test, and a fault control that reaches its row-sum and self-adjoint gates, which needs a store with a repaired merkle. Earlier runs, on its branch's [`independent-go-perron-20261102.yml`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/audit/independent-go-perron-20261102/.github/workflows/independent-go-perron-20261102.yml): the first stopped after the row loop on the format text this seat gave it, corrected in `PERRON-REVIEW.md`, and diagnostic run [41499253445](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41499253445) printed `trailing=742160 nonzero=0 merkle_matches=true`, as predicted in writing beforehand |
 | Every 3×4 row against the definition of H | Running at the operator's word: `second-seat/fullrebuild.rs` recomputes each row from the rules, S₃ from permutations, the lattice, the gauge fixing, the canonical key, weight, M and every move, and compares it with the store. Prediction, written first in [`FULLREBUILD-RUN.hbp`](FULLREBUILD-RUN.hbp): 45,508,080 rows, 0 mismatches, and any mismatch falsifies store = H. It matches all rows on 2×2, 2×3 and 3×3. With a store's merkle repaired after one changed entry, M or weight, it reports exactly that mismatch and exits 2, on 4 of 4 controls: [`FULLREBUILD-CONTROLS.hbp`](FULLREBUILD-CONTROLS.hbp). The key list comes from `passA.bin` and is verified: each key must recompute as canonical, keys ascend strictly, a move outside the list counts as a mismatch, and the recomputed weights must equal the store's, which `check_d_strict.py` ties to `passA.bin`, whose weights sum to exactly 6¹³ |
 | The gap below r = 6.076 on 3×4 | A solve at lower coupling, then the same checks. On 3×3 the flat bound's route ends between r = 4 and 4.06 |
 | `perroncert` guards at absurd inputs | A hardened build with checked products, once the pinned runs are done |
 | A verdict by this route | A rule revision and the operator's word: [`PERRON-RULE-DRAFT.md`](PERRON-RULE-DRAFT.md) |
+| Uniformity in volume | A separate obligation. Each result here is a statement about one finite lattice. The volume-uniform proof is the research track named in the README's theory route |
+| The continuum limit | A further obligation beyond uniformity in volume, named in the same place |
