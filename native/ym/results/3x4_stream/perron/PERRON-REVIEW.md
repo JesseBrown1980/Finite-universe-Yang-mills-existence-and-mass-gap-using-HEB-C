@@ -90,8 +90,10 @@ These are the steps most likely to fail, in the order I would test them.
 
    [`verify_sample_rows.py`](verify_sample_rows.py), separately written, rebuilds each row's weight, M and entries from
    permutations of three objects and compares them with the store. It takes every flat row, a sample at each magnetic number,
-   a uniform sample and any rows you name. It matched every row on 2×2 (211) and 2×3 (2,646), and 2,100 sampled rows on 3×3,
-   and its 12 damage controls all exit 2 ([`VERIFY-CONTROLS.hbp`](VERIFY-CONTROLS.hbp)). **Its 3×4 run is open:**
+   a sample from each sector file, a uniform sample and any rows you name, and it reports the count for every sector. It
+   matched every row on 2×2 (211) and 2×3 (2,646), and 2,250 sampled rows on 3×3 across three sector files, and its 12 damage
+   controls all exit 2 ([`VERIFY-CONTROLS.hbp`](VERIFY-CONTROLS.hbp)). **Its 3×4 run is in progress here, with 50 rows from
+   each of the 34 sectors and the tightest row, and an outside seat is running it on GitHub Actions (section 4):**
 
    ```
    python3 -I native/ym/results/3x4_stream/perron/verify_sample_rows.py 3 4 341:34:800000000:./sector- passA.bin --rows 44742735
@@ -122,16 +124,21 @@ level, 94.122 J_E, sits above t_cert, as it must.
 
 ## 4. Reviews received so far
 
-Three reviews reached this seat through the operator on November 2, 2026. They read the argument and the code at
-`155acdd`, and the data went public after that, so the re-run is open. Reviewers 1 and 2 hold merge of the 3×4 result until
-the open items below close.
+Three reviews reached this seat through the operator on November 2, 2026. Their full text is attached:
+[`REVIEW-1.md`](REVIEW-1.md), [`REVIEW-2.md`](REVIEW-2.md) and [`REVIEW-3.md`](REVIEW-3.md). They read the argument and the code at
+`155acdd`, and the data went public after that. Reviewers 1 and 2 hold merge of the 3×4 result until the open items below
+close.
+
+**An outside re-run is in progress.** A separate seat started a read-only replay of the row rebuild on GitHub Actions, on the
+pinned public store and key table, with the tool at `2a2e2d4` and the tightest row named:
+[run 41441400030](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41441400030).
 
 | Reviewer | Point | Status |
 |---|---|---|
 | 1, 2, 3 | Interlacing, Barta and the W^(1/2) cancellation hold | Accepted on reading |
 | 1, 3 | The lift is valid when the sector is the exact symmetry reduction | Accepted in principle. Attack 1 is open |
-| 1, 2, 3 | Rebuild sampled 3×4 rows from `passA.bin` with separate code | **Open on 3×4.** `verify_sample_rows.py` matches on 2×2, 2×3 and a 3×3 sample, and the key table is public |
-| 2 | Another seat's pass over the 45.5M rows | **Open.** The data is public |
+| 1, 2, 3 | Rebuild sampled 3×4 rows from `passA.bin` with separate code | **In progress on 3×4,** here and on GitHub Actions. `verify_sample_rows.py` matches on 2×2, 2×3 and a 3×3 sample |
+| 2 | Another seat's pass over the 45.5M rows | **In progress:** the replay above reads the whole store once, and recomputes its merkle |
 | 1 | `check_d_stream.py` should fail closed, and `assert` vanishes under `python -O` | Confirmed by measurement: a changed byte printed `merkle=PASS` under `-O`. Fixed in `check_d_strict.py`. The recorded runs used `-I`, so their rows stand |
 | 2 | Put the 3×4 run and the location of `d` in the PR | Done: rows here, data on Hugging Face |
 | 2 | Match the rule text to the run | Done. The vector for 93 J_E was solved from d = 0, and the warm start at 93.7 J_E starts from it |

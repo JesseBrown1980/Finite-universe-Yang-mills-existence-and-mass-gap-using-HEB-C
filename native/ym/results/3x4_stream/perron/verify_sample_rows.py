@@ -10,7 +10,9 @@
 # Key of a state: gauge-fix to the comb tree, read the free links in ascending link order as base-6 digits, and take the least
 # code over global conjugation and the lattice symmetries. Digits name permutations in the order of PERMS below.
 #
-# usage: verify_sample_rows.py LX LY DEV PASSA [--all] [--per-M K] [--uniform U] [--seed S] [--rows a,b,c]
+# usage: verify_sample_rows.py LX LY DEV PASSA [--all] [--per-M K] [--per-sector K] [--uniform U] [--seed S] [--rows a,b,c]
+#   --per-sector K rebuilds K rows chosen at random from each sector file, by where the row starts, and the result row reports
+#   the count for every sector. A sector with no rebuilt row is a failure.
 #   DEV   a path, or first:count:seglen:prefix for the sector files <prefix>NNN.rooms
 #   PASSA key table: 16 bytes per row, key u64, weight u32, magnetic number u32, little-endian
 # Any mismatch prints one VERIFY_ROWS_FAIL row and exits 2. Success prints one VERIFY_ROWS row. json=0.
@@ -167,9 +169,18 @@ class Stream:
         return bytes(out)
 
 
-def read_rows(dev, wanted):
-    """One pass over the whole store: returns the wanted rows and recomputes the payload merkle."""
+def read_rows(dev, wanted, per_sector, seed):
+    """One pass over the whole store: returns the wanted rows, a random draw from each sector, and recomputes the merkle."""
     s = Stream(dev)
+    rng = random.Random(seed + 1)
+    seg = s.seg
+    pos = 4096
+    sector = 0
+    boundary = seg
+    count = 0
+    bucket = []
+    drawn = []
+    sector_of = {}
     head = s.read(4096)
     if b"\n" not in head:
         fail("no_header_line")
@@ -193,8 +204,24 @@ def read_rows(dev, wanted):
             q = p + 8 + 8 * cnt
             if q > end:
                 break
+            while boundary is not None and pos >= boundary:
+                drawn.append((sector, bucket))
+                sector += 1
+                boundary += seg
+                count = 0
+                bucket = []
             if h in wanted:
                 rows[h] = (w, mag, list(unpack_e(buf[p + 8 : q])))
+                sector_of[h] = sector
+            elif per_sector > 0:
+                if count < per_sector:
+                    bucket.append((h, w, mag, buf[p + 8 : q]))
+                else:
+                    j = rng.randrange(count + 1)
+                    if j < per_sector:
+                        bucket[j] = (h, w, mag, buf[p + 8 : q])
+                count += 1
+            pos += q - p
             p = q
             h += 1
         carry = buf[p:]
@@ -204,7 +231,12 @@ def read_rows(dev, wanted):
         fail("row_count")
     if hashlib.sha256(bytes(shas)).hexdigest() != fld["payload_merkle"]:
         fail("merkle")
-    return n, rows
+    drawn.append((sector, bucket))
+    for sec, items in drawn:
+        for hh, w, mag, raw in items:
+            rows[hh] = (w, mag, list(unpack_e(raw)))
+            sector_of[hh] = sec
+    return n, rows, sector_of, len(s.names)
 
 
 def main():
@@ -220,6 +252,7 @@ def main():
         return default
 
     per_m = int(opt("--per-M", "50"))
+    per_sector = int(opt("--per-sector", "50"))
     uniform = int(opt("--uniform", "1000"))
     seed = int(opt("--seed", "27"))
     extra = opt("--rows", "")
@@ -272,11 +305,17 @@ def main():
     if any(h < 0 or h >= n for h in wanted):
         fail("named_row_out_of_range")
 
-    store_n, rows = read_rows(dev, wanted)
+    store_n, rows, sector_of, sectors = read_rows(dev, wanted, 0 if everything else per_sector, seed)
     if store_n != n:
         fail("store_and_key_table_differ_in_n")
-    if len(rows) != len(wanted):
+    if any(h not in rows for h in wanted):
         fail("row_missing")
+    wanted = set(rows)
+    by_sector = {}
+    for sec in sector_of.values():
+        by_sector[sec] = by_sector.get(sec, 0) + 1
+    if any(by_sector.get(k, 0) == 0 for k in range(sectors)):
+        fail("sector_without_rebuilt_rows")
     pass_secs = (time.monotonic_ns() - t0) // 1_000_000_000
 
     by_m = {}
@@ -317,9 +356,10 @@ def main():
     listing = hashlib.sha256(",".join(map(str, sorted(wanted))).encode()).hexdigest()
     secs = (time.monotonic_ns() - t0) // 1_000_000_000
     hist = ",".join(f"{m}:{by_m[m]}" for m in sorted(by_m))
+    sec_hist = ",".join(f"{k}:{by_sector[k]}" for k in sorted(by_sector))
     print(
-        f"VERIFY_ROWS|L={lx}x{ly}|n={n}|rows_rebuilt={len(wanted)}|all_rows={int(everything)}|per_M={per_m}|uniform={uniform}|seed={seed}"
-        f"|named_rows={extra or 'none'}|rows_sha256={listing}|by_M={hist}|matched={len(wanted)}|merkle=PASS|pass_secs={pass_secs}|secs={secs}|json=0",
+        f"VERIFY_ROWS|L={lx}x{ly}|n={n}|rows_rebuilt={len(wanted)}|all_rows={int(everything)}|per_M={per_m}|per_sector={per_sector}|uniform={uniform}|seed={seed}"
+        f"|named_rows={extra or 'none'}|rows_sha256={listing}|by_M={hist}|sectors={sectors}|sectors_with_rows={len(by_sector)}|min_rows_in_a_sector={min(by_sector.values())}|by_sector={sec_hist}|matched={len(wanted)}|merkle=PASS|pass_secs={pass_secs}|secs={secs}|json=0",
         flush=True,
     )
 

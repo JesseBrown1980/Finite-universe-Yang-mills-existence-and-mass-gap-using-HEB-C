@@ -95,8 +95,9 @@ weight 4. That is why the whole space has 8 flat orbits and this sector has 7.
 
 MEASURED by [`verify_sample_rows.py`](verify_sample_rows.py), separately written from the store's builder. It derives S₃ from
 permutations, the plaquettes from the lattice and the symmetries from reflections and translations, then rebuilds each row's
-weight, M and entries from the 3·nl moves. Every row matches on 2×2 (211) and 2×3 (2,646), and 2,100 sampled rows match on
-3×3, including the tightest row. Its 12 damage controls all exit 2. The 3×4 run is open.
+weight, M and entries from the 3·nl moves. Every row matches on 2×2 (211) and 2×3 (2,646), and 2,250 sampled rows match on
+3×3, including the tightest row, across three sector files. Its 12 damage controls all exit 2. Its 3×4 run is in progress,
+here and on GitHub Actions.
 
 ### The bound on 3×4
 
@@ -199,6 +200,6 @@ cluster, which fits the single (−,−) flat state. Measuring its sector direct
 | The solver on 3×4 at a higher threshold | A warm start at 93.7 J_E, [`run_warm34.sh`](run_warm34.sh). Its value counts after the same two checks |
 | The level itself on 3×4 | CONJECTURE: λ₁(H′) ≈ 94.0 J_E. The cluster top of 70.03 plus 3×3's gap of 23.94 gives 93.97, and the ball levels above fall toward about 94.0 |
 | That the store's rows are H, in general on 3×4 | [`verify_sample_rows.py`](verify_sample_rows.py) on the 3×4 store. All three reviewers ask for it |
-| The arithmetic on another machine | Another seat's pass over the published `d` and store |
+| The arithmetic on another machine | Another seat's pass over the published `d` and store. A replay of the row rebuild is in progress: [`PERRON-REVIEW.md`](PERRON-REVIEW.md), section 4 |
 | The argument itself | Three reviewers accept it on reading, with the lift conditional on the row check |
 | A verdict by this route | A rule revision and the operator's word: [`PERRON-RULE-DRAFT.md`](PERRON-RULE-DRAFT.md) |

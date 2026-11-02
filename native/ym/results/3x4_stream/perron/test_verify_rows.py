@@ -70,7 +70,7 @@ def case(name, patch_store, patch_table, want):
         with open(table, "r+b") as f:
             patch_table(f)
     for flags in ([], ["-O"]):
-        r = subprocess.run([PY, "-I", *flags, TOOL, "2", "3", store, table, "--per-M", "2", "--uniform", "2", "--rows", str(ROW)], capture_output=True, text=True)
+        r = subprocess.run([PY, "-I", *flags, TOOL, "2", "3", store, table, "--per-M", "2", "--per-sector", "0", "--uniform", "2", "--rows", str(ROW)], capture_output=True, text=True)
         ok = r.returncode == 2 and want in r.stdout and "VERIFY_ROWS|" not in r.stdout
         say(f"VERIFY_BAD|case={name}|flags={'-O' if flags else 'none'}|exit={r.returncode}|expected={want}|ok={int(ok)}|{r.stdout.strip()[:90]}|json=0")
         bad += 0 if ok else 1
