@@ -1,0 +1,14 @@
+CLIMB_START|first_t=93950000|budget_secs=13500|inner=16:500|passes_per_segment=3|known=93000000:61051,93700000:18416|json=0
+CLIMB_SEGMENT|stage=1|t=93950000|seg=1|t_cert_milli=93955575|min_row=44742735|min_mag=3|d_max=192571261487|d_sha256=635e72734fefa570694dbc1b15f185d5da9870de8407cd191ed78a8e8be49094|last_change=105893|secs=1775|json=0
+CLIMB_SEGMENT|stage=1|t=93950000|seg=2|t_cert_milli=93955575|min_row=44742735|min_mag=3|d_max=192576030126|d_sha256=cf273fbf4a3c034ca2c29ddf5d4230f42b9ef7a8515f031cec3482881e617922|last_change=528|secs=3341|json=0
+CLIMB_ESTIMATE|level_estimate_milli=94065356|from_points=93000000:61051,93700000:18416,93950000:5575|tag=CONJECTURE|json=0
+CLIMB_SEGMENT|stage=2|t=94030000|seg=1|t_cert_milli=94031828|min_row=44742735|min_mag=3|d_max=587146661689|d_sha256=9a31ae32e7885c1dbe4881edbe5b97bd1b4eda2eba291632edcf41efb67cd3ff|last_change=1622950|secs=5097|json=0
+CLIMB_SEGMENT|stage=2|t=94030000|seg=2|t_cert_milli=94031828|min_row=44742735|min_mag=3|d_max=587192420050|d_sha256=e395be1c3fbad4db3507c7d801f43bef08afc2b6e4fe9c65074f6916aca6a20f|last_change=1344|secs=6880|json=0
+CLIMB_ESTIMATE|level_estimate_milli=94070282|from_points=93700000:18416,93950000:5575,94030000:1828|tag=CONJECTURE|json=0
+CLIMB_SEGMENT|stage=3|t=94058000|seg=1|t_cert_milli=94058501|min_row=44742735|min_mag=3|d_max=1845644495367|d_sha256=3c01c8087efcbc897e4ea4e8c088f0b5012934d8697c967f9fb8d0e719623bb7|last_change=275955950|secs=8695|json=0
+CLIMB_SEGMENT|stage=3|t=94058000|seg=2|t_cert_milli=94058568|min_row=44742735|min_mag=3|d_max=1880911486632|d_sha256=e731a4e28f5884fffd13b0eb351870b52aa4b0b24d285b0be8beb8f4e1ce091a|last_change=7826237|secs=10394|json=0
+CLIMB_SEGMENT|stage=3|t=94058000|seg=3|t_cert_milli=94058570|min_row=44742735|min_mag=3|d_max=1881928748321|d_sha256=d6e7d72922bf42c85316e993e3531a302572164cd39f2f7a7aedebe843d3f3ad|last_change=226342|secs=12110|json=0
+CLIMB_ESTIMATE|level_estimate_milli=94070878|from_points=93950000:5575,94030000:1828,94058000:570|tag=CONJECTURE|json=0
+CLIMB_SEGMENT|stage=4|t=94067000|seg=1|t_cert_milli=91968587|min_row=44759496|min_mag=17|d_max=4765190957142|d_sha256=ade414eeeb273bc78ce756428cf1e49fe2cd98c9f0784251b8882784734a4297|last_change=1503375984|secs=13795|json=0
+CLIMB_BUDGET|stage=4|t=94067000|json=0
+CLIMB_DONE|best_t_cert_milli=94058570|at_threshold=94058000|min_row=44742735|min_mag=3|d_max=1881928748321|d_sha256=d6e7d72922bf42c85316e993e3531a302572164cd39f2f7a7aedebe843d3f3ad|secs=13795|json=0

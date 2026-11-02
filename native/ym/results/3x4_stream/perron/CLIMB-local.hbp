@@ -1,0 +1,2 @@
+CLIMB_START|first_t=93950000|budget_secs=72000|inner=16:500|passes_per_segment=3|known=93000000:61051,93700000:18416|json=0
+CLIMB_SEGMENT|stage=1|t=93950000|seg=1|t_cert_milli=93955575|min_row=44742735|min_mag=3|d_max=192571261487|d_sha256=635e72734fefa570694dbc1b15f185d5da9870de8407cd191ed78a8e8be49094|last_change=105893|secs=5063|json=0

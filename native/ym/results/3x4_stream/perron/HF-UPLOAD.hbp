@@ -10,3 +10,9 @@ HF_FILE|group=readme_rewrite|path=perron/README.md|bytes=852|sha256=0e2c29eb212a
 HF_COMMIT|group=readme_rewrite|repo=datasets/Jessedbrown/ym-3x4-room-store|commit=cf5584cbac281ce8bd8d1760acc8240794ece04f|files=1|all_match=1|json=0
 HF_FILE|group=climb_start_vector|path=perron/start/d93700000-pass5.bin|bytes=364064640|sha256=34e71facb2689a46a44cb347604f0b361760020c8810748f6e9cc513daa53686|hub_match=1|json=0
 HF_COMMIT|group=climb_start_vector|repo=datasets/Jessedbrown/ym-3x4-room-store|commit=b33f5a0bf3392ba795f39fe726570ad61311b3d4|files=1|all_match=1|json=0
+HF_FILE|group=top_vector_x3b|path=perron/top/x3-b.bin|bytes=364064640|sha256=637fe9e293505d950503abbd615840471e4ef14a2a23128d44233992f82999fe|hub_match=1|json=0
+HF_FILE|group=top_vector_x3b|path=perron/top/d93950000-conv.bin|bytes=364064640|sha256=cf273fbf4a3c034ca2c29ddf5d4230f42b9ef7a8515f031cec3482881e617922|hub_match=1|json=0
+HF_COMMIT|group=top_vector_x3b|repo=datasets/Jessedbrown/ym-3x4-room-store|commit=7ed23ce12ffb27fae7b9fd39eb103065f3dd8a37|files=2|all_match=1|json=0
+HF_FILE|group=top_vector_x3c|path=perron/top/x3-c.bin|bytes=364064640|sha256=f5c5428db1fc5d91d2ab891689f0dac7263dc26c8f9b60a2db82728f6ea0dcd1|hub_match=1|json=0
+HF_FILE|group=top_vector_x3c|path=perron/top/d94058000-hosted.bin|bytes=364064640|sha256=d6e7d72922bf42c85316e993e3531a302572164cd39f2f7a7aedebe843d3f3ad|hub_match=1|json=0
+HF_COMMIT|group=top_vector_x3c|repo=datasets/Jessedbrown/ym-3x4-room-store|commit=29723023f37ade227af51e1b92a4a4d55d4bb3f8|files=2|all_match=1|json=0

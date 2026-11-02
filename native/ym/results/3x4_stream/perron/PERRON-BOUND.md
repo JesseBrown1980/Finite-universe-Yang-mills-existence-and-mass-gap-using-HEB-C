@@ -1,6 +1,7 @@
 # Perron lower bound on the level above the flat cluster (draft, November 2, 2026)
 
-**On the 3×4 store the bound certifies 93.061051 J_E.** The verdict stays open until the steps in section 4 are done. Claims
+**On the 3×4 store the bound certifies 94.070673 J_E, by the author's two checkers, and λ₁(H′) ≤ 94.070936 J_E.** The first certificate was 93.061051, and
+[`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md) has how it rose. The independent verdict stays pending, and the verdict stays open until the steps in section 4 are done. Claims
 are tagged MEASURED, DERIVED (a short proof written here) or CONJECTURE. The rows and hashes are in
 [`PERRON-RESULT.hbp`](PERRON-RESULT.hbp), and [`PERRON-REVIEW.md`](PERRON-REVIEW.md) explains how to check them.
 
@@ -132,13 +133,23 @@ The predictions were committed in `155acdd` before the run:
 | The solve at 93 J_E stays bounded | Met. The largest change in `d` fell from 66,654 at pass 6 to 15 at pass 12 |
 | `t_cert` ≥ 93 J_E within 15 full passes | Met. It was already 93.061053 at pass 6 |
 | The tightest row has low M | Met, M = 3 |
-| λ₁(H′) lies in [93.9, 94.13] J_E | Open. This run shows λ₁(H′) ≥ 93.061 |
+| λ₁(H′) lies in [93.9, 94.13] J_E | Met, by a later bracket: 94.070673 ≤ λ₁(H′) ≤ 94.070936. This run alone showed λ₁(H′) ≥ 93.061 |
 | About 2.7 hours with the disk idle | 2.79 hours |
 
 The rule draft's stop conditions all stayed clear, and `t_cert` sits below the rigorous upper limit E₈(+,+) ≤ 94.6.
 
 Section 2 and the upper side then give, on this lattice, E₉ − E₈ ≥ 21.061051 + 3(r − 9) J_E for every r ≥ 9, and
 E₉ − E₈ ≥ 23.030051 J_E at r = 9, subject to the open items in section 4.
+
+### The bound raised the same day
+
+MEASURED by `perroncert check` and `check_d_strict.py`, which agree on value, row and M, with all structure checks passing, on the vector `x3-c.bin`, SHA-256 `f5c5428d…`:
+
+    t_cert = 94.070673 J_E, tightest row 45,507,968, M = 3, 0 positive off-diagonal entries
+
+It is a third divided difference of three solved vectors, one of them from a hosted climb: [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md). So on this lattice, subject to the open items below,
+
+    E₉ − E₈ ≥ 22.070673 + 3(r − 9) J_E for every r ≥ 9,    E₉ − E₈ ≥ 24.039673 J_E at r = 9.
 
 ### 3×3 (+,+), n = 288,645, flat diagonal 54
 
@@ -204,9 +215,9 @@ cluster, which fits the single (−,−) flat state. Measuring its sector direct
 
 | Step | Run that measures it |
 |---|---|
-| The solver at the top | [`perron_climb.py`](perron_climb.py) climbs toward the level, on a hosted runner and locally. Its value counts after the same checks. A warm start at 93.7 J_E read 93.718416 at pass 4 by the solver's own check, and gave its vector to the climb |
-| The level itself on 3×4 | CONJECTURE: λ₁(H′) ≈ 94.0 J_E. The cluster top of 70.03 plus 3×3's gap of 23.94 gives 93.97, and the ball levels above fall toward about 94.0 |
-| That the store's rows are H, on 3×4 | Matched on three samples, with 385,827 exact weighted pairs, and row sums and W-self-adjointness pass on all rows |
-| A checker written by someone else | Another author's check of the published `d` on the public store, from the formats in [`PERRON-REVIEW.md`](PERRON-REVIEW.md) |
-| The argument itself | Three reviewers accept it on reading, with the lift conditional on the row check |
+| The vector at the top | Done to 0.000263 J_E of the level: 94.070673 by both checkers, and λ₁(H′) ≤ 94.070936 from the same store, in [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md). The hosted climb reached 94.058570 by both checkers, [run 41448187715](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41448187715) |
+| E₉ itself on 3×4 | Interlacing leaves E₉ above λ₁(H′): by about 0.11 J_E on 2×2 and 0.02 on 3×3. The earlier CONJECTURE that λ₁(H′) ≈ 94.0 read low by 0.07. The cluster top of 70.03 plus 3×3's gap of 23.94 gives 93.97 |
+| That the store's rows are H, on 3×4 | Matched on three samples, with 385,827 exact weighted pairs, and row sums and W-self-adjointness pass on all rows. Running: every row recomputed from the rules by `second-seat/fullrebuild.rs` |
+| A checker written by someone else | Pending until it passes: an outside seat's Go checker, from the formats in [`PERRON-REVIEW.md`](PERRON-REVIEW.md). See [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 7 |
+| The argument itself | Three reviewers accept it on reading, with the lift conditional on the row check. A second seat attacked the new tools and the lift with its own whole-space builds on 2×2 and 2×3, and refuted no printed bound: [`REVIEW-OPUS55.md`](REVIEW-OPUS55.md) |
 | A verdict by this route | A rule revision and the operator's word: [`PERRON-RULE-DRAFT.md`](PERRON-RULE-DRAFT.md) |

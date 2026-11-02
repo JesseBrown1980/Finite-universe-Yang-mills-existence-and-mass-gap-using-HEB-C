@@ -1,0 +1,2 @@
+FULLREBUILD_PREDICTION|at=2026-11-02T19:21:36Z|written_before_run=1|n=45508080|rows_rebuilt=45508080|canonical_key_mismatch=0|weight_mismatch=0|M_mismatch=0|entries_mismatch=0|merkle=PASS|falsifier=any_nonzero_mismatch_falsifies_store_equals_H|time_estimate_h=2.4_scaled_from_3x3_23s_at_6_threads|controls=CONTROLS.hbp_merkle_repaired_damage_caught_4_of_4|author=second_seat|tag=CONJECTURE|json=0
+FULLREBUILD_START|at=2026-11-02T19:21:38Z|threads=6|json=0

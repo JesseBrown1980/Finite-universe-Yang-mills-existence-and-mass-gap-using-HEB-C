@@ -4,7 +4,9 @@ This page is for someone who wants to check this work or break it. A counterexam
 confirmation. Please post either on
 [PR #79](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/79).
 
-**Where it stands:** three reviewers have read the argument and accept it, with the lift conditional on a row check. An
+**Where it stands, November 2, evening:** the bound stands at **94.070673 J_E**, certified by the author's two checkers on `x3-c.bin`, with λ₁(H′) ≤ 94.070936 from the same store ([`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md)). The independent
+verdict is pending until an outside seat's Go checker passes. A second seat tried to refute the new work and refuted no printed bound ([`REVIEW-OPUS55.md`](REVIEW-OPUS55.md)). Every 3×4 row is being recomputed from the rules. Earlier the same day:
+three reviewers have read the argument and accept it, with the lift conditional on a row check. An
 outside seat replayed the row rebuild on GitHub Actions from the public data: 2,564 of 2,564 sampled rows match the definition
 of H, including the tightest row, and the store's merkle recomputed from the download matches. A local run matched 4,264 of
 4,264 rows, with at least 88 from every one of the 34 sectors. The same outside seat then re-ran the certificate on another
@@ -46,6 +48,8 @@ echo "956b73bc6f4ec5712184eb52f67d8e0adab467c1ea843ba257126278368210da  d9300000
 echo "eefd7752031cf6e1cbfd53dd47128805d1a98bb41de0a9e269222d0e2c6e3cbc  passA.bin" | sha256sum -c
 ```
 
+The top vector is at `$HF/29723023f37ade227af51e1b92a4a4d55d4bb3f8/perron/top/x3-c.bin`, SHA-256 `f5c5428db1fc5d91d2ab891689f0dac7263dc26c8f9b60a2db82728f6ea0dcd1`.
+
 **With Python alone**, using only the standard library. This also checks every row's structure:
 
 ```
@@ -69,6 +73,8 @@ native/ym/target/release/perroncert check seg:341:34:800000000:./sector- 0 1000 
 | `d` file | SHA-256 | `t_cert` (J_E) | Tightest row | M |
 |---|---|---|---|---|
 | `d93000000.bin` | `956b73bc…` | 93.061051 | 44,742,735 | 3 |
+| `top/x3-b.bin` | `637fe9e2…` | 94.065384 | 44,742,735 | 3 |
+| `top/x3-c.bin` | `f5c5428d…` | **94.070673** | 45,507,968 | 3 |
 
 Every tool recomputes the store's payload merkle, `ec03c5f8…`. The name `t_cert_milli` is the `t_milli` used across the
 tools: at JE = 1000 it counts 10⁻⁶ J_E, so 93061051 means 93.061051 J_E. `d` is one little-endian i64 per row, and every
@@ -76,8 +82,12 @@ checker works in exact integers (i128 in Rust, Python integers), rounding the ra
 
 **Better still, write your own check.** It is short, and it is the strongest test of C1:
 
-- The store is one stream across the sector files: a 4096-byte header block holding one text line, then the rows in
-  index order, then zero padding. The header line gives `n`, `rooms` and `payload_bytes`.
+- The store is one stream across the sector files, `stream_bytes` long: a 4096-byte header block holding one text line then zeros, then
+  `payload_bytes`. The header line gives `n`, `rooms`, `payload_bytes`, `stream_bytes` and `payload_merkle`. The rows take exactly
+  8·`rooms` bytes, in index order, with `rooms` = `n` + `entries`. The rest of the payload is zero padding up to a 1 MiB boundary of the
+  stream (742,160 bytes on 3×4), and the merkle covers it. **Correction, November 2:** this line read "the rows in index order, then zero
+  padding". A separately written checker stopped on that wording. Sector 374 continues past `stream_bytes` with the room store's other
+  bytes (349,114,368 bytes, most of them non-zero). The sector SHA-256 covers them, and they lie outside the stream and the merkle.
 - A row is an 8-byte header (`w:u32, mag:u16, cnt:u16`), then `cnt` 8-byte entries (`j:u32, z:i32`), little-endian.
 - `d` must be 0 on flat rows (`mag = 0`) and positive on every other row.
 - For a non-flat row h, with JE = 1000 and JB = 9000, the ratio is
@@ -165,6 +175,8 @@ someone else is still open.
 | 1, 2, 3 | Rebuild sampled 3×4 rows from `passA.bin` with separate code | **Matched on 3×4:** 2,564 and then 5,556 rows on another machine, and 4,264 locally, across all 34 sectors |
 | 2 | Another seat's pass over the 45.5M rows | Done: run 41444444894 read all 45.5M rows with `check_d_strict.py`, with the same value, row and M |
 | 1 | The builder's aggregate symmetry checksum needs an exact check on pairs, preferably all of them | `verify_sample_rows.py --pairs` checks every pair the rebuilt rows touch, exactly. `check_d_strict.py --self-adjoint` tests all pairs by a random bilinear form drawn from SHA-256. Both ran on 3×4 in run 41444444894: 385,827 exact pairs, and `W_self_adjoint=PASS` |
+| Second seat | Refutation of the new tools and the two-sided claims: 8 of 8 claims survived, with 8 findings in wording, labels, provenance and out-of-range input | [`REVIEW-OPUS55.md`](REVIEW-OPUS55.md), and what changed in [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 6 |
+| Outside seat | Its own Go checker from this page's formats | It stopped on a wrong line of this page, corrected in section 2. Its certificate values are pending |
 | 1 | Run negative controls: wrong merkle, swapped `d`, mutated row | Done: [`STRICT-CONTROLS.hbp`](STRICT-CONTROLS.hbp), 18 of 18, and [`VERIFY-CONTROLS.hbp`](VERIFY-CONTROLS.hbp), 14 of 14 |
 | 1 | `check_d_stream.py` should fail closed, and `assert` vanishes under `python -O` | Confirmed by measurement: a changed byte printed `merkle=PASS` under `-O`. Fixed in `check_d_strict.py`. The recorded runs used `-I`, so their rows stand |
 | 2 | Put the 3×4 run and the location of `d` in the PR | Done: rows here, data on Hugging Face |
@@ -188,6 +200,9 @@ of [`PERRON-RESULT.hbp`](PERRON-RESULT.hbp).
 | `perron/d93000000.bin` | 364,064,640 B | The certificate vector at solve threshold 93 J_E |
 | `perron/passA.bin` | 728,129,280 B | Key, weight and magnetic number of every row, for attack 1 |
 | `perron/balls/` | up to 80 MB | The ball matrices behind C4 and the sector levels |
+| `perron/top/x3-c.bin` | 364,064,640 B | The top vector, 94.070673 J_E |
+| `perron/top/x3-b.bin` | 364,064,640 B | The vector at 94.065384 J_E |
+| `perron/top/d94058000-hosted.bin`, `d93950000-conv.bin` | 364,064,640 B each | The solved vectors x3-c is made from, with `perron/start/d93700000-pass5.bin` |
 
 The registered rule, [`GAP-VERDICT-RULE-3X4.md`](../GAP-VERDICT-RULE-3X4.md), stays in force, and the Perron route is a draft:
 [`PERRON-RULE-DRAFT.md`](PERRON-RULE-DRAFT.md).

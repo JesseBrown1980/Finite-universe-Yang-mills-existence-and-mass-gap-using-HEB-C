@@ -23,7 +23,7 @@ Both are statements about this one finite lattice.
 | Sector flats, P0 | MEASURED: 7 flat, diagonals all 72, 0 couplings |
 | Whole-space flats | MEASURED, `ball 3 4 1` then `flatcomp`: 8 flat, diagonals all 72, 0 couplings |
 | Coupling | `JE=1000 JB=9000`, so r = 9 |
-| Solver | `perroncert solve`, saving `d` after every sweep. The first run solved at 93 J_E (`t_milli=93000000`) from d = 0, with `PERRONCERT_INNER=16:200`. A warm start at 93.7 J_E, with `PERRONCERT_INNER=16:500`, starts from that vector |
+| Solver | `perroncert solve`, saving `d` after every sweep. The first run solved at 93 J_E (`t_milli=93000000`) from d = 0, with `PERRONCERT_INNER=16:200`. A warm start at 93.7 J_E, with `PERRONCERT_INNER=16:500`, starts from that vector. The vector with the highest value so far is a third divided difference of three solved vectors: [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md) |
 | Certificate | Any positive `d` is admissible. What counts is the value `perroncert check` prints for the published file, named by its SHA-256 |
 
 The bound holds for any positive `d`, so a poor threshold simply gives a weaker number. The threshold may be raised by a
@@ -47,8 +47,8 @@ The run counts as FAIL, and prints no certified value, if any of these occurs:
 
 - a positive off-diagonal entry, a non-positive `d` on a non-flat row, a nonzero `d` on a flat row, or a merkle
   mismatch;
-- `t_cert` above a rigorous upper bound on E₈(+,+) from a sector-ball count, which would mean the code or the
-  argument is wrong;
+- `t_cert` above a rigorous upper bound on E₈(+,+) from a sector-ball count, or above the side from above of `perronritz pass`, which would
+  mean the code or the argument is wrong;
 - the separately written checker differing from `perroncert check` in any field it reports.
 
 A divergent solve means the threshold is too high, and a lower one is then chosen and recorded.
@@ -59,7 +59,7 @@ A divergent solve means the threshold is too high, and a lower one is then chose
    the vector at 93 J_E, and `check_d_strict.py` from then on.
 2. The `d` file and its SHA-256 are published, so anyone can re-check it in one pass over the public store.
 3. A second-seat review of the derivation, including the whole-space lift.
-4. Separate code rebuilding sampled 3×4 rows from `passA.bin` and the definition of H. The whole-space statement counts after
-   this step. Before it, the sector statement E₈(+,+) ≥ `t_cert` is the one in hand.
-5. Another seat's pass over the published `d` and store.
+4. Separate code rebuilding 3×4 rows from `passA.bin` and the definition of H, all of them by `second-seat/fullrebuild.rs` once its run ends. The
+   whole-space statement counts after this step. Before it, the sector statement E₈(+,+) ≥ `t_cert` is the one in hand.
+5. Another seat's pass over the published `d` and store, by a checker written by someone else: the independent verdict, pending until it passes.
 6. The operator's word.
