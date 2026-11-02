@@ -37,16 +37,16 @@ jobs:
           avail=$(df -B1 . | awk 'NR==2 {print $4}')
           test "$avail" -ge 32000000000 || { echo 'VERIFY_ROWS_FAIL|reason=insufficient_disk_capacity|json=0'; exit 2; }
 
-      - name: Fetch exact verifier from PR 79 tested head
+      - name: Fetch and verify exact PR 79 checker scripts
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p independent-3x4
           cd independent-3x4
-          curl --retry 5 --retry-delay 10 --connect-timeout 60 -fLsS \
-            'https://raw.githubusercontent.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/2a2e2d4862777cebc3edc735d6d54a199dec4a57/native/ym/results/3x4_stream/perron/verify_sample_rows.py' \
-            -o verify_sample_rows.py
-          printf '%s  %s\n' 'dc5b9c42a03197b7324c7886b78e071026ea2cd55a8fca47d0fa6b78d4211b01' verify_sample_rows.py | sha256sum -c
+          curl --retry 5 --retry-delay 10 --connect-timeout 60 -fLsS 'https://raw.githubusercontent.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/d8c82aea6808de603f250d8cf7e8316295757fc2/native/ym/results/3x4_stream/perron/verify_sample_rows.py' -o verify_sample_rows.py
+          curl --retry 5 --retry-delay 10 --connect-timeout 60 -fLsS 'https://raw.githubusercontent.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/d8c82aea6808de603f250d8cf7e8316295757fc2/native/ym/results/3x4_stream/perron/check_d_strict.py' -o check_d_strict.py
+          printf '%s  %s\n' '9cc974be37072926a016ce63fda1be67637e179b08bea9c01bc2cc113af7b4ab' verify_sample_rows.py | sha256sum -c
+          printf '%s  %s\n' 'a5a1215e9b0a3455e54baa8c65181be896a8b735871a17b4e74beb4531a2abad' check_d_strict.py | sha256sum -c
 
       - name: Download 34 fixed sector files from Hugging Face
         shell: bash
@@ -75,26 +75,58 @@ jobs:
             'https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve/d2630edf882f3d9fa125f25680fd9b6a04c98d31/perron/passA.bin' -o passA.bin
           printf '%s  %s\n' 'eefd7752031cf6e1cbfd53dd47128805d1a98bb41de0a9e269222d0e2c6e3cbc' passA.bin | sha256sum -c
 
-      - name: Rebuild sampled 3x4 rows from permutations and compare
+      - name: Download exact published Perron vector
         shell: bash
-        timeout-minutes: 210
+        timeout-minutes: 25
         run: |
           set -euo pipefail
           cd independent-3x4
-          python3 -I verify_sample_rows.py 3 4 "341:34:800000000:$PWD/sector-" passA.bin --rows 44742735 2>&1 | tee VERIFY-3X4.hbp
-          grep -q '^VERIFY_ROWS|L=3x4|n=45508080|' VERIFY-3X4.hbp
-          grep -q '|merkle=PASS|' VERIFY-3X4.hbp
-          grep -q '|matched=' VERIFY-3X4.hbp
-          sha256sum VERIFY-3X4.hbp > VERIFY-3X4.sha256
-          echo 'VERIFY_ROWS_REPLAY|independent_host=github_actions|status=PASS|script_head=2a2e2d4862777cebc3edc735d6d54a199dec4a57|json=0'
+          curl --retry 5 --retry-delay 10 --connect-timeout 60 -fLsS \
+            'https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve/d2630edf882f3d9fa125f25680fd9b6a04c98d31/perron/d93000000.bin' -o d93000000.bin
+          test "$(stat -c '%s' d93000000.bin)" = "364064640"
+          printf '%s  %s\n' '956b73bc6f4ec5712184eb52f67d8e0adab467c1ea843ba257126278368210da' d93000000.bin | sha256sum -c
+
+      - name: Independently rebuild sampled 3x4 rows and verify exact weighted pairs
+        shell: bash
+        timeout-minutes: 160
+        run: |
+          set -euo pipefail
+          cd independent-3x4
+          python3 -I verify_sample_rows.py 3 4 "341:34:800000000:$PWD/sector-" passA.bin \
+            --rows 44742735 --per-sector 88 --pairs 2>&1 | tee VERIFY-3X4-PAIRS.hbp
+          grep -q '^VERIFY_ROWS|L=3x4|n=45508080|' VERIFY-3X4-PAIRS.hbp
+          grep -q '|sectors_with_rows=34|' VERIFY-3X4-PAIRS.hbp
+          grep -q '|weighted_pairs_exact=[1-9][0-9]*|' VERIFY-3X4-PAIRS.hbp
+          grep -q '|merkle=PASS|' VERIFY-3X4-PAIRS.hbp
+          sha256sum VERIFY-3X4-PAIRS.hbp > VERIFY-3X4-PAIRS.sha256
+
+      - name: Independently certify published 93.061051 J_E Perron bound
+        shell: bash
+        timeout-minutes: 120
+        run: |
+          set -euo pipefail
+          cd independent-3x4
+          python3 -I check_d_strict.py "341:34:800000000:$PWD/sector-" d93000000.bin 1000 9000 \
+            --passa passA.bin --self-adjoint 27 \
+            --expect-d-sha256 956b73bc6f4ec5712184eb52f67d8e0adab467c1ea843ba257126278368210da \
+            2>&1 | tee CHECK-3X4-STRICT.hbp
+          grep -q '^CHECK_D_STRICT|n=45508080|' CHECK-3X4-STRICT.hbp
+          grep -q '|t_cert_milli=93061051|' CHECK-3X4-STRICT.hbp
+          grep -q '|min_row=44742735|min_mag=3|' CHECK-3X4-STRICT.hbp
+          grep -q '|W_self_adjoint=PASS|' CHECK-3X4-STRICT.hbp
+          grep -q '|merkle=PASS|' CHECK-3X4-STRICT.hbp
+          sha256sum CHECK-3X4-STRICT.hbp > CHECK-3X4-STRICT.sha256
+          echo 'INDEPENDENT_3X4|source_pr79=d8c82aea6808de603f250d8cf7e8316295757fc2|status=PASS|row_pairs=PASS|perron=PASS|json=0'
 
       - name: Publish independent verification receipt
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: independent-3x4-rows
+          name: independent-3x4-pairs-and-perron
           path: |
-            independent-3x4/VERIFY-3X4.hbp
-            independent-3x4/VERIFY-3X4.sha256
+            independent-3x4/VERIFY-3X4-PAIRS.hbp
+            independent-3x4/VERIFY-3X4-PAIRS.sha256
+            independent-3x4/CHECK-3X4-STRICT.hbp
+            independent-3x4/CHECK-3X4-STRICT.sha256
           if-no-files-found: warn
           retention-days: 90
