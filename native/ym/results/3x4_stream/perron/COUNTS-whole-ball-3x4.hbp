@@ -1,0 +1,2 @@
+W34_COUNT|matrix=b2.txt|t_milli=69900000|exit=0|secs=8|core=272|negative=0|positive_core=272|ambiguous=0|result=PASS|json=0
+W34_COUNT|matrix=b2.txt|t_milli=70036000|exit=0|secs=6|core=272|negative=8|positive_core=264|ambiguous=0|result=PASS|json=0

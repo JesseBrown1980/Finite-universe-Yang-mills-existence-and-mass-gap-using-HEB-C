@@ -1,0 +1,4 @@
+BALL|L=3x4|K=1|seeds=8|shells=8,264|states=272|nnz=944|moves_leaving_ball=18600|w_self_adjoint=PASS|write=ok|kind=COMPRESSION_UPPER_BOUNDS|json=0
+BALL|L=3x4|K=2|seeds=8|shells=8,264,7770|states=8042|nnz=50042|moves_leaving_ball=533592|w_self_adjoint=PASS|write=ok|kind=COMPRESSION_UPPER_BOUNDS|json=0
+BALL|L=3x4|K=3|seeds=8|shells=8,264,7770,147344|states=155386|nnz=1512442|moves_leaving_ball=9789408|w_self_adjoint=PASS|write=ok|kind=COMPRESSION_UPPER_BOUNDS|json=0
+FLATCOMP|matrix=ball_3x4_K1|n=272|flat_states=8|flat_electric_diag=[72,72,72,72,72,72,72,72]|flat_diag_max=72|flat_flat_couplings=0|json=0

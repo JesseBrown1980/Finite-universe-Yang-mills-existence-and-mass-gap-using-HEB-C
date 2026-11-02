@@ -1,0 +1,4 @@
+M34_COUNT|K=3|t_milli=96700000|predicted=7|cols_exit=0|schurcert_exit=0|secs=6|ershgorin|widen=1|m=357|negative=7|positive=350|ambiguous=0|result=PASS|ms=647|js|json=0
+M34_COUNT|K=3|t_milli=96800000|predicted=8|cols_exit=0|schurcert_exit=0|secs=4|ershgorin|widen=1|m=357|negative=8|positive=349|ambiguous=0|result=PASS|ms=466|js|json=0
+M34_COUNT|K=4|t_milli=94500000|predicted=7|cols_exit=0|schurcert_exit=0|secs=461|ershgorin|widen=1|m=1313|negative=7|positive=1306|ambiguous=0|result=PASS|ms=1592|json=0
+M34_COUNT|K=4|t_milli=94600000|predicted=8|cols_exit=0|schurcert_exit=0|secs=444|ershgorin|widen=1|m=1313|negative=8|positive=1305|ambiguous=0|result=PASS|ms=1516|json=0

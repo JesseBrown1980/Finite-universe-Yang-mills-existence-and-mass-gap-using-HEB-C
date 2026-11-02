@@ -1,0 +1,5 @@
+ROOMBALL|L=3x4|sector=Sx+Sy+|K=1|seeds=7|shells=7,20|states=27|nnz=73|entries_leaving_ball=472|merkle=PASS|passes=6|ms=6019981|kind=COMPRESSION_UPPER_BOUNDS|json=0
+ROOMBALL|L=3x4|sector=Sx+Sy+|K=2|seeds=7|shells=7,20,316|states=343|nnz=1547|entries_leaving_ball=11414|merkle=PASS|passes=6|ms=6019983|kind=COMPRESSION_UPPER_BOUNDS|json=0
+ROOMBALL|L=3x4|sector=Sx+Sy+|K=3|seeds=7|shells=7,20,316,3615|states=3958|nnz=34436|entries_leaving_ball=205770|merkle=PASS|passes=6|ms=6019997|kind=COMPRESSION_UPPER_BOUNDS|json=0
+ROOMBALL|L=3x4|sector=Sx+Sy+|K=4|seeds=7|shells=7,20,316,3615,44071|states=48029|nnz=644047|entries_leaving_ball=2625625|merkle=PASS|passes=6|ms=6020191|kind=COMPRESSION_UPPER_BOUNDS|json=0
+ROOMBALL|L=3x4|sector=Sx+Sy+|K=5|seeds=7|shells=7,20,316,3615,44071,393917|states=441946|nnz=8883694|entries_leaving_ball=22702638|merkle=PASS|passes=6|ms=6022048|kind=COMPRESSION_UPPER_BOUNDS|json=0

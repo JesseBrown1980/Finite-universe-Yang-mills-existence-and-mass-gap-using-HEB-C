@@ -1,0 +1,11 @@
+S0|L=2x3|lambda1_sector_in=[58441406,58443359]|json=0
+S1S2|sector_Hprime_below|matrix=sector-nf.txt|t_milli=58441406|negative=0|ambiguous=0|core=67|json=0
+S1S2|sector_Hprime_above|matrix=sector-nf.txt|t_milli=58443359|negative=1|ambiguous=0|core=67|json=0
+S1S2|whole_Hprime_below|matrix=whole-nf.txt|t_milli=58441406|negative=0|ambiguous=0|core=543|json=0
+S1S2|whole_Hprime_above|matrix=whole-nf.txt|t_milli=58443359|negative=1|ambiguous=0|core=543|json=0
+S1S2|whole_H_below|matrix=whole.txt|t_milli=58441406|negative=8|ambiguous=0|core=551|json=0
+S1S2|sector_H_below|matrix=sector.txt|t_milli=58441406|negative=7|ambiguous=0|core=74|json=0
+S3|solve_t_milli=53441406|t_cert_milli=54832845|below_lambda1=1|shortfall_to_hi=3610514|flats=7|min_mag=3|json=0
+S3|solve_t_milli=56441406|t_cert_milli=56886506|below_lambda1=1|shortfall_to_hi=1556853|flats=7|min_mag=3|json=0
+S3|solve_t_milli=57941406|t_cert_milli=58034440|below_lambda1=1|shortfall_to_hi=408919|flats=7|min_mag=3|json=0
+DONE

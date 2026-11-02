@@ -1,0 +1,15 @@
+YMROOM_TEXT|L=2x2|sector=Sx+Sy+|n=211|write=1|ms=18|json=0
+YMROOM_PASSA|L=2x2|sector=Sx+Sy+|states=211|flat_states=7|bytes=3376|sha256=a43cf4247d4dca30a3971199433103dd79ef8a98d1714df2aadbe559726ddaa7|workers=1|ms=2|json=0
+YMROOM_BUILD|dev=dev.bin|offset=0|header_readback=EXACT|ms=28|json=0
+BALL|L=2x2|K=8|seeds=8|shells=8,64,368,592,361,0,0,0,0|states=1393|nnz=32385|moves_leaving_ball=0|w_self_adjoint=PASS|write=ok|ms=54|kind=COMPRESSION_UPPER_BOUNDS|json=0
+SMALL_DIMS|L=2x2|nl=8|sector_n=211|sector_flats=7|whole_n=1393|whole_flats=8|json=0
+FLATCOMP|matrix=sector.txt|n=211|flat_states=7|flat_electric_diag=[24,24,24,24,24,24,24]|flat_diag_max=24|flat_flat_couplings=0|json=0
+FLATCOMP|matrix=whole.txt|n=1393|flat_states=8|flat_electric_diag=[24,24,24,24,24,24,24,24]|flat_diag_max=24|flat_flat_couplings=0|json=0
+S1_SECTOR|lambda1_in=[46466796,46468750]|count_above=1|json=0
+S1_WHOLE|lambda1_in=[46466796,46468750]|json=0
+S1|sector_and_whole_overlap=1|width=2000|json=0
+S2|N_whole_at_lambda1=8|E9_whole_in=[46576171,46578124]|lambda1_le_E9=1|json=0
+S3|solve_t_milli=41466796|t_cert_milli=43555363|below_lambda1=1|shortfall=2913387|flats=7|min_mag=3|json=0
+S3|solve_t_milli=44466796|t_cert_milli=45170122|below_lambda1=1|shortfall=1298628|flats=7|min_mag=3|json=0
+S3|solve_t_milli=45966796|t_cert_milli=46121280|below_lambda1=1|shortfall=347470|flats=7|min_mag=3|json=0
+DONE
