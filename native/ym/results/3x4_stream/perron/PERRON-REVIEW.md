@@ -5,13 +5,13 @@ confirmation. Please post either on
 [PR #79](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/79).
 
 **Where it stands, November 2, evening:** the bound stands at **94.070673 J_E**, certified by the author's two checkers on `x3-c.bin`, with λ₁(H′) ≤ 94.070936 from the same store ([`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md)). An outside seat's Go checker, written separately from this page's formats,
-prints the same value, row and M on `x3-c.bin` and on two other vectors, as predicted in writing beforehand ([run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749)). A second seat tried to refute the new work and refuted no printed bound ([`REVIEW-OPUS55.md`](REVIEW-OPUS55.md)). Every 3×4 row is being recomputed from the rules. Earlier the same day:
+prints the same value, row and M on `x3-c.bin` and on two other vectors, as predicted in writing beforehand ([run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749)). A second seat tried to refute the new work and refuted no printed bound ([`REVIEW-OPUS55.md`](REVIEW-OPUS55.md)). A second seat's `fullrebuild` recomputed all 45,508,080 rows from the rules, with 0 mismatches and merkle PASS, as predicted in writing first ([`FULLREBUILD-3x4.out`](FULLREBUILD-3x4.out)). Earlier the same day:
 three reviewers have read the argument and accept it, with the lift conditional on a row check. An
 outside seat replayed the row rebuild on GitHub Actions from the public data: 2,564 of 2,564 sampled rows match the definition
 of H, including the tightest row, and the store's merkle recomputed from the download matches. A local run matched 4,264 of
 4,264 rows, with at least 88 from every one of the 34 sectors. The same outside seat then re-ran the certificate on another
 machine, [run 41444444894](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41444444894): the same 93.061051, row and M, with row sums, the key table and W-self-adjointness passing on
-all rows, and 385,827 exact weighted pairs. Open: the all-rows rebuild, a registered rule and the operator's word on a verdict, then uniformity in volume and the continuum limit, since each result here is a statement about one finite lattice. The derivation is in
+all rows, and 385,827 exact weighted pairs. Open: a registered rule and the operator's word on a verdict, then uniformity in volume and the continuum limit, since each result here is a statement about one finite lattice. The derivation is in
 [`PERRON-BOUND.md`](PERRON-BOUND.md), and the measured rows are in [`PERRON-RESULT.hbp`](PERRON-RESULT.hbp).
 
 ## 1. What is being claimed
@@ -22,9 +22,9 @@ states, with E summing over the three transpositions on every link, M = Σ_p (2 
 
 | Step | Claim | Status |
 |---|---|---|
-| C1 | On the store's Sx+Sy+ rows at r = 9, the published `d` gives min_h (H′d)_h / d_h = t_cert, in exact integers, rounded down | MEASURED by two separately written checkers, one author, and re-run on another machine by an outside seat |
-| C2 | E₈ of the Sx+Sy+ sector, which has 7 flat states, is ≥ t_cert | Follows from C1 by interlacing and Barta, given that the rows are H |
-| C3 | E₉ of the whole gauge-invariant space, all momenta and symmetry sectors, is ≥ t_cert | DERIVED. Three reviewers accept the argument. Counted by separate code on 2×2 and 2×3. 2,564 3×4 rows rebuilt on another machine have the row structure it uses |
+| C1 | On the store's Sx+Sy+ rows at r = 9, the published `d` gives min_h (H′d)_h / d_h = t_cert, in exact integers, rounded down | MEASURED by two separately written checkers, one author, re-run on another machine by an outside seat, and printed by that seat's own Go checker on the vector at the top |
+| C2 | E₈ of the Sx+Sy+ sector, which has 7 flat states, is ≥ t_cert | Follows from C1 by interlacing and Barta. That the rows are H is MEASURED on all 45,508,080 by `fullrebuild` |
+| C3 | E₉ of the whole gauge-invariant space, all momenta and symmetry sectors, is ≥ t_cert | DERIVED. Three reviewers accept the argument. Counted by separate code on 2×2 and 2×3. 2,564 3×4 rows rebuilt on another machine have the row structure it uses, and `fullrebuild` matches all 45,508,080 on this seat's machine |
 | C4 | E₈ ≤ 72 J_E for every r, and E₈ ≤ 70.031 J_E at r = 9 | MEASURED (flat states, then a count on a whole-space ball), plus min-max |
 | C5 | E₉ − E₈ ≥ t_cert − 72 + 3(r − 9) J_E for every r ≥ 9, and ≥ t_cert − 70.031 J_E at r = 9 | Follows from C1, C3 and C4, with M ≥ 3 MEASURED |
 
@@ -115,6 +115,13 @@ These are the steps most likely to fail, in the order I would test them.
    python3 -I native/ym/results/3x4_stream/perron/verify_sample_rows.py 3 4 341:34:800000000:./sector- passA.bin --rows 44742735 --pairs
    ```
 
+   **All rows:** [`second-seat/fullrebuild.rs`](second-seat/fullrebuild.rs) recomputes every row from the rules and compares it with the store: 45,508,080 rows, 0 mismatches, merkle PASS, in 7,870 s on 6 threads ([`FULLREBUILD-3x4.out`](FULLREBUILD-3x4.out)).
+   To repeat it, build it with `rustc +1.81.0 -O` and run:
+
+   ```
+   fullrebuild 341:34:800000000:./sector- passA.bin 3 4 6
+   ```
+
    Your own version would be a stronger test. `passA.bin` has 16 bytes per row, in row order, with key as u64, weight as u32
    and magnetic number as u32, little-endian. A key holds the base-6 digits of the gauge-fixed links, least over the orbit,
    and the digits name the permutations 012, 021, 102, 120, 201, 210 in that order. The builder is
@@ -182,8 +189,8 @@ That is the third of three replays. The others gave 93718415 and 94065384 on `d9
 | Reviewer | Point | Status |
 |---|---|---|
 | 1, 2, 3 | Interlacing, Barta and the W^(1/2) cancellation hold | Accepted on reading |
-| 1, 3 | The lift is valid when the sector is the exact symmetry reduction | Accepted in principle. Attack 1 is open |
-| 1, 2, 3 | Rebuild sampled 3×4 rows from `passA.bin` with separate code | **Matched on 3×4:** 2,564 and then 5,556 rows on another machine, and 4,264 locally, across all 34 sectors |
+| 1, 3 | The lift is valid when the sector is the exact symmetry reduction | Accepted in principle. Attack 1, the rows, is measured on all rows by `fullrebuild` |
+| 1, 2, 3 | Rebuild sampled 3×4 rows from `passA.bin` with separate code | **Matched on 3×4:** 2,564 and then 5,556 rows on another machine, and 4,264 locally, across all 34 sectors, then all 45,508,080 rows by `fullrebuild` |
 | 2 | Another seat's pass over the 45.5M rows | Done: run 41444444894 read all 45.5M rows with `check_d_strict.py`, with the same value, row and M |
 | 1 | The builder's aggregate symmetry checksum needs an exact check on pairs, preferably all of them | `verify_sample_rows.py --pairs` checks every pair the rebuilt rows touch, exactly. `check_d_strict.py --self-adjoint` tests all pairs by a random bilinear form drawn from SHA-256. Both ran on 3×4 in run 41444444894: 385,827 exact pairs, and `W_self_adjoint=PASS` |
 | Second seat | Refutation of the new tools and the two-sided claims: 8 of 8 claims survived, with 8 findings in wording, labels, provenance and out-of-range input | [`REVIEW-OPUS55.md`](REVIEW-OPUS55.md), and what changed in [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 6 |

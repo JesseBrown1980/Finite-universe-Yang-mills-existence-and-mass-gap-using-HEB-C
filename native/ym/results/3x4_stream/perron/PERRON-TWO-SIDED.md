@@ -3,7 +3,7 @@
 **On 3×4, 94.070673 ≤ λ₁(H′) ≤ 94.070936 J_E,** a bracket 0.000263 J_E wide. One exact pass over the store bounds λ₁(H′) from above as well
 as from below, and one more pass raises the side from below using vectors that are already solved. Claims are tagged MEASURED, DERIVED (a short
 proof written here) or CONJECTURE. Each number below names the tool that measured it. A number here counts as certified, by the author's tools, when `perroncert check` and
-`check_d_strict.py` agree on it. An outside seat's Go checker, written separately, prints the same values, rows and M on these vectors, as predicted in writing beforehand: section 5. The tool that proposes vectors, [`perronritz.rs`](../../../crates/evolvers/src/bin/perronritz.rs), measures in
+`check_d_strict.py` agree on it. An outside seat's Go checker, written separately, prints the same values, rows and M on these vectors, as predicted in writing beforehand: section 5. A second seat's `fullrebuild` recomputed all 45,508,080 rows from the rules, with 0 mismatches: section 5. The tool that proposes vectors, [`perronritz.rs`](../../../crates/evolvers/src/bin/perronritz.rs), measures in
 one pass and stands behind those two for the side from below.
 
 A separate seat tried to refute all of this: [`REVIEW-OPUS55.md`](REVIEW-OPUS55.md). Every printed bound it could test holds, and section 6 lists
@@ -179,6 +179,25 @@ The scope of this check:
   property modulo 2⁶¹ − 1, with a false-pass chance of about 10⁻¹⁸. The Go checker's two fault controls stop before that test, so a fault control that reaches its row-sum and self-adjoint gates is open: section 7.
 - **The rows.** It reads them as stored, with the merkle and the sector hashes checked. `fullrebuild` compares them with the definition of H: section 7.
 
+### Every 3×4 row against the definition of H
+
+`second-seat/fullrebuild.rs`, run at the operator's word, recomputes each row from the rules: S₃ from permutations, the lattice, the gauge fixing, the canonical key, weight, M and every move. It compares each one with the store.
+Its prediction was written first, in [`FULLREBUILD-RUN.hbp`](FULLREBUILD-RUN.hbp): 45,508,080 rows, 0 mismatches, with any mismatch falsifying store = H. It printed, in [`FULLREBUILD-3x4.out`](FULLREBUILD-3x4.out):
+
+```
+FULLREBUILD|L=3x4|V=12|nl=24|n=45508080|rows_rebuilt=45508080|rows_read=45508080|canonical_key_mismatch=0|weight_mismatch=0|M_mismatch=0|entries_mismatch=0|merkle=PASS|secs=7870|json=0
+```
+
+It exited 0 with an empty standard error, after 7,870 s on 6 threads, and every progress row read 0 mismatches. After it ended, its executable and source still matched the hashes recorded before the run (`202e8f3e…`, `2e9ea995…`), and
+all 34 local sector files matched the public manifest `9213927b…`, by [`hash_store.py`](hash_store.py).
+
+The scope of this check:
+
+- **The key list** comes from `passA.bin` (`eefd7752…`, public) and is verified: each key must recompute as canonical, keys ascend strictly, a move outside the list counts as a mismatch, and the recomputed weights must equal the store's,
+  which `check_d_strict.py` ties to `passA.bin`, whose weights sum to exactly 6¹³.
+- **Controls.** It matches all rows on 2×2, 2×3 and 3×3. With a store's merkle repaired after one changed entry, M or weight, it reports exactly that mismatch and exits 2, on 4 of 4 controls: [`FULLREBUILD-CONTROLS.hbp`](FULLREBUILD-CONTROLS.hbp).
+- **Who and where.** The second seat wrote it, separately from the store's builder, and it ran on this seat's machine. A replay on another machine is open: section 7.
+
 ### Which tool made which row
 
 | Tool | SHA-256 | Source | Rows |
@@ -204,14 +223,14 @@ All of it is in [`REVIEW-OPUS55.md`](REVIEW-OPUS55.md), with its scripts in [`se
 | D7. The printed value is 0 when θ₁ < 0, on negative-diagonal stores only | Sound, since 0 ≥ θ₁. Section 2 now says θ ≥ 0 |
 | D8. Claims without rows: seven vectors, a timing, the pure γ = 0 failure, a one-vector label match, and which source made which row | Fixed: all in the rows now, the timing is dropped, and the table above names the sources |
 
-Its first objections as a hostile reader stand as open items: the upper side bounds λ₁(H′) and E₉ has a lower bound only, and on 3×4 the rows are matched to H on samples plus all-rows structure checks.
+Its first objections as a hostile reader stand as open items: the upper side bounds λ₁(H′) and E₉ has a lower bound only, and on 3×4 the rows are matched to H on samples plus all-rows structure checks. `fullrebuild` has since matched all 45,508,080 rows: section 5.
 
 ## 7. Open
 
 | Item | Run that measures it |
 |---|---|
 | The outside seat's Go checker, further | Its values are measured, in section 5. Open: a wider range for x and y in its self-adjoint test, and a fault control that reaches its row-sum and self-adjoint gates, which needs a store with a repaired merkle. Earlier runs, on its branch's [`independent-go-perron-20261102.yml`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/audit/independent-go-perron-20261102/.github/workflows/independent-go-perron-20261102.yml): the first stopped after the row loop on the format text this seat gave it, corrected in `PERRON-REVIEW.md`, and diagnostic run [41499253445](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41499253445) printed `trailing=742160 nonzero=0 merkle_matches=true`, as predicted in writing beforehand |
-| Every 3×4 row against the definition of H | Running at the operator's word: `second-seat/fullrebuild.rs` recomputes each row from the rules, S₃ from permutations, the lattice, the gauge fixing, the canonical key, weight, M and every move, and compares it with the store. Prediction, written first in [`FULLREBUILD-RUN.hbp`](FULLREBUILD-RUN.hbp): 45,508,080 rows, 0 mismatches, and any mismatch falsifies store = H. It matches all rows on 2×2, 2×3 and 3×3. With a store's merkle repaired after one changed entry, M or weight, it reports exactly that mismatch and exits 2, on 4 of 4 controls: [`FULLREBUILD-CONTROLS.hbp`](FULLREBUILD-CONTROLS.hbp). The key list comes from `passA.bin` and is verified: each key must recompute as canonical, keys ascend strictly, a move outside the list counts as a mismatch, and the recomputed weights must equal the store's, which `check_d_strict.py` ties to `passA.bin`, whose weights sum to exactly 6¹³ |
+| Every 3×4 row against the definition of H | Done on this seat's machine: all 45,508,080 rows, 0 mismatches, as predicted in writing first, in section 5. Open: a replay on another machine from the public files, about 2.2 h at 6 threads |
 | The gap below r = 6.076 on 3×4 | A solve at lower coupling, then the same checks. On 3×3 the flat bound's route ends between r = 4 and 4.06 |
 | `perroncert` guards at absurd inputs | A hardened build with checked products, once the pinned runs are done |
 | A verdict by this route | A rule revision and the operator's word: [`PERRON-RULE-DRAFT.md`](PERRON-RULE-DRAFT.md) |

@@ -59,7 +59,7 @@ A divergent solve means the threshold is too high, and a lower one is then chose
    the vector at 93 J_E, and `check_d_strict.py` from then on.
 2. The `d` file and its SHA-256 are published, so anyone can re-check it in one pass over the public store.
 3. A second-seat review of the derivation, including the whole-space lift.
-4. Separate code rebuilding 3×4 rows from `passA.bin` and the definition of H, all of them by `second-seat/fullrebuild.rs` once its run ends. The
+4. Separate code rebuilding 3×4 rows from `passA.bin` and the definition of H, all of them by `second-seat/fullrebuild.rs`: done, 45,508,080 rows, 0 mismatches, [`FULLREBUILD-3x4.out`](FULLREBUILD-3x4.out). The
    whole-space statement counts after this step. Before it, the sector statement E₈(+,+) ≥ `t_cert` is the one in hand.
-5. Another seat's pass over the published `d` and store, by a checker written by someone else: the independent verdict, pending until it passes.
+5. Another seat's pass over the published `d` and store, by a checker written by someone else: done, an outside seat's Go checker, [run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749), with its scope in [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 5.
 6. The operator's word.
