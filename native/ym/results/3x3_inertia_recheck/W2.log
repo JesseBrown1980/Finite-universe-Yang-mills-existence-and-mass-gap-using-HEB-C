@@ -1,0 +1,8 @@
+W2_PREDICT|written_before_run=1|n=2940|negative=44|positive=2896|zero_minors=0|source=schurcert_w1|est_secs=22670|est_grain=scaled_n4_from_72M_507s_6workers|est_tag=CONJECTURE|json=0
+W2_START|at=2026-11-01T23:32:51Z|workers=6|pid=27950|json=0
+W2_SHA|exe=8452d3dccac22f099e681022e63a43a604351aed0c761deb5aa0d8ce616f2713|input=8aa62d94912eeaaa874b28bc727d21aefa4fd955d449727166f8165cac1e3a10|dump_mid=5732e16a11f3c59364cdfb42d791a6c22c89eafb7c9317d3e00de6e70db22675|count_signs=7ec5fc2eec7e62a7a505b988f60dd87a907a02c0a0c06091f850f0843c6e6748|json=0
+MID_DUMP|m=2940|seed=27|json=0
+W2_DUMP|exit=0|secs=79|mid_sha256=c3777689872695482760d914a935aeef8d52e33718c4509ccfc851335fa30c8d|at=2026-11-01T23:34:18Z|json=0
+W2_MINORS|exit=0|secs=25129|out_sha256=83c51319d7ef91ba72b851b28ad4de36d1ec373a755cfce7a5bab8c1830ae22e|at=2026-11-02T06:33:07Z|json=0
+MINORS_COUNT|n=2940|primes=2652|dropped=0|hadamard_bits=161702|negative=44|positive=2896|zero_minors=0|json=0
+DONE|exit=0|at=2026-11-02T06:33:08Z|json=0
