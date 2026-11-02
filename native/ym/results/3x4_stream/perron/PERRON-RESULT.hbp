@@ -5,6 +5,7 @@ RESULT_TOOL_SOURCES|perroncert=a350f40d63379a5a348604985629ac19599cd8873f0017e85
 RESULT_P0|store=3x4_Sx+Sy+|n=45508080|payload_merkle=ec03c5f8ea5abd37ed8f80e0e9e7f00e37840a753f33a1008fbd090b18072a0b|merkle=PASS|flat_states=7|flat_diag_max=72|flat_flat_couplings=0|flat_weights=1,3,2,3,3,2,4|prediction_written_before_run=1|prediction_met=1|registered_precondition=P0|json=0
 RESULT_WHOLE_FLATS|lattice=3x4|flat_states=8|flat_diag_max=72|flat_flat_couplings=0|gives=E8_at_most_72_every_r|json=0
 RESULT_E8_WHOLE|lattice=3x4|r=9|ball_K=2|ball_states=8042|N_ball_at_69.900=0|N_ball_at_70.036=8|gives=E8_at_most_70.036_at_r9|json=0
+RESULT_E8_WHOLE|lattice=3x4|r=9|ball_K=3|ball_states=155386|N_ball_at_70.031=8|core=2276|ambiguous=0|gives=E8_at_most_70.031_at_r9|json=0
 RESULT_E8_SECTOR_UPPER|lattice=3x4|r=9|K3_N_at_96.7=7|K3_N_at_96.8=8|K4_N_at_94.5=7|K4_N_at_94.6=8|gives=E8_plus_plus_at_most_94.6|K5_cluster_theta=94.121950_ordering_not_counted|json=0
 RESULT_SECTOR_BALL_3x4|K3_states=3958|K4_states=48029|K5_states=441946|theta8_K3=96.756025|theta8_K4=94.562413|theta8_K5=94.121950|cluster_top_K5=70.030042|json=0
 RESULT_PERRON_3x3|store_n=288645|flats=7|best_t_cert=76.403209|sweeps=80+200|solve_t=76.4|all_checkers_agree_at_solve_74=74.298793|checkers=perroncert,check_d.py,check_d_stream.py|over_level_control=solve_at_78_stops_certifies_nothing|old_full_space_count=8_below_71.9|json=0
@@ -18,7 +19,7 @@ RESULT_SCOPE|bound_on_3x4=NOT_RUN|whole_space_lift=DERIVED_measured_on_2x2_2x3|l
 RESULT_FILE|BALL-CONTROL-3x3.hbp|sha256=e94ca638aea046dd15b73a5043eb996e15a7df834deda9e0ab2bcd94714cb238|json=0
 RESULT_FILE|CONTROLS-FINAL.hbp|sha256=aad800186a098b039b6196e6e3483c2f2bbc9800e897c33bebe6e89414d34235|json=0
 RESULT_FILE|COUNTS-sector-ball-3x4.hbp|sha256=5cdd443f9e41424df61cd8746fede4ec2b8609f4b08e14d1c9503d7b23cd98f4|json=0
-RESULT_FILE|COUNTS-whole-ball-3x4.hbp|sha256=2d1c6c63b2e8ff7d5389932ca017a505c7ed346ce7e2da690357bd79b1ac47fc|json=0
+RESULT_FILE|COUNTS-whole-ball-3x4.hbp|sha256=5596421a075174758b61438768786589bbbbf990b177df42ce7a9d25f459f9b0|json=0
 RESULT_FILE|P0-3x4.out|sha256=fb88d281f1decc5ee5f1ec957f078406ce678efb974fd9716f37a4a32c53d959|json=0
 RESULT_FILE|P0-AND-BALL-RUN.hbp|sha256=088bf716305ab26927403522b56d6231b93b72443544388bff72b9726ae6c7d1|json=0
 RESULT_FILE|ROOMBALL-3x4.out|sha256=71ecc87c515fe0325d3567517adf6b334d56a268e8a1c5d09e58b9de6bbee8f5|json=0

@@ -12,7 +12,7 @@ space, all momenta and all symmetry sectors:
 
 - **G1.** E₉ − E₈ ≥ `t_cert` − 72 J_E, for every r ≥ 9.
 - **G2.** At r = 9, E₉ − E₈ ≥ `t_cert` − U, where U is the smallest measured t with whole-space
-  N_ball(t) ≥ 8. MEASURED so far: U = 70.036 J_E, from K = 2 (`shellschur`, 8,042 states, `negative=8`).
+  N_ball(t) ≥ 8. MEASURED so far: U = 70.031 J_E, from K = 3 (`shellschur`, 155,386 states, `negative=8`).
 
 Both are statements about this one finite lattice.
 

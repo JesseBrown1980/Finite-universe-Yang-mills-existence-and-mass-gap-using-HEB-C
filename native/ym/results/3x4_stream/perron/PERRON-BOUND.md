@@ -65,8 +65,9 @@ MEASURED:
 
 - **Whole-space flats.** `ball 3 4 1` then `flatcomp`: 8 flat states, all diagonals 72, 0 couplings. So E₈ ≤ 72
   for every r.
-- **E₈ at r = 9.** On the K = 2 whole-space ball (8,042 states), 0 levels lie below 69.900 and exactly 8 below 70.036,
-  counted by `shellschur`. By interlacing, E₈ ≤ 70.036 at r = 9.
+- **E₈ at r = 9.** On the K = 2 whole-space ball (8,042 states), 0 levels lie below 69.900 and exactly 8 below 70.036.
+  On K = 3 (155,386 states), exactly 8 lie below 70.031. Both are counted by `shellschur`, and K = 3 had 2,276 core
+  columns and none undecided. By interlacing, E₈ ≤ 70.031 at r = 9.
 - **E₈(+,+) from above.** On the sector balls, counted by `schurcert` on `shellschur`'s column rows: 7 below 96.7 and
   8 below 96.8 at K = 3; 7 below 94.5 and 8 below 94.6 at K = 4. So E₈(+,+) ≤ 94.6.
 - **Ball levels.** The 8th (+,+) level of the K = 3, 4 and 5 balls is 96.756025, 94.562413 and 94.121950. K = 5 has
