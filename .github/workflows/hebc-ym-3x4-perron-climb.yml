@@ -1,0 +1,94 @@
+name: 3x4 Perron climb
+
+on:
+  push:
+    branches:
+      - ym-3x4-perron-climb
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ym-3x4-perron-climb
+  cancel-in-progress: false
+
+env:
+  HF: https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve
+  STORE_REV: 160726aaaf87386090b2b0b9ecf2815ca2634009
+  KEYS_REV: d2630edf882f3d9fa125f25680fd9b6a04c98d31
+  START_REV: b33f5a0bf3392ba795f39fe726570ad61311b3d4
+  START_SHA: 34e71facb2689a46a44cb347604f0b361760020c8810748f6e9cc513daa53686
+  PASSA_SHA: eefd7752031cf6e1cbfd53dd47128805d1a98bb41de0a9e269222d0e2c6e3cbc
+
+jobs:
+  climb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk on the disposable runner
+        shell: bash
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/powershell /opt/hostedtoolcache/CodeQL
+          docker system prune -af || true
+          df -h .
+
+      - name: Build perroncert from source
+        shell: bash
+        working-directory: native/ym
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal
+          rustup override set 1.81.0
+          cargo build --release --offline --locked -p evolvers --bin perroncert
+          sha256sum target/release/perroncert crates/evolvers/src/bin/perroncert.rs
+
+      - name: Download the store, the key table and the start vector
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p data && cd data
+          curl --retry 5 --retry-delay 10 -fLsS "$HF/$STORE_REV/SECTORS-341-374.sha256" -o SECTORS-341-374.sha256
+          echo "9213927b3b60cfbeae8efef10730e8c7df2ad52f56159017b048539377886ce3  SECTORS-341-374.sha256" | sha256sum -c
+          for n in $(seq 341 374); do curl --retry 5 --retry-delay 10 -fLsS "$HF/$STORE_REV/sector-$n.rooms" -o "sector-$n.rooms"; done
+          sha256sum -c SECTORS-341-374.sha256 | tail -1
+          curl --retry 5 --retry-delay 10 -fLsS "$HF/$KEYS_REV/perron/passA.bin" -o passA.bin
+          echo "$PASSA_SHA  passA.bin" | sha256sum -c
+          curl --retry 5 --retry-delay 10 -fLsS "$HF/$START_REV/perron/start/d93700000-pass5.bin" -o start.bin
+          echo "$START_SHA  start.bin" | sha256sum -c
+
+      - name: Climb
+        shell: bash
+        timeout-minutes: 255
+        run: |
+          set -euo pipefail
+          python3 -I native/ym/results/3x4_stream/perron/perron_climb.py "$PWD/native/ym/target/release/perroncert" \
+            "seg:341:34:800000000:$PWD/data/sector-" "$PWD/data/start.bin" "$PWD/climb" 93950000 13500 16:500 3 \
+            93000000:61051 93700000:18416
+
+      - name: Check the best vector with both tools
+        if: always()
+        shell: bash
+        timeout-minutes: 75
+        run: |
+          set -euo pipefail
+          cd climb
+          sha=$(sha256sum best.bin | cut -c1-64)
+          echo "BEST|sha256=$sha|bytes=$(stat -c %s best.bin)|json=0" | tee CHECKS.hbp
+          ../native/ym/target/release/perroncert check "seg:341:34:800000000:$GITHUB_WORKSPACE/data/sector-" 0 1000 9000 best.bin | tee -a CHECKS.hbp
+          python3 -I ../native/ym/results/3x4_stream/perron/check_d_strict.py "341:34:800000000:$GITHUB_WORKSPACE/data/sector-" best.bin 1000 9000 \
+            --passa "$GITHUB_WORKSPACE/data/passA.bin" --self-adjoint 27 --expect-d-sha256 "$sha" | tee -a CHECKS.hbp
+
+      - name: Publish the best vector and every log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perron-climb-3x4
+          retention-days: 90
+          compression-level: 1
+          path: |
+            climb/best.bin
+            climb/CLIMB.hbp
+            climb/CHECKS.hbp
+            climb/seg-*.out
