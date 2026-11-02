@@ -134,14 +134,19 @@ plaquette (0.0036 at r = 1/27, 0.111 at r = 1): the area law, certified.
   the same doubling is 20,690 to 21,071 s, so "under the timeout" did not follow. Measured times are
   in the [correction note](native/ym/results/3x4_stream/PRODUCTION-FANOUT-SPEC-REV1-CORRECTION.md).
 - **P0 passed, November 2:** `flatcomp` on the 3×4 store, merkle checked, gives 7 flat states, all diagonals 72 and
-  0 flat-flat couplings, as predicted before the run. This is the registered rule's precondition, not a verdict.
-- **Draft, not run on 3×4: a Perron lower bound.** In the orbit basis every off-diagonal entry of H is ≤ 0, so with the
-  flat rows removed, any positive vector gives a lower bound on the next level in one exact pass, with no Schur
-  complement. On the 3×3 (+,+) store it certifies 76.403 J_E, against the 8 levels below 71.9 of the full-space run.
-  A short derivation lifts the bound to the whole space, and counts by separate code confirm the lift on 2×2 and
-  2×3. No second seat has reviewed it, and it is not a registered rule:
-  [`perron/PERRON-BOUND.md`](native/ym/results/3x4_stream/perron/PERRON-BOUND.md).
-- **Not established:** the 3×4 gap. The verdict needs the (+,+) excitation bound of the
+  0 flat-flat couplings, as predicted before the run. This is the registered rule's precondition.
+- **Draft, run on 3×4 on November 2: a Perron lower bound.** In the orbit basis every off-diagonal entry of H is ≤ 0, so
+  with the flat rows removed, any positive vector gives a lower bound on the next level in one exact pass. On the 3×4
+  store it certifies **93.061051 J_E**, with the same value and row from `perroncert check` and from `check_d_stream.py`,
+  separately written. On the 3×3 (+,+) store it certifies 76.431504 J_E, against the 8 levels below 71.9 of the
+  full-space run. A short derivation lifts the bound to the whole space, and counts by separate code confirm the lift
+  on 2×2 and 2×3. For the gap above the eight flat states on this 3×4 lattice, that gives E₉ − E₈ ≥ 21.06 + 3(r − 9) J_E for
+  every r ≥ 9, and E₉ − E₈ ≥ 23.03 J_E at r = 9. Three reviewers accept the argument on reading. Open: a rebuild of sampled
+  3×4 rows from the definition of H, a re-run by another seat, and a registered rule:
+  [`perron/PERRON-BOUND.md`](native/ym/results/3x4_stream/perron/PERRON-BOUND.md), with a guide for independent review in
+  [`perron/PERRON-REVIEW.md`](native/ym/results/3x4_stream/perron/PERRON-REVIEW.md). The certificate vector is on
+  [Hugging Face](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/tree/main/perron).
+- **Open:** the 3×4 gap verdict. It needs the (+,+) excitation bound of the
   registered rule and, for zero momentum, the other three sectors' stores.
 
 **3×4 scaling status (October 30, 2026; production HOLD), kept as recorded. On November 1 the HOLD
@@ -179,7 +184,7 @@ sectors; a separately written operator and inertia verifier.
 | Evidence class | What is established | Next |
 |---|---|---|
 | Exact integer-arithmetic certificates of fixed-lattice spectral-gap bounds (S₃) | 2×L sector results and 3×3 full-space counts with sealed integer receipts and checks | The BHM/TQO volume-uniform proof, the immediate research track |
-| 3×4 dimension, memory and control | 2,177,317,873 reconciled gauge orbits; P4 `PILOT_PASS`, `CAP=12`; hosted control C1–C3 PASS; gap rule registered; 60M production PASS (`negative=0`, `ambiguous=0`); P0 PASS on the store | The Perron run or a spec revision for core-sized job matrices; 90M ambiguity; 3×4 gap verdict |
+| 3×4 dimension, memory and control | 2,177,317,873 reconciled gauge orbits; P4 `PILOT_PASS`, `CAP=12`; hosted control C1–C3 PASS; gap rule registered; 60M production PASS (`negative=0`, `ambiguous=0`); P0 PASS on the store; Perron bound 93.061051 J_E run and checked by two tools | Row check and an outside re-run of the Perron bound, or a spec revision for core-sized job matrices; 90M ambiguity; 3×4 gap verdict |
 | Cross-seat operator experiments | Replayed software models of reach, curve, hash and CHSH on discrete lattices | A physical z mechanism; a rule that yields the quantum bound 2√2 from the model |
 | Production | 60M run 41321108365: 18 of 18 column jobs and the merge succeeded, `negative=0`, `ambiguous=0`; no local re-run was needed | A spec revision before any threshold above 60M |
 

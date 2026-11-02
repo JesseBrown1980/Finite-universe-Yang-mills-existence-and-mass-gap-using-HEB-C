@@ -1,0 +1,7 @@
+CHECK34_PREDICT|written_before_run=1|at=2026-11-02T10:34:38Z|source=P34.hbp_PERRONCERT_row|n=45508080|flats=7|t_cert_milli=93061051|min_row=44742735|min_mag=3|positive_offdiag=0|bad_d=0|merkle=PASS|d_sha256=956b73bc6f4ec5712184eb52f67d8e0adab467c1ea843ba257126278368210da|est_secs_perroncert_check=612|est_secs_stream=3600|est_tag=CONJECTURE|json=0
+CHECK34_START|at=2026-11-02T10:34:43Z|d_sha256=956b73bc6f4ec5712184eb52f67d8e0adab467c1ea843ba257126278368210da|perroncert_sha256=e60b6420aeac8438b327873639763cdcf70f38adbae78445c782e40f904271a9|check_d_stream_sha256=ae6c3103bfa29765d4027f1b221afadae628ced90ccdce193afd7cbea5294b5e|json=0
+CHECK34_PERRONCERT|exit=0|secs=628|at=2026-11-02T10:45:13Z|json=0
+PERRONCERT|L=3x4|sector=Sx+Sy+|n=45508080|flats=7|JE=1000|JB=9000|mode=check|t_cert_milli=93061051|statement=E_flats_plus_1_at_least_t_cert|min_row=44742735|min_mag=3|d_min=4773560|d_max=17587343634|d_sha256=956b73bc6f4ec5712184eb52f67d8e0adab467c1ea843ba257126278368210da|positive_offdiag=0|merkle=PASS|ms=624018|json=0
+CHECK34_STREAM|exit=0|secs=1863|at=2026-11-02T11:16:16Z|json=0
+CHECK_D|n=45508080|flats=7|t_cert_milli=93061051|min_row=44742735|min_mag=3|positive_offdiag=0|bad_d=0|merkle=PASS|secs=1862|json=0
+DONE|perroncert_exit=0|stream_exit=0|at=2026-11-02T11:16:17Z|json=0

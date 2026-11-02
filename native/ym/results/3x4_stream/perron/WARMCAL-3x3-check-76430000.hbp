@@ -1,0 +1,3 @@
+PERRONCERT|L=3x3|sector=Sx+Sy+|n=288645|flats=7|JE=1000|JB=9000|mode=check|t_cert_milli=76431504|statement=E_flats_plus_1_at_least_t_cert|min_row=275450|min_mag=3|d_min=6711102|d_max=701124892539|d_sha256=f037b1566d0d08ad3883670d06d2cca04f7d6b9fce713d084ff672e8295d2bbe|positive_offdiag=0|merkle=PASS|ms=842|json=0
+CHECK_D|n=288645|flats=7|t_cert_milli=76431504|min_row=275450|min_mag=3|positive_offdiag=0|bad_d=0|merkle=PASS|json=0
+CHECK_D|n=288645|flats=7|t_cert_milli=76431504|min_row=275450|min_mag=3|positive_offdiag=0|bad_d=0|merkle=PASS|secs=5|json=0

@@ -1,0 +1,15 @@
+PERRONCERT_SWEEP|sweep=1|t_milli=76200000|biggest_change=2430619705|ms=3217|json=0
+PERRONCERT_SWEEP|sweep=2|t_milli=76200000|biggest_change=1856813121|ms=4283|json=0
+PERRONCERT_PROGRESS|sweep=2|t_cert_milli=73148352|min_row=21179|min_mag=7|d_max=10853509586|ms=5134|json=0
+PERRONCERT_SWEEP|sweep=3|t_milli=76200000|biggest_change=1654649948|ms=5906|json=0
+PERRONCERT_SWEEP|sweep=4|t_milli=76200000|biggest_change=1583199037|ms=6648|json=0
+PERRONCERT_PROGRESS|sweep=4|t_cert_milli=74255074|min_row=21179|min_mag=7|d_max=14080688330|ms=7385|json=0
+PERRONCERT_SWEEP|sweep=5|t_milli=76200000|biggest_change=1535959916|ms=8202|json=0
+PERRONCERT_SWEEP|sweep=6|t_milli=76200000|biggest_change=1488884102|ms=8955|json=0
+PERRONCERT_PROGRESS|sweep=6|t_cert_milli=74792022|min_row=21179|min_mag=7|d_max=17105532348|ms=9738|json=0
+PERRONCERT_SWEEP|sweep=7|t_milli=76200000|biggest_change=1439174855|ms=10778|json=0
+PERRONCERT_SWEEP|sweep=8|t_milli=76200000|biggest_change=1387323797|ms=11531|json=0
+PERRONCERT_PROGRESS|sweep=8|t_cert_milli=75175903|min_row=21179|min_mag=7|d_max=19932031000|ms=12296|json=0
+PERRONCERT_SWEEP|sweep=9|t_milli=76200000|biggest_change=1334347800|ms=13056|json=0
+PERRONCERT_SWEEP|sweep=10|t_milli=76200000|biggest_change=1281081000|ms=13806|json=0
+PERRONCERT|L=3x3|sector=Sx+Sy+|n=288645|flats=7|JE=1000|JB=9000|mode=solve|t_cert_milli=75464125|statement=E_flats_plus_1_at_least_t_cert|min_row=21179|min_mag=7|d_min=6699822|d_max=22547459800|d_sha256=4988aeaf2a845d6e3265f33344be33cabb4772a130e26874b8d19a882801fd5d|positive_offdiag=0|merkle=PASS|ms=14567|json=0

@@ -1,0 +1,10 @@
+HF_FILE|group=d93_and_balls|path=perron/d93000000.bin|bytes=364064640|sha256=956b73bc6f4ec5712184eb52f67d8e0adab467c1ea843ba257126278368210da|hub_match=1|json=0
+HF_FILE|group=d93_and_balls|path=perron/balls/whole-3x4-K3.txt|bytes=13650336|sha256=b3e0db628474015be8e02b8269b556d0305cd615bfda2ef40ac2f8c1210d5dfd|hub_match=1|json=0
+HF_FILE|group=d93_and_balls|path=perron/balls/sector-3x4-K4.txt|bytes=5316860|sha256=a3e13348190cb38397567f34aadfa3c1d68b46133c2d1f16fab37f7be67bc090|hub_match=1|json=0
+HF_FILE|group=d93_and_balls|path=perron/balls/sector-3x4-K5.txt|bytes=79535327|sha256=f53a2f59b850165b846d886802e0c744d87109d479e629d5327779dcd9032961|hub_match=1|json=0
+HF_FILE|group=d93_and_balls|path=perron/README.md|bytes=993|sha256=6a07723a23e0de3b0c04b004d0fe7031d4dd86720791cd208a17c3640c9f6cbd|hub_match=1|json=0
+HF_COMMIT|group=d93_and_balls|repo=datasets/Jessedbrown/ym-3x4-room-store|commit=dc4046ce44e023cc7c0fb712ca7ada3e577c217d|files=5|all_match=1|json=0
+HF_FILE|group=passA|path=perron/passA.bin|bytes=728129280|sha256=eefd7752031cf6e1cbfd53dd47128805d1a98bb41de0a9e269222d0e2c6e3cbc|hub_match=1|json=0
+HF_COMMIT|group=passA|repo=datasets/Jessedbrown/ym-3x4-room-store|commit=d2630edf882f3d9fa125f25680fd9b6a04c98d31|files=1|all_match=1|json=0
+HF_FILE|group=readme_rewrite|path=perron/README.md|bytes=852|sha256=0e2c29eb212a258ed9a7bba827f41f93688b8cab0a1e5aace815236d864a0411|hub_match=1|json=0
+HF_COMMIT|group=readme_rewrite|repo=datasets/Jessedbrown/ym-3x4-room-store|commit=cf5584cbac281ce8bd8d1760acc8240794ece04f|files=1|all_match=1|json=0

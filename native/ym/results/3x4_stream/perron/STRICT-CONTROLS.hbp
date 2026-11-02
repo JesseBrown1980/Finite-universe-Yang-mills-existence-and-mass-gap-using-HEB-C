@@ -1,0 +1,16 @@
+STRICT_GOOD|flags=none|ok=1|CHECK_D_STRICT|n=288645|flats=7|flat_rows=0,8,15,275436,275443,288631,288633|flat_diag=54|flat_flat_couplings=0|t_cert_milli=76041088|t_cert_JE=76041088/1000000|min_row=275450|min_mag=3|min_nonflat_M=3|max_M=27|positive_offdiag=0|bad_d=0|row_sums_zero=PASS|W_self_adjoint=PASS|seed=27|merkle=PASS|secs=13|json=0|json=0
+STRICT_GOOD|flags=-O|ok=1|CHECK_D_STRICT|n=288645|flats=7|flat_rows=0,8,15,275436,275443,288631,288633|flat_diag=54|flat_flat_couplings=0|t_cert_milli=76041088|t_cert_JE=76041088/1000000|min_row=275450|min_mag=3|min_nonflat_M=3|max_M=27|positive_offdiag=0|bad_d=0|row_sums_zero=PASS|W_self_adjoint=PASS|seed=27|merkle=PASS|secs=9|json=0|json=0
+STRICT_BAD|case=merkle|flags=none|exit=2|expected=merkle|ok=1|CHECK_D_FAIL|reason=merkle|json=0|json=0
+STRICT_BAD|case=merkle|flags=-O|exit=2|expected=merkle|ok=1|CHECK_D_FAIL|reason=merkle|json=0|json=0
+STRICT_BAD|case=positive_offdiag|flags=none|exit=2|expected=positive_offdiag_row_1|ok=1|CHECK_D_FAIL|reason=positive_offdiag_row_1|json=0|json=0
+STRICT_BAD|case=positive_offdiag|flags=-O|exit=2|expected=positive_offdiag_row_1|ok=1|CHECK_D_FAIL|reason=positive_offdiag_row_1|json=0|json=0
+STRICT_BAD|case=row_sum|flags=none|exit=2|expected=row_sum_not_zero_row_1|ok=1|CHECK_D_FAIL|reason=row_sum_not_zero_row_1|json=0|json=0
+STRICT_BAD|case=row_sum|flags=-O|exit=2|expected=row_sum_not_zero_row_1|ok=1|CHECK_D_FAIL|reason=row_sum_not_zero_row_1|json=0|json=0
+STRICT_BAD|case=neg_d|flags=none|exit=2|expected=nonpositive_d_row|ok=1|CHECK_D_FAIL|reason=nonpositive_d_row_1|json=0|json=0
+STRICT_BAD|case=neg_d|flags=-O|exit=2|expected=nonpositive_d_row|ok=1|CHECK_D_FAIL|reason=nonpositive_d_row_1|json=0|json=0
+STRICT_BAD|case=flat_d|flags=none|exit=2|expected=flat_d_nonzero_row|ok=1|CHECK_D_FAIL|reason=flat_d_nonzero_row_0|json=0|json=0
+STRICT_BAD|case=flat_d|flags=-O|exit=2|expected=flat_d_nonzero_row|ok=1|CHECK_D_FAIL|reason=flat_d_nonzero_row_0|json=0|json=0
+STRICT_BAD|case=d_length|flags=none|exit=2|expected=d_length|ok=1|CHECK_D_FAIL|reason=d_length|json=0|json=0
+STRICT_BAD|case=d_length|flags=-O|exit=2|expected=d_length|ok=1|CHECK_D_FAIL|reason=d_length|json=0|json=0
+STRICT_BAD|case=self_adjoint_with_merkle_rewritten|exit_without_test=0|exit_with_test=2|ok=1|CHECK_D_FAIL|reason=not_W_self_adjoint|json=0|json=0
+STRICT_CONTROLS|failed=0|json=0
