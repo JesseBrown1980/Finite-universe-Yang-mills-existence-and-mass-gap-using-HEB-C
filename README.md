@@ -155,12 +155,12 @@ ambiguity remains open, and any threshold above 60M stays on HOLD until a spec r
 - At thresholds 60M, 72M and 90M, the room-backed and shell implementations
   **AGREE under comparator v2**. At 90M both give the same **AMBIGUOUS outcome
   (negative 37, 9 undecided columns)**.
-  **Recheck, November 1:** the 9 undecided columns came from the last step of the merge, not from the
-  column solves. A new tool, `schurcert`, reads the same column enclosures and decides all 2,940 columns:
-  `negative=44`, `positive=2896`, `ambiguous=0`. On November 2, exact minors from separately written code gave
-  the same count with no zero minor, on the midpoint matrix only, which is one matrix inside the enclosures.
-  This covers only that final step on 3×3, and no second seat has reviewed it. It does not close the 90M gate
-  named below, because `schurcert` is not the merge step of any registered spec.
+  **Recheck, November 1:** the 9 undecided columns came from the last step of the merge, and the column solves
+  stand. A new tool, `schurcert`, reads the same column enclosures and decides all 2,940 columns: `negative=44`,
+  `positive=2896`, `ambiguous=0`. On November 2, exact minors from separately written code gave the same count on the
+  midpoint matrix, one matrix inside the enclosures, with every minor nonzero. This covers the final step on 3×3. Open:
+  a second-seat review, and a registered spec naming `schurcert` as its merge step, which is what the 90M gate below
+  waits for.
   Receipt: [`3x3_inertia_recheck/`](native/ym/results/3x3_inertia_recheck/).
 - **Production stays on HOLD** until the remaining gates pass: the 90M ambiguity,
   binary/source provenance and production admission. The memory pilot gate has passed. See
