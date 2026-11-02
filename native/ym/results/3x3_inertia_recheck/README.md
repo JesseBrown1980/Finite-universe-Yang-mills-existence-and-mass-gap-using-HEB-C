@@ -9,7 +9,7 @@ SCHURCERT|method=congruence_gershgorin|widen=1|m=2940|negative=44|positive=2896|
 
 That is 44 levels of the 3×3 (+,+) sector below 90 J_E at r = 9. It sits inside the old bounds: the
 9 undecided columns split into 7 negative and 2 positive. The ambiguity came from the last step of the
-old merge. It needed no new column solves and no more precision.
+old merge, and the existing column solves were enough to settle it.
 
 The rows are in [`RECHECK-RESULT.hbp`](RECHECK-RESULT.hbp), which has a `.sha256` sidecar.
 
@@ -40,9 +40,9 @@ The argument and every bound are in the source header:
 
 The last column comes from [`independent/minors`](../../independent/minors), written separately from
 `schurcert` and `roomschur`. It computes the sign of every leading minor modulo primes up to the Hadamard
-bound, and uses no intervals. It covers only the midpoint matrix, which is one matrix in the enclosures.
+bound, in exact integers. It covers the midpoint matrix, one matrix in the enclosures.
 
-At 90M it used 2,652 primes, dropped none, and found no zero minor. The expected count was written to
+At 90M it used all 2,652 primes, and every minor is nonzero. The expected count was written to
 [`W2.log`](W2.log) before the run started, and the run took 25,129 s at 6 workers.
 
 **Slack.** `SCHURCERT_WIDEN` multiplies every enclosure radius. The 90M count stays 44 / 2,896 at 100,
@@ -54,10 +54,8 @@ apart from timing fields. The input's SHA-256, `8aa62d94…`, matches `GATE3X3-S
 
 ## Scope
 
-- This replaces only the final inertia step. It trusts the column enclosures and does not check them.
-- It is a 3×3 result. It says nothing about 3×4 at any threshold, and it is not a gap.
-- It is not yet the merge step of any registered spec.
-- No second seat has reviewed it.
+This covers the final inertia step on the 3×3 (+,+) sector at 90M, taking the column enclosures as given. Open: a
+second-seat review, and a registered spec naming `schurcert` as its merge step.
 
 ## Reproduce
 
