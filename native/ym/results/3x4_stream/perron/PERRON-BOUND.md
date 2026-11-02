@@ -101,7 +101,9 @@ weight, M and entries from the 3·nl moves. Every row matches on 2×2 (211) and 
 On 3×4, an outside seat replayed it on GitHub Actions, [run 41441400030](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41441400030), from the public data on a fresh runner: 2,564 of
 2,564 rows match, including the tightest row 44,742,735 and all 3 rows at M = 3, and the merkle recomputed from the download
 matches. A local run, [`VERIFY34.hbp`](VERIFY34.hbp), matched 4,264 of 4,264 rows, with at least 88 from every one of the 34
-sectors. These are samples of the 45,508,080 rows.
+sectors. The same seat's [run 41444444894](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41444444894) matched 5,556 of 5,556 rows across all 34 sectors, with 385,827 exact weighted
+pairs w_h·z_hj = w_j·z_jh. These are samples of the 45,508,080 rows. On all rows, the same run's `check_d_strict.py` passes row sums,
+the key table and W-self-adjointness.
 
 ### The bound on 3×4
 
@@ -116,11 +118,12 @@ Two checks on the same `d`, SHA-256 `956b73bc…`, each one more full pass over 
 |---|---|---|
 | `perroncert check` | same value, row and M | 628 s |
 | `check_d_stream.py`, separately written Python, same author | same value, row and M | 1,863 s |
+| `check_d_strict.py` on another machine, run by an outside seat, [run 41444444894](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41444444894) | same value, row and M, with row sums, the key table and W-self-adjointness passing on all rows | 2,038 s |
 
 An external review found that `check_d_stream.py` relies on `assert`, which `python -O` removes. MEASURED: under `-O`, a
 changed byte printed `merkle=PASS` with exit 0. The recorded run used `python -I`, so its row stands. The fail-closed
 replacement is [`check_d_strict.py`](check_d_strict.py), with its controls in [`STRICT-CONTROLS.hbp`](STRICT-CONTROLS.hbp),
-and it also checks every row's structure. Its 3×4 run is open.
+and it also checks every row's structure. The outside run above used it.
 
 The predictions were committed in `155acdd` before the run:
 
@@ -201,9 +204,9 @@ cluster, which fits the single (−,−) flat state. Measuring its sector direct
 
 | Step | Run that measures it |
 |---|---|
-| The solver on 3×4 at a higher threshold | A warm start at 93.7 J_E, [`run_warm34.sh`](run_warm34.sh). Its value counts after the same two checks |
+| The solver at the top | [`perron_climb.py`](perron_climb.py) climbs toward the level, on a hosted runner and locally. Its value counts after the same checks. A warm start at 93.7 J_E read 93.718416 at pass 4 by the solver's own check, and gave its vector to the climb |
 | The level itself on 3×4 | CONJECTURE: λ₁(H′) ≈ 94.0 J_E. The cluster top of 70.03 plus 3×3's gap of 23.94 gives 93.97, and the ball levels above fall toward about 94.0 |
-| That the store's rows are H, on 3×4 | Matched on both samples. Next: exact weighted pairs with `--pairs` |
-| The certificate on another machine | Another seat's `perroncert check` or `check_d_strict.py` on the published `d` and store. A hosted runner read the whole store in 95 s |
+| That the store's rows are H, on 3×4 | Matched on three samples, with 385,827 exact weighted pairs, and row sums and W-self-adjointness pass on all rows |
+| A checker written by someone else | Another author's check of the published `d` on the public store, from the formats in [`PERRON-REVIEW.md`](PERRON-REVIEW.md) |
 | The argument itself | Three reviewers accept it on reading, with the lift conditional on the row check |
 | A verdict by this route | A rule revision and the operator's word: [`PERRON-RULE-DRAFT.md`](PERRON-RULE-DRAFT.md) |

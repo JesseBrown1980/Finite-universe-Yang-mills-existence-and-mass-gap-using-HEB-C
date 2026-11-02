@@ -141,9 +141,10 @@ plaquette (0.0036 at r = 1/27, 0.111 at r = 1): the area law, certified.
   separately written. On the 3×3 (+,+) store it certifies 76.431504 J_E, against the 8 levels below 71.9 of the
   full-space run. A short derivation lifts the bound to the whole space, and counts by separate code confirm the lift
   on 2×2 and 2×3. For the gap above the eight flat states on this 3×4 lattice, that gives E₉ − E₈ ≥ 21.06 + 3(r − 9) J_E for
-  every r ≥ 9, and E₉ − E₈ ≥ 23.03 J_E at r = 9. Three reviewers accept the argument on reading, and an outside replay on
-  GitHub Actions rebuilt 2,564 sampled 3×4 rows from the definition of H, and a local run rebuilt 4,264 across all 34 sectors,
-  all matching. Open: the certificate check on another machine, and a registered rule:
+  every r ≥ 9, and E₉ − E₈ ≥ 23.03 J_E at r = 9. Three reviewers accept the argument on reading. An outside seat re-ran the
+  certificate on GitHub Actions with `check_d_strict.py`, with the same value and row, and rebuilt 5,556 sampled 3×4 rows from the
+  definition of H across all 34 sectors, all matching, with 385,827 exact weighted pairs. Open: a checker written by someone else,
+  and a registered rule:
   [`perron/PERRON-BOUND.md`](native/ym/results/3x4_stream/perron/PERRON-BOUND.md), with a guide for independent review in
   [`perron/PERRON-REVIEW.md`](native/ym/results/3x4_stream/perron/PERRON-REVIEW.md). The certificate vector is on
   [Hugging Face](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/tree/main/perron).
@@ -185,7 +186,7 @@ sectors; a separately written operator and inertia verifier.
 | Evidence class | What is established | Next |
 |---|---|---|
 | Exact integer-arithmetic certificates of fixed-lattice spectral-gap bounds (S₃) | 2×L sector results and 3×3 full-space counts with sealed integer receipts and checks | The BHM/TQO volume-uniform proof, the immediate research track |
-| 3×4 dimension, memory and control | 2,177,317,873 reconciled gauge orbits; P4 `PILOT_PASS`, `CAP=12`; hosted control C1–C3 PASS; gap rule registered; 60M production PASS (`negative=0`, `ambiguous=0`); P0 PASS on the store; Perron bound 93.061051 J_E run and checked by two tools; 2,564 of 2,564 sampled rows rebuilt from the definition on another machine | An outside re-run of the Perron certificate, or a spec revision for core-sized job matrices; 90M ambiguity; 3×4 gap verdict |
+| 3×4 dimension, memory and control | 2,177,317,873 reconciled gauge orbits; P4 `PILOT_PASS`, `CAP=12`; hosted control C1–C3 PASS; gap rule registered; 60M production PASS (`negative=0`, `ambiguous=0`); P0 PASS on the store; Perron bound 93.061051 J_E run and checked by two tools; the certificate and 5,556 sampled rows re-run on another machine | A checker written by someone else, a registered rule, or a spec revision for core-sized job matrices; 90M ambiguity; 3×4 gap verdict |
 | Cross-seat operator experiments | Replayed software models of reach, curve, hash and CHSH on discrete lattices | A physical z mechanism; a rule that yields the quantum bound 2√2 from the model |
 | Production | 60M run 41321108365: 18 of 18 column jobs and the merge succeeded, `negative=0`, `ambiguous=0`; no local re-run was needed | A spec revision before any threshold above 60M |
 

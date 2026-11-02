@@ -1,0 +1,11 @@
+PERRONCERT_INNER|sweep=1|low_rows=842875|low_entries=59731926|inner_sweeps=318|ms=849700|json=0
+PERRONCERT_SWEEP|sweep=1|t_milli=93700000|biggest_change=3320942650|ms=856319|json=0
+PERRONCERT_INNER|sweep=2|low_rows=842875|low_entries=59731926|inner_sweeps=216|ms=1634073|json=0
+PERRONCERT_SWEEP|sweep=2|t_milli=93700000|biggest_change=628546|ms=1641064|json=0
+PERRONCERT_INNER|sweep=3|low_rows=842875|low_entries=59731926|inner_sweeps=181|ms=2426063|json=0
+PERRONCERT_SWEEP|sweep=3|t_milli=93700000|biggest_change=43992|ms=2432850|json=0
+PERRONCERT_INNER|sweep=4|low_rows=842875|low_entries=59731926|inner_sweeps=160|ms=3123950|json=0
+PERRONCERT_SWEEP|sweep=4|t_milli=93700000|biggest_change=8748|ms=3130426|json=0
+PERRONCERT_PROGRESS|sweep=4|t_cert_milli=93718416|min_row=44742735|min_mag=3|d_max=58304734685|ms=3775062|json=0
+PERRONCERT_INNER|sweep=5|low_rows=842875|low_entries=59731926|inner_sweeps=142|ms=4523239|json=0
+PERRONCERT_SWEEP|sweep=5|t_milli=93700000|biggest_change=2110|ms=4529880|json=0

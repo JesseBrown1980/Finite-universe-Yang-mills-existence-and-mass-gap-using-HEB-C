@@ -7,8 +7,9 @@ confirmation. Please post either on
 **Where it stands:** three reviewers have read the argument and accept it, with the lift conditional on a row check. An
 outside seat replayed the row rebuild on GitHub Actions from the public data: 2,564 of 2,564 sampled rows match the definition
 of H, including the tightest row, and the store's merkle recomputed from the download matches. A local run matched 4,264 of
-4,264 rows, with at least 88 from every one of the 34 sectors. The certificate value has been
-run by the producing seat, and its re-run on another machine is open. The derivation is in
+4,264 rows, with at least 88 from every one of the 34 sectors. The same outside seat then re-ran the certificate on another
+machine, [run 41444444894](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41444444894): the same 93.061051, row and M, with row sums, the key table and W-self-adjointness passing on
+all rows, and 385,827 exact weighted pairs. Open: a checker written by someone else, and a registered rule. The derivation is in
 [`PERRON-BOUND.md`](PERRON-BOUND.md), and the measured rows are in [`PERRON-RESULT.hbp`](PERRON-RESULT.hbp).
 
 ## 1. What is being claimed
@@ -19,7 +20,7 @@ states, with E summing over the three transpositions on every link, M = Σ_p (2 
 
 | Step | Claim | Status |
 |---|---|---|
-| C1 | On the store's Sx+Sy+ rows at r = 9, the published `d` gives min_h (H′d)_h / d_h = t_cert, in exact integers, rounded down | MEASURED by two separately written checkers, one author |
+| C1 | On the store's Sx+Sy+ rows at r = 9, the published `d` gives min_h (H′d)_h / d_h = t_cert, in exact integers, rounded down | MEASURED by two separately written checkers, one author, and re-run on another machine by an outside seat |
 | C2 | E₈ of the Sx+Sy+ sector, which has 7 flat states, is ≥ t_cert | Follows from C1 by interlacing and Barta, given that the rows are H |
 | C3 | E₉ of the whole gauge-invariant space, all momenta and symmetry sectors, is ≥ t_cert | DERIVED. Three reviewers accept the argument. Counted by separate code on 2×2 and 2×3. 2,564 3×4 rows rebuilt on another machine have the row structure it uses |
 | C4 | E₈ ≤ 72 J_E for every r, and E₈ ≤ 70.031 J_E at r = 9 | MEASURED (flat states, then a count on a whole-space ball), plus min-max |
@@ -54,8 +55,8 @@ python3 -I native/ym/results/3x4_stream/perron/check_d_strict.py 341:34:80000000
 ```
 
 Any failed condition prints one `CHECK_D_FAIL` row and exits 2, with no value. Its controls are in
-[`STRICT-CONTROLS.hbp`](STRICT-CONTROLS.hbp), and its 3×4 run is open. The recorded 3×4 row came from the older
-[`check_d_stream.py`](check_d_stream.py), in 1,863 s under `python -I`. That older file relies on `assert`, which `python -O`
+[`STRICT-CONTROLS.hbp`](STRICT-CONTROLS.hbp), and it took 2,038 s on a hosted runner (section 4). The first local 3×4 row came from
+the older [`check_d_stream.py`](check_d_stream.py), in 1,863 s under `python -I`. That older file relies on `assert`, which `python -O`
 removes: under `-O`, a changed byte printed `merkle=PASS`. Use `check_d_strict.py` for new checks.
 
 **With the Rust tool**, about 10 minutes:
@@ -145,13 +146,25 @@ VERIFY_ROWS|L=3x4|n=45508080|rows_rebuilt=2564|seed=27|named_rows=44742735|match
 The sample covers every magnetic number from 3 to 36, including all 3 rows at M = 3 and 52 of the 420 rows at M = 36. The receipt
 is [`REPLAY-41441400030-VERIFY-3X4.hbp`](REPLAY-41441400030-VERIFY-3X4.hbp).
 
+**The outside re-run of the certificate matched.** The same seat ran both tools at `d8c82ae`, pinned by hash, on the public files
+with the vector's hash enforced, [run 41444444894](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41444444894):
+
+```
+CHECK_D_STRICT|n=45508080|d_sha256=956b73bc…|flats=7|flat_diag=72|flat_flat_couplings=0|t_cert_milli=93061051|min_row=44742735|min_mag=3|min_nonflat_M=3|max_M=36|positive_offdiag=0|bad_d=0|row_sums_zero=PASS|passa_w_and_M=PASS|W_self_adjoint=PASS|merkle=PASS|secs=2038
+VERIFY_ROWS|L=3x4|n=45508080|rows_rebuilt=5556|named_rows=44742735|sectors=34|sectors_with_rows=34|min_rows_in_a_sector=126|matched=5556|weighted_pairs_exact=385827|merkle=PASS|secs=329
+```
+
+The receipts are [`REPLAY-41444444894-CHECK-3X4-STRICT.hbp`](REPLAY-41444444894-CHECK-3X4-STRICT.hbp) and
+[`REPLAY-41444444894-VERIFY-3X4-PAIRS.hbp`](REPLAY-41444444894-VERIFY-3X4-PAIRS.hbp). The tools have one author, so a checker written by
+someone else is still open.
+
 | Reviewer | Point | Status |
 |---|---|---|
 | 1, 2, 3 | Interlacing, Barta and the W^(1/2) cancellation hold | Accepted on reading |
 | 1, 3 | The lift is valid when the sector is the exact symmetry reduction | Accepted in principle. Attack 1 is open |
-| 1, 2, 3 | Rebuild sampled 3×4 rows from `passA.bin` with separate code | **Matched on 3×4:** 2,564 of 2,564 rows on another machine, and 4,264 of 4,264 locally, across all 34 sectors |
-| 2 | Another seat's pass over the 45.5M rows | Done for the row rebuild: the replay read the whole store once, and its merkle matched. **Open:** the certificate check on another machine |
-| 1 | The builder's aggregate symmetry checksum needs an exact check on pairs, preferably all of them | `verify_sample_rows.py --pairs` checks every pair the rebuilt rows touch, exactly. `check_d_strict.py --self-adjoint` tests all pairs by a random bilinear form drawn from SHA-256. Their 3×4 runs are open |
+| 1, 2, 3 | Rebuild sampled 3×4 rows from `passA.bin` with separate code | **Matched on 3×4:** 2,564 and then 5,556 rows on another machine, and 4,264 locally, across all 34 sectors |
+| 2 | Another seat's pass over the 45.5M rows | Done: run 41444444894 read all 45.5M rows with `check_d_strict.py`, with the same value, row and M |
+| 1 | The builder's aggregate symmetry checksum needs an exact check on pairs, preferably all of them | `verify_sample_rows.py --pairs` checks every pair the rebuilt rows touch, exactly. `check_d_strict.py --self-adjoint` tests all pairs by a random bilinear form drawn from SHA-256. Both ran on 3×4 in run 41444444894: 385,827 exact pairs, and `W_self_adjoint=PASS` |
 | 1 | Run negative controls: wrong merkle, swapped `d`, mutated row | Done: [`STRICT-CONTROLS.hbp`](STRICT-CONTROLS.hbp), 18 of 18, and [`VERIFY-CONTROLS.hbp`](VERIFY-CONTROLS.hbp), 14 of 14 |
 | 1 | `check_d_stream.py` should fail closed, and `assert` vanishes under `python -O` | Confirmed by measurement: a changed byte printed `merkle=PASS` under `-O`. Fixed in `check_d_strict.py`. The recorded runs used `-I`, so their rows stand |
 | 2 | Put the 3×4 run and the location of `d` in the PR | Done: rows here, data on Hugging Face |

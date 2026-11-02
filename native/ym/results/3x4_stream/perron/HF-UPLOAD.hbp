@@ -8,3 +8,5 @@ HF_FILE|group=passA|path=perron/passA.bin|bytes=728129280|sha256=eefd7752031cf6e
 HF_COMMIT|group=passA|repo=datasets/Jessedbrown/ym-3x4-room-store|commit=d2630edf882f3d9fa125f25680fd9b6a04c98d31|files=1|all_match=1|json=0
 HF_FILE|group=readme_rewrite|path=perron/README.md|bytes=852|sha256=0e2c29eb212a258ed9a7bba827f41f93688b8cab0a1e5aace815236d864a0411|hub_match=1|json=0
 HF_COMMIT|group=readme_rewrite|repo=datasets/Jessedbrown/ym-3x4-room-store|commit=cf5584cbac281ce8bd8d1760acc8240794ece04f|files=1|all_match=1|json=0
+HF_FILE|group=climb_start_vector|path=perron/start/d93700000-pass5.bin|bytes=364064640|sha256=34e71facb2689a46a44cb347604f0b361760020c8810748f6e9cc513daa53686|hub_match=1|json=0
+HF_COMMIT|group=climb_start_vector|repo=datasets/Jessedbrown/ym-3x4-room-store|commit=b33f5a0bf3392ba795f39fe726570ad61311b3d4|files=1|all_match=1|json=0
