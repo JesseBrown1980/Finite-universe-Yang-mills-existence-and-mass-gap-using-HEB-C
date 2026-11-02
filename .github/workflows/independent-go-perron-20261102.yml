@@ -141,6 +141,9 @@ jobs:
           echo '956b73bc6f4ec5712184eb52f67d8e0adab467c1ea843ba257126278368210da  data/d93000000.bin' | sha256sum -c -
           fetch "$BASE/b33f5a0bf3392ba795f39fe726570ad61311b3d4/perron/start/d93700000-pass5.bin" data/d93700000-pass5.bin
           echo '34e71facb2689a46a44cb347604f0b361760020c8810748f6e9cc513daa53686  data/d93700000-pass5.bin' | sha256sum -c -
+          # Second blind vector: do not supply an expected certificate value.
+          fetch "$BASE/7ed23ce12ffb27fae7b9fd39eb103065f3dd8a37/perron/top/x3-b.bin" data/x3-b.bin
+          echo '637fe9e293505d950503abbd615840471e4ef14a2a23128d44233992f82999fe  data/x3-b.bin' | sha256sum -c -
           for n in $(seq 341 374); do
             echo "Downloading sector $n"
             fetch "$BASE/160726aaaf87386090b2b0b9ecf2815ca2634009/sector-$n.rooms" "data/sector-$n.rooms"
@@ -167,6 +170,20 @@ jobs:
           done
           cat certificate.txt timing.txt
           sha256sum perron_independent.go > source.sha256
+      - name: Independent second blind vector full replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Same original independently authored Go verifier, with only the
+          # expected second-vector SHA-256 replaced; no expected result supplied.
+          cp perron_independent.go perron_independent_blind2.go
+          sed -i 's/34e71facb2689a46a44cb347604f0b361760020c8810748f6e9cc513daa53686/637fe9e293505d950503abbd615840471e4ef14a2a23128d44233992f82999fe/g' perron_independent_blind2.go
+          sha256sum perron_independent_blind2.go > blind2-source.sha256
+          go build -o independent-blind2 perron_independent_blind2.go
+          /usr/bin/time -p -o blind2-timing.txt ./independent-blind2 --dir data --control data/d93000000.bin --blind data/x3-b.bin > blind2-certificate.txt
+          grep -Fx 'control t_cert_milli=93061051 min_row=44742735 min_mag=3' blind2-certificate.txt
+          grep -Fx 'PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS' blind2-certificate.txt
+          cat blind2-certificate.txt blind2-timing.txt
       - name: Publish independent receipt
         if: always()
         uses: actions/upload-artifact@v4
@@ -175,6 +192,10 @@ jobs:
           path: |
             perron_independent.go
             source.sha256
+            perron_independent_blind2.go
+            blind2-source.sha256
+            blind2-certificate.txt
+            blind2-timing.txt
             certificate.txt
             timing.txt
             fault-*.stdout
