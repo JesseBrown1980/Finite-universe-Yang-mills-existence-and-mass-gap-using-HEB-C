@@ -1,0 +1,144 @@
+name: Independent 3x4 Perron check (Go, written from the spec only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ym-3x4-independent-go-checker-20261102]
+    paths:
+      - '.github/workflows/hebc-ym-3x4-independent-go-checker.yml'
+      - 'independent/ym-3x4-go-checker/**'
+
+permissions:
+  contents: read
+
+env:
+  CHECKER_DIR: independent/ym-3x4-go-checker
+  HF: https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve
+  STORE_REV: 160726aaaf87386090b2b0b9ecf2815ca2634009
+  PINS: -expect-n 45508080 -expect-payload-bytes 26850881536 -expect-merkle ec03c5f8ea5abd37ed8f80e0e9e7f00e37840a753f33a1008fbd090b18072a0b
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Release unused tooling on the disposable runner
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/powershell /opt/hostedtoolcache/CodeQL
+          docker system prune -af > /dev/null || true
+          df -h .
+          avail=$(df -B1 . | awk 'NR==2 {print $4}')
+          test "$avail" -ge 32000000000
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.7'
+          cache: false
+
+      - name: Build, unit tests, synthetic controls
+        working-directory: ${{ env.CHECKER_DIR }}
+        run: |
+          go version
+          sha256sum cmd/ymcheck/main.go | tee SOURCE.sha256
+          go vet ./...
+          go test -count=1 ./cmd/ymcheck
+          go build -trimpath -o checker ./cmd/ymcheck
+          ./controls.sh
+          tail -n 1 CONTROLS.hbp
+          grep -q '^SUMMARY|controls=87|match=87|mismatch=0|' CONTROLS.hbp
+
+      - name: Download the store, both d files and the sector list; check every hash
+        working-directory: ${{ env.CHECKER_DIR }}
+        run: |
+          mkdir -p data
+          cd data
+          get() { curl --retry 5 --retry-delay 10 --connect-timeout 60 -fLsS "$1" -o "$2"; }
+          get "$HF/$STORE_REV/SECTORS-341-374.sha256" SECTORS-341-374.sha256
+          echo "9213927b3b60cfbeae8efef10730e8c7df2ad52f56159017b048539377886ce3  SECTORS-341-374.sha256" | sha256sum -c -
+          test "$(grep -c 'sector-3[4-7][0-9]\.rooms' SECTORS-341-374.sha256)" = 34
+          for s in $(seq 341 374); do
+            get "$HF/$STORE_REV/sector-$s.rooms" "sector-$s.rooms"
+            test "$(stat -c %s "sector-$s.rooms")" = 800000000
+          done
+          sha256sum -c SECTORS-341-374.sha256
+          get "$HF/d2630edf882f3d9fa125f25680fd9b6a04c98d31/perron/d93000000.bin" d93000000.bin
+          get "$HF/b33f5a0bf3392ba795f39fe726570ad61311b3d4/perron/start/d93700000-pass5.bin" d93700000-pass5.bin
+          printf '%s  %s\n' \
+            956b73bc6f4ec5712184eb52f67d8e0adab467c1ea843ba257126278368210da d93000000.bin \
+            34e71facb2689a46a44cb347604f0b361760020c8810748f6e9cc513daa53686 d93700000-pass5.bin | sha256sum -c -
+          df -h .
+
+      - name: Certificate, both d files in one pass over the store
+        working-directory: ${{ env.CHECKER_DIR }}
+        run: |
+          t0=$(date +%s)
+          cat data/sector-{341..374}.rooms | ./checker $PINS data/d93000000.bin data/d93700000-pass5.bin | tee RESULT.hbp
+          echo "WALL|step=certificate|secs=$(( $(date +%s) - t0 ))|json=0" | tee -a RESULT.hbp
+          grep -q '^CERT|d=data/d93000000.bin|' RESULT.hbp
+          grep -q '^CERT|d=data/d93700000-pass5.bin|' RESULT.hbp
+          grep -q '^STORE|' RESULT.hbp
+          if grep -q '^CERT|d=data/d93000000.bin|.*|t_cert=93061051|row=44742735|mag=3|' RESULT.hbp; then
+            echo "COMPARE|vector=d93000000.bin|expected=t_cert=93061051,row=44742735,mag=3|match=1|json=0" | tee -a RESULT.hbp
+          else
+            echo "COMPARE|vector=d93000000.bin|expected=t_cert=93061051,row=44742735,mag=3|match=0|json=0" | tee -a RESULT.hbp
+          fi
+
+      - name: "Control 1: one flipped payload byte must fail closed"
+        working-directory: ${{ env.CHECKER_DIR }}
+        run: |
+          # Stream offset 17*800000000 + 400000003 = 14000000003, inside the payload (it ends at 26850885632).
+          f=data/sector-358.rooms; off=400000003
+          orig=$(dd if=$f bs=1 skip=$off count=1 2>/dev/null | od -An -tu1 | tr -d ' ')
+          new=$(( orig ^ 1 ))
+          printf "\\$(printf '%03o' "$new")" | dd of=$f bs=1 seek=$off count=1 conv=notrunc 2>/dev/null
+          now=$(dd if=$f bs=1 skip=$off count=1 2>/dev/null | od -An -tu1 | tr -d ' ')
+          echo "flipped sector-358.rooms byte $off: $orig -> $now"
+          test "$now" = "$new"
+          set +e
+          cat data/sector-{341..374}.rooms | ./checker $PINS data/d93000000.bin > CONTROL-FLIP.out
+          rc=$?
+          set -e
+          cat CONTROL-FLIP.out
+          printf "\\$(printf '%03o' "$orig")" | dd of=$f bs=1 seek=$off count=1 conv=notrunc 2>/dev/null
+          (cd data && grep 'sector-358.rooms' SECTORS-341-374.sha256 | sha256sum -c -)
+          echo "CONTROL|name=flipped_payload_byte|offset=14000000003|exit=$rc|cert_rows=$(grep -c '^CERT|' CONTROL-FLIP.out)|json=0" | tee -a RESULT.hbp
+          test "$rc" -ne 0
+          if grep -q '^CERT|' CONTROL-FLIP.out; then echo 'a CERT row was printed'; exit 1; fi
+          grep -q '^FAIL|' CONTROL-FLIP.out
+
+      - name: "Control 2: a d with one nonpositive non-flat entry must fail closed"
+        working-directory: ${{ env.CHECKER_DIR }}
+        run: |
+          cp data/d93000000.bin data/d-zero-at-44742735.bin
+          head -c 8 /dev/zero | dd of=data/d-zero-at-44742735.bin bs=8 seek=44742735 count=1 conv=notrunc 2>/dev/null
+          echo "bytes changed: $({ cmp -l data/d93000000.bin data/d-zero-at-44742735.bin || true; } | wc -l)"
+          set +e
+          cat data/sector-{341..374}.rooms | ./checker $PINS data/d-zero-at-44742735.bin > CONTROL-DZERO.out
+          rc=$?
+          set -e
+          cat CONTROL-DZERO.out
+          echo "CONTROL|name=d_zero_at_nonflat_row_44742735|exit=$rc|cert_rows=$(grep -c '^CERT|' CONTROL-DZERO.out)|json=0" | tee -a RESULT.hbp
+          test "$rc" -ne 0
+          if grep -q '^CERT|' CONTROL-DZERO.out; then echo 'a CERT row was printed'; exit 1; fi
+          grep -q '^FAIL|' CONTROL-DZERO.out
+
+      - name: Result
+        if: always()
+        working-directory: ${{ env.CHECKER_DIR }}
+        run: |
+          cat SOURCE.sha256 || true
+          cat RESULT.hbp || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ym-3x4-independent-go-checker
+          path: |
+            ${{ env.CHECKER_DIR }}/SOURCE.sha256
+            ${{ env.CHECKER_DIR }}/RESULT.hbp
+            ${{ env.CHECKER_DIR }}/CONTROL-FLIP.out
+            ${{ env.CHECKER_DIR }}/CONTROL-DZERO.out
+            ${{ env.CHECKER_DIR }}/CONTROLS.hbp
+          retention-days: 90
