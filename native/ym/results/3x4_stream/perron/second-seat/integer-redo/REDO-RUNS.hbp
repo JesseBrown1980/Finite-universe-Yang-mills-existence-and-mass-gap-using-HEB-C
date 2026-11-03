@@ -1,0 +1,6 @@
+# The second seat's four fuzzers again, integer only, run at below normal priority on the bins in C:/tmp/opus55/ym-two-sided/bin. Each row has its exit and its last line. json=0.
+REDO|file=c3_random|exit=0|wall_secs=223|at=2026-11-03T18:28:43Z|last={'cases': 3000, 'chains': 117742, 'id_fail': 0, 'pos_fail': 0, 'eq_fail': 0, 'mono_fail': 0, 'above_level': 0, 'tk_below_mu': 95092, 'tk_above_mu': 22650, 'min_slack': '0'} secs=223|json=0
+REDO|file=c2_acc|exit=0|wall_secs=3|at=2026-11-03T18:28:46Z|last=C2_ACC|{'cases': 250, 'refused': 0, 'form_rows': 821, 'mismatch': 0, 'over_2e127': 278, 'over_2e128': 128, 'negative_big': 9, 'upper_rows': 896}|json=0|json=0
+REDO|file=c2_fuzz|exit=0|wall_secs=8|at=2026-11-03T18:28:54Z|last=C2_FUZZ|seed=27|{'cases': 300, 'form_mismatch': 0, 'upper_rows': 3476, 'upper_mismatch': 0, 'open_rows': 352, 'open_mismatch': 0, 'unsound': 0, 'not_least_negative': 186, 'lower_rows': 1130, 'lower_mismatch': 0, 'old_new_differ': 0, 'refused': 4}|secs_wall=8|json=0|json=0
+REDO|file=c4b_open|exit=0|wall_secs=5|at=2026-11-03T18:28:59Z|last=WRAP_CHECK 0 PERRONCERT|L=1x2|sector=Sx+Sy+|n=2|flats=0|JE=1000|JB=9000|mode=check|t_cert_milli=-89131682828547379792736944127990000000|statement=E_flats_plus_1_at_least_t_cert|min_row=0|min_mag=1|d_min=1|d_max=4611686018427387904|d_|json=0
+REDO_DONE|at=2026-11-03T18:28:59Z|json=0

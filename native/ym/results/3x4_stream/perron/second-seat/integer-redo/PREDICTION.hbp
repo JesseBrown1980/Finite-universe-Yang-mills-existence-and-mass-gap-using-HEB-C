@@ -1,0 +1,8 @@
+INTEGER_REDO_PLAIN_RUNS|file=REDO-RUNS.hbp|order=these_ran_before_this_file|c3_random=cases_3000_failed_identities_0|c2_acc=mismatch_0|c2_fuzz=mismatch_0_unsound_0|c4b_open=exit_0|json=0
+CHECKED_DIVISION_PREDICTION|at=2026-11-03T18:46:00Z|question=every_true_division_in_the_integer_copies_gives_an_exact_value|tool=checked_division.py|json=0
+CHECKED_DIVISION_EXPECT|script=c3_random|args=27 3000|exit=0|float=0|rows=same_as_REDO-RUNS_apart_from_secs|json=0
+CHECKED_DIVISION_EXPECT|script=c2_acc|args=none|exit=0|float=0|rows=same_as_REDO-RUNS|json=0
+CHECKED_DIVISION_EXPECT|script=c2_fuzz|args=27 300|exit=0|float=0|rows=same_as_REDO-RUNS_apart_from_secs_wall|json=0
+CHECKED_DIVISION_EXPECT|script=c4b_open|args=none|exit=0|float=0|rows=same_as_the_plain_run|json=0
+CHECKED_DIVISION_TEETH|plant=x_equals_1_over_2|expect_exit=3|local_read=3|workflow=no-float.yml|json=0
+CHECKED_DIVISION_COST|wall_secs_under=1800|priority=below_normal|json=0

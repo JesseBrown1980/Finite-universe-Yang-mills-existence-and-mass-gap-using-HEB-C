@@ -1,0 +1,40 @@
+# What the no-float gate lets stand, each with its reason. The operator's word: floating point is to be redone in integers, and the evidence is kept.
+# A file row states how many findings the gate counts in that file, so one more float there fails as well. A path ending in / covers its folder. Anything not listed must hold no floating point.
+native/ym/vendor/ | Third-party integer crates pinned by Cargo.lock. Their float conversions are library surface, and the gate's Rust scan of everything else reads 0 calls to them
+native/ym/results/cantor-integer-2026-11-03/float-run-2026-10-31/ | The floating-point run of PR 61, verbatim, as evidence. The integer redo is its parent folder, and its workflow checks these hashes
+independent/seat_adaptive_cells.py | findings=7 | Exact rationals: every / here is on the integer-ratio class of seat_integer_ratio.py, read line by line
+independent/seat_global_coupling.py | findings=3 | Exact rationals: every / here is on the integer-ratio class of seat_integer_ratio.py, read line by line
+independent/seat_integer_ratio.py | findings=7 | Exact rationals: the integer-ratio class itself, and its tests
+independent/seat_magnetic_endpoint.py | findings=2 | Exact rationals: every / here is on the integer-ratio class of seat_integer_ratio.py, read line by line
+native/vendor/rime_sphere_source/rime_prism_pipeline.py | findings=8 | Vendored original, pinned by git hash in native-rust.yml: percentages in its printed status lines. Its NTT, the part this repository imports, is integer
+native/web/s3_wave_observatory.html | findings=3 | CSS sizes in the page's style block. Its script computes in BigInt
+native/ym/independent/gpt6_3x4_meta_check.py | findings=1 | As it ran, kept as evidence: exact Decimal on two subtractions. Integer copy beside it: gpt6_3x4_meta_check_integer.py
+native/ym/independent/indep_verify.py | findings=1 | numpy arrays of dtype int64 holding modular arithmetic on integers
+native/ym/python/memory_pilot_runner.py | findings=6 | A wall clock read as whole seconds. Its hash is pinned with its recorded run, and it moves to an integer clock when it next runs
+native/ym/results/3x4_stream/perron/allpairs/failclosed/review-opus55/attack/brute_windows.py | findings=3 | As it ran, kept as evidence: a wall clock, printed as seconds
+native/ym/results/3x4_stream/perron/allpairs/failclosed/review-opus55/attack/reader_controls.py | findings=3 | As it ran, kept as evidence: a wall clock, printed as seconds
+native/ym/results/3x4_stream/perron/allpairs/failclosed/review-opus55/attack/stars.py | findings=3 | As it ran, kept as evidence: a wall clock, printed as seconds
+native/ym/results/3x4_stream/perron/allpairs/failclosed/review-opus55/attack/stars2.py | findings=3 | As it ran, kept as evidence: a wall clock, printed as seconds
+native/ym/results/3x4_stream/perron/hash_store.py | findings=2 | A wall clock read as whole seconds. Its hash is pinned with its recorded run, and it moves to an integer clock when it next runs
+native/ym/results/3x4_stream/perron/perron_climb.py | findings=6 | A wall clock read as whole seconds. Its hash is pinned with its recorded run, and it moves to an integer clock when it next runs. Its / are on Fraction values
+native/ym/results/3x4_stream/perron/second-seat/c1_inertia.py | findings=3 | As it ran, kept as evidence: a wall clock, printed as seconds
+native/ym/results/3x4_stream/perron/second-seat/c1_small.py | findings=5 | As it ran, kept as evidence: a wall clock, printed as seconds
+native/ym/results/3x4_stream/perron/second-seat/c2_acc.py | findings=4 | As it ran, kept as evidence: float coin flips. Integer copy: integer-redo/c2_acc.py
+native/ym/results/3x4_stream/perron/second-seat/c2_fuzz.py | findings=13 | As it ran, kept as evidence: a float coin flip and timer, and / on Fraction values. Integer copy: integer-redo/c2_fuzz.py
+native/ym/results/3x4_stream/perron/second-seat/c3_random.py | findings=22 | As it ran, kept as evidence: float coin flips, statistic and timer, and / on Fraction values. Integer copy: integer-redo/c3_random.py
+native/ym/results/3x4_stream/perron/second-seat/c4_grid.py | findings=5 | As it ran, kept as evidence: a wall clock, printed as seconds, and / on Fraction values
+native/ym/results/3x4_stream/perron/second-seat/c4b_open.py | findings=4 | As it ran, kept as evidence: a float coin flip, and / on Fraction values. Integer copy: integer-redo/c4b_open.py
+native/ym/results/3x4_stream/perron/second-seat/c5_coupling.py | findings=3 | As it ran, kept as evidence: a wall clock, printed as seconds
+native/ym/results/3x4_stream/perron/second-seat/c6_count.py | findings=7 | As it ran, kept as evidence: a wall clock, printed as seconds
+native/ym/results/3x4_stream/perron/second-seat/c6_lattice.py | findings=9 | As it ran, kept as evidence: a wall clock, printed as seconds
+native/ym/results/3x4_stream/perron/second-seat/c6_lift.py | findings=5 | As it ran, kept as evidence: a wall clock, printed as seconds
+native/ym/results/3x4_stream/perron/second-seat/c7_receipts.py | findings=4 | As it ran, kept as evidence: / on Fraction values, and one float() on a branch that never runs
+native/ym/results/3x4_stream/perron/second-seat/integer-redo/c2_fuzz.py | findings=6 | Exact rationals: every / here is on Fraction values, measured in CHECKED-DIVISIONS.hbp
+native/ym/results/3x4_stream/perron/second-seat/integer-redo/c3_random.py | findings=8 | Exact rationals: every / here is on Fraction values, measured in CHECKED-DIVISIONS.hbp
+native/ym/results/3x4_stream/perron/second-seat/integer-redo/c4b_open.py | findings=2 | Exact rationals: every / here is on Fraction values, measured in CHECKED-DIVISIONS.hbp
+native/ym/results/3x4_stream/perron/second-seat/own33_check.py | findings=3 | As it ran, kept as evidence: a wall clock, printed as seconds
+native/ym/results/3x4_stream/perron/second-seat/own34_post.py | findings=1 | Exact rationals: every / here is on Fraction values, read line by line
+native/ym/results/3x4_stream/perron/vector/product_bound.py | findings=10 | Exact rationals: every / here is on Fraction values, read line by line
+native/ym/results/3x4_stream/perron/vector/review-opus55/py_two_numbers.py | findings=1 | Exact rationals: every / here is on Fraction values, read line by line
+native/ym/results/3x4_stream/perron/warmcal.py | findings=7 | The float fit as it ran, kept as evidence. Integer copy beside it: warmcal_integer.py
+native/ym/results/z-one-matrix-20261030/curve_ABC/replay.py | findings=6 | Path joins, root/case/script
