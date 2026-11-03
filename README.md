@@ -8,11 +8,12 @@ All of it is on GitHub, and this table is kept current. The full register, with 
 |---|---|---|
 | **3×4, with its store** | **E₉ − E₈ ≥ 24.039673 J_E at r = 9.** All 45,508,080 rows recomputed from the rules and all 1,632,625,631 pairs compared exactly. The checker was hardened and rerun on the full store in [#85](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/85) | A replay on another machine. The formal verdict and rule stay on HOLD for the operator |
 | **4×4, 4×5 and 5×5, with no store** | **E₉ − E₈ ≥ 23.947629, 23.618291 and 21.792208 J_E at r = 9** ([#89](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/89)). The simple form of the bound passed a second seat and GPT-6. The stronger hybrid form passed a separate program, and the pinned checker reads the same certificates on the real 3×3 and 3×4 stores | GPT-6's attack on the hybrid form, then 6×6 and lower r |
+| **2×2, every coupling** | Certified at chosen points and cells, with [a separate seat's reconstruction and an analytic bound at every ratio](independent/README.md) | A non-author proof review of those theorems |
 | **Every volume at once** | The [stability plan](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/main/docs/YM_TOPOLOGICAL_STABILITY_PROOF.md) ([#88](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/88)): the geometry and the theorem matching for even square tori | The finite-size constant as a number, then odd and rectangular tori |
 | **The road to SU(2)** | [The companion repository](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved): S₃, Q8, 2T and 2O sealed, 2I in progress in its [draft #9](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved/pull/9) | The 2I official run |
 | **The continuum** | [The continuum track](native/ym/shadow/CONTINUUM-TRACK.md) names the milestones | A separate obligation after uniformity in volume |
 
-Merged on November 3: #84, #85, #86, #87, #88 and #89. Each result here is a statement about one finite lattice. The second seat's FAIL on the original `allpairs` and every later finding stay on record, with the status of each in [`PERRON-TWO-SIDED.md`](native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md), section 5.
+Merged on November 3: #84 to #90, and the separate seat's #7 to #15 and #18. Each result here is a statement about one finite lattice. The second seat's FAIL on the original `allpairs` and every later finding stay on record, with the status of each in [`PERRON-TWO-SIDED.md`](native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md), section 5.
 
 Exact spectral certificates for S₃ lattice gauge theory on periodic finite
 lattices, run headless through the HEB-C HTTP-0 backend. GitRAM distributes the
@@ -332,7 +333,7 @@ these points:
 
 A further set of certified cells covers r = J_B/J_E ∈ [3, 10,022]. They come
 from interval Sturm counts over the four translation sectors, monotone cells and
-SHA-keyed ledgers, on branch `integer-sturm-ladder`. The weak-coupling law there
+SHA-keyed ledgers, in [`independent/ladder/`](independent/ladder/LADDER_METHOD.md). The weak-coupling law there
 is r·(E₁ − E₀) → √14 − √6. Ledger and method:
 [docs/LADDER_METHOD.md](docs/LADDER_METHOD.md),
 [docs/EVOLUTION_TESTGROUND.md](docs/EVOLUTION_TESTGROUND.md),
@@ -346,6 +347,8 @@ is r·(E₁ − E₀) → √14 − √6. Ledger and method:
 | 27 | E₀ < 23.639, E₁ > 23.683 |
 | 81 | E₀ < 23.882, E₁ > 23.895 |
 | 243 | E₀ < 23.961, E₁ > 23.965 |
+
+**A separate seat's work on this torus,** [`independent/`](independent/README.md), merged November 3 from #7 to #15 and #18: a separate reconstruction with the native operator's SHA-256, all 1,393 Sturm pivots certified at (1, 1) and (3, 5), the exact second-order splitting at the magnetic end, an analytic lower bound at every coupling ratio, proved cells on 0 ≤ r ≤ 2, the four translation sectors, and a first resolution of the 3×3 flat levels on a ball of 59,246 orbits. A non-author proof review of its theorems stays open.
 
 ## Earlier stages
 

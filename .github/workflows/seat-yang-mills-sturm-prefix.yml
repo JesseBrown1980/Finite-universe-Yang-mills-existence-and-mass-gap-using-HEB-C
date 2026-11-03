@@ -4,7 +4,10 @@ on:
   push:
     branches: [seat-yang-mills-direct-sturm-prefix]
   pull_request:
-    branches: [seat-yang-mills-independent-orbit-audit]
+    paths:
+      - 'independent/**'
+      - '.github/workflows/seat-yang-mills-sturm-prefix.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read

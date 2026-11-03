@@ -4,7 +4,10 @@ on:
   push:
     branches: [seat-yang-mills-sha-inferred-anchor-experiment]
   pull_request:
-    branches: [seat-yang-mills-integer-translation-sectors]
+    paths:
+      - 'independent/**'
+      - '.github/workflows/seat-sha-inferred-anchor-test.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read

@@ -4,7 +4,10 @@ on:
   push:
     branches: [seat-yang-mills-independent-orbit-audit]
   pull_request:
-    branches: [stage2g-certified-torus-gap]
+    paths:
+      - 'independent/**'
+      - '.github/workflows/seat-yang-mills-independent.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read

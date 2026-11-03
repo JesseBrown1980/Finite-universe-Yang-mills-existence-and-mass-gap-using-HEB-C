@@ -16,6 +16,7 @@ This register is the current entry point for the finite-universe Yang–Mills / 
 | [#87](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/87) | README links between this repository and the companion, the proof plan and the continuum track |
 | [#88](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/88) | The stability plan: the region dictionary and the theorem matching for even square tori, with its correction on δ |
 | [#89](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/89) | The bound with no store on 4×4, 4×5 and 5×5, the second seat's and GPT-6's reviews, and `hybridcheck`, the attack on the hybrid certificate |
+| [#7](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/7) to [#15](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/15), [#18](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/18) | A separate seat's work from October 25 on the 2×2 torus and the 3×3 flat levels, in [`independent/`](../independent/README.md) |
 
 **The numbers to remember, at r = 9:**
 
@@ -37,7 +38,8 @@ The simpler no-store bound under those three reads 16.252744, 14.017195 and 4.01
 4. The 2I package in the [companion repository](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved/pull/9): the exact count at 3 J_E is still running, then the addendum, the driver and the official run.
 5. A replay of `fullrebuild` and `allpairs` on another machine, with [`reproduce_oneread_run.sh`](../native/ym/results/3x4_stream/perron/allpairs/oneread/reproduce_oneread_run.sh).
 6. A reading of the one-read change to `allpairs` by another seat, and the other tools that still read through `roomio.rs`.
-7. A Lean proof of the pattern table and the chain.
+7. A non-author proof review of the separate seat's theorems in [`independent/`](../independent/README.md).
+8. A Lean proof of the pattern table and the chain.
 
 **Waiting on the operator:**
 
@@ -45,7 +47,7 @@ The simpler no-store bound under those three reads 16.252744, 14.017195 and 4.01
 |---|---|
 | The formal 3×4 gap verdict and the gap rule | HOLD, his word. The draft rule is [#68](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/68) |
 | The continuum claim | NOT CERTIFIED, his word |
-| The 23 older open PRs below | His word on what to do with them |
+| The older open PRs below | He said to go through them: merge what still applies and close what is superseded |
 
 **Where the data lives.** Code, receipts, reviews and predictions are in this repository. Files too large for git are on the release [`vectors-20261103`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/releases/tag/vectors-20261103): `review-opus55-big-files.tar.gz`, sha256 `014344c914a18fa490c66c13b8b6fd84d3a1517d2091f1e2d3fb4570335cf1fc`, the second seat's 34 vectors, and `attack-big-files.tar.gz`, sha256 `10e218cbf81a4f3a2e534e2c7f552b9d35c7fa2a750abcf69f7aee90ebe727c9`, the attack's 9 vectors. Each file inside is hashed in [`review-opus55/BIG-FILES.hbp`](../native/ym/results/3x4_stream/perron/vector/review-opus55/BIG-FILES.hbp) and [`attack/BIG-FILES.hbp`](../native/ym/results/3x4_stream/perron/vector/attack/BIG-FILES.hbp). The 3×4 store is on [Hugging Face](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store).
 
@@ -53,10 +55,8 @@ The simpler no-store bound under those three reads 16.252744, 14.017195 and 4.01
 
 | PRs | What they are | Note |
 |---|---|---|
-| [#5](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/5) to [#9](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/9) | Stage 2I and 2J audits and early Sturm inertia seats | #5 has conflicts |
+| [#5](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/5), [#6](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/6) | Stage 2I and 2J audits of RIME | #5 has conflicts |
 | [#10](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/10), [#16](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/16), [#17](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/17) | HTTP-0 and SG-RAM test grounds and the integer wave observatory | |
-| [#11](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/11) to [#15](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/15) | Finite S₃ coupling charts, adaptive cells, translation sectors and the SHA experiment | |
-| [#18](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/18) | 3×3 vacuum-ball block-Krylov | 401,759 added lines |
 | [#31](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/31), [#39](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/39), [#42](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/42), [#43](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/43), [#44](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/44), [#47](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/47) | Cloud-seat tests from October 29 and 30, and CHSH controls | |
 | [#52](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/52) | An earlier README status | Superseded by this page |
 | [#61](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/61) | Cantor-27 numerical drive, experimental | |
@@ -69,6 +69,7 @@ The simpler no-store bound under those three reads 16.252744, 14.017195 and 4.01
 | Native implementation | Rust 1.81 finite `S₃` gauge-Hamiltonian kernels, exact integer arithmetic, GitRAM receipts and independent checking pathways | [Main README](../README.md), [native YM README](../native/ym/README.md) |
 | Stage 2B | Exact interacting two-plaquette Hamiltonian and finite spectral verification | [Stage 2B](../STAGE2B_DOUBLE_PLAQUETTE_EXACT_SPECTRUM.md) |
 | Stage 2C | Periodic 2×2 `S₃` torus with 1,393 gauge-invariant states; certified mixed-coupling eigenvalue intervals | [Stage 2C](../STAGE2C_TORUS_1393_SPARSE_REPORT.md), [spectral certificate](../STAGE2I_INDEPENDENT_VERIFIER_AND_SCALING.md) |
+| 2×2, a separate seat | A separate reconstruction with the native operator's SHA-256, all 1,393 Sturm pivots at two couplings, the exact second-order splitting at the magnetic end, and an analytic bound at every ratio | [`independent/`](../independent/README.md) |
 | Finite-volume ladder | Certified sector bounds on the 2×L ladder, a full-space 3×3 certificate, and the 3×4 Perron route | [Results table](../README.md#results) |
 | 3×4 Perron route | Recorded `t_cert = 94.070673 J_E` at `r=9`; 45,508,080 stored sector rows recomputed; 1,632,625,631 off-diagonal pairs compared; original and count-gate-corrected runs agree apart from elapsed seconds | [Perron bound](../native/ym/results/3x4_stream/perron/PERRON-BOUND.md), [PR #83](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/83), [PR #84](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/84) |
 | 3×4 all-sector count | 2,177,317,873 gauge orbits reconciled in the registered pilot | [Pilot decision](../native/ym/results/3x4_stream/PILOT-ADMISSION-DECISION.md) |

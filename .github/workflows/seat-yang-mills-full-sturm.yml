@@ -4,7 +4,10 @@ on:
   push:
     branches: [seat-yang-mills-exact-rational-ldl]
   pull_request:
-    branches: [seat-yang-mills-direct-sturm-prefix]
+    paths:
+      - 'independent/**'
+      - '.github/workflows/seat-yang-mills-full-sturm.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read

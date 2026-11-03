@@ -4,7 +4,10 @@ on:
   push:
     branches: [seat-yang-mills-coupling-region-certificates]
   pull_request:
-    branches: [seat-yang-mills-exact-rational-ldl]
+    paths:
+      - 'independent/**'
+      - '.github/workflows/seat-yang-mills-coupling-regions.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read

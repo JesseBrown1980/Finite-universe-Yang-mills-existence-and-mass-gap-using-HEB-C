@@ -4,7 +4,10 @@ on:
   push:
     branches: [seat-yang-mills-global-coupling-bound]
   pull_request:
-    branches: [seat-yang-mills-coupling-region-certificates]
+    paths:
+      - 'independent/**'
+      - '.github/workflows/seat-global-coupling-gap.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read

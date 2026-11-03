@@ -4,7 +4,10 @@ on:
   push:
     branches: [seat-yang-mills-3x3-vacuum-block-ritz]
   pull_request:
-    branches: [main, integer-sturm-ladder]
+    paths:
+      - 'independent/**'
+      - '.github/workflows/seat-3x3-vacuum-block-ritz-test.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read

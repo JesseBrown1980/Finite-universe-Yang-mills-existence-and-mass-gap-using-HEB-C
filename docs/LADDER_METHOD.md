@@ -1,4 +1,5 @@
 > Published on `main` as documentation only. Source of truth: branch `integer-sturm-ladder` at [`70aa7ab`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/tree/70aa7ab/independent/ladder); the underlying code is **not** merged and remains under review.
+> Since November 3 the branch's files are on `main` too, in [`independent/`](../independent/README.md).
 
 # Integer Sturm ladder: matrix jumps and timing tricks
 

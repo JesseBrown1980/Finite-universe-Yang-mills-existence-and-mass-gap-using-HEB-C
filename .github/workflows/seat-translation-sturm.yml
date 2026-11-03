@@ -4,7 +4,10 @@ on:
   push:
     branches: [seat-yang-mills-integer-translation-sectors]
   pull_request:
-    branches: [seat-yang-mills-adaptive-monotone-cells]
+    paths:
+      - 'independent/**'
+      - '.github/workflows/seat-translation-sturm.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read

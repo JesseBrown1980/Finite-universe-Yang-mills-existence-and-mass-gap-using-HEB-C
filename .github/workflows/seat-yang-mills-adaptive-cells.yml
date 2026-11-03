@@ -4,7 +4,10 @@ on:
   push:
     branches: [seat-yang-mills-adaptive-monotone-cells]
   pull_request:
-    branches: [seat-yang-mills-global-coupling-bound]
+    paths:
+      - 'independent/**'
+      - '.github/workflows/seat-yang-mills-adaptive-cells.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
