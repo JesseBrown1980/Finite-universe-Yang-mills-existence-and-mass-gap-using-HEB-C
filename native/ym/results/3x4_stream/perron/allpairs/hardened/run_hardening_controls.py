@@ -322,6 +322,15 @@ def emit(s):
     log.flush()
 
 
+LAUNCHER = "import os,sys
+pid=os.fork()
+if pid==0:
+    os.execv(sys.argv[2],sys.argv[2:])
+_,st,ru=os.wait4(pid,0)
+open(sys.argv[1],'w').write('%d %d'%(ru.ru_maxrss*1024,os.waitstatus_to_exitcode(st)))
+"
+
+
 def peak_of(exe, path, cap):
     """Runs the tool with its output in files, and returns (exit code, output, peak resident bytes). The peak is the OS's own count."""
     out_path = path + ".out"
@@ -345,9 +354,12 @@ def peak_of(exe, path, cap):
                 raise SystemExit("peak memory")
             peak, code = m.peak, p.returncode
         else:
-            p = subprocess.Popen(cmd, stdout=so, stderr=subprocess.DEVNULL)
-            _, status, ru = os.wait4(p.pid, 0)
-            peak, code = ru.ru_maxrss * 1024, os.waitstatus_to_exitcode(status)
+            # ru_maxrss of a child carries the resident size of the process that forked it, and this script may hold the whole store.
+            # A small launcher forks the tool instead. Measured by hosted-first-failed/instrument_test.py.
+            res = path + ".peak"
+            subprocess.run([sys.executable, "-I", "-S", "-c", LAUNCHER, res] + cmd, stdout=so, stderr=subprocess.DEVNULL, check=True)
+            peak, code = (int(v) for v in open(res).read().split())
+            os.remove(res)
     text_out = open(out_path, "r", encoding="utf-8", errors="replace").read()
     os.remove(out_path)
     return code, text_out, peak
