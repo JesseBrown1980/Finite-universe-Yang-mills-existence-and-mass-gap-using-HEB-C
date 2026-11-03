@@ -34,7 +34,7 @@ This register is the current entry point for the finite-universe Yang–Mills / 
 
 The simpler no-store bound under those three reads 16.252744, 14.017195 and 4.016734, and it passed the second seat and GPT-6 at its four points.
 
-**Open, in the order I would take them:**
+**Independent GPT-6 review (November 3, 2026):** a new source-only integer reconstruction separately matched all 1,393 orbit states and 32,385 electric coefficients, the original operator SHA, every entry of the 8×8 magnetic-end effective matrix, its exact characteristic polynomial, full-graph diameter 8, and four translation-sector dimensions. See [the audit](../independent/GPT6_THEOREM_REVIEW_2026-11-03.md) and [pinned output](../independent/gpt6_2x2_from_permutations.measure). The conditional coupling theorems were checked algebraically, but earlier pure-electric spectral-gap certification, translated Sturm pivots, and the 3×3 Ritz trial space are **not new independent receipts** from that audit. Formal 3×4 gap rule still on HOLD.\n\n**Open, in the order I would take them:**
 
 1. GPT-6's attack on the hybrid certificate: all 825,865 low-M states on 4×4, the count of each lump, the Ritz upper values, the 16-dimensional E₈ space. The vectors are on [the release](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/releases/tag/vectors-20261103).
 2. The hybrid form at lower r and on 6×6 and larger, to see how far it carries.
