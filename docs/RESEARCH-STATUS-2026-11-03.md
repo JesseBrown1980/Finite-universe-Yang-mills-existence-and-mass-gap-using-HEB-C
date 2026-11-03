@@ -2,7 +2,7 @@
 
 This register is the current entry point for the finite-universe Yang–Mills / HEB-C project. It puts established results first, names their evidence, and separates current work from preserved historical plans.
 
-**Reviewed baseline:** `main` at `8057ce7a2fcb4eea4244bb1245700ef00a5286d2`. **Active hardening source examined:** `9c2c7e67e29e0b2450010bd43c3391638e6670eb` on a separate development branch. The repository tree contains 2,352 tracked files, including 85 project Markdown documents and two plan-check HBP receipts. All 85 Markdown documents were screened for research status, dated planning statements and editorial framing; primary proof, code and verification documents received focused review. The broader codebase and sealed binary data have distinct execution and audit requirements.
+**Current main:** `ad0b56075004021914cc32cefa28185bd2daa178` (PR #84 merged). **Repository inventory baseline:** `8057ce7a2fcb4eea4244bb1245700ef00a5286d2` (PR #83 merged). **Active hardening source examined:** `9c2c7e67e29e0b2450010bd43c3391638e6670eb` ([PR #85](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/85), open). The repository tree contains 2,352 tracked files, including 85 project Markdown documents and two plan-check HBP receipts. All 85 Markdown documents were screened for research status, dated planning statements and editorial framing; primary proof, code and verification documents received focused review. The broader codebase and sealed binary data have distinct execution and audit requirements.
 
 ## What the system establishes
 
@@ -21,7 +21,7 @@ The finite-lattice Perron certificate gives the reported bound
 
 ## GPT-6 review-seat checks on the hardening source
 
-**Review type:** source inspection and independently calculated consistency checks. **Execution status:** hosted adversarial controls and the hardened full 3×4 rerun follow their pinned control commitments. A local Rust 1.81 build and 26.85 GB-store replay were outside this review seat's available runtime.
+**Review type:** source inspection and independently calculated consistency checks. **Execution status:** the standard Rust and cloud-seat CI checks for `9c2c7e6` passed; the dedicated hardening-control workflow and hardened full 3×4 replay have separate evidence gates. A local Rust 1.81 build and 26.85 GB-store replay were outside this review seat's available runtime.
 
 | Defect | Source change inspected at `9c2c7e6` | Independent review status |
 |---|---|---|
@@ -47,7 +47,7 @@ These checks establish internal consistency and one trusted header commitment. F
 
 ## Current research milestones
 
-1. **Hardening:** finish independent adversarial controls and the second review of the D3–D8 source, preserving every FAIL receipt. The current fix is at `9c2c7e6`, on its own development branch.
+1. **Hardening:** finish independent adversarial controls and the second review of the D3–D8 source, preserving every FAIL receipt. [PR #85](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/85) holds the fix at `9c2c7e6`, and keeps its own merge gate.
 2. **3×4 reproducibility:** replay `allpairs` and `fullrebuild` on a separate machine with pinned source and independently fetched sectors. Retain the outside Go checker's own pair test as a separate verification track.
 3. **Formal 3×4 gap rule:** complete independent review of the whole-space lift, register the revised rule after operator approval, then issue a specifically scoped finite-lattice verdict.
 4. **Volume and continuum:** establish estimates uniform in lattice volume and construct the continuum theory satisfying the required axioms; connect the spectral lower bound to the continuum mass-gap statement.
