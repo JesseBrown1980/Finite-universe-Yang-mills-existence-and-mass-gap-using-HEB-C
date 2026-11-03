@@ -1,5 +1,7 @@
 # HEB-C HTTP-0 backend for the finite S₃ Yang–Mills sector tools
 
+**Current results and next milestones (2026-11-03):** see the [finite Yang–Mills research and verification register](../../docs/RESEARCH-STATUS-2026-11-03.md) for the certified lattice results, 3×4 Perron route, and D3–D8 reviewer gate.
+
 Execution and verification layer for the finite-lattice spectral certificates.
 
 ## What is here
