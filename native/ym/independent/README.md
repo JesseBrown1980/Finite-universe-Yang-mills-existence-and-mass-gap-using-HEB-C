@@ -23,3 +23,5 @@ production full-space counts.
 ```bash
 python indep_verify.py 2 2 9 23746649,46576000,90123457
 ```
+
+On November 3 its two floating-point square roots became `math.isqrt`, on the operator's word that floating point is to be redone in integers. They run on the Python path, so [`indep_sqrt_check.py`](indep_sqrt_check.py) runs them side by side with the recorded commit's file, and they read the same on every real input, in [`INDEPENDENT-2X2-R9-INTEGER.hbp`](../results/independent/INDEPENDENT-2X2-R9-INTEGER.hbp). The earlier receipt keeps its commit and its code hash.

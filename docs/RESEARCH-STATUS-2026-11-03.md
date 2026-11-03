@@ -2,7 +2,7 @@
 
 This register is the current entry point for the finite-universe Yang–Mills / HEB-C project. It puts established results first, names their evidence, and separates current work from preserved historical plans.
 
-**Last updated:** November 3, 2026, after [#89](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/89) merged. **Repository inventory baseline:** `8057ce7a2fcb4eea4244bb1245700ef00a5286d2`: 2,352 tracked files, including 85 project Markdown documents and two plan-check HBP receipts, all 85 screened for research status, dated planning statements and editorial framing, with primary proof, code and verification documents read closely. The broader codebase and sealed binary data have distinct execution and audit requirements.
+**Last updated:** November 3, 2026, after [#97](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/97) merged. **Repository inventory baseline:** `8057ce7a2fcb4eea4244bb1245700ef00a5286d2`: 2,352 tracked files, including 85 project Markdown documents and two plan-check HBP receipts, all 85 screened for research status, dated planning statements and editorial framing, with primary proof, code and verification documents read closely. The broader codebase and sealed binary data have distinct execution and audit requirements.
 
 ## Today, on one page
 
@@ -16,6 +16,9 @@ This register is the current entry point for the finite-universe Yang–Mills / 
 | [#87](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/87) | README links between this repository and the companion, the proof plan and the continuum track |
 | [#88](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/88) | The stability plan: the region dictionary and the theorem matching for even square tori, with its correction on δ |
 | [#89](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/89) | The bound with no store on 4×4, 4×5 and 5×5, the second seat's and GPT-6's reviews, and `hybridcheck`, the attack on the hybrid certificate |
+| [#95](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/95) | GPT-6's separate integer reconstruction of the 2×2 algebra, and its review of the separate seat's theorems |
+| [#96](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/96) | The Cantor-27 drive redone in integers, with its float run kept as evidence |
+| [#97](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/97) | The other float uses redone in integers, and the gate on every pull request |
 | [#7](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/7) to [#15](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/15), [#18](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/18) | A separate seat's work from October 25 on the 2×2 torus and the 3×3 flat levels, in [`independent/`](../independent/README.md) |
 | [#5](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/5), [#6](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/6) | Stage 2I, the RIME C3 moment test, and Stage 2J, the byte-exact RIME Prism bridge |
 | [#16](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/16), [#17](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/17) | The HTTP-0 finite S₃ wave observatory and its correction to exact numerators |
@@ -34,7 +37,9 @@ This register is the current entry point for the finite-universe Yang–Mills / 
 
 The simpler no-store bound under those three reads 16.252744, 14.017195 and 4.016734, and it passed the second seat and GPT-6 at its four points.
 
-**Independent GPT-6 review (November 3, 2026):** a new source-only integer reconstruction separately matched all 1,393 orbit states and 32,385 electric coefficients, the original operator SHA, every entry of the 8×8 magnetic-end effective matrix, its exact characteristic polynomial, full-graph diameter 8, and four translation-sector dimensions. See [the audit](../independent/GPT6_THEOREM_REVIEW_2026-11-03.md) and [pinned output](../independent/gpt6_2x2_from_permutations.measure). The conditional coupling theorems were checked algebraically, but earlier pure-electric spectral-gap certification, translated Sturm pivots, and the 3×3 Ritz trial space are **not new independent receipts** from that audit. Formal 3×4 gap rule still on HOLD.\n\n**Open, in the order I would take them:**
+**Independent GPT-6 review (November 3, 2026):** a new source-only integer reconstruction separately matched all 1,393 orbit states and 32,385 electric coefficients, the original operator SHA, every entry of the 8×8 magnetic-end effective matrix, its exact characteristic polynomial, full-graph diameter 8, and four translation-sector dimensions. See [the audit](../independent/GPT6_THEOREM_REVIEW_2026-11-03.md) and [pinned output](../independent/gpt6_2x2_from_permutations.measure). The conditional coupling theorems were checked algebraically, but earlier pure-electric spectral-gap certification, translated Sturm pivots, and the 3×3 Ritz trial space are **not new independent receipts** from that audit. Formal 3×4 gap rule still on HOLD.
+
+**Open, in the order I would take them:**
 
 1. GPT-6's attack on the hybrid certificate: all 825,865 low-M states on 4×4, the count of each lump, the Ritz upper values, the 16-dimensional E₈ space. The vectors are on [the release](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/releases/tag/vectors-20261103).
 2. The hybrid form at lower r and on 6×6 and larger, to see how far it carries.
@@ -42,8 +47,9 @@ The simpler no-store bound under those three reads 16.252744, 14.017195 and 4.01
 4. The 2I package in the [companion repository](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved/pull/9): the exact count at 3 J_E is still running, then the addendum, the driver and the official run.
 5. A replay of `fullrebuild` and `allpairs` on another machine, with [`reproduce_oneread_run.sh`](../native/ym/results/3x4_stream/perron/allpairs/oneread/reproduce_oneread_run.sh).
 6. A reading of the one-read change to `allpairs` by another seat, and the other tools that still read through `roomio.rs`.
-7. A non-author proof review of the separate seat's theorems in [`independent/`](../independent/README.md).
-8. A Lean proof of the pattern table and the chain.
+7. What GPT-6's review of [`independent/`](../independent/GPT6_THEOREM_REVIEW_2026-11-03.md) left for later: a replay of the translated Sturm counts and the earlier electric-gap certificate, and an audit of the 3×3 Ritz space.
+8. The exact rationals of the scripts below moved to integer pairs, and the three live tools' clocks moved to integers when they next run.
+9. A Lean proof of the pattern table and the chain.
 
 **Waiting on the operator:**
 
@@ -52,6 +58,24 @@ The simpler no-store bound under those three reads 16.252744, 14.017195 and 4.01
 | The formal 3×4 gap verdict and the gap rule | HOLD, his word. The draft rule is [#68](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/68) |
 | The continuum claim | NOT CERTIFIED, his word |
 | Closing [#10](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/10) and [#52](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/52) | This session's permission system stopped the closes, so they wait for his word |
+
+**Integers only.** The operator's word: "Floating point should be redone to integer only. Not like redone as if erase the evidence, but say, hey, we need to do this again in integer only so that it works. We can't use float, that's crazy." The floating point that a scan of all 443 code files found, outside the vendored Rust crates, is all in Python apart from a page's CSS sizes:
+
+| Where | What used floats | What happened |
+|---|---|---|
+| The Cantor-27 drive, [#61](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/61) | The whole evolution, in NumPy and SciPy | [Redone in integers](../native/ym/results/cantor-integer-2026-11-03/README.md), each value exact to 30 digits and matched by a separate path. The float run stays beside it, and it was right to about 12 digits |
+| `warmcal.py` | The fit that chose a warm-start threshold | [`warmcal_integer.py`](../native/ym/results/3x4_stream/perron/warmcal_integer.py) gives the same a and b to all 4 printed decimals, as exact integer ratios. The original stays beside it |
+| `indep_verify.py` | Two square roots, one for a prime search and one as a starting guess | Now `math.isqrt`. [Side by side with the recorded commit's file](../native/ym/results/independent/INDEPENDENT-2X2-R9-INTEGER.hbp), the new lines read the same on all 1,393 row norms at all 3 thresholds, the whole list of 1,395 primes and 93,197 wide integers, and the Python path and the Rust kernel agree on blocks of the real matrix. The earlier receipt keeps its commit and code hash |
+| The second seat's `c2_acc`, `c2_fuzz`, `c3_random`, `c4b_open` | Coin flips, a printed statistic and a timer | [Integer copies](../native/ym/results/3x4_stream/perron/second-seat/integer-redo/REDO-RUNS.hbp) ran again, with 0 mismatches and 0 failed identities. The originals stay as its evidence |
+| GPT-6's `gpt6_3x4_meta_check.py` | Exact `Decimal` on two subtractions | [An integer copy](../native/ym/independent/gpt6_3x4_meta_check_integer.py) reads 13 of 13. The original stays beside it |
+| `nnest_gate.py` | A wait of 0.05 s | A wait in whole seconds, over the same 10 seconds at most |
+| The vendored [RIME original](../native/vendor/rime_sphere_source/rime_prism_pipeline.py), pinned by git hash | Percentages in its printed status lines | Stays as the original. The NTT this repository imports from it is integer |
+| 12 scripts of the second seat and the reader, as they ran | A wall clock printed as seconds | Stay as they ran |
+| `perron_climb.py`, `hash_store.py`, `memory_pilot_runner.py` | A wall clock read as whole seconds | Their hashes are pinned with their recorded runs, and they move to an integer clock when they next run |
+
+[`no_float_gate.py`](../native/scripts/no_float_gate.py) now runs on every pull request in both repositories. It reads Python by syntax tree, including `/`, clocks and float formats, and Rust, C, Go and JavaScript past their comments and strings. It reads its own test snippets first, and CI plants floats to see it go red. [The list of what stays](../native/scripts/FLOAT-EVIDENCE.txt) gives each of its 38 rows a reason, and each file a count, so one more float in a listed file fails too. A grep of the shell scripts and workflow files for `bc -l`, awk division and float `printf` reads 0.
+
+Python's exact rationals are in 13 of the listed scripts: `product_bound.py`, `perron_climb.py`, `py_two_numbers.py`, four of the separate seat's, and six of the second seat's. [Running the integer copies with every `/` checked](../native/ym/results/3x4_stream/perron/second-seat/integer-redo/CHECKED-DIVISIONS.hbp) gave 7,120,602 exact values and 0 floats, with `c4b_open`'s two `/` on a branch that run did not reach. The others are read line by line. Moving them to integer pairs, as `integer_only_audit.py` asks of verification code, is open.
 
 **Where the data lives.** Code, receipts, reviews and predictions are in this repository. Files too large for git are on the release [`vectors-20261103`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/releases/tag/vectors-20261103): `review-opus55-big-files.tar.gz`, sha256 `014344c914a18fa490c66c13b8b6fd84d3a1517d2091f1e2d3fb4570335cf1fc`, the second seat's 34 vectors, and `attack-big-files.tar.gz`, sha256 `10e218cbf81a4f3a2e534e2c7f552b9d35c7fa2a750abcf69f7aee90ebe727c9`, the attack's 9 vectors. Each file inside is hashed in [`review-opus55/BIG-FILES.hbp`](../native/ym/results/3x4_stream/perron/vector/review-opus55/BIG-FILES.hbp) and [`attack/BIG-FILES.hbp`](../native/ym/results/3x4_stream/perron/vector/attack/BIG-FILES.hbp). The 3×4 store is on [Hugging Face](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store).
 

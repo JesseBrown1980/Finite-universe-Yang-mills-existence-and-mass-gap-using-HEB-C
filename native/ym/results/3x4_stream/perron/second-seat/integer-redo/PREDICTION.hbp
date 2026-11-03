@@ -6,3 +6,4 @@ CHECKED_DIVISION_EXPECT|script=c2_fuzz|args=27 300|exit=0|float=0|rows=same_as_R
 CHECKED_DIVISION_EXPECT|script=c4b_open|args=none|exit=0|float=0|rows=same_as_the_plain_run|json=0
 CHECKED_DIVISION_TEETH|plant=x_equals_1_over_2|expect_exit=3|local_read=3|workflow=no-float.yml|json=0
 CHECKED_DIVISION_COST|wall_secs_under=1800|priority=below_normal|json=0
+CHECKED_DIVISION_PREDICTION_AT|the_at_field_above_was_typed_by_hand_ahead_of_the_clock|the_record_is_commit=88adce0|pushed_before_the_run|json=0
