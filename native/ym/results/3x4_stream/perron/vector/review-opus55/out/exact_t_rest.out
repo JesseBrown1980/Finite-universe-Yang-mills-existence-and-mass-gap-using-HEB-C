@@ -1,0 +1,22 @@
+VECTOR|file=g-local-4x5-lump.hbp|rows=121|lumps=121|missing=0|extra=0|nonpositive=0|json=0
+TABLE_MIN|Lx=4|Ly=5|r=9/1|points=130981|lumps_with_points=120|t_micro=134017195|at=(0, 3)|n={'ee': 30, 'eT': 0, 'eC': 8, 'TTs': 0, 'TTd': 0, 'TC': 0, 'CC': 2}|json=0
+GAP|flat_bound=120|gap_micro=14017195|json=0
+TIGHTEST_LUMPS|(0, 3):134017195;(0, 5):134017196;(0, 4):134017196;(0, 6):134017196;(0, 7):134017196;(0, 8):134017196;(0, 9):134017196;(0, 10):134017196;(0, 2):134017196;(0, 11):134017196;(2, 3):134017196;(14, 3):134017196|json=0
+CLAIM|given=134017195|mine=134017195|same=1|exact_ge_given=1|verdict=PASS|json=0
+exit=0
+VECTOR|file=g-local-5x5-product.hbp|rows=182|lumps=182|missing=0|extra=0|nonpositive=0|json=0
+TABLE_MIN|Lx=5|Ly=5|r=9/1|points=465479|lumps_with_points=181|t_micro=154016734|at=(0, 1)|n={'ee': 46, 'eT': 0, 'eC': 4, 'TTs': 0, 'TTd': 0, 'TC': 0, 'CC': 0}|json=0
+GAP|flat_bound=150|gap_micro=4016734|json=0
+TIGHTEST_LUMPS|(0, 1):154016734;(24, 0):154016740;(2, 0):154037055;(4, 0):157586752;(6, 0):164810480;(8, 0):165716934;(22, 0):165744836;(24, 1):166542786;(10, 0):166623388;(12, 0):167529841;(14, 0):168436295;(16, 0):169342749|json=0
+CLAIM|given=154016734|mine=154016734|same=1|exact_ge_given=1|verdict=PASS|json=0
+exit=0
+VECTOR|file=g-local-3x3-lump.hbp|rows=30|lumps=30|missing=0|extra=0|nonpositive=0|json=0
+TABLE_MIN|Lx=3|Ly=3|r=9/1|points=997|lumps_with_points=29|t_micro=73106758|at=(0, 9)|n={'ee': 0, 'eT': 0, 'eC': 0, 'TTs': 0, 'TTd': 0, 'TC': 0, 'CC': 18}|json=0
+GAP|flat_bound=54|gap_micro=19106758|json=0
+TIGHTEST_LUMPS|(0, 9):73106758;(2, 7):73106761;(4, 5):73106769;(6, 3):73106777;(8, 1):73106785;(8, 0):73106786;(6, 0):73106786;(4, 0):73106788;(2, 6):73106789;(2, 0):73106790;(4, 4):73106798;(0, 1):73106798|json=0
+exit=0
+VECTOR|file=g-local-3x4-lump.hbp|rows=49|lumps=49|missing=0|extra=0|nonpositive=0|json=0
+TABLE_MIN|Lx=3|Ly=4|r=9/1|points=6505|lumps_with_points=48|t_micro=89291147|at=(0, 12)|n={'ee': 0, 'eT': 0, 'eC': 0, 'TTs': 0, 'TTd': 0, 'TC': 0, 'CC': 24}|json=0
+GAP|flat_bound=72|gap_micro=17291147|json=0
+TIGHTEST_LUMPS|(0, 12):89291147;(2, 10):89291148;(4, 8):89291148;(6, 6):89291149;(8, 4):89291149;(2, 9):89291149;(10, 2):89291149;(10, 0):89291149;(12, 0):89291149;(8, 0):89291149;(6, 0):89291149;(4, 7):89291150|json=0
+exit=0

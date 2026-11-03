@@ -1,0 +1,6 @@
+PRODUCT_SCAN|L=3|nl=18|gap_r9_milli=15903199|gap_r12_milli=27513451|gap_r16_milli=41569276|gap_r24_milli=67708758|least_r_in_eighths=44/8|json=0
+PRODUCT_SCAN|L=4|nl=32|gap_r9_milli=10150577|gap_r12_milli=23015478|gap_r16_milli=38104948|gap_r24_milli=65318091|least_r_in_eighths=57/8|json=0
+PRODUCT_SCAN|L=5|nl=50|gap_r9_milli=4013273|gap_r12_milli=18439248|gap_r16_milli=34621028|gap_r24_milli=62898395|least_r_in_eighths=67/8|json=0
+PRODUCT_SCAN|L=6|nl=72|gap_r9_milli=-4957412|gap_r12_milli=11564090|gap_r16_milli=29386288|gap_r24_milli=59342639|least_r_in_eighths=79/8|json=0
+PRODUCT_SCAN|L=7|nl=98|gap_r9_milli=-15029678|gap_r12_milli=4028287|gap_r16_milli=23430671|gap_r24_milli=55255844|least_r_in_eighths=91/8|json=0
+PRODUCT_SCAN|L=8|nl=128|gap_r9_milli=-26831257|gap_r12_milli=-4911837|gap_r16_milli=16509285|gap_r24_milli=50509750|least_r_in_eighths=103/8|json=0

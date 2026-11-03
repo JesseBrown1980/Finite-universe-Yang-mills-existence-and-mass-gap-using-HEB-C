@@ -1,0 +1,74 @@
+LEDGER|seat=opus55-second-seat|for=ACER-CLAUDE-FABLE5|subject=f24c5cb370e7272f5f0d742ad69898f316448b86|branch=ym-product-vector|note=same_model_as_author_separate_session_separate_code|json=0
+PROOF_BY_HAND|step=interlacing|verdict=holds|reason=orbit indicators are orthogonal; compression onto complement of 8 of them; Courant-Fischer gives lambda1(H')<=E_{|F|+1}|tag=DERIVED|json=0
+PROOF_BY_HAND|step=barta|verdict=holds|reason=N>=0 and symmetrizable so lambda1=s-rho(N); rho(N)<=max (Nd)/d for d>0|tag=DERIVED|json=0
+PROOF_BY_HAND|step=flat_count|verdict=holds|reason=flat classes=Hom(Z^2,S3)/conj; 18 commuting pairs; orbits sizes 1,3,3,3,2,2,2,2 sum 18; 8 orbits on any torus|tag=DERIVED|json=0
+PROOF_BY_HAND|step=E8_le_3nl|verdict=holds|reason=any single-link move out of a flat state leaves flats so 8x8 block is 3nl*I; min-max|tag=DERIVED|json=0
+PROOF_BY_HAND|step=M_ge_3_a_even|verdict=holds|reason=each link in exactly 2 plaquettes so product of plaquette signs is +1; a even; non-flat means a>=2 or b>=1|tag=DERIVED|json=0
+PROOF_BY_HAND|step=move_table|verdict=holds|reason=frame x=U A y=U B -> s x, s y; seven patterns derived by hand before reading the author's table; match|tag=DERIVED|json=0
+PROOF_BY_HAND|step=adjacency|verdict=holds|reason=|bdry|=sum over row cycles and column cycles of crossings; touched non-full cycle gives >=2; three cases cover all; complement case nonempty guard s==P|tag=DERIVED|json=0
+PROOF_BY_HAND|step=points|verdict=holds_on_reading|reason=loops over tts ttd tc cc; breaks are monotone in cc; ee<0 skipped; to be run against my own brute force|tag=DERIVED|json=0
+PRED|id=P1|claim=my exact table minimum floors to the claimed t for all 4 rows, to the micro|json=0
+PRED|id=P2|claim=108 of 108 frame triples match the move table|json=0
+PRED|id=P3|claim=adjacency inequality 0 violations over all subsets of 4x4 4x5 5x5 and tight at many sizes|json=0
+PRED|id=P4|claim=3x3 full census of 6^10 gauge-fixed configs: every signature in my table, 18 flat gauge-fixed configs in 8 conj classes, real min ratio >= table t|json=0
+PRED|id=P5|claim=adversarial hunt finds 0 configs below t and 0 outside the rule on 4x4 4x5 5x5; lowest real ratio stays >= t|json=0
+PRED|id=P6|claim=best rigorous Ritz upper bound on 4x4 r=9 lies in [116.8,118.2] so it does NOT refute 112.252744 (perturbative estimate 123-3.67-1.33-0.8); r=6 lies in [103,108]|tag=CONJECTURE|json=0
+PRED|id=P7|claim=my Ritz code reproduces lambda1(H') in the doc's bracket [46.466796,46.468750] and E9 in [46.576171,46.578124] on 2x2 at r=9, and gets 94.07..94.4 on 3x4|json=0
+PRED|id=P8|claim=every sabotage (rule swap, planar-only adjacency, vector dent, wrong M, nonzero flat, t raised by one micro) turns its check red|json=0
+MEASURED|id=P1|result=met|detail=exact table min floors to 112252744 96472613 134017195 154016734; py_exact_t.py|json=0
+MEASURED|id=P2|result=met|detail=108 of 108 frame triples by py_moves.py|json=0
+MEASURED|id=P3|result=met|detail=adjacency 0 violations on all subsets of 3x3 3x4 4x4 4x5 5x5; tight sizes 8 9 11 12 16; planar sabotage 10 violations on 4x4|json=0
+PRED|id=P9|claim=with claim raised by 1 micro the hunts turn RED on all 4 rows because the tightest rows are real (0,3) (0,16) (0,3) (0,1)|json=0
+MEASURED|id=P8_partial|result=met|detail=swap_rule planar_adj dent wrong_m nonzero_flat all printed verdict=RED on 4x4 within 15 s; out/hunts.index|json=0
+MISS|id=control_design|detail=ctl_wrong_m first run had audit_mismatch=0 because my audit compensated the sabotage on the definition side; it went red only through below_claim; compensation removed in target-b build, rerun to follow; kept here beside the claim|json=0
+MEASURED|id=P9|result=met|detail=claim+1 micro turned RED on all 4 rows; each tightest row is attained by a real configuration|json=0
+BOUNDARY|lane=fabric|detail=asolaria_fabric_health ok=true uptime_s=81928 no fallback marker; not a mathematical authority on H; the definition is the task statement|json=0
+BOUNDARY|lane=recall|detail=q=perroncert count=0 at :4796; count=0 is not absence; the tool is newer than the index as far as I can tell (CONJECTURE)|json=0
+PRED|id=P10|claim=exhaustive census: 3x3 real min equals the table min 73.106758 and 3x4 real min equals 89.291147 since the all-3-cycle pattern with n_CC=nl is realizable on both (Z3 flux sum zero); 162 configs at (0,1) on 3x3 and 216 on 3x4 (3 P classes x 6)|json=0
+PRED|id=P11|claim=ritz coverage on 2x2 and 3x3 with no cut is complete: weights + 18 = 6^5 and 6^10 exactly; self-adjoint bad=0; 3x3 rho in [76.4315,76.46]|json=0
+MEASURED|id=P5|result=met|detail=hunts: 4x4 r9 visited=100634321 audited=9102; 4x4 r6 visited=131672715 audited=8818; 4x5 visited=129021546 audited=11840; 5x5 visited=107104399 audited=14076; audit_mismatch=0 out_of_table=0 below_claim=0 everywhere; lowest real ratio equals the claimed t on all four|json=0
+MEASURED|id=P7_part|result=met|detail=2x2 r=9: coverage complete 7758+18=7776; self-adjoint 1162 pairs bad=0; Rayleigh=Barta=46.467673 inside the doc's bracket [46.466796,46.468750]; E9 upper 46.589485, above the doc's E9 [46.576171,46.578124], so consistent; my code gives no two-sided E9 on 2x2|json=0
+MEASURED|id=P4|result=met|detail=census 3x3 60466176 configs 543 signatures 18 flats 8 classes 0 outside 0 odd a; real min 73.106758|json=0
+MEASURED|id=P10_part|result=met_on_3x3|detail=3x3 real min equals table min, 162 at (0,1); 3x4 not yet run|json=0
+MEASURED|id=P11|result=met|detail=3x3 Rayleigh 76.448397 coverage complete 60466158+18; self-adjoint 7558252 pairs bad=0|json=0
+MISS|id=P8|detail=literal claim was that every sabotage turns its check red; py_exact_t.py with planar_adj at r=9 stayed at 112252744 and printed PASS because the tight row (0,3) does not use the adjacency limit; at r=6 the same sabotage moved t to 96472619 and went red; subsets.exe and hunt.exe go red on it at r=9|json=0
+MEASURED|id=wrong_m_rerun|result=met|detail=with the compensation gone the audit also catches wrong_m: audit_mismatch=782 of 975|json=0
+MEASURED|id=classes|detail=exhaustive class walk: 4x4 43046721 assignments 3990 signatures 0 outside; 4x5 3486784401 assignments 15781 signatures 0 outside; class min equals t on 4x4 r9, r6, 4x5; hunts reach the class minimum at 79 of 80 lumps on 4x4 and 117 of 120 on 4x5|json=0
+MEASURED|id=P6_part|detail=4x4 r9 Ritz so far: m8 E9<=117.796633; m10 117.760979; m11 117.631760; m12 117.585058; self-adjoint bad=0|json=0
+PRED|id=P12|claim=4x4 r9 Ritz at M up to 16 converges near 117.45..117.55; r6 at M up to 16 lands in [103,108]; 3x4 at M up to 16 lands within 0.25 of 94.0707 and never below 94.070673|tag=CONJECTURE|json=0
+PRED|id=P13|claim=the Python recheck of the Ritz A B C at 4x4 M<=8, 4x5 M<=7, 5x5 M<=7 gives SAME; with one psi value changed it gives DIFFER; unit_weight prints RED; wrong_m (M-1) drives the 4x4 bound below 112.25 and prints refutes=1|json=0
+MEASURED|id=P13|result=met|detail=recheck SAME at 4x4 M<=8 (3422 rows), 4x5 M<=7 (1875), 5x5 M<=7 (1471); changed psi gives DIFFER; unit_weight RED bad=1788 of 4968 pairs; wrong_m gives 109.502988 and refutes=1|json=0
+MEASURED|id=cross_author_last|detail=read last: my model at 4x4 M<=14 holds 624556872 configs + 18 flats = 624556890 equals the author's AUDIT_4x4_M14 configs; my census lump counts on 3x3 equal the author's audit-3x3 AUDIT_LUMPS at all 29 non-flat lumps; given/ hashes equal the D: files for the five compared|json=0
+MEASURED|id=P7_3x4|result=met|detail=3x4 r9 Rayleigh 94.077280 (M<=12) 94.073643 (M<=14) 94.071099 (M<=16); doc bracket [94.070673,94.070936]; never below the lower end|json=0
+FINDING|id=commit_scope|detail=at f24c5cb the tree holds the tools and 3x3 vectors only; no g-local vector for 4x4 4x5 5x5 and no row with the claimed t values, by git ls-tree and git grep; reproducing the table of numbers needs the given/ files|tag=MEASURED|json=0
+NOTE|id=m16_deferred|detail=I stopped my own ritz M<=16 run on 4x4 r=9 at 30 s to put the other tori first within the time budget; the run is not a result; M<=15 stands as the best so far; rerun only if time remains|json=0
+NOTE|id=r6_m16_deferred|detail=stopped my own ritz M<=16 run on 4x4 r=6 right after it started, for the same reason; not a result|json=0
+MEASURED|id=P6|detail=4x4 r9: lambda1(H')<=117.567005 E9<=117.575598 at M<=15, 2658373 states; inside the predicted [116.8,118.2]; r6: lambda1<=105.350568 E9<=105.613955 at M<=13, inside [103,108]; neither below the claim|json=0
+MISS|id=P12|detail=predicted 4x4 r9 near 117.45..117.55 at M<=16; M<=15 measures 117.567005 and M<=16 was not run to the end; the trend 117.5766 117.5754 117.5718 117.5670 leaves that band unreached so far; kept as a miss unless a rerun says otherwise|json=0
+PRED|id=P14|claim=the dressed 16-dimensional test space gives block-diagonal H with blocks [[3nl,-sqrt(3nl)],[-sqrt(3nl),3nl+4r]] on 4x4 4x5 5x5 so E8<=3nl+2r-sqrt(4r^2+3nl); on 3x3 and 3x4 a three-link dual loop connects flats so cross elements are nonzero and the check prints FAIL there|json=0
+PRED|id=P15|claim=low-M exhaustive audit by the definition: 4x4 M<=14 min ratio 112252744 at (0,3) on 624556872 configs, rule_bad=0 outside=0; 4x5 M<=12 min 134017195; 5x5 M<=11 min 154016734|json=0
+PRED|id=P16|claim=census planar sabotage on 3x3 and classes planar sabotage on 4x4 both go red; classes with claim+1 goes red; author's table files equal my signature sets on all 5 tori|json=0
+PRED|id=P17|claim=a refit of a one-value-per-lump vector on the 4x4 class walk at r=9 reaches a t above 112.252744 and below 115, judged by classes.exe and hunt.exe|tag=CONJECTURE|json=0
+SCOPE_SLIP|id=tmp_file|detail=my first ledger command wrote an empty file /tmp/ping.txt outside the allowed folder, by mistake; removed after check; it held 0 bytes|json=0
+MEASURED|id=P10|result=met|detail=census 3x4 13060694016 configs 3661 signatures 18 flats 8 classes 0 outside 0 odd a; real min 89.291147 equals the table min; all 49 lumps realized|json=0
+PRED|id=P18|claim=outside the claim: a hybrid vector, exact on all orbits with M<=cut and one value per lump above, gives a rigorous lower bound far above the claimed t: 4x4 r9 cut 13 at least 116; 5x5 r9 cut 11 at least 165; on 3x4 cut 14 it stays at or below 94.0711 since my Ritz upper bound holds there; if it ever passes my Ritz upper bound the code is wrong|tag=CONJECTURE|json=0
+MEASURED|id=P14|result=met|detail=py_e8_dressed PASS on 4x4 r9 r6 4x5 5x5 with E8 upper 93.506099 92.508067 116.928693 146.228459; FAIL on 3x3 and 3x4 with cross elements nonzero, as predicted; sabotage FAIL|json=0
+MEASURED|id=P18_part|detail=hybrid 3x4 M<=12 cert 93.829570 at most Ritz upper 94.071099; hybrid 4x4 r9 M<=12 cert 117.345755 at most Ritz upper 117.567005; one Rust path so far|json=0
+RETRACTION_BESIDE|id=P18_part|detail=the hybrid numbers at cut 12 (3x4 93.829570, 4x4 117.345755) are NOT rigorous as run: py_lump_counts.py shows the model at cut 12 misses orbits at M=12, the (0,4) states with no two adjacent 3-cycles, whose only moves lead past the cut, so restricted BFS never reaches them. The Ritz upper bounds are unaffected since any subset of orbits is fine from above. The hybrid must use a cut where every M level matches the character count. Rerun at such cuts follows|json=0
+MEASURED|id=lump_formula|detail=character formula N(a,b) gives total 6^(P+1) on 3x3 3x4 4x4 4x5 5x5 and equals my census on all 30 lumps of 3x3 and all 49 of 3x4|json=0
+MEASURED|id=P15|result=met|detail=low-M audits, every move recomputed, rule_bad=0 outside=0: 4x4 M<=14 825865 sector states 624556872 configs min 112252744 at (0,3); r6 vector min 96472619 at (2,0); 4x5 M<=12 1076162 states 508670730 configs min 134017195; 5x5 M<=11 473677 states 563254650 configs min 154016734. At 4x5 cut 12 the isolated (0,4) orbits are not in the model; M<=11 is complete there|json=0
+MEASURED|id=P16|result=met|detail=census planar 393 outside exit 2; classes planar 1641 outside exit 2; classes claim+1 exit 2; author table files equal my signature sets on 3x3 3x4 4x4 4x5 5x5 (997 6505 29422 130981 465479)|json=0
+MEASURED|id=P17|result=met_weakly|detail=refit on the 4x4 class walk gives 112.374999 judged by classes.exe; my bisection stopped there through a 1-micro rounding at the target, and 112.75 did not converge in 120 sweeps; so one value per lump gains little even with exact geometry|json=0
+MEASURED|id=hybrid_recheck|detail=py_hybrid_recheck at 4x4 cut 8 reproduces cert 94475741 min_exact 94475741 min_table 127649995 exactly; sabotage DIFFER|json=0
+MEASURED|id=P18|detail=hybrid at complete cuts: 3x3 cut 13 76.359153; 3x4 cut 14 94.011545 below the document's 94.070673 and my upper 94.071099; 4x4 r9 cut 13 117.406005 below my upper 117.567005|json=0
+MEASURED|id=hybrid_rows|detail=complete cuts by the character count: 4x4 r9 cut 10 115.534179; cut 13 117.406005; cut 14 at least 117.453728; 4x4 r6 cut 13 103.045341; 4x5 r9 cut 11 139.250392; 5x5 r9 cut 11 168.020667; finer targets running|json=0
+MEASURED|id=hybrid_rows2|detail=complete cuts: 4x4 r9 cut 14 117.453728 (target 117.5 collapsed to 116.811003); 4x4 r6 cut 14 103.521056; counts bad=0 on both|json=0
+MEASURED|id=P6_r6|detail=4x4 r6 at cut 14 lambda1<=105.310299 E9<=105.584008; A B C from the Ritz row of hyb_4x4_r6_m14 at 150 sweeps|json=0
+NOTE|id=5x5_targets|detail=stopped my own hyb_5x5_r9_m11b run after target 168.3 collapsed to 165.740744; 168.020667 from the earlier run at target 168 stands; the later targets were not run in this attempt, and target 169.5 had collapsed in the first attempt|json=0
+MEASURED|id=P18_final|result=met|detail=at complete cuts: 4x4 r9 cut 13 117.406005 and cut 14 117.453728; 5x5 r9 cut 11 168.020667; 3x4 cut 14 94.011545; none above my Ritz upper bounds; one Rust path with py_hybrid_recheck at small cuts; lead outside the claim|json=0
+MEASURED|id=missing_cause|detail=py_missing_check: missing configs at the cut equal isolated sets times N(0,cut/3) on 4x4 cut 12 (45144) 4x4 cut 15 (48384) 3x4 cut 12 (3564) 4x5 cut 12 (199980)|json=0
+MEASURED|id=hybrid_4x5|detail=4x5 r9 cut 13 1358823 states 140.546984, bad=0; cut 11 139.250392|json=0
+PRED|id=P19|claim=py_hybrid_recheck at 4x4 cut 10 reproduces cert 115534179 exactly; the hybrid on the whole 3x3 space with no table rows reaches at least 76.4315 and stays at or below 76.448398|json=0
+MEASURED|id=P19_part|result=met|detail=py_hybrid_recheck at 4x4 cut 10: 10269 reps 1161208 gauge orbits missing=0 min_exact 115534179 min_table 117854397 cert 115534179 SAME|json=0
+MEASURED|id=P19|result=met|detail=hybrid on the whole 3x3 space, coverage complete, no table rows: cert 76.443824; Rayleigh 76.448397; document certificate 76.431504|json=0
+FINAL|verdict=PASS|refuted=false|steps_pass=10|numbers_pass=4|failed=0|inconclusive=0|not_measured=E9_two_sided_on_2x2_reason_BUDGET|same_model_as_author=1|json=0

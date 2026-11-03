@@ -1,0 +1,9 @@
+FLATS|commuting_pairs=18|classes=8|weights_sum=18|json=0
+MODEL|Lx=4|Ly=4|r=9|mcut=7|group=128|states=632|edges=7198|build_seconds=0|json=0
+MODEL_M|M=3|sector_states=2|gauge_fixed_configs=288|json=0
+MODEL_M|M=4|sector_states=51|gauge_fixed_configs=12960|json=0
+MODEL_M|M=6|sector_states=45|gauge_fixed_configs=6480|json=0
+MODEL_M|M=7|sector_states=534|gauge_fixed_configs=362880|json=0
+COVERAGE|configs_in_model=382608|flats=18|whole=16926659444736|complete=0|json=0
+SELF_ADJOINT|pairs=4968|bad=1788|json=0
+RITZ_VERDICT|verdict=RED|reason=not_self_adjoint|sabotage=unit_weight|json=0

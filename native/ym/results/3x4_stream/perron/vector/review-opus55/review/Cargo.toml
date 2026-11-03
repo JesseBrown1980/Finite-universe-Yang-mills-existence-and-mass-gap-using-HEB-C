@@ -1,0 +1,15 @@
+[package]
+name = "review"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.81"
+
+[lib]
+path = "src/lib.rs"
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = "thin"
+codegen-units = 1
+overflow-checks = true

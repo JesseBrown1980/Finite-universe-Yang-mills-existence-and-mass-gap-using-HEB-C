@@ -1,0 +1,6 @@
+POINTS_DIFF|a=0|b=1|only_mine=[]|only_theirs=[(28, 0, 4, 0, 0, 0, 0)]|json=0
+POINTS_DIFF|a=0|b=2|only_mine=[]|only_theirs=[(24, 0, 8, 0, 0, 0, 0)]|json=0
+POINTS_DIFF|a=0|b=3|only_mine=[]|only_theirs=[(20, 0, 12, 0, 0, 0, 0)]|json=0
+POINTS_DIFF|a=0|b=4|only_mine=[]|only_theirs=[(20, 0, 8, 0, 0, 0, 4)]|json=0
+POINTS_DIFF|a=0|b=5|only_mine=[]|only_theirs=[(14, 0, 16, 0, 0, 0, 2)]|json=0
+POINTS_COMPARE|Lx=4|Ly=4|lumps=80|solutions=29342|lumps_differing=80|sabotage=1|verdict=DIFFER|json=0

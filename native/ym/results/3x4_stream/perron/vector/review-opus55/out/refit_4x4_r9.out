@@ -1,0 +1,6 @@
+REFIT_ROWS|signature_rows=7130|lumps=80|json=0
+REFIT_TRY|t_milli=115000000|value=107144072|json=0
+REFIT_TRY|t_milli=113500000|value=110306256|json=0
+REFIT_TRY|t_milli=112750000|value=111788138|json=0
+REFIT_TRY|t_milli=112375000|value=112374999|json=0
+REFIT_RESULT|Lx=4|Ly=4|r=9|fit_value_milli=112374999|json=0

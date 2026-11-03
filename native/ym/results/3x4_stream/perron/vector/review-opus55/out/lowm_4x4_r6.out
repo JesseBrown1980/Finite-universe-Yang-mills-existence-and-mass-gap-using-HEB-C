@@ -1,0 +1,21 @@
+FLATS|commuting_pairs=18|classes=8|weights_sum=18|json=0
+BUILD_PROGRESS|done=825696|states=825864|edges=21184615|seconds=30|json=0
+MODEL|Lx=4|Ly=4|r=6|mcut=14|group=128|states=825865|edges=21188588|build_seconds=30|json=0
+MODEL_M|M=3|sector_states=2|gauge_fixed_configs=288|json=0
+MODEL_M|M=4|sector_states=51|gauge_fixed_configs=12960|json=0
+MODEL_M|M=6|sector_states=45|gauge_fixed_configs=6480|json=0
+MODEL_M|M=7|sector_states=534|gauge_fixed_configs=362880|json=0
+MODEL_M|M=8|sector_states=2790|gauge_fixed_configs=1769040|json=0
+MODEL_M|M=9|sector_states=130|gauge_fixed_configs=50400|json=0
+MODEL_M|M=10|sector_states=6717|gauge_fixed_configs=4717440|json=0
+MODEL_M|M=11|sector_states=56034|gauge_fixed_configs=42456960|json=0
+MODEL_M|M=12|sector_states=94783|gauge_fixed_configs=70414344|json=0
+MODEL_M|M=13|sector_states=50097|gauge_fixed_configs=37739520|json=0
+MODEL_M|M=14|sector_states=614682|gauge_fixed_configs=467026560|json=0
+COVERAGE|configs_in_model=624556872|flats=18|whole=16926659444736|complete=0|json=0
+LOWM_AUDIT|Lx=4|Ly=4|r=6|mcut_states=825865|configs=624556872|m_bad=0|a_odd=0|rule_bad=0|outside=0|min_ratio_micro=96472619|at_a=2|at_b=0|n=[25, 6, 0, 0, 1, 0, 0]|file=given/g-local-4x4-lump-r6.hbp|json=0
+SELF_ADJOINT|pairs=20788552|bad=0|json=0
+SWEEP|k=0|rho_micro=109342140|json=0
+SWEEP|k=1|rho_micro=107103589|json=0
+RITZ|Lx=4|Ly=4|r=6|mcut=14|states=825865|sweeps=1|A=844144433892582859161276672|B=7881569939892383338233360|C=58914997671226783038916608|flat_diag=96|rho_micro=107103589|barta_micro=-294067612|barta_scope=truncated_model_only|positive=1|sabotage=none|json=0
+RITZ_DONE|seconds=44|psi_file=tmp/audit44r6.psi|json=0
