@@ -6,14 +6,16 @@
 //!
 //! A pass keeps the upper entries (j > h) of one window of rows, then walks every row and answers each lower entry (j < h)
 //! whose partner row lies in that window. The next pass starts where this window ended. A window holds at most CAP_ENTRIES
-//! upper entries, unless its first row alone holds more, and at most max(CAP_ENTRIES, 2^20) rows. So memory is 8 bytes per
-//! upper entry, 1 bit per upper entry and 8 bytes per row of the window, plus read buffers of a few 64 MiB chunks.
+//! upper entries, unless its first row alone holds more, and at most max(CAP_ENTRIES, 2^20) rows. So the working set is 8 bytes
+//! per upper entry, 1 bit per upper entry and 8 bytes per row of the window, plus read buffers of a few 64 MiB chunks. The list of
+//! row offsets can hold up to twice its rows while it grows, and each window reserves min(CAP_ENTRIES, payload / 8) entries first.
 //!
 //!   allpairs DEV OFFSET [CAP_ENTRIES]
 //!
 //! DEV is a segio spec, a regular file or a run of sectors. The output names the store by its payload merkle and the
 //! SHA-256 of its 4096-byte header block, and names itself by the SHA-256 of its own file. store_identity reads PASS only when that block is one of the blocks in `TRUSTED`.
-//! Bytes of the file past the stream stay unread, and their count is printed as bytes_after_stream.
+//! The block is read once, so the merkle every pass checks and the block that hash covers are the same bytes.
+//! Bytes of the file past the stream stay unread, and their count is printed as bytes_after_stream, beside the offset.
 //!
 //! Exit 0 only when the pairs and the structure are clean and all five gates read PASS: header_entries, whole_space_count,
 //! header_rooms, padding and store_identity. Exit 2 when any of them does not. Exit 1 when the stream cannot be read or
@@ -215,6 +217,21 @@ impl Window {
         (self.answered[at / 64] >> (at % 64)) & 1 == 1
     }
 
+    /// How many of the `same` entries from `first` are answered. Each lookup takes the first unanswered entry of its run, so the
+    /// answered ones are a prefix of the run, and a binary search finds its end.
+    fn answered_run(&self, first: usize, same: usize) -> usize {
+        let (mut lo, mut hi) = (0, same);
+        while lo < hi {
+            let mid = lo + (hi - lo) / 2;
+            if self.is_answered(first + mid) {
+                lo = mid + 1;
+            } else {
+                hi = mid;
+            }
+        }
+        lo
+    }
+
     fn mark_answered(&mut self, at: usize) {
         self.answered[at / 64] |= 1u64 << (at % 64);
     }
@@ -277,18 +294,19 @@ fn answer(win: &mut Window, h: usize, row: &roomscan::Row, out: &mut PassOut, de
         // h is below n, itself checked against the u32 range by the caller.
         let col = h as u32;
         let first = lo + win.ent[lo..hi].partition_point(|e| e.0 < col);
-        let same = win.ent[first..hi].iter().take_while(|e| e.0 == col).count();
+        let same = win.ent[first..hi].partition_point(|e| e.0 == col);
         if same == 0 {
             out.lower_without_upper += 1;
             note(detail, format!("ALLPAIRS_BAD|kind=lower_without_upper|row={h}|col={i}|z={z_hi}|json=0"));
             continue;
         }
         out.found += 1;
-        let Some(at) = (first..first + same).find(|&at| !win.is_answered(at)) else {
+        let at = first + win.answered_run(first, same);
+        if at == first + same {
             out.lower_repeated += 1;
             note(detail, format!("ALLPAIRS_BAD|kind=lower_repeated|row={h}|col={i}|z={z_hi}|json=0"));
             continue;
-        };
+        }
         win.mark_answered(at);
         out.answered += 1;
         let z_ih = win.ent[at].1;
@@ -442,6 +460,17 @@ fn number<T: std::str::FromStr + ToString>(v: &str) -> Option<T> {
     (n.to_string() == v).then_some(n)
 }
 
+/// The fields `roomio::read_hdr` gives, under its rules, from a line already read. `run_tool` reads the block once and takes
+/// everything from it, so a store whose block changes during a run has no second answer to give.
+fn header_of(line: &str) -> Result<roomio::Hdr, String> {
+    if !line.starts_with("YMROOMHDR|") || field(line, "w_self_adjoint=") != Some("PASS") {
+        return Err("not a YMROOMHDR stream with w_self_adjoint=PASS".into());
+    }
+    let num = |k: &str| field(line, k).and_then(|v| v.parse::<u64>().ok()).ok_or_else(|| format!("missing {k}"));
+    let text = |k: &str| field(line, k).unwrap_or("").to_string();
+    Ok(roomio::Hdr { n: usize::try_from(num("n=")?).map_err(|_| "n")?, payload: num("payload_bytes=")?, merkle: text("payload_merkle="), lattice: text("L="), sector: text("sector=") })
+}
+
 /// `roomio` reads n= and payload_bytes= leniently and reads a repeated key once, so this tool refuses both forms itself.
 fn check_header(line: &str, hdr: &roomio::Hdr) -> Result<(), String> {
     if hdr.n == 0 {
@@ -565,8 +594,8 @@ fn run_tool(a: &[String], table: &[Trusted], exe_sha256: &str) -> Result<Report,
     };
     let cap = effective_cap(requested);
     let mut dev = segio::open(spec, false).map_err(|e| format!("open {spec}: {e}"))?;
-    let hdr = roomio::read_hdr(&mut dev, off)?;
     let (block, line) = raw_header(&mut dev, off)?;
+    let hdr = header_of(&line)?;
     check_header(&line, &hdr)?;
     let store_len = store_bytes(spec, &dev)?;
     let rooms = check_sizes(&line, &hdr, off, store_len)?;
@@ -592,7 +621,7 @@ fn run_tool(a: &[String], table: &[Trusted], exe_sha256: &str) -> Result<Report,
     let pass = verdict(o.pairs_clean(hdr.n), c.structure_clean(), &[entries_gate, count_gate, rooms_gate, padding, identity]);
     let flat_list: Vec<String> = c.flat_w.iter().map(u32::to_string).collect();
     println!(
-        "ALLPAIRS|L={}|sector={}|n={}|rows_read={}|entries={}|header_entries={entries_gate}|diag={}|pairs={}|passes={}|cap_requested={requested}|cap_entries={cap}|value_mismatch={}|lower_without_upper={}|upper_without_lower={}|lower_repeated={}|columns_not_ascending={}|column_out_of_range={}|zero_z={}|positive_offdiag={}|row_sum_nonzero={}|zero_weight={}|missing_diag={}|flats={}|flat_w={}|flat_w_listed={}|flat_w_sum={}|sum_w={}|codes={}|whole_space_count={count_gate}|rooms={rooms}|header_rooms={rooms_gate}|padding_bytes={}|padding_nonzero={}|padding={padding}|bytes_after_stream={after_stream}|store_identity={identity}|identity_differs={differs}|payload_merkle={}|header_sha256={header_sha256}|merkle=PASS|verdict={}|exe_sha256={exe_sha256}|secs={}|json=0",
+        "ALLPAIRS|L={}|sector={}|n={}|rows_read={}|entries={}|header_entries={entries_gate}|diag={}|pairs={}|passes={}|cap_requested={requested}|cap_entries={cap}|value_mismatch={}|lower_without_upper={}|upper_without_lower={}|lower_repeated={}|columns_not_ascending={}|column_out_of_range={}|zero_z={}|positive_offdiag={}|row_sum_nonzero={}|zero_weight={}|missing_diag={}|flats={}|flat_w={}|flat_w_listed={}|flat_w_sum={}|sum_w={}|codes={}|whole_space_count={count_gate}|rooms={rooms}|header_rooms={rooms_gate}|padding_bytes={}|padding_nonzero={}|padding={padding}|offset={off}|bytes_after_stream={after_stream}|store_identity={identity}|identity_differs={differs}|payload_merkle={}|header_sha256={header_sha256}|merkle=PASS|verdict={}|exe_sha256={exe_sha256}|secs={}|json=0",
         hdr.lattice,
         hdr.sector,
         hdr.n,
@@ -1407,6 +1436,46 @@ mod tests {
             assert!(!r.pass, "{from} -> {to}");
             assert_eq!(r.identity, Gate::Fail, "{from} -> {to}");
             assert_eq!(r.differs, differs, "{from} -> {to}");
+        }
+    }
+
+    #[test]
+    fn h1_the_tool_reads_the_block_once_and_takes_everything_from_it() {
+        let source = include_str!("allpairs.rs");
+        let tool = source.split("#[cfg(test)]").next().unwrap_or("");
+        assert_eq!(tool.matches(concat!("roomio::read", "_hdr(")).count(), 0);
+        assert_eq!(tool.matches(concat!("raw_header(", "&mut dev, off)?")).count(), 1);
+    }
+
+    #[test]
+    fn h1_a_line_gives_what_roomio_gives() {
+        let (_, line) = clean();
+        let block = block_of(&line);
+        let path = temp();
+        std::fs::write(&path, &block).unwrap();
+        let mut dev = segio::open(path.to_str().unwrap(), false).unwrap();
+        let theirs = roomio::read_hdr(&mut dev, 0).unwrap();
+        let ours = header_of(&line).unwrap();
+        assert_eq!((ours.n, ours.payload, ours.merkle.as_str(), ours.lattice.as_str(), ours.sector.as_str()), (theirs.n, theirs.payload, theirs.merkle.as_str(), theirs.lattice.as_str(), theirs.sector.as_str()));
+        std::fs::remove_file(&path).ok();
+        for bad in ["YMROOMHDR|n=2|payload_bytes=8", "NOPE|n=2|payload_bytes=8|w_self_adjoint=PASS", "YMROOMHDR|n=x|payload_bytes=8|w_self_adjoint=PASS", "YMROOMHDR|n=2|w_self_adjoint=PASS"] {
+            assert!(header_of(bad).is_err(), "{bad}");
+        }
+    }
+
+    #[test]
+    fn h2_the_end_of_an_answered_run_is_found_at_every_length() {
+        let limits = Limits { cap: 64, row_cap: 8, reserve: 0 };
+        for same in 0..40usize {
+            for done in 0..=same {
+                let mut win = Window::new(0, limits);
+                win.ent = vec![(0, 0); same + 3];
+                win.answered = vec![0; (same + 3).div_ceil(64)];
+                for at in 2..2 + done {
+                    win.mark_answered(at);
+                }
+                assert_eq!(win.answered_run(2, same), done, "same={same} done={done}");
+            }
         }
     }
 
