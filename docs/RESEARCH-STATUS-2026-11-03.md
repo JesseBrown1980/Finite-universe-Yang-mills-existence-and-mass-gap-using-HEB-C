@@ -41,7 +41,7 @@ The source uses five mandatory `PASS` gates: `header_entries`, `whole_space_coun
 - `94.070673 − 70.031000 = 24.039673`; `94.070673 − 72.000000 = 22.070673` (reported finite-lattice gap formulas).
 - Independently SHA-256-hashing the exact `3×4` header line plus newline and zero-padding to 4,096 bytes reproduces `65dd63a89d7e1a7cdd3e7876c834c6698a01081ea7a63738e305890bee9e6a21`.
 
-These checks establish internal consistency and one trusted header commitment. Full-stream equality requires a fresh independently executed stream reader.
+These checks establish internal consistency and one trusted header commitment. The [separately written Python metadata verifier](../native/ym/independent/gpt6_3x4_meta_check.py) reproduces all 13 stated header and arithmetic checks with explicit fail-closed exits (`META_CHECK_DONE|checks=13|failed=0`). Run it with `python3 -I native/ym/independent/gpt6_3x4_meta_check.py`. Full-stream equality requires a fresh independently executed stream reader.
 
 **Review recommendations:** use a clean pinned checkout for replay, reject untracked build inputs, record the actual executable hash from outside the process, retain the run log and its own immutable artifact digest, and expose judge exit status even through `tee`. A parse of a copied output proves transcript consistency; a source-built replay and authenticated CI evidence establish execution.
 
