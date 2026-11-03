@@ -5,6 +5,7 @@ on:
     paths:
       - 'independent/gpt6_sturm_*'
       - 'independent/gpt6_ritz_scope.py'
+      - 'independent/gpt6_3x3_ritz_independent.py'
       - 'independent/GPT6_STURM_RITZ_HYBRID_REVIEW.md'
       - 'independent/SEAT_3X3_VACUUM_BLOCK_RITZ_REPORT.md'
       - '.github/workflows/gpt6-sturm-ritz-audit.yml'
@@ -82,3 +83,33 @@ jobs:
         run: |
           set -euo pipefail
           python3 -I independent/gpt6_ritz_scope.py
+
+
+  three-by-three-ritz-independent:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct Ritz matrices from raw 3x3 graph with weighted rows
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I independent/gpt6_3x3_ritz_independent.py independent/matrices/b33_k1.matrix 1 27 1 > /tmp/gpt6_ritz_k1.out
+          cat /tmp/gpt6_ritz_k1.out
+          grep -q '|full_gap=NOT_CERTIFIED|' /tmp/gpt6_ritz_k1.out
+          grep -q 'ritz_e0_micro=534965' /tmp/gpt6_ritz_k1.out
+          python3 -I independent/gpt6_3x3_ritz_independent.py independent/matrices/b33_k3.matrix 1 27 3 > /tmp/gpt6_ritz_k3.out
+          cat /tmp/gpt6_ritz_k3.out
+          grep -q '|full_gap=NOT_CERTIFIED|' /tmp/gpt6_ritz_k3.out
+          grep -q 'ritz_e0_micro=534933' /tmp/gpt6_ritz_k3.out
+      - name: Reject corrupted K1 source bytes, even when reusing its basename
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ritz-bad
+          cp independent/matrices/b33_k1.matrix /tmp/ritz-bad/b33_k1.matrix
+          printf 7 | dd of=/tmp/ritz-bad/b33_k1.matrix bs=1 seek=35 conv=notrunc status=none
+          if python3 -I independent/gpt6_3x3_ritz_independent.py /tmp/ritz-bad/b33_k1.matrix 1 27 1; then
+            echo 'FAIL: tampered 3x3 matrix accepted' >&2; exit 2
+          fi
+          echo 'GPT6_RITZ_RED|tampered_raw_matrix=REJECTED|json=0'
