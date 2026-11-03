@@ -6,6 +6,8 @@ for a quantum Yang–Mills theory on ℝ⁴ for a compact simple gauge group G (
 satisfying the field-theory axioms, with a mass gap Δ > 0. This track lists the
 obligations between the two, so that each can be worked and checked on its own.
 
+**Status, November 3, 2026.** The obligations below stand as listed. What feeds them from below has grown: whole-space S₃ bounds up to 5×5, the [stability plan](../../../docs/YM_TOPOLOGICAL_STABILITY_PROOF.md) for every volume, and the finite SU(2) subgroups in the [companion repository](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved). The [register](../../../docs/RESEARCH-STATUS-2026-11-03.md) has the ordered open list.
+
 ```
 exact finite-lattice theory
 → explicit renormalization transformation (block / phase-cell)

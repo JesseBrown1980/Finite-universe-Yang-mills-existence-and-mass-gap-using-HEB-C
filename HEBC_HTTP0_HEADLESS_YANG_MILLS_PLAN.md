@@ -2,6 +2,19 @@
 
 The [current results and verification register](docs/RESEARCH-STATUS-2026-11-03.md) leads with completed Stage 2B, Stage 2C, 2×L, 3×3 and 3×4 finite-lattice results, and records the active checker-hardening and volume-uniform research milestones. The November 1 status table and October 24 execution plan below are retained as dated development evidence.
 
+**What moved since the November 1 table:**
+
+| Stage | State on 2026-11-03 | Where |
+|---|---|---|
+| 3×4, with its store | E₉ − E₈ ≥ 24.039673 J_E at r = 9, from the Perron certificate 94.070673. All rows recomputed, all pairs compared, and the checker hardened and rerun on the full store. The verdict and rule stay on HOLD | [`PERRON-TWO-SIDED.md`](native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md) |
+| 4×4, 4×5, 5×5, with no store | E₉ − E₈ ≥ 23.947629, 23.618291 and 21.792208 J_E at r = 9 | [`VECTOR-BOUND.md`](native/ym/results/3x4_stream/perron/vector/VECTOR-BOUND.md) |
+| Every volume at once | The region dictionary and theorem matching for even square tori. Next: the finite-size constant as a number, then odd and rectangular tori | [Stability plan](docs/YM_TOPOLOGICAL_STABILITY_PROOF.md) |
+| 2×2, a separate seat | A reconstruction with the native operator's SHA-256, the full Sturm inertia, the magnetic end, and an analytic bound at every ratio | [`independent/`](independent/README.md) |
+| RIME | Stage 2I, the C3 moment test, and Stage 2J, the Prism bridge | [2I](STAGE2I_RIME_C3_HAMILTONIAN_MOMENT_OBSTRUCTION.md), [2J](STAGE2J_RIME_SPHERE_BRIDGE.md) |
+| HTTP-0 | The finite S₃ wave observatory, on exact numerators | [Report](HTTP0_EXACT_INTEGER_NO_ROUNDING.md) |
+| The road to SU(2) | S₃, Q8, 2T and 2O sealed in the companion repository, and 2I in progress | [Companion](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved) |
+| What comes next | The ordered open list | [Register](docs/RESEARCH-STATUS-2026-11-03.md) |
+
 ---
 
 ## Status, November 1, 2026 (historical snapshot)

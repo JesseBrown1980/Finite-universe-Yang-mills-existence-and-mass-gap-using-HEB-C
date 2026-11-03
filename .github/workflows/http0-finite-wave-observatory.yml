@@ -4,7 +4,12 @@ on:
   push:
     branches: [http0-wave-exact-integer-no-rounding]
   pull_request:
-    branches: [http0-finite-s3-wave-observation-test]
+    paths:
+      - 'native/src/wave_torus2.rs'
+      - 'native/src/bin/hebc_http0_sgram.rs'
+      - 'native/web/**'
+      - '.github/workflows/http0-finite-wave-observatory.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
