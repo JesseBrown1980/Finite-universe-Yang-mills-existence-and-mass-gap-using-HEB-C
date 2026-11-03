@@ -130,6 +130,17 @@ assert [keys[i] for i in flat] == [0, 7, 21, 1332, 1339, 3996, 4017, 4024]
 assert all(rows[i].get(j, 0) == (24 if i == j else 0)
            for i in flat for j in flat)
 
+# Check a nontrivial pure-electric eigenmode as a sanity control. The
+# eigenmode alone does not prove the absence of spectrum below 6.
+wilson = [chi(C[expand(decode(key))[0]][expand(decode(key))[2]])
+          for key in keys]
+assert sum(W[i]*wilson[i] for i in range(len(keys))) == 0
+assert all(sum(value*wilson[j] for j, value in row.items()) == 6*wilson[i]
+           for i, row in enumerate(rows))
+assert min(mag[i] for i in range(len(keys)) if i not in flat) == 3
+assert max(mag) == 12
+assert max(row.get(i, 0) for i, row in enumerate(rows)) <= 24
+
 # Second-order magnetic-end Schur matrix in integer arithmetic.
 # 2520 is a common multiple of every nonzero magnetic eigenvalue.
 SCALE = 2520
