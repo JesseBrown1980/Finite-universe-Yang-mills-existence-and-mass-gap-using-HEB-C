@@ -1,0 +1,2 @@
+TRUSTED_CHECK|L=3x4|source=given_block|block_equals_line=1|block_sha256_equals_table=1|header_sha256=65dd63a89d7e1a7cdd3e7876c834c6698a01081ea7a63738e305890bee9e6a21|json=0
+TRUSTED_TABLE_DONE|rows=4|checked=1|missing=2x2,2x3,3x3|failed=3|json=0

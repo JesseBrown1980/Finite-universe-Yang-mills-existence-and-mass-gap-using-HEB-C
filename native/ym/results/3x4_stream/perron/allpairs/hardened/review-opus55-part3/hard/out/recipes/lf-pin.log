@@ -1,0 +1,70 @@
+this tree holds later sources. To build the pinned executable: git checkout --detach 0fd24d31e3abad7c2745a2c3ffa917663418621a
+sha256sum: sector-341.rooms: No such file or directory
+sha256sum: sector-342.rooms: No such file or directory
+sha256sum: sector-343.rooms: No such file or directory
+sha256sum: sector-344.rooms: No such file or directory
+sha256sum: sector-345.rooms: No such file or directory
+sha256sum: sector-346.rooms: No such file or directory
+sha256sum: sector-347.rooms: No such file or directory
+sha256sum: sector-348.rooms: No such file or directory
+sha256sum: sector-349.rooms: No such file or directory
+sha256sum: sector-350.rooms: No such file or directory
+sha256sum: sector-351.rooms: No such file or directory
+sha256sum: sector-352.rooms: No such file or directory
+sha256sum: sector-353.rooms: No such file or directory
+sha256sum: sector-354.rooms: No such file or directory
+sha256sum: sector-355.rooms: No such file or directory
+sha256sum: sector-356.rooms: No such file or directory
+sha256sum: sector-357.rooms: No such file or directory
+sha256sum: sector-358.rooms: No such file or directory
+sha256sum: sector-359.rooms: No such file or directory
+sha256sum: sector-360.rooms: No such file or directory
+sha256sum: sector-361.rooms: No such file or directory
+sha256sum: sector-362.rooms: No such file or directory
+sha256sum: sector-363.rooms: No such file or directory
+sha256sum: sector-364.rooms: No such file or directory
+sha256sum: sector-365.rooms: No such file or directory
+sha256sum: sector-366.rooms: No such file or directory
+sha256sum: sector-367.rooms: No such file or directory
+sha256sum: sector-368.rooms: No such file or directory
+sha256sum: sector-369.rooms: No such file or directory
+sha256sum: sector-370.rooms: No such file or directory
+sha256sum: sector-371.rooms: No such file or directory
+sha256sum: sector-372.rooms: No such file or directory
+sha256sum: sector-373.rooms: No such file or directory
+sector-341.rooms: FAILED open or read
+sector-342.rooms: FAILED open or read
+sector-343.rooms: FAILED open or read
+sector-344.rooms: FAILED open or read
+sector-345.rooms: FAILED open or read
+sector-346.rooms: FAILED open or read
+sector-347.rooms: FAILED open or read
+sector-348.rooms: FAILED open or read
+sector-349.rooms: FAILED open or read
+sector-350.rooms: FAILED open or read
+sector-351.rooms: FAILED open or read
+sector-352.rooms: FAILED open or read
+sector-353.rooms: FAILED open or read
+sector-354.rooms: FAILED open or read
+sector-355.rooms: FAILED open or read
+sector-356.rooms: FAILED open or read
+sector-357.rooms: FAILED open or read
+sector-358.rooms: FAILED open or read
+sector-359.rooms: FAILED open or read
+sector-360.rooms: FAILED open or read
+sector-361.rooms: FAILED open or read
+sector-362.rooms: FAILED open or read
+sector-363.rooms: FAILED open or read
+sector-364.rooms: FAILED open or read
+sector-365.rooms: FAILED open or read
+sector-366.rooms: FAILED open or read
+sector-367.rooms: FAILED open or read
+sector-368.rooms: FAILED open or read
+sector-369.rooms: FAILED open or read
+sector-370.rooms: FAILED open or read
+sector-371.rooms: FAILED open or read
+sector-372.rooms: FAILED open or read
+sector-373.rooms: FAILED open or read
+sha256sum: sector-374.rooms: No such file or directory
+sector-374.rooms: FAILED open or read
+sha256sum: WARNING: 34 listed files could not be read

@@ -1,0 +1,4 @@
+parent_holds_bytes=629145600
+INSTRUMENT|direct_from_big_parent|cmd=bin_true|peak_bytes=640991232|json=0
+INSTRUMENT|through_small_launcher|cmd=bin_true|peak_and_exit=5705728 0|json=0
+INSTRUMENT|through_small_launcher|cmd=child_touching_300MiB|peak_and_exit=323330048 0|json=0

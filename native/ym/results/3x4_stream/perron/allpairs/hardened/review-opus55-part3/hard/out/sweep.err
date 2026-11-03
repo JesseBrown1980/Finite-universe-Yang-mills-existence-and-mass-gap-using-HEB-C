@@ -1,0 +1,2 @@
+SWEEP_DONE|store=D:/ym-3x4-room-run/p0-ball/small/2x2/dev.bin|n=211|pairs=1198|caps=[1, 13, 100, 470000000]|runs=[("delete", 9584), ("repeat_both_sides", 9584), ("repeat_one_side", 9584), ("row_reversed", 844), ("value", 9584)]|runs_with_repeats_exact=4792|bad=0|secs=934|json=0
+exit=0 

@@ -1,0 +1,422 @@
+hardening-controls	Set up job	﻿2026-11-03T10:37:26.1368637Z Current runner version: '2.338.2'
+hardening-controls	Set up job	2026-11-03T10:37:26.1393030Z ##[group]Runner Image Provisioner
+hardening-controls	Set up job	2026-11-03T10:37:26.1394204Z Hosted Compute Agent
+hardening-controls	Set up job	2026-11-03T10:37:26.1394802Z Version: 20261021.618
+hardening-controls	Set up job	2026-11-03T10:37:26.1395423Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+hardening-controls	Set up job	2026-11-03T10:37:26.1396420Z Build Date: 2026-10-21T00:45:21Z
+hardening-controls	Set up job	2026-11-03T10:37:26.1397422Z Worker ID: {e43c4c0c-a4e4-4d06-8c6c-eaa9bdd69cfd}
+hardening-controls	Set up job	2026-11-03T10:37:26.1398400Z Region: westcentralus
+hardening-controls	Set up job	2026-11-03T10:37:26.1398990Z Cloud: Azure
+hardening-controls	Set up job	2026-11-03T10:37:26.1399520Z ##[endgroup]
+hardening-controls	Set up job	2026-11-03T10:37:26.1400951Z ##[group]Operating System
+hardening-controls	Set up job	2026-11-03T10:37:26.1401588Z Ubuntu
+hardening-controls	Set up job	2026-11-03T10:37:26.1402391Z 24.04.5
+hardening-controls	Set up job	2026-11-03T10:37:26.1402972Z LTS
+hardening-controls	Set up job	2026-11-03T10:37:26.1403812Z ##[endgroup]
+hardening-controls	Set up job	2026-11-03T10:37:26.1404587Z ##[group]Runner Image
+hardening-controls	Set up job	2026-11-03T10:37:26.1405518Z Image: ubuntu-24.04
+hardening-controls	Set up job	2026-11-03T10:37:26.1406202Z Version: 20261025.353.1
+hardening-controls	Set up job	2026-11-03T10:37:26.1407417Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+hardening-controls	Set up job	2026-11-03T10:37:26.1409395Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+hardening-controls	Set up job	2026-11-03T10:37:26.1410415Z ##[endgroup]
+hardening-controls	Set up job	2026-11-03T10:37:26.1411511Z ##[group]GITHUB_TOKEN Permissions
+hardening-controls	Set up job	2026-11-03T10:37:26.1414458Z Contents: read
+hardening-controls	Set up job	2026-11-03T10:37:26.1415028Z Metadata: read
+hardening-controls	Set up job	2026-11-03T10:37:26.1416047Z ##[endgroup]
+hardening-controls	Set up job	2026-11-03T10:37:26.1418462Z Secret source: Actions
+hardening-controls	Set up job	2026-11-03T10:37:26.1419419Z Cache mode: write
+hardening-controls	Set up job	2026-11-03T10:37:26.1420293Z Prepare workflow directory
+hardening-controls	Set up job	2026-11-03T10:37:26.1743788Z Prepare all required actions
+hardening-controls	Set up job	2026-11-03T10:37:26.1792812Z Getting action download info
+hardening-controls	Set up job	2026-11-03T10:37:26.4791954Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+hardening-controls	Set up job	2026-11-03T10:37:26.6209527Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+hardening-controls	Set up job	2026-11-03T10:37:26.8699517Z Complete job name: hardening-controls
+hardening-controls	Run actions/checkout@v4	﻿2026-11-03T10:37:26.9586845Z ##[group]Run actions/checkout@v4
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9587762Z with:
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9588361Z   fetch-depth: 0
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9589276Z   repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9594652Z   token: ***
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9595182Z   ssh-strict: true
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9595683Z   ssh-user: git
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9596248Z   persist-credentials: true
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9597102Z   clean: true
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9597988Z   sparse-checkout-cone-mode: true
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9598655Z   fetch-tags: false
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9599184Z   show-progress: true
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9599725Z   lfs: false
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9600248Z   submodules: false
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9600811Z   set-safe-directory: true
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9601413Z   allow-unsafe-pr-checkout: false
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:26.9602281Z ##[endgroup]
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4122955Z Syncing repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4126680Z ##[group]Getting Git version info
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4128663Z Working directory is '/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C'
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4131515Z [command]/usr/bin/git version
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4200075Z git version 2.56.0
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4219351Z ##[endgroup]
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4241697Z Temporarily overriding HOME='/home/runner/work/_temp/b049dd77-d0e4-4e95-9026-e576d0c2f506' before making global git config changes
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4244678Z Adding repository directory to the temporary git global config as a safe directory
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4247880Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4300786Z Deleting the contents of '/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C'
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4305194Z ##[group]Initializing the repository
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4310004Z [command]/usr/bin/git init /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4434871Z hint: Using 'master' as the name for the initial branch. This default branch name
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4437001Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4440839Z hint: to use in all of your new repositories, which will suppress this warning,
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4443540Z hint: call:
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4445156Z hint:
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4446331Z hint: 	git config --global init.defaultBranch <name>
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4450847Z hint:
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4451969Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4453766Z hint: 'development'. The just-created branch can be renamed via this command:
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4455246Z hint:
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4456282Z hint: 	git branch -m <name>
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4457128Z hint:
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4458227Z hint: Disable this message with "git config set advice.defaultBranchName false"
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4461295Z Initialized empty Git repository in /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/.git/
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4466412Z [command]/usr/bin/git remote add origin https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4554068Z ##[endgroup]
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4555151Z ##[group]Disabling automatic garbage collection
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4555948Z [command]/usr/bin/git config --local gc.auto 0
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4737802Z ##[endgroup]
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4739055Z ##[group]Setting up auth
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4747680Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.4785399Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.5118972Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.5150189Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.5341531Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.5374890Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.5567300Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.5614127Z ##[endgroup]
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.5615401Z ##[group]Fetching the repository
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:27.5628865Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6251338Z From https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6254902Z  * [new branch]      audit/allpairs-failclosed-20261103 -> origin/audit/allpairs-failclosed-20261103
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6257322Z  * [new branch]      audit/allpairs-hardened-20261103 -> origin/audit/allpairs-hardened-20261103
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6259823Z  * [new branch]      audit/go-fixture-controls-20261103 -> origin/audit/go-fixture-controls-20261103
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6262242Z  * [new branch]      audit/independent-go-perron-20261102 -> origin/audit/independent-go-perron-20261102
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6264340Z  * [new branch]      backend-exe-suffix      -> origin/backend-exe-suffix
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6266599Z  * [new branch]      cantor-s3-drive-27      -> origin/cantor-s3-drive-27
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6267925Z  * [new branch]      cantor-test-2026-10-30  -> origin/cantor-test-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6269722Z  * [new branch]      chsh-test-2026-10-30    -> origin/chsh-test-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6271594Z  * [new branch]      chsh-three-prism-independent-20261030 -> origin/chsh-three-prism-independent-20261030
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6273922Z  * [new branch]      ci-split-replay-per-package -> origin/ci-split-replay-per-package
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6275628Z  * [new branch]      dictionary-zdest-tests-2026-10-30 -> origin/dictionary-zdest-tests-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6277184Z  * [new branch]      docs/readme-p4-pass-experiment-status-20261030 -> origin/docs/readme-p4-pass-experiment-status-20261030
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6278669Z  * [new branch]      docs/readme-status-after-48-49-51 -> origin/docs/readme-status-after-48-49-51
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6280071Z  * [new branch]      fluid-cutoff-calib-cloud-2026-10-30 -> origin/fluid-cutoff-calib-cloud-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6281562Z  * [new branch]      frustrated-benchmark-2026-10-30 -> origin/frustrated-benchmark-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6282937Z  * [new branch]      http0-finite-s3-wave-observation-test -> origin/http0-finite-s3-wave-observation-test
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6284996Z  * [new branch]      http0-sgram-backend-testground -> origin/http0-sgram-backend-testground
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6286910Z  * [new branch]      http0-wave-exact-integer-no-rounding -> origin/http0-wave-exact-integer-no-rounding
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6288370Z  * [new branch]      http0-ym-backend-finite-volumes -> origin/http0-ym-backend-finite-volumes
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6289512Z  * [new branch]      integer-sturm-ladder    -> origin/integer-sturm-ladder
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6290532Z  * [new branch]      main                    -> origin/main
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6293609Z  * [new branch]      perlevel-test-2026-10-30 -> origin/perlevel-test-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6294995Z  * [new branch]      prism3-test-2026-10-30  -> origin/prism3-test-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6296153Z  * [new branch]      prismbell-test-2026-10-30 -> origin/prismbell-test-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6297372Z  * [new branch]      q3-prism-hash-curve-2026-10-30 -> origin/q3-prism-hash-curve-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6298554Z  * [new branch]      readme-certified-results -> origin/readme-certified-results
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6299830Z  * [new branch]      seat-yang-mills-3x3-vacuum-block-ritz -> origin/seat-yang-mills-3x3-vacuum-block-ritz
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6301344Z  * [new branch]      seat-yang-mills-adaptive-monotone-cells -> origin/seat-yang-mills-adaptive-monotone-cells
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6303664Z  * [new branch]      seat-yang-mills-coupling-region-certificates -> origin/seat-yang-mills-coupling-region-certificates
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6306006Z  * [new branch]      seat-yang-mills-direct-sturm-prefix -> origin/seat-yang-mills-direct-sturm-prefix
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6308166Z  * [new branch]      seat-yang-mills-exact-rational-ldl -> origin/seat-yang-mills-exact-rational-ldl
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6310266Z  * [new branch]      seat-yang-mills-global-coupling-bound -> origin/seat-yang-mills-global-coupling-bound
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6314698Z  * [new branch]      seat-yang-mills-independent-orbit-audit -> origin/seat-yang-mills-independent-orbit-audit
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6317110Z  * [new branch]      seat-yang-mills-integer-translation-sectors -> origin/seat-yang-mills-integer-translation-sectors
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6319297Z  * [new branch]      seat-yang-mills-sha-inferred-anchor-experiment -> origin/seat-yang-mills-sha-inferred-anchor-experiment
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6320980Z  * [new branch]      stage2g-certified-torus-gap -> origin/stage2g-certified-torus-gap
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6322376Z  * [new branch]      stage2i-rime-hamiltonian-moment-audit -> origin/stage2i-rime-hamiltonian-moment-audit
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6323979Z  * [new branch]      stage2j-rime-prism-bridge -> origin/stage2j-rime-prism-bridge
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6325374Z  * [new branch]      third-seat-sturm-python -> origin/third-seat-sturm-python
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6326369Z  * [new branch]      ym-2x5b-reseal          -> origin/ym-2x5b-reseal
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6327955Z  * [new branch]      ym-3x3-90m-recheck      -> origin/ym-3x3-90m-recheck
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6329286Z  * [new branch]      ym-3x3-certify          -> origin/ym-3x3-certify
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6330537Z  * [new branch]      ym-3x3-recheck-wording  -> origin/ym-3x3-recheck-wording
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6331991Z  * [new branch]      ym-3x4-allpairs         -> origin/ym-3x4-allpairs
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6333605Z  * [new branch]      ym-3x4-allpairs-failclosed -> origin/ym-3x4-allpairs-failclosed
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6335244Z  * [new branch]      ym-3x4-allpairs-hardened -> origin/ym-3x4-allpairs-hardened
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6336880Z  * [new branch]      ym-3x4-control-receipt  -> origin/ym-3x4-control-receipt
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6338551Z  * [new branch]      ym-3x4-fanout-concat    -> origin/ym-3x4-fanout-concat
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6340423Z  * [new branch]      ym-3x4-fanout-control-gate -> origin/ym-3x4-fanout-control-gate
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6342275Z  * [new branch]      ym-3x4-fanout-spec      -> origin/ym-3x4-fanout-spec
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6344215Z  * [new branch]      ym-3x4-fanout-workflow  -> origin/ym-3x4-fanout-workflow
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6345955Z  * [new branch]      ym-3x4-gap-rule-draft   -> origin/ym-3x4-gap-rule-draft
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6347724Z  * [new branch]      ym-3x4-gap-rule-register -> origin/ym-3x4-gap-rule-register
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6349823Z  * [new branch]      ym-3x4-independent-go-checker-20261102 -> origin/ym-3x4-independent-go-checker-20261102
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6352093Z  * [new branch]      ym-3x4-independent-row-verification-20261102 -> origin/ym-3x4-independent-row-verification-20261102
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6354270Z  * [new branch]      ym-3x4-j2-record        -> origin/ym-3x4-j2-record
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6355868Z  * [new branch]      ym-3x4-jump-certify     -> origin/ym-3x4-jump-certify
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6357529Z  * [new branch]      ym-3x4-local-segmented-evidence -> origin/ym-3x4-local-segmented-evidence
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6359756Z  * [new branch]      ym-3x4-memory-pilot-checkout-fix -> origin/ym-3x4-memory-pilot-checkout-fix
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6361855Z  * [new branch]      ym-3x4-memory-pilot-p4  -> origin/ym-3x4-memory-pilot-p4
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6363989Z  * [new branch]      ym-3x4-memory-pilot-spec -> origin/ym-3x4-memory-pilot-spec
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6365792Z  * [new branch]      ym-3x4-p0-perron        -> origin/ym-3x4-p0-perron
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6367639Z  * [new branch]      ym-3x4-p4-store-record  -> origin/ym-3x4-p4-store-record
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6368962Z  * [new branch]      ym-3x4-perron-climb     -> origin/ym-3x4-perron-climb
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6370565Z  * [new branch]      ym-3x4-production-result -> origin/ym-3x4-production-result
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6372373Z  * [new branch]      ym-3x4-room-backed      -> origin/ym-3x4-room-backed
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6374412Z  * [new branch]      ym-3x4-spec-rev1-local-rerun -> origin/ym-3x4-spec-rev1-local-rerun
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6375947Z  * [new branch]      ym-certify-packaging-fix -> origin/ym-certify-packaging-fix
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6377339Z  * [new branch]      ym-issue2-closed-notes  -> origin/ym-issue2-closed-notes
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6378665Z  * [new branch]      ym-p4-cgroup-parent     -> origin/ym-p4-cgroup-parent
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6380534Z  * [new branch]      ym-p4-runner-probe      -> origin/ym-p4-runner-probe
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6382134Z  * [new branch]      ym-plan-doc-3x4         -> origin/ym-plan-doc-3x4
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6383948Z  * [new branch]      ym-readme-3x4-production -> origin/ym-readme-3x4-production
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6385844Z  * [new branch]      ym-readme-go-rebuild    -> origin/ym-readme-go-rebuild
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6387521Z  * [new branch]      ym-readme-hold-scope    -> origin/ym-readme-hold-scope
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6389479Z  * [new branch]      ym-readme-perron-status -> origin/ym-readme-perron-status
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6391319Z  * [new branch]      ym-room-ci-checks       -> origin/ym-room-ci-checks
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6393108Z  * [new branch]      ym-room-lane-integration -> origin/ym-room-lane-integration
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6394953Z  * [new branch]      ym-shadow-stack         -> origin/ym-shadow-stack
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6396750Z  * [new branch]      ym-triage-2x5b-3x4-pilot -> origin/ym-triage-2x5b-3x4-pilot
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6398972Z  * [new branch]      z-one-matrix-destpull-crossseat-20261030 -> origin/z-one-matrix-destpull-crossseat-20261030
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6400804Z  * [new branch]      zconf-cloud-2026-10-30  -> origin/zconf-cloud-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6402324Z  * [new branch]      zconfcert-http0-2026-10-30 -> origin/zconfcert-http0-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6404122Z  * [new branch]      zgap2-cloud-2026-10-30  -> origin/zgap2-cloud-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6405783Z  * [new branch]      zlevel-zcurve-cloud-2026-10-30 -> origin/zlevel-zcurve-cloud-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6407438Z  * [new branch]      zlight-cloud-2026-10-30 -> origin/zlight-cloud-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6409210Z  * [new branch]      zlight-test-2026-10-30  -> origin/zlight-test-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6411100Z  * [new branch]      zteleport-cloud-2026-10-30 -> origin/zteleport-cloud-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6412974Z  * [new branch]      zwilson-http0-2026-10-30 -> origin/zwilson-http0-2026-10-30
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6416533Z [command]/usr/bin/git branch --list --remote origin/audit/allpairs-hardened-20261103
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6417840Z   origin/audit/allpairs-hardened-20261103
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6420015Z [command]/usr/bin/git rev-parse refs/remotes/origin/audit/allpairs-hardened-20261103
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6421245Z 9c9f9a1d064bbcb3c1e9ec8e3b763c80e32d7885
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6423522Z ##[endgroup]
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6424591Z ##[group]Determining the checkout info
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6426260Z ##[endgroup]
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6427218Z [command]/usr/bin/git sparse-checkout disable
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6436530Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6471828Z ##[group]Checking out the ref
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.6476014Z [command]/usr/bin/git checkout --progress --force -B audit/allpairs-hardened-20261103 refs/remotes/origin/audit/allpairs-hardened-20261103
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.8210471Z Switched to a new branch 'audit/allpairs-hardened-20261103'
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.8216564Z branch 'audit/allpairs-hardened-20261103' set up to track 'origin/audit/allpairs-hardened-20261103'.
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.8227987Z ##[endgroup]
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.8272084Z [command]/usr/bin/git log -1 --format=%H
+hardening-controls	Run actions/checkout@v4	2026-11-03T10:37:28.8298614Z 9c9f9a1d064bbcb3c1e9ec8e3b763c80e32d7885
+hardening-controls	Build the outside seat's Go checker from its pinned source	﻿2026-11-03T10:37:28.8557399Z ##[group]Run set -euo pipefail
+hardening-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T10:37:28.8559098Z ^[[36;1mset -euo pipefail^[[0m
+hardening-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T10:37:28.8560965Z ^[[36;1mD=native/ym/results/3x4_stream/perron/outside-go-41509351749^[[0m
+hardening-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T10:37:28.8563063Z ^[[36;1m( cd "$D" && sha256sum -c source.sha256 )^[[0m
+hardening-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T10:37:28.8565006Z ^[[36;1mgo version^[[0m
+hardening-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T10:37:28.8566291Z ^[[36;1mmkdir -p /tmp/gochk^[[0m
+hardening-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T10:37:28.8568109Z ^[[36;1mcp "$D/perron_independent.go" /tmp/gochk/perron_independent.go^[[0m
+hardening-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T10:37:28.8570669Z ^[[36;1m( cd /tmp/gochk && go build -o "$RUNNER_TEMP/perron_independent" perron_independent.go )^[[0m
+hardening-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T10:37:28.8592928Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+hardening-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T10:37:28.8594913Z ##[endgroup]
+hardening-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T10:37:28.8689837Z perron_independent.go: OK
+hardening-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T10:37:29.4480757Z go version go1.24.13 linux/amd64
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	﻿2026-11-03T10:37:40.6352692Z ##[group]Run set -euo pipefail
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6353421Z ^[[36;1mset -euo pipefail^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6353898Z ^[[36;1mrustup toolchain install 1.81.0 --profile minimal^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6354455Z ^[[36;1mS=native/ym/crates/evolvers/src/bin/allpairs.rs^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6354930Z ^[[36;1mcp "$S" "$RUNNER_TEMP/hardened.rs"^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6355891Z ^[[36;1m( cd native/ym && cargo +1.81.0 build --locked --release -p evolvers --bin allpairs && cargo +1.81.0 build --locked --release -p torusl --bin ymroom )^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6356721Z ^[[36;1mcp native/ym/target/release/allpairs "$RUNNER_TEMP/allpairs-hardened"^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6357383Z ^[[36;1mcp native/ym/target/release/ymroom "$RUNNER_TEMP/ymroom"^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6357949Z ^[[36;1mgit show 0fd24d31e3abad7c2745a2c3ffa917663418621a:"$S" > "$S"^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6358644Z ^[[36;1mecho "5ab04b184a4395a779ec6b2189352ea54533f7d1c49b32275d0f30d15d83f4ef  $S" | sha256sum -c -^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6359377Z ^[[36;1m( cd native/ym && cargo +1.81.0 build --locked --release -p evolvers --bin allpairs )^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6360124Z ^[[36;1mcp native/ym/target/release/allpairs "$RUNNER_TEMP/allpairs-corrected"^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6360771Z ^[[36;1mgit show 8faadb07748417e713e95723f01d83e0ad80b93f:"$S" > "$S"^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6361449Z ^[[36;1mecho "f4ea7e856728fde8a5fe56b0e9fe85a0770d930ea566c25b490f697760e55754  $S" | sha256sum -c -^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6362243Z ^[[36;1m( cd native/ym && cargo +1.81.0 build --locked --release -p evolvers --bin allpairs )^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6362888Z ^[[36;1mcp native/ym/target/release/allpairs "$RUNNER_TEMP/allpairs-original"^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6363660Z ^[[36;1mcp "$RUNNER_TEMP/hardened.rs" "$S"^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6364115Z ^[[36;1mgit diff --quiet -- "$S"^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6364522Z ^[[36;1mmkdir -p "$RUNNER_TEMP/out"^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6364894Z ^[[36;1m{^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6365638Z ^[[36;1m  sha256sum "$RUNNER_TEMP/hardened.rs" "$RUNNER_TEMP/allpairs-hardened" "$RUNNER_TEMP/allpairs-corrected" "$RUNNER_TEMP/allpairs-original" "$RUNNER_TEMP/ymroom"^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6366478Z ^[[36;1m  rustc +1.81.0 -V^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6366882Z ^[[36;1m  go version^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6367315Z ^[[36;1m} | sed "s#$RUNNER_TEMP/##" | tee "$RUNNER_TEMP/out/TOOLS.txt"^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6367895Z ^[[36;1mfor pair in "corrected hardened" "original corrected" "original hardened"; do^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6368462Z ^[[36;1m  set -- $pair^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6369060Z ^[[36;1m  if cmp -s "$RUNNER_TEMP/allpairs-$1" "$RUNNER_TEMP/allpairs-$2"; then^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6369599Z ^[[36;1m    echo "the $1 and $2 builds are the same file"^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6370065Z ^[[36;1m    exit 1^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6370481Z ^[[36;1m  fi^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6370834Z ^[[36;1mdone^[[0m
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6386591Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6387094Z ##[endgroup]
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.6829751Z info: syncing channel updates for 1.81.0-x86_64-unknown-linux-gnu
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.9993487Z info: latest update on 2024-09-05 for version 1.81.0 (eeb90cda1 2024-09-04)
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:40.9995792Z info: downloading 3 components
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:48.8472892Z 
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:48.8562614Z   1.81.0-x86_64-unknown-linux-gnu installed - rustc 1.81.0 (eeb90cda1 2024-09-04)
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:48.8563550Z 
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:48.9277836Z    Compiling autocfg v1.5.1
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:49.0847028Z    Compiling num-traits v0.2.19
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:49.6111221Z    Compiling num-integer v0.1.47
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:49.7674401Z    Compiling num-bigint v0.4.8
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:51.6770770Z    Compiling evolvers v0.1.0 (/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/native/ym/crates/evolvers)
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:52.8888390Z     Finished `release` profile [optimized] target(s) in 4.01s
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:52.9065855Z    Compiling torusl v0.1.0 (/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/native/ym/crates/torusl)
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:54.2923349Z     Finished `release` profile [optimized] target(s) in 1.39s
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:54.3008450Z native/ym/crates/evolvers/src/bin/allpairs.rs: OK
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:54.3179566Z    Compiling evolvers v0.1.0 (/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/native/ym/crates/evolvers)
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:55.2578114Z     Finished `release` profile [optimized] target(s) in 0.94s
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:55.2648323Z native/ym/crates/evolvers/src/bin/allpairs.rs: OK
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:55.2820794Z    Compiling evolvers v0.1.0 (/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/native/ym/crates/evolvers)
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:56.1179786Z     Finished `release` profile [optimized] target(s) in 0.84s
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:56.2514987Z 3323d06e47789b97bb840aa2f1282b7c4c440b057b50287ab731bda2b8c5afe6  hardened.rs
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:56.2516017Z 0f3fbbfda2b46928abd9e80d726b71052788a7f516d4e780b30e7edbedea8cc9  allpairs-hardened
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:56.2517022Z 389881acc55dfea143ff42cd52cd6a64eea63c79f96f4906d24ccfdff259a097  allpairs-corrected
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:56.2517970Z 376cce17f0148b89b35f6056a9f031c314b8e475ad6c17c4d966755bd848c8d4  allpairs-original
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:56.2518551Z eb5b5d2f4cdf953c6f09dbc9dd0c0a1471d2e436fca8f8a8248f60e1327771c9  ymroom
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:56.2519132Z rustc 1.81.0 (eeb90cda1 2024-09-04)
+hardening-controls	Build allpairs three times on Rust 1.81, each from its own source, and ymroom	2026-11-03T10:37:56.2519497Z go version go1.24.13 linux/amd64
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	﻿2026-11-03T10:37:56.2582659Z ##[group]Run set -euo pipefail
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2583265Z ^[[36;1mset -euo pipefail^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2583815Z ^[[36;1mT="$RUNNER_TEMP/rebuild"^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2584158Z ^[[36;1mmkdir -p "$T"^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2584499Z ^[[36;1mfor L in "2 2" "2 3" "3 3"; do^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2584839Z ^[[36;1m  set -- $L^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2585173Z ^[[36;1m  D="$T/r$1x$2"^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2585516Z ^[[36;1m  mkdir -p "$D"^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2585819Z ^[[36;1m  ( cd "$D"^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2586178Z ^[[36;1m    "$RUNNER_TEMP/ymroom" passa "$1" "$2" passa.bin^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2586589Z ^[[36;1m    n=$(( $(stat -c %s passa.bin) / 16 ))^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2586979Z ^[[36;1m    truncate -s $(( 8 * n )) keys.bin^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2587376Z ^[[36;1m    : > dev.bin^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2587779Z ^[[36;1m    "$RUNNER_TEMP/ymroom" build "$1" "$2" passa.bin keys.bin dev.bin 0 )^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2588272Z ^[[36;1mdone^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2588914Z ^[[36;1mcurl -sSfL --retry 3 -r 0-4095 -o "$T/block-3x4.bin" https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve/main/sector-341.rooms^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2590025Z ^[[36;1mpython3 -I -X utf8 native/ym/results/3x4_stream/perron/allpairs/hardened/check_trusted_table.py native/ym/crates/evolvers/src/bin/allpairs.rs \^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2591016Z ^[[36;1m  --store 2x2 "$T/r2x2/dev.bin" --store 2x3 "$T/r2x3/dev.bin" --store 3x3 "$T/r3x3/dev.bin" --block 3x4 "$T/block-3x4.bin" | tee "$RUNNER_TEMP/out/TRUSTED-TABLE.hbp"^[[0m
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2605123Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2605538Z ##[endgroup]
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2676700Z YMROOM_PASSA|L=2x2|sector=Sx+Sy+|states=211|flat_states=7|bytes=3376|sha256=a43cf4247d4dca30a3971199433103dd79ef8a98d1714df2aadbe559726ddaa7|workers=1|ms=0|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2846566Z YMROOMHDR|L=2x2|sector=Sx+Sy+|n=211|nl=8|rooms=2818|entries=2607|payload_bytes=1044480|stream_bytes=1048576|chunk=16MiB|payload_merkle=b7c5847b6cb3a92b41877d14164ec97ad5c67091d7a03492460632a4b416d883|keys_sha256=9a2591690b4ed2575668a1d70477baae767e184bd81df7e9f62068485e01d96f|w_self_adjoint=PASS|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.2848587Z YMROOM_BUILD|dev=dev.bin|offset=0|header_readback=EXACT|ms=12|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.3184512Z YMROOM_PASSA|L=2x3|sector=Sx+Sy+|states=2646|flat_states=7|bytes=42336|sha256=b936389e6317942d69e2637f1c307d792ddccee5e2ae0f9142064373f747f5cd|workers=1|ms=31|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.5855957Z YMROOMHDR|L=2x3|sector=Sx+Sy+|n=2646|nl=12|rooms=77602|entries=74956|payload_bytes=1044480|stream_bytes=1048576|chunk=16MiB|payload_merkle=40433ac6c49b0e5e450044ed476599b1cf2757ad613020075e4505dc8175aa97|keys_sha256=ea8b8808a0f5400b12b125de84eadea6f9766b0796148656476a7ba54ba6fc2e|w_self_adjoint=PASS|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:37:56.5858162Z YMROOM_BUILD|dev=dev.bin|offset=0|header_readback=EXACT|ms=264|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:38:06.2362979Z YMROOM_PASSA|L=3x3|sector=Sx+Sy+|states=288645|flat_states=7|bytes=4618320|sha256=ec61df90866f5b0ebc0cb72596715db3a79bdca9106a3f5c8c523fbc7f4113e3|workers=1|ms=9647|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:39:32.5271781Z YMROOM_PROGRESS|rows=288645/288645|rooms=15697314|bytes=117444608|ms=86286|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:39:32.5758783Z YMROOMHDR|L=3x3|sector=Sx+Sy+|n=288645|nl=18|rooms=15697314|entries=15408669|payload_bytes=125825024|stream_bytes=125829120|chunk=16MiB|payload_merkle=c0059b361fecc6e729e31b6078a6badda4be7fa40ea4f924b6af5fbf3b77ab83|keys_sha256=edd911b0d1dc2c280a83ae0efc67119057fe897c98bd8da336ce4ba936a80cbb|w_self_adjoint=PASS|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:39:32.5761121Z YMROOM_BUILD|dev=dev.bin|offset=0|header_readback=EXACT|ms=86334|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:39:33.7077548Z TRUSTED_CHECK|L=2x2|source=rebuilt_from_the_rules_by_ymroom|block_equals_line=1|block_sha256_equals_table=1|header_sha256=00fcacf55296e9269fe413e8ad36a526b143981e239993c2baeb0ae43c78ab5a|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:39:33.7078840Z TRUSTED_CHECK_STORE|L=2x2|bytes=1048576|merkle_equals_table=1|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:39:33.7080559Z TRUSTED_CHECK|L=2x3|source=rebuilt_from_the_rules_by_ymroom|block_equals_line=1|block_sha256_equals_table=1|header_sha256=99a1cdb82387f5395d0a1ab5031313600f8b25c4fde874f75bfc15389e913c0d|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:39:33.7082118Z TRUSTED_CHECK_STORE|L=2x3|bytes=1048576|merkle_equals_table=1|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:39:33.7083729Z TRUSTED_CHECK|L=3x3|source=rebuilt_from_the_rules_by_ymroom|block_equals_line=1|block_sha256_equals_table=1|header_sha256=035d84766c9f62ba0fbfb23d4c85795cf42ab19502042ed50b83cb4076ebe373|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:39:33.7084671Z TRUSTED_CHECK_STORE|L=3x3|bytes=125829120|merkle_equals_table=1|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:39:33.7085537Z TRUSTED_CHECK|L=3x4|source=public_store_first_4096_bytes|block_equals_line=1|block_sha256_equals_table=1|header_sha256=65dd63a89d7e1a7cdd3e7876c834c6698a01081ea7a63738e305890bee9e6a21|json=0
+hardening-controls	Check the trusted table against stores rebuilt from the rules and the public 3x4 store	2026-11-03T10:39:33.7086444Z TRUSTED_TABLE_DONE|rows=4|checked=4|missing=-|failed=0|json=0
+hardening-controls	Test the judge of the 3x4 run	﻿2026-11-03T10:39:33.7268137Z ##[group]Run set -euo pipefail
+hardening-controls	Test the judge of the 3x4 run	2026-11-03T10:39:33.7268653Z ^[[36;1mset -euo pipefail^[[0m
+hardening-controls	Test the judge of the 3x4 run	2026-11-03T10:39:33.7269110Z ^[[36;1mA=native/ym/results/3x4_stream/perron/allpairs^[[0m
+hardening-controls	Test the judge of the 3x4 run	2026-11-03T10:39:33.7269820Z ^[[36;1mpython3 -I -X utf8 "$A/hardened/test_compare_hardened_run.py" "$A/ALLPAIRS-3x4.out" "$RUNNER_TEMP/out/JUDGE-CONTROLS.hbp"^[[0m
+hardening-controls	Test the judge of the 3x4 run	2026-11-03T10:39:33.7284410Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+hardening-controls	Test the judge of the 3x4 run	2026-11-03T10:39:33.7284862Z ##[endgroup]
+hardening-controls	Test the judge of the 3x4 run	2026-11-03T10:39:38.0495858Z JUDGE_CONTROLS_DONE|cases=184|faults=182|failed=0|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	﻿2026-11-03T10:39:38.0586387Z ##[group]Run set -euo pipefail
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:39:38.0586818Z ^[[36;1mset -euo pipefail^[[0m
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:39:38.0587298Z ^[[36;1mF=native/ym/results/3x4_stream/perron/allpairs/fixture-controls^[[0m
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:39:38.0587782Z ^[[36;1mstatus=0^[[0m
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:39:38.0588333Z ^[[36;1mpython3 -I -X utf8 "$F/run_fixture_controls.py" --base "$F/fixture-2x2.rooms.gz" --out "$RUNNER_TEMP/out/fixture" \^[[0m
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:39:38.0589117Z ^[[36;1m  --go "$RUNNER_TEMP/perron_independent" --strict native/ym/results/3x4_stream/perron/check_d_strict.py \^[[0m
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:39:38.0589728Z ^[[36;1m  --allpairs "$RUNNER_TEMP/allpairs-hardened" || status=$?^[[0m
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:39:38.0590239Z ^[[36;1mcat "$RUNNER_TEMP/out/fixture/FIXTURE-CONTROLS.hbp" || true^[[0m
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:39:38.0590721Z ^[[36;1mexit "$status"^[[0m
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:39:38.0603735Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:39:38.0604180Z ##[endgroup]
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5689791Z FIXTURE_PREDICTION|base_sha256=b31e730606db130585f9560f7adab87444d744876c3a8e36f6f9ef2bf0aa431f|n=211|pairs=1198|go_pairs_reported=1071|go_pairs_passed=127|strict_pairs_reported=1198|allpairs_pairs_reported=1198|rows=211|control=27000000,102,3|blind=-15000000,30,6|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5691393Z FIXTURE_CONTROLS_DONE|failed=0|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5764147Z FIXTURE_CASE|tool=go|case=clean|met=1|exit=0|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5766144Z GO_CLEAN_STDOUT|PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS;control t_cert_milli=27000000 min_row=102 min_mag=3;blind t_cert_milli=-15000000 min_row=30 min_mag=6;flat_rows=7 min_nonzero_mag=3 max_mag=12 weighted_residual=0;payload_zero_padding=1021936 raw_tail_bytes=0 raw_tail_nonzero=0;seconds=0;
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5768117Z FIXTURE_CASE|tool=strict|case=clean|met=1|exit=0|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5769641Z STRICT_CLEAN_STDOUT|CHECK_D_STRICT|n=211|d_sha256=5008e4e0b6c70f6adab3a3aaee08815e4d89811b1ba8b5260bd124846056ad65|flats=7|flat_rows=0,3,6,96,99,191,193|flat_diag=24|flat_flat_couplings=0|t_cert_milli=27000000|t_cert_JE=27000000/1000000|min_row=102|min_mag=3|min_nonflat_M=3|max_M=12|positive_offdiag=0|bad_d=0|row_sums_zero=PASS|W_self_adjoint=PASS|seed=27|merkle=PASS|secs=0|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5771033Z FIXTURE_CASE|tool=allpairs|case=clean|met=1|exit=0|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5771486Z FIXTURE_CASE|tool=go|sweep=rowsum|met=1|rows=211|reported=211|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5772066Z FIXTURE_CASE|tool=strict|sweep=rowsum|met=1|rows=211|reported=211|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5772581Z FIXTURE_CASE|tool=allpairs|sweep=rowsum|met=1|rows=211|reported=211|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5773324Z FIXTURE_CASE|tool=go|sweep=pair|met=1|pairs=1198|reported=1071|passed=127|as_predicted=1198|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5774165Z FIXTURE_CASE|tool=strict|sweep=pair|met=1|pairs=1198|reported=1198|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5774907Z FIXTURE_CASE|tool=allpairs|sweep=pair|met=1|pairs=1198|reported=1198|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5775799Z GO_FIRST_REPORTED|h=1|j=0|stderr=FAIL: weighted self-adjoint integer residual=-36
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5776868Z GO_FIRST_PASSED|h=1|j=10|stdout=PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5778970Z FIXTURE_PREDICTION|base_sha256=b31e730606db130585f9560f7adab87444d744876c3a8e36f6f9ef2bf0aa431f|n=211|pairs=1198|go_pairs_reported=1071|go_pairs_passed=127|strict_pairs_reported=1198|allpairs_pairs_reported=1198|rows=211|control=27000000,102,3|blind=-15000000,30,6|json=0
+hardening-controls	Run the fixture controls with the hardened allpairs	2026-11-03T10:40:51.5780605Z FIXTURE_CONTROLS_DONE|failed=0|json=0
+hardening-controls	Run the hardening controls on all three executables	﻿2026-11-03T10:40:51.5831097Z ##[group]Run set -euo pipefail
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:40:51.5831696Z ^[[36;1mset -euo pipefail^[[0m
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:40:51.5832260Z ^[[36;1mA=native/ym/results/3x4_stream/perron/allpairs^[[0m
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:40:51.5832893Z ^[[36;1mstatus=0^[[0m
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:40:51.5834149Z ^[[36;1mpython3 -I -X utf8 "$A/hardened/run_hardening_controls.py" --full-block --base "$A/fixture-controls/fixture-2x2.rooms.gz" --out "$RUNNER_TEMP/out/hardening" \^[[0m
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:40:51.5835805Z ^[[36;1m  --original "$RUNNER_TEMP/allpairs-original" --corrected "$RUNNER_TEMP/allpairs-corrected" --hardened "$RUNNER_TEMP/allpairs-hardened" || status=$?^[[0m
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:40:51.5837716Z ^[[36;1mgrep -E '^(HARDENING_(TOOL|PREDICTION_SHA|SWEEP|MEMORY|TWO_STORES|FLIP|FULL_BLOCK|DIFFERS|CONTROLS_DONE)|DEFECT_SWEEP|HARDENED_FAILS_CLOSED)' "$RUNNER_TEMP/out/hardening/HARDENING-CONTROLS.hbp" || true^[[0m
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:40:51.5839060Z ^[[36;1mexit "$status"^[[0m
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:40:51.5858349Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:40:51.5859273Z ##[endgroup]
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5026634Z HARDENING_CONTROLS_DONE|failed=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5497888Z HARDENING_TOOL|tool=original|sha256=376cce17f0148b89b35f6056a9f031c314b8e475ad6c17c4d966755bd848c8d4|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5499140Z HARDENING_TOOL|tool=corrected|sha256=389881acc55dfea143ff42cd52cd6a64eea63c79f96f4906d24ccfdff259a097|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5500452Z HARDENING_TOOL|tool=hardened|sha256=0f3fbbfda2b46928abd9e80d726b71052788a7f516d4e780b30e7edbedea8cc9|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5502447Z HARDENING_PREDICTION_SHA|cases=93|outcomes=279|flip_bits=2944|hardened_flips_at_exit_0=0|padding_mib=256|old_peak_at_least_bytes=268435456|hardened_peak_below_bytes=33554432|base_sha256=b31e730606db130585f9560f7adab87444d744876c3a8e36f6f9ef2bf0aa431f|sha256=84ef31ea26c20a36499d8a830e049e99dc8ac58efc532270f97a9afd30325550|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5504533Z HARDENING_MEMORY|case=D4_padding_256MiB|tool=original|peak_bytes=613576704|old_at_least=268435456|hardened_below=33554432|met=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5505446Z HARDENING_MEMORY|case=D4_padding_256MiB|tool=corrected|peak_bytes=613576704|old_at_least=268435456|hardened_below=33554432|met=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5506368Z HARDENING_MEMORY|case=D4_padding_256MiB|tool=hardened|peak_bytes=613576704|old_at_least=268435456|hardened_below=33554432|met=0|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5507065Z HARDENING_TWO_STORES|tool=original|one_line_for_two_stores=1|met=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5507642Z HARDENING_TWO_STORES|tool=corrected|one_line_for_two_stores=1|met=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5508196Z HARDENING_TWO_STORES|tool=hardened|one_line_for_two_stores=0|met=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5508804Z HARDENING_FLIP_SWEEP|tool=original|bits=2944|exit0=1787|exit1=1133|exit2=24|other=0|met=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5509474Z HARDENING_FLIP_SWEEP|tool=corrected|bits=2944|exit0=1608|exit1=1134|exit2=202|other=0|met=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5510187Z HARDENING_FLIP_SWEEP|tool=hardened|bits=2944|exit0=0|exit1=1388|exit2=1556|other=0|met=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5510898Z HARDENING_FLIP_ORDER|original_exit0=1787|corrected_exit0=1608|hardened_exit0=0|corrected_below_original=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5511605Z HARDENING_FULL_BLOCK|tool=hardened|bits=32768|exit0=0|exit1=1388|exit2=31380|other=0|met=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5512362Z DEFECT_SWEEP|defect=C|cases=2|original_met=2|corrected_met=2|hardened_met=2|original_exit0=1|corrected_exit0=1|hardened_exit0=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5513343Z DEFECT_SWEEP|defect=D3|cases=4|original_met=4|corrected_met=4|hardened_met=4|original_exit0=4|corrected_exit0=4|hardened_exit0=0|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5514211Z DEFECT_SWEEP|defect=D4|cases=9|original_met=9|corrected_met=9|hardened_met=9|original_exit0=7|corrected_exit0=7|hardened_exit0=0|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5515125Z DEFECT_SWEEP|defect=D5|cases=2|original_met=2|corrected_met=2|hardened_met=2|original_exit0=2|corrected_exit0=2|hardened_exit0=2|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5515977Z DEFECT_SWEEP|defect=D6|cases=3|original_met=3|corrected_met=3|hardened_met=3|original_exit0=3|corrected_exit0=3|hardened_exit0=0|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5516979Z DEFECT_SWEEP|defect=D7|cases=3|original_met=3|corrected_met=3|hardened_met=3|original_exit0=0|corrected_exit0=0|hardened_exit0=0|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5517837Z DEFECT_SWEEP|defect=D8|cases=8|original_met=8|corrected_met=8|hardened_met=8|original_exit0=8|corrected_exit0=8|hardened_exit0=0|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5518723Z DEFECT_SWEEP|defect=H|cases=62|original_met=62|corrected_met=62|hardened_met=62|original_exit0=42|corrected_exit0=2|hardened_exit0=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5520130Z HARDENING_SWEEP|tool=original|cases=93|met=93|gate_open_or_fail=28|gate_open_or_fail_exit0=22|stops=16|exit0=67|exit0_all_gates_pass=45|verdict_agrees_with_exit=93|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5521212Z HARDENING_SWEEP|tool=corrected|cases=93|met=93|gate_open_or_fail=30|gate_open_or_fail_exit0=0|stops=32|exit0=27|exit0_all_gates_pass=27|verdict_agrees_with_exit=93|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5522209Z HARDENING_SWEEP|tool=hardened|cases=93|met=93|gate_open_or_fail=49|gate_open_or_fail_exit0=0|stops=40|exit0=4|exit0_all_gates_pass=4|verdict_agrees_with_exit=93|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5523715Z HARDENED_FAILS_CLOSED|every_open_or_fail_gives_verdict_fail_and_nonzero_exit=1|gate_open_or_fail=49|exit0=4|exit0_only_on_the_clean_store_at_three_caps_and_the_default=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5524502Z HARDENING_CONTROLS_DONE|failed=1|json=0
+hardening-controls	Run the hardening controls on all three executables	2026-11-03T10:50:48.5535714Z ##[error]Process completed with exit code 1.
+hardening-controls	Run actions/upload-artifact@v4	﻿2026-11-03T10:50:48.5645302Z ##[group]Run actions/upload-artifact@v4
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:48.5645723Z with:
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:48.5646136Z   name: hardening-controls
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:48.5646885Z   path: /home/runner/work/_temp/out
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:48.5647285Z   if-no-files-found: warn
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:48.5647653Z   compression-level: 6
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:48.5647984Z   overwrite: false
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:48.5648380Z   include-hidden-files: false
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:48.5648742Z ##[endgroup]
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:48.7316419Z (node:98306) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:48.7317799Z (Use `node --trace-deprecation ...` to show where the warning was created)
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:48.7505755Z With the provided path, there will be 5 files uploaded
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:48.7506736Z Artifact name is valid!
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:48.7507239Z Root directory input is valid!
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:49.0736258Z Beginning upload of artifact content to blob storage
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:49.1030302Z (node:98306) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:49.3086601Z Uploaded bytes 9337
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:49.3697709Z Finished uploading artifact content to blob storage!
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:49.3698613Z SHA256 digest of uploaded artifact zip is 497840e50b13f6ad5a27e548e24bff03e9649fb9ac8a190729d7953931c6840a
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:49.3699883Z Finalizing artifact upload
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:49.8504815Z Artifact hardening-controls.zip successfully finalized. Artifact ID 13224685880
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:49.8506124Z Artifact hardening-controls has been successfully uploaded! Final size is 9337 bytes. Artifact ID is 13224685880
+hardening-controls	Run actions/upload-artifact@v4	2026-11-03T10:50:49.8511478Z Artifact download URL: https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41620803428/artifacts/13224685880
+hardening-controls	Post Run actions/checkout@v4	﻿2026-11-03T10:50:49.8739032Z Post job cleanup.
+hardening-controls	Post Run actions/checkout@v4	2026-11-03T10:50:49.9550048Z [command]/usr/bin/git version
+hardening-controls	Post Run actions/checkout@v4	2026-11-03T10:50:49.9589250Z git version 2.56.0
+hardening-controls	Post Run actions/checkout@v4	2026-11-03T10:50:49.9622078Z Temporarily overriding HOME='/home/runner/work/_temp/5908c2a4-3692-49d6-86ac-c73bffc2e738' before making global git config changes
+hardening-controls	Post Run actions/checkout@v4	2026-11-03T10:50:49.9624048Z Adding repository directory to the temporary git global config as a safe directory
+hardening-controls	Post Run actions/checkout@v4	2026-11-03T10:50:49.9627779Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+hardening-controls	Post Run actions/checkout@v4	2026-11-03T10:50:49.9671454Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+hardening-controls	Post Run actions/checkout@v4	2026-11-03T10:50:49.9698084Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+hardening-controls	Post Run actions/checkout@v4	2026-11-03T10:50:49.9913315Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+hardening-controls	Post Run actions/checkout@v4	2026-11-03T10:50:49.9938580Z http.https://github.com/.extraheader
+hardening-controls	Post Run actions/checkout@v4	2026-11-03T10:50:49.9948856Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+hardening-controls	Post Run actions/checkout@v4	2026-11-03T10:50:49.9982031Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+hardening-controls	Post Run actions/checkout@v4	2026-11-03T10:50:50.0220221Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+hardening-controls	Post Run actions/checkout@v4	2026-11-03T10:50:50.0281836Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+hardening-controls	Complete job	﻿2026-11-03T10:50:50.0644479Z Cleaning up orphan processes
+hardening-controls	Complete job	2026-11-03T10:50:50.0964912Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

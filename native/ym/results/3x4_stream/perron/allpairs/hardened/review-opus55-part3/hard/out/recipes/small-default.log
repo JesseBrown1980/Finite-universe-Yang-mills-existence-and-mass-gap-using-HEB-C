@@ -1,0 +1,7 @@
+3323d06e47789b97bb840aa2f1282b7c4c440b057b50287ab731bda2b8c5afe6 *-
+sector_check_replaced
+error: the listed checksum of `C:\tmp\opus55\allpairs-review-20261103\hard\clones\default\native\ym\vendor\num-bigint\src/biguint/power.rs` has changed:
+expected: e71bde50a73fde40d8a25c68719db4a87e1640ab173171d1a1cbe7f2bcac2017
+actual:   53ca621c9f6c6329bdbd48c8977c02685fe2667cb2786ef59e4a5a042bbf86d1
+
+directory sources are not intended to be edited, if modifications are required then it is recommended that `[patch]` is used with a forked copy of the source

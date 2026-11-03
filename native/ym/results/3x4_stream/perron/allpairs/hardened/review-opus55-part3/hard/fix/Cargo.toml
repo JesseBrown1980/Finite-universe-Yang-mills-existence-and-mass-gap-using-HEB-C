@@ -1,0 +1,12 @@
+[package]
+name = "allpairs_fix"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.81"
+
+[workspace]
+
+[dependencies]
+
+[profile.release]
+opt-level = 3

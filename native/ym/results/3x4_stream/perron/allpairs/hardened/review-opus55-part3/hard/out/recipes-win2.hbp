@@ -1,0 +1,8 @@
+sha256sum: 'C:/tmp/opus55/allpairs-review-20261103/hard/clones/default/native/ym/target/release/allpairs.exe': No such file or directory
+RECIPE_WIN2|clone=default|exit=101|reproduce_done_rows=0|judge_failed=|first_judge_row=|file_sha256=|cr_in_source=1430|normal=Traceback (most recent call last):
+  File "C:\tmp\opus55\allpairs-review-20261103\hard\clones\lf\native\ym\results\3x4_stream\perron\allpairs\failclosed\pe_normal_hash.py", line 50, in <module>
+    b = bytearray(open(path, "rb").read())
+                  ~~~~^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:/tmp/opus55/allpairs-review-20261103/hard/clones/default/native/ym/target/release/allpairs.exe'|json=0
+RECIPE_WIN2|clone=lf|exit=1|reproduce_done_rows=0|judge_failed=|first_judge_row=HARDENED_REQUIREMENT~original_run_is_the_pinned_one~met=1~sha256=b0b17|file_sha256=68785f6f752aa6571ca659e5a4bd34c0b626e83ec5ca8ebc1af8476ac7610d9f|cr_in_source=1430|normal=PE_NORMAL~file_sha256=68785f6f752aa6571ca659e5a4bd34c0b626e83ec5ca8ebc1af8476ac7610d9f~bytes=317952~zeroed=coff_timestamp:4,debug_timestamp:12,rsds_guid_and_age:20~normal_sha256=71fff11a36c8e7d922990f
+PE_NORMAL_COMPARE~files=1~distinct_normal=1~json=0|json=0
