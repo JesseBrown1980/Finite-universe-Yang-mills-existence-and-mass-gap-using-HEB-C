@@ -1,0 +1,10 @@
+CANTOR_S3|schema=CANTOR-S3-NUMERICAL-V1|model=S3|method=dense_hermitian_eigh|kind=NUMERICAL_TEST_NOT_CERTIFICATE|json=0
+INPUT|matrix_sha256=902a8a01d527416ea02d7ce54737fa5513d814046a6e9cdd7f9acf67cc864ccb|signal_sha256=1f48fa5083237cd4bdadc3f6c4f9094b864ca1386d7d09b5b27c19b5f27f6913|states=211|basis_index=0|samples=729|positive=32|negative=32|zero=665|json=0
+PARAM|JE=1|JB_over_JE=243|lambda=0.037037037037037035|dt=0.037037037037037035|hbar=1|drive=M|sign=2_to_minus_1|json=0
+CHECK|weighted_hermitian=PASS|unitarity_max=4.2189096902968774e-15|tol=1e-08|json=0
+RUN|control=cantor|norm_max=1.5802914532514478e-12|inverse_max=1.5845428136658893e-12|magnetic_expectation=0.00017732142009024333|return_probability=0.92827417443351368|json=0
+RUN|control=zero|norm_max=1.7033041643799152e-12|inverse_max=1.7066348479087866e-12|magnetic_expectation=0.00017730299665134853|return_probability=0.92827416230730719|json=0
+RUN|control=inverted|norm_max=1.5829559885105482e-12|inverse_max=1.5901847811869924e-12|magnetic_expectation=0.00017728665940762762|return_probability=0.92827414904657268|json=0
+RUN|control=rotated_one|norm_max=1.5851764345597985e-12|inverse_max=1.5942163781711043e-12|magnetic_expectation=0.0001773617947827547|return_probability=0.92827414847754863|json=0
+COMPARE|driven_vs_zero_fidelity=0.99999999972367326|json=0
+VERDICT|result=PASS|scope=finite_sector_numerical_evolution|mass_gap_certified=0|hidden_model_state=0|json=0
