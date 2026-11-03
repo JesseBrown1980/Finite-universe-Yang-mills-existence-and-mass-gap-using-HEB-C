@@ -1,0 +1,9 @@
+ZBELL_LDET|strategies=16|S_values=[2, -2, 2, -2, -2, -2, 2, 2, 2, 2, -2, -2, -2, 2, -2, 2]|max_abs_S=2|json=0
+ZBELL_MODEL|model=L-hash|S_times_n=44|local_bound=972|quantum_ok=1|no_signalling=1|A_plus=[[233, 233], [251, 251]]|B_plus=[[235, 264], [235, 264]]|json=0
+ZBELL_MODEL|model=Z-PR|S_times_n=1944|local_bound=972|quantum_ok=0|no_signalling=1|A_plus=[[243, 243], [243, 243]]|B_plus=[[243, 243], [243, 243]]|json=0
+ZBELL_MODEL|model=Z-T|S_times_n=1512|local_bound=972|quantum_ok=0|no_signalling=1|A_plus=[[243, 243], [243, 243]]|B_plus=[[243, 243], [243, 243]]|json=0
+ZBELL_MODEL|model=Z-T2|S_times_n=1368|local_bound=972|quantum_ok=1|no_signalling=1|A_plus=[[243, 243], [243, 243]]|B_plus=[[243, 243], [243, 243]]|json=0
+ZBELL_MODEL|model=Leak|S_times_n=972|local_bound=972|quantum_ok=1|no_signalling=0|A_plus=[[243, 486], [243, 486]]|B_plus=[[243, 243], [243, 243]]|json=0
+ZBELL_RESULT|P1=PASS|P2=PASS|P3=PASS|P4=FAIL|P5=PASS|json=0
+ZBELL_ADDENDUM|P4b=PASS|P4c=PASS|json=0
+ZBELL_OVERALL_REGISTERED|FAIL|json=0

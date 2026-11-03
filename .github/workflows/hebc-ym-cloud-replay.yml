@@ -32,11 +32,15 @@ jobs:
       fail-fast: false
       matrix:
         package:
+          - zbell-2026-10-30-cloud
           - zcalib-2026-10-30-cloud
           - zconf-2026-10-30-cloud
           - zconfcert-2026-10-30-cloud
+          - zcurve-2026-10-30-cloud
           - zcutoff-2026-10-30-cloud
           - zgap2-2026-10-30-cloud
+          - zlevel-2026-10-30-cloud
+          - zlight-2026-10-30-cloud
           - zteleport-2026-10-30-cloud
           - zwilson-2026-10-30-cloud
     steps:
