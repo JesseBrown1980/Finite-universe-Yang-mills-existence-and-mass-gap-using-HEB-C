@@ -8,7 +8,8 @@ becomes x = qdiv(x , y). The fractions import becomes intpair, with a sys.path l
 sits. Every further edit is a text pair in COPIES below, applied first, and must occur exactly as many times as stated.
 
 The rewrite is checked against a second path: the same divisions and import replaced in the syntax tree must dump the same as the
-parsed copy. The copy must then read 0 findings in no_float_gate.py and 0 hits in integer_only_audit.py.
+parsed copy. The copy must then read in no_float_gate.py the count its row in FLOAT-EVIDENCE.txt states, or 0 with no row, and 0 hits
+in integer_only_audit.py.
 
 usage: make_integer_pairs.py ROOT --write     Writes every copy under the repository at ROOT.
        make_integer_pairs.py ROOT --check     Regenerates every copy and compares bytes with what is there. Exit 1 on a difference.
@@ -131,8 +132,8 @@ class Positions:
 
 def is_division(n):
     if isinstance(n, ast.BinOp):
-        return isinstance(n.op, ast.Div) and not no_float_gate.holds_string(n)
-    return isinstance(n, ast.AugAssign) and isinstance(n.op, ast.Div) and not no_float_gate.holds_string(n.value)
+        return isinstance(n.op, ast.Div) and not no_float_gate.is_path_join(n)
+    return isinstance(n, ast.AugAssign) and isinstance(n.op, ast.Div) and not no_float_gate.is_path_join(n.value)
 
 
 def fractions_imports(tree):
@@ -245,6 +246,7 @@ def build(source_text, source_name, dest, pairs):
 
 def regenerate(root):
     """Yields (destination, text, divisions, pairs, source name)."""
+    _, listed_files, _ = no_float_gate.listed()
     with tempfile.TemporaryDirectory() as tmp:
         subprocess.run([sys.executable, "-I", "-X", "utf8", os.path.join(root, REDO, "make_integer_redo.py"), os.path.join(root, S), tmp], check=True, capture_output=True)
         for source, dest, pairs in COPIES:
@@ -256,8 +258,8 @@ def regenerate(root):
                 text = open(os.path.join(root, source), encoding="utf-8", newline="").read()
             out, divisions = build(text, name, dest, pairs)
             found = no_float_gate.python_findings(out)
-            if found:
-                raise SystemExit("%s: the gate still finds %s" % (dest, found[0]))
+            if len(found) != listed_files.get(dest, 0):
+                raise SystemExit("%s: the gate reads %d findings, its row states %d, first %s" % (dest, len(found), listed_files.get(dest, 0), found[0] if found else "none"))
             yield dest, out, divisions, pairs, name
 
 
@@ -300,6 +302,7 @@ SNIPPETS = (
     ('p = "C:/x" + s  # a / b\n', 'p = "C:/x" + s  # a / b\n', 0),
     ("x = a // b\n", "x = a // b\n", 0),
     ("é = 'é' + é2 / b\n", "é = 'é' + qdiv(é2 , b)\n", 1),
+    ('x = d["k"] / b\n', 'x = qdiv(d["k"] , b)\n', 1),
 )
 
 

@@ -12,14 +12,29 @@ on:
       - 'native/ym/python/memory_pilot_runner.py'
       - 'native/ym/results/integer-pairs-2026-11-03/**'
       - 'native/ym/results/3x4_stream/perron/perron_climb_integer.py'
+      - 'native/ym/results/3x4_stream/perron/PASS1-3x4.out'
+      - 'native/ym/results/3x4_stream/perron/GRID1-3x4.out'
+      - 'native/ym/results/3x4_stream/perron/CLIMB-local-restart.hbp'
+      - 'native/ym/results/3x4_stream/perron/HOSTED-CLIMB-41448187715.hbp'
       - 'native/ym/results/3x4_stream/perron/second-seat/integer-redo/**'
+      - 'native/ym/results/3x4_stream/perron/vector/PRODUCT-SCAN.hbp'
       - 'native/ym/results/3x4_stream/perron/vector/integer-pairs/**'
+      - 'native/ym/results/3x4_stream/perron/vector/review-gpt6/CAP-CHECK.hbp'
       - 'native/ym/results/3x4_stream/perron/vector/review-gpt6/integer-pairs/**'
       - 'native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/**'
+      - 'native/ym/results/3x4_stream/perron/vector/review-opus55/given/**'
+      - 'native/ym/results/3x4_stream/perron/vector/review-opus55/out/**'
+      - 'native/ym/results/3x4_stream/perron/vector/review-opus55/tmp/hunt_altered.out'
+      - 'native/ym/results/z-one-matrix-20261030/curve_ABC/**'
       - 'independent/seat_adaptive_cells.py'
       - 'independent/seat_global_coupling.py'
       - 'independent/seat_integer_ratio.py'
       - 'independent/seat_magnetic_endpoint.py'
+      - 'independent/seat_yang_mills_audit.py'
+      - 'independent/seat_adaptive_cells.measure'
+      - 'independent/seat_global_coupling.measure'
+      - 'independent/seat_magnetic_endpoint.measure'
+      - 'independent/seat_sturm_full_inertia.measure'
       - '.github/workflows/integer-pairs.yml'
 
 permissions:
@@ -35,7 +50,14 @@ jobs:
         run: |
           set -euo pipefail
           H=native/ym/results/integer-pairs-2026-11-03
-          python3 -I -X utf8 "$H/run_cases.py" "$H/PREDICTION.hbp" /tmp/pairs /tmp/pairs/LOG.hbp /tmp/pairs/keep --hosted
+          python3 -I -X utf8 "$H/run_cases.py" "$H/PREDICTION.hbp" /tmp/pairs /tmp/pairs/LOG.hbp /tmp/pairs/keep --hosted | tee /tmp/pairs-done.out
+          grep -q '^RUN_CASES_DONE|file=PREDICTION.hbp|ran=35|missed=0|' /tmp/pairs-done.out
+      - name: test_c's integer copy writes the recorded row
+        run: |
+          set -euo pipefail
+          H=native/ym/results/integer-pairs-2026-11-03
+          python3 -I -X utf8 "$H/run_cases.py" "$H/PREDICTION-AFTER-ATTACK.hbp" /tmp/pairs-c /tmp/pairs-c/LOG.hbp /tmp/pairs-c/keep --hosted | tee /tmp/pairs-c-done.out
+          grep -q '^RUN_CASES_DONE|file=PREDICTION-AFTER-ATTACK.hbp|ran=1|missed=0|' /tmp/pairs-c-done.out
       - name: The memory pilot runner compiles
         run: python3 -m py_compile native/ym/python/memory_pilot_runner.py
       - name: The comparison goes red on one changed row
@@ -59,3 +81,29 @@ jobs:
           python3 -I -X utf8 "$H/run_cases.py" /tmp/control2.hbp /tmp/pairs-control2 /tmp/pairs-control2/LOG.hbp /tmp/pairs-control2/keep || rc=$?
           test "$rc" = 1
           grep -q 'exit_as_predicted=0' /tmp/pairs-control2/LOG.hbp
+      - name: The comparison reads flat_keys, so an altered row goes red
+        run: |
+          set -uo pipefail
+          H=native/ym/results/integer-pairs-2026-11-03
+          sed 's/flat_keys=[^|]*/flat_keys=0,7,22/' independent/seat_magnetic_endpoint.measure > /tmp/altered.measure
+          grep -q '|flat_keys=0,7,22|' /tmp/altered.measure
+          printf 'EXPECT|case=control3|copy=$P/second-seat/integer-redo/checked_division.py|args=$WT/independent/seat_magnetic_endpoint.py|against=/tmp/altered.measure|note=CHECKED_DIVISION||exit=0|json=0\n' > /tmp/control3.hbp
+          rc=0
+          python3 -I -X utf8 "$H/run_cases.py" /tmp/control3.hbp /tmp/pairs-control3 /tmp/pairs-control3/LOG.hbp /tmp/pairs-control3/keep || rc=$?
+          test "$rc" = 1
+          grep -q 'rows_same=0' /tmp/pairs-control3/LOG.hbp
+      - name: A case with no rows to compare goes red, and so does a run with no cases
+        run: |
+          set -uo pipefail
+          H=native/ym/results/integer-pairs-2026-11-03
+          RO=native/ym/results/3x4_stream/perron/vector/review-opus55
+          printf 'EXPECT|case=control4|copy=%s/integer-pairs/py_two_numbers.py|args=%s/given/g-local-5x5-product.hbp|against=%s/out/two_numbers.out|prefixes=NO_SUCH_ROW|exit=0|json=0\n' "\$RO" "\$RO" "\$RO" > /tmp/control4.hbp
+          rc=0
+          python3 -I -X utf8 "$H/run_cases.py" /tmp/control4.hbp /tmp/pairs-control4 /tmp/pairs-control4/LOG.hbp /tmp/pairs-control4/keep || rc=$?
+          test "$rc" = 1
+          grep -q 'compared_rows=0|rows_same=0' /tmp/pairs-control4/LOG.hbp
+          printf 'NOTHING|here=1\n' > /tmp/control5.hbp
+          rc=0
+          python3 -I -X utf8 "$H/run_cases.py" /tmp/control5.hbp /tmp/pairs-control5 /tmp/pairs-control5/LOG.hbp /tmp/pairs-control5/keep --hosted > /tmp/control5.out || rc=$?
+          test "$rc" = 1
+          grep -q '^RUN_CASES_DONE|file=control5.hbp|ran=0|missed=0|' /tmp/control5.out

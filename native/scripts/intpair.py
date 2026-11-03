@@ -9,15 +9,24 @@ code that divides stays exact, and integer_only_audit.py flags any such / in the
 
 The arithmetic follows the algorithms of CPython's rational class, gcd shortcuts and limit_denominator included, and hash()
 agrees with it value for value, so sets and dicts of these iterate in the same order and hash(IntPair(n)) == hash(n).
-A float, str or anything else outside int and IntPair raises TypeError, as does a power with a non-integer exponent and a
-non-empty format spec, because those are the places where the same class in CPython hands back floating point.
+A float, complex, Decimal or Fraction raises TypeError from every operator and comparison, == and != included, and from a dict
+lookup that reaches a pair by its hash. A str or None raises TypeError from arithmetic and ordering, and == reads them as
+unequal, as on any Python object. limit_denominator and round take int or IntPair. A power with a non-integer exponent and a
+non-empty format spec raise TypeError too, because those are the places where the same class in CPython hands back floating point.
 test_intpair.py compares this against CPython's class value for value. Integer only, json=0.
 """
 from math import gcd
+import numbers
 import sys
 
 HASH_MODULUS = sys.hash_info.modulus
 HASH_INF = sys.hash_info.inf
+
+
+def _refuse_other_numbers(other):
+    """Every numeric type outside int and IntPair registers as numbers.Number: float, complex, Decimal and Fraction among them."""
+    if isinstance(other, numbers.Number):
+        raise TypeError("IntPair takes int or IntPair, not %s" % type(other).__name__)
 
 
 def _make(n, d):
@@ -70,6 +79,8 @@ class IntPair:
 
     def limit_denominator(self, max_denominator=1000000):
         """The closest pair with denominator at most max_denominator, by the continued fraction, as CPython does it."""
+        if not isinstance(max_denominator, (int, IntPair)):
+            raise TypeError("limit_denominator takes int or IntPair, not %s" % type(max_denominator).__name__)
         if max_denominator < 1:
             raise ValueError("max_denominator should be at least 1")
         if self._d <= max_denominator:
@@ -223,6 +234,7 @@ class IntPair:
                 raise TypeError("a power with a non-integer exponent has no exact pair in general")
             exponent = exponent._n
         elif not isinstance(exponent, int):
+            _refuse_other_numbers(exponent)
             return NotImplemented
         if exponent >= 0:
             return _make(self._n ** exponent, self._d ** exponent)
@@ -272,6 +284,8 @@ class IntPair:
             if rest * 2 > d:
                 return whole + 1
             return whole if whole % 2 == 0 else whole + 1
+        if not isinstance(ndigits, (int, IntPair)):
+            raise TypeError("round takes int or IntPair digits, not %s" % type(ndigits).__name__)
         shift = 10 ** abs(ndigits)
         if ndigits > 0:
             return IntPair(round(self * shift), shift)
@@ -292,6 +306,7 @@ class IntPair:
             return self._n == other._n and self._d == other._d
         if isinstance(other, int):
             return self._n == other and self._d == 1
+        _refuse_other_numbers(other)
         return NotImplemented
 
     def __lt__(self, other):

@@ -2,16 +2,18 @@
 """
 IntPair against CPython's rational class, value for value, on a seeded integer-only random set and an exhaustive small grid.
 
-The one file allowed to import fractions, because it is the reference. Every operation runs on both classes with the same
-operands, and the two outcomes must match: same value, same kind (int or pair), same exception type. Operands reach 3,000 bits,
-denominators are negative as often as positive, zero is common, and some denominators are multiples of the hash modulus.
-Where CPython's class would hand back floating point, IntPair must raise TypeError, and that is tested too.
+The one file allowed to import fractions and decimal: fractions is the reference, and each gives a value IntPair must refuse.
+Every operation runs on both classes with the same operands, and the two outcomes must match: same value, same kind (int or
+pair), same exception type. Operands reach 3,000 bits, denominators are negative as often as positive, zero is common, and some
+denominators are multiples of the hash modulus. Where CPython's class would hand back floating point, IntPair must raise
+TypeError, and that is tested too. rejection_checks makes one deliberate float, half, and one complex, each only to be refused.
 
 usage: test_intpair.py [SEED] [ROUNDS]     Prints one INTPAIR_DIFF row. Exit 1 on any failure.
        test_intpair.py --teeth             Breaks IntPair one way at a time. Every break must be seen. Exit 1 if one is missed.
 The true division here goes through operator.truediv, so this file holds no division token. Integer only, json=0.
 """
 import copy
+import decimal
 import fractions
 import math
 import operator
@@ -205,6 +207,7 @@ def rejection_checks(tally):
     half = operator.truediv(1, 2)
     real = type(half)
     q = Q(1, 2)
+    third = Q(1, 3)
     for name, call in (
         ("construct_real", lambda: Q(half)), ("construct_real_den", lambda: Q(1, half)), ("construct_str", lambda: Q("1/2")), ("construct_none_num", lambda: Q(None, 2)),
         ("add_real", lambda: q + half), ("radd_real", lambda: half + q), ("sub_real", lambda: q - half), ("rsub_real", lambda: half - q),
@@ -213,14 +216,33 @@ def rejection_checks(tally):
         ("pow_real", lambda: q ** half), ("rpow_real", lambda: half ** q), ("pow_fractional", lambda: q ** Q(1, 2)), ("rpow_fractional", lambda: 2 ** Q(1, 2)),
         ("to_real", lambda: real(q)), ("qdiv_real_left", lambda: qdiv(half, 1)), ("qdiv_real_right", lambda: qdiv(1, half)), ("qdiv_str", lambda: qdiv("a", 1)),
         ("format_spec", lambda: format(q, "8d")), ("format_spec_fixed", lambda: format(q, "f")),
+        ("dict_key_real", lambda: {q: 1}.get(half)), ("in_list_real", lambda: half in [q]), ("to_complex", lambda: complex(q)),
+        ("limit_str", lambda: third.limit_denominator("3")), ("limit_none", lambda: third.limit_denominator(None)),
+        ("add_str", lambda: q + "a"), ("lt_str", lambda: q < "a"), ("add_none", lambda: q + None), ("lt_none", lambda: q < None),
     ):
         must_raise(tally, name, call)
+    others = (("real", half), ("real_whole", 4 * half), ("complex", complex(1, 2)), ("complex_whole", complex(2, 0)), ("decimal", decimal.Decimal(1)), ("decimal_whole", decimal.Decimal(2)), ("fraction", F(1, 2)), ("fraction_whole", F(2)))
+    for kind, other in others:
+        for value in (q, Q(2)):
+            for name, op in BINARY + (("pow", operator.pow),):
+                must_raise(tally, "%s_%s_right" % (name, kind), lambda: op(value, other))
+                must_raise(tally, "%s_%s_left" % (name, kind), lambda: op(other, value))
+        must_raise(tally, "limit_%s" % kind, lambda: third.limit_denominator(other))
+        must_raise(tally, "limit_%s_low_denominator" % kind, lambda: q.limit_denominator(other))
+        must_raise(tally, "round_%s" % kind, lambda: round(q, other))
     for name, call in (("zero_den", lambda: Q(1, 0)), ("zero_pair_den", lambda: Q(Q(1), Q(0))), ("qdiv_zero", lambda: qdiv(1, 0)), ("qdiv_zero_pair", lambda: qdiv(q, Q(0))), ("neg_power_of_zero", lambda: operator.pow(Q(0), -1))):
         must_raise(tally, name, call, ZeroDivisionError)
     check(tally, "default", Q, F)
     check(tally, "bool_num", lambda: Q(True), lambda: F(True))
     check(tally, "bool_pair", lambda: Q(True, 2), lambda: F(True, 2))
     check(tally, "bool_add", lambda: Q(1, 2) + True, lambda: F(1, 2) + True)
+    check(tally, "eq_none", lambda: q == None, lambda: F(1, 2) == None)  # noqa: E711
+    check(tally, "ne_none", lambda: q != None, lambda: F(1, 2) != None)  # noqa: E711
+    check(tally, "eq_str", lambda: q == "1/2", lambda: F(1, 2) == "1/2")
+    check(tally, "ne_str", lambda: q != "1/2", lambda: F(1, 2) != "1/2")
+    check(tally, "limit_pair", lambda: third.limit_denominator(Q(5, 2)), lambda: F(1, 3).limit_denominator(F(5, 2)))
+    check(tally, "limit_bool", lambda: third.limit_denominator(True), lambda: F(1, 3).limit_denominator(True))
+    check(tally, "round_pair", lambda: round(third, Q(2)), lambda: round(F(1, 3), F(2)))
 
 
 def small_grid(tally, rng):
@@ -358,15 +380,76 @@ def bad_reduce(self):
     return (Q, (self._d, self._n))
 
 
+def lenient_eq(self, other):
+    if type(other) is Q:
+        return self._n == other._n and self._d == other._d
+    return (self._n == other and self._d == 1) if isinstance(other, int) else NotImplemented
+
+
+def lenient_limit(self, most=1000000):
+    if most < 1:
+        raise ValueError
+    if self._d <= most:
+        return self
+    p0, q0, p1, q1 = 0, 1, 1, 0
+    n, d = self._n, self._d
+    while True:
+        a = n // d
+        q2 = q0 + a * q1
+        if q2 > most:
+            break
+        p0, q0, p1, q1 = p1, q1, p0 + a * p1, q2
+        n, d = d, n - a * d
+    k = (most - q0) // q1
+    return Q(p1, q1) if 2 * d * (q0 + k * q1) <= self._d else Q(p0 + k * p1, q0 + k * q1)
+
+
+def lenient_pow(self, exponent, modulo=None):
+    if modulo is not None:
+        return NotImplemented
+    if isinstance(exponent, Q):
+        if exponent._d != 1:
+            raise TypeError
+        exponent = exponent._n
+    elif not isinstance(exponent, int):
+        return NotImplemented
+    if exponent >= 0:
+        return Q(self._n ** exponent, self._d ** exponent)
+    if self._n == 0:
+        raise ZeroDivisionError
+    power = -exponent
+    return qdiv(self._d ** power, self._n ** power)
+
+
+def lenient_rpow(self, base, modulo=None):
+    if modulo is not None:
+        return NotImplemented
+    if self._d != 1:
+        raise TypeError
+    return base ** self._n if self._n >= 0 else Q(base) ** self._n
+
+
+def lenient_round(self, digits=None):
+    if digits is None:
+        whole, rest = divmod(self._n, self._d)
+        return whole if rest * 2 < self._d else whole + 1 if rest * 2 > self._d else whole + whole % 2
+    shift = 10 ** abs(digits)
+    return Q(lenient_round(self * shift), shift) if digits > 0 else Q(lenient_round(qdiv(self, shift)) * shift)
+
+
+# (what the row calls the break, the name it replaces, its function)
 TEETH = (
-    ("__floor__", bad_floor), ("__ceil__", bad_ceil), ("__int__", bad_int), ("__str__", bad_str), ("__hash__", bad_hash), ("__lt__", bad_lt), ("__eq__", bad_eq), ("__abs__", bad_abs),
-    ("__mod__", bad_mod), ("__rsub__", bad_rsub), ("__round__", bad_round), ("limit_denominator", bad_limit), ("__pow__", bad_pow), ("__reduce__", bad_reduce),
+    ("__floor__", "__floor__", bad_floor), ("__ceil__", "__ceil__", bad_ceil), ("__int__", "__int__", bad_int), ("__str__", "__str__", bad_str), ("__hash__", "__hash__", bad_hash),
+    ("__lt__", "__lt__", bad_lt), ("__eq__", "__eq__", bad_eq), ("__abs__", "__abs__", bad_abs), ("__mod__", "__mod__", bad_mod), ("__rsub__", "__rsub__", bad_rsub),
+    ("__round__", "__round__", bad_round), ("limit_denominator", "limit_denominator", bad_limit), ("__pow__", "__pow__", bad_pow), ("__reduce__", "__reduce__", bad_reduce),
+    ("__eq___lets_other_numbers_through", "__eq__", lenient_eq), ("limit_denominator_lets_other_numbers_through", "limit_denominator", lenient_limit),
+    ("__pow___lets_whole_other_numbers_through", "__pow__", lenient_pow), ("__rpow___lets_a_float_base_through", "__rpow__", lenient_rpow), ("__round___lets_other_numbers_through", "__round__", lenient_round),
 )
 
 
 def teeth():
     missed = 0
-    for name, broken in TEETH:
+    for label, name, broken in TEETH:
         keep = getattr(Q, name)
         setattr(Q, name, broken)
         try:
@@ -375,7 +458,7 @@ def teeth():
             setattr(Q, name, keep)
         seen = tally.fails
         missed += 0 if seen else 1
-        print("INTPAIR_TOOTH|broken=%s|failures_seen=%d|json=0" % (name, seen), flush=True)
+        print("INTPAIR_TOOTH|broken=%s|failures_seen=%d|json=0" % (label, seen), flush=True)
     print("INTPAIR_TEETH_DONE|breaks=%d|missed=%d|json=0" % (len(TEETH), missed), flush=True)
     return 1 if missed else 0
 

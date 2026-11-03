@@ -1,0 +1,4 @@
+TEST_C_COPY|comment_lines_added=1|lines_differing=1|the_interval_line_alone=1|json=0
+TEST_C_RUN|script=test_c.py|exit=0|result_same_as_recorded=1|json=0
+TEST_C_RUN|script=test_c_integer.py|exit=0|result_same_as_recorded=1|json=0
+TEST_C_CONTROL|timestamp_moved_one_second=1|the_copy_stopped=1|json=0

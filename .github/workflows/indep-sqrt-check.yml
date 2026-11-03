@@ -50,5 +50,5 @@ jobs:
             rc=0
             python3 -X utf8 "$I/indep_sqrt_check.py" /tmp/indep_recorded.py "$I/indep_verify.py" "$K" "sabotage=$s" > "/tmp/sab-$s.hbp" || rc=$?
             test "$rc" = 1
-            tail -1 "/tmp/sab-$s.hbp"
+            grep '^INDEP_SQRT_DONE|failed=[1-9]' "/tmp/sab-$s.hbp"
           done

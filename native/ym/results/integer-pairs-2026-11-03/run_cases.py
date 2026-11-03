@@ -16,7 +16,8 @@ In a path or argument, $WT is this repository, $P its Perron folder, $RO the sec
 local folder C:/tmp/opus55/ym-two-sided, $HERE this folder and $RUN the run folder given below.
 
 usage: run_cases.py ROWS RUN_DIR LOG KEEP_DIR [CASE ...]     With no CASE, every case. --hosted in place of CASE takes the hosted=1 ones.
-Appends one RUN row per case to LOG, keeps each case's output in KEEP_DIR, and exits 1 if any case missed. Integer only, json=0.
+Appends one RUN row per case to LOG, keeps each case's output in KEEP_DIR, and exits 1 if any case missed or no case ran. A case with
+no rows to compare is a miss. Integer only, json=0.
 """
 import hashlib
 import os
@@ -28,7 +29,7 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 WT = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
 P = os.path.join(WT, "native", "ym", "results", "3x4_stream", "perron")
-MASKS = ((re.compile(r"secs_wall=\d+(\.\d+)?"), "secs_wall=MASKED"), (re.compile(r"\bsecs=\d+(\.\d+)?"), "secs=MASKED"), (re.compile(r"keys=[^|]*"), "keys=MASKED"), (re.compile(r"^WROTE[|][^|]*"), "WROTE|MASKED"))
+MASKS = ((re.compile(r"secs_wall=\d+(\.\d+)?"), "secs_wall=MASKED"), (re.compile(r"\bsecs=\d+(\.\d+)?"), "secs=MASKED"), (re.compile(r"\bkeys=[^|]*"), "keys=MASKED"), (re.compile(r"^WROTE[|][^|]*"), "WROTE|MASKED"))
 
 
 def fields(row):
@@ -118,7 +119,7 @@ def run_one(tag, spec, run_dir, log, keep_dir):
             row += "|note=%s" % (found[0].replace("|", ";") if found else "none")
         want = chosen(wanted_rows(spec, run_dir), spec)
         got = chosen(rows, spec)
-        same = 1 if got == want else 0
+        same = 1 if want and got == want else 0
         first = next((i + 1 for i, (a, b) in enumerate(zip(got, want)) if a != b), min(len(got), len(want)) + 1) if not same else 0
         exit_ok = 1 if str(code) == spec["exit"] else 0
         row += "|expect_exit=%s|exit_as_predicted=%d|compared_rows=%d|rows_same=%d" % (spec["exit"], exit_ok, len(want), same)
@@ -155,7 +156,7 @@ def main(argv):
         misses += run_one(tag, spec, run_dir, log, keep_dir)
         ran += 1
     print("RUN_CASES_DONE|file=%s|ran=%d|missed=%d|json=0" % (os.path.basename(rows_file), ran, misses), flush=True)
-    return 1 if misses else 0
+    return 1 if misses or not ran else 0
 
 
 if __name__ == "__main__":
