@@ -1,0 +1,201 @@
+# gap(E) = 6 on the periodic 2x2 S3 torus at J_B = 0: replays paths A, B, C and F, and path D's inertia counts, against the pinned rows, with red controls.
+# Path E, the second engine on the full space, stays a local receipt because of its cost: its rows are read by path F. Integer only, json=0.
+name: Electric spectrum of the 2x2 S3 torus, gap(E) = 6
+
+on:
+  push:
+    branches: [electric-gap-20261103]
+  pull_request:
+    paths:
+      - 'independent/electric_spectrum_2x2.py'
+      - 'independent/electric_spectrum_2x2_assemble.sh'
+      - 'independent/electric_spectrum_2x2.measure'
+      - 'independent/ELECTRIC-SPECTRUM-2X2-PREDICTION.hbp'
+      - 'independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION.hbp'
+      - 'independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION-2.hbp'
+      - 'independent/ELECTRIC_SPECTRUM_2X2_REPORT.md'
+      - 'independent/gpt6_2x2_from_permutations.py'
+      - 'independent/gpt6_sturm_sectors.py'
+      - 'independent/gpt6_sturm_interval.py'
+      - 'independent/seat_global_coupling.py'
+      - 'independent/seat_yang_mills_audit.py'
+      - '.github/workflows/electric-spectrum-2x2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  exact-paths:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: The predictions stand as pushed before their runs
+        run: |
+          set -euo pipefail
+          while read -r commit file; do
+            git merge-base --is-ancestor "$commit" HEAD
+            git show "$commit:$file" > /tmp/prediction.at.commit
+            cmp /tmp/prediction.at.commit "$file"
+          done <<'ROWS'
+          2e7afedb9bbfc9d1e1113bb223b77cf845db1f38 independent/ELECTRIC-SPECTRUM-2X2-PREDICTION.hbp
+          4ee284590ea088f153f829ab94097389298c9255 independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION.hbp
+          ea23e312bf8f50f8f6f11aab7aa6944d3b75441d independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION-2.hbp
+          ROWS
+      - name: Integer gates on the new script, with no list row
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/electric_spectrum_2x2.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          rc=0; grep -q electric_spectrum native/scripts/FLOAT-EVIDENCE.txt || rc=$?; test "$rc" = 1
+      - name: The engines are the bytes that ran
+        run: |
+          set -euo pipefail
+          M=independent/electric_spectrum_2x2.measure
+          grep '^ELECTRIC_ENGINE|' "$M" > /tmp/engines.pin
+          test "$(wc -l < /tmp/engines.pin)" -eq 4
+          while IFS='|' read -r _ file sha _; do
+            test "$(sha256sum "${file#file=}" | cut -d' ' -f1)" = "${sha#sha256=}"
+          done < /tmp/engines.pin
+      - name: Path A, one link, pinned rows
+        run: |
+          set -euo pipefail
+          M=independent/electric_spectrum_2x2.measure
+          python3 -I -X utf8 independent/electric_spectrum_2x2.py a > /tmp/a.out
+          grep -E '^ELECTRIC_A(_DERIVED)?\|' "$M" > /tmp/a.pin
+          cmp /tmp/a.pin /tmp/a.out
+          test "$(wc -l < /tmp/a.out)" -eq 4
+      - name: Path B, characters on 2x2 and 2x3, pinned rows
+        run: |
+          set -euo pipefail
+          M=independent/electric_spectrum_2x2.measure
+          python3 -I -X utf8 independent/electric_spectrum_2x2.py b > /tmp/b.out
+          grep -E '^ELECTRIC_B(_COSTS|_M|_FORMULA)?\|' "$M" > /tmp/b.pin
+          cmp /tmp/b.pin /tmp/b.out
+          test "$(wc -l < /tmp/b.out)" -eq 46
+          grep -q 'ELECTRIC_B|L=2x2|.*|sum_m=1393|burnside=1393|' /tmp/b.out
+          grep -q 'ELECTRIC_B|L=2x3|.*|sum_m=47449|burnside=47449|' /tmp/b.out
+      - name: Path C, the annihilator on the real matrix, pinned rows
+        run: |
+          set -euo pipefail
+          M=independent/electric_spectrum_2x2.measure
+          python3 -I -X utf8 independent/electric_spectrum_2x2.py c > /tmp/c.out
+          grep -E '^ELECTRIC_C(_WITNESS|_PREFIX|_LOOPS|_LINKS|_REFLECTION)?\|' "$M" > /tmp/c.pin
+          cmp /tmp/c.pin /tmp/c.out
+          test "$(wc -l < /tmp/c.out)" -eq 36
+          grep -q '|P(E)=0|basis_vectors_checked=1393|nonzero_entries=0|' /tmp/c.out
+          grep -q '^ELECTRIC_C|result=PASS|gap_E_from_P=6|m0=1|m_at_gap=4|' /tmp/c.out
+      - name: The matrix inside the every-ratio bound is this matrix, pinned rows
+        run: |
+          set -euo pipefail
+          M=independent/electric_spectrum_2x2.measure
+          python3 -X utf8 independent/electric_spectrum_2x2.py same > /tmp/same.out
+          grep '^ELECTRIC_SAME|' "$M" > /tmp/same.pin
+          cmp /tmp/same.pin /tmp/same.out
+      - name: Path F and the prediction check replay from the pinned rows
+        run: |
+          set -euo pipefail
+          M=independent/electric_spectrum_2x2.measure
+          python3 -I -X utf8 independent/electric_spectrum_2x2.py f "$M" > /tmp/f.out
+          grep '^ELECTRIC_F|' "$M" > /tmp/f.pin
+          cmp /tmp/f.pin /tmp/f.out
+          python3 -I -X utf8 independent/electric_spectrum_2x2.py predictions independent/ELECTRIC-SPECTRUM-2X2-PREDICTION.hbp independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION.hbp independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION-2.hbp "$M" > /tmp/p.out
+          grep -E '^PREDICTION_(CHECK|SUMMARY)\|' "$M" > /tmp/p.pin
+          cmp /tmp/p.pin /tmp/p.out
+      - name: Red control, an altered entry of E makes P(E) nonzero
+        run: |
+          set -euo pipefail
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py c --alter-entry > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=C|reason=P_of_E_nonzero|' /tmp/red.out
+      - name: Red control, a dropped factor of P leaves P(E) nonzero
+        run: |
+          set -euo pipefail
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py c --drop-factor 6 > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=C|reason=P_of_E_nonzero|' /tmp/red.out
+          grep -q '|P_roots=0,12,15,' /tmp/red.out
+      - name: Red controls on the small paths and on the conclusion
+        run: |
+          set -euo pipefail
+          M=independent/electric_spectrum_2x2.measure
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py a --alter-entry > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=A|reason=cubic_nonzero|' /tmp/red.out
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py b --bad-character > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=B|reason=dim_inv_not_divisible_by_6|' /tmp/red.out
+          sed 's#threshold=5999/1000|digits=40|pivots=1393|negative=1|counts=1,0,0,0#threshold=5999/1000|digits=40|pivots=1393|negative=2|counts=2,0,0,0#' "$M" > /tmp/bad.measure
+          rc=0; cmp -s "$M" /tmp/bad.measure || rc=$?; test "$rc" = 1
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py f /tmp/bad.measure > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=F|reason=missing_or_changed_row|row=D_5999|' /tmp/red.out
+
+  inertia:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the four sector matrices and match their pins
+        run: |
+          set -euo pipefail
+          M=independent/electric_spectrum_2x2.measure
+          python3 -I -X utf8 independent/gpt6_sturm_sectors.py /tmp/sector > /tmp/sectors.out
+          grep '^GPT6_PROJECT|' "$M" > /tmp/sectors.pin
+          cmp /tmp/sectors.pin /tmp/sectors.out
+      - name: Path D, GPT-6's engine unchanged, at every certified threshold, pinned rows
+        run: |
+          set -euo pipefail
+          M=independent/electric_spectrum_2x2.measure
+          grep '^GPT6_STURM|JE=1|JB=0|' "$M" | sed 's#.*threshold=\([0-9]*\)/1000.*#\1#' > /tmp/thresholds
+          test "$(wc -l < /tmp/thresholds)" -eq 16
+          for T in 4700 5999 7700; do grep -qx "$T" /tmp/thresholds; done
+          xargs -P 4 -I{} sh -c 'python3 -I -X utf8 independent/gpt6_sturm_interval.py /tmp/sector 1 0 {} > /tmp/d_{}.out 2> /tmp/d_{}.err' < /tmp/thresholds
+          for T in $(cat /tmp/thresholds); do
+            grep -F "GPT6_STURM|JE=1|JB=0|threshold=$T/1000|" "$M" > /tmp/d.pin
+            test "$(wc -l < /tmp/d.pin)" -eq 1
+            cmp /tmp/d.pin "/tmp/d_$T.out"
+            grep '^GPT6_SECTOR|' "/tmp/d_$T.err" | sed "s/^GPT6_SECTOR|/ELECTRIC_D_SECTOR|T=$T|/" > /tmp/d.sec
+            grep -F "ELECTRIC_D_SECTOR|T=$T|" "$M" > /tmp/d.secpin
+            cmp /tmp/d.secpin /tmp/d.sec
+          done
+          grep -q '|negative=1|counts=1,0,0,0|' /tmp/d_4700.out
+          grep -q '|negative=1|counts=1,0,0,0|' /tmp/d_5999.out
+          grep -q '|negative=5|counts=3,1,1,0|' /tmp/d_6001.out
+          grep -q '|negative=5|counts=3,1,1,0|' /tmp/d_7700.out
+      - name: T = 6000 is singular and fails closed, and each recorded stop replays as a stop
+        run: |
+          set -euo pipefail
+          M=independent/electric_spectrum_2x2.measure
+          grep -E '^ELECTRIC_D_(SINGULAR|UNCERTIFIED)\|' "$M" | sed 's/^[^|]*|T=\([0-9]*\)|.*/\1/' > /tmp/stops
+          test "$(wc -l < /tmp/stops)" -eq 27
+          grep -qx 6000 /tmp/stops
+          xargs -P 4 -I{} sh -c 'rc=0; python3 -I -X utf8 independent/gpt6_sturm_interval.py /tmp/sector 1 0 {} > /tmp/s_{}.out 2> /tmp/s_{}.err || rc=$?; test "$rc" = 1' < /tmp/stops
+          for T in $(cat /tmp/stops); do
+            test ! -s "/tmp/s_$T.out"
+            grep -q 'no sign-definite pivot: UNCERTIFIED' "/tmp/s_$T.err"
+            { grep '^GPT6_SECTOR|' "/tmp/s_$T.err" || true; } | sed "s/^GPT6_SECTOR|/ELECTRIC_D_SECTOR|T=$T|/" > /tmp/s.sec
+            { grep -F "ELECTRIC_D_SECTOR|T=$T|" "$M" || true; } > /tmp/s.secpin
+            cmp /tmp/s.secpin /tmp/s.sec
+          done
+      - name: Red control, a wrong expected count
+        run: |
+          set -euo pipefail
+          rc=0; python3 -I -X utf8 independent/gpt6_sturm_interval.py /tmp/sector 1 0 4700 2 > /tmp/red.out 2> /tmp/red.err || rc=$?
+          test "$rc" = 1
+          grep -q 'wrong independently measured inertia: expected 2 but saw 1' /tmp/red.err
+      - name: Red control, a tampered sector matrix
+        run: |
+          set -euo pipefail
+          cp -a /tmp/sector /tmp/sector_bad
+          printf X | dd of=/tmp/sector_bad/pp.matrix bs=1 seek=17 conv=notrunc status=none
+          rc=0; cmp -s /tmp/sector/pp.matrix /tmp/sector_bad/pp.matrix || rc=$?; test "$rc" = 1
+          rc=0; python3 -I -X utf8 independent/gpt6_sturm_interval.py /tmp/sector_bad 1 0 4700 1 > /tmp/red.out 2> /tmp/red.err || rc=$?
+          test "$rc" = 1
+          grep -q 'source matrix SHA mismatch' /tmp/red.err
