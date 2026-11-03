@@ -1,6 +1,6 @@
 # A Perron vector with few numbers, and a bound on the level above the flat cluster with no store
 
-**Status: OPEN.** A second seat on this seat's model read it at `f24c5cb`, and its verdict is PASS, [below](#the-second-reader). A verdict on the gap needs the operator's word. Everything here concerns one finite torus at a time. Uniformity in volume and the continuum limit are separate obligations.
+**Status: OPEN.** A second seat on this seat's model read it at `f24c5cb`, and its verdict is PASS, [below](#the-second-reader). GPT-6, on another model, read it at `e0466bd`, and its verdict is PASS at the four points it checked, [below](#a-reader-on-another-model). A verdict on the gap needs the operator's word. Everything here concerns one finite torus at a time. Uniformity in volume and the continuum limit are separate obligations.
 
 Claims carry MEASURED, DERIVED (a short proof written here) or CONJECTURE. Energies are in J_E, and r = J_B / J_E. The Perron route is in [`../PERRON-BOUND.md`](../PERRON-BOUND.md).
 
@@ -146,13 +146,34 @@ MEASURED by its runs:
 
 It lists what stays open after its checks. It shares this seat's model, so a misreading of H, or a slip in the shared linear algebra, stays open until another model or a person reads its sections 2 and 3. At 4×4 and above, real configurations past the low-M cuts were reached by search, on top of the walks. It ran on one machine, and it did not run `check_local_bound.py` or `product_bound.py`. One sabotage stayed green: a planar-only adjacency limit leaves `py_exact_t.py` at 112252744 at r = 9, since the tight row does not use the limit, and its `subsets`, `hunt`, `census` and `classes` each catch that error. Its misses, P8, P12 and a control design error, are kept in its ledger.
 
+Correction, beside that sentence on the sabotage that stayed green: the tight row does rest on the limit. Its 2 links of (c, c) sit on the cap 2·3 − 4 = 2 for 3 plaquettes, and the planar-only limit gives the same 2, so that sabotage cannot move the row. With 3 such links the ratio falls to 96.972626, as GPT-6's control below found. [`review-gpt6/CAP-CHECK.hbp`](review-gpt6/CAP-CHECK.hbp) reads each value from the pinned vectors in exact fractions. The reader's section 7 carries the same wording and stays as written, and its conclusion stands: the value of t alone cannot see that sabotage at r = 9.
+
 Its note on the commit: `f24c5cb` holds no vector for 4×4, 4×5 or 5×5. `e814659` holds them as `G-local-*`, and they are hash-equal to its `given/` on all six (MEASURED).
 
 The author's rerun of its checks, in [`review-opus55/RECHECK-BY-THE-AUTHOR.hbp`](review-opus55/RECHECK-BY-THE-AUTHOR.hbp): the four numbers, `py_e8_dressed.py` on six tori and `py_hybrid_recheck.py` at cuts 8 and 10 give what it reports, the sabotage runs go red, and `clippy -D warnings` exits 0 on Rust 1.81. Its `review/` builds from a copy outside this repository, since `native/ym/Cargo.toml` is a workspace root above that folder. Its 34 large vectors are on the run disk, hashed in [`review-opus55/BIG-FILES.hbp`](review-opus55/BIG-FILES.hbp). The `.hybrid` vectors behind the table below are among them. Of the 39 Ritz vectors its rows name, 20 are absent from its folder, including those behind the upper values on 4×4 at both couplings and on 4×5. Those values stand on the A, B and C rows in `out/` and rerun from `ritz`, and the same file lists each absent vector.
 
+## A reader on another model
+
+GPT-6 rebuilt the bound at `e0466bd` with its own exact-integer checker, reading only the pinned vectors. Its review stays as it wrote it: [`review-gpt6/REVIEW-e0466bd.md`](review-gpt6/REVIEW-e0466bd.md). Its verdict:
+
+> **Verdict: PASS for the store-free local-rule bound at the four checked lattice/coupling points, with an independent exact-integer implementation and additional physical/configuration checks. HYBRID (low-M exact + high-M lumps) is a separately scoped lead and is not yet independently certified by this seat.**
+
+MEASURED by its runs, as its review reports them:
+
+| Check | Result |
+|---|---|
+| The move table, S₃ built from scratch | 108 of 108 triples reproduce the 7 rows, 0 disagreements |
+| The adjacency limit, re-derived | Every subset on 3×3, 3×4, 4×4, 4×5 and 5×5: 0 violations, reached at 8, 9, 11, 12 and 16 sizes, equal to the counts above |
+| Exact minimum from the pinned vectors | 112.252744, 96.472613, 134.017195 and 154.016734, over 29,422, 29,422, 130,981 and 465,479 candidates, tight at the same rows as above |
+| Real 4×4 configurations | 1,250 seeded, 136 flat, 1,114 tested, all 96 moves from full plaquette holonomies: 0 below the bound, least 112.252772 |
+| Controls | The bound raised by 1 micro: FAIL, exit 2. A cap of 3 rather than 2 links of (c, c) at (0, 3): ratio 96.972626 |
+| The E₈ formula, as numbers | 93.506098468 at r = 9 and 92.508066615 at r = 6 on 4×4 |
+
+It states the chain in its own words, from interlacing and Barta to E₈ ≤ 3·nl and the growth 3(r − r_fit), in its section on proof scope. Its first hand copy of the 4×4 vector held three transcription errors and gave FAIL, and the copy checked against the Git blob gave PASS; its review keeps that. It names three checks as still to come: rebuilding the Ritz upper values, building the 16-dimensional E₈ space, and attacking the hybrid certificate. The hashes of its sources are in [`review-gpt6/REVIEW.hbp`](review-gpt6/REVIEW.hbp), and the source files are in its conversation with the operator.
+
 ## Two results from the second reader that raise the numbers
 
-Both lie outside the claim it was asked to attack, and nobody but their writer has attacked them yet. The author's rerun above reaches only the small cuts.
+Both lie outside the claim it was asked to attack, and nobody but their writer has attacked them yet. The author's rerun above reaches only the small cuts. GPT-6 evaluated the E₈ formula as numbers.
 
 **A tighter E₈, for min(Lx, Ly) ≥ 4.** DERIVED by the reader, with each matrix element confirmed in exact integers by `py_e8_dressed.py`. The author rederived the blocks by hand, after reading them. For each flat orbit f take its indicator and the function that counts moves into f. On such a torus two moves or three cannot connect distinct flats, so H on these 16 functions is block diagonal over f, each block [[3·nl, −√(3·nl)], [−√(3·nl), 3·nl + 4r]], and
 
@@ -183,8 +204,8 @@ Retraction, kept beside: the reader's first hybrid numbers at cut 12 (3×4 93.82
 
 | Item | Run that measures it |
 |---|---|
-| A reader on another model, or a person, on the rule, the adjacency proof and the chain | Sections 2 and 3 of the second reader's report, with that reader's own code |
-| An attack on the hybrid certificate at the cuts in its table | A separate program that reads the `.hybrid` vectors, recomputes every row at M ≤ cut from the definition of H and every table row above it, and counts each lump |
+| Another model's rebuild of the Ritz upper values and of the 16-dimensional E₈ space | GPT-6's own checkpoints, each from the definition of H, with the absent Ritz vectors rerun |
+| An attack on the hybrid certificate at the cuts in its table | A separate program that reads the `.hybrid` vectors, recomputes every row at M ≤ cut from the definition of H and every table row above it, and counts each lump. GPT-6 names the same target: all 825,865 low-M states on 4×4, the count of each lump, and the preserved vectors |
 | The hybrid form at lower r and on 6×6 and larger | The same certificate at those points, with the count of each lump |
 | Vectors with more structure, such as a count of neighbouring pairs of each kind, to close the distance from 89.92 to 94.07 on 3×4 | The same census, with a wider lump |
 | An upper bound on E₈ with many excitations, on 4×4 and beyond | A trial space with the flats and the low-M orbits, with its Rayleigh quotient |
