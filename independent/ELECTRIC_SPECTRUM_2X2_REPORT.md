@@ -8,7 +8,7 @@ The torus has 8 links and 4 vertices, each vertex 4-valent, and its graph is a 4
 
 **Eigenvalue 0 is simple, nothing lies strictly between 0 and 6, and 6 has multiplicity 4. So gap(E) = 6 exactly.**
 
-The whole spectrum, MEASURED. Each count is read at a T just above its cost, with T in thousandths.
+The whole spectrum, MEASURED. Each engine count is read at a T between that cost and the next, with T in thousandths.
 
 | Cost c | m[c] | Eigenvalues up to c | Engine read at T | Sectors pp, pm, mp, mm |
 |---:|---:|---:|---:|---|
@@ -135,7 +135,7 @@ The two intervals (18, 21) and (27, 30) behave as one, since B(48 − T) = −S 
 
 ## Replay
 
-[`.github/workflows/electric-spectrum-2x2.yml`](../.github/workflows/electric-spectrum-2x2.yml), on hosted Linux with a different Python, replays against the pinned rows: A, B, C, the same-operator check, F, the prediction check, and D at all 16 certified thresholds. Each of the 27 recorded stops replays as a stop. It checks the engines' hashes and the three prediction files against their commits.
+[`.github/workflows/electric-spectrum-2x2.yml`](../.github/workflows/electric-spectrum-2x2.yml), on hosted Linux, replays against the pinned rows: A, B, C, the same-operator check, F, the prediction check, and D at all 16 certified thresholds. Each of the 27 recorded stops replays as a stop. It checks the engines' hashes and the three prediction files against their commits. [Run 41715880472](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41715880472), on commit `188ec59` with Python 3.12.3, passed both jobs in full. The receipt was made on Python 3.13.14 on Windows, so the rows are the same on the two.
 
 Red controls, each of which must exit 1 with its reason:
 
