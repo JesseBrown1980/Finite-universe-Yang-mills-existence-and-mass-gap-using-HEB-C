@@ -207,7 +207,7 @@ Its prediction was written first, in [`allpairs/ALLPAIRS-RUN.hbp`](allpairs/ALLP
 ALLPAIRS|L=3x4|sector=Sx+Sy+|n=45508080|rows_read=45508080|entries=3310759342|header_entries=PASS|diag=45508080|pairs=1632625631|passes=4|cap_entries=470000000|value_mismatch=0|lower_without_upper=0|upper_without_lower=0|columns_not_ascending=0|column_out_of_range=0|zero_z=0|positive_offdiag=0|row_sum_nonzero=0|zero_weight=0|missing_diag=0|flats=7|flat_w=1,3,2,3,3,2,4|flat_w_sum=18|sum_w=13060694016|codes=13060694016|whole_space_count=PASS|merkle=PASS|verdict=PASS|secs=2704|json=0
 ```
 
-It exited 0 with an empty standard error, after 2,704 s in 4 passes, each holding at most 470,000,000 upper entries (3.5 GiB). Its executable and source kept their recorded hashes (`c68f25b4…`, `f4ea7e85…`).
+It exited 0 with an empty standard error, after 2,704 s in 4 passes, each holding at most 470,000,000 upper entries (3.5 GiB). Its executable and source kept their recorded hashes (`c68f25b4…`, `f4ea7e85…`). Those hashes belong to the original executable, at commit `8faadb0`. The corrected one is below.
 
 The scope of this check:
 
@@ -228,6 +228,35 @@ The scope of this check:
 | `allpairs` | Passes | 211 reported by row sum, with every pair clean | 1,198 reported, each as one value mismatch with row sums clean |
 
 The 127 are the pairs where x_h y_j = y_h x_j under the Go checker's fixed seed: 10.6% on this fixture, against 289 of 2,401 tuples, 12.04%, over the range. On 3×4, `allpairs` above measures every pair exactly.
+
+### The count gates, corrected
+
+A review the operator relayed on November 3 found that the original `allpairs` let `OPEN` through on its two count gates, `header_entries` and `whole_space_count`: its verdict tested `!= "FAIL"`. A gate reads `OPEN` when the header gives nothing to compare. The recorded 3×4 line prints `PASS` on both gates, so that result stands as recorded.
+
+| Executable | Source | SHA-256 | Exit 0 needs | What ran on it |
+|---|---|---|---|---|
+| Original | `f4ea7e85…`, at commit `8faadb0` | `c68f25b4…` | Each count gate at `PASS` or `OPEN` | The 3×4 run, the 49 controls, [run 41575947849](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41575947849) |
+| Corrected | `5ab04b18…` | `d78f263f…` | Both count gates at `PASS` | 62 header cases, the 49 controls again, [run 41604837594](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41604837594) |
+
+The corrected executable also stops on a header that repeats a key, or that writes `n=` or `payload_bytes=` outside canonical form. It reads `entries=`, `nl=` and `L=` outside canonical form as `OPEN`. It stops on a store with no rows, where the original printed `merkle=PASS` with no merkle computed.
+
+[`allpairs/failclosed/run_header_controls.py`](allpairs/failclosed/run_header_controls.py) puts one header change at a time on a copy of the 2×2 store, with the rows and the merkle as they are, and runs both executables. All 124 outcomes were predicted in writing first, in [`allpairs/failclosed/HEADER-PREDICTION.hbp`](allpairs/failclosed/HEADER-PREDICTION.hbp), and met: 124 of 124 on this machine, in [`allpairs/failclosed/HEADER-CONTROLS.hbp`](allpairs/failclosed/HEADER-CONTROLS.hbp), and again on hosted Linux with both built from source on Rust 1.81, [run 41604837594](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41604837594), with the same rows.
+
+| On the 62 header cases | Original | Corrected |
+|---|---|---|
+| A count gate at `OPEN` | 22 cases, each exit 0 with `verdict=PASS` | 26 cases, each exit 2 with `verdict=FAIL` |
+| A count gate at `FAIL` | 5 cases, each exit 2 | 3 cases, each exit 2 |
+| The run stops, exit 1 | 14 cases | 30 cases |
+| Exit 0 | 42 cases | 2 cases: the clean store, and the one that removes the fields this tool leaves unread |
+| A store whose header reads `YMROOMHDR\|n=0\|payload_bytes=0\|w_self_adjoint=PASS\|json=0` | Exit 0, `verdict=PASS`, `pairs=0`, `merkle=PASS` | Exit 1, `reason=n is 0` |
+
+The scope of this correction:
+
+- **The repeat.** With the corrected executable, the 49 controls gave the same 49 outcomes, and all 131 rows match the original [`allpairs/CONTROLS.hbp`](allpairs/CONTROLS.hbp) apart from `secs=`: [`allpairs/failclosed/CONTROLS-REPEAT.hbp`](allpairs/failclosed/CONTROLS-REPEAT.hbp). On hosted Linux, the fixture faults on all three checkers gave a file byte-identical to the original's, `3ff98769…`.
+- **Unit tests.** 19 pass on Rust 1.81, and clippy with `-D warnings` exits 0. With the old rule put back, 2 of them fail. With the header check removed 1 fails, with an empty store allowed 1 fails, and with lenient numbers 4 fail.
+- **The fields it reads.** `L`, `n`, `nl`, `entries`, `payload_bytes`, `payload_merkle` and `w_self_adjoint`. It prints `sector`, and leaves `rooms`, `stream_bytes`, `chunk`, `keys_sha256` and `json` unread, as one case measures.
+- **3×4 under the corrected executable.** DERIVED: the 3×4 header carries each key once with every number in canonical form, and the recorded counters equal both header values, so the corrected rule gives the same verdict on those counters. MEASURED on small stores only. A 3×4 run with the corrected executable is open, 2,704 s here.
+- **The original evidence.** Every receipt of the 3×4 run stays as it was, with its hashes, and `git show 8faadb0:native/ym/crates/evolvers/src/bin/allpairs.rs` gives its source.
 
 ### Which tool made which row
 
@@ -262,7 +291,7 @@ Its first objections as a hostile reader stand as open items: the upper side bou
 |---|---|
 | The outside seat's Go checker, further | Its values, and its row-sum and self-adjoint gates on fixtures, are measured, in section 5. Open: an exact pair test in its own code, which goes beyond a wider range for x and y. Earlier runs, on its branch's [`independent-go-perron-20261102.yml`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/audit/independent-go-perron-20261102/.github/workflows/independent-go-perron-20261102.yml): the first stopped after the row loop on the format text this seat gave it, corrected in `PERRON-REVIEW.md`, and diagnostic run [41499253445](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41499253445) printed `trailing=742160 nonzero=0 merkle_matches=true`, as predicted in writing beforehand |
 | Every 3×4 row against the definition of H | Done on this seat's machine: all 45,508,080 rows, 0 mismatches, as predicted in writing first, in section 5. Open: a replay on another machine from the public files, about 2.2 h at 6 threads |
-| Every off-diagonal pair, exactly | Done on this seat's machine: 1,632,625,631 pairs, 0 mismatches, as predicted in writing first, in section 5. Open: a second seat's review of `allpairs`, and a replay on another machine from the public files, 2,704 s here |
+| Every off-diagonal pair, exactly | Done on this seat's machine: 1,632,625,631 pairs, 0 mismatches, as predicted in writing first, in section 5. Open: a second seat's review of `allpairs`, a replay on another machine from the public files, 2,704 s here, and a 3×4 run with the corrected executable, in section 5 |
 | The gap below r = 6.076 on 3×4 | A solve at lower coupling, then the same checks. On 3×3 the flat bound's route ends between r = 4 and 4.06 |
 | `perroncert` guards at absurd inputs | A hardened build with checked products, once the pinned runs are done |
 | A verdict by this route | A rule revision and the operator's word: [`PERRON-RULE-DRAFT.md`](PERRON-RULE-DRAFT.md) |

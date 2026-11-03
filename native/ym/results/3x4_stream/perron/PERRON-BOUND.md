@@ -108,7 +108,7 @@ the key table and W-self-adjointness.
 
 **All 45,508,080 rows.** MEASURED by `second-seat/fullrebuild.rs`, written by the second seat: every row recomputed from the rules and compared with the store, 0 mismatches in canonical key, weight, M or entries, and merkle PASS, in 7,870 s, as predicted in writing first: [`FULLREBUILD-3x4.out`](FULLREBUILD-3x4.out) and [`FULLREBUILD-RUN.hbp`](FULLREBUILD-RUN.hbp). [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 5, has its scope.
 
-**All 1,632,625,631 off-diagonal pairs.** MEASURED by [`allpairs`](../../../crates/evolvers/src/bin/allpairs.rs): w_h·z_hj = w_j·z_jh on every pair in exact integers, 0 mismatches and 0 unpaired entries, with merkle PASS on each of 4 passes, in 2,704 s, as predicted in writing first: [`allpairs/ALLPAIRS-3x4.out`](allpairs/ALLPAIRS-3x4.out) and [`allpairs/ALLPAIRS-RUN.hbp`](allpairs/ALLPAIRS-RUN.hbp). The same section has its scope and its controls.
+**All 1,632,625,631 off-diagonal pairs.** MEASURED by [`allpairs`](../../../crates/evolvers/src/bin/allpairs.rs): w_h·z_hj = w_j·z_jh on every pair in exact integers, 0 mismatches and 0 unpaired entries, with merkle PASS on each of 4 passes, in 2,704 s, as predicted in writing first: [`allpairs/ALLPAIRS-3x4.out`](allpairs/ALLPAIRS-3x4.out) and [`allpairs/ALLPAIRS-RUN.hbp`](allpairs/ALLPAIRS-RUN.hbp). The same section has its scope and its controls. This run printed `PASS` on both count gates. The tool's rule for those gates was corrected afterwards, in [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 5, and the executable of this run stays pinned at commit `8faadb0`.
 
 ### The bound on 3×4
 

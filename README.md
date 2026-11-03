@@ -61,7 +61,7 @@ The λ₁(H′) column comes from `perronritz pass`, by min-max on the span of t
 | A second seat's attempt to refute the new work, with its own exact checks | [No printed bound refuted](native/ym/results/3x4_stream/perron/REVIEW-OPUS55.md): 8 of 8 claims survived, and its 8 findings are handled |
 | **A checker written by someone else** | **Passed:** an outside seat's Go checker, [run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749), prints 94.070673 J_E with the same row and M on `x3-c.bin`, and the predicted values on two other vectors, with merkle, sector, vector, row-sum and self-adjoint checks passing and two fault controls rejected. Its self-adjoint test draws x, y from −3..3 with one fixed seed, where one bad pair passes at 289 of 2,401. On a fixture with every hash repaired, [run 41575947849](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41575947849), it reported all 211 row-sum faults and 1,071 of 1,198 single-pair faults, with 127 passing, each as predicted. [Its log, source and scope](native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md) |
 | **Every 3×4 row recomputed from the rules** | **Done:** a second seat's `fullrebuild` gives 45,508,080 rows, 0 mismatches in key, weight, M or entries, and merkle PASS, in 7,870 s on this seat's machine, [as predicted in writing first](native/ym/results/3x4_stream/perron/FULLREBUILD-RUN.hbp). Afterwards all 34 local sectors match the public manifest. With a store's merkle repaired after one change, it caught 4 of 4 |
-| **Every off-diagonal pair compared exactly** | **Done:** `allpairs` gives 1,632,625,631 pairs with w_h z_hj = w_j z_jh, 0 mismatches and 0 unpaired entries, and merkle PASS on each of 4 passes, in 2,704 s on this seat's machine, [as predicted in writing first](native/ym/results/3x4_stream/perron/allpairs/ALLPAIRS-RUN.hbp). Its controls on small stores met all 49 predicted outcomes |
+| **Every off-diagonal pair compared exactly** | **Done:** `allpairs` gives 1,632,625,631 pairs with w_h z_hj = w_j z_jh, 0 mismatches and 0 unpaired entries, and merkle PASS on each of 4 passes, in 2,704 s on this seat's machine, [as predicted in writing first](native/ym/results/3x4_stream/perron/allpairs/ALLPAIRS-RUN.hbp). Its controls on small stores met all 49 predicted outcomes. **Correction:** a review found that the tool's two count gates let `OPEN` through. This run printed `PASS` on both. The corrected tool needs `PASS` on both for exit 0, and [its header controls](native/ym/results/3x4_stream/perron/allpairs/failclosed/HEADER-CONTROLS.hbp) met all 124 predicted outcomes, with the original reaching exit 0 on each of the 22 cases at `OPEN` |
 | A registered rule for this route, and the operator's word on a verdict | Open |
 
 **Point certificates** of E₉ − E₈, in units of J_E:
@@ -216,7 +216,7 @@ ambiguity remains open, and any threshold above 60M stays on HOLD until a spec r
 **Other in progress:** full-space counts on 2×4 through the reflection-only
 sectors; a separately written operator and inertia verifier. **Open on the Perron route:** a solve at lower coupling on 3×4; `perroncert` guards at absurd inputs, where it wraps and
 `check_d_strict.py` refuses; on the outside seat's Go checker, an exact pair test in its own code;
-a second seat's review of `allpairs`; a replay of `fullrebuild` and `allpairs` on another machine.
+a second seat's review of `allpairs`; a replay of `fullrebuild` and `allpairs` on another machine; a 3×4 run with the corrected `allpairs`.
 
 ### Evidence classes and verification
 
@@ -303,7 +303,7 @@ beyond those.
 - The Perron route's tools: `perroncert` (solver and exact check), `check_d_strict.py` (fail-closed Python checker),
   `verify_sample_rows.py` (rows rebuilt from the definition), `perronritz` (side from above, every coupling,
   divided differences), `second-seat/fullrebuild.rs` (every row recomputed from the rules), and `allpairs` (every off-diagonal pair, exactly). `outside-go-41509351749/` holds the outside seat's
-  Go checker, its log and its artifact, and `allpairs/fixture-controls/` the faults that reach each checker's gates.
+  Go checker, its log and its artifact, `allpairs/fixture-controls/` the faults that reach each checker's gates, and `allpairs/failclosed/` the correction to the count gates of `allpairs`.
 
 ## 2×2 coupling ladder: E₁ − E₀
 
