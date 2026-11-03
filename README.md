@@ -13,7 +13,7 @@ All of it is on GitHub, and this table is kept current. The full register, with 
 | **The road to SU(2)** | [The companion repository](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved): S₃, Q8, 2T and 2O sealed, 2I in progress in its [draft #9](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved/pull/9) | The 2I official run |
 | **The continuum** | [The continuum track](native/ym/shadow/CONTINUUM-TRACK.md) names the milestones | A separate obligation after uniformity in volume |
 
-Merged on November 3: #84 to #90, and the separate seat's #7 to #15 and #18. Each result here is a statement about one finite lattice. The second seat's FAIL on the original `allpairs` and every later finding stay on record, with the status of each in [`PERRON-TWO-SIDED.md`](native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md), section 5.
+Merged on November 3: #84 to #91, the separate seat's #7 to #15 and #18, and the RIME stages #5 and #6. Each result here is a statement about one finite lattice. The second seat's FAIL on the original `allpairs` and every later finding stay on record, with the status of each in [`PERRON-TWO-SIDED.md`](native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md), section 5.
 
 Exact spectral certificates for S₃ lattice gauge theory on periodic finite
 lattices, run headless through the HEB-C HTTP-0 backend. GitRAM distributes the
@@ -362,6 +362,14 @@ is r·(E₁ − E₀) → √14 − √6. Ledger and method:
   verifier for the 2×2 torus. The vacuum energy is about 1.91 per plaquette at
   (1, 1). [2H](STAGE2H_TORUS2_INTEGER_INERTIA_CERTIFICATE.md),
   [2I](STAGE2I_INDEPENDENT_VERIFIER_AND_SCALING.md).
+- **Stage 2I, the RIME C3 test:** an exact counterexample to one natural bridge. A basis-preserving C3
+  extension that commutes with the torus Hamiltonian fails at the fourth moment, 417,192 against 416,784
+  for H_E, between two flat orbits of equal weight. Earlier moments agree, and a true square-axis swap
+  passes as a control. [Report](STAGE2I_RIME_C3_HAMILTONIAN_MOMENT_OBSTRUCTION.md).
+- **Stage 2J, the RIME Prism bridge:** the original Python NTT and its controls stay unchanged, pinned by
+  git blob, with Rust HBP/HBI receipts around them. The carrier holds all 27 coefficients and round-trips
+  byte for byte in both decoders, and every malformed carrier in its fixtures stops closed.
+  [Report](STAGE2J_RIME_SPHERE_BRIDGE.md).
 - **Constellation audit:** the original 3/27/243 sector transitions and
   45/405/3,645 keys compiled into the native build, with a gauge-invariant
   243-sector index of the 1,393 torus orbits.
