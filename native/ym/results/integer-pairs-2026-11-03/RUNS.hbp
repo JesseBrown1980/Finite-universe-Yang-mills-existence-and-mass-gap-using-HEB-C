@@ -115,3 +115,4 @@ REWRITER_ON_PYTHON_312|copies=25|differ=0|selftest_failed=0|python=3.12.12|becau
 REPLAY_ON_PYTHON_312|cases=33|met=33|missed=0|python=3.12.12|the_hosted_cases_but_c3_random_and_replay_paths|json=0
 ORIGINALS_UNCHANGED|RESULT_FILE_rows_of_PERRON-RESULT.hbp=196|read_true=195|differs=allpairs/failclosed/reproduce_pin_run.sh|changed_by=9c2c7e6_before_this_work|attack_rows_of_HASHES.sha256=17|attack_read_true=17|json=0
 PREDICTION_RESULT|commit_of_the_prediction=712fab4ccbab59c1e8cd788b10bb2ce08f579a55|prediction_met_on_every_row_run_here=1|misses=0|hosted_rows_pending_the_pull_request=integer-pairs.yml|the_row_only_hosted_runs=replay_paths_hosted|json=0
+COPY_INPUTS_SAME|pass1.out_and_PASS1-3x4.out=1|grid1.out_and_GRID1-3x4.out=1|own34.out_and_inputs/own34.out=1|by=cmp|json=0
