@@ -9,6 +9,7 @@ on:
       - 'independent/gpt6_hybrid_census.py'
       - 'independent/gpt6_hybrid_census.measure'
       - 'independent/gpt6_hybrid_arithmetic.py'
+      - 'independent/gpt6_dressed_flat_16d.py'
       - 'independent/GPT6_STURM_RITZ_HYBRID_REVIEW.md'
       - 'independent/SEAT_3X3_VACUUM_BLOCK_RITZ_REPORT.md'
       - '.github/workflows/gpt6-sturm-ritz-audit.yml'
@@ -32,7 +33,7 @@ jobs:
           from pathlib import Path
           for name in ('gpt6_sturm_sectors.py','gpt6_sturm_interval.py','gpt6_ritz_scope.py',
                        'gpt6_3x3_ritz_independent.py','gpt6_hybrid_census.py',
-                       'gpt6_hybrid_arithmetic.py'):
+                       'gpt6_hybrid_arithmetic.py','gpt6_dressed_flat_16d.py'):
               tree=ast.parse((Path('independent')/name).read_text())
               for item in ast.walk(tree):
                   if isinstance(item,ast.Constant):
@@ -136,6 +137,10 @@ jobs:
           python3 -I independent/gpt6_hybrid_arithmetic.py > /tmp/gpt6_hybrid_arithmetic.measure
           test "$(grep -c 'E9_certificate_independently_proved=0' /tmp/gpt6_hybrid_arithmetic.measure)" -eq 4
           grep -q 'large_vector_all_rows=OPEN|json=0' /tmp/gpt6_hybrid_arithmetic.measure
+          python3 -I independent/gpt6_dressed_flat_16d.py > /tmp/gpt6_dressed_16d.measure
+          test "$(grep -c 'result=PASS|json=0' /tmp/gpt6_dressed_16d.measure)" -eq 4
+          test "$(grep -c 'truncated_block=VALID|result=PASS' /tmp/gpt6_dressed_16d.measure)" -eq 3
+          grep -q 'Lx=3|Ly=3|.*truncated_block=INVALID' /tmp/gpt6_dressed_16d.measure
       - name: Reject false expected class population
         shell: bash
         run: |
