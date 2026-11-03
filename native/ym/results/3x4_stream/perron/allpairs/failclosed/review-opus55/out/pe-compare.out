@@ -1,0 +1,12 @@
+PE_TIMESTAMP|a=1793678212|b=1793695223|equal=0|json=0
+PE_SECTION|name=.data|a_size=512|b_size=512|equal=1|a_sha16=cf94635c3055fb08|json=0
+PE_SECTION|name=.pdata|a_size=10240|b_size=10240|equal=1|a_sha16=34384dd04d1c3d04|json=0
+PE_SECTION|name=.rdata|a_size=64512|b_size=64512|equal=0|a_sha16=4241d063cf586530|json=0
+PE_SECTION|name=.reloc|a_size=1536|b_size=1536|equal=1|a_sha16=be205851ca739567|json=0
+PE_SECTION|name=.text|a_size=195072|b_size=195072|equal=1|a_sha16=6fa6ef97ba3cb804|json=0
+PE_BYTES|len=272896|differing=24|first=0xf8,0xf9,0x38124,0x38125,0x38140,0x38141,0x3815c,0x3815d,0x38278,0x38279,0x3827a,0x3827b,0x3827c,0x3827d,0x3827e,0x3827f,0x38280,0x38281,0x38282,0x38283,0x38284,0x38285,0x38286,0x38287|json=0
+PE_DIFF_RUN|start=0xf8|end=0xf9|len=2|a=b'\x84['|b=b'\xf7\x9d'|json=0
+PE_DIFF_RUN|start=0x38124|end=0x38125|len=2|a=b'\x84['|b=b'\xf7\x9d'|json=0
+PE_DIFF_RUN|start=0x38140|end=0x38141|len=2|a=b'\x84['|b=b'\xf7\x9d'|json=0
+PE_DIFF_RUN|start=0x3815c|end=0x3815d|len=2|a=b'\x84['|b=b'\xf7\x9d'|json=0
+PE_DIFF_RUN|start=0x38278|end=0x38287|len=16|a=b's@\xa1\x1d\xb0\xf3\x0f@\x8d\xc2R\x00e!K\x0e'|b=b'\xb2B\xf5\r\xe1\xe0\x80E\xb1 3,\xd2\x0b\xea6'|json=0

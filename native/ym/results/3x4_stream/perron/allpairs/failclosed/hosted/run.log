@@ -1,0 +1,337 @@
+failclosed-controls	Set up job	﻿2026-11-03T08:38:58.4134948Z Current runner version: '2.338.2'
+failclosed-controls	Set up job	2026-11-03T08:38:58.4159876Z ##[group]Runner Image Provisioner
+failclosed-controls	Set up job	2026-11-03T08:38:58.4160897Z Hosted Compute Agent
+failclosed-controls	Set up job	2026-11-03T08:38:58.4161507Z Version: 20261021.618
+failclosed-controls	Set up job	2026-11-03T08:38:58.4162165Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+failclosed-controls	Set up job	2026-11-03T08:38:58.4162978Z Build Date: 2026-10-21T00:45:21Z
+failclosed-controls	Set up job	2026-11-03T08:38:58.4163676Z Worker ID: {a333e2fc-92e6-4d00-b748-55ed4cfd5674}
+failclosed-controls	Set up job	2026-11-03T08:38:58.4164426Z Region: westus
+failclosed-controls	Set up job	2026-11-03T08:38:58.4164998Z Cloud: Azure
+failclosed-controls	Set up job	2026-11-03T08:38:58.4165567Z ##[endgroup]
+failclosed-controls	Set up job	2026-11-03T08:38:58.4167065Z ##[group]Operating System
+failclosed-controls	Set up job	2026-11-03T08:38:58.4167784Z Ubuntu
+failclosed-controls	Set up job	2026-11-03T08:38:58.4168376Z 24.04.5
+failclosed-controls	Set up job	2026-11-03T08:38:58.4168959Z LTS
+failclosed-controls	Set up job	2026-11-03T08:38:58.4169755Z ##[endgroup]
+failclosed-controls	Set up job	2026-11-03T08:38:58.4170374Z ##[group]Runner Image
+failclosed-controls	Set up job	2026-11-03T08:38:58.4170988Z Image: ubuntu-24.04
+failclosed-controls	Set up job	2026-11-03T08:38:58.4171903Z Version: 20261025.353.1
+failclosed-controls	Set up job	2026-11-03T08:38:58.4173110Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+failclosed-controls	Set up job	2026-11-03T08:38:58.4174998Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+failclosed-controls	Set up job	2026-11-03T08:38:58.4175992Z ##[endgroup]
+failclosed-controls	Set up job	2026-11-03T08:38:58.4177218Z ##[group]GITHUB_TOKEN Permissions
+failclosed-controls	Set up job	2026-11-03T08:38:58.4179630Z Contents: read
+failclosed-controls	Set up job	2026-11-03T08:38:58.4180258Z Metadata: read
+failclosed-controls	Set up job	2026-11-03T08:38:58.4180934Z ##[endgroup]
+failclosed-controls	Set up job	2026-11-03T08:38:58.4183372Z Secret source: Actions
+failclosed-controls	Set up job	2026-11-03T08:38:58.4184457Z Cache mode: write
+failclosed-controls	Set up job	2026-11-03T08:38:58.4185146Z Prepare workflow directory
+failclosed-controls	Set up job	2026-11-03T08:38:58.4515565Z Prepare all required actions
+failclosed-controls	Set up job	2026-11-03T08:38:58.4576204Z Getting action download info
+failclosed-controls	Set up job	2026-11-03T08:38:58.8090086Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+failclosed-controls	Set up job	2026-11-03T08:38:58.9129933Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+failclosed-controls	Set up job	2026-11-03T08:38:59.1216702Z Complete job name: failclosed-controls
+failclosed-controls	Run actions/checkout@v4	﻿2026-11-03T08:38:59.2117295Z ##[group]Run actions/checkout@v4
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2118238Z with:
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2118674Z   fetch-depth: 0
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2119692Z   repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2123886Z   token: ***
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2124318Z   ssh-strict: true
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2124760Z   ssh-user: git
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2125208Z   persist-credentials: true
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2125709Z   clean: true
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2126151Z   sparse-checkout-cone-mode: true
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2126679Z   fetch-tags: false
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2127141Z   show-progress: true
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2127591Z   lfs: false
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2128003Z   submodules: false
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2128456Z   set-safe-directory: true
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2128975Z   allow-unsafe-pr-checkout: false
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.2129898Z ##[endgroup]
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5143693Z Syncing repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5147168Z ##[group]Getting Git version info
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5150413Z Working directory is '/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C'
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5153914Z [command]/usr/bin/git version
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5330371Z git version 2.56.0
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5363119Z ##[endgroup]
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5376639Z Temporarily overriding HOME='/home/runner/work/_temp/a17a7b6b-1b68-4bb5-9374-309ab5c65e2f' before making global git config changes
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5408264Z Adding repository directory to the temporary git global config as a safe directory
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5418049Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5487658Z Deleting the contents of '/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C'
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5492555Z ##[group]Initializing the repository
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5495953Z [command]/usr/bin/git init /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5605719Z hint: Using 'master' as the name for the initial branch. This default branch name
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5607981Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5610279Z hint: to use in all of your new repositories, which will suppress this warning,
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5611626Z hint: call:
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5612180Z hint:
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5612767Z hint: 	git config --global init.defaultBranch <name>
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5613491Z hint:
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5614125Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5615238Z hint: 'development'. The just-created branch can be renamed via this command:
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5616870Z hint:
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5617777Z hint: 	git branch -m <name>
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5618700Z hint:
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5620192Z hint: Disable this message with "git config set advice.defaultBranchName false"
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5623528Z Initialized empty Git repository in /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/.git/
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5634553Z [command]/usr/bin/git remote add origin https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5687967Z ##[endgroup]
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5689849Z ##[group]Disabling automatic garbage collection
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5701615Z [command]/usr/bin/git config --local gc.auto 0
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5756189Z ##[endgroup]
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5757622Z ##[group]Setting up auth
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5764608Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.5804519Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.6248907Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.6295678Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.6539850Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.6586566Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.6829514Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.6881659Z ##[endgroup]
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.6882540Z ##[group]Fetching the repository
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:38:59.6894640Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6351246Z From https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6355011Z  * [new branch]      audit/allpairs-failclosed-20261103 -> origin/audit/allpairs-failclosed-20261103
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6357500Z  * [new branch]      audit/go-fixture-controls-20261103 -> origin/audit/go-fixture-controls-20261103
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6361094Z  * [new branch]      audit/independent-go-perron-20261102 -> origin/audit/independent-go-perron-20261102
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6363632Z  * [new branch]      backend-exe-suffix      -> origin/backend-exe-suffix
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6365329Z  * [new branch]      cantor-s3-drive-27      -> origin/cantor-s3-drive-27
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6368003Z  * [new branch]      cantor-test-2026-10-30  -> origin/cantor-test-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6369971Z  * [new branch]      chsh-test-2026-10-30    -> origin/chsh-test-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6372304Z  * [new branch]      chsh-three-prism-independent-20261030 -> origin/chsh-three-prism-independent-20261030
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6374926Z  * [new branch]      ci-split-replay-per-package -> origin/ci-split-replay-per-package
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6377414Z  * [new branch]      dictionary-zdest-tests-2026-10-30 -> origin/dictionary-zdest-tests-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6381206Z  * [new branch]      docs/readme-p4-pass-experiment-status-20261030 -> origin/docs/readme-p4-pass-experiment-status-20261030
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6384885Z  * [new branch]      docs/readme-status-after-48-49-51 -> origin/docs/readme-status-after-48-49-51
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6387900Z  * [new branch]      fluid-cutoff-calib-cloud-2026-10-30 -> origin/fluid-cutoff-calib-cloud-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6391113Z  * [new branch]      frustrated-benchmark-2026-10-30 -> origin/frustrated-benchmark-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6394522Z  * [new branch]      http0-finite-s3-wave-observation-test -> origin/http0-finite-s3-wave-observation-test
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6397553Z  * [new branch]      http0-sgram-backend-testground -> origin/http0-sgram-backend-testground
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6400939Z  * [new branch]      http0-wave-exact-integer-no-rounding -> origin/http0-wave-exact-integer-no-rounding
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6403911Z  * [new branch]      http0-ym-backend-finite-volumes -> origin/http0-ym-backend-finite-volumes
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6406337Z  * [new branch]      integer-sturm-ladder    -> origin/integer-sturm-ladder
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6408174Z  * [new branch]      main                    -> origin/main
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6410496Z  * [new branch]      perlevel-test-2026-10-30 -> origin/perlevel-test-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6413239Z  * [new branch]      prism3-test-2026-10-30  -> origin/prism3-test-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6416242Z  * [new branch]      prismbell-test-2026-10-30 -> origin/prismbell-test-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6419342Z  * [new branch]      q3-prism-hash-curve-2026-10-30 -> origin/q3-prism-hash-curve-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6422147Z  * [new branch]      readme-certified-results -> origin/readme-certified-results
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6425727Z  * [new branch]      seat-yang-mills-3x3-vacuum-block-ritz -> origin/seat-yang-mills-3x3-vacuum-block-ritz
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6429929Z  * [new branch]      seat-yang-mills-adaptive-monotone-cells -> origin/seat-yang-mills-adaptive-monotone-cells
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6434308Z  * [new branch]      seat-yang-mills-coupling-region-certificates -> origin/seat-yang-mills-coupling-region-certificates
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6438628Z  * [new branch]      seat-yang-mills-direct-sturm-prefix -> origin/seat-yang-mills-direct-sturm-prefix
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6442375Z  * [new branch]      seat-yang-mills-exact-rational-ldl -> origin/seat-yang-mills-exact-rational-ldl
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6445770Z  * [new branch]      seat-yang-mills-global-coupling-bound -> origin/seat-yang-mills-global-coupling-bound
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6449861Z  * [new branch]      seat-yang-mills-independent-orbit-audit -> origin/seat-yang-mills-independent-orbit-audit
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6453752Z  * [new branch]      seat-yang-mills-integer-translation-sectors -> origin/seat-yang-mills-integer-translation-sectors
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6457867Z  * [new branch]      seat-yang-mills-sha-inferred-anchor-experiment -> origin/seat-yang-mills-sha-inferred-anchor-experiment
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6461622Z  * [new branch]      stage2g-certified-torus-gap -> origin/stage2g-certified-torus-gap
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6465475Z  * [new branch]      stage2i-rime-hamiltonian-moment-audit -> origin/stage2i-rime-hamiltonian-moment-audit
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6470180Z  * [new branch]      stage2j-rime-prism-bridge -> origin/stage2j-rime-prism-bridge
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6473801Z  * [new branch]      third-seat-sturm-python -> origin/third-seat-sturm-python
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6477345Z  * [new branch]      ym-2x5b-reseal          -> origin/ym-2x5b-reseal
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6480082Z  * [new branch]      ym-3x3-90m-recheck      -> origin/ym-3x3-90m-recheck
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6482328Z  * [new branch]      ym-3x3-certify          -> origin/ym-3x3-certify
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6485070Z  * [new branch]      ym-3x3-recheck-wording  -> origin/ym-3x3-recheck-wording
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6487816Z  * [new branch]      ym-3x4-allpairs         -> origin/ym-3x4-allpairs
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6490613Z  * [new branch]      ym-3x4-allpairs-failclosed -> origin/ym-3x4-allpairs-failclosed
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6493146Z  * [new branch]      ym-3x4-control-receipt  -> origin/ym-3x4-control-receipt
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6495487Z  * [new branch]      ym-3x4-fanout-concat    -> origin/ym-3x4-fanout-concat
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6498149Z  * [new branch]      ym-3x4-fanout-control-gate -> origin/ym-3x4-fanout-control-gate
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6500828Z  * [new branch]      ym-3x4-fanout-spec      -> origin/ym-3x4-fanout-spec
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6503076Z  * [new branch]      ym-3x4-fanout-workflow  -> origin/ym-3x4-fanout-workflow
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6505325Z  * [new branch]      ym-3x4-gap-rule-draft   -> origin/ym-3x4-gap-rule-draft
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6507609Z  * [new branch]      ym-3x4-gap-rule-register -> origin/ym-3x4-gap-rule-register
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6510749Z  * [new branch]      ym-3x4-independent-go-checker-20261102 -> origin/ym-3x4-independent-go-checker-20261102
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6514337Z  * [new branch]      ym-3x4-independent-row-verification-20261102 -> origin/ym-3x4-independent-row-verification-20261102
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6517225Z  * [new branch]      ym-3x4-j2-record        -> origin/ym-3x4-j2-record
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6519573Z  * [new branch]      ym-3x4-jump-certify     -> origin/ym-3x4-jump-certify
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6522090Z  * [new branch]      ym-3x4-local-segmented-evidence -> origin/ym-3x4-local-segmented-evidence
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6525221Z  * [new branch]      ym-3x4-memory-pilot-checkout-fix -> origin/ym-3x4-memory-pilot-checkout-fix
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6527795Z  * [new branch]      ym-3x4-memory-pilot-p4  -> origin/ym-3x4-memory-pilot-p4
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6530550Z  * [new branch]      ym-3x4-memory-pilot-spec -> origin/ym-3x4-memory-pilot-spec
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6532819Z  * [new branch]      ym-3x4-p0-perron        -> origin/ym-3x4-p0-perron
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6534955Z  * [new branch]      ym-3x4-p4-store-record  -> origin/ym-3x4-p4-store-record
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6537655Z  * [new branch]      ym-3x4-perron-climb     -> origin/ym-3x4-perron-climb
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6540209Z  * [new branch]      ym-3x4-production-result -> origin/ym-3x4-production-result
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6543418Z  * [new branch]      ym-3x4-room-backed      -> origin/ym-3x4-room-backed
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6545863Z  * [new branch]      ym-3x4-spec-rev1-local-rerun -> origin/ym-3x4-spec-rev1-local-rerun
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6548882Z  * [new branch]      ym-certify-packaging-fix -> origin/ym-certify-packaging-fix
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6551681Z  * [new branch]      ym-issue2-closed-notes  -> origin/ym-issue2-closed-notes
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6553913Z  * [new branch]      ym-p4-cgroup-parent     -> origin/ym-p4-cgroup-parent
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6556060Z  * [new branch]      ym-p4-runner-probe      -> origin/ym-p4-runner-probe
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6558130Z  * [new branch]      ym-plan-doc-3x4         -> origin/ym-plan-doc-3x4
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6560819Z  * [new branch]      ym-readme-3x4-production -> origin/ym-readme-3x4-production
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6563089Z  * [new branch]      ym-readme-go-rebuild    -> origin/ym-readme-go-rebuild
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6565238Z  * [new branch]      ym-readme-hold-scope    -> origin/ym-readme-hold-scope
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6567470Z  * [new branch]      ym-readme-perron-status -> origin/ym-readme-perron-status
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6569901Z  * [new branch]      ym-room-ci-checks       -> origin/ym-room-ci-checks
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6572318Z  * [new branch]      ym-room-lane-integration -> origin/ym-room-lane-integration
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6575568Z  * [new branch]      ym-shadow-stack         -> origin/ym-shadow-stack
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6577800Z  * [new branch]      ym-triage-2x5b-3x4-pilot -> origin/ym-triage-2x5b-3x4-pilot
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6581058Z  * [new branch]      z-one-matrix-destpull-crossseat-20261030 -> origin/z-one-matrix-destpull-crossseat-20261030
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6584142Z  * [new branch]      zconf-cloud-2026-10-30  -> origin/zconf-cloud-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6586821Z  * [new branch]      zconfcert-http0-2026-10-30 -> origin/zconfcert-http0-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6589695Z  * [new branch]      zgap2-cloud-2026-10-30  -> origin/zgap2-cloud-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6592935Z  * [new branch]      zlevel-zcurve-cloud-2026-10-30 -> origin/zlevel-zcurve-cloud-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6597104Z  * [new branch]      zlight-cloud-2026-10-30 -> origin/zlight-cloud-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6600957Z  * [new branch]      zlight-test-2026-10-30  -> origin/zlight-test-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6604714Z  * [new branch]      zteleport-cloud-2026-10-30 -> origin/zteleport-cloud-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6608309Z  * [new branch]      zwilson-http0-2026-10-30 -> origin/zwilson-http0-2026-10-30
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6612811Z [command]/usr/bin/git branch --list --remote origin/audit/allpairs-failclosed-20261103
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6614854Z   origin/audit/allpairs-failclosed-20261103
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6618555Z [command]/usr/bin/git rev-parse refs/remotes/origin/audit/allpairs-failclosed-20261103
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6621426Z bf24a2c4c7b89c99a2e3edccc8d90581cf52b09c
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6624654Z ##[endgroup]
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6626255Z ##[group]Determining the checkout info
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6628048Z ##[endgroup]
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6629078Z [command]/usr/bin/git sparse-checkout disable
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6632394Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6636194Z ##[group]Checking out the ref
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.6638905Z [command]/usr/bin/git checkout --progress --force -B audit/allpairs-failclosed-20261103 refs/remotes/origin/audit/allpairs-failclosed-20261103
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.8482182Z Switched to a new branch 'audit/allpairs-failclosed-20261103'
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.8492771Z branch 'audit/allpairs-failclosed-20261103' set up to track 'origin/audit/allpairs-failclosed-20261103'.
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.8511018Z ##[endgroup]
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.8573300Z [command]/usr/bin/git log -1 --format=%H
+failclosed-controls	Run actions/checkout@v4	2026-11-03T08:39:00.8614445Z bf24a2c4c7b89c99a2e3edccc8d90581cf52b09c
+failclosed-controls	Build the outside seat's Go checker from its pinned source	﻿2026-11-03T08:39:00.8885654Z ##[group]Run set -euo pipefail
+failclosed-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T08:39:00.8886929Z ^[[36;1mset -euo pipefail^[[0m
+failclosed-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T08:39:00.8888406Z ^[[36;1mD=native/ym/results/3x4_stream/perron/outside-go-41509351749^[[0m
+failclosed-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T08:39:00.8890469Z ^[[36;1m( cd "$D" && sha256sum -c source.sha256 )^[[0m
+failclosed-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T08:39:00.8891764Z ^[[36;1mgo version^[[0m
+failclosed-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T08:39:00.8892749Z ^[[36;1mmkdir -p /tmp/gochk^[[0m
+failclosed-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T08:39:00.8894269Z ^[[36;1mcp "$D/perron_independent.go" /tmp/gochk/perron_independent.go^[[0m
+failclosed-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T08:39:00.8896545Z ^[[36;1m( cd /tmp/gochk && go build -o "$RUNNER_TEMP/perron_independent" perron_independent.go )^[[0m
+failclosed-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T08:39:00.8924253Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+failclosed-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T08:39:00.8925715Z ##[endgroup]
+failclosed-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T08:39:00.9029858Z perron_independent.go: OK
+failclosed-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T08:39:01.5737955Z go version go1.24.13 linux/amd64
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	﻿2026-11-03T08:39:10.5383161Z ##[group]Run set -euo pipefail
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5383517Z ^[[36;1mset -euo pipefail^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5383823Z ^[[36;1mrustup toolchain install 1.81.0 --profile minimal^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5384206Z ^[[36;1mS=native/ym/crates/evolvers/src/bin/allpairs.rs^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5384560Z ^[[36;1mcp "$S" "$RUNNER_TEMP/corrected.rs"^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5385000Z ^[[36;1m( cd native/ym && cargo +1.81.0 build --locked --release -p evolvers --bin allpairs )^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5385570Z ^[[36;1mcp native/ym/target/release/allpairs "$RUNNER_TEMP/allpairs-corrected"^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5386254Z ^[[36;1mgit show 8faadb07748417e713e95723f01d83e0ad80b93f:"$S" > "$S"^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5386822Z ^[[36;1mecho "f4ea7e856728fde8a5fe56b0e9fe85a0770d930ea566c25b490f697760e55754  $S" | sha256sum -c -^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5387460Z ^[[36;1m( cd native/ym && cargo +1.81.0 build --locked --release -p evolvers --bin allpairs )^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5388020Z ^[[36;1mcp native/ym/target/release/allpairs "$RUNNER_TEMP/allpairs-original"^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5388469Z ^[[36;1mcp "$RUNNER_TEMP/corrected.rs" "$S"^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5388763Z ^[[36;1mmkdir -p "$RUNNER_TEMP/out"^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5389006Z ^[[36;1m{^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5390441Z ^[[36;1m  sha256sum "$RUNNER_TEMP/corrected.rs" "$RUNNER_TEMP/allpairs-corrected" "$RUNNER_TEMP/allpairs-original"^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5390983Z ^[[36;1m  rustc +1.81.0 -V^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5391223Z ^[[36;1m  go version^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5391520Z ^[[36;1m} | sed "s#$RUNNER_TEMP/##" | tee "$RUNNER_TEMP/out/TOOLS.txt"^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5392055Z ^[[36;1mif cmp -s "$RUNNER_TEMP/allpairs-corrected" "$RUNNER_TEMP/allpairs-original"; then^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5392532Z ^[[36;1m  echo "the two builds are the same file"^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5392817Z ^[[36;1m  exit 1^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5393011Z ^[[36;1mfi^[[0m
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5413519Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5413862Z ##[endgroup]
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.5959596Z info: syncing channel updates for 1.81.0-x86_64-unknown-linux-gnu
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.7035584Z info: latest update on 2024-09-05 for version 1.81.0 (eeb90cda1 2024-09-04)
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:10.7037620Z info: downloading 3 components
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:17.4416440Z 
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:17.4508202Z   1.81.0-x86_64-unknown-linux-gnu installed - rustc 1.81.0 (eeb90cda1 2024-09-04)
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:17.4508633Z 
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:17.5247977Z    Compiling autocfg v1.5.1
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:17.6899800Z    Compiling num-traits v0.2.19
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:18.3045693Z    Compiling num-integer v0.1.47
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:18.4809569Z    Compiling num-bigint v0.4.8
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:20.4333039Z    Compiling evolvers v0.1.0 (/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/native/ym/crates/evolvers)
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:21.3455849Z     Finished `release` profile [optimized] target(s) in 3.87s
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:21.3534157Z native/ym/crates/evolvers/src/bin/allpairs.rs: OK
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:21.3720120Z    Compiling evolvers v0.1.0 (/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/native/ym/crates/evolvers)
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:22.1988561Z     Finished `release` profile [optimized] target(s) in 0.83s
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:22.2256832Z 5ab04b184a4395a779ec6b2189352ea54533f7d1c49b32275d0f30d15d83f4ef  corrected.rs
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:22.2257847Z 389881acc55dfea143ff42cd52cd6a64eea63c79f96f4906d24ccfdff259a097  allpairs-corrected
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:22.2258709Z 376cce17f0148b89b35f6056a9f031c314b8e475ad6c17c4d966755bd848c8d4  allpairs-original
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:22.2259424Z rustc 1.81.0 (eeb90cda1 2024-09-04)
+failclosed-controls	Build allpairs twice on Rust 1.81, the corrected source and the original at its pinned commit	2026-11-03T08:39:22.2259888Z go version go1.24.13 linux/amd64
+failclosed-controls	Run the fixture controls with the corrected allpairs	﻿2026-11-03T08:39:22.2304540Z ##[group]Run set -euo pipefail
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:39:22.2304869Z ^[[36;1mset -euo pipefail^[[0m
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:39:22.2305215Z ^[[36;1mF=native/ym/results/3x4_stream/perron/allpairs/fixture-controls^[[0m
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:39:22.2305588Z ^[[36;1mstatus=0^[[0m
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:39:22.2306071Z ^[[36;1mpython3 -I -X utf8 "$F/run_fixture_controls.py" --base "$F/fixture-2x2.rooms.gz" --out "$RUNNER_TEMP/out/fixture" \^[[0m
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:39:22.2306871Z ^[[36;1m  --go "$RUNNER_TEMP/perron_independent" --strict native/ym/results/3x4_stream/perron/check_d_strict.py \^[[0m
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:39:22.2307506Z ^[[36;1m  --allpairs "$RUNNER_TEMP/allpairs-corrected" || status=$?^[[0m
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:39:22.2307952Z ^[[36;1mcat "$RUNNER_TEMP/out/fixture/FIXTURE-CONTROLS.hbp" || true^[[0m
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:39:22.2308476Z ^[[36;1mexit "$status"^[[0m
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:39:22.2328413Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:39:22.2328759Z ##[endgroup]
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9400980Z FIXTURE_PREDICTION|base_sha256=b31e730606db130585f9560f7adab87444d744876c3a8e36f6f9ef2bf0aa431f|n=211|pairs=1198|go_pairs_reported=1071|go_pairs_passed=127|strict_pairs_reported=1198|allpairs_pairs_reported=1198|rows=211|control=27000000,102,3|blind=-15000000,30,6|json=0
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9404749Z FIXTURE_CONTROLS_DONE|failed=0|json=0
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9486911Z FIXTURE_CASE|tool=go|case=clean|met=1|exit=0|json=0
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9489485Z GO_CLEAN_STDOUT|PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS;control t_cert_milli=27000000 min_row=102 min_mag=3;blind t_cert_milli=-15000000 min_row=30 min_mag=6;flat_rows=7 min_nonzero_mag=3 max_mag=12 weighted_residual=0;payload_zero_padding=1021936 raw_tail_bytes=0 raw_tail_nonzero=0;seconds=0;
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9492392Z FIXTURE_CASE|tool=strict|case=clean|met=1|exit=0|json=0
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9495191Z STRICT_CLEAN_STDOUT|CHECK_D_STRICT|n=211|d_sha256=5008e4e0b6c70f6adab3a3aaee08815e4d89811b1ba8b5260bd124846056ad65|flats=7|flat_rows=0,3,6,96,99,191,193|flat_diag=24|flat_flat_couplings=0|t_cert_milli=27000000|t_cert_JE=27000000/1000000|min_row=102|min_mag=3|min_nonflat_M=3|max_M=12|positive_offdiag=0|bad_d=0|row_sums_zero=PASS|W_self_adjoint=PASS|seed=27|merkle=PASS|secs=0|json=0
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9498015Z FIXTURE_CASE|tool=allpairs|case=clean|met=1|exit=0|json=0
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9498888Z FIXTURE_CASE|tool=go|sweep=rowsum|met=1|rows=211|reported=211|json=0
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9500004Z FIXTURE_CASE|tool=strict|sweep=rowsum|met=1|rows=211|reported=211|json=0
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9501044Z FIXTURE_CASE|tool=allpairs|sweep=rowsum|met=1|rows=211|reported=211|json=0
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9502184Z FIXTURE_CASE|tool=go|sweep=pair|met=1|pairs=1198|reported=1071|passed=127|as_predicted=1198|json=0
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9503327Z FIXTURE_CASE|tool=strict|sweep=pair|met=1|pairs=1198|reported=1198|json=0
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9504368Z FIXTURE_CASE|tool=allpairs|sweep=pair|met=1|pairs=1198|reported=1198|json=0
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9505349Z GO_FIRST_REPORTED|h=1|j=0|stderr=FAIL: weighted self-adjoint integer residual=-36
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9506611Z GO_FIRST_PASSED|h=1|j=10|stdout=PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9509081Z FIXTURE_PREDICTION|base_sha256=b31e730606db130585f9560f7adab87444d744876c3a8e36f6f9ef2bf0aa431f|n=211|pairs=1198|go_pairs_reported=1071|go_pairs_passed=127|strict_pairs_reported=1198|allpairs_pairs_reported=1198|rows=211|control=27000000,102,3|blind=-15000000,30,6|json=0
+failclosed-controls	Run the fixture controls with the corrected allpairs	2026-11-03T08:40:34.9511714Z FIXTURE_CONTROLS_DONE|failed=0|json=0
+failclosed-controls	Run the header controls on both executables	﻿2026-11-03T08:40:34.9542251Z ##[group]Run set -euo pipefail
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:34.9542600Z ^[[36;1mset -euo pipefail^[[0m
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:34.9542903Z ^[[36;1mA=native/ym/results/3x4_stream/perron/allpairs^[[0m
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:34.9543229Z ^[[36;1mstatus=0^[[0m
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:34.9543825Z ^[[36;1mpython3 -I -X utf8 "$A/failclosed/run_header_controls.py" --base "$A/fixture-controls/fixture-2x2.rooms.gz" --out "$RUNNER_TEMP/out/header" \^[[0m
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:34.9544748Z ^[[36;1m  --original "$RUNNER_TEMP/allpairs-original" --corrected "$RUNNER_TEMP/allpairs-corrected" || status=$?^[[0m
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:34.9545645Z ^[[36;1mgrep -E '^HEADER_(TOOL|PREDICTION_SHA|SWEEP|CORRECTED_FAILS_CLOSED|DIFFERS|CONTROLS_DONE)' "$RUNNER_TEMP/out/header/HEADER-CONTROLS.hbp" || true^[[0m
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:34.9546296Z ^[[36;1mexit "$status"^[[0m
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:34.9566194Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:34.9566556Z ##[endgroup]
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:35.8090830Z HEADER_CONTROLS_DONE|failed=0|json=0
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:35.8163877Z HEADER_TOOL|tool=original|sha256=376cce17f0148b89b35f6056a9f031c314b8e475ad6c17c4d966755bd848c8d4|json=0
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:35.8165205Z HEADER_TOOL|tool=corrected|sha256=389881acc55dfea143ff42cd52cd6a64eea63c79f96f4906d24ccfdff259a097|json=0
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:35.8167227Z HEADER_PREDICTION_SHA|cases=62|base_sha256=b31e730606db130585f9560f7adab87444d744876c3a8e36f6f9ef2bf0aa431f|sha256=5dffa11f51f5ded06b4deeaed3191d5c9395b3cff2f49cb83f1435809d0ab158|json=0
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:35.8169582Z HEADER_SWEEP|tool=original|cases=62|met=62|gate_open=22|gate_open_exit0=22|gate_fail=5|gate_fail_exit0=0|stops=14|exit0=42|exit0_both_pass=20|verdict_agrees_with_exit=62|json=0
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:35.8171575Z HEADER_SWEEP|tool=corrected|cases=62|met=62|gate_open=26|gate_open_exit0=0|gate_fail=3|gate_fail_exit0=0|stops=30|exit0=2|exit0_both_pass=2|verdict_agrees_with_exit=62|json=0
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:35.8172961Z HEADER_CORRECTED_FAILS_CLOSED|every_open_or_fail_gives_verdict_fail_and_nonzero_exit=1|gate_open=26|gate_fail=3|exit0=2|exit0_both_pass=2|json=0
+failclosed-controls	Run the header controls on both executables	2026-11-03T08:40:35.8173623Z HEADER_CONTROLS_DONE|failed=0|json=0
+failclosed-controls	Run actions/upload-artifact@v4	﻿2026-11-03T08:40:35.8266061Z ##[group]Run actions/upload-artifact@v4
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:35.8266401Z with:
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:35.8266618Z   name: failclosed-controls
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:35.8266870Z   path: /home/runner/work/_temp/out
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:35.8267139Z   if-no-files-found: warn
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:35.8267372Z   compression-level: 6
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:35.8267581Z   overwrite: false
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:35.8267793Z   include-hidden-files: false
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:35.8268030Z ##[endgroup]
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:36.0040038Z (node:15202) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:36.0040792Z (Use `node --trace-deprecation ...` to show where the warning was created)
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:36.0191433Z With the provided path, there will be 3 files uploaded
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:36.0192415Z Artifact name is valid!
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:36.0192919Z Root directory input is valid!
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:36.4336100Z Beginning upload of artifact content to blob storage
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:36.4672824Z (node:15202) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:36.7638541Z Uploaded bytes 4089
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:36.8477593Z Finished uploading artifact content to blob storage!
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:36.8478749Z SHA256 digest of uploaded artifact zip is ea99c7d155abcbde34484dc2e9b461660ef894ff4e02c458a90824d3b79a3042
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:36.8481065Z Finalizing artifact upload
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:37.3321041Z Artifact failclosed-controls.zip successfully finalized. Artifact ID 13215174835
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:37.3322218Z Artifact failclosed-controls has been successfully uploaded! Final size is 4089 bytes. Artifact ID is 13215174835
+failclosed-controls	Run actions/upload-artifact@v4	2026-11-03T08:40:37.3330380Z Artifact download URL: https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41604837594/artifacts/13215174835
+failclosed-controls	Post Run actions/checkout@v4	﻿2026-11-03T08:40:37.3571610Z Post job cleanup.
+failclosed-controls	Post Run actions/checkout@v4	2026-11-03T08:40:37.4521416Z [command]/usr/bin/git version
+failclosed-controls	Post Run actions/checkout@v4	2026-11-03T08:40:37.4574932Z git version 2.56.0
+failclosed-controls	Post Run actions/checkout@v4	2026-11-03T08:40:37.4617805Z Temporarily overriding HOME='/home/runner/work/_temp/02af4d42-234e-405b-9b81-ac8fffaabd7c' before making global git config changes
+failclosed-controls	Post Run actions/checkout@v4	2026-11-03T08:40:37.4619392Z Adding repository directory to the temporary git global config as a safe directory
+failclosed-controls	Post Run actions/checkout@v4	2026-11-03T08:40:37.4626070Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+failclosed-controls	Post Run actions/checkout@v4	2026-11-03T08:40:37.4678324Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+failclosed-controls	Post Run actions/checkout@v4	2026-11-03T08:40:37.4724371Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+failclosed-controls	Post Run actions/checkout@v4	2026-11-03T08:40:37.5030627Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+failclosed-controls	Post Run actions/checkout@v4	2026-11-03T08:40:37.5063459Z http.https://github.com/.extraheader
+failclosed-controls	Post Run actions/checkout@v4	2026-11-03T08:40:37.5081065Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+failclosed-controls	Post Run actions/checkout@v4	2026-11-03T08:40:37.5124031Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+failclosed-controls	Post Run actions/checkout@v4	2026-11-03T08:40:37.5449587Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+failclosed-controls	Post Run actions/checkout@v4	2026-11-03T08:40:37.5519503Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+failclosed-controls	Complete job	﻿2026-11-03T08:40:37.5952632Z Cleaning up orphan processes
+failclosed-controls	Complete job	2026-11-03T08:40:37.6328830Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

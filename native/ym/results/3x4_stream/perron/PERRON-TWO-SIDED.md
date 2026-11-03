@@ -30,7 +30,7 @@ Steps that could fail, and what tests each:
 
 | Step | Test |
 |---|---|
-| H′ is W-self-adjoint | On every pair, exactly: `allpairs`, 1,632,625,631 off-diagonal pairs with w_h z_hj = w_j z_jh, 0 mismatches and 0 unpaired entries, in section 5. On all rows: `check_d_strict.py --self-adjoint`, a random form drawn from SHA-256. The pass also requires E_ab = E_ba exactly on its vectors, and prints how many pairs it compared. With one vector it prints `E_self_adjoint=OPEN` |
+| H′ is W-self-adjoint | On every pair, exactly: `allpairs`, 1,632,625,631 off-diagonal pairs of the stored rows with w_h z_hj = w_j z_jh, 0 mismatches and 0 unpaired entries, in section 5. H′ holds 1,632,625,611 of them, since 20 touch flat rows. On all rows: `check_d_strict.py --self-adjoint`, a random form drawn from SHA-256. The pass also requires E_ab = E_ba exactly on its vectors, and prints how many pairs it compared. With one vector it prints `E_self_adjoint=OPEN` |
 | The vectors vanish on the flat rows | The pass refuses any vector that does not |
 | A sum or product leaves its range | On every path to a printed number in `pass` and `grid`, products are checked and exit 2 with no value, and JE and JB are limited to 2⁴⁰. Sums use 256 bits. Unit tests hold the second seat's three cases |
 | The bisection logic | Exact on a 2×2 by hand, against separate code below, and against the second seat's exact inertia |
@@ -201,20 +201,20 @@ The scope of this check:
 ### Every off-diagonal pair, exactly
 
 [`allpairs`](../../../crates/evolvers/src/bin/allpairs.rs) compares w_h z_hj with w_j z_jh on every off-diagonal pair of the stored rows, in exact integers, with no random vector. An entry with no partner counts as a failure. It reads through `roomio`, so every pass recomputes the payload merkle. An outside seat recommended this check, and the operator relayed its approval.
-Its prediction was written first, in [`allpairs/ALLPAIRS-RUN.hbp`](allpairs/ALLPAIRS-RUN.hbp), with any nonzero counter falsifying W-self-adjointness of the stored rows. It printed, in [`allpairs/ALLPAIRS-3x4.out`](allpairs/ALLPAIRS-3x4.out):
+Its prediction row, in [`allpairs/ALLPAIRS-RUN.hbp`](allpairs/ALLPAIRS-RUN.hbp), is time-stamped 04:00:34Z, a second before the recorded start, with any nonzero counter falsifying W-self-adjointness of the stored rows. That file first reached git at 04:58:34Z, after the recorded end at 04:45:40Z, so the order rests on the rows' own time stamps. Its counts follow from the header, the cap and an earlier census, so the zero counters and the window count are what it could lose on. It printed, in [`allpairs/ALLPAIRS-3x4.out`](allpairs/ALLPAIRS-3x4.out):
 
 ```
 ALLPAIRS|L=3x4|sector=Sx+Sy+|n=45508080|rows_read=45508080|entries=3310759342|header_entries=PASS|diag=45508080|pairs=1632625631|passes=4|cap_entries=470000000|value_mismatch=0|lower_without_upper=0|upper_without_lower=0|columns_not_ascending=0|column_out_of_range=0|zero_z=0|positive_offdiag=0|row_sum_nonzero=0|zero_weight=0|missing_diag=0|flats=7|flat_w=1,3,2,3,3,2,4|flat_w_sum=18|sum_w=13060694016|codes=13060694016|whole_space_count=PASS|merkle=PASS|verdict=PASS|secs=2704|json=0
 ```
 
-It exited 0 with an empty standard error, after 2,704 s in 4 passes, each holding at most 470,000,000 upper entries (3.5 GiB). Its executable and source kept their recorded hashes (`c68f25b4…`, `f4ea7e85…`).
+It exited 0 with an empty standard error, after 2,704 s in 4 passes, each holding at most 470,000,000 upper entries (3.5 GiB). Its executable and source kept their recorded hashes (`c68f25b4…`, `f4ea7e85…`). Those hashes belong to the original executable, at commit `8faadb0`. The corrected one is below.
 
 The scope of this check:
 
 - **What it reads.** The stored rows and weights. A change that keeps the weighted equality on both sides of a pair passes it, and `fullrebuild` reports that change: 2 entries, on each such control.
-- **Controls.** On 2×2, 2×3 and 3×3, at large and small windows, with a store's merkle repaired after one change: 49 of 49 outcomes as predicted in writing first, in [`allpairs/CONTROLS.hbp`](allpairs/CONTROLS.hbp). A changed value is one mismatch, a moved column is two unpaired entries, and a changed weight breaks every pair of its row. An unrepaired byte stops it at the merkle with exit 1.
+- **Controls.** 49 of 49 outcomes as predicted, in [`allpairs/CONTROLS.hbp`](allpairs/CONTROLS.hbp): 40 of `allpairs` and 9 of `fullrebuild`. The 40 are 5 clean stores, 32 with a repaired change (23 reported, and 9 that pass by scope) and 3 with an unrepaired byte, on 2×2 and 2×3 at two caps and on 3×3 at cap 1,000,000. A changed value is one mismatch, a moved column is two unpaired entries, and a changed weight breaks every pair of its row. An unrepaired payload byte stops it at the merkle with exit 1.
 - **The counts beside the pairs.** On the same rows it finds ascending columns in range, no zero entry, no positive off-diagonal, a diagonal on every row and every row sum 0. The weights sum to 6¹³ = 13,060,694,016, with flat weights 1, 3, 2, 3, 3, 2, 4 summing to 18, as in `passA.bin`.
-- **Who and where.** This seat wrote it, and it ran on this seat's machine. A second seat's review, an exact pair test in the outside seat's own code, and a replay on another machine are open: section 7.
+- **Who and where.** This seat wrote it, and it ran on this seat's machine. A second seat reviewed it, below. An exact pair test in the outside seat's own code and a replay on another machine are open: section 7.
 
 ### Faults that reach each checker's gates
 
@@ -228,6 +228,77 @@ The scope of this check:
 | `allpairs` | Passes | 211 reported by row sum, with every pair clean | 1,198 reported, each as one value mismatch with row sums clean |
 
 The 127 are the pairs where x_h y_j = y_h x_j under the Go checker's fixed seed: 10.6% on this fixture, against 289 of 2,401 tuples, 12.04%, over the range. On 3×4, `allpairs` above measures every pair exactly.
+
+### The count gates, corrected
+
+A review the operator relayed on November 3 found that the original `allpairs` let `OPEN` through on its two count gates, `header_entries` and `whole_space_count`: its verdict tested `!= "FAIL"`. A gate reads `OPEN` when the header gives nothing to compare. The recorded 3×4 line prints `PASS` on both gates, so that result stands as recorded.
+
+| Executable | Source | SHA-256 | Exit 0 needs | What ran on it |
+|---|---|---|---|---|
+| Original | `f4ea7e85…`, at commit `8faadb0` | `c68f25b4…` | Each count gate at `PASS` or `OPEN` | The 3×4 run, the 49 controls, [run 41575947849](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41575947849) |
+| Corrected | `5ab04b18…` | `d78f263f…` | Both count gates at `PASS` | 62 header cases, the 49 controls again, [run 41604837594](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41604837594) |
+| Corrected, rebuilt from the source pinned at `0fd24d3` | `5ab04b18…` | `cdb22218…` | Both count gates at `PASS` | The 3×4 run, the 62 header cases and the 49 controls again |
+
+The corrected executable also stops on a header that repeats a key, or that writes `n=` or `payload_bytes=` outside canonical form. It reads `entries=`, `nl=` and `L=` outside canonical form as `OPEN`. It stops on a store with no rows, where the original printed `merkle=PASS` with no merkle computed.
+
+[`allpairs/failclosed/run_header_controls.py`](allpairs/failclosed/run_header_controls.py) puts one header change at a time on a copy of the 2×2 store, with the rows and the merkle as they are, and runs both executables. All 124 outcomes were predicted in that script, printed to [`allpairs/failclosed/HEADER-PREDICTION.hbp`](allpairs/failclosed/HEADER-PREDICTION.hbp), and met: 124 of 124 on this machine, where the order rests on the rows' own time stamps, in [`allpairs/failclosed/HEADER-CONTROLS.hbp`](allpairs/failclosed/HEADER-CONTROLS.hbp), and again on hosted Linux with both built from source on Rust 1.81, [run 41604837594](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41604837594), with the same rows. That run checked out a commit already holding the predictions.
+
+| On the 62 header cases | Original | Corrected |
+|---|---|---|
+| A count gate at `OPEN` | 22 cases, each exit 0 with `verdict=PASS` | 26 cases, each exit 2 with `verdict=FAIL` |
+| A count gate at `FAIL` | 5 cases, each exit 2 | 3 cases, each exit 2 |
+| The run stops, exit 1 | 14 cases | 30 cases |
+| Exit 0 | 42 cases | 2 cases: the clean store, and the one that removes the fields this tool leaves unread |
+| A store whose header reads `YMROOMHDR\|n=0\|payload_bytes=0\|w_self_adjoint=PASS\|json=0` | Exit 0, `verdict=PASS`, `pairs=0`, `merkle=PASS` | Exit 1, `reason=n is 0` |
+
+The scope of this correction:
+
+- **The repeat.** With the corrected executable, the 49 controls gave the same 49 outcomes, and all 131 rows match the original [`allpairs/CONTROLS.hbp`](allpairs/CONTROLS.hbp) apart from `secs=`: [`allpairs/failclosed/CONTROLS-REPEAT.hbp`](allpairs/failclosed/CONTROLS-REPEAT.hbp). On hosted Linux, the fixture faults on all three checkers gave a file byte-identical to the original's, `3ff98769…`.
+- **Unit tests.** 19 pass on Rust 1.81, and clippy with `-D warnings` exits 0. With the old rule put back, 2 of them fail. With the header check removed 1 fails, with an empty store allowed 1 fails, and with lenient numbers 4 fail.
+- **The fields it reads.** `L`, `n`, `nl`, `entries`, `payload_bytes`, `payload_merkle` and `w_self_adjoint`. It prints `sector`, and leaves `rooms`, `stream_bytes`, `chunk`, `keys_sha256` and `json` unread, as one case measures.
+- **Rebuilds.** An unexpected result, recorded as a failure of byte reproducibility in [`allpairs/failclosed/pin-0fd24d3/PIN-RUN.hbp`](allpairs/failclosed/pin-0fd24d3/PIN-RUN.hbp): three builds of one source on Windows gave three file hashes, `d78f263f…`, `cdb22218…` and `9bc0675a…`. They differ by 24 and 20 bytes, all in the linker's time stamps and PDB GUID, and [`allpairs/failclosed/pe_normal_hash.py`](allpairs/failclosed/pe_normal_hash.py) gives `953fa422…` for all three with those fields zeroed. A replay compares the source hash and that normal hash. The first prediction for the 3×4 run named `d78f263f…`. The operator directed a rebuild from the pin before the start, so the run used `cdb22218…`, under a new prediction, and both rows are in the record.
+- **The original evidence.** Every receipt of the 3×4 run stays as it was, with its hashes, and `git show 8faadb0:native/ym/crates/evolvers/src/bin/allpairs.rs` gives its source.
+
+The operator then directed a full 3×4 run with the corrected executable, rebuilt from the source pinned at `0fd24d3`. Its prediction row, in [`allpairs/failclosed/pin-0fd24d3/PIN-RUN.hbp`](allpairs/failclosed/pin-0fd24d3/PIN-RUN.hbp), is time-stamped 08:52:22Z, before the recorded start at 08:54:17Z, with every output row the same as the original's apart from `secs=`. It reached git at 09:50Z, after the recorded end at 09:39:22Z, so the order rests on those time stamps. The values were known from the original run, so this tests the corrected executable against it. It printed, in [`allpairs/failclosed/pin-0fd24d3/ALLPAIRS-3x4-PIN.out`](allpairs/failclosed/pin-0fd24d3/ALLPAIRS-3x4-PIN.out):
+
+```
+ALLPAIRS|L=3x4|sector=Sx+Sy+|n=45508080|rows_read=45508080|entries=3310759342|header_entries=PASS|diag=45508080|pairs=1632625631|passes=4|cap_entries=470000000|value_mismatch=0|lower_without_upper=0|upper_without_lower=0|columns_not_ascending=0|column_out_of_range=0|zero_z=0|positive_offdiag=0|row_sum_nonzero=0|zero_weight=0|missing_diag=0|flats=7|flat_w=1,3,2,3,3,2,4|flat_w_sum=18|sum_w=13060694016|codes=13060694016|whole_space_count=PASS|merkle=PASS|verdict=PASS|secs=2705|json=0
+```
+
+It exited 0 with an empty standard error, after 2,705 s in 4 passes of 705, 557, 738 and 701 s, and its executable and source kept their hashes. The second seat read its peak working set while it ran: 4,038,279,168 bytes. The 3.5 GiB above counts the entries alone. [`allpairs/failclosed/compare_pin_run.py`](allpairs/failclosed/compare_pin_run.py), written while the run was going, judged it against the operator's requirements: 31 of 31 met, in [`allpairs/failclosed/pin-0fd24d3/PIN-COMPARE.hbp`](allpairs/failclosed/pin-0fd24d3/PIN-COMPARE.hbp). Both count gates read `PASS`, with 0 mismatches, 0 unpaired entries, every structure counter 0, and merkle PASS on each of 4 passes. Apart from `secs=`, all 5 rows match the original run's, `609bc96f…` in both. That judge reported all 20 faults put to it and passed the 2 copies that should pass: [`allpairs/failclosed/pin-0fd24d3/COMPARE-CONTROLS.hbp`](allpairs/failclosed/pin-0fd24d3/COMPARE-CONTROLS.hbp). The small controls ran again on this exact executable, with the same rows: [`allpairs/failclosed/pin-0fd24d3/HEADER-CONTROLS-PIN.hbp`](allpairs/failclosed/pin-0fd24d3/HEADER-CONTROLS-PIN.hbp) and [`allpairs/failclosed/pin-0fd24d3/CONTROLS-PIN.hbp`](allpairs/failclosed/pin-0fd24d3/CONTROLS-PIN.hbp). To repeat the run and its judgement from the public files: [`allpairs/failclosed/reproduce_pin_run.sh`](allpairs/failclosed/reproduce_pin_run.sh).
+
+The scope of this run: this seat wrote the tool, and it ran on this seat's machine, on the same store as the original run. It reads the stored rows and weights, as above. A replay on another machine is open.
+
+### The second seat's review of `allpairs`
+
+**Overall: FAIL, on fail-closed behavior and on wording. The recorded 3×4 numbers stand.** Its report is [`allpairs/failclosed/review-opus55/ALLPAIRS-REVIEW.md`](allpairs/failclosed/review-opus55/ALLPAIRS-REVIEW.md), with its rows in [`allpairs/failclosed/review-opus55/REVIEW.hbp`](allpairs/failclosed/review-opus55/REVIEW.hbp), its reader and its attacks beside them, and its executables left out and listed by hash in `HASHES.sha256`.
+
+| Scope item, as the operator set it | Verdict | Basis |
+|---|---|---|
+| Window partitioning, pair coverage, exactly-once counting | PASS | 1,345 store-and-cap runs against a brute-force check, 0 disagreements, and the four 3×4 windows reproduced |
+| Integer overflow, malformed input, fail-closed behavior | **FAIL** | No overflow found. D1 to D4 and D8 below |
+| Unpaired edges and equality mismatches | PASS | All 180,352 bits of the 2×2 rows flipped, with only the unread `mag` at exit 0, and 220,000 random stores with 0 false passes |
+| Independent verification of the reported pair count | PASS | Its own reader, in one pass on this machine: 1,632,625,631 upper and lower, the same four windows, merkle `ec03c5f8…`, 34 of 34 sectors against the public manifest, equal fingerprints over GF(2¹²⁷ − 1) with false pass at most 9.6 × 10⁻³⁰, and a keyed sum of 0 |
+| Whether the recorded results support exactly the claims | **FAIL** | Seven statements went beyond their receipts, and the order of the 3×4 prediction is INCONCLUSIVE from the public record |
+
+Its scope: a code review, tests on copies and one pass by a separate reader, on this seat's machine from this seat's files, with a replay on another machine open. It ran on the same model as this seat, in a separate session with separate code, so blind spots can be common to both. The brief left out the known finding as a test of the review. It reported D1 and D2. It saw the subject line of the later commit `55ff7c6` in its first log row, so D2 carries that exposure, and D1 lies outside that line. It wrote four helper scripts outside its folder, as its report records.
+
+Each defect, on the corrected executable `cdb22218…`. The D1, D2, D3, D5, D6, D7 and D8 rows of its [`repro.py`](allpairs/failclosed/review-opus55/attack/repro.py) were rerun here on both executables: [`allpairs/failclosed/pin-0fd24d3/REPRO-ORIGINAL.txt`](allpairs/failclosed/pin-0fd24d3/REPRO-ORIGINAL.txt) and [`allpairs/failclosed/pin-0fd24d3/REPRO-CORRECTED.txt`](allpairs/failclosed/pin-0fd24d3/REPRO-CORRECTED.txt).
+
+| # | Finding | Corrected executable | Recorded 3×4 result |
+|---|---|---|---|
+| D1 | `n=0` passes with no rows read, and prints `merkle=PASS` | Closed: exit 1 | `n=45508080`, 4 passes |
+| D2 | An unreadable count field leaves its gate `OPEN`, and `OPEN` exits 0 | Closed: exit 2 | Both gates read `PASS` |
+| D3 | Payload after the last row is hashed and left unread, so nonzero padding or a bad row placed there exits 0 | **Open:** exit 0 | 92,770 rooms of padding, all zero, by its reader |
+| D4 | Memory grows with padding: 1,228,926,976 bytes at 1,024 MiB of padding | **Open** | 742,160 bytes of padding |
+| D5 | `cap_entries` prints the argument, and the window uses the clamped value | **Open** | 470,000,000 is in range |
+| D6 | The output never names the store. A 4-row store labelled `L=3x4\|nl=24` with weights summing to 6¹³ prints `verdict=PASS` | **Open:** exit 0, `n=4` | The line alone names no store. Its reader ties that store to merkle `ec03c5f8…` and to the 34 sector hashes in the public manifest, and the corrected run's rows carry that merkle and the header's hash |
+| D7 | `upper_without_lower` is `stored − found`, so a doubled lookup can cancel an unpaired entry in the counter | **Open:** exit 2 from the column gate, with that counter at 0 | `columns_not_ascending=0` |
+| D8 | The header block is under no hash: 1,771 of 2,912 flipped bits exit 0 on the original | **Open** for `sector=`, `rooms=`, `stream_bytes=` and other unread fields | Sector 341's hash covers the header and matches the public manifest |
+
+Its wording findings, C1 to C7: C1, C2, C3, C6 and C7 are corrected in these docs, with the earlier `RESULT_ALLPAIRS_3x4` row kept and a `RESULT_CONTROL_COMPOSITION` row beside it. C4 is corrected in the source at `0fd24d3`. C5, the source comment "Memory stays bounded", holds when the padding is small and no row exceeds the cap, and it stays open with D4, since changing that source changes the pinned hash.
+
+Fixes for D3 to D8 change the source and the executable, so they wait for the operator's word.
 
 ### Which tool made which row
 
@@ -262,7 +333,7 @@ Its first objections as a hostile reader stand as open items: the upper side bou
 |---|---|
 | The outside seat's Go checker, further | Its values, and its row-sum and self-adjoint gates on fixtures, are measured, in section 5. Open: an exact pair test in its own code, which goes beyond a wider range for x and y. Earlier runs, on its branch's [`independent-go-perron-20261102.yml`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/audit/independent-go-perron-20261102/.github/workflows/independent-go-perron-20261102.yml): the first stopped after the row loop on the format text this seat gave it, corrected in `PERRON-REVIEW.md`, and diagnostic run [41499253445](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41499253445) printed `trailing=742160 nonzero=0 merkle_matches=true`, as predicted in writing beforehand |
 | Every 3×4 row against the definition of H | Done on this seat's machine: all 45,508,080 rows, 0 mismatches, as predicted in writing first, in section 5. Open: a replay on another machine from the public files, about 2.2 h at 6 threads |
-| Every off-diagonal pair, exactly | Done on this seat's machine: 1,632,625,631 pairs, 0 mismatches, as predicted in writing first, in section 5. Open: a second seat's review of `allpairs`, and a replay on another machine from the public files, 2,704 s here |
+| Every off-diagonal pair, exactly | Done on this seat's machine, by the original executable and by the corrected one: 1,632,625,631 pairs, 0 mismatches, in section 5. A second seat's review reads FAIL overall, with the recorded numbers standing, in section 5. Open: its defects D3 to D8, and a replay on another machine from the public files, about 2,705 s here, with [`allpairs/failclosed/reproduce_pin_run.sh`](allpairs/failclosed/reproduce_pin_run.sh) |
 | The gap below r = 6.076 on 3×4 | A solve at lower coupling, then the same checks. On 3×3 the flat bound's route ends between r = 4 and 4.06 |
 | `perroncert` guards at absurd inputs | A hardened build with checked products, once the pinned runs are done |
 | A verdict by this route | A rule revision and the operator's word: [`PERRON-RULE-DRAFT.md`](PERRON-RULE-DRAFT.md) |

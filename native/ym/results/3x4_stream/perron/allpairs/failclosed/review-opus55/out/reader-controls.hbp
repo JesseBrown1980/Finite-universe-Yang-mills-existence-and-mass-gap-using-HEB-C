@@ -1,0 +1,11 @@
+READER_CONTROL|L=2x2|fault=value_minus_1_row_sum_kept_each_off_diagonal_entry|runs=2396|reported_by_both_lanes=2396|secs=47|json=0
+READER_CONTROL|L=2x2|fault=weight_plus_1_each_row|runs=211|reported_by_both_lanes=211|json=0
+READER_CONTROL|L=2x2|fault=moved_column|runs=71|reported_by_both_lanes=71|json=0
+READER_CONTROL|L=2x2|fault=symmetric_change_keeps_equality_passes_by_design|runs=70|passed_as_predicted=70|json=0
+READER_WINDOWS_AGAINST_TOOL|L=2x3|cap=1000|tool_passes=37|reader_windows=37|all_equal=1|json=0
+WINDOW_BOUNDARY_FAULTS|L=2x3|cap=1000|boundaries=6|faults=24|reader_reported=24|allpairs_reported_one_mismatch_named=24|json=0
+READER_WINDOWS_AGAINST_TOOL|L=3x3|cap=1000000|tool_passes=8|reader_windows=8|all_equal=1|json=0
+WINDOW_BOUNDARY_FAULTS|L=3x3|cap=1000000|boundaries=7|faults=28|reader_reported=28|allpairs_reported_one_mismatch_named=28|json=0
+N_PREFIX_SWEEP|L=2x2|n=211|k_tried=210|k_that_pass=0|first=[]|k_with_no_out_of_range_column=0|json=0
+N_PREFIX_SWEEP|L=2x3|n=2646|k_tried=2645|k_that_pass=0|first=[]|k_with_no_out_of_range_column=0|json=0
+READER_CONTROLS_DONE|failed=0|keys=--r 83529cdf1a2d4770b6c93373ef824a --k0 c1ec723a2b76ca61 --k1 3a9d09dfe3b7e760|secs=370|json=0

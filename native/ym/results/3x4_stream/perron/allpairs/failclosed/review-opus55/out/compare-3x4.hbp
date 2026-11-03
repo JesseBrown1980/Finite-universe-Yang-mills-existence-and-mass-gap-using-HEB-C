@@ -1,0 +1,8 @@
+PREDICTED_AGAINST_READER|fields=40|differ=0|which=-|json=0
+PREDICTED_WINDOWS|rows_equal=1|upper_equal=1|lower_equal=1|json=0
+RECORDED_AGAINST_READER|fields=20|differ=0|which=-|json=0
+RECORDED_PASSES_AGAINST_READER_WINDOWS|passes=4|windows=4|rows_upper_lookups_all_equal=1|json=0
+SECTORS|hashed=34|manifest_match=34|json=0
+PAIR_COUNT|recorded=1632625631|reader_upper=1632625631|reader_lower=1632625631|fingerprint_upper=671468cc4543adaf9ccb1a27a73355f9|fingerprint_lower=671468cc4543adaf9ccb1a27a73355f9|keyed_sum61=0|pairs_touching_flat_rows=20|pairs_of_H_prime=1632625611|json=0
+PADDING|trailing_rooms=92770|bytes=742160|nonzero_rooms=0|json=0
+BOUND|upper=1632625631|p=2^127-1|false_pass_per_mille_of_a_billionth=see_review|N_over_p_floor_exponent=-29|json=0

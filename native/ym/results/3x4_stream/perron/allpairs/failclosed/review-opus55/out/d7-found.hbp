@@ -1,0 +1,3 @@
+D7_FOUND|h=1|i=0|m=8|cap=470000000|exit=2|stored=1198|found=1198|lookups=1198|pairs=1198|upper_without_lower=0|lower_without_upper=0|value_mismatch=0|columns_not_ascending=1|verdict=FAIL|json=0
+D7_FOUND|h=1|i=0|m=8|cap=100|exit=2|stored=1198|found=1198|lookups=1198|pairs=1198|upper_without_lower=0|lower_without_upper=0|value_mismatch=0|columns_not_ascending=1|verdict=FAIL|json=0
+D7_FOUND|h=1|i=0|m=8|cap=13|exit=2|stored=1198|found=1198|lookups=1198|pairs=1198|upper_without_lower=0|lower_without_upper=0|value_mismatch=0|columns_not_ascending=1|verdict=FAIL|json=0

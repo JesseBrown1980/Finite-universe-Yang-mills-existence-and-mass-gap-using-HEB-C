@@ -1,0 +1,2 @@
+ALLPAIRS_PASS|pass=0|rows_from=0|rows_to=2|upper_stored=1|lookups=1|found=1|value_mismatch=0|lower_without_upper=0|upper_without_lower=0|merkle=PASS|secs=14|json=0
+ALLPAIRS|L=x|sector=x|n=2|rows_read=2|entries=4|header_entries=PASS|diag=2|pairs=1|passes=1|cap_entries=1000|value_mismatch=0|lower_without_upper=0|upper_without_lower=0|columns_not_ascending=0|column_out_of_range=0|zero_z=0|positive_offdiag=0|row_sum_nonzero=0|zero_weight=0|missing_diag=0|flats=0|flat_w=|flat_w_sum=0|sum_w=2|codes=-|whole_space_count=OPEN|merkle=PASS|verdict=PASS|secs=14|json=0

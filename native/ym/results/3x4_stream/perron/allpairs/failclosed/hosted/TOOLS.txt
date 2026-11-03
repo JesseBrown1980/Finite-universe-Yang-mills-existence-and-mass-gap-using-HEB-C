@@ -1,0 +1,5 @@
+5ab04b184a4395a779ec6b2189352ea54533f7d1c49b32275d0f30d15d83f4ef  corrected.rs
+389881acc55dfea143ff42cd52cd6a64eea63c79f96f4906d24ccfdff259a097  allpairs-corrected
+376cce17f0148b89b35f6056a9f031c314b8e475ad6c17c4d966755bd848c8d4  allpairs-original
+rustc 1.81.0 (eeb90cda1 2024-09-04)
+go version go1.24.13 linux/amd64
