@@ -205,7 +205,7 @@ expected for a fixed short side of 2.
 | 4×5 | 23.618291 J_E | The same |
 | 5×5 | 21.792208 J_E | The same |
 
-They hold E₉ − E₈ near 3r on each torus up to 5×5, which fits the theorem's shape. Each is a statement about one finite torus, and uniformity in volume stays with this plan. **Next here:** the finite-size constant r₀ as a number, odd and rectangular tori, and the rest of the matching in section 6.
+Their lower bounds sit within about 5 J_E of 3r = 27 on each torus up to 5×5, which fits the theorem's shape. Each is a statement about one finite torus, and uniformity in volume stays with this plan. **Next here:** the finite-size constant r₀ as a number, odd and rectangular tori, and the rest of the matching in section 6.
 
 ## References
 

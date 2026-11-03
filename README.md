@@ -13,7 +13,7 @@ All of it is on GitHub, and this table is kept current. The full register, with 
 | **The road to SU(2)** | [The companion repository](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved): S₃, Q8, 2T and 2O sealed, 2I in progress in its [draft #9](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved/pull/9) | The 2I official run |
 | **The continuum** | [The continuum track](native/ym/shadow/CONTINUUM-TRACK.md) names the milestones | A separate obligation after uniformity in volume |
 
-Merged on November 3: the checker fixes, the no-store bound and the stability plan (#84 to #92), and every older PR that still applied (#5 to #9, #11 to #18, #31, #39, #42 to #44, #47), each in its place below. The register lists all of them. Each result here is a statement about one finite lattice. The second seat's FAIL on the original `allpairs` and every later finding stay on record, with the status of each in [`PERRON-TWO-SIDED.md`](native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md), section 5.
+Merged on November 3: the checker fixes, the no-store bound and the stability plan (#84 to #92), and every older PR that still applied (#5 to #9, #11 to #18, #31, #39, #42 to #44, #47), each in its place below. The register lists all of them, and the few still open. Each result here is a statement about one finite lattice. The second seat's FAIL on the original `allpairs` and every later finding stay on record, with the status of each in [`PERRON-TWO-SIDED.md`](native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md), section 5.
 
 Exact spectral certificates for S₃ lattice gauge theory on periodic finite
 lattices, run headless through the HEB-C HTTP-0 backend. GitRAM distributes the
