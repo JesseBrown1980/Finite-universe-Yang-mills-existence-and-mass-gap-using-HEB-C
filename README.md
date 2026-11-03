@@ -14,6 +14,8 @@ the rows, with every step recorded in HBP/HBI receipts. Each result is a stateme
 one finite lattice. Uniformity in volume and the continuum limit are separate open
 obligations: see [the theory route](#the-theory-route).
 
+**Companion work.** [Finite-Universe SU(N)](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved) is the companion repository: S₃ confinement at strong coupling, exact Wilson-loop certificates for the finite SU(2) subgroups Q8, 2T and 2O, and the road to continuous SU(2). In this repository, [the volume-uniform proof plan](docs/YM_TOPOLOGICAL_STABILITY_PROOF.md) and [the continuum track](native/ym/shadow/CONTINUUM-TRACK.md) hold the next obligations.
+
 ## Results
 
 **Gap above the eight-state flat-vacuum cluster, E₉ − E₈, for every r ≥ 9**
