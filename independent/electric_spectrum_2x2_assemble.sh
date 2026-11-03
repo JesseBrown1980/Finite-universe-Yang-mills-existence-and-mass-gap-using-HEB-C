@@ -1,5 +1,5 @@
 #!/bin/bash
-# Assembles independent/electric_spectrum_2x2.measure from one run folder, in a fixed order. No arithmetic beyond bash integers.
+# Assembles independent/electric_spectrum_2x2.measure from one run folder, in a fixed order. Bash integers only.
 # The folder holds a.out b.out c.out same.out d_sectors.out d.log e.out e.done, and d_T.out d_T.errout for each T in d.log.
 # usage: electric_spectrum_2x2_assemble.sh RUN_FOLDER
 set -uo pipefail

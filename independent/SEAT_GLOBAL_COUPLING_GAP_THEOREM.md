@@ -20,6 +20,7 @@ Independent PR #7 source reconstruction, using exact permutation-group orbit enu
 - `M` diagonal, `0<=M_i<=12`, with weighted average `sum_i w_i M_i / sum_i w_i = 8`.
 - The complete undirected graph of strictly negative electric entries is connected with **shortest-path diameter D=8**. The verifier checks all 1,393 source vertices by exact breadth-first search, not a sample.
 - Every present edge has integer jump rate `c_ij=-E_ij>=1`; `E` has an exact **electric-only gap 6**, a pre-existing native analytic certificate, not a result freshly established by this script.
+- November 3, 2026, beside the line above: gap(E) = 6 is now counted at J_B = 0 on this same matrix, 1,393 of 1,393 rows equal, in [`ELECTRIC_SPECTRUM_2X2_REPORT.md`](ELECTRIC_SPECTRUM_2X2_REPORT.md).
 
 These facts yield a coarse but **explicit rigorous bound at every positive finite coupling ratio**, rather than requiring potentially enormous cell enumeration.
 

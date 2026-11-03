@@ -1,6 +1,6 @@
 # The electric spectrum of the periodic 2×2 S₃ torus, and gap(E) = 6
 
-**November 3, 2026.** Scope: the 1,393 gauge-invariant orbits of the periodic 2×2 S₃ torus at J_B = 0, and the every-ratio bound on that same torus. Integer only, `float_used=0`. Receipts are HBP rows in [`electric_spectrum_2x2.measure`](electric_spectrum_2x2.measure), 330 rows, all `json=0`.
+**November 3, 2026.** Scope: the 1,393 gauge-invariant orbits of the periodic 2×2 S₃ torus at J_B = 0, and the every-ratio bound on that same torus. Integer only, `float_used=0`. Receipts are HBP rows in [`electric_spectrum_2x2.measure`](electric_spectrum_2x2.measure), 330 rows, all `json=0`. The section on the formula gap(E) = 3·min(4, Lx, Ly) covers every periodic torus, with its receipt in [`electric_gap_formula.measure`](electric_gap_formula.measure), 80 rows. A second seat attacked this report at head `689d85d` with the verdict not refuted. Its evidence is in [`reviews/opus55-electric-gap/`](reviews/opus55-electric-gap/README.md), and its findings are applied below, dated November 3.
 
 ## Result
 
@@ -40,7 +40,7 @@ GPT-6's [review of the every-ratio theorem](GPT6_THEOREM_REVIEW_2026-11-03.md) s
 |---|---|---|---|---|
 | 1 | [`gpt6_2x2_from_permutations.py`](gpt6_2x2_from_permutations.py), operator SHA-256 `b6c608f5…` | P(E) = 0, exact, on all 1,393 basis vectors, with the 13 costs as the roots of P. Each P/(x − c) at E is nonzero. The multiplicities are read back from traces | 0 with multiplicity 1, 6 with multiplicity 4, and no eigenvalue between | MEASURED |
 | 2 | The same, in four translation sectors | GPT-6's interval Sturm engine, unchanged, at 16 thresholds | 1 at 1.7, 4.7, 5.999. 5 at 6.001, 7.7 | MEASURED |
-| 3 | [`indep_verify.py`](../native/ym/independent/indep_verify.py), the full space with no sector reduction | Signs of leading minors through the Rust kernel, by CRT past the Hadamard bound of 39,006 bits | N = 1 at 5.999, N = 5 at 7.7 | MEASURED |
+| 3 | [`indep_verify.py`](../native/ym/independent/indep_verify.py), the full 1,393-dimensional matrix | Signs of leading minors through the Rust kernel, by CRT past the Hadamard bound of 39,006 bits | N = 1 at 5.999, N = 5 at 7.7 | MEASURED |
 
 The conclusion from these rows is DERIVED, with its steps under path F.
 
@@ -66,7 +66,7 @@ The conclusion from these rows is DERIVED, with its steps under path F.
 
 **Reflection.** S = Π_l sgn(U_l) is gauge invariant, since each vertex has 4 ends, and each link move flips it. So S E S = 48 − E, and m[c] = m[48 − c]. `ELECTRIC_C_REFLECTION` measures it on 1,393 of 1,393 rows.
 
-The hand count of the full table from the vertex rule was written into the prediction before any run. It reads 34 = 4 + 30 at cost 12, 40 at cost 15, 176 at 18, 192 at 21 and 499 at 24, and the runs equal it.
+The hand count of the full table from the vertex rule was written into the prediction before any run. The file holds 34 at cost 12, 40 at cost 15, 176 at 18, 192 at 21 and 499 at 24, and the runs equal it. The split 34 = 4 + 30 is confirmed by count: 2 sign links carry 4 states, 4 τ links carry 30, and 1 sign link with 2 τ links carries 0, in `ELECTRIC_G_SPLIT`.
 
 ## The paths
 
@@ -82,14 +82,18 @@ The code is [`electric_spectrum_2x2.py`](electric_spectrum_2x2.py), one mode per
 
 **E, the second engine.** `INDEP_MINORS=…/indep-minors.exe WORKERS=3 python3 -X utf8 indep_verify.py 2 2 0 5999000,7700000`, from `native/ym/independent`. N = 1 and N = 5, 641 primes of 62 bits, 0 reshuffles, 2,748 s at below-normal priority. The kernel's hash is in `INDEP_RUN`. Its build's dependency file names `native/ym/independent/minors/src/main.rs`, and that file's blob is the one on main, recorded in `ELECTRIC_E_RUN`.
 
-**F, the conclusion.** `f MEASURE` reads the pinned rows and prints each step. It fails on a missing or changed row.
+Beside this, November 3. The priority of the runs of paths D and E is `NOT_MEASURED|reason=NOT_REACHABLE_FROM_HERE`: `lane=local_below_normal` in their rows is a literal in the assembler, and the launcher left no record. The second seat's own engine runs were at below-normal priority, confirmed by process class.
+
+**F, the conclusion.** `f MEASURE` reads the pinned rows and prints each step. It fails on a missing or changed row. Since November 3 its required rows also hold the code hash and the kernel hash in `INDEP_RUN`, the same code hash in the `ELECTRIC_ENGINE` row of `indep_verify.py`, and the source blob in `ELECTRIC_E_RUN`, each at its pinned value.
 
 1. From path A and `ELECTRIC_C_LINKS`, the spectrum of E lies in 3Z ∩ [0, 48].
 2. From D at T = 1700, 4700, 5999 and E at 5.999, exactly one eigenvalue lies below each T. Every row of E sums to 0, so the constant is in the kernel and is that eigenvalue. So 0 is simple and 3 is absent.
 3. From D at T = 6001, 7700 and E at 7.7, the count is 5. So 4 eigenvalues lie in [5.999, 6.001), and step 1 leaves only 6 there. So m₆ = 4.
 4. So gap(E) = 6 exactly.
-5. Routes 1 and 2 share the matrix and differ in method. Route 1 reaches the same conclusion with no inertia engine and without step 1, from P(E) = 0 and the traces of its prefix products.
+5. Routes 1 and 2 share the matrix and differ in method. Route 1 reaches the same conclusion from P(E) = 0 and the traces of its prefix products alone.
 6. Each of the 13 gaps, between consecutive costs and above the top, holds a certified T, and all 16 counts equal the cumulative table. MEASURED.
+
+**G, the formula.** `g FOLDER`, added on November 3, in the section on the formula below.
 
 ## The every-ratio bound on this torus
 
@@ -105,6 +109,8 @@ GPT-6 read the analytic argument as PASS with gap(E) = 6 as its one named antece
 
 Each file was pushed before the runs it predicts, and the workflow checks each stands as committed.
 
+Beside this, November 3. The push times come from GitHub's activity feed and the run times from the run folder, read by the second seat and read again by the unit applying its findings. MEASURED for paths C, D and E: `2e7afed` pushed at 19:39:40Z with the first run file at 19:45:35Z, `4ee2845` at 20:04:06Z with its first T at 20:04:14Z, and `ea23e31` at 20:12:13Z with its first T at 20:12:21Z. Paths A and B survive on disk as re-runs from 20:24Z, so their first run time is `NOT_MEASURED|reason=NOT_REACHABLE_FROM_HERE`. Git order holds for all five: the three prediction commits come first, and the script arrives in `056de0f`. The workflow step checks ancestry and bytes, and its name now says so.
+
 | File | Commit | Holds |
 |---|---|---|
 | [`ELECTRIC-SPECTRUM-2X2-PREDICTION.hbp`](ELECTRIC-SPECTRUM-2X2-PREDICTION.hbp) | `2e7afed` | The brief's rows, and the full table, traces and cumulative counts worked by hand |
@@ -117,6 +123,8 @@ Each file was pushed before the runs it predicts, and the workflow checks each s
 |---|---|---|
 | D9 to D12 | Counts 255, 447, 946, 1,138 at T = 19700, 22700, 25700, 28700 | The engine stopped closed at each, so no count at these T. Replacement T in the same open intervals read the predicted counts |
 | R1, R4 | 8 further T in each of (18, 21) and (27, 30) | The engine stopped closed at all 16. S1 and S2 then certified T = 20950 and T = 27050, with 255 at 75, 61, 61, 58 and 1,138 at 310, 275, 275, 278, as registered |
+
+Correction, November 3. The second seat found that `predictions` read a wrong value as NOT_MEASURED on 14 of its 24 needle rows: A1, A2, A3, B1, B2, B3, B4, C1, C2, C3, C4, C5, C6 and F1. Each needle row now has a head, which names the receipt row up to its value. A row with that head and a changed value reads MISS. A receipt with no such row reads `NOT_MEASURED|reason=NO_ROW`. The 53 rows on this receipt are byte-equal to the pinned ones, so 47 MET, 0 MISS, 6 NOT_MEASURED stands, and the red controls are under Replay.
 
 ## Where the engine stops
 
@@ -131,11 +139,56 @@ The engine stopped closed at 26 of the 42 thresholds off the spectrum, all betwe
 
 Two facts, each with its tag. At non-integer T the exact pivots are nonzero: a principal minor of W(E − T) is det W times the characteristic polynomial of an integer matrix at T, and a monic integer polynomial has only integer rational roots. DERIVED. So these stops read the width of the enclosure at the engine's 40 digits, its command-line default. CONJECTURE, as the width was left unmeasured.
 
+Beside this, November 3, MEASURED by the second seat at 5 of the 26 stopped thresholds, local: GPT-6's engine, sha `6d7353ff…`, called through its own `run()` with a digits argument. Each of these T stops at 40 digits and certifies with more.
+
+| T | Digits | Reads | Sectors pp, pm, mp, mm |
+|---:|---|---:|---|
+| 18300 | 120 | 255 | 75, 61, 61, 58 |
+| 19700 | 60, 80, 120, 200 | 255 | 75, 61, 61, 58 |
+| 22700 | 80, 120 | 447 | 123, 109, 109, 106 |
+| 25700 | 80, 120 | 946 | 262, 227, 227, 230 |
+| 28700 | 80, 120 | 1,138 | 310, 275, 275, 278 |
+
+So at these 5 T the stop reads the enclosure width at 40 digits. They include all four registered thresholds D9 to D12, each at its predicted count. The rows D9 to D12 stay `NOT_MEASURED`, as the registered run is the engine's command line at 40 digits. The other 21 stops keep the CONJECTURE. Log: [`engine_digits_runs.log`](reviews/opus55-electric-gap/engine_digits_runs.log). The applying unit repeated T = 19700 at 60 digits through the filed driver and read the same row.
+
 The two intervals (18, 21) and (27, 30) behave as one, since B(48 − T) = −S B(T) S and S is a diagonal of signs. Of the T run on both sides, 9 of 9 pairs stop alike with complementary sector counts, as registered in S3. MEASURED. Every threshold off the spectrum below 18 and above 30 certified on its first run, including all of those the statement uses.
+
+## The formula gap(E) = 3·min(4, Lx, Ly)
+
+**DERIVED, retagged on November 3, for every periodic Lx × Ly S₃ torus with Lx, Ly ≥ 1.** The builder's rows stay as pinned: `ELECTRIC_B_FORMULA` reads `tested_on=2x2,2x3|tag=CONJECTURE`, and prediction row B11 reads `tag=CONJECTURE`. The second seat proposed the argument, and the unit applying its findings checked it with mode `g`, in [`electric_gap_formula.measure`](electric_gap_formula.measure).
+
+The states of E sit on assignments of irreps to links, and the cost of an assignment is the sum of its link costs, as in the derivation above. Take an assignment with at least one state, and let S be its set of nontrivial links.
+
+1. At a vertex, one τ end has no invariant, with any number of sign ends beside it, and an odd number of sign ends with no τ end has none. So S has degree at least 2 at every vertex it touches, with a loop counted twice.
+2. A nonempty finite set of links with that property holds a cycle, since a set with no cycle is a forest and a forest has a vertex of degree 1. So S has at least girth links, where girth is the length of the shortest cycle of the torus multigraph. A loop is a cycle of length 1, and two parallel links are a cycle of length 2.
+3. Each nontrivial link costs at least 3, so every nonzero cost is at least 3·girth.
+4. τ on a shortest cycle, with the trivial irrep elsewhere, has k = 2 at each vertex of the cycle and dim Inv = 1 there, so it has one state, at cost 3·girth. So gap(E) = 3·girth. The all-trivial assignment has one state and is the only one at cost 0, so 0 is simple.
+5. The girth of the torus multigraph is min(4, Lx, Ly). With min(Lx, Ly) = 1, a link along the side of length 1 is a loop. With min(Lx, Ly) = 2, every link joins two distinct sites, and the two links between neighbours along the side of length 2 are parallel. With min(Lx, Ly) = 3, every site has 4 distinct neighbours, which rules out loops and parallel links, and a line along the side of length 3 is a cycle. With min(Lx, Ly) ≥ 4, every site has 4 distinct neighbours, and a cycle of length 3 would need its steps to cancel in each direction, since each side is longer than 3. That takes an even count of steps in each direction, against 3 odd. A plaquette is a cycle of length 4.
+
+One more consequence. At cost 3·girth, S has exactly girth links, all τ, so S is one shortest cycle. So m at the gap is the number of shortest cycles: the 4 doubled edges on 2×2, the 6 lines of length 3 on 3×3, and the 16 plaquettes with the 8 lines of length 4 on 4×4.
+
+Mode `g` checks these steps, MEASURED:
+
+| Row | Scope | Reads |
+|---|---|---|
+| `ELECTRIC_G_VERTEX` | All 81 tuples of irreps at a vertex | dim Inv depends on k and s alone, with one τ end at 0 and odd sign ends with no τ at 0 |
+| `ELECTRIC_G_GIRTH` | Every Lx, Ly from 1 to 12 | The shortest cycle, found by removing each link and taking the shortest path between its ends, equals min(4, Lx, Ly) on 144 of 144 |
+| `ELECTRIC_G_TORUS` | Every Lx, Ly from 1 to 6, with 3×7, 4×7, 5×7, 6×7, 7×7 and 8×8 | Every assignment of cost up to the formula, 12,066,273 of them on 8×8: 0 states between 0 and the formula, and m at the formula equal to the number of shortest cycles, on 42 of 42 tori |
+
+The second seat's 28 tori, by its own character path, with its own incidence and character table. MEASURED, local, and replayed in the workflow. Each reads the formula, and each m equals `ELECTRIC_G_TORUS`, on 28 of 28 rows of `ELECTRIC_G_SECOND_SEAT`:
+
+| Gap | Full table with Burnside and reflection closure, m at the gap in brackets | Table truncated at cost 15, m at the gap in brackets |
+|---:|---|---|
+| 3 | 1×1 (2), 1×2 (2), 1×3 (3), 1×4 (4), 1×5 (5), 2×1 (2) | |
+| 6 | 2×2 (4), 2×3 (3), 3×2 (3), 2×4 (4), 2×5 (5) | |
+| 9 | 3×3 (6), 3×4 (4), 4×3 (4), 3×5 (5) | 3×6 (6), 3×7 (7) |
+| 12 | 4×4 (24) | 4×5 (25), 4×6 (30), 4×7 (35), 5×5 (25), 5×6 (30), 5×7 (35), 6×6 (36), 6×7 (42), 7×7 (49), 8×8 (64) |
+
+Its logs hold 21 of the 28. For the other seven, 1×1, 1×2, 1×4, 2×1, 2×4, 2×5 and 3×3, the readings are in its report, and the applying unit ran its filed script on them, into [`seven_tori_rerun.log`](reviews/opus55-electric-gap/seven_tori_rerun.log). That run reads 9 with m = 6 on 3×3 and 3 on 1×N and 2×1, as its report does, and 6 on 2×4 and 2×5.
 
 ## Replay
 
-[`.github/workflows/electric-spectrum-2x2.yml`](../.github/workflows/electric-spectrum-2x2.yml), on hosted Linux, replays against the pinned rows: A, B, C, the same-operator check, F, the prediction check, and D at all 16 certified thresholds. Each of the 27 recorded stops replays as a stop. It checks the engines' hashes and the three prediction files against their commits. [Run 41715880472](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41715880472), on commit `188ec59` with Python 3.12.3, passed both jobs in full. The receipt was made on Python 3.13.14 on Windows, so the rows are the same on the two.
+[`.github/workflows/electric-spectrum-2x2.yml`](../.github/workflows/electric-spectrum-2x2.yml), on hosted Linux, replays against the pinned rows: A, B, C, the same-operator check, F, the prediction check, and D at all 16 certified thresholds. Each of the 27 recorded stops replays as a stop. It checks the engines' hashes and the three prediction files against their commits. [Run 41715880472](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41715880472), on commit `188ec59` with Python 3.12.3, passed both jobs in full. The receipt was made on Python 3.13.14 on Windows, so the rows are the same on the two. Since November 3 the workflow also replays path G, checks the hashes of the second seat's files and replays its character path on its 28 tori.
 
 Red controls, each of which must exit 1 with its reason:
 
@@ -150,6 +203,22 @@ Red controls, each of which must exit 1 with its reason:
 | A changed count in the receipt at T = 5999 | `missing_or_changed_row` |
 | A changed count in the receipt at T = 23300 | `count_differs_from_the_table` |
 | The certified row at T = 20950 removed | `a_gap_has_no_certified_T` |
+| A spurious factor of P, c = 3, added November 3 | `factor_not_needed` |
+| `INDEP_RUN` removed from the receipt, added November 3 | `missing_or_changed_row`, at `E_code` |
+| A changed kernel hash in the receipt, added November 3 | `missing_or_changed_row`, at `E_kernel` |
+| `ELECTRIC_E_RUN` removed from the receipt, added November 3 | `missing_or_changed_row`, at `E_kernel_source` |
+| Path G with a wrong character of τ, added November 3 | `dim_inv_not_divisible_by_6` |
+| Path G with the formula capped at 3, added November 3 | `girth_differs_from_the_formula`, at 4×4 |
+| Path G with one τ end allowed at a vertex, added November 3 | `m_at_gap_differs_from_the_shortest_cycles`, at 1×2 |
+
+The prediction check prints every verdict and exits 0, so a miss is recorded beside its row. Its controls, added November 3, read the verdicts:
+
+| Control on the receipt | Verdict |
+|---|---|
+| A changed trace | C5 reads MISS, and C6 stays MET |
+| The row of traces removed | C5 and C6 read NOT_MEASURED with reason NO_ROW |
+| Changed rows at A, B, C, D and F | MISS at A2, A3, B3, B6, C1, D4 and F1 |
+| A certified row added at T = 6000 | D4 reads MISS |
 
 Path E stays a local receipt because of its cost, and F reads its rows.
 
@@ -160,6 +229,7 @@ python3 -I -X utf8 independent/electric_spectrum_2x2.py a
 python3 -I -X utf8 independent/electric_spectrum_2x2.py b
 python3 -I -X utf8 independent/electric_spectrum_2x2.py c
 python3 -X utf8 independent/electric_spectrum_2x2.py same
+python3 -I -X utf8 independent/electric_spectrum_2x2.py g independent/reviews/opus55-electric-gap
 python3 -I independent/gpt6_sturm_sectors.py DIR
 python3 -I independent/gpt6_sturm_interval.py DIR 1 0 T
 ```
@@ -168,7 +238,8 @@ python3 -I independent/gpt6_sturm_interval.py DIR 1 0 T
 
 ## Open
 
-- A non-author reading of `electric_spectrum_2x2.py`. GPT-6's builder and engine, and the separate seat's builder, came from other seats. Paths A, B, C and F are new code from this one.
-- The formula gap(E) = 3·min(4, Lx, Ly). CONJECTURE. The character path measures it at 2×2 and 2×3, where it reads 6. The branches at 3 and 4 are untested: 3×3 predicts 9 and 4×4 predicts 12.
-- The real matrix on 2×3. Path B counts by characters, and paths C, D and E ran on 2×2 only.
+- A non-author reading of `electric_spectrum_2x2.py`. GPT-6's builder and engine, and the separate seat's builder, came from other seats. Paths A, B, C and F are new code from this one. Beside this, November 3: the second seat read and attacked the script at head `689d85d`. A non-author reading of what came after it, path G and the heads of the prediction check, stays OPEN.
+- The formula gap(E) = 3·min(4, Lx, Ly). CONJECTURE. The character path measures it at 2×2 and 2×3, where it reads 6. The branches at 3 and 4 are untested: 3×3 predicts 9 and 4×4 predicts 12. Beside this, November 3: retagged DERIVED in the section on the formula, where 3×3 reads 9 and 4×4 reads 12.
+- The real matrix on 2×3. Path B counts by characters, and paths C, D and E ran on 2×2 only. Beside this, November 3, MEASURED by the second seat with its own gauge fixing, in [`real.rs`](reviews/opus55-electric-gap/real.rs) and [`real23.log`](reviews/opus55-electric-gap/real23.log): dim 47,449, nnz 1,726,321, and P(E) = 0 in checked i128 with the 23 character roots on 7,970 vectors, one per translation orbit, with `columns_nonzero=0`. The multiplicities read back from the prefix traces equal the character table, including m₆ = 3 and m₉ = 2, with costs 3 and 69 absent. Local, and its hosted replay stays OPEN.
+- The bound at every ratio around this count. The Doob and Poincaré step stays a prose proof: GPT-6 read it as PASS and the second seat re-derived it line by line, and a machine check is OPEN. `seat_global_coupling.py` keeps its literal 6 and its row `electric_gap_antecedent=6`, tied to this count by the same-operator step of the workflow and by mode `c`.
 - Larger lattices and the continuum.
