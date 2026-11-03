@@ -1,0 +1,11 @@
+ADJ|Lx=3|Ly=3|s=0|true_max=0|limit=0|json=0
+ADJ|Lx=3|Ly=3|s=1|true_max=0|limit=0|json=0
+ADJ|Lx=3|Ly=3|s=2|true_max=1|limit=1|json=0
+ADJ|Lx=3|Ly=3|s=3|true_max=3|limit=3|json=0
+ADJ|Lx=3|Ly=3|s=4|true_max=4|limit=5|json=0
+ADJ|Lx=3|Ly=3|s=5|true_max=6|limit=7|json=0
+ADJ|Lx=3|Ly=3|s=6|true_max=9|limit=9|json=0
+ADJ|Lx=3|Ly=3|s=7|true_max=11|limit=11|json=0
+ADJ|Lx=3|Ly=3|s=8|true_max=14|limit=14|json=0
+ADJ|Lx=3|Ly=3|s=9|true_max=18|limit=18|json=0
+ADJ_VERDICT|Lx=3|Ly=3|subsets=512|sizes=10|violations=0|tight_sizes=8|mode=torus|json=0

@@ -1,0 +1,113 @@
+HUNT_START|Lx=4|Ly=4|nl=32|r=9/1|file=given/g-local-4x4-lump.hbp|claim_micro=112252744|seed=24|seconds=15|threads=3|sabotage=wrong_m|json=0
+HUNT_RESULT|visited=7627306|audited=945|audit_mismatch=0|out_of_table=0|below_claim=4149611|lumps_reached=80/80|signatures=12960|lowest_real_micro=-31747208|claim_micro=112252744|margin_micro=-143999952|seconds=15|json=0
+FAMILY_BEST|family=0|micro=-31747208|json=0
+FAMILY_BEST|family=1|micro=-31747208|json=0
+FAMILY_BEST|family=2|micro=-31747208|json=0
+FAMILY_BEST|family=3|micro=-31747208|json=0
+FAMILY_BEST|family=4|micro=-31747208|json=0
+FAMILY_BEST|family=5|micro=-31747208|json=0
+FAMILY_BEST|family=6|micro=-31747208|json=0
+FAMILY_BEST|family=7|micro=-31747208|json=0
+FAMILY_BEST|family=8|micro=-31747208|json=0
+FAMILY_BEST|family=9|micro=-31747208|json=0
+FAMILY_BEST|family=10|micro=-31747208|json=0
+FAMILY_BEST|family=11|micro=-31747208|json=0
+FAMILY_BEST|family=12|micro=-31747208|json=0
+LOW|a=0|b=16|micro=-31747208|n=[0, 0, 0, 0, 0, 0, 32]|config=01000000102110210002000100010002|json=0
+LOW|a=0|b=15|micro=-22747226|n=[0, 0, 4, 0, 0, 0, 28]|config=21000001102020200002000110020001|json=0
+LOW|a=0|b=14|micro=-13747234|n=[1, 0, 6, 0, 0, 0, 25]|config=11111201120122011102000111202010|json=0
+LOW|a=2|b=14|micro=-13747208|n=[0, 0, 0, 1, 0, 6, 25]|config=21021012202021101222220222000114|json=0
+LOW|a=0|b=13|micro=-4747244|n=[2, 0, 8, 0, 0, 0, 22]|config=22202001101212221220212201010211|json=0
+LOW|a=2|b=13|micro=-4747223|n=[0, 1, 3, 1, 0, 5, 22]|config=21021001202011100220200222012410|json=0
+LOW|a=0|b=12|micro=4252757|n=[4, 0, 8, 0, 0, 0, 20]|config=22415325030032314303421141555443|json=0
+LOW|a=2|b=12|micro=4252772|n=[1, 2, 4, 1, 0, 4, 20]|config=51105322405415250452044502011143|json=0
+LOW|a=4|b=12|micro=4252789|n=[0, 0, 0, 4, 0, 8, 20]|config=24011325323222053114244000312453|json=0
+LOW|a=2|b=11|micro=18248323|n=[2, 2, 6, 1, 0, 4, 17]|config=41023134541341123535423255253400|json=0
+LOW|a=4|b=11|micro=18347991|n=[0, 1, 3, 4, 0, 7, 17]|config=34045144111451134543203531015232|json=0
+LOW|a=0|b=11|micro=23741504|n=[5, 0, 10, 0, 0, 0, 17]|config=22415325030032414303421141555443|json=0
+LOW|a=2|b=10|micro=27552015|n=[4, 2, 6, 1, 0, 4, 15]|config=41023134541341124535423255253420|json=0
+LOW|a=4|b=10|micro=27737955|n=[1, 2, 4, 4, 0, 6, 15]|config=34045144111451144543205531015232|json=0
+LOW|a=6|b=10|micro=29052169|n=[0, 0, 0, 7, 0, 10, 15]|config=10124235104033100442330343014301|json=0
+LOW|a=0|b=10|micro=32915005|n=[7, 0, 10, 0, 0, 0, 15]|config=41021134541341124535423255253420|json=0
+LUMPBEST|a=0|b=1|micro=103252772|n=[28, 0, 4, 0, 0, 0, 0]|json=0
+LUMPBEST|a=0|b=2|micro=94252754|n=[25, 0, 6, 0, 0, 0, 1]|json=0
+LUMPBEST|a=0|b=3|micro=85252744|n=[22, 0, 8, 0, 0, 0, 2]|json=0
+LUMPBEST|a=0|b=4|micro=76252748|n=[20, 0, 8, 0, 0, 0, 4]|json=0
+LUMPBEST|a=0|b=5|micro=78966812|n=[17, 0, 10, 0, 0, 0, 5]|json=0
+LUMPBEST|a=0|b=6|micro=69749134|n=[15, 0, 10, 0, 0, 0, 7]|json=0
+LUMPBEST|a=0|b=7|micro=60243260|n=[13, 0, 10, 0, 0, 0, 9]|json=0
+LUMPBEST|a=0|b=8|micro=40252752|n=[12, 0, 8, 0, 0, 0, 12]|json=0
+LUMPBEST|a=0|b=9|micro=41924553|n=[9, 0, 10, 0, 0, 0, 13]|json=0
+LUMPBEST|a=0|b=10|micro=32915005|n=[7, 0, 10, 0, 0, 0, 15]|json=0
+LUMPBEST|a=0|b=11|micro=23741504|n=[5, 0, 10, 0, 0, 0, 17]|json=0
+LUMPBEST|a=0|b=12|micro=4252757|n=[4, 0, 8, 0, 0, 0, 20]|json=0
+LUMPBEST|a=0|b=13|micro=-4747244|n=[2, 0, 8, 0, 0, 0, 22]|json=0
+LUMPBEST|a=0|b=14|micro=-13747234|n=[1, 0, 6, 0, 0, 0, 25]|json=0
+LUMPBEST|a=0|b=15|micro=-22747226|n=[0, 0, 4, 0, 0, 0, 28]|json=0
+LUMPBEST|a=0|b=16|micro=-31747208|n=[0, 0, 0, 0, 0, 0, 32]|json=0
+LUMPBEST|a=2|b=0|micro=112252774|n=[25, 6, 0, 0, 1, 0, 0]|json=0
+LUMPBEST|a=2|b=1|micro=103252763|n=[22, 5, 3, 1, 0, 1, 0]|json=0
+LUMPBEST|a=2|b=2|micro=94252760|n=[20, 4, 4, 1, 0, 2, 1]|json=0
+LUMPBEST|a=2|b=3|micro=91796757|n=[17, 4, 6, 1, 0, 2, 2]|json=0
+LUMPBEST|a=2|b=4|micro=82156227|n=[15, 4, 6, 1, 0, 2, 4]|json=0
+LUMPBEST|a=2|b=5|micro=79137627|n=[13, 3, 7, 1, 0, 3, 5]|json=0
+LUMPBEST|a=2|b=6|micro=64281810|n=[12, 2, 6, 1, 0, 4, 7]|json=0
+LUMPBEST|a=2|b=7|micro=60425444|n=[9, 3, 7, 1, 0, 3, 9]|json=0
+LUMPBEST|a=2|b=8|micro=45834198|n=[7, 4, 6, 1, 0, 2, 12]|json=0
+LUMPBEST|a=2|b=9|micro=42084847|n=[5, 3, 7, 1, 0, 3, 13]|json=0
+LUMPBEST|a=2|b=10|micro=27552015|n=[4, 2, 6, 1, 0, 4, 15]|json=0
+LUMPBEST|a=2|b=11|micro=18248323|n=[2, 2, 6, 1, 0, 4, 17]|json=0
+LUMPBEST|a=2|b=12|micro=4252772|n=[1, 2, 4, 1, 0, 4, 20]|json=0
+LUMPBEST|a=2|b=13|micro=-4747223|n=[0, 1, 3, 1, 0, 5, 22]|json=0
+LUMPBEST|a=2|b=14|micro=-13747208|n=[0, 0, 0, 1, 0, 6, 25]|json=0
+LUMPBEST|a=4|b=0|micro=112252774|n=[20, 8, 0, 4, 0, 0, 0]|json=0
+LUMPBEST|a=4|b=1|micro=110121767|n=[17, 7, 3, 4, 0, 1, 0]|json=0
+LUMPBEST|a=4|b=2|micro=100669407|n=[15, 6, 4, 4, 0, 2, 1]|json=0
+LUMPBEST|a=4|b=3|micro=91613806|n=[13, 5, 5, 4, 0, 3, 2]|json=0
+LUMPBEST|a=4|b=4|micro=76252763|n=[12, 4, 4, 4, 0, 4, 4]|json=0
+LUMPBEST|a=4|b=5|micro=79154036|n=[9, 4, 6, 4, 0, 4, 5]|json=0
+LUMPBEST|a=4|b=6|micro=70015754|n=[7, 4, 6, 4, 0, 4, 7]|json=0
+LUMPBEST|a=4|b=7|micro=60462644|n=[5, 4, 6, 4, 0, 4, 9]|json=0
+LUMPBEST|a=4|b=8|micro=40252767|n=[4, 4, 4, 4, 0, 4, 12]|json=0
+LUMPBEST|a=4|b=9|micro=36469036|n=[2, 3, 5, 4, 0, 5, 13]|json=0
+LUMPBEST|a=4|b=10|micro=27737955|n=[1, 2, 4, 4, 0, 6, 15]|json=0
+LUMPBEST|a=4|b=11|micro=18347991|n=[0, 1, 3, 4, 0, 7, 17]|json=0
+LUMPBEST|a=4|b=12|micro=4252789|n=[0, 0, 0, 4, 0, 8, 20]|json=0
+LUMPBEST|a=6|b=0|micro=119716946|n=[15, 10, 0, 7, 0, 0, 0]|json=0
+LUMPBEST|a=6|b=1|micro=110955500|n=[13, 8, 2, 7, 0, 2, 0]|json=0
+LUMPBEST|a=6|b=2|micro=95536047|n=[12, 6, 2, 7, 0, 4, 1]|json=0
+LUMPBEST|a=6|b=3|micro=92666321|n=[9, 6, 4, 7, 0, 4, 2]|json=0
+LUMPBEST|a=6|b=4|micro=83621330|n=[7, 6, 4, 7, 0, 4, 4]|json=0
+LUMPBEST|a=6|b=5|micro=80577044|n=[5, 5, 5, 7, 0, 5, 5]|json=0
+LUMPBEST|a=6|b=6|micro=66075082|n=[4, 4, 4, 7, 0, 6, 7]|json=0
+LUMPBEST|a=6|b=7|micro=56357128|n=[2, 4, 4, 7, 0, 6, 9]|json=0
+LUMPBEST|a=6|b=8|micro=41916626|n=[1, 4, 2, 7, 0, 6, 12]|json=0
+LUMPBEST|a=6|b=9|micro=37841014|n=[0, 2, 2, 7, 0, 8, 13]|json=0
+LUMPBEST|a=6|b=10|micro=29052169|n=[0, 0, 0, 7, 0, 10, 15]|json=0
+LUMPBEST|a=8|b=0|micro=112252775|n=[12, 8, 0, 12, 0, 0, 0]|json=0
+LUMPBEST|a=8|b=1|micro=110345076|n=[9, 7, 3, 12, 0, 1, 0]|json=0
+LUMPBEST|a=8|b=2|micro=102906243|n=[7, 8, 2, 10, 0, 4, 1]|json=0
+LUMPBEST|a=8|b=3|micro=93655404|n=[5, 7, 3, 10, 0, 5, 2]|json=0
+LUMPBEST|a=8|b=4|micro=79451114|n=[4, 6, 2, 10, 0, 6, 4]|json=0
+LUMPBEST|a=8|b=5|micro=73187739|n=[2, 3, 5, 12, 0, 5, 5]|json=0
+LUMPBEST|a=8|b=6|micro=64465270|n=[1, 2, 4, 12, 0, 6, 7]|json=0
+LUMPBEST|a=8|b=7|micro=54748997|n=[0, 1, 3, 12, 0, 7, 9]|json=0
+LUMPBEST|a=8|b=8|micro=40252783|n=[0, 0, 0, 12, 0, 8, 12]|json=0
+LUMPBEST|a=10|b=0|micro=119596996|n=[7, 10, 0, 15, 0, 0, 0]|json=0
+LUMPBEST|a=10|b=1|micro=110617475|n=[5, 8, 2, 15, 0, 2, 0]|json=0
+LUMPBEST|a=10|b=2|micro=95504161|n=[4, 6, 2, 15, 0, 4, 1]|json=0
+LUMPBEST|a=10|b=3|micro=86367198|n=[2, 5, 3, 15, 0, 5, 2]|json=0
+LUMPBEST|a=10|b=4|micro=77820871|n=[1, 4, 2, 15, 0, 6, 4]|json=0
+LUMPBEST|a=10|b=5|micro=74482852|n=[0, 2, 2, 15, 0, 8, 5]|json=0
+LUMPBEST|a=10|b=6|micro=65856299|n=[0, 0, 0, 15, 0, 10, 7]|json=0
+LUMPBEST|a=12|b=0|micro=112252776|n=[4, 8, 0, 20, 0, 0, 0]|json=0
+LUMPBEST|a=12|b=1|micro=103737918|n=[2, 8, 0, 18, 0, 4, 0]|json=0
+LUMPBEST|a=12|b=2|micro=94252767|n=[1, 4, 2, 20, 0, 4, 1]|json=0
+LUMPBEST|a=12|b=3|micro=85252766|n=[0, 2, 2, 20, 0, 6, 2]|json=0
+LUMPBEST|a=12|b=4|micro=76252778|n=[0, 0, 0, 20, 0, 8, 4]|json=0
+LUMPBEST|a=14|b=0|micro=112252776|n=[1, 6, 0, 25, 0, 0, 0]|json=0
+LUMPBEST|a=14|b=1|micro=116005344|n=[0, 3, 1, 23, 2, 3, 0]|json=0
+LUMPBEST|a=14|b=2|micro=94252776|n=[0, 0, 0, 25, 0, 6, 1]|json=0
+LUMPBEST|a=16|b=0|micro=112252776|n=[0, 0, 0, 32, 0, 0, 0]|json=0
+FIRST_BELOW|config=21000001102020200002000110020001|json=0
+HUNT_VERDICT|red=4149611|verdict=RED|sabotage=wrong_m|json=0

@@ -1,0 +1,51 @@
+RECHECK_OF_READER|at=2026-11-03T14:27:24Z|by=ACER-CLAUDE-FABLE5|folder=C:/tmp/opus55/vector-review-20261103|json=0
+EXACT|args=4 4 9 1 given/g-local-4x4-lump.hbp 112252744|exit=0|CLAIM|given=112252744|mine=112252744|same=1|exact_ge_given=1|verdict=PASS|json=0
+EXACT|args=4 4 6 1 given/g-local-4x4-lump-r6.hbp 96472613|exit=0|CLAIM|given=96472613|mine=96472613|same=1|exact_ge_given=1|verdict=PASS|json=0
+EXACT|args=4 5 9 1 given/g-local-4x5-lump.hbp 134017195|exit=0|CLAIM|given=134017195|mine=134017195|same=1|exact_ge_given=1|verdict=PASS|json=0
+EXACT|args=5 5 9 1 given/g-local-5x5-product.hbp 154016734|exit=0|CLAIM|given=154016734|mine=154016734|same=1|exact_ge_given=1|verdict=PASS|json=0
+EXACT_TEETH|sabotage=dent|exit=1|CLAIM|given=112252744|mine=-151483236945|same=0|exact_ge_given=0|verdict=FAIL|json=0
+EXACT_TEETH|claim_plus_one|exit=1|CLAIM|given=112252745|mine=112252744|same=0|exact_ge_given=0|verdict=FAIL|json=0
+E8|args=4 4 9|exit=0|E8_DRESSED|Lx=4|Ly=4|r=9|flats=8|cross_elements_nonzero=0|blocks_as_predicted=1|flat_bound_micro=96000000|E8_upper_micro=93506099|improvement_micro=2493901|sabotage=0|verdict=PASS|json=0
+E8|args=4 4 6|exit=0|E8_DRESSED|Lx=4|Ly=4|r=6|flats=8|cross_elements_nonzero=0|blocks_as_predicted=1|flat_bound_micro=96000000|E8_upper_micro=92508067|improvement_micro=3491933|sabotage=0|verdict=PASS|json=0
+E8|args=4 5 9|exit=0|E8_DRESSED|Lx=4|Ly=5|r=9|flats=8|cross_elements_nonzero=0|blocks_as_predicted=1|flat_bound_micro=120000000|E8_upper_micro=116928693|improvement_micro=3071307|sabotage=0|verdict=PASS|json=0
+E8|args=5 5 9|exit=0|E8_DRESSED|Lx=5|Ly=5|r=9|flats=8|cross_elements_nonzero=0|blocks_as_predicted=1|flat_bound_micro=150000000|E8_upper_micro=146228459|improvement_micro=3771541|sabotage=0|verdict=PASS|json=0
+E8|args=3 3 9|exit=1|E8_DRESSED|Lx=3|Ly=3|r=9|flats=8|cross_elements_nonzero=6|blocks_as_predicted=0|flat_bound_micro=54000000|E8_upper_micro=52557778|improvement_micro=1442222|sabotage=0|verdict=FAIL|json=0
+E8|args=3 4 9|exit=1|E8_DRESSED|Lx=3|Ly=4|r=9|flats=8|cross_elements_nonzero=3|blocks_as_predicted=0|flat_bound_micro=72000000|E8_upper_micro=70100252|improvement_micro=1899748|sabotage=0|verdict=FAIL|json=0
+E8_TEETH|exit=1|E8_DRESSED|Lx=4|Ly=4|r=9|flats=8|cross_elements_nonzero=0|blocks_as_predicted=0|flat_bound_micro=96000000|E8_upper_micro=93506099|improvement_micro=2493901|sabotage=1|verdict=FAIL|json=0
+ELAPSED|secs=39|json=0
+HYBRID_TEETH|cut=8|exit=1|HYBRID_RECHECK|Lx=4|Ly=4|r=9|mcut=8|reps=3422|gauge_orbits=363208|missing=0|min_exact_rows=65951482|min_table_rows=127649995|cert_micro=65951482|expect_micro=94475741|sabotage=1|verdict=DIFFER|json=0
+HYBRID|cut=8|exit=0|HYBRID_RECHECK|Lx=4|Ly=4|r=9|mcut=8|reps=3422|gauge_orbits=363208|missing=0|min_exact_rows=94475741|min_table_rows=127649995|cert_micro=94475741|expect_micro=94475741|sabotage=0|verdict=SAME|json=0
+HYBRID|cut=10|exit=0|HYBRID_RECHECK|Lx=4|Ly=4|r=9|mcut=10|reps=10269|gauge_orbits=1161208|missing=0|min_exact_rows=115534179|min_table_rows=117854397|cert_micro=115534179|expect_micro=115534179|sabotage=0|verdict=SAME|json=0
+ELAPSED|secs=51|json=0
+CLIPPY|tool=cargo_+1.81_clippy_--release_--all-targets_--_-D_warnings|on=the_readers_review_folder|exit=0|json=0
+NESTED_BUILD|where=this_folder_inside_the_repository|cargo_metadata_exit=101|error=current_package_believes_its_in_a_workspace|build_from=a_copy_outside_the_repository|json=0
+GIVEN_VS_BRANCH|vector=3x3-lump|same=1|sha256=8563901086dea86032eb8086e327d542b5c3cee37d22a2b0fa2fece8842c1c44|json=0
+GIVEN_VS_BRANCH|vector=3x4-lump|same=1|sha256=132d58c75b22008c2ad86e610e8209b216972a8cb3e2763d7e80e7f7c826ae17|json=0
+GIVEN_VS_BRANCH|vector=4x4-lump-r6|same=1|sha256=f05674f766afb483a7ff357b93af9e5fc66972b0163e27b40d881ee20ca7f7a5|json=0
+GIVEN_VS_BRANCH|vector=4x4-lump|same=1|sha256=5988c48300a5d5fe07c0368680351a6d1400b70afac142e816cbc5a86648c61e|json=0
+GIVEN_VS_BRANCH|vector=4x5-lump|same=1|sha256=516d8e120d93a1f3a0a73b96f0de5b69317c7b9a88ef717d5290b48a88fbfdcc|json=0
+GIVEN_VS_BRANCH|vector=5x5-product|same=1|sha256=d013b3e55f4f2bb12e7a2e5d3e575d05a8a90acbffe832239d9f384cec695c97|json=0
+REPORT_AS_FILED|VECTOR-REVIEW.md=458da12634c15eabfb4fffc347e830c8d3dd3ec024daa7e8ff7a6382bdb6a870|REVIEW.hbp=a84f74f25a7cc1acdbabab63251e5dfbf35cb34cae5a5dacd6d04e6fb262faf3|json=0
+FROM_A_B_C_ROW_OF_hyb_4x4_r6_m14.out|RITZ_BOUND|Lx=4|Ly=4|r=6|mcut=14|states=825865|lambda1_upper_micro=105310299|E9_upper_micro=105584008|coupling_shift_micro=273709|json=0
+FROM_A_B_C_ROW_OF_hyb_4x4_r6_m14.out|RITZ_VS_CLAIM|claim_micro=96472613|E9_upper_micro=105584008|refutes=0|slack_micro=9111395|json=0
+RITZ_VECTOR_ABSENT|row_in=hyb_3x3_full.out|names=tmp/hyb_3x3_full.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=hyb_3x3_r9_m13.out|names=tmp/hyb_3x3_r9_m13.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=hyb_3x4_r9_m14.out|names=tmp/hyb_3x4_r9_m14.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=hyb_4x4_r6_m13.out|names=tmp/hyb_4x4_r6_m13.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=hyb_4x4_r6_m14.out|names=tmp/hyb_4x4_r6_m14.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=hyb_4x4_r9_m10.out|names=tmp/hyb_4x4_r9_m10.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=hyb_4x4_r9_m13.out|names=tmp/hyb_4x4_r9_m13.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=hyb_4x4_r9_m14.out|names=tmp/hyb_4x4_r9_m14.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=hyb_4x4_r9_m8.out|names=tmp/hyb_4x4_r9_m8.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=hyb_4x5_r9_m11.out|names=tmp/hyb_4x5_r9_m11.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=hyb_4x5_r9_m13.out|names=tmp/hyb_4x5_r9_m13.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=hyb_5x5_r9_m11.out|names=tmp/hyb_5x5_r9_m11.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=lowm_4x4_r6.out|names=tmp/audit44r6.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=lowm_4x4_r9.out|names=tmp/audit44.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=lowm_4x5_r9.out|names=tmp/audit45.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=lowm_5x5_r9.out|names=tmp/audit55.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=ritz_3x4_r9_m16.out|names=out/ritz_3x4_r9_m16.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=ritz_4x4_r9_m14.out|names=out/ritz_4x4_r9_m14.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=ritz_4x4_r9_m15.out|names=out/ritz_4x4_r9_m15.psi|json=0
+RITZ_VECTOR_ABSENT|row_in=ritz_4x5_r9_m12.out|names=out/ritz_4x5_r9_m12.psi|json=0
+RITZ_VECTORS|named=39|on_disk=19|absent=20|note=each_bound_stands_on_its_A_B_C_row_and_reruns_from_ritz|json=0

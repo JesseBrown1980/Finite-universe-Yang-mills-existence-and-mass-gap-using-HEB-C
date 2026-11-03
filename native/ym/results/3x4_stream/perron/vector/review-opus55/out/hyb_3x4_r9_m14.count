@@ -1,0 +1,2 @@
+LUMP_FORMULA|Lx=3|Ly=4|lumps=49|total=13060694016|expected=13060694016|flats=18|json=0
+LUMP_COUNT_CHECK|kind=ritz|file=hyb_3x4_r9_m14.out|rows=11|bad=0|json=0

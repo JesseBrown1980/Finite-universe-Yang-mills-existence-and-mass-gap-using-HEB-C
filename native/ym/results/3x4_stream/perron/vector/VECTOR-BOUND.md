@@ -1,6 +1,6 @@
 # A Perron vector with few numbers, and a bound on the level above the flat cluster with no store
 
-**Status: OPEN, a draft for a second reader.** A verdict needs the operator's word. Everything here concerns one finite torus at a time. Uniformity in volume and the continuum limit are separate obligations.
+**Status: OPEN.** A second seat on this seat's model read it at `f24c5cb`, and its verdict is PASS, [below](#the-second-reader). A verdict on the gap needs the operator's word. Everything here concerns one finite torus at a time. Uniformity in volume and the continuum limit are separate obligations.
 
 Claims carry MEASURED, DERIVED (a short proof written here) or CONJECTURE. Energies are in J_E, and r = J_B / J_E. The Perron route is in [`../PERRON-BOUND.md`](../PERRON-BOUND.md).
 
@@ -118,16 +118,64 @@ The least r grows by about 1.5 per unit of L over this range. Rows in [`PRODUCT-
 | 3×3, all | 60,466,176 | 18 | 0 | 0 | 73.106758 | 73.106758 |
 | 4×4, M ≤ 8 | 2,151,666 | 18 | 0 | 0 | 112.252754 | 112.252744 |
 | 4×4, M ≤ 12 | 119,790,810 | 18 | 0 | 0 | 112.252744 | 112.252744 |
+| 4×4, M ≤ 14 | 624,556,890 | 18 | 0 | 0 | 112.252744 | 112.252744 |
 
-On 3×3 its count of configurations per lump equals the store's weights, on all 29 lumps. On 4×4 the least ratio reaches the bound exactly, at (a, b) = (0, 3). Above M = 12 on 4×4 the evidence is the proof and the samples above.
+On 3×3 its count of configurations per lump equals the store's weights, on all 29 lumps. On 4×4 the least ratio reaches the bound exactly, at (a, b) = (0, 3). Above M = 14 on 4×4 the evidence is the proof, the samples above and the second reader's walks and hunts below.
 
 **The adjacency limit, by brute force.** Over every subset of plaquettes on 3×3, 3×4, 4×4, 4×5 and 5×5, 33,554,432 subsets on the last, no size exceeds the limit, and it is reached at 8, 9, 11, 12 and 16 sizes respectively.
 
 **Can these checks go red?** [`mutate_local_table.py`](mutate_local_table.py) changes one entry of the rule or one constraint at a time, and all 20 changes are caught on the 3×3 store. `localaudit` exits 2 with the bound one unit above the least ratio, and with one lump's rows taken out of the table. Rows in [`AUDIT-RUNS.hbp`](AUDIT-RUNS.hbp) and [`MUTATE-3x3.hbp`](MUTATE-3x3.hbp).
 
+## The second reader
+
+A second seat on this seat's model, in a separate session and with its own code, read the pinned commit `f24c5cb`. Its report and ledger stay as it wrote them: [`review-opus55/VECTOR-REVIEW.md`](review-opus55/VECTOR-REVIEW.md), [`review-opus55/REVIEW.hbp`](review-opus55/REVIEW.hbp). Its verdict:
+
+> **Overall: PASS. I did not refute the claim.** Every step of the chain holds by proof and by a run. All four numbers reproduce to the micro from my own table on my own code. Each of the four is attained by a real link configuration, so each is the true minimum of the ratio for its vector, and no configuration falls below it. Rayleigh-Ritz from above stops 5.3 to 16.3 J_E above the claimed values. Every sabotage turned a check red, with one exception that I list in section 7.
+
+MEASURED by its runs:
+
+| Check | Result |
+|---|---|
+| The move table, written by hand before it opened `local_table.py` | 108 of 108 frame triples. All 3·nl moves recomputed from all plaquettes on 43,836 hunt states and 2,375,704 low-M orbits: 0 mismatches |
+| The adjacency limit | Every subset of 10 tori, up to 2³⁰ subsets: 0 violations |
+| The tables | Equal to its own signature sets on all 5 tori: 997, 6,505, 29,422, 130,981 and 465,479 rows |
+| Full censuses | 3×3, 60,466,176 configurations, and 3×4, 13,060,694,016: 18 flats in 8 classes, 0 outside the rule, real minima 73.106758 and 89.291147, equal to the tables' |
+| Class walks | 4×4, 3¹⁶ assignments, and 4×5, 3²⁰: 0 outside the rule, minimum equal to t |
+| Hunt | 468,432,981 accepted states across 4×4 at r = 9 and r = 6, 4×5 and 5×5: 0 below t, 0 outside the rule, and the tight row of each is a real configuration |
+| From above | E₉ ≤ 117.575598 (4×4), 105.584008 (4×4, r = 6), 140.955674 (4×5), 170.282263 (5×5) |
+
+It lists what stays open after its checks. It shares this seat's model, so a misreading of H, or a slip in the shared linear algebra, stays open until another model or a person reads its sections 2 and 3. At 4×4 and above, real configurations past the low-M cuts were reached by search, on top of the walks. It ran on one machine, and it did not run `check_local_bound.py` or `product_bound.py`. One sabotage stayed green: a planar-only adjacency limit leaves `py_exact_t.py` at 112252744 at r = 9, since the tight row does not use the limit, and its `subsets`, `hunt`, `census` and `classes` each catch that error. Its misses, P8, P12 and a control design error, are kept in its ledger.
+
+Its note on the commit: `f24c5cb` holds no vector for 4×4, 4×5 or 5×5. `e814659` holds them as `G-local-*`, and they are hash-equal to its `given/` on all six (MEASURED).
+
+The author's rerun of its checks, in [`review-opus55/RECHECK-BY-THE-AUTHOR.hbp`](review-opus55/RECHECK-BY-THE-AUTHOR.hbp): the four numbers, `py_e8_dressed.py` on six tori and `py_hybrid_recheck.py` at cuts 8 and 10 give what it reports, the sabotage runs go red, and `clippy -D warnings` exits 0 on Rust 1.81. Its `review/` builds from a copy outside this repository, since `native/ym/Cargo.toml` is a workspace root above that folder. Its 34 large vectors are on the run disk, hashed in [`review-opus55/BIG-FILES.hbp`](review-opus55/BIG-FILES.hbp). The `.hybrid` vectors behind the table below are among them. Of the 39 Ritz vectors its rows name, 20 are absent from its folder, including those behind the upper values on 4×4 at both couplings and on 4×5. Those values stand on the A, B and C rows in `out/` and rerun from `ritz`, and the same file lists each absent vector.
+
+## Two results from the second reader that raise the numbers
+
+Both lie outside the claim it was asked to attack, and nobody but their writer has attacked them yet. The author's rerun above reaches only the small cuts.
+
+**A tighter E₈, for min(Lx, Ly) ≥ 4.** DERIVED by the reader, with each matrix element confirmed in exact integers by `py_e8_dressed.py`. The author rederived the blocks by hand, after reading them. For each flat orbit f take its indicator and the function that counts moves into f. On such a torus two moves or three cannot connect distinct flats, so H on these 16 functions is block diagonal over f, each block [[3·nl, −√(3·nl)], [−√(3·nl), 3·nl + 4r]], and
+
+    E₈ ≤ 3·nl + 2r − √(4r² + 3·nl).
+
+On 3×3 and 3×4 a three-link dual loop connects flats, and the check prints FAIL there with nonzero cross elements, as the reader predicted.
+
+**A hybrid vector, a lead.** Let d be the actual vector on every orbit with 0 < M ≤ cut, one value per lump above the cut, and 0 on the flats. Rows at M ≤ cut are exact. Rows above are the table's rows, with a move into a lump at M ≤ cut taken at the largest d in that lump. Barta applies as before when the model holds every non-flat orbit with M ≤ cut. `py_lump_counts.py` checks that per lump against C(P; a, b)·N(a, b), with N = 12·3^a·2^b for even a ≥ 2 and N = 12·2^b + 6(−1)^b for a = 0. That N is the Frobenius count on a torus with one puncture per defect (DERIVED by the author), and each row below has `bad=0`.
+
+| Torus, r | Cut | Sector states | E₉ ≥ | E₉ ≤ | E₈ ≤ | E₉ − E₈ ≥ | Store-free bound above |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 4×4, 9 | 14 | 825,865 | **117.453728** | 117.575598 | 93.506099 | **23.947629** | 16.252744 |
+| 4×4, 6 | 14 | 825,865 | 103.521056 | 105.584008 | 92.508067 | 11.012989 | 0.472613 |
+| 4×5, 9 | 13 | 1,358,823 | 140.546984 | 140.955674 | 116.928693 | 23.618291 | 14.017195 |
+| 5×5, 9 | 11 | 473,677 | 168.020667 | 170.282263 | 146.228459 | 21.792208 | 4.016734 |
+
+MEASURED by one Rust path, `review-opus55/review/src/bin/ritz.rs`, in seconds to minutes with no store. The separately written `py_hybrid_recheck.py` reproduces the row minima exactly on 4×4 at cut 8 (94.475741) and cut 10 (115.534179). The rows at the cuts in this table rest on the one path so far. On the controls the certificate stays below the known upper values: 3×4 at cut 14 gives 94.011545 against 94.070673, and the whole 3×3 space gives 76.443824 against 76.448397.
+
+Retraction, kept beside: the reader's first hybrid numbers at cut 12 (3×4 93.829570, 4×4 117.345755) are not rigorous. A cut divisible by 3 misses the (0, cut/3) orbits with no two 3-cycles adjacent, since their only moves lead past the cut. The per-lump count caught it, and `py_missing_check.py` matches the missing counts exactly on four models. The table above uses complete cuts only.
+
 ## What limits it
 
-**Volume.** With the flat bound, t − 3·nl falls as the lattice grows, at about 0.23 per link in the lump form at r = 9, in the table above. Part of that is the vacuum shift, about nl/12 at r = 9, which a dressed trial state for E₈ would recover (CONJECTURE, unmeasured here).
+**Volume.** With the flat bound, t − 3·nl falls as the lattice grows, at about 0.23 per link in the lump form at r = 9, in the table above. Part of that is the vacuum shift, about nl/12 at r = 9, which a dressed trial state for E₈ would recover (CONJECTURE, unmeasured here). Beside that, MEASURED by the second reader's formula above: its one-excitation state recovers 2.493901, 3.071307 and 3.771541 on 4×4, 4×5 and 5×5 at r = 9, against nl/12 = 2.667, 3.333 and 4.167. It grows as √(3·nl) once nl passes 4r²/3 (DERIVED), so an extensive shift on larger tori needs a trial state with many excitations.
 
 **The interlacing step itself.** Removing the 8 flat states from H removes little once the vacuum carries small weight on exactly flat configurations. At fixed r that weight falls exponentially in volume, so λ₁(H′) approaches E₈ (CONJECTURE, by the count of virtual pairs, 3·nl/(4r)² on average). So this route reaches L up to about a multiple of r. The stability theorem in [`docs/YM_TOPOLOGICAL_STABILITY_PROOF.md`](../../../../../../docs/YM_TOPOLOGICAL_STABILITY_PROOF.md) is the route to uniformity, and this route gives explicit numbers at each L on the way.
 
@@ -135,9 +183,11 @@ On 3×3 its count of configurations per lump equals the store's weights, on all 
 
 | Item | Run that measures it |
 |---|---|
-| A second reader of the rule, the adjacency proof and the chain | Running on the pinned code: a separate session on this seat's model, by its own code. A reader on another model, by its own code, is open |
+| A reader on another model, or a person, on the rule, the adjacency proof and the chain | Sections 2 and 3 of the second reader's report, with that reader's own code |
+| An attack on the hybrid certificate at the cuts in its table | A separate program that reads the `.hybrid` vectors, recomputes every row at M ≤ cut from the definition of H and every table row above it, and counts each lump |
+| The hybrid form at lower r and on 6×6 and larger | The same certificate at those points, with the count of each lump |
 | Vectors with more structure, such as a count of neighbouring pairs of each kind, to close the distance from 89.92 to 94.07 on 3×4 | The same census, with a wider lump |
-| A dressed upper bound on E₈ on 4×4 and beyond | A trial space built from the same local rule, with its Rayleigh quotient |
+| An upper bound on E₈ with many excitations, on 4×4 and beyond | A trial space with the flats and the low-M orbits, with its Rayleigh quotient |
 | The other finite groups | The same table by brute force over pairs of group elements: Q8, 2T, 2O, 2I |
 | A proof in Lean of the pattern table and the chain | A statement-only file and a proof file, on the layout of `anthropics/formal-math` |
 | Larger tori in the lump form | A generator that keeps only the extreme rows of each lump |

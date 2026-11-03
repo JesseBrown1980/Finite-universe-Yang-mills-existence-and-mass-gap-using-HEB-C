@@ -12,3 +12,5 @@ AUDIT_ENUMERATE|Lx=4|Ly=4|mcut=12|JE=1000|JB=9000|configs=119790810|flat_configs
 AUDIT_TEETH|case=bound_one_above_the_least_ratio_at_M_8|exit=2|AUDIT_ENUMERATE|Lx=4|Ly=4|mcut=8|JE=1000|JB=9000|configs=2151666|flat_configs=18|a_odd=0|not_in_table=0|ratio_below_bound=1728|min_ratio_milli=112252754|min_ratio_lump=0,2|bound_milli=112252755|table_rows=29422|result=FAIL|json=0
 AUDIT_TEETH|case=table_without_lump_0_1|exit=2|AUDIT_ENUMERATE|Lx=4|Ly=4|mcut=8|JE=1000|JB=9000|configs=2151666|flat_configs=18|a_odd=0|not_in_table=288|ratio_below_bound=0|min_ratio_milli=112252754|min_ratio_lump=0,2|bound_milli=112252744|table_rows=29421|result=FAIL|json=0
 AUDIT_CONTROL_3x3|store_weight_of_flat_rows=18|lumps_store=29|lumps_audit=29|same_counts=1|sum=60466158|json=0
+AUDIT_LUMPS|Lx=4|Ly=4|mcut=14|counts=0,1:288;0,2:6480;0,3:50400;0,4:360360;2,0:12960;2,1:362880;2,2:4717440;2,3:37739520;4,0:1769040;4,1:42456960;4,2:467026560;6,0:70053984|json=0
+AUDIT_ENUMERATE|Lx=4|Ly=4|mcut=14|JE=1000|JB=9000|configs=624556890|flat_configs=18|a_odd=0|not_in_table=0|ratio_below_bound=0|min_ratio_milli=112252744|min_ratio_lump=0,3|bound_milli=112252744|table_rows=29422|result=PASS|json=0

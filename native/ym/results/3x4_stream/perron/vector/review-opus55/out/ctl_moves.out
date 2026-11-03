@@ -1,0 +1,12 @@
+FRAME_TRIPLES|n=108|json=0
+PATTERN|cc|moves=[((2, -2), 3)]|json=0
+PATTERN|ce|moves=[((2, -1), 3)]|json=0
+PATTERN|ct|moves=[((0, -1), 1), ((0, 0), 2)]|json=0
+PATTERN|ee|moves=[((2, 0), 3)]|json=0
+PATTERN|et|moves=[((0, 0), 1), ((0, 1), 2)]|json=0
+PATTERN|tt_diff|moves=[((-2, 1), 2), ((-2, 2), 1)]|json=0
+PATTERN|tt_same|moves=[((-2, 0), 1), ((-2, 2), 2)]|json=0
+MOVE_TABLE_MATCH|patterns=7|triples=108|verdict=PASS|json=0
+FLAT_ALGEBRA|commuting_pairs=18|conj_orbits=8|json=0
+MOVE_TABLE_SABOTAGE|same=0|verdict=FAIL|json=0
+EXIT=1

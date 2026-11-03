@@ -1,0 +1,16 @@
+FLATS|commuting_pairs=18|classes=8|weights_sum=18|json=0
+MODEL|Lx=5|Ly=5|r=9|mcut=7|group=200|states=1471|edges=14986|build_seconds=0|json=0
+MODEL_M|M=3|sector_states=2|gauge_fixed_configs=450|json=0
+MODEL_M|M=4|sector_states=78|gauge_fixed_configs=32400|json=0
+MODEL_M|M=6|sector_states=59|gauge_fixed_configs=16200|json=0
+MODEL_M|M=7|sector_states=1332|gauge_fixed_configs=1490400|json=0
+COVERAGE|configs_in_model=1539450|flats=18|whole=170581728179578208256|complete=0|json=0
+SELF_ADJOINT|pairs=11660|bad=0|json=0
+SWEEP|k=0|rho_micro=177464608|json=0
+SWEEP|k=40|rho_micro=171528146|json=0
+SWEEP|k=80|rho_micro=171528124|json=0
+SWEEP|k=120|rho_micro=171528102|json=0
+SWEEP|k=160|rho_micro=171528082|json=0
+SWEEP|k=200|rho_micro=171528063|json=0
+RITZ|Lx=5|Ly=5|r=9|mcut=7|states=1471|sweeps=200|A=445094317487482704711909900|B=2594877529510396264339100|C=1301807992903812363750|flat_diag=150|rho_micro=171528063|barta_micro=170271028|barta_scope=truncated_model_only|positive=1|sabotage=none|json=0
+RITZ_DONE|seconds=0|psi_file=out/ritz_5x5_r9_m7.psi|json=0
