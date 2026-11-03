@@ -11,7 +11,17 @@ Their differences are NOT certificates of the full Hamiltonian gap.
 from pathlib import Path
 from collections import defaultdict
 from hashlib import sha256
-from gpt6_sturm_interval import inertia
+from importlib.util import spec_from_file_location, module_from_spec
+
+# -I excludes the script directory: resolve this authored companion module
+# by a fixed path next to the verifier, not via user-controlled PYTHONPATH.
+HERE = Path(__file__).resolve().parent
+spec = spec_from_file_location("gpt6_interval_local", HERE / "gpt6_sturm_interval.py")
+if spec is None or spec.loader is None:
+    raise RuntimeError("cannot locate independently written interval verifier")
+module = module_from_spec(spec)
+spec.loader.exec_module(module)
+inertia = module.inertia
 import sys
 
 PINS = {
