@@ -1,0 +1,8 @@
+QUADRATIC|k=4096|pairs=1|store_bytes=1048576|ms=30|exit=2|columns_not_ascending=8190|value_mismatch=0|lower_repeated=0|upper_without_lower=0|met=1|json=0
+QUADRATIC|k=16384|pairs=1|store_bytes=1048576|ms=241|exit=2|columns_not_ascending=32766|value_mismatch=0|lower_repeated=0|upper_without_lower=0|met=1|json=0
+QUADRATIC|k=32768|pairs=1|store_bytes=1048576|ms=909|exit=2|columns_not_ascending=65534|value_mismatch=0|lower_repeated=0|upper_without_lower=0|met=1|json=0
+QUADRATIC|k=65534|pairs=1|store_bytes=2097152|ms=3697|exit=2|columns_not_ascending=131066|value_mismatch=0|lower_repeated=0|upper_without_lower=0|met=1|json=0
+QUADRATIC|k=65534|pairs=8|store_bytes=9437184|ms=30256|exit=2|columns_not_ascending=1048528|value_mismatch=0|lower_repeated=0|upper_without_lower=0|met=1|json=0
+QUADRATIC_BASE|k=65534|distinct_columns=1|ms=37|exit=2|columns_not_ascending=0|json=0
+QUADRATIC_RATIO|k_65534_over_k_16384_x100=1534|pairs_8_over_pairs_1_x100=818|largest_row_pair_ms=3697|rows_per_pair_bytes=1048576|json=0
+QUADRATIC_DONE|not_met=0|json=0

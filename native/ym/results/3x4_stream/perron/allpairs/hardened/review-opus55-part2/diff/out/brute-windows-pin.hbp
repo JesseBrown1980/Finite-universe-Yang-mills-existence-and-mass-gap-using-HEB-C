@@ -1,0 +1,7 @@
+BRUTE_PAIRS|L=2x2|n=211|upper=1198|found=1198|mismatch=0|lower_without_upper=0|upper_without_lower=0|secs=0|json=0
+BRUTE_WINDOWS|L=2x2|caps_run=1304|disagreements=0|max_passes=188|secs=98|json=0
+BRUTE_PAIRS|L=2x3|n=2646|upper=36155|found=36155|mismatch=0|lower_without_upper=0|upper_without_lower=0|secs=0|json=0
+BRUTE_WINDOWS|L=2x3|caps_run=32|disagreements=0|max_passes=2591|secs=182|json=0
+BRUTE_PAIRS|L=3x3|n=288645|upper=7560012|found=7560012|mismatch=0|lower_without_upper=0|upper_without_lower=0|secs=10|json=0
+BRUTE_WINDOWS|L=3x3|caps_run=9|disagreements=0|max_passes=76|secs=96|json=0
+BRUTE_DONE|failed=0|json=0

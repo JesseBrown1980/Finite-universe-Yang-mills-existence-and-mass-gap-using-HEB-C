@@ -1,0 +1,4 @@
+1
+RECIPE_WIN4|clone=lf|suffix_test=corrected_in_a_copy|exit=1|reproduce_done_rows=0|judge_failed=19|tool_exit=exit=0|exe_row=output_names_this_executable~met=1~value=68785f6f|json=0
+RECIPE_WIN4|clone=clone_dash_c_autocrlf_false|autocrlf_in_clone=false|autocrlf_seen=false|cr_in_source_after_a_later_checkout=0|status_lines=0|json=0
+RECIPE_WIN4|clone=git_dash_c_autocrlf_false_clone|autocrlf_in_clone=|autocrlf_seen=true|cr_in_source_after_a_later_checkout=1430|json=0

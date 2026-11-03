@@ -1,0 +1,2 @@
+FUZZ_DONE|seed=20261110|cases=3000|exit0=395|exit1=900|exit2=1705|disagree_verdict=0|disagree_exit_class=0|disagree_counters_on_any_rows=0|disagree_identity=0|disagree_padding=0|disagree_gates=0|disagree_windows=0|disagree_caps=0|cap_variant_counters=0|dirty_rows_with_exact_counters=960|cases_with_repeats_or_disorder=519|panics=0|secs=278|json=0
+exit=0 

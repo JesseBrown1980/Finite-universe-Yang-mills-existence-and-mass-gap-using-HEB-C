@@ -1,0 +1,17 @@
+HEADERBYTES|field=YMROOMHDR|changes=2550|exit0=0|exit1=2550|exit2=0|json=0
+HEADERBYTES|field=L|changes=1530|exit0=0|exit1=7|exit2=1523|json=0
+HEADERBYTES|field=sector|changes=3570|exit0=0|exit1=268|exit2=3302|json=0
+HEADERBYTES|field=n|changes=1530|exit0=0|exit1=1502|exit2=28|json=0
+HEADERBYTES|field=nl|changes=1275|exit0=0|exit1=260|exit2=1015|json=0
+HEADERBYTES|field=rooms|changes=2805|exit0=0|exit1=2769|exit2=36|json=0
+HEADERBYTES|field=entries|changes=3315|exit0=0|exit1=267|exit2=3048|json=0
+HEADERBYTES|field=payload_bytes|changes=5610|exit0=0|exit1=5610|exit2=0|json=0
+HEADERBYTES|field=stream_bytes|changes=5355|exit0=0|exit1=5355|exit2=0|json=0
+HEADERBYTES|field=chunk|changes=3060|exit0=0|exit1=266|exit2=2794|json=0
+HEADERBYTES|field=payload_merkle|changes=20400|exit0=0|exit1=20400|exit2=0|json=0
+HEADERBYTES|field=keys_sha256|changes=19635|exit0=0|exit1=331|exit2=19304|json=0
+HEADERBYTES|field=w_self_adjoint|changes=5100|exit0=0|exit1=5099|exit2=1|json=0
+HEADERBYTES|field=json|changes=1530|exit0=0|exit1=1|exit2=1529|json=0
+HEADERBYTES|field=newline|changes=255|exit0=0|exit1=255|exit2=0|json=0
+HEADERBYTES_DONE|store=D:/ym-3x4-room-run/p0-ball/small/2x2/dev.bin|changes=77520|exit0=0|exit1=44940|exit2=32580|panics=0|json=0
+exit=0 

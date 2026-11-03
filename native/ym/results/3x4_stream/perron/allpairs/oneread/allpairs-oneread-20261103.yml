@@ -1,0 +1,121 @@
+name: Controls for allpairs with one read of its header block
+on:
+  push:
+    branches:
+      - audit/allpairs-oneread-20261103
+permissions:
+  contents: read
+jobs:
+  hardening-controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build the outside seat's Go checker from its pinned source
+        shell: bash
+        run: |
+          set -euo pipefail
+          D=native/ym/results/3x4_stream/perron/outside-go-41509351749
+          ( cd "$D" && sha256sum -c source.sha256 )
+          go version
+          mkdir -p /tmp/gochk
+          cp "$D/perron_independent.go" /tmp/gochk/perron_independent.go
+          ( cd /tmp/gochk && go build -o "$RUNNER_TEMP/perron_independent" perron_independent.go )
+      - name: Build allpairs three times on Rust 1.81, each from its own source, and ymroom
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal --component clippy
+          S=native/ym/crates/evolvers/src/bin/allpairs.rs
+          cp "$S" "$RUNNER_TEMP/hardened.rs"
+          ( cd native/ym && cargo +1.81.0 build --locked --release -p evolvers --bin allpairs && cargo +1.81.0 build --locked --release -p torusl --bin ymroom )
+          cp native/ym/target/release/allpairs "$RUNNER_TEMP/allpairs-oneread"
+          ( cd native/ym && cargo +1.81.0 clippy --locked --release --all-targets -p evolvers --bin allpairs -- -D warnings && cargo +1.81.0 test --locked --release -p evolvers --bin allpairs )
+          cp native/ym/target/release/ymroom "$RUNNER_TEMP/ymroom"
+          git show 9c2c7e67e29e0b2450010bd43c3391638e6670eb:"$S" > "$S"
+          echo "3323d06e47789b97bb840aa2f1282b7c4c440b057b50287ab731bda2b8c5afe6  $S" | sha256sum -c -
+          ( cd native/ym && cargo +1.81.0 build --locked --release -p evolvers --bin allpairs )
+          cp native/ym/target/release/allpairs "$RUNNER_TEMP/allpairs-hardened"
+          git show 0fd24d31e3abad7c2745a2c3ffa917663418621a:"$S" > "$S"
+          echo "5ab04b184a4395a779ec6b2189352ea54533f7d1c49b32275d0f30d15d83f4ef  $S" | sha256sum -c -
+          ( cd native/ym && cargo +1.81.0 build --locked --release -p evolvers --bin allpairs )
+          cp native/ym/target/release/allpairs "$RUNNER_TEMP/allpairs-corrected"
+          git show 8faadb07748417e713e95723f01d83e0ad80b93f:"$S" > "$S"
+          echo "f4ea7e856728fde8a5fe56b0e9fe85a0770d930ea566c25b490f697760e55754  $S" | sha256sum -c -
+          ( cd native/ym && cargo +1.81.0 build --locked --release -p evolvers --bin allpairs )
+          cp native/ym/target/release/allpairs "$RUNNER_TEMP/allpairs-original"
+          cp "$RUNNER_TEMP/hardened.rs" "$S"
+          git diff --quiet -- "$S"
+          mkdir -p "$RUNNER_TEMP/out"
+          {
+            sha256sum "$RUNNER_TEMP/hardened.rs" "$RUNNER_TEMP/allpairs-oneread" "$RUNNER_TEMP/allpairs-hardened" "$RUNNER_TEMP/allpairs-corrected" "$RUNNER_TEMP/allpairs-original" "$RUNNER_TEMP/ymroom"
+            rustc +1.81.0 -V
+            go version
+          } | sed "s#$RUNNER_TEMP/##" | tee "$RUNNER_TEMP/out/TOOLS.txt"
+          for pair in "hardened oneread" "corrected oneread" "corrected hardened" "original corrected" "original hardened"; do
+            set -- $pair
+            if cmp -s "$RUNNER_TEMP/allpairs-$1" "$RUNNER_TEMP/allpairs-$2"; then
+              echo "the $1 and $2 builds are the same file"
+              exit 1
+            fi
+          done
+      - name: Check the trusted table against stores rebuilt from the rules and the public 3x4 store
+        shell: bash
+        run: |
+          set -euo pipefail
+          T="$RUNNER_TEMP/rebuild"
+          mkdir -p "$T"
+          for L in "2 2" "2 3" "3 3"; do
+            set -- $L
+            D="$T/r$1x$2"
+            mkdir -p "$D"
+            ( cd "$D"
+              "$RUNNER_TEMP/ymroom" passa "$1" "$2" passa.bin
+              n=$(( $(stat -c %s passa.bin) / 16 ))
+              truncate -s $(( 8 * n )) keys.bin
+              : > dev.bin
+              "$RUNNER_TEMP/ymroom" build "$1" "$2" passa.bin keys.bin dev.bin 0 )
+          done
+          curl -sSfL --retry 3 -r 0-4095 -o "$T/block-3x4.bin" https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve/main/sector-341.rooms
+          python3 -I -X utf8 native/ym/results/3x4_stream/perron/allpairs/oneread/check_trusted_table.py native/ym/crates/evolvers/src/bin/allpairs.rs \
+            --store 2x2 "$T/r2x2/dev.bin" --store 2x3 "$T/r2x3/dev.bin" --store 3x3 "$T/r3x3/dev.bin" --block 3x4 "$T/block-3x4.bin" | tee "$RUNNER_TEMP/out/TRUSTED-TABLE.hbp"
+      - name: Test the judge of the 3x4 run
+        shell: bash
+        run: |
+          set -euo pipefail
+          A=native/ym/results/3x4_stream/perron/allpairs
+          python3 -I -X utf8 "$A/oneread/test_compare_oneread_run.py" "$A/ALLPAIRS-3x4.out" "$RUNNER_TEMP/out/JUDGE-CONTROLS.hbp"
+      - name: Run the fixture controls with the hardened allpairs
+        shell: bash
+        run: |
+          set -euo pipefail
+          F=native/ym/results/3x4_stream/perron/allpairs/fixture-controls
+          status=0
+          python3 -I -X utf8 "$F/run_fixture_controls.py" --base "$F/fixture-2x2.rooms.gz" --out "$RUNNER_TEMP/out/fixture" \
+            --go "$RUNNER_TEMP/perron_independent" --strict native/ym/results/3x4_stream/perron/check_d_strict.py \
+            --allpairs "$RUNNER_TEMP/allpairs-oneread" || status=$?
+          cat "$RUNNER_TEMP/out/fixture/FIXTURE-CONTROLS.hbp" || true
+          exit "$status"
+      - name: Run the hardening controls on all three executables
+        shell: bash
+        run: |
+          set -euo pipefail
+          A=native/ym/results/3x4_stream/perron/allpairs
+          status=0
+          python3 -I -X utf8 "$A/hardened/run_hardening_controls.py" --full-block --base "$A/fixture-controls/fixture-2x2.rooms.gz" --out "$RUNNER_TEMP/out/hardening" \
+            --original "$RUNNER_TEMP/allpairs-original" --corrected "$RUNNER_TEMP/allpairs-corrected" --hardened "$RUNNER_TEMP/allpairs-oneread" || status=$?
+          grep -E '^(HARDENING_(TOOL|PREDICTION_SHA|SWEEP|MEMORY|TWO_STORES|FLIP|FULL_BLOCK|DIFFERS|CONTROLS_DONE)|DEFECT_SWEEP|HARDENED_FAILS_CLOSED)' "$RUNNER_TEMP/out/hardening/HARDENING-CONTROLS.hbp" || true
+          exit "$status"
+      - name: Run the controls of the one-read fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          A=native/ym/results/3x4_stream/perron/allpairs
+          python3 -I -X utf8 "$A/oneread/run_oneread_controls.py" --base "$A/fixture-controls/fixture-2x2.rooms.gz" --out "$RUNNER_TEMP/out/oneread" --old "$RUNNER_TEMP/allpairs-hardened" --new "$RUNNER_TEMP/allpairs-oneread" --host hosted
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: oneread-controls
+          path: ${{ runner.temp }}/out

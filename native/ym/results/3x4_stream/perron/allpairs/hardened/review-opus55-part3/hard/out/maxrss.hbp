@@ -1,0 +1,5 @@
+MAXRSS_BUILD|file_sha256=0f3fbbfda2b46928abd9e80d726b71052788a7f516d4e780b30e7edbedea8cc9|json=0
+MAXRSS|parent=small_python|peak_bytes=11685888|exit=0|json=0
+MAXRSS|parent=python_holding_700_MiB|peak_bytes=745820160|exit=0|json=0
+MAXRSS|parent=same_python_after_freeing_it|peak_bytes=745820160|exit=0|json=0
+MAXRSS|parent=python_holding_700_MiB_through_a_small_helper|peak_bytes=11550720|exit=0|json=0

@@ -1,0 +1,21 @@
+3323d06e47789b97bb840aa2f1282b7c4c440b057b50287ab731bda2b8c5afe6 *-
+sector_check_replaced
+   Compiling autocfg v1.5.1
+   Compiling num-traits v0.2.19
+   Compiling num-integer v0.1.47
+   Compiling num-bigint v0.4.8
+   Compiling evolvers v0.1.0 (C:\tmp\opus55\allpairs-review-20261103\hard\clones\lf\native\ym\crates\evolvers)
+    Finished `release` profile [optimized] target(s) in 7.72s
+68785f6f752aa6571ca659e5a4bd34c0b626e83ec5ca8ebc1af8476ac7610d9f *native/ym/target/release/allpairs
+rustc 1.81.0 (eeb90cda1 2024-09-04)
+cargo 1.81.0 (2dbb1af80 2024-08-20)
+exit=0
+Traceback (most recent call last):
+  File "C:\tmp\opus55\allpairs-review-20261103\hard\clones\lf\native\ym\results\3x4_stream\perron\allpairs\hardened\compare_hardened_run.py", line 46, in <module>
+    new_text = read(NEW).decode("utf-8", "replace")
+               ~~~~^^^^^
+  File "C:\tmp\opus55\allpairs-review-20261103\hard\clones\lf\native\ym\results\3x4_stream\perron\allpairs\hardened\compare_hardened_run.py", line 26, in read
+    return open(path, "rb").read()
+           ~~~~^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/c/tmp/opus55/allpairs-review-20261103/hard/out/recipes/small-lf/allpairs-3x4.out'
+HARDENED_REQUIREMENT|original_run_is_the_pinned_one|met=1|sha256=b0b172204fb1cbadeacec6dc58576f6436179225d5f0ea03163ba16227c3f271|json=0

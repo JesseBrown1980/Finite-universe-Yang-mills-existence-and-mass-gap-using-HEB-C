@@ -1,0 +1,3 @@
+ALLPAIRS_CONTROLS_DONE|failed=0|json=0
+CONTROLS_PROJECTION|original_rows=81|new_rows=81|same_on_the_original_keys=72|verdict_pass_to_fail_only=9|other=0|met=1|json=0
+CONTROLS_EXIT=0

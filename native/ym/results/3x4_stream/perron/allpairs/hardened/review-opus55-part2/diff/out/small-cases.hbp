@@ -1,0 +1,4 @@
+SMALL_CASE|case=zero_side_with_sum_w_6|want_exit=2|exit=2|verdict=FAIL|header_entries=PASS|whole_space_count=OPEN|codes=-|sum_w=6|met=1|json=0
+SMALL_CASE|case=newline_right_after_w_self_adjoint|want_exit=0|exit=0|verdict=PASS|header_entries=PASS|whole_space_count=PASS|codes=7776|sum_w=7776|met=1|json=0
+SMALL_CASE|case=w_self_adjoint_only_after_the_newline|want_exit=1|exit=1|verdict=FAIL|header_entries=None|whole_space_count=None|codes=None|sum_w=None|met=1|json=0
+SMALL_CASES_DONE|not_met=0|json=0

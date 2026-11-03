@@ -1,0 +1,10 @@
+MUTATION|variant=old_rule_put_back|unit_failed=2|unit_claimed=2|claim_met=1|harness_exit=1|harness_disagree_verdict=608|harness_disagree_exit_class=0|harness_false_pass=0|harness_red=1|json=0
+MUTATION|variant=header_check_removed|unit_failed=1|unit_claimed=1|claim_met=1|harness_exit=1|harness_disagree_verdict=0|harness_disagree_exit_class=183|harness_false_pass=0|harness_red=1|json=0
+MUTATION|variant=empty_store_allowed|unit_failed=1|unit_claimed=1|claim_met=1|harness_exit=1|harness_disagree_verdict=0|harness_disagree_exit_class=302|harness_false_pass=0|harness_red=1|json=0
+MUTATION|variant=lenient_numbers|unit_failed=4|unit_claimed=4|claim_met=1|harness_exit=1|harness_disagree_verdict=14|harness_disagree_exit_class=25|harness_false_pass=0|harness_red=1|json=0
+MUTATION|variant=repeated_key_blind|unit_failed=2|unit_claimed=-|claim_met=1|harness_exit=1|harness_disagree_verdict=0|harness_disagree_exit_class=157|harness_false_pass=0|harness_red=1|json=0
+MUTATION|variant=gate_compare_passes_any_value|unit_failed=2|unit_claimed=-|claim_met=1|harness_exit=1|harness_disagree_verdict=69|harness_disagree_exit_class=0|harness_false_pass=0|harness_red=1|json=0
+MUTATION|variant=gate_none_passes|unit_failed=2|unit_claimed=-|claim_met=1|harness_exit=1|harness_disagree_verdict=608|harness_disagree_exit_class=0|harness_false_pass=0|harness_red=1|json=0
+MUTATION|variant=zero_lattice_allowed|unit_failed=1|unit_claimed=-|claim_met=1|harness_exit=0|harness_disagree_verdict=0|harness_disagree_exit_class=0|harness_false_pass=0|harness_red=0|json=0
+MUTATION|variant=check_only_n_canonical|unit_failed=1|unit_claimed=-|claim_met=1|harness_exit=1|harness_disagree_verdict=0|harness_disagree_exit_class=12|harness_false_pass=0|harness_red=1|json=0
+MUTATIONS_DONE|variants=9|failed=1|json=0

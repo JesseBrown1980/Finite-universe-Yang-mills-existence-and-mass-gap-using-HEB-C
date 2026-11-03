@@ -1,0 +1,2 @@
+MEM_SHAPE|store=rooms_claim_2GiB_of_zeros|cap=default|exit=2|passes=1|peak_working_set_mib=196|peak_private_sampled_mib=2261|header_formula_mib=256|ws_over_formula_x100=76|padding=FAIL|padding_bytes=2147479504|rows_read=2|json=0
+MEM_SHAPES_DONE|buffers_counted_mib=256|json=0

@@ -1,0 +1,10 @@
+ONEREAD_TOOLS|host=hosted|old_sha256=0f3fbbfda2b46928abd9e80d726b71052788a7f516d4e780b30e7edbedea8cc9|new_sha256=30ff0a81275bd5d6f3a04d76dde2470f174a4e88f14f20a785d1fad4e56d7e8a|runs=2000|json=0
+ONEREAD_CONTROL|clean_same_rows|met=1|old_exit=0|new_exit=0|new_offset=0|json=0
+ONEREAD_CONTROL|offset_printed|met=1|old_exit=0|new_exit=0|new_offset=8192|json=0
+ONEREAD_CONTROL|columns_same_counters|met=1|old_exit=2|new_exit=2|columns_not_ascending=131066,131066|json=0
+ONEREAD_CONTROL|columns_time_at_most_a_tenth|met=1|old_ms=3262|new_ms=27|json=0
+ONEREAD_CONTROL|no_writer_old|met=1|trusted_block_exit=1|changed_block_exit=2|json=0
+ONEREAD_CONTROL|no_writer_new|met=1|trusted_block_exit=1|changed_block_exit=2|json=0
+ONEREAD_RACE_OLD_MEASURED|host=hosted|runs=2000|exit0=123|exit_0_identity_PASS=123;exit_1_identity_-=998;exit_2_identity_FAIL=879|json=0
+ONEREAD_CONTROL|race_new_never_exits_0|met=1|runs=2000|exit0=0|exit_1_identity_-=1004;exit_2_identity_FAIL=996|json=0
+ONEREAD_CONTROLS_DONE|failed=0|json=0

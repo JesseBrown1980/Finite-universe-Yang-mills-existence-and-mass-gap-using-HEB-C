@@ -239,6 +239,8 @@ A review the operator relayed on November 3 found that the original `allpairs` l
 | Corrected | `5ab04b18…` | `d78f263f…` | Both count gates at `PASS` | 62 header cases, the 49 controls again, [run 41604837594](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41604837594) |
 | Corrected, rebuilt from the source pinned at `0fd24d3` | `5ab04b18…` | `cdb22218…` | Both count gates at `PASS` | The 3×4 run, the 62 header cases and the 49 controls again |
 
+Correction beside that table, R7 of the second seat's part two: run 41604837594 built its own Linux files from that source, `389881ac…` and `376cce17…`, as its `hosted/TOOLS.txt` lists.
+
 The corrected executable also stops on a header that repeats a key, or that writes `n=` or `payload_bytes=` outside canonical form. It reads `entries=`, `nl=` and `L=` outside canonical form as `OPEN`. It stops on a store with no rows, where the original printed `merkle=PASS` with no merkle computed.
 
 [`allpairs/failclosed/run_header_controls.py`](allpairs/failclosed/run_header_controls.py) puts one header change at a time on a copy of the 2×2 store, with the rows and the merkle as they are, and runs both executables. All 124 outcomes were predicted in that script, printed to [`allpairs/failclosed/HEADER-PREDICTION.hbp`](allpairs/failclosed/HEADER-PREDICTION.hbp), and met: 124 of 124 on this machine, where the order rests on the rows' own time stamps, in [`allpairs/failclosed/HEADER-CONTROLS.hbp`](allpairs/failclosed/HEADER-CONTROLS.hbp), and again on hosted Linux with both built from source on Rust 1.81, [run 41604837594](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41604837594), with the same rows. That run checked out a commit already holding the predictions.
@@ -256,7 +258,7 @@ The scope of this correction:
 - **The repeat.** With the corrected executable, the 49 controls gave the same 49 outcomes, and all 131 rows match the original [`allpairs/CONTROLS.hbp`](allpairs/CONTROLS.hbp) apart from `secs=`: [`allpairs/failclosed/CONTROLS-REPEAT.hbp`](allpairs/failclosed/CONTROLS-REPEAT.hbp). On hosted Linux, the fixture faults on all three checkers gave a file byte-identical to the original's, `3ff98769…`.
 - **Unit tests.** 19 pass on Rust 1.81, and clippy with `-D warnings` exits 0. With the old rule put back, 2 of them fail. With the header check removed 1 fails, with an empty store allowed 1 fails, and with lenient numbers 4 fail.
 - **The fields it reads.** `L`, `n`, `nl`, `entries`, `payload_bytes`, `payload_merkle` and `w_self_adjoint`. It prints `sector`, and leaves `rooms`, `stream_bytes`, `chunk`, `keys_sha256` and `json` unread, as one case measures.
-- **Rebuilds.** An unexpected result, recorded as a failure of byte reproducibility in [`allpairs/failclosed/pin-0fd24d3/PIN-RUN.hbp`](allpairs/failclosed/pin-0fd24d3/PIN-RUN.hbp): three builds of one source on Windows gave three file hashes, `d78f263f…`, `cdb22218…` and `9bc0675a…`. They differ by 24 and 20 bytes, all in the linker's time stamps and PDB GUID, and [`allpairs/failclosed/pe_normal_hash.py`](allpairs/failclosed/pe_normal_hash.py) gives `953fa422…` for all three with those fields zeroed. A replay compares the source hash and that normal hash. The first prediction for the 3×4 run named `d78f263f…`. The operator directed a rebuild from the pin before the start, so the run used `cdb22218…`, under a new prediction, and both rows are in the record.
+- **Rebuilds.** An unexpected result, recorded as a failure of byte reproducibility in [`allpairs/failclosed/pin-0fd24d3/PIN-RUN.hbp`](allpairs/failclosed/pin-0fd24d3/PIN-RUN.hbp): three builds of one source on Windows gave three file hashes, `d78f263f…`, `cdb22218…` and `9bc0675a…`. They differ by 24 and 20 bytes, all in the linker's time stamps and PDB GUID, and [`allpairs/failclosed/pe_normal_hash.py`](allpairs/failclosed/pe_normal_hash.py) gives `953fa422…` for all three with those fields zeroed. A replay compares the source hash and that normal hash. The first prediction for the 3×4 run named `d78f263f…`. The operator directed a rebuild from the pin before the start, so the run used `cdb22218…`, under a new prediction, and both rows are in the record. Correction beside that, R6 of the second seat's part two: that comparison is for Windows. On Linux the file hash itself reproduced, `389881ac…`, so a replay there compares the file hash, and on Windows a difference in the normal hash means another toolset or source.
 - **The original evidence.** Every receipt of the 3×4 run stays as it was, with its hashes, and `git show 8faadb0:native/ym/crates/evolvers/src/bin/allpairs.rs` gives its source.
 
 The operator then directed a full 3×4 run with the corrected executable, rebuilt from the source pinned at `0fd24d3`. Its prediction row, in [`allpairs/failclosed/pin-0fd24d3/PIN-RUN.hbp`](allpairs/failclosed/pin-0fd24d3/PIN-RUN.hbp), is time-stamped 08:52:22Z, before the recorded start at 08:54:17Z, with every output row the same as the original's apart from `secs=`. It reached git at 09:50Z, after the recorded end at 09:39:22Z, so the order rests on those time stamps. The values were known from the original run, so this tests the corrected executable against it. It printed, in [`allpairs/failclosed/pin-0fd24d3/ALLPAIRS-3x4-PIN.out`](allpairs/failclosed/pin-0fd24d3/ALLPAIRS-3x4-PIN.out):
@@ -266,6 +268,8 @@ ALLPAIRS|L=3x4|sector=Sx+Sy+|n=45508080|rows_read=45508080|entries=3310759342|he
 ```
 
 It exited 0 with an empty standard error, after 2,705 s in 4 passes of 705, 557, 738 and 701 s, and its executable and source kept their hashes. The second seat read its peak working set while it ran: 4,038,279,168 bytes. The 3.5 GiB above counts the entries alone. [`allpairs/failclosed/compare_pin_run.py`](allpairs/failclosed/compare_pin_run.py), written while the run was going, judged it against the operator's requirements: 31 of 31 met, in [`allpairs/failclosed/pin-0fd24d3/PIN-COMPARE.hbp`](allpairs/failclosed/pin-0fd24d3/PIN-COMPARE.hbp). Both count gates read `PASS`, with 0 mismatches, 0 unpaired entries, every structure counter 0, and merkle PASS on each of 4 passes. Apart from `secs=`, all 5 rows match the original run's, `609bc96f…` in both. That judge reported all 20 faults put to it and passed the 2 copies that should pass: [`allpairs/failclosed/pin-0fd24d3/COMPARE-CONTROLS.hbp`](allpairs/failclosed/pin-0fd24d3/COMPARE-CONTROLS.hbp). The small controls ran again on this exact executable, with the same rows: [`allpairs/failclosed/pin-0fd24d3/HEADER-CONTROLS-PIN.hbp`](allpairs/failclosed/pin-0fd24d3/HEADER-CONTROLS-PIN.hbp) and [`allpairs/failclosed/pin-0fd24d3/CONTROLS-PIN.hbp`](allpairs/failclosed/pin-0fd24d3/CONTROLS-PIN.hbp). To repeat the run and its judgement from the public files: [`allpairs/failclosed/reproduce_pin_run.sh`](allpairs/failclosed/reproduce_pin_run.sh).
+
+Correction beside "written while the run was going", R8 of the second seat's part two: that order is INCONCLUSIVE. The judge first reaches git in `fead9ed`, 09:50:39Z, after the run's end at 09:39:22Z, and no row dates its writing. Its soundness is measured directly: 136 of 136 one-field faults caught.
 
 The scope of this run: this seat wrote the tool, and it ran on this seat's machine, on the same store as the original run. It reads the stored rows and weights, as above. A replay on another machine is open.
 
@@ -300,6 +304,73 @@ Its wording findings, C1 to C7: C1, C2, C3, C6 and C7 are corrected in these doc
 
 Fixes for D3 to D8 change the source and the executable, so they wait for the operator's word.
 
+### The fixes for D3 to D8
+
+The decision the operator relayed on November 3, as written: "Decision — Fix D3–D8: APPROVED". "YES. Fix all six remaining defects." The fixes came in two steps, each with its predictions in git before its controls ran, and each with a full 3×4 run whose prediction reached GitHub before the start.
+
+| Step | Source, commit | Windows file, normal hash | Linux file | Full 3×4 run |
+|---|---|---|---|---|
+| D3 to D8 | `3323d06e…`, `9c2c7e6` | `4f64f605…`, `71fff11a…` | `0f3fbbfd…` | Exit 0, 2,804 s, 48 of 48 of its judge's requirements: [`allpairs/hardened/run34/HARDENED-RUN.hbp`](allpairs/hardened/run34/HARDENED-RUN.hbp) |
+| One read of the header block, for H1 to H4 below | `adcacfc5…`, `c84d1e7` | `b0682e72…`, `796aae4a…` | `30ff0a81…` | Exit 0, 2,880 s, 51 of 51: [`allpairs/oneread/run34/ONEREAD-RUN.hbp`](allpairs/oneread/run34/ONEREAD-RUN.hbp) |
+
+The tool now names the store it read, by the merkle it computed and by the hash of the whole 4096-byte header block, which must be a row of its table. It accounts for every payload byte, and each entry answers one lookup. The last run printed, in [`allpairs/oneread/run34/ALLPAIRS-3x4-ONEREAD.out`](allpairs/oneread/run34/ALLPAIRS-3x4-ONEREAD.out):
+
+```
+ALLPAIRS|L=3x4|sector=Sx+Sy+|n=45508080|rows_read=45508080|entries=3310759342|header_entries=PASS|diag=45508080|pairs=1632625631|passes=4|cap_requested=470000000|cap_entries=470000000|value_mismatch=0|lower_without_upper=0|upper_without_lower=0|lower_repeated=0|columns_not_ascending=0|column_out_of_range=0|zero_z=0|positive_offdiag=0|row_sum_nonzero=0|zero_weight=0|missing_diag=0|flats=7|flat_w=1,3,2,3,3,2,4|flat_w_listed=7|flat_w_sum=18|sum_w=13060694016|codes=13060694016|whole_space_count=PASS|rooms=3356267422|header_rooms=PASS|padding_bytes=742160|padding_nonzero=0|padding=PASS|offset=0|bytes_after_stream=349114368|store_identity=PASS|identity_differs=-|payload_merkle=ec03c5f8ea5abd37ed8f80e0e9e7f00e37840a753f33a1008fbd090b18072a0b|header_sha256=65dd63a89d7e1a7cdd3e7876c834c6698a01081ea7a63738e305890bee9e6a21|merkle=PASS|verdict=PASS|exe_sha256=b0682e72635704440213270dcea8768c0ccaeeac8d6d891b8c0d842edfb828fa|secs=2880|json=0
+```
+
+Every counted field met its prediction, 43 of them in that row, along with the four windows. Peak working set, read once during pass 2 of each run: 4,111,687,680 and 4,114,354,176 bytes, against a predicted bound of 4,400,000,000. All 5 rows of the last run, with `secs=` and `exe_sha256=` blanked, hash to `b1109995…`, the value its judge pins, so that run and the one before it print the same text apart from `offset=0`. A fresh build of the pinned source reproduces the Windows normal hash and the Linux file hash in [`allpairs/oneread/run34/ONEREAD-RUN.hbp`](allpairs/oneread/run34/ONEREAD-RUN.hbp).
+
+**The controls, on the old executables and the final one.** The last hosted run is [41654200323](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41654200323), receipts in [`allpairs/oneread/hosted/`](allpairs/oneread/hosted/TOOLS.txt), and the same controls on this machine are in [`allpairs/oneread/local/`](allpairs/oneread/local/RUN.hbp).
+
+| Control | Older executables | Final executable |
+|---|---|---|
+| 93 cases of D3 to D8 and of the review, 279 outcomes predicted first | 93 of 93 as predicted on each | 93 of 93 as predicted, `failed=0` |
+| Each of 2,944 bits of the header line, flipped, at exit 0 | 1,787 on the original, 1,608 on the corrected | 0 |
+| Each of 32,768 bits of the header block, flipped, at exit 0 | | 0 |
+| A writer toggling the merkle field during the run, 2,000 tries, at exit 0 | 481 here and 123 on hosted, on the executable of `9c2c7e6` | 0 here and 0 on hosted |
+| 256 MiB of padding, peak on hosted | 346,226,688 and 337,694,720 bytes | 5,746,688 bytes |
+| Equal columns on both sides of a pair | 4,961 ms | 35 ms |
+| The judge of the run | | 195 cases, 192 of them faults, `failed=0` |
+| The table of trusted blocks | | 4 of 4, three stores rebuilt from the rules by `ymroom` and the 3×4 block from the public store |
+| Unit tests on Rust 1.81 | | 41 pass, and clippy with `-D warnings` exits 0 |
+
+**Failures along the way, kept as failures.** Each is a row in its ledger, and none changed a prediction.
+
+| Run | What happened | Cause |
+|---|---|---|
+| Hosted [41620803428](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41620803428) | One memory row read 613,576,704 bytes against a bound of 33,554,432, on all three tools | MEASURED: on Linux `ru_maxrss` carries the Python parent. Its receipts are in [`allpairs/hardened/hosted-first-failed/`](allpairs/hardened/hosted-first-failed/TOOLS.txt) |
+| Hosted [41622992263](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41622992263) | The fix for that held a Python syntax error | This seat's patch, and a command chain that hid the check. GPT-6 also reported it |
+| Local, one-read controls | Stopped at the first check, 0 cases run | The script hashed the compressed fixture |
+| Local, trusted table | Exit 1 | This seat's step gave one store of four. With all four: 4 of 4 |
+| Hosted [41644077385](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41644077385) | Stopped at its build step, 0 controls run | The workflow installed Rust 1.81 with the minimal profile and then called clippy. Its log is in [`allpairs/oneread/hosted-first-failed/`](allpairs/oneread/hosted-first-failed/run.log) |
+
+**The second seat, parts two and three.** Part two, on `0fd24d3`, as written: "**Overall: FAIL, on the repeat recipe alone.** The corrected tool closes D1 and D2, and the 3×4 receipts hold." Part three, on `9c2c7e6`, as written: "**Overall: FAIL, on one race in the tool and one recipe path.** D3 to D7 close. D8 closes on every path with no writer on the store: exit 0 came 0 times in 32,768 bit flips and 0 times in 77,520 byte changes." And: "On 3×4 the judge pins `payload_merkle` and the recipe hashes the sectors, so this race leaves the 3×4 evidence as it stood." Reports: [`allpairs/hardened/review-opus55-part2/ALLPAIRS-REVIEW-DIFF.md`](allpairs/hardened/review-opus55-part2/ALLPAIRS-REVIEW-DIFF.md) and [`allpairs/hardened/review-opus55-part3/ALLPAIRS-REVIEW-HARDENED.md`](allpairs/hardened/review-opus55-part3/ALLPAIRS-REVIEW-HARDENED.md). What each finding has become:
+
+| # | Finding | Now |
+|---|---|---|
+| D3, D4, D5, D6, D7 | Part three: closes | Closed at `9c2c7e6`, and the controls above stay red on the older executables |
+| D8 | Part three: closes with no writer, stays open with one | Closed with H1 |
+| H1 | Two reads of the block, merkle from one and identity from the other | Closed: one read at `c84d1e7`, in the table above |
+| H2 | The equal-column walk is quadratic | Closed: a binary search over a run of equal columns |
+| H3 | The memory sentence left out the reservation and growth | Closed: the source's head says both |
+| H4 | The row omitted the offset | Closed: `offset=` is printed, and the judge requires 0 |
+| R1, R2, R4 | The recipe's exit on a failed judgement, unhashed sectors, an unpinned original | Part three: closed |
+| R3, R5 | A default clone, and the build's paths | Part three: moved to R11 and narrowed to R10 |
+| R6 | The normal hash is for Windows | Corrected beside its line above |
+| R7 | A hosted run under a Windows executable | Corrected beside its table above |
+| R8 | "Written while the run was going", with no row dating it | Corrected beside its line above: INCONCLUSIVE |
+| R9 | A good Windows run could not finish the recipe | Closed in [`allpairs/oneread/reproduce_oneread_run.sh`](allpairs/oneread/reproduce_oneread_run.sh) |
+| R10 | Source and build hashes printed and compared with nothing | Closed there: constants for both sources and both build hashes, and a check that the build's paths hold no other file |
+| R11 | A default clone learned late, and the advised clone form did not last | Closed there: the original output is hashed first, and it advises `git clone -c` |
+| R12 | The `source=` label was a constant | Closed: `source=given_store` or `given_block`, and the workflow says where each came from |
+| R13 | The judge read a last-wins dict and compared no row as text | Closed: no row may repeat a key, and the text of every row must hash to the pinned value |
+| C1 | `ru_maxrss` read the Python parent on Linux | Closed: a small launcher forks the tool |
+
+**GPT-6, the outside seat, on `9c2c7e6`, as written:** "**SOURCE-REVIEW VERDICT: PASS on the six D3–D8 mitigation paths inspected. EXECUTION VERDICT: INCONCLUSIVE pending dedicated hostile-store controls and a hardened full 3×4 replay.**" The controls and the runs above came after that. Its review and comments are on [PR #85](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/85).
+
+**Scope.** Every full 3×4 run here ran on this seat's machine, on the same store, and this seat wrote the tool. The second seat's part three reads `9c2c7e6`, and nobody else has read the one-read change at `c84d1e7`. Its controls and its run are the evidence for that step. The recipe for a replay on another machine is [`allpairs/oneread/reproduce_oneread_run.sh`](allpairs/oneread/reproduce_oneread_run.sh). `roomio.rs` stays as it is, since recorded runs of other tools are pinned to it, and those tools still read through it. The formal 3×4 gap verdict and the rule stay on HOLD, and the continuum claim stays NOT CERTIFIED, as the operator wrote them.
+
 ### Which tool made which row
 
 | Tool | SHA-256 | Source | Rows |
@@ -333,7 +404,7 @@ Its first objections as a hostile reader stand as open items: the upper side bou
 |---|---|
 | The outside seat's Go checker, further | Its values, and its row-sum and self-adjoint gates on fixtures, are measured, in section 5. Open: an exact pair test in its own code, which goes beyond a wider range for x and y. Earlier runs, on its branch's [`independent-go-perron-20261102.yml`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/audit/independent-go-perron-20261102/.github/workflows/independent-go-perron-20261102.yml): the first stopped after the row loop on the format text this seat gave it, corrected in `PERRON-REVIEW.md`, and diagnostic run [41499253445](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41499253445) printed `trailing=742160 nonzero=0 merkle_matches=true`, as predicted in writing beforehand |
 | Every 3×4 row against the definition of H | Done on this seat's machine: all 45,508,080 rows, 0 mismatches, as predicted in writing first, in section 5. Open: a replay on another machine from the public files, about 2.2 h at 6 threads |
-| Every off-diagonal pair, exactly | Done on this seat's machine, by the original executable and by the corrected one: 1,632,625,631 pairs, 0 mismatches, in section 5. A second seat's review reads FAIL overall, with the recorded numbers standing, in section 5. Open: its defects D3 to D8, and a replay on another machine from the public files, about 2,705 s here, with [`allpairs/failclosed/reproduce_pin_run.sh`](allpairs/failclosed/reproduce_pin_run.sh) |
+| Every off-diagonal pair, exactly | Done on this seat's machine, by the original executable and by the corrected one: 1,632,625,631 pairs, 0 mismatches, in section 5. A second seat's review reads FAIL overall, with the recorded numbers standing, in section 5. Its defects D3 to D8, and the findings of its later parts, are fixed in two more steps, each with a full 3×4 run, in section 5. Open: a reading of the one-read change at `c84d1e7` by another seat, the other tools that still read through `roomio.rs`, and a replay on another machine from the public files, about 2,880 s here, with [`allpairs/oneread/reproduce_oneread_run.sh`](allpairs/oneread/reproduce_oneread_run.sh) |
 | The gap below r = 6.076 on 3×4 | A solve at lower coupling, then the same checks. On 3×3 the flat bound's route ends between r = 4 and 4.06 |
 | `perroncert` guards at absurd inputs | A hardened build with checked products, once the pinned runs are done |
 | A verdict by this route | A rule revision and the operator's word: [`PERRON-RULE-DRAFT.md`](PERRON-RULE-DRAFT.md) |
