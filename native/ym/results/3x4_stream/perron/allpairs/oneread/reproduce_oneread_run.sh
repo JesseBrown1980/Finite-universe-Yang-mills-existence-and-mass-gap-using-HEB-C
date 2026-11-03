@@ -23,6 +23,8 @@ MANIFEST_SHA=9213927b3b60cfbeae8efef10730e8c7df2ad52f56159017b048539377886ce3
 SOURCE_SHA=adcacfc5427666a02ca5dcc1a984d56b4e73bf9f95142e3f532d1c023cf2bb25
 ROOMSCAN_SHA=b8880f4b3e04f307b21e2da2d2491e95ef8bd3721a9717bc4d4a2ad2daaed795
 ORIGINAL_OUT_SHA=b0b172204fb1cbadeacec6dc58576f6436179225d5f0ea03163ba16227c3f271
+LINUX_FILE_SHA=30ff0a81275bd5d6f3a04d76dde2470f174a4e88f14f20a785d1fad4e56d7e8a
+WINDOWS_NORMAL_SHA=796aae4acd13de7088577bb92b9f363a19186384a527ca223d0cf6d9263ba1c6
 mkdir -p "$OUT"
 OUT_ABS=$(cd "$OUT" && pwd)
 ROOT=$(pwd)
@@ -46,6 +48,14 @@ X=native/ym/target/release/allpairs
 # Git Bash finds allpairs when allpairs.exe exists, and native Python needs the full name.
 [ -e "$X.exe" ] && X=$X.exe
 { sha256sum "$X"; rustc +1.81.0 -V; cargo +1.81.0 -V; } | tee "$OUT_ABS/build.txt"
+case "$X" in
+  *.exe)
+    python3 -I -X utf8 "$A/failclosed/pe_normal_hash.py" "$X" | tee -a "$OUT_ABS/build.txt" | grep -q "normal_sha256=$WINDOWS_NORMAL_SHA" || { echo "this Windows build has another normal hash: another toolset or source"; exit 2; }
+    ;;
+  *)
+    [ "$(sha256sum "$X" | cut -d' ' -f1)" = "$LINUX_FILE_SHA" ] || { echo "this Linux build has another file hash: another toolset or source"; exit 2; }
+    ;;
+esac
 c=0
 "$X" "seg:341:34:800000000:$SECTORS/sector-" 0 470000000 > "$OUT_ABS/allpairs-3x4.out" 2> "$OUT_ABS/allpairs-3x4.err" || c=$?
 echo "exit=$c" | tee "$OUT_ABS/exit.txt"
