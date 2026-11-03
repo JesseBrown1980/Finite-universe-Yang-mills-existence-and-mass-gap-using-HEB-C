@@ -1,0 +1,41 @@
+name: 3x3 finite S3 vacuum-ball block-Krylov Ritz verification
+
+on:
+  push:
+    branches: [seat-yang-mills-3x3-vacuum-block-ritz]
+  pull_request:
+    branches: [main, integer-sturm-ladder]
+
+permissions:
+  contents: read
+
+jobs:
+  block-ritz-verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enforce integer-only code paths
+        run: |
+          set -euo pipefail
+          python3 independent/seat_integer_only_gate.py
+      - name: Reproduce exact 3x3 vacuum-ball block-Krylov Ritz receipts
+        run: |
+          set -euo pipefail
+          python3 independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k1.matrix 1 27 --order 1 > /tmp/test.measure
+          python3 independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k2.matrix 1 27 --order 2 >> /tmp/test.measure
+          python3 independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k3.matrix 1 9 --order 3 >> /tmp/test.measure
+          python3 independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k3.matrix 1 27 --order 3 >> /tmp/test.measure
+          python3 independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k3.matrix 1 81 --order 3 >> /tmp/test.measure
+          cmp /tmp/test.measure independent/seat_3x3_vacuum_block_ritz.measure
+          grep -F 'matrix=b33_k3.matrix' /tmp/test.measure | grep -F 'symmetry_diff=0'
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|receipts_verified=5|json=0'
+      - name: Fail closed on tampered vacuum-ball matrix
+        run: |
+          set -euo pipefail
+          cp -a independent/matrices/b33_k1.matrix /tmp/b33_k1_bad.matrix
+          printf 0 | dd of=/tmp/b33_k1_bad.matrix bs=1 seek=16 conv=notrunc status=none
+          if python3 independent/seat_3x3_vacuum_block_ritz.py /tmp/b33_k1_bad.matrix 1 27 --order 1; then
+            echo 'FAIL tampered matrix accepted'; exit 1
+          fi
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|tamper_rejected=1|json=0'
