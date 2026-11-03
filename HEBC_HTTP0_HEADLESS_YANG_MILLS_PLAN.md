@@ -1,4 +1,10 @@
-## Status, November 1, 2026 (read this first)
+## Current research status — November 3, 2026
+
+The [current results and verification register](docs/RESEARCH-STATUS-2026-11-03.md) leads with completed Stage 2B, Stage 2C, 2×L, 3×3 and 3×4 finite-lattice results, and records the active checker-hardening and volume-uniform research milestones. The November 1 status table and October 24 execution plan below are retained as dated development evidence.
+
+---
+
+## Status, November 1, 2026 (historical snapshot)
 
 The plan below is dated 2026-10-24 and kept as written. Where a later result overtakes a sentence, a
 dated note sits beside it. The current results table is in the [README](README.md).
