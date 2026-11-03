@@ -27,7 +27,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rustup toolchain install 1.81.0 --profile minimal
+          rustup toolchain install 1.81.0 --profile minimal --component clippy
           S=native/ym/crates/evolvers/src/bin/allpairs.rs
           cp "$S" "$RUNNER_TEMP/hardened.rs"
           ( cd native/ym && cargo +1.81.0 build --locked --release -p evolvers --bin allpairs && cargo +1.81.0 build --locked --release -p torusl --bin ymroom )
