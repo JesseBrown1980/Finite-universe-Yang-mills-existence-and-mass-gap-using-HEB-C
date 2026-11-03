@@ -14,12 +14,17 @@ Modes, each exits 1 on the first check that does not hold:
                             Wilson loops and the eight link operators.
   same                      The matrix and the bound inside seat_global_coupling.py against that matrix.
   f MEASURE                 Path F, the conclusion with its steps, from the rows pinned in MEASURE.
+  g [FOLDER]                Path G, the formula gap(E) = 3*min(4,Lx,Ly) on a periodic torus: the vertex rule, the girth
+                            of the torus multigraph, and every low-cost assignment of the tori listed below. With
+                            FOLDER, also the second seat's 28 tori from its logs there.
   predictions PRED RETRY RETRY2 MEASURE
-                            Each prediction row against the rows in MEASURE: MET, MISS or NOT_MEASURED.
+                            Each prediction row against the rows in MEASURE. A changed value reads MISS, and a row
+                            absent from MEASURE reads NOT_MEASURED with its reason. It prints every verdict and exits
+                            0, so a miss is recorded beside its row.
 
 Red controls, each must exit 1:
-  a --alter-entry, b --bad-character, c --alter-entry, c --drop-factor C, and f on a MEASURE with a
-  changed row.
+  a --alter-entry, b --bad-character, c --alter-entry, c --drop-factor C, c --add-factor C, g --bad-character,
+  g --cap C, g --alter-vertex, and f on a MEASURE with a changed row.
 """
 import os
 import runpy
@@ -30,6 +35,9 @@ from itertools import combinations, permutations, product
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OPERATOR_PIN = "b6c608f50f81f3bf48fb0203b48e0e3bfc867037dc1d0a96633aa80b962137f3"
+INDEP_CODE_PIN = "a501b563619c4364e4d8b15564a33de57e659fc00043c05af223f4e9c7bc9f61"
+INDEP_KERNEL_PIN = "c5a66e8fafdf56b63eb385085ef3b352a7559e6072f8c99791b74b46392bc40a"
+INDEP_KERNEL_SOURCE_BLOB = "b159b7eda3c60ea24e518c855800116ac2fff2d7"
 
 
 def emit(tag, *fields):
@@ -163,13 +171,8 @@ def torus_links(lx, ly):
     return x_links + y_links
 
 
-def character_table(lx, ly, characters):
-    """m[cost] = sum over assignments of {1, sign, tau} to links of the product over vertices of dim Inv."""
-    links = torus_links(lx, ly)
-    vertices = lx * ly
-    ends = [tuple(k for k, link in enumerate(links) for end in link if end == v) for v in range(vertices)]
-    if any(len(e) != 4 for e in ends):
-        fail("B", "vertex_valence")
+def invariant_table(characters):
+    """dim Inv for every tuple of 4 irreps at a vertex, from the characters."""
     invariants = {}
     for irreps in product(range(3), repeat=4):
         total = 0
@@ -181,6 +184,17 @@ def character_table(lx, ly, characters):
         if total % 6:
             fail("B", "dim_inv_not_divisible_by_6", "irreps=%d,%d,%d,%d" % irreps, "total=%d" % total)
         invariants[irreps] = total // 6
+    return invariants
+
+
+def character_table(lx, ly, characters):
+    """m[cost] = sum over assignments of {1, sign, tau} to links of the product over vertices of dim Inv."""
+    links = torus_links(lx, ly)
+    vertices = lx * ly
+    ends = [tuple(k for k, link in enumerate(links) for end in link if end == v) for v in range(vertices)]
+    if any(len(e) != 4 for e in ends):
+        fail("B", "vertex_valence")
+    invariants = invariant_table(characters)
     cost_of = irrep_costs(characters)
     table = {c: 0 for c in range(0, 6 * len(links) + 1, 3)}
     assignments, with_states = 0, 0
@@ -440,7 +454,7 @@ def check_reflection(model, rows):
          "so=m[c]=m[48-c]_on_the_matrix_and_B(48-T)=-S*B(T)*S", "result=PASS")
 
 
-def path_c(alter, drop):
+def path_c(alter, drop, add=None):
     table, _, _, _, _ = character_table(2, 2, CHARACTERS)
     roots = [c for c in sorted(table) if table[c]]
     model = load_gpt6_model()
@@ -458,6 +472,10 @@ def path_c(alter, drop):
         if drop not in roots:
             fail("C", "dropped_factor_is_not_a_root", "c=%d" % drop)
         roots = [c for c in roots if c != drop]
+    if add is not None:
+        if add in roots:
+            fail("C", "added_factor_is_already_a_root", "c=%d" % add)
+        roots = sorted(roots + [add])
     e = [sorted(row.items()) for row in rows]
     traces = check_annihilator(e, roots)
     if alter or drop is not None:
@@ -472,6 +490,8 @@ def path_c(alter, drop):
             fail("C", "factor_not_needed", "c=%d" % c)
         emit("ELECTRIC_C_WITNESS", "c=%d" % c, "P_over_x_minus_c_at_E=NONZERO", "basis=%d" % witness[0],
              "row=%d" % witness[1], "value=%d" % witness[2])
+    if add is not None:
+        fail("C", "red_control_did_not_go_red")
     emit("ELECTRIC_C", "minimal_polynomial=P", "factors_each_needed=%d/%d" % (len(roots), len(roots)),
          "so=every_listed_cost_is_an_eigenvalue")
     trace1 = sum(row.get(i, 0) for i, row in enumerate(rows))
@@ -596,6 +616,10 @@ def path_f(measure):
         "E_5999": ["INDEP_COUNT|L=2x2|r=0|t_milli=5999000|N=1|", "result=COMPUTED"],
         "E_7700": ["INDEP_COUNT|L=2x2|r=0|t_milli=7700000|N=5|", "result=COMPUTED"],
         "E_build": ["INDEP_BUILD|L=2x2|gauge_orbits=1393|burnside=1393|"],
+        "E_code": ["INDEP_RUN|code_sha256=" + INDEP_CODE_PIN + "|"],
+        "E_engine": ["ELECTRIC_ENGINE|file=native/ym/independent/indep_verify.py|sha256=" + INDEP_CODE_PIN + "|"],
+        "E_kernel": ["INDEP_RUN|", "|minor_kernel_sha256=" + INDEP_KERNEL_PIN + "|"],
+        "E_kernel_source": ["ELECTRIC_E_RUN|exit=0|", "|kernel_source_blob=" + INDEP_KERNEL_SOURCE_BLOB + "|"],
         "C_P": ["ELECTRIC_C|P_roots=0,6,", "|P(E)=0|basis_vectors_checked=1393|nonzero_entries=0|"],
         "C_result": ["ELECTRIC_C|result=PASS|gap_E_from_P=6|m0=1|m_at_gap=4|"],
         "C_loops": ["ELECTRIC_C_LOOPS|", "|rank=4|", "with_the_constant=3,1,1,0", "result=PASS"],
@@ -628,34 +652,50 @@ def path_f(measure):
 
 # ---------------------------------------------------------------- predictions against rows
 
+# Each row: first the head, which names the receipt row up to its value, then what that row must hold.
 PREDICTION_NEEDLES = {
-    "A1": ["ELECTRIC_A|cubic=A(A-3)(A-6)|value=0|exact=1|"],
-    "A2": ["|multiplicities=0x1,3x4,6x1|"],
-    "A3": ["ELECTRIC_A|rank_A=5|rank_A_minus_3=2|rank_A_minus_6=5|"],
-    "B1": ["ELECTRIC_B_M|L=2x2|cost=0|m=1|"],
-    "B2": ["ELECTRIC_B_M|L=2x2|cost=3|m=0|"],
-    "B3": ["ELECTRIC_B_M|L=2x2|cost=6|m=4|"],
-    "B4": ["ELECTRIC_B_M|L=2x2|cost=9|m=0|"],
-    "B5": ["ELECTRIC_B|L=2x2|", "|sum_m=1393|burnside=1393|"],
-    "B7": ["ELECTRIC_B|L=2x2|", "|reflection_m[c]=m[48-c]=1|"],
-    "B8": ["ELECTRIC_B|L=2x3|", "|sum_m=47449|burnside=47449|"],
-    "B9": ["ELECTRIC_B|L=2x3|", "|smallest_nonzero_cost=6|"],
-    "B11": ["ELECTRIC_B_FORMULA|", "tested_on=2x2,2x3"],
-    "C1": ["ELECTRIC_C|builder=gpt6_2x2_from_permutations.py|operator_sha256=" + OPERATOR_PIN + "|pin=MATCH|"],
-    "C2": ["|P(E)=0|basis_vectors_checked=1393|nonzero_entries=0|"],
-    "C3": ["ELECTRIC_C|minimal_polynomial=P|factors_each_needed=13/13|"],
-    "C4": ["ELECTRIC_C|P_roots=0,6,12,15,18,21,24,27,30,33,36,42,48|degree=13|"],
-    "C5": ["|trace_E=33432|sum_c_m=33432|"],
-    "C6": ["|trace_E2=838512|sum_c2_m=838512|"],
-    "C7": ["ELECTRIC_C|multiplicities_read_back_from_the_matrix=", "|equal_to_character_table=1|"],
-    "C8": ["ELECTRIC_C_LOOPS|", "|eigenvalue=6|", "|rank=4|"],
-    "C9": ["ELECTRIC_C_LINKS|", "sum_equals_E_rows=1393/1393", "commuting_pairs=28/28", "cubic_x(x-3)(x-6)=8/8"],
-    "D4": ["ELECTRIC_D_SINGULAR|T=6000|", "|sturm_rows=0|", "|exit=1|", "no_sign-definite_pivot"],
-    "F1": ["ELECTRIC_F|step=4|conclusion=gap(E)=6_exactly|0_multiplicity=1|6_multiplicity=4|"],
-    "F2": ["ELECTRIC_SAME|", "rows_equal=1393/1393", "every_diagonal=24"],
+    "A1": ("ELECTRIC_A|cubic=", "ELECTRIC_A|cubic=A(A-3)(A-6)|value=0|exact=1|"),
+    "A2": ("ELECTRIC_A|rank_A=", "|multiplicities=0x1,3x4,6x1|"),
+    "A3": ("ELECTRIC_A|rank_A=", "ELECTRIC_A|rank_A=5|rank_A_minus_3=2|rank_A_minus_6=5|"),
+    "B1": ("ELECTRIC_B_M|L=2x2|cost=0|m=", "ELECTRIC_B_M|L=2x2|cost=0|m=1|"),
+    "B2": ("ELECTRIC_B_M|L=2x2|cost=3|m=", "ELECTRIC_B_M|L=2x2|cost=3|m=0|"),
+    "B3": ("ELECTRIC_B_M|L=2x2|cost=6|m=", "ELECTRIC_B_M|L=2x2|cost=6|m=4|"),
+    "B4": ("ELECTRIC_B_M|L=2x2|cost=9|m=", "ELECTRIC_B_M|L=2x2|cost=9|m=0|"),
+    "B5": ("ELECTRIC_B|L=2x2|", "|sum_m=1393|burnside=1393|"),
+    "B7": ("ELECTRIC_B|L=2x2|", "|reflection_m[c]=m[48-c]=1|"),
+    "B8": ("ELECTRIC_B|L=2x3|", "|sum_m=47449|burnside=47449|"),
+    "B9": ("ELECTRIC_B|L=2x3|", "|smallest_nonzero_cost=6|"),
+    "B11": ("ELECTRIC_B_FORMULA|", "|formula=gap(E)=3*min(4,Lx,Ly)|", "|tested_on=2x2,2x3|"),
+    "C1": ("ELECTRIC_C|builder=", "ELECTRIC_C|builder=gpt6_2x2_from_permutations.py|operator_sha256=" + OPERATOR_PIN + "|pin=MATCH|"),
+    "C2": ("ELECTRIC_C|P_roots=", "|P(E)=0|basis_vectors_checked=1393|nonzero_entries=0|"),
+    "C3": ("ELECTRIC_C|minimal_polynomial=", "ELECTRIC_C|minimal_polynomial=P|factors_each_needed=13/13|"),
+    "C4": ("ELECTRIC_C|P_roots=", "ELECTRIC_C|P_roots=0,6,12,15,18,21,24,27,30,33,36,42,48|degree=13|"),
+    "C5": ("ELECTRIC_C|trace_E=", "|trace_E=33432|sum_c_m=33432|"),
+    "C6": ("ELECTRIC_C|trace_E=", "|trace_E2=838512|sum_c2_m=838512|"),
+    "C7": ("ELECTRIC_C|multiplicities_read_back_from_the_matrix=", "|equal_to_character_table=1|"),
+    "C8": ("ELECTRIC_C_LOOPS|", "|eigenvalue=6|", "|rank=4|"),
+    "C9": ("ELECTRIC_C_LINKS|", "sum_equals_E_rows=1393/1393", "commuting_pairs=28/28", "cubic_x(x-3)(x-6)=8/8"),
+    "D4": ("ELECTRIC_D_SINGULAR|T=6000|", "|sturm_rows=0|", "|exit=1|", "no_sign-definite_pivot"),
+    "F1": ("ELECTRIC_F|step=4|", "ELECTRIC_F|step=4|conclusion=gap(E)=6_exactly|0_multiplicity=1|6_multiplicity=4|"),
+    "F2": ("ELECTRIC_SAME|script=", "rows_equal=1393/1393", "every_diagonal=24"),
 }
+# A row with this head reads MISS for the prediction: D4 predicts that T = 6000 leaves no certified row.
+PREDICTION_CONTRADICTED_BY = {"D4": "GPT6_STURM|JE=1|JB=0|threshold=6000/1000|"}
 FULL_TABLE = {"B6": ("2x2", "0:1,6:4,12:34,15:40,18:176,21:192,24:499,27:192,30:176,33:40,36:34,42:4,48:1")}
 LOW_TABLE = {"B10": ("2x3", ((0, 1), (3, 0), (6, 3), (9, 2), (72, 1)))}
+NO_ROW = "NOT_MEASURED|reason=NO_ROW"
+
+
+def needle_verdict(pid, lines):
+    """MET when every row with the head holds the needles, MISS when one with the head differs, NO_ROW when none has it."""
+    head, *needles = PREDICTION_NEEDLES[pid]
+    contradiction = PREDICTION_CONTRADICTED_BY.get(pid)
+    if contradiction and any(line.startswith(contradiction) for line in lines):
+        return "MISS"
+    rows = [line for line in lines if line.startswith(head)]
+    if not rows:
+        return NO_ROW
+    return "MET" if all(all(needle in row for needle in needles) for row in rows) else "MISS"
 
 
 def verdict_for(fields, lines):
@@ -666,7 +706,7 @@ def verdict_for(fields, lines):
         expect = [["ELECTRIC_B_M|L=%s|cost=%s|m=%s|" % (label, c, m)] for c, m in pairs]
         total = "ELECTRIC_B_M|L=%s|" % label
         if not any(total in line for line in lines):
-            return "NOT_MEASURED"
+            return NO_ROW
         listed = {int(c) for c, _ in pairs}
         for line in lines:
             if line.startswith(total):
@@ -677,20 +717,17 @@ def verdict_for(fields, lines):
     if pid in LOW_TABLE:
         label, pairs = LOW_TABLE[pid]
         if not any(("ELECTRIC_B_M|L=%s|" % label) in line for line in lines):
-            return "NOT_MEASURED"
+            return NO_ROW
         return "MET" if all(holds(lines, "ELECTRIC_B_M|L=%s|cost=%d|m=%d|" % (label, c, m)) for c, m in pairs) else "MISS"
     if pid in PREDICTION_NEEDLES:
-        needles = PREDICTION_NEEDLES[pid]
-        if holds(lines, *needles):
-            return "MET"
-        return "MISS" if any(needles[0] in line for line in lines) else "NOT_MEASURED"
+        return needle_verdict(pid, lines)
     if fields.get("path") == "D" and "T" in fields:
         t = fields["T"]
         head = "GPT6_STURM|JE=1|JB=0|threshold=%s/1000|" % t
         if not any(head in line for line in lines):
             if holds(lines, "ELECTRIC_D_UNCERTIFIED|T=%s|" % t):
                 return "NOT_MEASURED|reason=ENGINE_UNCERTIFIED_AT_THIS_T"
-            return "NOT_MEASURED"
+            return NO_ROW
         needles = [head, "|negative=%s|" % fields["negative"]]
         if "counts" in fields:
             needles.append("|counts=%s|" % fields["counts"])
@@ -698,10 +735,10 @@ def verdict_for(fields, lines):
     if fields.get("path") == "E":
         head = "INDEP_COUNT|L=2x2|r=0|t_milli=%s|" % fields["t_milli"]
         if not any(head in line for line in lines):
-            return "NOT_MEASURED"
+            return NO_ROW
         built = holds(lines, "INDEP_BUILD|L=2x2|gauge_orbits=%s|" % fields["gauge_orbits"])
         return "MET" if built and holds(lines, head + "N=%s|" % fields["N"], "result=COMPUTED") else "MISS"
-    return "NOT_MEASURED"
+    return "NOT_MEASURED|reason=NO_CHECK_FOR_THIS_ID"
 
 
 def sturm_counts(lines, t):
@@ -818,7 +855,7 @@ def retry2_checks(retry2_file, lines, counts):
                 extra = ["certified_T=%d" % (48000 - first[0]), "negative=" + row[0], "counts=" + row[1]]
         else:
             pairs, agree = mirror_pairs(lines)
-            verdict = "MET" if pairs and pairs == agree else ("MISS" if pairs else "NOT_MEASURED")
+            verdict = "MET" if pairs and pairs == agree else ("MISS" if pairs else "NOT_MEASURED|reason=NO_T_RUN_ON_BOTH_SIDES")
             extra = ["pairs=%d" % pairs, "agree=%d" % agree]
         counts[verdict.split("|")[0]] += 1
         emit("PREDICTION_CHECK", "id=" + pid, "path=D", "source=retry2", "verdict=" + verdict, *extra)
@@ -840,6 +877,188 @@ def predictions(prediction_file, retry_file, retry2_file, measure):
          "not_measured=%d" % counts["NOT_MEASURED"])
 
 
+# ---------------------------------------------------------------- path G, the formula by the girth of the torus
+
+FORMULA_CAP = 4
+GIRTH_UP_TO = 12  # the girth is read on every torus with Lx, Ly up to this
+ENUMERATED_UP_TO = 6  # every low-cost assignment is read on every torus with Lx, Ly up to this ...
+ENUMERATED_ALSO = ((3, 7), (4, 7), (5, 7), (6, 7), (7, 7), (8, 8))  # ... and on these, the second seat's larger tori
+SECOND_SEAT_LOGS = ("tables.log", "chars_full.log", "chars_low.log", "seven_tori_rerun.log")
+
+
+def vertex_rule(characters):
+    """dim Inv by k ends in tau and s ends in the sign. The rest of the 4 ends are trivial."""
+    dims = {}
+    for irreps, dim in invariant_table(characters).items():
+        if dims.setdefault((irreps.count(2), irreps.count(1)), dim) != dim:
+            fail("G", "dim_inv_differs_within_one_k_and_s", "irreps=%d,%d,%d,%d" % irreps)
+    if any(dims[1, s] for s in range(4)):
+        fail("G", "one_tau_end_has_an_invariant")
+    if any(dims[0, s] for s in (1, 3)):
+        fail("G", "odd_sign_ends_with_no_tau_have_an_invariant")
+    if dims[0, 0] != 1 or dims[2, 0] != 1:
+        fail("G", "a_vertex_off_or_on_a_tau_cycle_differs_from_1")
+    return dims
+
+
+def girth(links, vertices):
+    """The shortest cycle of the multigraph: over all links, one more than the shortest path between its ends along the others."""
+    around = [[] for _ in range(vertices)]
+    for k, (a, b) in enumerate(links):
+        around[a].append((b, k))
+        around[b].append((a, k))
+    best = len(links) + 1
+    for k, (a, b) in enumerate(links):
+        reached = {a: 0}
+        frontier = [a]
+        while frontier and b not in reached:
+            following = []
+            for u in frontier:
+                for v, j in around[u]:
+                    if j != k and v not in reached:
+                        reached[v] = reached[u] + 1
+                        following.append(v)
+            frontier = following
+        if b in reached:
+            best = min(best, reached[b] + 1)
+    return best
+
+
+def low_cost_states(links, dims, top, cycle_size):
+    """Reads every assignment of cost at most top. Returns the states by (sign links, tau links), the assignments read,
+    and how many sets of cycle_size links have degree exactly 2 at each vertex they touch."""
+    states_by_labels = {(0, 0): 1}
+    assignments, cycles = 1, 0
+    for count in range(1, top // 3 + 1):
+        for chosen in combinations(links, count):
+            degree = {}
+            for a, b in chosen:
+                degree[a] = degree.get(a, 0) + 1
+                degree[b] = degree.get(b, 0) + 1
+            if count == cycle_size and all(d == 2 for d in degree.values()):
+                cycles += 1
+            for signs in range(count + 1):
+                if 6 * signs + 3 * (count - signs) > top:
+                    break
+                for sign_positions in combinations(range(count), signs):
+                    assignments += 1
+                    sign_ends = {}
+                    for position in sign_positions:
+                        for end in chosen[position]:
+                            sign_ends[end] = sign_ends.get(end, 0) + 1
+                    states = 1
+                    for v, d in degree.items():
+                        s = sign_ends.get(v, 0)
+                        states *= dims[d - s, s]
+                        if not states:
+                            break
+                    if states:
+                        key = signs, count - signs
+                        states_by_labels[key] = states_by_labels.get(key, 0) + states
+    return states_by_labels, assignments, cycles
+
+
+def torus_row(lx, ly, dims, cap):
+    """The formula on one torus: every assignment up to the predicted gap, read against the girth."""
+    label = "%dx%d" % (lx, ly)
+    links = torus_links(lx, ly)
+    value = girth(links, lx * ly)
+    formula = 3 * min(cap, lx, ly)
+    if 3 * value != formula:
+        fail("G", "girth_differs_from_the_formula", "L=" + label, "girth=%d" % value, "formula=%d" % formula)
+    labels, assignments, cycles = low_cost_states(links, dims, formula, value)
+    by_cost = {}
+    for (signs, taus), states in labels.items():
+        by_cost[6 * signs + 3 * taus] = by_cost.get(6 * signs + 3 * taus, 0) + states
+    if by_cost.get(0) != 1:
+        fail("G", "zero_is_not_simple", "L=" + label)
+    below = sum(states for cost, states in by_cost.items() if 0 < cost < formula)
+    if below:
+        fail("G", "states_below_the_formula", "L=" + label, "states=%d" % below, "formula=%d" % formula)
+    at_gap = by_cost.get(formula, 0)
+    if not at_gap or at_gap != cycles:
+        fail("G", "m_at_gap_differs_from_the_shortest_cycles", "L=" + label, "m=%d" % at_gap, "cycles=%d" % cycles)
+    emit("ELECTRIC_G_TORUS", "L=" + label, "links=%d" % len(links), "girth=%d" % value, "assignments_read=%d" % assignments,
+         "states_below_the_gap=0", "smallest_nonzero_cost=%d" % formula, "m_at_gap=%d" % at_gap, "shortest_cycles=%d" % cycles,
+         "formula_3min(4,Lx,Ly)=%d" % formula, "result=PASS")
+    return label, at_gap
+
+
+def second_seat_rows(folder, enumerated):
+    """Each torus in the second seat's logs, read against the formula and against this path's own count."""
+    tori = {}
+    for name in SECOND_SEAT_LOGS:
+        for line in read_rows(os.path.join(folder, name)):
+            if not line.startswith(("OWN_TABLE|", "OWN_LOW|")):
+                continue
+            cells = row_cells(line)
+            full = line.startswith("OWN_TABLE|")
+            if cells["L"] in tori and (tori[cells["L"]][0] or not full):
+                continue
+            if full:
+                if cells["closure"] != "1" or cells["reflection"] != "1":
+                    fail("G", "second_seat_closure", "L=" + cells["L"])
+                at_gap = int(cells["m_at_it"])
+            else:
+                table = dict(piece.split(":") for piece in cells["table"].split(","))
+                at_gap = int(table[cells["smallest_nonzero_cost"]])
+            tori[cells["L"]] = full, name, int(cells["smallest_nonzero_cost"]), at_gap
+    agree = 0
+    for label in sorted(tori, key=lambda text: tuple(int(x) for x in text.split("x"))):
+        full, name, smallest, at_gap = tori[label]
+        lx, ly = (int(x) for x in label.split("x"))
+        if smallest != 3 * min(FORMULA_CAP, lx, ly):
+            fail("G", "second_seat_differs_from_the_formula", "L=" + label, "smallest=%d" % smallest)
+        if label in enumerated:
+            if enumerated[label] != at_gap:
+                fail("G", "second_seat_differs_from_this_count", "L=" + label, "m=%d" % at_gap, "here=%d" % enumerated[label])
+            agree += 1
+        emit("ELECTRIC_G_SECOND_SEAT", "L=" + label, "table=" + ("full_with_burnside_and_reflection" if full else "truncated_at_cost_15"),
+             "log=" + name, "smallest_nonzero_cost=%d" % smallest, "m_at_it=%d" % at_gap,
+             "formula_3min(4,Lx,Ly)=%d" % (3 * min(FORMULA_CAP, lx, ly)), "result=PASS")
+    fulls = sum(1 for full, _, _, _ in tori.values() if full)
+    rerun = sum(1 for _, name, _, _ in tori.values() if name == "seven_tori_rerun.log")
+    emit("ELECTRIC_G_SECOND_SEAT_SUMMARY", "tori=%d" % len(tori), "full=%d" % fulls, "truncated=%d" % (len(tori) - fulls),
+         "holding_the_formula=%d/%d" % (len(tori), len(tori)), "m_at_it_equal_to_ELECTRIC_G_TORUS=%d/%d" % (agree, len(tori)),
+         "rows_from_the_second_seats_logs=%d" % (len(tori) - rerun), "rows_from_a_rerun_of_its_script=%d" % rerun)
+
+
+def path_g(folder, characters, cap, alter_vertex):
+    dims = vertex_rule(characters)
+    emit("ELECTRIC_G_VERTEX", "tuples=81", "dim_inv_by_k_tau_ends_s_sign_ends=" + ",".join("k%ds%d:%d" % (k, s, dims[k, s]) for k, s in sorted(dims)),
+         "one_tau_end=0", "odd_sign_ends_with_no_tau=0", "result=PASS")
+    if alter_vertex:
+        dims[1, 0] = 1
+    checked = 0
+    for lx in range(1, GIRTH_UP_TO + 1):
+        for ly in range(1, GIRTH_UP_TO + 1):
+            value = girth(torus_links(lx, ly), lx * ly)
+            if value != min(cap, lx, ly):
+                fail("G", "girth_differs_from_the_formula", "L=%dx%d" % (lx, ly), "girth=%d" % value, "min=%d" % min(cap, lx, ly))
+            checked += 1
+    emit("ELECTRIC_G_GIRTH", "Lx=1..%d" % GIRTH_UP_TO, "Ly=1..%d" % GIRTH_UP_TO, "method=each_link_removed_then_shortest_path_between_its_ends",
+         "girth_equal_to_min(4,Lx,Ly)=%d/%d" % (checked, checked), "result=PASS")
+    tori = [(lx, ly) for lx in range(1, ENUMERATED_UP_TO + 1) for ly in range(1, ENUMERATED_UP_TO + 1)] + list(ENUMERATED_ALSO)
+    enumerated = dict(torus_row(lx, ly, dims, cap) for lx, ly in tori)
+    labels, _, _ = low_cost_states(torus_links(2, 2), dims, 12, 0)
+    split = {key: labels.get(key, 0) for key in ((2, 0), (1, 2), (0, 4))}
+    if sum(split.values()) != 34:
+        fail("G", "split_at_cost_12_differs_from_34", "states=%d" % sum(split.values()))
+    emit("ELECTRIC_G_SPLIT", "L=2x2", "cost=12", "sign_links=2_tau_links=0_states=%d" % split[2, 0],
+         "sign_links=1_tau_links=2_states=%d" % split[1, 2], "sign_links=0_tau_links=4_states=%d" % split[0, 4], "sum=34")
+    if folder:
+        second_seat_rows(folder, enumerated)
+    emit("ELECTRIC_G_STEP", "step=1", "from=ELECTRIC_G_VERTEX", "says=the_nontrivial_links_S_of_an_assignment_with_states_have_degree_at_least_2_at_each_vertex_they_touch",
+         "so=a_nonempty_S_holds_a_cycle_and_S_has_at_least_girth_links", "tag=DERIVED")
+    emit("ELECTRIC_G_STEP", "step=2", "says=each_nontrivial_link_costs_at_least_3", "so=every_nonzero_cost_is_at_least_3*girth", "tag=DERIVED")
+    emit("ELECTRIC_G_STEP", "step=3", "says=tau_on_a_shortest_cycle_has_k=2_at_its_vertices_and_one_state", "so=cost_3*girth_is_an_eigenvalue", "tag=DERIVED")
+    emit("ELECTRIC_G_STEP", "step=4", "from=ELECTRIC_G_GIRTH", "says=the_girth_of_the_torus_multigraph_is_min(4,Lx,Ly)",
+         "by=a_loop_at_min_1,a_parallel_pair_at_min_2,a_line_at_min_3,a_plaquette_at_min_at_least_4_where_a_cycle_of_3_would_need_an_even_count_of_steps", "tag=DERIVED")
+    emit("ELECTRIC_G_STEP", "step=5", "says=at_cost_3*girth_S_is_all_tau_on_one_shortest_cycle", "so=m_at_gap=the_number_of_shortest_cycles", "tag=DERIVED")
+    emit("ELECTRIC_G_RETAG", "formula=gap(E)=3*min(4,Lx,Ly)", "date=2026-11-03", "was=CONJECTURE", "now=DERIVED", "scope=every_periodic_S3_torus_with_Lx,Ly>=1",
+         "kept_as_pinned=ELECTRIC_B_FORMULA,prediction_B11", "result=PASS")
+
+
 # ---------------------------------------------------------------- command line
 
 
@@ -857,10 +1076,20 @@ def main(argv):
         path_c(True, None)
     elif mode == "c" and len(rest) == 2 and rest[0] == "--drop-factor":
         path_c(False, int(rest[1]))
+    elif mode == "c" and len(rest) == 2 and rest[0] == "--add-factor":
+        path_c(False, None, int(rest[1]))
     elif mode == "same" and rest == []:
         same_operator()
     elif mode == "f" and len(rest) == 1:
         path_f(rest[0])
+    elif mode == "g" and rest == ["--bad-character"]:
+        path_g(None, (CHARACTERS[0], CHARACTERS[1], (2, 0, 1)), FORMULA_CAP, False)
+    elif mode == "g" and len(rest) == 2 and rest[0] == "--cap":
+        path_g(None, CHARACTERS, int(rest[1]), False)
+    elif mode == "g" and rest == ["--alter-vertex"]:
+        path_g(None, CHARACTERS, FORMULA_CAP, True)
+    elif mode == "g" and len(rest) <= 1:
+        path_g(rest[0] if rest else None, CHARACTERS, FORMULA_CAP, False)
     elif mode == "predictions" and len(rest) == 4:
         predictions(rest[0], rest[1], rest[2], rest[3])
     else:

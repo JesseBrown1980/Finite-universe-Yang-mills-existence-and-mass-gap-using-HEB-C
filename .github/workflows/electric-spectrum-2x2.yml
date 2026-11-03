@@ -1,5 +1,6 @@
 # gap(E) = 6 on the periodic 2x2 S3 torus at J_B = 0: replays paths A, B, C and F, and path D's inertia counts, against the pinned rows, with red controls.
 # Path E, the second engine on the full space, stays a local receipt because of its cost: its rows are read by path F. Integer only, json=0.
+# Also path G, the formula gap(E) = 3*min(4,Lx,Ly) by the girth of the torus, and the second seat's filed evidence on 28 tori.
 name: Electric spectrum of the 2x2 S3 torus, gap(E) = 6
 
 on:
@@ -10,6 +11,8 @@ on:
       - 'independent/electric_spectrum_2x2.py'
       - 'independent/electric_spectrum_2x2_assemble.sh'
       - 'independent/electric_spectrum_2x2.measure'
+      - 'independent/electric_gap_formula.measure'
+      - 'independent/reviews/opus55-electric-gap/**'
       - 'independent/ELECTRIC-SPECTRUM-2X2-PREDICTION.hbp'
       - 'independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION.hbp'
       - 'independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION-2.hbp'
@@ -19,6 +22,10 @@ on:
       - 'independent/gpt6_sturm_interval.py'
       - 'independent/seat_global_coupling.py'
       - 'independent/seat_yang_mills_audit.py'
+      - 'independent/seat_integer_ratio.py'
+      - 'independent/seat_sturm_full_inertia.measure'
+      - 'independent/seat_magnetic_endpoint.measure'
+      - 'native/ym/independent/indep_verify.py'
       - '.github/workflows/electric-spectrum-2x2.yml'
   workflow_dispatch:
 
@@ -36,7 +43,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: The predictions stand as pushed before their runs
+      - name: The prediction files equal their commits, and those commits are ancestors of HEAD
         run: |
           set -euo pipefail
           python3 --version
@@ -49,12 +56,12 @@ jobs:
           4ee284590ea088f153f829ab94097389298c9255 independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION.hbp
           ea23e312bf8f50f8f6f11aab7aa6944d3b75441d independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION-2.hbp
           ROWS
-      - name: Integer gates on the new script, with no list row
+      - name: Integer gates on the script and on the second seat's filed code, with no list row
         run: |
           set -euo pipefail
-          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/electric_spectrum_2x2.py
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/electric_spectrum_2x2.py independent/reviews/opus55-electric-gap/*.py
           python3 -I -X utf8 native/scripts/no_float_gate.py .
-          rc=0; grep -q electric_spectrum native/scripts/FLOAT-EVIDENCE.txt || rc=$?; test "$rc" = 1
+          rc=0; grep -q -E 'electric_spectrum|reviews/opus55-electric-gap' native/scripts/FLOAT-EVIDENCE.txt || rc=$?; test "$rc" = 1
       - name: The engines are the bytes that ran, and the receipt is plain rows
         run: |
           set -euo pipefail
@@ -111,6 +118,35 @@ jobs:
           python3 -I -X utf8 independent/electric_spectrum_2x2.py predictions independent/ELECTRIC-SPECTRUM-2X2-PREDICTION.hbp independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION.hbp independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION-2.hbp "$M" > /tmp/p.out
           grep -E '^PREDICTION_(CHECK|SUMMARY)\|' "$M" > /tmp/p.pin
           cmp /tmp/p.pin /tmp/p.out
+      - name: Path G, the formula by the girth of the torus, pinned rows
+        run: |
+          set -euo pipefail
+          G=independent/electric_gap_formula.measure
+          python3 -I -X utf8 independent/electric_spectrum_2x2.py g independent/reviews/opus55-electric-gap > /tmp/g.out
+          cmp "$G" /tmp/g.out
+          test "$(tr -cd '\r' < "$G" | wc -c)" = 0
+          rc=0; grep -qv '|json=0$' "$G" || rc=$?; test "$rc" = 1
+          grep -q '^ELECTRIC_G_GIRTH|.*|girth_equal_to_min(4,Lx,Ly)=144/144|result=PASS|' /tmp/g.out
+          grep -q '^ELECTRIC_G_TORUS|L=3x3|.*|smallest_nonzero_cost=9|m_at_gap=6|shortest_cycles=6|' /tmp/g.out
+          grep -q '^ELECTRIC_G_TORUS|L=4x4|.*|smallest_nonzero_cost=12|m_at_gap=24|shortest_cycles=24|' /tmp/g.out
+          grep -q '^ELECTRIC_G_SECOND_SEAT_SUMMARY|tori=28|full=16|truncated=12|holding_the_formula=28/28|m_at_it_equal_to_ELECTRIC_G_TORUS=28/28|' /tmp/g.out
+          grep -q '^ELECTRIC_G_SPLIT|L=2x2|cost=12|sign_links=2_tau_links=0_states=4|sign_links=1_tau_links=2_states=0|sign_links=0_tau_links=4_states=30|' /tmp/g.out
+          grep -q '^ELECTRIC_B_FORMULA|.*|tag=CONJECTURE|' independent/electric_spectrum_2x2.measure
+      - name: The second seat's files match their hashes, and its character path replays on its 28 tori
+        run: |
+          set -euo pipefail
+          cd independent/reviews/opus55-electric-gap
+          sha256sum --strict --check SHA256SUMS
+          test "$(wc -l < SHA256SUMS)" = "$(( $(ls -1 | wc -l) - 2 ))"
+          replay() { for torus in "$@"; do python3 -I -X utf8 own_chars.py $torus; done; }
+          replay 'table 1 3' 'table 1 5' 'table 2 2' 'table 2 3' 'table 3 2' > /tmp/tables.log
+          cmp tables.log /tmp/tables.log
+          replay 'table 3 4' 'table 4 3' 'table 3 5' 'table 4 4' > /tmp/chars_full.log
+          cmp chars_full.log /tmp/chars_full.log
+          replay 'low 3 6 15' 'low 3 7 15' 'low 4 4 15' 'low 4 5 15' 'low 4 6 15' 'low 5 5 15' 'low 5 6 15' 'low 6 6 15' 'low 4 7 15' 'low 5 7 15' 'low 6 7 15' 'low 7 7 15' 'low 8 8 15' > /tmp/chars_low.log
+          cmp chars_low.log /tmp/chars_low.log
+          replay 'table 1 1' 'table 1 2' 'table 1 4' 'table 2 1' 'table 2 4' 'table 2 5' 'table 3 3' > /tmp/seven.log
+          cmp seven_tori_rerun.log /tmp/seven.log
       - name: Red control, an altered entry of E makes P(E) nonzero
         run: |
           set -euo pipefail
@@ -124,6 +160,52 @@ jobs:
           test "$rc" = 1
           grep -q '^ELECTRIC_FAIL|path=C|reason=P_of_E_nonzero|' /tmp/red.out
           grep -q '|P_roots=0,12,15,' /tmp/red.out
+      - name: Red control, a spurious factor of P is caught as a factor P does not need
+        run: |
+          set -euo pipefail
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py c --add-factor 3 > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=C|reason=factor_not_needed|c=3|' /tmp/red.out
+      - name: Red controls on the prediction check, where a changed value reads MISS and a missing row reads NOT_MEASURED
+        run: |
+          set -euo pipefail
+          M=independent/electric_spectrum_2x2.measure
+          check() { python3 -I -X utf8 independent/electric_spectrum_2x2.py predictions independent/ELECTRIC-SPECTRUM-2X2-PREDICTION.hbp independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION.hbp independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION-2.hbp "$1"; }
+          sed 's/^ELECTRIC_C|trace_E=33432|/ELECTRIC_C|trace_E=33433|/' "$M" > /tmp/bad.measure
+          rc=0; cmp -s "$M" /tmp/bad.measure || rc=$?; test "$rc" = 1
+          check /tmp/bad.measure > /tmp/red.out
+          grep -q '^PREDICTION_CHECK|id=C5|path=C|source=unit|verdict=MISS|json=0$' /tmp/red.out
+          grep -q '^PREDICTION_CHECK|id=C6|path=C|source=unit|verdict=MET|json=0$' /tmp/red.out
+          grep -q '^PREDICTION_SUMMARY|rows=53|met=46|miss=1|not_measured=6|json=0$' /tmp/red.out
+          grep -v '^ELECTRIC_C|trace_E=' "$M" > /tmp/bad.measure
+          check /tmp/bad.measure > /tmp/red.out
+          grep -q '^PREDICTION_CHECK|id=C5|path=C|source=unit|verdict=NOT_MEASURED|reason=NO_ROW|json=0$' /tmp/red.out
+          grep -q '^PREDICTION_CHECK|id=C6|path=C|source=unit|verdict=NOT_MEASURED|reason=NO_ROW|json=0$' /tmp/red.out
+          grep -q '^PREDICTION_SUMMARY|rows=53|met=45|miss=0|not_measured=8|json=0$' /tmp/red.out
+          sed -e 's/^ELECTRIC_B_M|L=2x2|cost=6|m=4|/ELECTRIC_B_M|L=2x2|cost=6|m=5|/' \
+              -e 's/^ELECTRIC_A|rank_A=5|rank_A_minus_3=2|rank_A_minus_6=5|multiplicities=0x1,/ELECTRIC_A|rank_A=4|rank_A_minus_3=2|rank_A_minus_6=5|multiplicities=0x2,/' \
+              -e 's/|operator_sha256=b6c608f5/|operator_sha256=00c608f5/' \
+              -e 's/^ELECTRIC_F|step=4|conclusion=gap(E)=6_exactly/ELECTRIC_F|step=4|conclusion=gap(E)=3_exactly/' \
+              -e 's/^ELECTRIC_D_SINGULAR|T=6000|exit=1|sturm_rows=0|/ELECTRIC_D_SINGULAR|T=6000|exit=1|sturm_rows=1|/' "$M" > /tmp/bad.measure
+          check /tmp/bad.measure > /tmp/red.out
+          for id in A2 A3 B3 B6 C1 D4 F1; do grep -q "^PREDICTION_CHECK|id=$id|.*|verdict=MISS|json=0\$" /tmp/red.out; done
+          grep -q '^PREDICTION_SUMMARY|rows=53|met=40|miss=7|not_measured=6|json=0$' /tmp/red.out
+          { cat "$M"; echo 'GPT6_STURM|JE=1|JB=0|threshold=6000/1000|digits=40|pivots=1393|negative=1|counts=1,0,0,0|ambiguous=0|json=0'; } > /tmp/bad.measure
+          check /tmp/bad.measure > /tmp/red.out
+          grep -q '^PREDICTION_CHECK|id=D4|.*|verdict=MISS|json=0$' /tmp/red.out
+          grep -q '^PREDICTION_SUMMARY|rows=53|met=46|miss=1|not_measured=6|json=0$' /tmp/red.out
+      - name: Red controls on path G
+        run: |
+          set -euo pipefail
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py g --bad-character > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=B|reason=dim_inv_not_divisible_by_6|' /tmp/red.out
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py g --cap 3 > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=G|reason=girth_differs_from_the_formula|L=4x4|girth=4|min=3|' /tmp/red.out
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py g --alter-vertex > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=G|reason=m_at_gap_differs_from_the_shortest_cycles|L=1x2|m=4|cycles=2|' /tmp/red.out
       - name: Red controls on the small paths and on the conclusion
         run: |
           set -euo pipefail
@@ -148,6 +230,19 @@ jobs:
           rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py f /tmp/bad.measure > /tmp/red.out || rc=$?
           test "$rc" = 1
           grep -q '^ELECTRIC_FAIL|path=F|reason=a_gap_has_no_certified_T|' /tmp/red.out
+          grep -v '^INDEP_RUN|' "$M" > /tmp/bad.measure
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py f /tmp/bad.measure > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=F|reason=missing_or_changed_row|row=E_code|' /tmp/red.out
+          sed 's/|minor_kernel_sha256=c5a66e8f/|minor_kernel_sha256=05a66e8f/' "$M" > /tmp/bad.measure
+          rc=0; cmp -s "$M" /tmp/bad.measure || rc=$?; test "$rc" = 1
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py f /tmp/bad.measure > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=F|reason=missing_or_changed_row|row=E_kernel|' /tmp/red.out
+          grep -v '^ELECTRIC_E_RUN|' "$M" > /tmp/bad.measure
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py f /tmp/bad.measure > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=F|reason=missing_or_changed_row|row=E_kernel_source|' /tmp/red.out
 
   inertia:
     runs-on: ubuntu-24.04
