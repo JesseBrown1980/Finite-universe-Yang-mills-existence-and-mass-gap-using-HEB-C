@@ -35,6 +35,21 @@ The independent [gpt6_3x3_ritz_independent.py](gpt6_3x3_ritz_independent.py) bui
 
 The *simple* store-free lump bounds on 4×4, 4×5 and 5×5 already passed GPT-6's separate full integer reconstruction, move-table verification, physical configurations and sabotage controls ([the review](../native/ym/results/3x4_stream/perron/vector/review-gpt6/REVIEW-e0466bd.md)). These must not be relabelled as a review of the **stronger hybrid** vector.
 
+**New independent hybrid census: exact group convolution — PASS.** [gpt6_hybrid_census.py](gpt6_hybrid_census.py) does **not** import any hybrid author/second-seat code. It enumerates the six S₃ permutations, determines the 36 commutators of two torus holonomies, and convolves P plaquette elements by group product and conjugacy-type cost. On a genus-one lattice, P plaquette holonomies have ordered product equal to the global holonomy commutator; this exactly counts all gauge-fixed configurations before residual conjugation using a small dynamic program. The eight independent totals are pinned in [gpt6_hybrid_census.measure](gpt6_hybrid_census.measure):
+
+| Torus | M cutoff | Non-flat assignments | (a,b)=(0,4) assignments |
+|---|---:|---:|---:|
+| 3×3 | 13 | 3,590,190 | 24,948 |
+| 3×4 | 14 | 78,547,410 | 98,010 |
+| 4×4 | 8 | 2,151,648 | 0 |
+| 4×4 | 10 | 6,919,488 | 0 |
+| 4×4 | 12 | 119,790,792 | **360,360** |
+| 4×4 | 14 | **624,556,872** | **360,360** |
+| 4×5 | 13 | **642,825,270** | 959,310 |
+| 5×5 | 11 | **563,254,650** | 0 |
+
+Every one has 18 additional flat gauge-fixed configurations. The withdrawn 4×4 cutoff-12 vector counted only 315,216 of the independently expected 360,360 (0,4) assignments; **45,144 are missing**. The 3×4 cutoff-12 failure analog has 98,010 expected and 94,446 represented, short 3,564. A negative control falsifies the expected 4×4 cutoff-12 total by one and must exit nonzero. These calculations independently verify the denominator census **but do not themselves check that all cut-14 representatives in the released vector cover the census or that any hybrid Collatz-Wielandt inequality holds**.
+
 The hybrid at cuts (4×4,r=9,M≤14), (4×4,r=6,M≤14), (4×5,r=9,M≤13), (5×5,r=9,M≤11) has already passed the author's `hybridcheck` (a separate codebase) and its stored fault controls. Those checks record exact low-M representative counts, high-M lump envelopes and the nontrivial *retracted* cut-12 failures with missing `(a,b)=(0,4)` orbit coverage. The vectors are recorded in the GitHub release `vectors-20261103` with SHA-256 manifests. **No new GPT-6 independent exhaustive low-M enumeration of 825,865 representatives, independent 16-dimensional E₈ construction, or large-vector Ritz Rayleigh quotient is claimed here.** Thus the hybrid numerical values remain **PENDING A DIFFERENT-MODEL REPLAY**, even though the simpler bounds are independently confirmed. Prior controls and full source remain available for the next separately gated work.
 
 The previously cited 3×3 Ritz *gap difference* cannot be used as an extra certified hybrid-gap bound without the corresponding independent full-spectrum lower/upper information. Hybrid E₉ lower estimates and dressed-flat E₈ upper estimates need their own valid min–max proofs and exact arithmetic, not Ritz-gap subtraction.
