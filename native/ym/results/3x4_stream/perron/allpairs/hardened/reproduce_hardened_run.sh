@@ -21,8 +21,10 @@ MANIFEST_SHA=9213927b3b60cfbeae8efef10730e8c7df2ad52f56159017b048539377886ce3
 mkdir -p "$OUT"
 OUT_ABS=$(cd "$OUT" && pwd)
 ROOT=$(pwd)
-# Everything Cargo reads for this build must match the pin. Receipts added after the pin do not touch these paths.
-git diff --quiet "$PIN" -- native/ym/crates native/ym/backend native/ym/Cargo.toml native/ym/Cargo.lock native/ym/.cargo native/ym/vendor native/ym/rust-toolchain.toml native/Cargo.toml || { echo "the build inputs differ from $PIN"; exit 2; }
+# Everything Cargo reads for this build must match the pin, with no untracked file among it. Receipts added after the pin do not touch these paths.
+BUILD_INPUTS="native/ym/crates native/ym/backend native/ym/Cargo.toml native/ym/Cargo.lock native/ym/.cargo native/ym/vendor native/ym/rust-toolchain.toml native/Cargo.toml"
+git diff --quiet "$PIN" -- $BUILD_INPUTS || { echo "the build inputs differ from $PIN"; exit 2; }
+[ -z "$(git status --porcelain --untracked-files=all -- $BUILD_INPUTS)" ] || { echo "the build inputs hold uncommitted or untracked files"; exit 2; }
 git show "$PIN:$S" | sha256sum | tee "$OUT_ABS/source-at-pin.sha256"
 # The original run's source, at its own commit.
 [ "$(git show 8faadb07748417e713e95723f01d83e0ad80b93f:"$S" | sha256sum | cut -d' ' -f1)" = "f4ea7e856728fde8a5fe56b0e9fe85a0770d930ea566c25b490f697760e55754" ] || { echo "the original source differs"; exit 2; }
