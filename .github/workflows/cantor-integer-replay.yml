@@ -1,0 +1,61 @@
+# The Cantor-27 drive in integers only, replayed on the exact head: the tool's clippy and tests, both couplings compared row by row with the recorded results, and the
+# separately written Python path on r = 9. The floating-point run beside it stays as evidence, and this workflow checks that its files keep their hashes. Integer only, json=0.
+name: Cantor-27 drive in integers only (Rust 1.81)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'native/ym/results/cantor-integer-2026-11-03/**'
+      - 'native/ym/crates/evolvers/src/bin/cantorint.rs'
+      - 'native/ym/crates/torusl/**'
+      - '.github/workflows/cantor-integer-replay.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  cantor-integer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust 1.81 with clippy
+        run: rustup toolchain install 1.81.0 --profile minimal -c clippy
+      - name: Build, clippy and unit tests
+        working-directory: native/ym
+        run: |
+          set -euo pipefail
+          cargo +1.81.0 clippy --locked --release -p evolvers --bin cantorint --all-targets -- -D warnings
+          cargo +1.81.0 test --locked --release -p evolvers --bin cantorint
+          cargo +1.81.0 build --locked --release -p evolvers --bin cantorint
+          cargo +1.81.0 build --locked --release -p torusl --bin ymsec
+      - name: The same matrix, the same float evidence
+        run: |
+          set -euo pipefail
+          native/ym/target/release/ymsec 2 2 1 1 /tmp/s22.matrix > /dev/null
+          echo "902a8a01d527416ea02d7ce54737fa5513d814046a6e9cdd7f9acf67cc864ccb  /tmp/s22.matrix" | sha256sum -c -
+          ( cd native/ym/results/cantor-integer-2026-11-03/float-run-2026-10-31 && sha256sum -c FLOAT-RUN.sha256 )
+      - name: Both couplings against the recorded rows
+        run: |
+          set -euo pipefail
+          F=native/ym/results/cantor-integer-2026-11-03
+          for r in 9 243; do
+            native/ym/target/release/cantorint run /tmp/s22.matrix "$r" 4 > "/tmp/r$r.hbp"
+            sed -E 's/\|secs=[0-9]+\|/|secs=S|/' "/tmp/r$r.hbp" > "/tmp/r$r.norm"
+            sed -E 's/\|secs=[0-9]+\|/|secs=S|/' "$F/RESULT-r$r.hbp" > "/tmp/r$r.want"
+            cmp "/tmp/r$r.norm" "/tmp/r$r.want"
+            tail -1 "/tmp/r$r.hbp"
+          done
+      - name: The second path on r = 9, written apart
+        run: |
+          set -euo pipefail
+          F=native/ym/results/cantor-integer-2026-11-03
+          python3 native/scripts/integer_only_audit.py "$F/verify_cantorint.py" "$F/compare_cantor.py"
+          for c in cantor zero inverted rotated_one; do
+            python3 -I -X utf8 "$F/verify_cantorint.py" /tmp/s22.matrix 9 "$c" > "/tmp/second-$c.out" &
+          done
+          wait
+          cat /tmp/second-cantor.out /tmp/second-zero.out /tmp/second-inverted.out /tmp/second-rotated_one.out > /tmp/second.hbp
+          grep -v '^SECOND_PATH_DONE' "$F/SECOND-PATH.hbp" | cmp - /tmp/second.hbp
+          python3 -I -X utf8 "$F/compare_cantor.py" "$F/float-run-2026-10-31" /tmp/r9.hbp /tmp/r243.hbp /tmp/second.hbp "$F/TEETH.hbp" "$F/tooth-wrong_pulse.out" | tail -2

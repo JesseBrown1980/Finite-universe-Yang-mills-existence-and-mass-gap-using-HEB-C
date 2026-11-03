@@ -1,0 +1,5 @@
+TOOTH|name=short_taylor|exit=2|CANTOR_INT_VERDICT|result=FAIL|reason=the_error_bound_does_not_hold_at_these_settings|json=0|json=0
+TOOTH|name=low_precision|exit=2|CANTOR_INT_VERDICT|result=FAIL|reason=the_error_bound_does_not_hold_at_these_settings|json=0|json=0
+TOOTH|name=break_symmetry|exit=2|CANTOR_INT_ERROR|WEIGHTED_SELF_ADJOINT|result=FAIL|json=0|json=0|json=0
+TOOTH|name=wrong_pulse|exit=0|json=0
+REPEAT|P=300|exit=0|json=0

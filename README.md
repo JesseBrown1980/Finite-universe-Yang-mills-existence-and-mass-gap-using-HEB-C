@@ -376,6 +376,9 @@ is r·(E₁ − E₀) → √14 − √6. Ledger and method:
 - **HTTP-0 finite S₃ wave observatory:** an explicitly specified second-order wave equation on all 1,393
   components, as an exact integer-numerator recurrence on arbitrary-length integers, served with controls and a
   web page. [First version](HTTP0_FINITE_S3_WAVE_OBSERVATORY.md), [its correction to exact numerators](HTTP0_EXACT_INTEGER_NO_ROUNDING.md).
+- **Cantor-27 drive on the S₃ sector, in integers only:** the 729-slot Cantor signal on the 211-state sector, with
+  each value in an enclosure one unit wide at 10⁻³⁰, and a separately written path printing the same. [The result](native/ym/results/cantor-integer-2026-11-03/README.md).
+  The earlier floating-point run stays beside it as evidence, and it was right to about 12 digits.
 - **Constellation audit:** the original 3/27/243 sector transitions and
   45/405/3,645 keys compiled into the native build, with a gauge-invariant
   243-sector index of the 1,393 torus orbits.
