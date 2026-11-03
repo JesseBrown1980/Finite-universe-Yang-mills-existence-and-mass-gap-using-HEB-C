@@ -1,0 +1,10 @@
+ONEREAD_TOOLS|host=local|old_sha256=4f64f6056f8520496992ee068caff72dad419898c2d1716a2d06bb4f53410e58|new_sha256=b0682e72635704440213270dcea8768c0ccaeeac8d6d891b8c0d842edfb828fa|runs=2000|json=0
+ONEREAD_CONTROL|clean_same_rows|met=1|old_exit=0|new_exit=0|new_offset=0|json=0
+ONEREAD_CONTROL|offset_printed|met=1|old_exit=0|new_exit=0|new_offset=8192|json=0
+ONEREAD_CONTROL|columns_same_counters|met=1|old_exit=2|new_exit=2|columns_not_ascending=131066,131066|json=0
+ONEREAD_CONTROL|columns_time_at_most_a_tenth|met=1|old_ms=4961|new_ms=35|json=0
+ONEREAD_CONTROL|no_writer_old|met=1|trusted_block_exit=1|changed_block_exit=2|json=0
+ONEREAD_CONTROL|no_writer_new|met=1|trusted_block_exit=1|changed_block_exit=2|json=0
+ONEREAD_CONTROL|race_old_shows_the_defect|met=1|runs=2000|exit0=481|exit_0_identity_PASS=481;exit_1_identity_-=1045;exit_2_identity_FAIL=474|json=0
+ONEREAD_CONTROL|race_new_never_exits_0|met=1|runs=2000|exit0=0|exit_1_identity_-=1037;exit_2_identity_FAIL=963|json=0
+ONEREAD_CONTROLS_DONE|failed=0|json=0

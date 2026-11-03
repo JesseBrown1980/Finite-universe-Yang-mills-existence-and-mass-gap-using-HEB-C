@@ -1,0 +1,8 @@
+TRUSTED_CHECK|L=2x2|source=given_store|block_equals_line=1|block_sha256_equals_table=1|header_sha256=00fcacf55296e9269fe413e8ad36a526b143981e239993c2baeb0ae43c78ab5a|json=0
+TRUSTED_CHECK_STORE|L=2x2|bytes=1048576|merkle_equals_table=1|json=0
+TRUSTED_CHECK|L=2x3|source=given_store|block_equals_line=1|block_sha256_equals_table=1|header_sha256=99a1cdb82387f5395d0a1ab5031313600f8b25c4fde874f75bfc15389e913c0d|json=0
+TRUSTED_CHECK_STORE|L=2x3|bytes=1048576|merkle_equals_table=1|json=0
+TRUSTED_CHECK|L=3x3|source=given_store|block_equals_line=1|block_sha256_equals_table=1|header_sha256=035d84766c9f62ba0fbfb23d4c85795cf42ab19502042ed50b83cb4076ebe373|json=0
+TRUSTED_CHECK_STORE|L=3x3|bytes=125829120|merkle_equals_table=1|json=0
+TRUSTED_CHECK|L=3x4|source=given_block|block_equals_line=1|block_sha256_equals_table=1|header_sha256=65dd63a89d7e1a7cdd3e7876c834c6698a01081ea7a63738e305890bee9e6a21|json=0
+TRUSTED_TABLE_DONE|rows=4|checked=4|missing=-|failed=0|json=0
