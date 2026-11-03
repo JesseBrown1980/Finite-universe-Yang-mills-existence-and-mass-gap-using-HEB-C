@@ -19,6 +19,7 @@ This register is the current entry point for the finite-universe Yang–Mills / 
 | [#95](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/95) | GPT-6's separate integer reconstruction of the 2×2 algebra, and its review of the separate seat's theorems |
 | [#96](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/96) | The Cantor-27 drive redone in integers, with its float run kept as evidence |
 | [#97](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/97) | The other float uses redone in integers, and the gate on every pull request |
+| [#98](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/98) | GPT-6's four-sector Sturm replay at eight thresholds, its correction to the 3×3 Ritz report, and its census and E₈ checks for the hybrid |
 | [#7](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/7) to [#15](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/15), [#18](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/18) | A separate seat's work from October 25 on the 2×2 torus and the 3×3 flat levels, in [`independent/`](../independent/README.md) |
 | [#5](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/5), [#6](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/6) | Stage 2I, the RIME C3 moment test, and Stage 2J, the byte-exact RIME Prism bridge |
 | [#16](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/16), [#17](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/17) | The HTTP-0 finite S₃ wave observatory and its correction to exact numerators |
@@ -31,7 +32,7 @@ This register is the current entry point for the finite-universe Yang–Mills / 
 |---|---:|---|---|
 | 3×3 | 23.914694 | The store, every row, pinned `perroncert` and `check_d_strict.py` | Merged earlier |
 | 3×4 | 24.039673 | The store, every row, pinned `perroncert`, and a Go checker written by an outside seat | Verdict and rule on HOLD |
-| 4×4 | 23.947629 | No store: the hybrid vector with the tighter E₈. E₉ lies between 117.453728 and 117.580284 | Attacked by a separate program on the same model. Another model's attack is open |
+| 4×4 | 23.947629 | No store: the hybrid vector with the tighter E₈. E₉ lies between 117.453728 and 117.580284 | A separate program on the same model attacked it. GPT-6 confirms the census and the E₈ bound, and [its replay of the E₉ vector](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/100) is open |
 | 4×5 | 23.618291 | The same | The same |
 | 5×5 | 21.792208 | The same | The same |
 
@@ -39,15 +40,19 @@ The simpler no-store bound under those three reads 16.252744, 14.017195 and 4.01
 
 **Independent GPT-6 review (November 3, 2026):** a new source-only integer reconstruction separately matched all 1,393 orbit states and 32,385 electric coefficients, the original operator SHA, every entry of the 8×8 magnetic-end effective matrix, its exact characteristic polynomial, full-graph diameter 8, and four translation-sector dimensions. See [the audit](../independent/GPT6_THEOREM_REVIEW_2026-11-03.md) and [pinned output](../independent/gpt6_2x2_from_permutations.measure). The conditional coupling theorems were checked algebraically, but earlier pure-electric spectral-gap certification, translated Sturm pivots, and the 3×3 Ritz trial space are **not new independent receipts** from that audit. Formal 3×4 gap rule still on HOLD.
 
+**Second GPT-6 independent verification — 2026-11-03.** A separate integer-interval Schur implementation independently reproduced all eight 2×2 four-sector Sturm control/pilot thresholds and the two cells r∈[2,3]; see [the scoped review](../independent/GPT6_STURM_RITZ_HYBRID_REVIEW.md). The 3×3 compressed Ritz output must not be described as a certified full spectral gap: differences between two Ritz upper bounds do not bound the exact gap, and the original program floors both endpoints of its micro-unit brackets. An independent raw 3×3 Ritz eigenspectrum recheck is a separate CI gate. Stronger hybrid vector values are *not* yet certified by this different-model audit.
+
+**GPT-6's census against this repository's own rows.** [All eight of its totals](../native/ym/results/3x4_stream/perron/vector/review-gpt6/CENSUS-COMPARE.hbp) equal what the enumeration recorded: a group convolution and a pattern enumeration reach the same counts. Its 45,144 and 3,564 are the numbers the withdrawn cut-12 vectors failed on. What still needs a different model is the vectors themselves: each representative, each row's inequality, the high-M envelope and the Ritz upper values, in [issue #100](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/100).
+
 **Open, in the order I would take them:**
 
-1. GPT-6's attack on the hybrid certificate: all 825,865 low-M states on 4×4, the count of each lump, the Ritz upper values, the 16-dimensional E₈ space. The vectors are on [the release](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/releases/tag/vectors-20261103).
+1. [Issue #100](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/100), a different model's replay of the hybrid E₉ vectors: all 825,865 low-M states on 4×4, the count of each lump, each row's inequality, the high-M envelope, the Ritz upper values. The vectors are on [the release](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/releases/tag/vectors-20261103).
 2. The hybrid form at lower r and on 6×6 and larger, to see how far it carries.
 3. The finite-size constant r₀ of the stability plan as a number, then odd and rectangular tori.
 4. The 2I package in the [companion repository](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved/pull/9): the exact count at 3 J_E is still running, then the addendum, the driver and the official run.
 5. A replay of `fullrebuild` and `allpairs` on another machine, with [`reproduce_oneread_run.sh`](../native/ym/results/3x4_stream/perron/allpairs/oneread/reproduce_oneread_run.sh).
 6. A reading of the one-read change to `allpairs` by another seat, and the other tools that still read through `roomio.rs`.
-7. What GPT-6's review of [`independent/`](../independent/GPT6_THEOREM_REVIEW_2026-11-03.md) left for later: a replay of the translated Sturm counts and the earlier electric-gap certificate, and an audit of the 3×3 Ritz space.
+7. [Issue #99](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/99), from GPT-6's review: the 3×3 Ritz report's upper endpoints round down where they should round out, and its gap numbers are differences of trial-space values. Then an independent count at J_B = 0 for the antecedent gap(E) = 6 that the every-ratio bound takes from earlier native work.
 8. The exact rationals of the scripts below moved to integer pairs, and the three live tools' clocks moved to integers when they next run.
 9. A Lean proof of the pattern table and the chain.
 

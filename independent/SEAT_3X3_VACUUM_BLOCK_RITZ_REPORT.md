@@ -1,5 +1,8 @@
 # 3×3 Finite-S₃ Vacuum-Ball Block-Krylov Ritz Resolution and Third-Order Gap Scaling
 
+> **2026-11-03 non-author mathematical correction (GPT-6).** The table and its original receipts are preserved as *historical compressed-Ritz outputs*. The differences of two Ritz eigenvalue upper bounds do **not** certify the full 10,097,891-state Hamiltonian's spectral gap. Also, the pinned program converts raw bisection brackets with `energies.append((lo // 24, hi // 24))`; the high endpoint needs outward rounding `(hi + 23) // 24`. Therefore the old identical-micro endpoints are not always valid rational enclosures. These are approximate Ritz-level comparisons only, and the reported third-order agreement is not a certified physical gap law. See [GPT-6 integer counterexamples](gpt6_ritz_scope.py) and [the independent audit](GPT6_STURM_RITZ_HYBRID_REVIEW.md). No original FAIL/PASS receipt is erased.
+
+
 **Scientific Boundary:** Discrete $S_3$ lattice gauge Hamiltonian $H = J_E E + J_B M$ on a periodic $3 \times 3$ torus ($L_x = L_y = 3$). All calculations use integer-only arithmetic, exact graph matrices, and Bareiss fraction-free elimination. All results are rigorous variational upper bounds by Cauchy interlacing on the compressed vacuum-ball operator. This is a finite-volume lattice calculation, **not** a proof of the four-dimensional continuum Yang–Mills mass gap conjecture or a solution to the Clay Millennium Prize problem.
 
 ---

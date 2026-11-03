@@ -1,0 +1,10 @@
+GPT6_HYBRID_CENSUS|Lx=3|Ly=3|cut=13|nonflat=3590190|flat=18|count_0_4=24948|lumps=21|result=PASS|json=0
+GPT6_HYBRID_CENSUS|Lx=3|Ly=4|cut=14|nonflat=78547410|flat=18|count_0_4=98010|lumps=24|result=PASS|json=0
+GPT6_HYBRID_CENSUS|Lx=4|Ly=4|cut=8|nonflat=2151648|flat=18|count_0_4=0|lumps=10|result=PASS|json=0
+GPT6_HYBRID_CENSUS|Lx=4|Ly=4|cut=10|nonflat=6919488|flat=18|count_0_4=0|lumps=14|result=PASS|json=0
+GPT6_HYBRID_CENSUS|Lx=4|Ly=4|cut=12|nonflat=119790792|flat=18|count_0_4=360360|lumps=19|result=PASS|json=0
+GPT6_HYBRID_CENSUS|Lx=4|Ly=4|cut=14|nonflat=624556872|flat=18|count_0_4=360360|lumps=24|result=PASS|json=0
+GPT6_HYBRID_CENSUS|Lx=4|Ly=5|cut=13|nonflat=642825270|flat=18|count_0_4=959310|lumps=21|result=PASS|json=0
+GPT6_HYBRID_CENSUS|Lx=5|Ly=5|cut=11|nonflat=563254650|flat=18|count_0_4=0|lumps=16|result=PASS|json=0
+GPT6_HYBRID_RED|Lx=4|Ly=4|cut=12|lump=0,4|expected=360360|bad_hybrid=315216|missing=45144|json=0
+GPT6_HYBRID_SCOPE|full_orbit_rep_replay=OPEN|hybrid_vector_inequality=OPEN|json=0
