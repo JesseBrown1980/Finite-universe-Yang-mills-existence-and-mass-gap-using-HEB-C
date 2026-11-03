@@ -1,0 +1,2 @@
+HEBC-STURM-BIG|result=PASS|method=GMP_INTEGER_OUTWARD_INTERVAL_LDL|precision_digits=100|JE=1|JB=1|threshold=13240/1000|pivots=1393|negative=1|zero=0|full_E1_inertia_certified=1|json=0
+HEBC-STURM-BIG|result=PASS|method=GMP_INTEGER_OUTWARD_INTERVAL_LDL|precision_digits=100|JE=3|JB=5|threshold=50840/1000|pivots=1393|negative=1|zero=0|full_E1_inertia_certified=1|json=0

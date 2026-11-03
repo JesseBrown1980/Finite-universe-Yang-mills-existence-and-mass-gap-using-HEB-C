@@ -1,0 +1,11 @@
+HEBC-CELLS|result=PASS|dim=1393|graph_E_PSD=1|M_PSD=1|flat=8|PEP=24I8|electric_chart=E+rM|json=0
+HEBC-CELLS|result=PASS|cell=0|r=[0,1/4]|E1_left_ge=6|E0_right_le=2|gap_ge=4*JE|finite_S3_only=1|json=0
+HEBC-CELLS|result=PASS|cell=1|r=[1/4,1/2]|E1_left_ge=6|E0_right_le=4|gap_ge=2*JE|finite_S3_only=1|json=0
+HEBC-CELLS|result=PASS|cell=2|r=[1/2,3/4]|E1_left_ge=181/25|E0_right_le=6|gap_ge=31/25*JE|finite_S3_only=1|json=0
+HEBC-CELLS|result=PASS|cell=3|r=[3/4,1]|E1_left_ge=256/25|E0_right_le=7634199/1000000|gap_ge=2605801/1000000*JE|finite_S3_only=1|json=0
+HEBC-CELLS|result=PASS|cell=4|r=[1,5/3]|E1_left_ge=331/25|E0_right_le=3058269/250000|gap_ge=251731/250000*JE|finite_S3_only=1|json=0
+HEBC-CELLS|result=PASS|cell=5|r=[5/3,2]|E1_left_ge=1271/75|E0_right_le=16|gap_ge=71/75*JE|finite_S3_only=1|json=0
+HEBC-CELLS|result=OPEN|interval_r=(2,10000)|needs=new_E0_E1_endpoint_certificates|all_ratio_positive_fallback=PR12_GRAPH_BOUND|json=0
+HEBC-CELLS|result=CONDITIONAL_ONLY|r=100|slope_le=10/529|if_anchor_gap_ge=1/100|width_le=529/2000|then_cell_gap_gt=1/200*JE|anchor_certified=0|json=0
+HEBC-CELLS|result=CONDITIONAL_ONLY|r=10000|slope_le=5/3120002|if_anchor_gap_ge=1/10000|width_le=1560001/50000|then_cell_gap_gt=1/20000*JE|anchor_certified=0|json=0
+HEBC-CELLS|result=PASS|method=MONOTONE_CELL_AND_LOW_ENERGY_DERIVATIVE|claim=R_0_TO_2_VERIFIED|r_2_to_10000_sharp_cells=OPEN|continuum_YM_proven=0|json=0
