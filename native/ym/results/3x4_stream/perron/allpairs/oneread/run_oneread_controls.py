@@ -58,7 +58,7 @@ def run(exe, path, off="0"):
 
 
 raw = gzip.open(BASE, "rb").read()
-if sha(open(BASE, "rb").read()) != BASE_SHA:
+if sha(raw) != BASE_SHA:
     raise SystemExit("the fixture differs")
 row("ONEREAD_TOOLS|host=%s|old_sha256=%s|new_sha256=%s|runs=%d|json=0" % (HOST, sha(open(OLD, "rb").read()), sha(open(NEW, "rb").read()), RUNS))
 eol = raw.index(b"\n")
@@ -103,7 +103,7 @@ path = os.path.join(tmp, "columns.bin")
 open(path, "wb").write(line.encode() + b"\n" + b"\0" * (4096 - len(line) - 1) + pl)
 co, fo, _, mo = run(OLD, path)
 cn, fn, _, mn = run(NEW, path)
-want = {"columns_not_ascending": str(2 * (2 * k - 1)) if False else "131066", "value_mismatch": "0", "lower_without_upper": "0", "upper_without_lower": "0", "lower_repeated": "0"}
+want = {"columns_not_ascending": "131066", "value_mismatch": "0", "lower_without_upper": "0", "upper_without_lower": "0", "lower_repeated": "0"}
 same = all(fo.get(a) == b and fn.get(a) == b for a, b in want.items())
 met("columns_same_counters", co == 2 and cn == 2 and same, "old_exit=%d|new_exit=%d|columns_not_ascending=%s,%s" % (co, cn, fo.get("columns_not_ascending", "-"), fn.get("columns_not_ascending", "-")))
 met("columns_time_at_most_a_tenth", 10 * mn <= mo, "old_ms=%d|new_ms=%d" % (mo, mn))
