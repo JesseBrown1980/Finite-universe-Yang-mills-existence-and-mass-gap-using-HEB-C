@@ -1,0 +1,46 @@
+VECTORS 4
+UPPER_RECOMPUTED|rows=120|mismatch=0|json=0
+LOWER_RECOMPUTED|rows=32|mismatch=0|json=0
+MAG_LIST|i=0|count=32|min=3|max=36|rows_sum=45508073|missing=[5, 35]|json=0
+MAG_LIST|i=1|count=32|min=3|max=36|rows_sum=45508073|missing=[5, 35]|json=0
+MAG_LIST|i=2|count=32|min=3|max=36|rows_sum=45508073|missing=[5, 35]|json=0
+MAG_LIST|i=3|count=32|min=3|max=36|rows_sum=45508073|missing=[5, 35]|json=0
+TABLE
+  r=12|E9_ge=(102061051, 44742735, 3)
+  r=9|E9_ge=(93061051, 44742735, 3)
+  r=8|E9_ge=(87122453, 44743138, 7)
+  r=7|E9_ge=(79745170, 44743136, 8)
+  r=13/2|E9_ge=(75745170, 44743136, 8)
+  r=6|E9_ge=(71321650, 44743559, 9)
+CROSS72|r_exact=1093567/180000|tight_M=[9]|decimal_times_1e6=6075372|json=0
+  at r=243/40: value_exact_milli=71996650|ge_72=False
+  at r=1519/250: value_exact_milli=72005650|ge_72=True
+CROSS72_VECTOR|i=0|r=6075372/10^6|json=0
+CROSS72_VECTOR|i=1|r=6522992/10^6|json=0
+CROSS72_VECTOR|i=2|r=6828124/10^6|json=0
+CROSS72_VECTOR|i=3|r=7333209/10^6|json=0
+S_OVER_DMAX|t=93950000|dmax=192571261487|s_over_dmax_x10=55758|t_plus_floor=93955575|row_value=93955575|equal=True|json=0
+S_OVER_DMAX|t=93700000|dmax=58304971582|s_over_dmax_x10=184159|t_plus_floor=93718415|row_value=93718415|equal=True|json=0
+S_OVER_DMAX|t=93000000|dmax=17587343634|s_over_dmax_x10=610519|t_plus_floor=93061051|row_value=93061051|equal=True|json=0
+GAP 1502119/62500 2758113/125000
+GAP_DEC 24033904 22064904
+FORM_BOUND|M|3G_le=True|le_36G=True|json=0
+FORM_BOUND|E|0G_le=True|le_144G=True|json=0
+RAYLEIGH_DIAG skipped
+BRACKET|JB=5000|best_lower=60701656|best_upper=79198490|width=18496834|json=0
+BRACKET|JB=6000|best_lower=71321650|best_upper=82973844|width=11652194|json=0
+BRACKET|JB=7000|best_lower=79745170|best_upper=86714779|width=6969609|json=0
+BRACKET|JB=8000|best_lower=87122453|best_upper=90414882|width=3292429|json=0
+BRACKET|JB=9000|best_lower=94002305|best_upper=94071171|width=68866|json=0
+BRACKET|JB=27000|best_lower=148002305|best_upper=158324107|width=10321802|json=0
+BRACKET|JB=81000|best_lower=310002305|best_upper=350464680|width=40462375|json=0
+BRACKET|JB=243000|best_lower=796002305|best_upper=926833761|width=130831456|json=0
+UPPER_POINTS [(5000, 79198490), (6000, 82973844), (7000, 86714779), (8000, 90414882), (9000, 94071171), (27000, 158324107), (81000, 350464680), (243000, 926833761)]
+  slopes 5000-6000:        1887677/500 ~ 3775  6000-7000: 3740
+  slopes 6000-7000:         748187/200 ~ 3740  7000-8000: 3700
+  slopes 7000-8000:       3700103/1000 ~ 3700  8000-9000: 3656
+  slopes 8000-9000:       3656289/1000 ~ 3656  9000-27000: 3569
+  slopes 9000-27000:       8031617/2250 ~ 3569  27000-81000: 3558
+  slopes 27000-81000:    192140573/54000 ~ 3558  81000-243000: 3557
+GRID_BEST (94064904, 316, 44742735, 3) count 24
+GRID_M3_ROWS [(316, 94064904), (474, 94064664), (711, 94064305), (1066, 94063771), (1599, 94062980), (2398, 94061816)]

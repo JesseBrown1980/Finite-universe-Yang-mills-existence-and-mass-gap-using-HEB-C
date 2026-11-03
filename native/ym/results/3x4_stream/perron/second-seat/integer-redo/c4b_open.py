@@ -1,3 +1,4 @@
+# Integer copy of the output of make_integer_redo.py for c4b_open.py, written by native/scripts/make_integer_pairs.py: 2 divisions moved to qdiv and 0 text pairs. The original stays as evidence.
 # Integer-only copy of second-seat/c4b_open.py, made on the operator's word that floating point is to be redone in integers. The original stays beside it as evidence.
 # C4 part 2: gammas printed OPEN. d2 - d1 is negative on some rows, so x is not positive until gamma is large enough.
 # The tool's count of nonpositive rows, and perroncert's refusal, are compared at each gamma. Also 5 thresholds with coprime gaps, where `combine` can wrap.
@@ -88,7 +89,8 @@ if r.returncode == 0:
     c = subprocess.run([CHECK, "check", DEV, "0", "1000", "9000", f"{tmp}/w.bin"], capture_output=True, text=True)
     print("FIVE_CHECK", c.stdout.strip()[:230])
     # exact divided difference from my own weights, against what was written
-    from fractions import Fraction as F
+    import os, sys; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", "..", "..", "scripts"))
+    from intpair import IntPair as F, qdiv
     ds = [read_vec(p) for p in names]
     x = read_vec(f"{tmp}/w.bin")
     cf = []
@@ -97,12 +99,12 @@ if r.returncode == 0:
         for j in range(5):
             if j != i:
                 den *= ts[i] - ts[j]
-        cf.append(1 / den)
+        cf.append(qdiv(1 , den))
     gm = int(fields(r.stdout.strip().splitlines()[-1])["gamma"])
     X = [sum(c_ * d[h] for c_, d in zip(cf, ds)) for h in range(len(x))]
     pure = [x[h] - gm * ds[-1][h] for h in range(len(x))]
     ref = max(range(len(x)), key=lambda h: abs(X[h]))
-    kappa = F(pure[ref]) / X[ref] if X[ref] else None
+    kappa = qdiv(F(pure[ref]) , X[ref]) if X[ref] else None
     bad = sum(1 for h in range(len(x)) if kappa is not None and F(pure[h]) != kappa * X[h])
     print(f"FIVE_LABEL|rows_differing_from_the_named_divided_difference={bad}|max_abs_true_integer_weight_bits={max(int(abs(c_) * F(1, 1) * 10**0).bit_length() for c_ in cf)}|json=0")
 

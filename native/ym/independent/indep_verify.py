@@ -2,7 +2,7 @@
 
 Written separately from the production tools (torusl/ymsec, flatcomp, cluster,
 shellschur). It imports none of them and shares no code with them. Integer
-arithmetic only (Python int and numpy int64 modular arithmetic), json=0.
+arithmetic only (plain Python int), json=0.
 
 Construction
   group     S3 as permutations of (0,1,2); the three transpositions T; the real
@@ -37,8 +37,6 @@ import random
 import sys
 import math
 from itertools import permutations, product
-
-import numpy as np
 
 # ---------------------------------------------------------------- S3
 
@@ -211,22 +209,26 @@ def leading_minor_signs(B: list[list[int]]) -> list[int]:
     need = (bits * n + 2) // 30 + 2
     LAST.update(hadamard_bits_per_row=bits, hadamard_bits=bits * n, primes=need)
     mods = primes_below(1 << 31, need, set())
-    res = np.zeros((need, n), dtype=np.int64)
-    B64 = np.array(B, dtype=np.int64)  # |entries| < 2^63 checked below
+    res = [[0] * n for _ in range(need)]
     assert max(abs(v) for row in B for v in row) < (1 << 62)
     for k, p in enumerate(mods):
-        M = B64 % p
+        M = [[v % p for v in row] for row in B]
         det = 1
         for i in range(n):
-            piv = int(M[i, i])
+            pivot_row = M[i]
+            piv = pivot_row[i]
             if piv == 0:
                 raise RuntimeError("zero pivot modulo a prime; reshuffle")
             det = det * piv % p
-            res[k, i] = det
+            res[k][i] = det
             if i + 1 < n:
                 invp = pow(piv, p - 2, p)
-                f = (M[i + 1 :, i] * invp) % p
-                M[i + 1 :, i + 1 :] = (M[i + 1 :, i + 1 :] - (f[:, None] * M[i, i + 1 :][None, :]) % p) % p
+                tail = pivot_row[i + 1 :]
+                for r in range(i + 1, n):
+                    row = M[r]
+                    f = row[i] * invp % p
+                    if f:
+                        row[i + 1 :] = [(x - f * y) % p for x, y in zip(row[i + 1 :], tail)]
     # CRT: D = sum r_i c_i (mod M), read in the balanced range (-M/2, M/2]
     M = 1
     for m in mods:
@@ -237,7 +239,7 @@ def leading_minor_signs(B: list[list[int]]) -> list[int]:
         coef.append(Mi * pow(Mi % m, m - 2, m))
     signs = []
     for idx in range(n):
-        x = sum(int(res[i, idx]) * coef[i] for i in range(len(mods))) % M
+        x = sum(res[i][idx] * coef[i] for i in range(len(mods))) % M
         if x > M // 2:
             x -= M
         signs.append((x > 0) - (x < 0))

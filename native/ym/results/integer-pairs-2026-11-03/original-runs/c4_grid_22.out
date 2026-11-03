@@ -1,0 +1,22 @@
+SET_DONE|JB=9000|ts=[45000000, 46000000, 46400000]|best_gamma=1|best=46466823|gammas=32|secs_wall=9|json=0
+SET_DONE|JB=9000|ts=[45000000, 46000000]|best_gamma=4|best=46409178|gammas=36|secs_wall=21|json=0
+SET_DONE|JB=9000|ts=[46000000, 46400000]|best_gamma=0|best=46464197|gammas=32|secs_wall=27|json=0
+SET_DONE|JB=6000|ts=[45000000, 46000000, 46400000]|best_gamma=207382|best=14793139|gammas=32|secs_wall=34|json=0
+SET_DONE|JB=6000|ts=[45000000, 46000000]|best_gamma=1049869|best=23644549|gammas=36|secs_wall=41|json=0
+SET_DONE|JB=6000|ts=[46000000, 46400000]|best_gamma=207382|best=15224039|gammas=32|secs_wall=50|json=0
+SET_DONE|JB=4000|ts=[45000000, 46000000, 46400000]|best_gamma=207382|best=-9206861|gammas=32|secs_wall=56|json=0
+SET_DONE|JB=4000|ts=[45000000, 46000000]|best_gamma=1049869|best=3644549|gammas=36|secs_wall=63|json=0
+SET_DONE|JB=4000|ts=[46000000, 46400000]|best_gamma=207382|best=-8775961|gammas=32|secs_wall=69|json=0
+SET_DONE|JB=1000|ts=[45000000, 46000000, 46400000]|best_gamma=207382|best=-45206861|gammas=32|secs_wall=75|json=0
+SET_DONE|JB=1000|ts=[45000000, 46000000]|best_gamma=1049869|best=-29571057|gammas=36|secs_wall=82|json=0
+SET_DONE|JB=1000|ts=[46000000, 46400000]|best_gamma=207382|best=-44775961|gammas=32|secs_wall=88|json=0
+SET_DONE|JB=0|ts=[45000000, 46000000, 46400000]|best_gamma=207382|best=-57206861|gammas=32|secs_wall=92|json=0
+SET_DONE|JB=0|ts=[45000000, 46000000]|best_gamma=1049869|best=-41571057|gammas=36|secs_wall=98|json=0
+SET_DONE|JB=0|ts=[46000000, 46400000]|best_gamma=207382|best=-56775961|gammas=32|secs_wall=103|json=0
+NO_BEST 0 [1006034, 2006405] ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST 4000 [1006930, 2005159, 3001232] ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST 777 [1004858, 2005628, 3001610] ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST 4000 [1000525, 2001729] ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST 0 [1002807, 2004172, 3000399] ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST 0 [1000840, 2003857] ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+C4|store=22|{'sets': 21, 'gammas': 500, 'open_rows': 0, 'value_rows': 500, 'negative_values': 297, 'mismatch_check': 0, 'mismatch_own': 0, 'open_mismatch': 0, 'dd_scale_fail': 0}|json=0
