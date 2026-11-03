@@ -92,6 +92,12 @@ On the acer machine with Python 3.13, each $K = 3$ row takes about 3 s at scale 
 
 [`seat_3x3_vacuum_block_ritz.measure`](seat_3x3_vacuum_block_ritz.measure) stays byte-identical as the historical record, sha256 `8500ef4b3b2f1c67…`. The source that printed it is at commit `0e528bfee6594bd4a53e1756c816d48824497bd8`. The commands in section 5 below print the new row format with the current source. The predictions for this repair are in [`seat_3x3_ritz_outward_PREDICTION.hbp`](seat_3x3_ritz_outward_PREDICTION.hbp), pushed before the new code ran, and their outcomes are in [`seat_3x3_ritz_outward_OUTCOME.hbp`](seat_3x3_ritz_outward_OUTCOME.hbp).
 
+### G. Open items
+
+- A full-gap statement on 3×3 needs a separate full-space lower bound with a compatible variational upper input, acceptance item 3 of issue #99. OPEN.
+- Native full-space intervals to weigh for that item, read from the files named here. In [`ym3x3_frozen_8fd12e6.hbp`](../native/ym/reference/ym3x3_frozen_8fd12e6.hbp), the row `SHELL_CLUSTER_CERT|L=3x3|r=27` reads the first splitting as [1967, 2059] in units of $10^{-6} J_E$. In [`native/ym/results/2xL/README.md`](../native/ym/results/2xL/README.md), the same quantity reads [19821, 19847] at $r = 9$ and [74, 370] at $r = 81$ in those units. Table A's trial-space differences read [19686, 19688], [2011, 2013] and [221, 223]. At $r = 9$ the trial-space difference lies below the native interval, and at $r = 27$ and $r = 81$ it lies inside.
+- The source of the original table's 1.0006. OPEN.
+
 ## Original report as written, with its original rounding
 
 **Scientific Boundary:** Discrete $S_3$ lattice gauge Hamiltonian $H = J_E E + J_B M$ on a periodic $3 \times 3$ torus ($L_x = L_y = 3$). All calculations use integer-only arithmetic, exact graph matrices, and Bareiss fraction-free elimination. All results are rigorous variational upper bounds by Cauchy interlacing on the compressed vacuum-ball operator. This is a finite-volume lattice calculation, **not** a proof of the four-dimensional continuum Yang–Mills mass gap conjecture or a solution to the Clay Millennium Prize problem.

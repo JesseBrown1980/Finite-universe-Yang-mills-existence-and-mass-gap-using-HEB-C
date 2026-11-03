@@ -80,6 +80,15 @@ jobs:
           python3 independent/seat_3x3_ritz_compare.py --new /tmp/test.measure --e12 /tmp/test_e12.measure --gpt6 /tmp/replay.measure > /tmp/compare.measure
           cmp /tmp/compare.measure independent/seat_3x3_ritz_compare.measure
           tail -n 1 /tmp/compare.measure | grep -F 'RITZ-COMPARE|result=PASS'
+      - name: Bisection steps per level, against the prediction's count
+        run: |
+          set -euo pipefail
+          python3 independent/seat_3x3_ritz_count_steps.py > /tmp/steps.measure
+          cmp /tmp/steps.measure independent/seat_3x3_ritz_count_steps.measure
+          grep -F 'E0=' /tmp/steps.measure | sed -E 's/^.*\|(E0=.*\|E7=\[[0-9]+,[0-9]+\])\|json=0$/\1/' > /tmp/steps_levels.txt
+          cat /tmp/test.measure /tmp/test_e12.measure | sed -E 's/^.*\|(E0=.*\|E7=\[[0-9]+,[0-9]+\])\|trial_gap=.*$/\1/' > /tmp/receipt_levels.txt
+          cmp /tmp/steps_levels.txt /tmp/receipt_levels.txt
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|step_counts_pinned=1|levels_equal_receipts=8|json=0'
       - name: A doctored receipt turns the compare red
         run: |
           set -euo pipefail
