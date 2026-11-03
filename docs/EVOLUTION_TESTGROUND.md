@@ -1,5 +1,7 @@
 <!-- Documentation only. Code: branch integer-sturm-ladder at 36c245f, independent/evolution_testground/ -->
 
+> Since November 3 the branch's files are on `main` too, in [`independent/`](../independent/README.md).
+
 # Evolution test ground (measurement, not certificate)
 
 Let the finite S3 2x2-torus Hamiltonian H = JE·E + JB·M evolve in Euclidean
