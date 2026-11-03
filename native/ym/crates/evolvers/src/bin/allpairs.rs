@@ -9,7 +9,9 @@
 //!   allpairs DEV OFFSET [CAP_ENTRIES]
 //!
 //! DEV is a segio spec. CAP_ENTRIES bounds the upper entries one window holds, at 8 bytes each. Exit 0 only when every
-//! gate holds, exit 2 when one fails, exit 1 when the stream cannot be read or its merkle differs. Integer only, json=0.
+//! gate holds and both count gates, header_entries and whole_space_count, read PASS. Exit 2 when a gate fails or a count
+//! gate reads FAIL or OPEN. Exit 1 when the stream cannot be read or holds no rows, when its merkle differs, or when the
+//! header repeats a key or writes n= or payload_bytes= outside canonical form. Integer only, json=0.
 
 #![forbid(unsafe_code)]
 #![deny(clippy::float_arithmetic, clippy::float_cmp, clippy::cast_precision_loss)]
@@ -34,6 +36,39 @@ const DEFAULT_CAP: usize = 470_000_000;
 /// A window index stays a u32, with room for one more row past the cap.
 const MAX_CAP: usize = 4_000_000_000;
 const MAX_DETAIL: usize = 16;
+
+/// A count gate compares a header field with what the rows gave. OPEN means the header gave nothing to compare.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Gate {
+    Pass,
+    Fail,
+    Open,
+}
+
+impl Gate {
+    fn compare<T: PartialEq>(expected: Option<T>, counted: T) -> Gate {
+        match expected {
+            Some(v) if v == counted => Gate::Pass,
+            Some(_) => Gate::Fail,
+            None => Gate::Open,
+        }
+    }
+}
+
+impl std::fmt::Display for Gate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Gate::Pass => "PASS",
+            Gate::Fail => "FAIL",
+            Gate::Open => "OPEN",
+        })
+    }
+}
+
+/// The verdict passes only when the pairs and the structure are clean and both count gates read PASS.
+fn verdict(pairs_clean: bool, structure_clean: bool, entries: Gate, count: Gate) -> bool {
+    pairs_clean && structure_clean && entries == Gate::Pass && count == Gate::Pass
+}
 
 /// What one walk over every row counts. No pair is compared here.
 #[derive(Default)]
@@ -243,6 +278,9 @@ fn run(dev: &mut segio::Dev, off: u64, hdr: &roomio::Hdr, cap: usize, mut each: 
     if u32::try_from(hdr.n).is_err() {
         return Err("n does not fit in u32".into());
     }
+    if hdr.n == 0 {
+        return Err("n is 0, so there are no rows to read and no merkle to compute".into());
+    }
     let cap = cap.clamp(1, MAX_CAP);
     let mut census = Census::default();
     let mut passes: Vec<PassOut> = Vec::new();
@@ -281,11 +319,35 @@ fn field<'a>(line: &'a str, key: &str) -> Option<&'a str> {
     line.split('|').find_map(|kv| kv.strip_prefix(key))
 }
 
+/// A key that appears twice gives two answers, and `field` and `roomio` read only the first.
+fn repeated_key(line: &str) -> Option<&str> {
+    let mut keys: Vec<&str> = line.split('|').filter_map(|kv| kv.split_once('=').map(|(k, _)| k)).collect();
+    keys.sort_unstable();
+    keys.windows(2).find(|p| p[0] == p[1]).map(|p| p[0])
+}
+
+/// A number in its one canonical decimal form, with no sign and no leading zero.
+fn number<T: std::str::FromStr + ToString>(v: &str) -> Option<T> {
+    let n = v.parse::<T>().ok()?;
+    (n.to_string() == v).then_some(n)
+}
+
+/// `roomio` reads n= and payload_bytes= leniently and reads a repeated key once, so this tool refuses both forms itself.
+fn check_header(line: &str, hdr: &roomio::Hdr) -> Result<(), String> {
+    if let Some(k) = repeated_key(line) {
+        return Err(format!("header repeats {k}="));
+    }
+    if field(line, "n=").and_then(number::<usize>) != Some(hdr.n) || field(line, "payload_bytes=").and_then(number::<u64>) != Some(hdr.payload) {
+        return Err("header writes n= or payload_bytes= outside canonical form".into());
+    }
+    Ok(())
+}
+
 /// Gauge-fixed codes of an AxB periodic lattice: 6^(links - V + 1) = 6^(V + 1), since links = 2V.
 fn codes(lattice: &str, nl: Option<&str>) -> Option<u128> {
     let (a, b) = lattice.split_once('x')?;
-    let v = a.parse::<u32>().ok()?.checked_mul(b.parse::<u32>().ok()?)?;
-    if nl?.parse::<u32>().ok()? != v.checked_mul(2)? {
+    let v = number::<u32>(a)?.checked_mul(number::<u32>(b)?)?;
+    if v == 0 || number::<u32>(nl?)? != v.checked_mul(2)? {
         return None;
     }
     6u128.checked_pow(v.checked_add(1)?)
@@ -302,6 +364,7 @@ fn real_main(a: &[String]) -> Result<bool, String> {
     let mut dev = segio::open(spec, false).map_err(|e| format!("open {spec}: {e}"))?;
     let hdr = roomio::read_hdr(&mut dev, off)?;
     let line = raw_header(&mut dev, off)?;
+    check_header(&line, &hdr)?;
     let o = run(&mut dev, off, &hdr, cap, |k, p| {
         println!(
             "ALLPAIRS_PASS|pass={k}|rows_from={}|rows_to={}|upper_stored={}|lookups={}|found={}|value_mismatch={}|lower_without_upper={}|upper_without_lower={}|merkle=PASS|secs={}|json=0",
@@ -312,21 +375,12 @@ fn real_main(a: &[String]) -> Result<bool, String> {
     for d in &o.detail {
         println!("{d}");
     }
-    let header_entries = field(&line, "entries=").and_then(|v| v.parse::<u64>().ok());
-    let entries_gate = match header_entries {
-        Some(v) if v == c.entries => "PASS",
-        Some(_) => "FAIL",
-        None => "OPEN",
-    };
+    let entries_gate = Gate::compare(field(&line, "entries=").and_then(number::<u64>), c.entries);
     let expected = codes(&hdr.lattice, field(&line, "nl="));
-    let count_gate = match expected {
-        Some(v) if v == c.sum_w => "PASS",
-        Some(_) => "FAIL",
-        None => "OPEN",
-    };
+    let count_gate = Gate::compare(expected, c.sum_w);
     let flat_w_sum: u64 = c.flat_w.iter().map(|&w| u64::from(w)).sum();
     let flat_list: Vec<String> = c.flat_w.iter().map(u32::to_string).collect();
-    let pass = o.pairs_clean(hdr.n) && c.structure_clean() && entries_gate != "FAIL" && count_gate != "FAIL";
+    let pass = verdict(o.pairs_clean(hdr.n), c.structure_clean(), entries_gate, count_gate);
     println!(
         "ALLPAIRS|L={}|sector={}|n={}|rows_read={}|entries={}|header_entries={entries_gate}|diag={}|pairs={}|passes={}|cap_entries={cap}|value_mismatch={}|lower_without_upper={}|upper_without_lower={}|columns_not_ascending={}|column_out_of_range={}|zero_z={}|positive_offdiag={}|row_sum_nonzero={}|zero_weight={}|missing_diag={}|flats={}|flat_w={}|flat_w_sum={flat_w_sum}|sum_w={}|codes={}|whole_space_count={count_gate}|merkle=PASS|verdict={}|secs={}|json=0",
         hdr.lattice,
@@ -584,5 +638,182 @@ mod tests {
         assert_eq!(codes("3x4", Some("23")), None);
         assert_eq!(codes("3x4", None), None);
         assert_eq!(codes("1x40", None), None);
+    }
+
+    #[test]
+    fn the_count_of_codes_reads_only_a_well_formed_lattice_and_link_count() {
+        assert_eq!(codes("7x6", Some("84")), Some(6u128.pow(43)));
+        for (l, nl) in [
+            ("", "8"),
+            ("4", "8"),
+            ("2x", "8"),
+            ("x2", "8"),
+            ("axb", "8"),
+            ("2x2x2", "16"),
+            ("+2x2", "8"),
+            ("02x2", "8"),
+            ("2x2", ""),
+            ("2x2", "abc"),
+            ("2x2", "-8"),
+            ("2x2", "+8"),
+            ("2x2", "08"),
+            ("2x2", "7"),
+            ("0x4", "0"),
+            ("65536x65536", "8"),
+            ("65536x32768", "0"),
+            ("7x7", "98"),
+        ] {
+            assert_eq!(codes(l, Some(nl)), None, "L={l} nl={nl}");
+        }
+    }
+
+    #[test]
+    fn only_clean_rows_and_two_count_gates_at_pass_let_the_verdict_pass() {
+        let gates = [Gate::Pass, Gate::Fail, Gate::Open];
+        let mut passing = Vec::new();
+        for pairs in [true, false] {
+            for structure in [true, false] {
+                for entries in gates {
+                    for count in gates {
+                        if verdict(pairs, structure, entries, count) {
+                            passing.push((pairs, structure, entries, count));
+                        }
+                    }
+                }
+            }
+        }
+        assert_eq!(passing, vec![(true, true, Gate::Pass, Gate::Pass)]);
+    }
+
+    #[test]
+    fn a_gate_reads_pass_only_on_an_equal_value_and_open_on_no_value() {
+        assert_eq!(Gate::compare(Some(4u64), 4), Gate::Pass);
+        assert_eq!(Gate::compare(Some(5u64), 4), Gate::Fail);
+        assert_eq!(Gate::compare(None, 4u64), Gate::Open);
+        assert_eq!((Gate::Pass.to_string(), Gate::Fail.to_string(), Gate::Open.to_string()), ("PASS".to_string(), "FAIL".to_string(), "OPEN".to_string()));
+    }
+
+    #[test]
+    fn a_number_has_one_written_form() {
+        assert_eq!(number::<u64>("2607"), Some(2607));
+        assert_eq!(number::<u64>("0"), Some(0));
+        for bad in ["", "+2607", "-2607", "02607", "00", "26 07", "2607 ", " 2607", "abc", "0x10", "18446744073709551616"] {
+            assert_eq!(number::<u64>(bad), None, "{bad:?}");
+        }
+    }
+
+    #[test]
+    fn a_repeated_key_is_named() {
+        assert_eq!(repeated_key("YMROOMHDR|L=2x2|n=1|nl=8|entries=9"), None);
+        assert_eq!(repeated_key("YMROOMHDR|L=2x2|n=1|nl=8|n=2"), Some("n"));
+        assert_eq!(repeated_key("YMROOMHDR|entries=1|entries=1"), Some("entries"));
+    }
+
+    const FULL_HEADER: &str = "L=1x2|nl=4|entries=4";
+
+    /// Runs the whole tool on two rows of weight 108, 6^3 codes in all, with `edit` applied to a header that carries every field.
+    fn tool_on(edit: impl Fn(String) -> String) -> Result<bool, String> {
+        let rows: Vec<roomio::TestRow> = vec![(108, 3, vec![(0, 1), (1, -1)]), (108, 3, vec![(0, -1), (1, 1)])];
+        let p = temp();
+        roomio::write_test_stream(&p, &rows);
+        let mut b = std::fs::read(&p).unwrap();
+        let end = b.iter().position(|&c| c == b'\n').unwrap();
+        let line = String::from_utf8(b[..end].to_vec()).unwrap().replacen("L=1x2", FULL_HEADER, 1);
+        let mut head = edit(line).into_bytes();
+        head.push(b'\n');
+        head.resize(4096, 0);
+        b[..4096].copy_from_slice(&head);
+        std::fs::write(&p, b).unwrap();
+        let a = ["allpairs".to_string(), p.to_str().unwrap().to_string(), "0".to_string(), "100".to_string()];
+        let r = real_main(&a);
+        std::fs::remove_file(p).unwrap();
+        r
+    }
+
+    fn edited(from: &str, to: &str) -> Result<bool, String> {
+        tool_on(|l| {
+            assert!(l.contains(from), "{from} in {l}");
+            l.replacen(from, to, 1)
+        })
+    }
+
+    #[test]
+    fn a_clean_store_with_a_full_header_passes_the_whole_tool() {
+        assert_eq!(tool_on(|l| l), Ok(true));
+    }
+
+    #[test]
+    fn every_count_gate_at_open_or_fail_fails_the_whole_tool() {
+        for (from, to) in [
+            // header_entries reads OPEN.
+            ("|entries=4", ""),
+            ("entries=4", "entries="),
+            ("entries=4", "entries=abc"),
+            ("entries=4", "entries=-4"),
+            ("entries=4", "entries=+4"),
+            ("entries=4", "entries=04"),
+            ("entries=4", "entries=18446744073709551616"),
+            // whole_space_count reads OPEN.
+            ("|nl=4", ""),
+            ("nl=4", "nl="),
+            ("nl=4", "nl=abc"),
+            ("nl=4", "nl=-4"),
+            ("nl=4", "nl=+4"),
+            ("nl=4", "nl=04"),
+            ("nl=4", "nl=3"),
+            ("L=1x2|", ""),
+            ("L=1x2", "L="),
+            ("L=1x2", "L=2"),
+            ("L=1x2", "L=axb"),
+            ("L=1x2", "L=1x2x1"),
+            ("L=1x2", "L=+1x2"),
+            ("L=1x2|nl=4", "L=0x4|nl=0"),
+            ("L=1x2|nl=4", "L=65536x65536|nl=4"),
+            ("L=1x2|nl=4", "L=65536x32768|nl=0"),
+            ("L=1x2|nl=4", "L=7x7|nl=98"),
+            // Each reads FAIL.
+            ("entries=4", "entries=5"),
+            ("L=1x2|nl=4", "L=1x3|nl=6"),
+            // n= below the rows: rows go unread, so columns leave the range and the entry count differs.
+            ("|n=2|", "|n=1|"),
+        ] {
+            assert_eq!(edited(from, to), Ok(false), "{from} -> {to}");
+        }
+    }
+
+    #[test]
+    fn a_malformed_header_or_an_empty_store_stops_the_tool() {
+        for (from, to) in [
+            ("|n=2|", "|n=0|"),
+            ("|n=2|", "|"),
+            ("|n=2|", "|n=abc|"),
+            ("|n=2|", "|n=-2|"),
+            ("|n=2|", "|n=+2|"),
+            ("|n=2|", "|n=02|"),
+            ("|n=2|", "|n=3|"),
+            ("|n=2|", "|n=2|n=2|"),
+            ("|n=2|", "|n=2|n=1|"),
+            ("entries=4", "entries=4|entries=4"),
+            ("entries=4", "entries=4|entries=5"),
+            ("nl=4", "nl=4|nl=4"),
+            ("L=1x2", "L=1x2|L=1x3"),
+            ("|payload_bytes=48|", "|"),
+            ("|payload_bytes=48|", "|payload_bytes=abc|"),
+            ("|payload_bytes=48|", "|payload_bytes=+48|"),
+            ("|payload_bytes=48|", "|payload_bytes=048|"),
+            ("|payload_bytes=48|", "|payload_bytes=40|"),
+            ("|payload_bytes=48|", "|payload_bytes=49|"),
+            ("|payload_bytes=48|", "|payload_bytes=48|payload_bytes=48|"),
+            ("w_self_adjoint=PASS", "w_self_adjoint=FAIL"),
+            ("|w_self_adjoint=PASS", ""),
+            ("YMROOMHDR|", "YMROOMHDX|"),
+        ] {
+            assert!(edited(from, to).is_err(), "{from} -> {to}");
+        }
+        let e = tool_on(|l| {
+            let at = l.find("payload_merkle=").unwrap();
+            format!("{}payload_merkle={}{}", &l[..at], "0".repeat(64), &l[at + "payload_merkle=".len() + 64..])
+        });
+        assert!(e.as_ref().is_err_and(|m| m.contains("merkle")), "{e:?}");
     }
 }
