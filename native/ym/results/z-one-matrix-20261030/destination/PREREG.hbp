@@ -1,0 +1,13 @@
+ZDEST_PREREG|date=2026-10-30|purpose=destination_pull_gate_and_curved_return_falsification|language=python3_standard_library|json=0
+ZDEST_MODEL|levels=3,4,5|sites=3^N_ring|states=-1,0,+1|source_targets=N3:2,8,23;N4:9,29,71;N5:11,71,190|propagation=one_ring_edge_per_tick|release_tick=1|json=0
+ZDEST_DEFINITIONS|physical_root=sha256_merkle_of_cell_states_only|protocol_z=sha256_domain_separated_of_physical_root_source_destination_message_level_token|token=sha256_destination_bound|local_observable=target_cell_hash_only|json=0
+ZDEST_PREDICT_P1|prelaunch_retarget=A_to_B|physical_root_unchanged=1|protocol_z_changes=1|json=0
+ZDEST_PREDICT_P2|prelaunch_gate|missing_token=REJECT|stale_A_token=REJECT|wrong_target_token=REJECT|tampered_token=REJECT|fresh_B_token=ACCEPT|json=0
+ZDEST_PREDICT_P3|prelaunch_retarget_to_B|target_B_first_diff=1+ring_distance_B|prearrival_target_B_identical=1|unselected_A_unchanged=1|json=0
+ZDEST_PREDICT_P4|midflight_retarget_at_tick=min(5,max(2,floor(distance_A/2)))|already_inflight_A_packet_not_redirected=1|retarget_B_only_protocol_changes=1|target_A_arrives_at=1+distance_A|target_B_never_affected=1|json=0
+ZDEST_PREDICT_P5|target_observes_only_own_cell|prearrival_information_bits=0|global_protocol_z_visible_at_target=1_bit_early_leak|json=0
+ZCURVE_PREDICT_B1|R_plus_R_inverse_symmetric=1|J_symmetric=1|j_plus=I+R-R2_asymmetric=1|j_minus=I-R+R2_asymmetric=1|json=0
+ZCURVE_PREDICT_B2|support_of_j_plus_and_j_minus=3_each_column|all_ones_Q5_fails_for_signed_j=1|transpose_pair=1|json=0
+ZCURVE_PREDICT_B3|rank_over_GF3|J=1|j_plus=3|j_minus=3|both_curves_retain_nonzero_global_state=1|json=0
+ZCURVE_PREDICT_B4|orientation_selected_by_dictionary_alone=NO|testable_observation_must_break_left_right_symmetry=1|json=0
+ZDEST_LIMITS|metadata_gating_is_defined_in_model_not_derived_from_physics|no_physical_ftl_claim=1|no_yang_mills_mass_gap_claim=1|spectral_pass=0|production=HOLD|json=0

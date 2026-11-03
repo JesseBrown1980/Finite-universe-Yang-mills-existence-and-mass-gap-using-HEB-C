@@ -1,0 +1,9 @@
+B_MODEL|asym=I+R-R2|baseline=I+R+R2|r=R+Rinverse|n=1..5|signed=1|json=0
+B_MATRIX|r_symmetric=1|j_asymmetric=1|j_support3=1|j_signed_rows=1,-1,1;1,1,-1;-1,1,1|json=0
+B_LEVEL|N=1|sites=3|j_max=1|r_max=1|single_source_support_all=1|block_prefix_exact=1|top_digit_first_tick=1|Q6_same=1|predictions_preserved=1|json=0
+B_LEVEL|N=2|sites=9|j_max=2|r_max=4|single_source_support_all=1|block_prefix_exact=1|top_digit_first_tick=1|Q6_same=1|predictions_preserved=1|json=0
+B_LEVEL|N=3|sites=27|j_max=3|r_max=13|single_source_support_all=1|block_prefix_exact=1|top_digit_first_tick=1|Q6_same=1|predictions_preserved=1|json=0
+B_LEVEL|N=4|sites=81|j_max=4|r_max=40|single_source_support_all=1|block_prefix_exact=1|top_digit_first_tick=1|Q6_same=1|predictions_preserved=1|json=0
+B_LEVEL|N=5|sites=243|j_max=5|r_max=121|single_source_support_all=1|block_prefix_exact=1|top_digit_first_tick=1|Q6_same=1|predictions_preserved=1|json=0
+B_SUPERPOSITION|input=1,1,0|output=0,2,0|target0_cancels=1|single_source_only_reach_scope=1|json=0
+B_VERDICT|r_symmetric=1|j_asymmetric=1|j_support3=1|Q1_Q2_Q3_Q4_Q6_preserved=1|Q5_original_equal_all_ones=0|Q5_changed=1|signed_superposition_cancels=1|overall_prediction=PASS|json=0

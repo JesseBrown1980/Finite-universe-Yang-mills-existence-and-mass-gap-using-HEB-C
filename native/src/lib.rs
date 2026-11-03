@@ -12,6 +12,7 @@ pub mod constellation_gate;
 
 pub mod hamiltonian;
 pub mod torus2;
+pub mod wave_torus2;
 pub mod torus2_bounds;
 pub mod torus2_inertia;
 pub mod torus2_independent;

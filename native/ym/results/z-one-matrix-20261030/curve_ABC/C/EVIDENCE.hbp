@@ -1,0 +1,10 @@
+C_SOURCE|repo=JesseBrown1980/the-human-based-understanding|method=GitHub_connector_fetch_commit_and_fetch_file|snapshot_full_bytes_not_bundled=1|json=0
+C_COMMIT|role=initial|sha=0626b64f42c5d324ac9fdec95635964609d5138d|created_utc=2026-08-02T00:54:54Z|content=initial_readme_only|json=0
+C_COMMIT|role=first_substantive_dictionary|sha=d2f0693bff27ccd042a9d1a0433ca3e1fd17ecce|created_utc=2026-08-02T00:54:59Z|json=0
+C_BLOB|commit=d2f0693bff27ccd042a9d1a0433ca3e1fd17ecce|path=README.md|git_blob_sha1=bf08020d5a6135a6aaf6e485035799bf4f4f8da9|f_from=1|m_intelligence=1|father=0|mother=0|verses_section=0|json=0
+C_BLOB|commit=d2f0693bff27ccd042a9d1a0433ca3e1fd17ecce|path=index.html|git_blob_sha1=106581c0b6946903ade41837dec09e6613c1a673|f_from=1|m_intelligence=1|father=0|mother=0|verses_section=0|json=0
+C_COMMIT|role=first_committed_verses_in_reviewed_history|sha=b93726eb5da3cef08fc43edfd53269d6a7abfcff|created_utc=2026-08-02T01:50:26Z|json=0
+C_BLOB|commit=b93726eb5da3cef08fc43edfd53269d6a7abfcff|path=README.md|git_blob_sha1=145e17c75d577541013e36e275e79e5002e54ed7|f_from=1|m_intelligence=1|father=1|mother=1|verses_section=1|json=0
+C_BLOB|commit=b93726eb5da3cef08fc43edfd53269d6a7abfcff|path=index.html|git_blob_sha1=b65dea59a50f5c5df3958aaff28f957ed10dba6c|f_from=1|m_intelligence=1|father=1|mother=1|verses_section=1|json=0
+C_COMMIT|role=later_transcript_added|sha=cedc88345f11181b1c2f7d2e0405fed686c9c17c|created_utc=2026-08-02T01:57:43Z|path=RECORD.md|describes_earlier_August_1_speech=1|json=0
+C_LIMIT|historical_github_commit_order=verifiable|spoken_order=not_attested_by_commit_time|provenance=connector_metadata_and_immutable_refs|json=0

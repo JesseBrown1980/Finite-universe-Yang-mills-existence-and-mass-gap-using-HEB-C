@@ -195,6 +195,18 @@ The data agree with the theorem's shape: E₉ − E₈ ≈ 3r ∝ J_B. On 3×3 t
 width shrinks rapidly with r. On 2×L the width stays roughly constant in L, as
 expected for a fixed short side of 2.
 
+**Added November 3, 2026: whole-space bounds at r = 9, on larger lattices.** These come from Perron vectors, by Barta and interlacing, rather than from interval inertia:
+
+| Lattice | E₉ − E₈ ≥ | Source |
+|---|---:|---|
+| 3×3 | 23.914694 J_E | [`perroncert`, every row of the store](../native/ym/results/3x4_stream/perron/PERRON-BOUND.md) |
+| 3×4 | 24.039673 J_E | The same |
+| 4×4 | 23.947629 J_E | [No store: the hybrid vector and a tighter E₈](../native/ym/results/3x4_stream/perron/vector/VECTOR-BOUND.md) |
+| 4×5 | 23.618291 J_E | The same |
+| 5×5 | 21.792208 J_E | The same |
+
+They hold E₉ − E₈ near 3r on each torus up to 5×5, which fits the theorem's shape. Each is a statement about one finite torus, and uniformity in volume stays with this plan. **Next here:** the finite-size constant r₀ as a number, odd and rectangular tori, and the rest of the matching in section 6.
+
 ## References
 
 - Bravyi, Hastings, Michalakis, J. Math. Phys. 51, 093512 (2010), arXiv:1001.0344.

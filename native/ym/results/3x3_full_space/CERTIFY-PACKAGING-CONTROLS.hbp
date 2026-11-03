@@ -1,0 +1,7 @@
+PACKAGING_CONTROL|generator=fixed|case=pass|assemble_rc=0|step_exit=0|want_exit=0|sidecar_verifies=1|admission=1|plan_params=1|exit_line=1|ok=1|json=0
+PACKAGING_CONTROL|generator=fixed|case=inconclusive|assemble_rc=2|step_exit=1|want_exit=nonzero|sidecar_verifies=1|admission=1|plan_params=1|exit_line=1|ok=1|json=0
+PACKAGING_CONTROL|generator=fixed|case=mismatch|assemble_rc=1|step_exit=1|want_exit=nonzero|sidecar_verifies=1|admission=1|plan_params=1|exit_line=1|ok=1|json=0
+PACKAGING_CONTROL|generator=fixed|case=crash|assemble_rc=1|step_exit=1|want_exit=nonzero|sidecar_verifies=1|admission=1|plan_params=1|exit_line=1|ok=1|json=0
+PACKAGING_CONTROL|generator=fixed|case=pass_line_but_rc1|assemble_rc=1|step_exit=1|want_exit=nonzero|sidecar_verifies=1|admission=1|plan_params=1|exit_line=1|ok=1|json=0
+PACKAGING_CONTROL|generator=a5a991f|case=inconclusive|step_exit=2|sidecar_verifies=0|admission=0|defect_reproduced=1|json=0
+PACKAGING_CONTROLS_TOTAL|result=PASS|json=0

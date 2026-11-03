@@ -1,0 +1,10 @@
+CHSH_PREREG|date=2026-10-30|experiment=PRISM3_BELL_CLASSICAL_VS_JOINT_REFERENCE|models=hash_local,matched_table,central_quantum_like,central_pr_box|n_per_setting=32768|seed=PRISM3-CHSH-FROZEN-20261030|json=0
+CHSH_ASSUMPTIONS|x_and_y_free_of_lambda=1|hash_orientation_from_shared_lambda_only=1|A_reads=x,lambda|B_reads=y,lambda|central_references_are_not_local=1|no_physical_measurement=1|json=0
+CHSH_PREDICT_P1|for_all_27_hidden_states|abs(single_lambda_CHSH)=2|status=PASS_if_exact|json=0
+CHSH_PREDICT_P2|for_all_4_settings_all_32768_samples|hash_selected_outcomes_equal_matched_classical_table=1|status=PASS_if_exact|json=0
+CHSH_PREDICT_P3|abs(sample_CHSH_local)<=2.100000|sampling_independent_per_setting=1|status=PASS_if_true|json=0
+CHSH_PREDICT_P4|central_quantum_like_CHSH_between=2.700000_and_2.950000|target=2.828125|status=PASS_if_true|json=0
+CHSH_PREDICT_P5|central_PR_box_CHSH=4.000000|status=PASS_if_exact|json=0
+CHSH_PREDICT_P6|central_reference_marginal_differences<=0.040000|every_x_or_y_pair|status=PASS_if_true|json=0
+CHSH_PREDICT_P7|hash_of_hidden_state_does_not_give_remote_setting|hash_selection_inputs_shared_only|status=PASS_if_verified_source_contract|json=0
+CHSH_SCOPE|statistics=synthetic_pseudorandom_reproducible|physical_bell_claim=NONE|quantum_state_simulation=NONE|faster_than_light_claim=NONE|yang_mills_gap_claim=NONE|json=0

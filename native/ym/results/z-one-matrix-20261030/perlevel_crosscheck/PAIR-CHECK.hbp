@@ -1,0 +1,5 @@
+RJ_PAIR_SCOPE|status=POST_HOC_INDEPENDENT_CROSS_CHECK|r=ring_nearest_neighbor|j=fixed_low_to_high_digit_schedule|json=0
+RJ_PAIRS|levels=3|sites=27|ordered_pairs=702|j_before_r=594|r_before_j=30|ties=78|max_j_ticks=3|max_ring_ticks=13|result=PASS|json=0
+RJ_PAIRS|levels=4|sites=81|ordered_pairs=6480|j_before_r=6132|r_before_j=108|ties=240|max_j_ticks=4|max_ring_ticks=40|result=PASS|json=0
+RJ_PAIRS|levels=5|sites=243|ordered_pairs=58806|j_before_r=57732|r_before_j=348|ties=726|max_j_ticks=5|max_ring_ticks=121|result=PASS|json=0
+RJ_PAIRS_TOTAL|levels=3|matched=3|overall=PASS|physical_proof=0|json=0

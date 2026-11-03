@@ -4,6 +4,8 @@ The registered rule, [`GAP-VERDICT-RULE-3X4.md`](../GAP-VERDICT-RULE-3X4.md), st
 operator's word adds it as a separate rule with its own sidecar. The derivation it relies on is in
 [`PERRON-BOUND.md`](PERRON-BOUND.md).
 
+**Note, November 3, 2026.** This draft stays on HOLD by the operator's word. Since it was written, the exact pair test `allpairs` was hardened and rerun on the full store (#85), and a separate route with no store reached 4×4 to 5×5 (#89), which this draft leaves out of its scope.
+
 ## 1. What it would certify
 
 With `t_cert` the value printed by `perroncert check` on the store below, for the whole gauge-invariant 3×4

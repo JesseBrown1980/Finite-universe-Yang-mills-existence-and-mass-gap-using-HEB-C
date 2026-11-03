@@ -13,7 +13,7 @@ All of it is on GitHub, and this table is kept current. The full register, with 
 | **The road to SU(2)** | [The companion repository](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved): S₃, Q8, 2T and 2O sealed, 2I in progress in its [draft #9](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved/pull/9) | The 2I official run |
 | **The continuum** | [The continuum track](native/ym/shadow/CONTINUUM-TRACK.md) names the milestones | A separate obligation after uniformity in volume |
 
-Merged on November 3: #84 to #91, the separate seat's #7 to #15 and #18, and the RIME stages #5 and #6. Each result here is a statement about one finite lattice. The second seat's FAIL on the original `allpairs` and every later finding stay on record, with the status of each in [`PERRON-TWO-SIDED.md`](native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md), section 5.
+Merged on November 3: the checker fixes, the no-store bound and the stability plan (#84 to #92), and every older PR that still applied (#5 to #9, #11 to #18, #31, #39, #42 to #44, #47), each in its place below. The register lists all of them. Each result here is a statement about one finite lattice. The second seat's FAIL on the original `allpairs` and every later finding stay on record, with the status of each in [`PERRON-TWO-SIDED.md`](native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md), section 5.
 
 Exact spectral certificates for S₃ lattice gauge theory on periodic finite
 lattices, run headless through the HEB-C HTTP-0 backend. GitRAM distributes the
@@ -254,18 +254,18 @@ SHA/HBI/HBP receipts. PASS/FAIL judgments stay as originally registered.
 - [zlight (merged acer reference)](native/ym/results/zlight-2026-10-30/):
   the global digest changes at the step the laser fires, while light moves one cell
   per step; the target's own cell changes only when the light arrives.
-  [Cloud zlight PR #39](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/39)
+  [The cloud seat's zlight](native/ym/results/zlight-2026-10-30-cloud/), merged November 3 from #39,
   keeps its original P5 FAIL.
 - [Per-level r/j (merged acer reference)](native/ym/results/perlevel-2026-10-30/):
   ring-neighbour propagation against hierarchical three-per-level connectivity,
   each with its own metric and schedule.
-  [PR #44](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/44)
-  holds the independent zlevel, signed zcurve and zbell Rust tests, their registered
-  failures, and a workflow that rebuilds each with Rust 1.81 and checks byte identity.
+  [zlevel](native/ym/results/zlevel-2026-10-30-cloud/), [zcurve](native/ym/results/zcurve-2026-10-30-cloud/) and
+  [zbell](native/ym/results/zbell-2026-10-30-cloud/), merged November 3 from #44, are the independent Rust tests, with their
+  registered failures, and the replay workflow rebuilds each with Rust 1.81 and checks byte identity.
 - [CHSH (merged software reference)](native/ym/results/chsh-2026-10-30/):
   Bell-local models stay within `|S|<=2`. A controller that reads both settings, with a
   balanced shared hidden variable, gives `S=4` with both stations' own counts unchanged
-  by the far setting. See also [three-seat control PR #47](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/47).
+  by the far setting. See also [the three-seat control](native/ym/results/chsh-prism3-2026-10-30-third-seat/), merged November 3 from #47: a hash-local model at S = 1.28925, and two centralized generators at 2.84235 and 4.
 - [Teleportation hierarchy (merged, PR #53)](native/ym/results/zteleport-2026-10-30-cloud/):
   Bell states with Bell-state measurements keep S² = 8 exactly through four teleportation steps;
   PR-box correlations under every local wiring fall to the local bound 2 after one step; a global
@@ -275,16 +275,19 @@ SHA/HBI/HBP receipts. PASS/FAIL judgments stay as originally registered.
   lattice gas, a swirl driven toward zero core radius at 24³, 48³ and 96³ concentrates (axis vorticity
   681 → 2,011 → 4,078) while its core holds 1/8 of the box, and at 96³ the cells reach the occupancy cap;
   kinematic viscosity 0.44 and 0.43 at two sizes, c_s² = 2/3 exactly.
-- [PR #42 destination-pull](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/42),
-  [PR #43 three prisms](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/43),
-  [PR #48 prism-Bell](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/48)
-  and [PR #49 Cantor](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/49)
-  are open experiments. Cantor's 16 bands are simulated channels, one per Cantor level;
-  all 16 arrive together at step 20. The prism-Bell and Cantor corrections are
-  append-only files beside the original sealed records.
-- The frustrated-orientation benchmark is local-seat evidence, to be committed with its
-  frozen predictions, including the field-only control at 27/27 against frustrated
-  optimization at 25/27.
+- [prism3 (merged, PR #45)](native/ym/results/prism3-2026-10-30/),
+  [prism-Bell (merged, PR #48)](native/ym/results/prismbell-2026-10-30/) and
+  [Cantor (merged, PR #49)](native/ym/results/cantor-2026-10-30/): Cantor's 16 bands are
+  simulated channels, one per Cantor level; all 16 arrive together at step 20. The
+  prism-Bell and Cantor corrections are append-only files beside the original sealed records.
+- [Frustrated-orientation benchmark (merged, PR #51)](native/ym/results/frustrated-2026-10-30/):
+  the field-only control delivers 27/27 and frustrated optimization 25/27, against
+  hash selection's 15/27; energy and Bell outcomes are reported separately.
+- [One matrix](native/ym/results/z-one-matrix-20261030/), merged November 3 from #42: a destination-bound z token
+  with wrong, stale and mutated-token gates, both signed curved-j orientations at rank 3 over GF(3) against rank 1 for J,
+  and a per-level cross-check. Its original no-return prediction's FAIL stays on record, beside a revised window issued after it.
+- [Three prisms](native/ym/results/qprism-three-2026-10-30/), merged November 3 from #43: 27 branches and 54 cases, all eight
+  registered software checks PASS, and the deliberately exposed global token reads LEAK.
 
 ## The theory route
 
@@ -322,7 +325,7 @@ beyond those.
 - The Perron route's tools: `perroncert` (solver and exact check), `check_d_strict.py` (fail-closed Python checker),
   `verify_sample_rows.py` (rows rebuilt from the definition), `perronritz` (side from above, every coupling,
   divided differences), `second-seat/fullrebuild.rs` (every row recomputed from the rules), and `allpairs` (every off-diagonal pair, exactly). `outside-go-41509351749/` holds the outside seat's
-  Go checker, its log and its artifact, `allpairs/fixture-controls/` the faults that reach each checker's gates, `allpairs/failclosed/` the correction to the count gates of `allpairs`, and `allpairs/hardened/` and `allpairs/oneread/` the fixes for D3 to D8 and H1 to H4, with their controls, reviews and full 3×4 runs.
+  Go checker, its log and its artifact, `allpairs/fixture-controls/` the faults that reach each checker's gates, `allpairs/failclosed/` the correction to the count gates of `allpairs`, and `allpairs/hardened/` and `allpairs/oneread/` the fixes for D3 to D8 and H1 to H4, with their controls, reviews and full 3×4 runs. The bound with no store adds `prodvec`, `localaudit` and `hybridcheck`, in `crates/evolvers`, with `vector/` beside them.
 
 ## 2×2 coupling ladder: E₁ − E₀
 
@@ -370,6 +373,9 @@ is r·(E₁ − E₀) → √14 − √6. Ledger and method:
   git blob, with Rust HBP/HBI receipts around them. The carrier holds all 27 coefficients and round-trips
   byte for byte in both decoders, and every malformed carrier in its fixtures stops closed.
   [Report](STAGE2J_RIME_SPHERE_BRIDGE.md).
+- **HTTP-0 finite S₃ wave observatory:** an explicitly specified second-order wave equation on all 1,393
+  components, as an exact integer-numerator recurrence on arbitrary-length integers, served with controls and a
+  web page. [First version](HTTP0_FINITE_S3_WAVE_OBSERVATORY.md), [its correction to exact numerators](HTTP0_EXACT_INTEGER_NO_ROUNDING.md).
 - **Constellation audit:** the original 3/27/243 sector transitions and
   45/405/3,645 keys compiled into the native build, with a gauge-invariant
   243-sector index of the 1,393 torus orbits.
@@ -379,6 +385,9 @@ is r·(E₁ − E₀) → √14 − √6. Ledger and method:
   [Pinned reference](CLASY_X3_PINNED_REFERENCE.md),
   [roadmap](CLASY_X3_TO_HEBC_HTTP0_NEXT_HURDLES.md),
   [continuum guide](CLASY_X3_CONTINUUM_HURDLES_GUIDE.md).
+- **3×3 certify generator:** a step under `bash -e` stopped before writing its receipt lines. Every outcome now
+  writes them, and the step is green only for PASS, with synthetic controls.
+  [Note](native/ym/results/3x3_full_space/CERTIFY-PACKAGING-FIX.md).
 - **Plan:** [HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md](HEBC_HTTP0_HEADLESS_YANG_MILLS_PLAN.md),
   [Stage 2 audit](STAGE2_SCALING_SPECTRAL_AUDIT_2026-10-24.md).
 
