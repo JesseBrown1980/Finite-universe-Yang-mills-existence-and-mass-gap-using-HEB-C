@@ -1,0 +1,10 @@
+WHOLE|L=2x2|nl=8|gauge_fixed_configs=7776|orbits=1393|sum_w=7776|secs_wall=0|json=0
+WHOLE_M|flats=8|min_nonflat_M=3|max_M=12|values=[0, 3, 4, 6, 7, 8, 9, 10, 12]|json=0
+WHOLE_ROWS|built|secs_wall=0|json=0
+WHOLE_AUDIT|W_symmetry_bad_pairs=0|row_sum_bad=0|flat_diag=[24, 24, 24, 24, 24, 24, 24, 24]|flat_flat_couplings=0|json=0
+SECTOR_QUOTIENT|classes=211|secs_wall=1|json=0
+G_PRESERVES_M|bad=0|json=0
+ALIGN|store_rows=211|distinct_classes_hit=211|classes=211|json=0
+SECTOR_ROWS_MATCH|rows=211|weight_mismatch=0|M_mismatch=0|entries_mismatch=0|json=0
+EVERY_MEMBER_GIVES_THE_SAME_ROW|bad_members=0|json=0
+DONE|secs_wall=1|json=0

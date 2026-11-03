@@ -1,0 +1,8 @@
+TIME_ONE_COUNT|secs_wall=140|whole_count_at_lambda1=8|log2_smallest_pivot=25|json=0
+COUNT|JB0=4000|JB=27000|theta=95309589|levels_below_theta=8|levels_below_flat_bound_plus_1=8|statement_holds=True|log2_smallest_pivot=1|secs_wall=362|json=0
+COUNT|JB0=5000|JB=12000|theta=52009624|levels_below_theta=8|levels_below_flat_bound_plus_1=8|statement_holds=True|log2_smallest_pivot=1|secs_wall=530|json=0
+COUNT|JB0=6000|JB=6000|theta=35247219|levels_below_theta=8|levels_below_flat_bound_plus_1=8|statement_holds=True|log2_smallest_pivot=1|secs_wall=706|json=0
+COUNT|JB0=9000|JB=9000|theta=46467673|levels_below_theta=8|levels_below_flat_bound_plus_1=8|statement_holds=True|log2_smallest_pivot=1|secs_wall=840|json=0
+C6_COUNT|fails=0|json=0
+E9_BRACKET_TEST|JB=9000|theta=46576171|levels_below=8|secs_wall=895|json=0
+E9_BRACKET_TEST|JB=9000|theta=46578124|levels_below=9|secs_wall=952|json=0

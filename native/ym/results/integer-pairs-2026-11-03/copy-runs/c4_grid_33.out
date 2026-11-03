@@ -1,0 +1,5 @@
+SET_DONE|JB=9000|ts=[76200000, 76300000, 76400000]|best_gamma=2|best=76448116|gammas=27|secs_wall=116|json=0
+SET_DONE|JB=9000|ts=[75000000, 76200000, 76400000]|best_gamma=0|best=76447078|gammas=27|secs_wall=257|json=0
+SET_DONE|JB=9000|ts=[76200000, 76400000]|best_gamma=0|best=76445360|gammas=28|secs_wall=381|json=0
+SET_DONE|JB=6000|ts=[76200000, 76300000, 76400000]|best_gamma=27310|best=41654636|gammas=27|secs_wall=511|json=0
+C4|store=33|{'sets': 4, 'gammas': 109, 'open_rows': 0, 'value_rows': 109, 'negative_values': 1, 'mismatch_check': 0, 'mismatch_own': 0, 'open_mismatch': 0, 'dd_scale_fail': 0}|json=0

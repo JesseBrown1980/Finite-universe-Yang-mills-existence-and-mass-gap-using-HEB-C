@@ -1,0 +1,16 @@
+NO_BEST ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+NO_BEST ['PERRONRITZ_ERROR|no gamma gives a positive vector|json=0']
+C4B|{'sets': 9, 'open_rows': 272, 'value_rows': 52, 'open_count_bad': 0, 'check_should_refuse_bad': 0, 'value_bad': 0, 'negative': 52}|json=0
+FIVE_THRESHOLDS 2 PERRONRITZ_ERROR|a weight left i128|json=0
+WRAP_PASS 0 ['PERRONRITZ_LOWER|JB=9000|vector=0|t_cert_milli=-89131682828547379792736944127990000000|min_row=0|min_mag=1|json=0', 'PERRONRITZ_UPPER|JB=9000|vectors=0|upper_milli=9999996|json=0']
+WRAP_EXACT_MIN_RATIO -89131682828547379792736944127990000000 bits 127
+WRAP_CHECK 0 PERRONCERT|L=1x2|sector=Sx+Sy+|n=2|flats=0|JE=1000|JB=9000|mode=check|t_cert_milli=-89131682828547379792736944127990000000|statement=E_flats_plus_1_at_least_t_cert|min_row=0|min_mag=1|d_min=1|d_max=4611686018427387904|d_

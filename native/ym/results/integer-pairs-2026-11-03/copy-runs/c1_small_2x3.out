@@ -1,0 +1,10 @@
+STORE|L=2x3|n=2646|merkle_own=True|padding_zero=True|json=0
+AUDIT {'n': 2646, 'bad_sym': 0, 'bad_sum': 0, 'pos_off': 0, 'flats': [0, 8, 15, 2171, 2178, 2634, 2636], 'flat_flat': 0, 'flat_diag': [36, 36, 36, 36, 36, 36, 36], 'min_nonflat_M': 3, 'max_M': 18}
+SYMMETRIC_A|bad=0|json=0
+LDL|ops=253798863|secs_wall=1027|json=0
+ITER|0|barta_floor=58407348|barta_row=2185|rayleigh_ceil=58446326|width=38978|min_x_bits=586|secs_wall=1034|json=0
+ITER|1|barta_floor=58442712|barta_row=2635|rayleigh_ceil=58443133|width=421|min_x_bits=583|secs_wall=1039|json=0
+ITER|2|barta_floor=58443120|barta_row=2635|rayleigh_ceil=58443133|width=13|min_x_bits=582|secs_wall=1046|json=0
+ITER|3|barta_floor=58443131|barta_row=2237|rayleigh_ceil=58443133|width=2|min_x_bits=583|secs_wall=1054|json=0
+ITER|4|barta_floor=58443132|barta_row=1|rayleigh_ceil=58443133|width=1|min_x_bits=583|secs_wall=1061|json=0
+RESULT|L=2x3|JB=9000|lambda1_ge=58443132|lambda1_le=58443133|json=0

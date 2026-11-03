@@ -1,0 +1,52 @@
+VECTOR|file=g-local-3x4-lump.hbp|rows=49|lumps=49|missing=0|extra=0|nonpositive=0|json=0
+TABLE_MIN|Lx=3|Ly=4|r=9/1|points=6505|lumps_with_points=48|t_micro=89291147|at=(0, 12)|n={'ee': 0, 'eT': 0, 'eC': 0, 'TTs': 0, 'TTd': 0, 'TC': 0, 'CC': 24}|json=0
+GAP|flat_bound=72|gap_micro=17291147|json=0
+TIGHTEST_LUMPS|(0, 12):89291147;(2, 10):89291148;(4, 8):89291148;(6, 6):89291149;(8, 4):89291149;(2, 9):89291149;(10, 2):89291149;(10, 0):89291149;(12, 0):89291149;(8, 0):89291149;(6, 0):89291149;(4, 7):89291150|json=0
+LUMPMIN|a=0|b=1|micro=89291150|n=[20, 0, 4, 0, 0, 0, 0]|json=0
+LUMPMIN|a=0|b=2|micro=89291153|n=[17, 0, 6, 0, 0, 0, 1]|json=0
+LUMPMIN|a=0|b=3|micro=89291152|n=[15, 0, 6, 0, 0, 0, 3]|json=0
+LUMPMIN|a=0|b=4|micro=89291152|n=[13, 0, 6, 0, 0, 0, 5]|json=0
+LUMPMIN|a=0|b=5|micro=89291152|n=[11, 0, 6, 0, 0, 0, 7]|json=0
+LUMPMIN|a=0|b=6|micro=89291152|n=[9, 0, 6, 0, 0, 0, 9]|json=0
+LUMPMIN|a=0|b=7|micro=89291152|n=[7, 0, 6, 0, 0, 0, 11]|json=0
+LUMPMIN|a=0|b=8|micro=89291151|n=[5, 0, 6, 0, 0, 0, 13]|json=0
+LUMPMIN|a=0|b=9|micro=89291151|n=[3, 0, 6, 0, 0, 0, 15]|json=0
+LUMPMIN|a=0|b=10|micro=89291151|n=[1, 0, 6, 0, 0, 0, 17]|json=0
+LUMPMIN|a=0|b=11|micro=89291150|n=[0, 0, 4, 0, 0, 0, 20]|json=0
+LUMPMIN|a=0|b=12|micro=89291147|n=[0, 0, 0, 0, 0, 0, 24]|json=0
+LUMPMIN|a=2|b=0|micro=89291150|n=[17, 6, 0, 0, 1, 0, 0]|json=0
+LUMPMIN|a=2|b=1|micro=89291150|n=[15, 4, 2, 1, 0, 2, 0]|json=0
+LUMPMIN|a=2|b=2|micro=89291151|n=[13, 3, 3, 1, 0, 3, 1]|json=0
+LUMPMIN|a=2|b=3|micro=89291151|n=[11, 3, 3, 1, 0, 3, 3]|json=0
+LUMPMIN|a=2|b=4|micro=89291150|n=[9, 3, 3, 1, 0, 3, 5]|json=0
+LUMPMIN|a=2|b=5|micro=89291150|n=[7, 3, 3, 1, 0, 3, 7]|json=0
+LUMPMIN|a=2|b=6|micro=89291150|n=[5, 3, 3, 1, 0, 3, 9]|json=0
+LUMPMIN|a=2|b=7|micro=89291150|n=[3, 3, 3, 1, 0, 3, 11]|json=0
+LUMPMIN|a=2|b=8|micro=89291150|n=[1, 3, 3, 1, 0, 3, 13]|json=0
+LUMPMIN|a=2|b=9|micro=89291149|n=[0, 2, 2, 1, 0, 4, 15]|json=0
+LUMPMIN|a=2|b=10|micro=89291148|n=[0, 0, 0, 1, 0, 6, 17]|json=0
+LUMPMIN|a=4|b=0|micro=89291150|n=[13, 6, 0, 5, 0, 0, 0]|json=0
+LUMPMIN|a=4|b=1|micro=89291151|n=[11, 4, 2, 5, 0, 2, 0]|json=0
+LUMPMIN|a=4|b=2|micro=89291151|n=[9, 3, 3, 5, 0, 3, 1]|json=0
+LUMPMIN|a=4|b=3|micro=89291151|n=[7, 3, 3, 5, 0, 3, 3]|json=0
+LUMPMIN|a=4|b=4|micro=89291151|n=[5, 3, 3, 5, 0, 3, 5]|json=0
+LUMPMIN|a=4|b=5|micro=89291150|n=[3, 3, 3, 5, 0, 3, 7]|json=0
+LUMPMIN|a=4|b=6|micro=89291150|n=[1, 3, 3, 5, 0, 3, 9]|json=0
+LUMPMIN|a=4|b=7|micro=89291150|n=[0, 2, 2, 5, 0, 4, 11]|json=0
+LUMPMIN|a=4|b=8|micro=89291148|n=[0, 0, 0, 5, 0, 6, 13]|json=0
+LUMPMIN|a=6|b=0|micro=89291149|n=[9, 6, 0, 9, 0, 0, 0]|json=0
+LUMPMIN|a=6|b=1|micro=89291151|n=[7, 4, 2, 9, 0, 2, 0]|json=0
+LUMPMIN|a=6|b=2|micro=89291151|n=[5, 3, 3, 9, 0, 3, 1]|json=0
+LUMPMIN|a=6|b=3|micro=89291151|n=[3, 3, 3, 9, 0, 3, 3]|json=0
+LUMPMIN|a=6|b=4|micro=89291151|n=[1, 3, 3, 9, 0, 3, 5]|json=0
+LUMPMIN|a=6|b=5|micro=89291150|n=[0, 2, 2, 9, 0, 4, 7]|json=0
+LUMPMIN|a=6|b=6|micro=89291149|n=[0, 0, 0, 9, 0, 6, 9]|json=0
+LUMPMIN|a=8|b=0|micro=89291149|n=[5, 6, 0, 13, 0, 0, 0]|json=0
+LUMPMIN|a=8|b=1|micro=89291151|n=[3, 4, 2, 13, 0, 2, 0]|json=0
+LUMPMIN|a=8|b=2|micro=89291151|n=[1, 3, 3, 13, 0, 3, 1]|json=0
+LUMPMIN|a=8|b=3|micro=89291150|n=[0, 2, 2, 13, 0, 4, 3]|json=0
+LUMPMIN|a=8|b=4|micro=89291149|n=[0, 0, 0, 13, 0, 6, 5]|json=0
+LUMPMIN|a=10|b=0|micro=89291149|n=[1, 6, 0, 17, 0, 0, 0]|json=0
+LUMPMIN|a=10|b=1|micro=89291150|n=[0, 3, 1, 17, 0, 3, 0]|json=0
+LUMPMIN|a=10|b=2|micro=89291149|n=[0, 0, 0, 17, 0, 6, 1]|json=0
+LUMPMIN|a=12|b=0|micro=89291149|n=[0, 0, 0, 24, 0, 0, 0]|json=0
