@@ -1,0 +1,151 @@
+name: GPT6 independent four-sector Sturm and Ritz-scoping controls
+
+on:
+  pull_request:
+    paths:
+      - 'independent/gpt6_sturm_*'
+      - 'independent/gpt6_ritz_scope.py'
+      - 'independent/gpt6_3x3_ritz_independent.py'
+      - 'independent/gpt6_hybrid_census.py'
+      - 'independent/gpt6_hybrid_census.measure'
+      - 'independent/gpt6_hybrid_arithmetic.py'
+      - 'independent/gpt6_dressed_flat_16d.py'
+      - 'independent/GPT6_STURM_RITZ_HYBRID_REVIEW.md'
+      - 'independent/SEAT_3X3_VACUUM_BLOCK_RITZ_REPORT.md'
+      - '.github/workflows/gpt6-sturm-ritz-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  four-sector-inertia:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Integer-only source audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+          for name in ('gpt6_sturm_sectors.py','gpt6_sturm_interval.py','gpt6_ritz_scope.py',
+                       'gpt6_3x3_ritz_independent.py','gpt6_hybrid_census.py',
+                       'gpt6_hybrid_arithmetic.py','gpt6_dressed_flat_16d.py'):
+              tree=ast.parse((Path('independent')/name).read_text())
+              for item in ast.walk(tree):
+                  if isinstance(item,ast.Constant):
+                      assert not isinstance(item.value,(float,complex)),(name,'float/complex literal')
+                  if isinstance(item,ast.ImportFrom):
+                      assert item.module not in ('numpy','scipy','json','fractions','decimal')
+                  if isinstance(item,ast.Import):
+                      assert not any(n.name.split('.')[0] in ('numpy','scipy','json','fractions','decimal') for n in item.names)
+          print('GPT6_POLICY|zero_float=1|zero_native_json=1|python_integer=1|json=0')
+          PY
+      - name: Build sector matrices from independent permutation source and match four SHA pins
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I independent/gpt6_sturm_sectors.py /tmp/gpt6_sector > /tmp/gpt6_sectors.out
+          grep -q 'sum_dim=1393' /tmp/gpt6_sectors.out
+          test "$(grep -c 'result=PASS|json=0' /tmp/gpt6_sectors.out)" -eq 4
+      - name: Recompute all eight threshold counts through an alternative integer Sylvester method
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            python3 -I independent/gpt6_sturm_interval.py /tmp/gpt6_sector 1 1 7000 0
+            python3 -I independent/gpt6_sturm_interval.py /tmp/gpt6_sector 1 1 13240 1
+            python3 -I independent/gpt6_sturm_interval.py /tmp/gpt6_sector 1 1 13300 3
+            python3 -I independent/gpt6_sturm_interval.py /tmp/gpt6_sector 3 5 50840 1
+            python3 -I independent/gpt6_sturm_interval.py /tmp/gpt6_sector 1 2 18250 1
+            python3 -I independent/gpt6_sturm_interval.py /tmp/gpt6_sector 2 5 34400 1
+            python3 -I independent/gpt6_sturm_interval.py /tmp/gpt6_sector 2 5 39400 1
+            python3 -I independent/gpt6_sturm_interval.py /tmp/gpt6_sector 1 3 19300 1
+          } | tee /tmp/gpt6_inertia.measure
+          cmp independent/gpt6_sturm_interval.measure /tmp/gpt6_inertia.measure
+          test "$(wc -l < /tmp/gpt6_inertia.measure)" -eq 8
+      - name: Reject tampered matrix and wrong inertia expectation
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -a /tmp/gpt6_sector /tmp/gpt6_sector_BAD
+          printf X | dd of=/tmp/gpt6_sector_BAD/pp.matrix bs=1 seek=17 conv=notrunc status=none
+          if python3 -I independent/gpt6_sturm_interval.py /tmp/gpt6_sector_BAD 1 1 13240 1; then
+            echo 'FAIL: changed sector matrix passed' >&2; exit 2
+          fi
+          if python3 -I independent/gpt6_sturm_interval.py /tmp/gpt6_sector 1 1 13240 2; then
+            echo 'FAIL: wrong expected count passed' >&2; exit 2
+          fi
+          echo 'GPT6_RED|tamper=REJECTED|false_count=REJECTED|json=0'
+
+  ritz-logic:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Mathematical counterexamples for full-gap inference and interval rounding
+        run: |
+          set -euo pipefail
+          python3 -I independent/gpt6_ritz_scope.py
+
+
+  three-by-three-ritz-independent:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct Ritz matrices from raw 3x3 graph with weighted rows
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I independent/gpt6_3x3_ritz_independent.py independent/matrices/b33_k1.matrix 1 27 1 > /tmp/gpt6_ritz_k1.out
+          cat /tmp/gpt6_ritz_k1.out
+          grep -q '|full_gap=NOT_CERTIFIED|' /tmp/gpt6_ritz_k1.out
+          grep -q 'ritz_e0_micro=534965' /tmp/gpt6_ritz_k1.out
+          python3 -I independent/gpt6_3x3_ritz_independent.py independent/matrices/b33_k3.matrix 1 27 3 > /tmp/gpt6_ritz_k3.out
+          cat /tmp/gpt6_ritz_k3.out
+          grep -q '|full_gap=NOT_CERTIFIED|' /tmp/gpt6_ritz_k3.out
+          grep -q 'ritz_e0_micro=534933' /tmp/gpt6_ritz_k3.out
+      - name: Reject corrupted K1 source bytes, even when reusing its basename
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ritz-bad
+          cp independent/matrices/b33_k1.matrix /tmp/ritz-bad/b33_k1.matrix
+          printf 7 | dd of=/tmp/ritz-bad/b33_k1.matrix bs=1 seek=35 conv=notrunc status=none
+          if python3 -I independent/gpt6_3x3_ritz_independent.py /tmp/ritz-bad/b33_k1.matrix 1 27 1; then
+            echo 'FAIL: tampered 3x3 matrix accepted' >&2; exit 2
+          fi
+          echo 'GPT6_RITZ_RED|tampered_raw_matrix=REJECTED|json=0'
+
+
+  hybrid-census-convolution:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recompute 8 exact hybrid cutoff census totals from the S3 torus commutator relation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I independent/gpt6_hybrid_census.py > /tmp/gpt6_hybrid_census.measure
+          cmp independent/gpt6_hybrid_census.measure /tmp/gpt6_hybrid_census.measure
+          test "$(grep -c 'result=PASS|json=0' /tmp/gpt6_hybrid_census.measure)" -eq 8
+          grep -q 'missing=45144|json=0' /tmp/gpt6_hybrid_census.measure
+          python3 -I independent/gpt6_hybrid_arithmetic.py > /tmp/gpt6_hybrid_arithmetic.measure
+          test "$(grep -c 'E9_certificate_independently_proved=0' /tmp/gpt6_hybrid_arithmetic.measure)" -eq 4
+          grep -q 'large_vector_all_rows=OPEN|json=0' /tmp/gpt6_hybrid_arithmetic.measure
+          python3 -I independent/gpt6_dressed_flat_16d.py > /tmp/gpt6_dressed_16d.measure
+          test "$(grep -c 'result=PASS|json=0' /tmp/gpt6_dressed_16d.measure)" -eq 4
+          test "$(grep -c 'truncated_block=VALID|result=PASS' /tmp/gpt6_dressed_16d.measure)" -eq 3
+          grep -q 'Lx=3|Ly=3|.*truncated_block=INVALID' /tmp/gpt6_dressed_16d.measure
+      - name: Reject false expected class population
+        shell: bash
+        run: |
+          set -euo pipefail
+          if python3 -I independent/gpt6_hybrid_census.py --bad-count; then
+            echo 'FAIL: incorrect M<=12 total accepted' >&2; exit 2
+          fi
+          echo 'GPT6_HYBRID_BAD_COUNT|verdict=REJECTED|json=0'
