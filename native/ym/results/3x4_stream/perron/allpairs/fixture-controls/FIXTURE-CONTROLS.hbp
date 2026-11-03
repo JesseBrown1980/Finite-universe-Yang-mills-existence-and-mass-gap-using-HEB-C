@@ -1,0 +1,15 @@
+FIXTURE_CASE|tool=go|case=clean|met=1|exit=0|json=0
+GO_CLEAN_STDOUT|PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS;control t_cert_milli=27000000 min_row=102 min_mag=3;blind t_cert_milli=-15000000 min_row=30 min_mag=6;flat_rows=7 min_nonzero_mag=3 max_mag=12 weighted_residual=0;payload_zero_padding=1021936 raw_tail_bytes=0 raw_tail_nonzero=0;seconds=0;
+FIXTURE_CASE|tool=strict|case=clean|met=1|exit=0|json=0
+STRICT_CLEAN_STDOUT|CHECK_D_STRICT|n=211|d_sha256=5008e4e0b6c70f6adab3a3aaee08815e4d89811b1ba8b5260bd124846056ad65|flats=7|flat_rows=0,3,6,96,99,191,193|flat_diag=24|flat_flat_couplings=0|t_cert_milli=27000000|t_cert_JE=27000000/1000000|min_row=102|min_mag=3|min_nonflat_M=3|max_M=12|positive_offdiag=0|bad_d=0|row_sums_zero=PASS|W_self_adjoint=PASS|seed=27|merkle=PASS|secs=0|json=0
+FIXTURE_CASE|tool=allpairs|case=clean|met=1|exit=0|json=0
+FIXTURE_CASE|tool=go|sweep=rowsum|met=1|rows=211|reported=211|json=0
+FIXTURE_CASE|tool=strict|sweep=rowsum|met=1|rows=211|reported=211|json=0
+FIXTURE_CASE|tool=allpairs|sweep=rowsum|met=1|rows=211|reported=211|json=0
+FIXTURE_CASE|tool=go|sweep=pair|met=1|pairs=1198|reported=1071|passed=127|as_predicted=1198|json=0
+FIXTURE_CASE|tool=strict|sweep=pair|met=1|pairs=1198|reported=1198|json=0
+FIXTURE_CASE|tool=allpairs|sweep=pair|met=1|pairs=1198|reported=1198|json=0
+GO_FIRST_REPORTED|h=1|j=0|stderr=FAIL: weighted self-adjoint integer residual=-36
+GO_FIRST_PASSED|h=1|j=10|stdout=PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS
+FIXTURE_PREDICTION|base_sha256=b31e730606db130585f9560f7adab87444d744876c3a8e36f6f9ef2bf0aa431f|n=211|pairs=1198|go_pairs_reported=1071|go_pairs_passed=127|strict_pairs_reported=1198|allpairs_pairs_reported=1198|rows=211|control=27000000,102,3|blind=-15000000,30,6|json=0
+FIXTURE_CONTROLS_DONE|failed=0|json=0
