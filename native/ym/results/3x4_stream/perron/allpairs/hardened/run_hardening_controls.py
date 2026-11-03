@@ -322,13 +322,13 @@ def emit(s):
     log.flush()
 
 
-LAUNCHER = "import os,sys
+LAUNCHER = """import os,sys
 pid=os.fork()
 if pid==0:
     os.execv(sys.argv[2],sys.argv[2:])
 _,st,ru=os.wait4(pid,0)
 open(sys.argv[1],'w').write('%d %d'%(ru.ru_maxrss*1024,os.waitstatus_to_exitcode(st)))
-"
+"""
 
 
 def peak_of(exe, path, cap):
