@@ -549,6 +549,38 @@ def sturm_row(t, negative, counts=None):
     return needles
 
 
+def row_cells(line):
+    return dict(p.split("=", 1) for p in line.split("|")[1:] if "=" in p)
+
+
+def check_every_gap(lines):
+    """Every certified count equals the cumulative table, and each gap between consecutive costs has a certified T."""
+    table = {}
+    for line in lines:
+        if line.startswith("ELECTRIC_B_M|L=2x2|"):
+            cells = row_cells(line)
+            table[int(cells["cost"])] = int(cells["m"])
+    if sum(table.values()) != 1393:
+        fail("F", "table_total", "total=%d" % sum(table.values()))
+    costs = sorted(c for c in table if table[c])
+    gaps, reads = set(), 0
+    for line in lines:
+        if line.startswith("GPT6_STURM|JE=1|JB=0|threshold="):
+            cells = row_cells(line)
+            t = int(cells["threshold"].split("/")[0])
+            below = sum(table[c] for c in costs if c * 1000 < t)
+            if int(cells["negative"]) != below or sum(int(x) for x in cells["counts"].split(",")) != below:
+                fail("F", "count_differs_from_the_table", "T=%d" % t, "count=" + cells["negative"], "table=%d" % below)
+            if any(c * 1000 == t for c in costs):
+                fail("F", "certified_row_on_an_eigenvalue", "T=%d" % t)
+            gaps.add(sum(1 for c in costs if c * 1000 < t))
+            reads += 1
+    if gaps != set(range(1, len(costs) + 1)):
+        fail("F", "a_gap_has_no_certified_T", "gaps=%d" % len(gaps))
+    return ("step=6", "from=every_GPT6_STURM_row_and_the_table_of_path_B", "gaps_between_costs_and_above_the_top=%d" % len(costs),
+            "gaps_with_a_certified_T=%d/%d" % (len(gaps), len(costs)), "counts_equal_to_the_cumulative_table=%d/%d" % (reads, reads), "tag=MEASURED")
+
+
 def path_f(measure):
     lines = read_rows(measure)
     required = {
@@ -573,6 +605,7 @@ def path_f(measure):
     for name, needles in required.items():
         if not holds(lines, *needles):
             fail("F", "missing_or_changed_row", "row=" + name)
+    every_gap = check_every_gap(lines)
     emit("ELECTRIC_F", "step=1", "from=path_A_and_ELECTRIC_C_LINKS",
          "says=E_is_a_sum_of_8_commuting_link_operators_each_annihilated_by_x(x-3)(x-6)",
          "so=spectrum_of_E_in_3Z_intersect_[0,48]", "tag=DERIVED")
@@ -586,7 +619,8 @@ def path_f(measure):
          "engines=gpt6_sturm_interval_four_sectors,indep_verify_full_space_rust_minors", "tag=DERIVED")
     emit("ELECTRIC_F", "step=5", "from=path_B_and_path_C", "says=P(E)=0_with_roots_from_the_characters_and_P_minimal",
          "so=the_same_conclusion_with_no_inertia_engine", "tag=DERIVED")
-    emit("ELECTRIC_F", "step=6", "from=ELECTRIC_SAME", "says=seat_global_coupling.py_uses_this_same_matrix_in_this_normalisation",
+    emit("ELECTRIC_F", *every_gap)
+    emit("ELECTRIC_F", "step=7", "from=ELECTRIC_SAME", "says=seat_global_coupling.py_uses_this_same_matrix_in_this_normalisation",
          "bound=gap(JE*E+JB*M)>=6*JE/(24+12*JB/JE)^16", "domain=JE>0,JB>=0", "scope=the_1393_state_periodic_2x2_S3_torus",
          "antecedent=gap(E)=6_now_counted_here", "tag=DERIVED")
     emit("ELECTRIC_F", "result=PASS", "scope=finite_periodic_2x2_S3_torus", "larger_lattices=OPEN", "continuum=OPEN")

@@ -271,7 +271,8 @@ ELECTRIC_F|step=2|from=D_T=1700,4700,5999_and_E_t_milli=5999000|count_below=1|sa
 ELECTRIC_F|step=3|from=D_T=6001,7700_and_E_t_milli=7700000|count_below=5|sectors=3,1,1,0|says=4_eigenvalues_lie_at_or_above_T=5999_and_below_T=6001_and_step_1_leaves_only_6_there|so=m6=4|tag=DERIVED|json=0
 ELECTRIC_F|step=4|conclusion=gap(E)=6_exactly|0_multiplicity=1|6_multiplicity=4|engines=gpt6_sturm_interval_four_sectors,indep_verify_full_space_rust_minors|tag=DERIVED|json=0
 ELECTRIC_F|step=5|from=path_B_and_path_C|says=P(E)=0_with_roots_from_the_characters_and_P_minimal|so=the_same_conclusion_with_no_inertia_engine|tag=DERIVED|json=0
-ELECTRIC_F|step=6|from=ELECTRIC_SAME|says=seat_global_coupling.py_uses_this_same_matrix_in_this_normalisation|bound=gap(JE*E+JB*M)>=6*JE/(24+12*JB/JE)^16|domain=JE>0,JB>=0|scope=the_1393_state_periodic_2x2_S3_torus|antecedent=gap(E)=6_now_counted_here|tag=DERIVED|json=0
+ELECTRIC_F|step=6|from=every_GPT6_STURM_row_and_the_table_of_path_B|gaps_between_costs_and_above_the_top=13|gaps_with_a_certified_T=13/13|counts_equal_to_the_cumulative_table=16/16|tag=MEASURED|json=0
+ELECTRIC_F|step=7|from=ELECTRIC_SAME|says=seat_global_coupling.py_uses_this_same_matrix_in_this_normalisation|bound=gap(JE*E+JB*M)>=6*JE/(24+12*JB/JE)^16|domain=JE>0,JB>=0|scope=the_1393_state_periodic_2x2_S3_torus|antecedent=gap(E)=6_now_counted_here|tag=DERIVED|json=0
 ELECTRIC_F|result=PASS|scope=finite_periodic_2x2_S3_torus|larger_lattices=OPEN|continuum=OPEN|json=0
 PREDICTION_CHECK|id=A1|path=A|source=brief|verdict=MET|json=0
 PREDICTION_CHECK|id=A2|path=A|source=brief|verdict=MET|json=0

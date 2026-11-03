@@ -1,6 +1,6 @@
 # The electric spectrum of the periodic 2×2 S₃ torus, and gap(E) = 6
 
-**November 3, 2026.** Scope: the 1,393 gauge-invariant orbits of the periodic 2×2 S₃ torus at J_B = 0, and the every-ratio bound on that same torus. Integer only, `float_used=0`. Receipts are HBP rows in [`electric_spectrum_2x2.measure`](electric_spectrum_2x2.measure), 329 rows, all `json=0`.
+**November 3, 2026.** Scope: the 1,393 gauge-invariant orbits of the periodic 2×2 S₃ torus at J_B = 0, and the every-ratio bound on that same torus. Integer only, `float_used=0`. Receipts are HBP rows in [`electric_spectrum_2x2.measure`](electric_spectrum_2x2.measure), 330 rows, all `json=0`.
 
 ## Result
 
@@ -89,6 +89,7 @@ The code is [`electric_spectrum_2x2.py`](electric_spectrum_2x2.py), one mode per
 3. From D at T = 6001, 7700 and E at 7.7, the count is 5. So 4 eigenvalues lie in [5.999, 6.001), and step 1 leaves only 6 there. So m₆ = 4.
 4. So gap(E) = 6 exactly.
 5. Routes 1 and 2 share the matrix and differ in method. Route 1 reaches the same conclusion with no inertia engine and without step 1, from P(E) = 0 and the traces of its prefix products.
+6. Each of the 13 gaps, between consecutive costs and above the top, holds a certified T, and all 16 counts equal the cumulative table. MEASURED.
 
 ## The every-ratio bound on this torus
 
@@ -147,6 +148,8 @@ Red controls, each of which must exit 1 with its reason:
 | An altered entry of the 6×6 matrix | `cubic_nonzero` |
 | A wrong character of τ | `dim_inv_not_divisible_by_6` |
 | A changed count in the receipt at T = 5999 | `missing_or_changed_row` |
+| A changed count in the receipt at T = 23300 | `count_differs_from_the_table` |
+| The certified row at T = 20950 removed | `a_gap_has_no_certified_T` |
 
 Path E stays a local receipt because of its cost, and F reads its rows.
 

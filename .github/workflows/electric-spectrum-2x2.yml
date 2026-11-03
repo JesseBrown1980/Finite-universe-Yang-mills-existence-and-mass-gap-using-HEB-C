@@ -39,6 +39,7 @@ jobs:
       - name: The predictions stand as pushed before their runs
         run: |
           set -euo pipefail
+          python3 --version
           while read -r commit file; do
             git merge-base --is-ancestor "$commit" HEAD
             git show "$commit:$file" > /tmp/prediction.at.commit
@@ -54,10 +55,12 @@ jobs:
           python3 -I -X utf8 native/scripts/integer_only_audit.py independent/electric_spectrum_2x2.py
           python3 -I -X utf8 native/scripts/no_float_gate.py .
           rc=0; grep -q electric_spectrum native/scripts/FLOAT-EVIDENCE.txt || rc=$?; test "$rc" = 1
-      - name: The engines are the bytes that ran
+      - name: The engines are the bytes that ran, and the receipt is plain rows
         run: |
           set -euo pipefail
           M=independent/electric_spectrum_2x2.measure
+          test "$(tr -cd '\r' < "$M" | wc -c)" = 0
+          rc=0; grep -qv '|json=0$' "$M" || rc=$?; test "$rc" = 1
           grep '^ELECTRIC_ENGINE|' "$M" > /tmp/engines.pin
           test "$(wc -l < /tmp/engines.pin)" -eq 4
           while IFS='|' read -r _ file sha _; do
@@ -136,6 +139,15 @@ jobs:
           rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py f /tmp/bad.measure > /tmp/red.out || rc=$?
           test "$rc" = 1
           grep -q '^ELECTRIC_FAIL|path=F|reason=missing_or_changed_row|row=D_5999|' /tmp/red.out
+          sed 's#threshold=23300/1000|digits=40|pivots=1393|negative=447|counts=123,109,109,106#threshold=23300/1000|digits=40|pivots=1393|negative=448|counts=124,109,109,106#' "$M" > /tmp/bad.measure
+          rc=0; cmp -s "$M" /tmp/bad.measure || rc=$?; test "$rc" = 1
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py f /tmp/bad.measure > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=F|reason=count_differs_from_the_table|T=23300|' /tmp/red.out
+          grep -v 'threshold=20950/1000' "$M" > /tmp/bad.measure
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py f /tmp/bad.measure > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=F|reason=a_gap_has_no_certified_T|' /tmp/red.out
 
   inertia:
     runs-on: ubuntu-24.04
@@ -145,6 +157,7 @@ jobs:
       - name: Build the four sector matrices and match their pins
         run: |
           set -euo pipefail
+          python3 --version
           M=independent/electric_spectrum_2x2.measure
           python3 -I -X utf8 independent/gpt6_sturm_sectors.py /tmp/sector > /tmp/sectors.out
           grep '^GPT6_PROJECT|' "$M" > /tmp/sectors.pin
