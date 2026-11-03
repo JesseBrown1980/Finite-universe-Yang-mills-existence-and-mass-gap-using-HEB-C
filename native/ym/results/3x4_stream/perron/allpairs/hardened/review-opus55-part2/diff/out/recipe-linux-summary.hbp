@@ -1,0 +1,7 @@
+fead9ede58cc08d214c396afa70094f0cf2da7a5
+RECIPE_EXIT=0
+389881acc55dfea143ff42cd52cd6a64eea63c79f96f4906d24ccfdff259a097  native/ym/target/release/allpairs
+not a PE file
+pe_exit=1
+rustc 1.81.0 (eeb90cda1 2024-09-04)
+Linux 6.18.33.2-microsoft-standard-WSL2

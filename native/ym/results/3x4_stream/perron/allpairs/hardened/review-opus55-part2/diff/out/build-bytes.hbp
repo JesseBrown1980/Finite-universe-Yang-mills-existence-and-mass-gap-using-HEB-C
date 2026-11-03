@@ -1,0 +1,6 @@
+BUILD_BYTES|pair=cdb22218_d78f263f|bytes=289280|differing=24|json=0
+PE_INFO|linker_major=14|linker_minor=42|rich_header=1|json=0
+ALLPAIRS_EXE_ON_D|path=D:/ym-3x4-room-run/p0-ball/allpairs/allpairs.exe|sha16=c68f25b44a8eb520|json=0
+ALLPAIRS_EXE_ON_D|path=D:/ym-3x4-room-run/p0-ball/allpairs-failclosed/allpairs.exe|sha16=d78f263f5ac70ff2|json=0
+ALLPAIRS_EXE_ON_D|path=D:/ym-3x4-room-run/p0-ball/allpairs-pin-0fd24d3/allpairs.exe|sha16=cdb22218bbfe26a2|json=0
+THIRD_BUILD_FOUND|in=D:/ym-3x4-room-run/p0-ball|found=0|json=0

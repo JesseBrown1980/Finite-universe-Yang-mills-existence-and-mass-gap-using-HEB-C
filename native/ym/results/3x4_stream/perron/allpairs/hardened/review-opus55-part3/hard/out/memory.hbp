@@ -1,0 +1,7 @@
+MEM_SHAPE|store=rooms_claim_2GiB_of_zeros|cap=default|exit=1|passes=-|peak_working_set_mib=0|peak_private_sampled_mib=0|header_formula_mib=256|ws_over_formula_x100=0|padding=-|padding_bytes=-|rows_read=-|json=0
+MEM_SHAPE|store=2p26_rows_no_entries|cap=default|exit=2|passes=1|peak_working_set_mib=838|peak_private_sampled_mib=1615|header_formula_mib=768|ws_over_formula_x100=109|padding=PASS|padding_bytes=1044480|rows_read=67108864|json=0
+MEM_SHAPE|store=2p26_rows_no_entries|cap=1000|exit=2|passes=64|peak_working_set_mib=198|peak_private_sampled_mib=207|header_formula_mib=264|ws_over_formula_x100=75|padding=PASS|padding_bytes=1044480|rows_read=67108864|json=0
+MEM_SHAPE|store=upper_entries_67M|cap=default|exit=2|passes=1|peak_working_set_mib=619|peak_private_sampled_mib=698|header_formula_mib=775|ws_over_formula_x100=79|padding=PASS|padding_bytes=520184|rows_read=1024|json=0
+MEM_SHAPE|store=upper_entries_67M|cap=16777216|exit=2|passes=4|peak_working_set_mib=312|peak_private_sampled_mib=323|header_formula_mib=386|ws_over_formula_x100=80|padding=PASS|padding_bytes=520184|rows_read=1024|json=0
+MEM_SHAPE|store=descending_columns_sorted|cap=default|exit=2|passes=1|peak_working_set_mib=229|peak_private_sampled_mib=292|header_formula_mib=385|ws_over_formula_x100=59|padding=PASS|padding_bytes=1044480|rows_read=65791|json=0
+MEM_SHAPES_DONE|buffers_counted_mib=256|json=0

@@ -1,0 +1,7 @@
+RACE_START|exe=8730018de9a42260|runs=2000|store=2x2_one_pair_changed_both_sides_row_sums_kept|payload_merkle_of_store=d7e7410a5e6980eccf9a625ddce3279b51c70150946aeff2b1fb649e6d94f439|payload_merkle_in_table=b7c5847b6cb3a92b41877d14164ec97ad5c67091d7a03492460632a4b416d883|trusted_block=00fcacf55296e9269fe413e8ad36a526b143981e239993c2baeb0ae43c78ab5a|json=0
+RACE|exit=1|store_identity=-|identity_differs=-|reason=the header changed bet|runs=1068|json=0
+RACE|exit=1|store_identity=-|identity_differs=-|reason=payload merkle mismatc|runs=487|json=0
+RACE|exit=2|store_identity=FAIL|identity_differs=payload_merkle|reason=-|runs=445|json=0
+RACE_CONTROL|writer=none|block=trusted|exit=1|json=0
+RACE_CONTROL|writer=none|block=with_changed_merkle|exit=2|json=0
+RACE_DONE|runs=2000|exit0=0|json=0

@@ -1,0 +1,15 @@
+MORE|case=many_empty_parts|exit=2|want_exit=2|store_identity=FAIL|identity_differs_len=0|identity_differs_head=|verdict=FAIL|row_bytes=874|met=1|json=0
+MORE|case=many_distinct_keys|exit=2|want_exit=2|store_identity=FAIL|identity_differs_len=1389|identity_differs_head=k0,k1,k10,k100,k101,k102,k103,k104,k105,|verdict=FAIL|row_bytes=2263|met=1|json=0
+MORE|case=bad_utf8_key|exit=2|want_exit=2|store_identity=FAIL|identity_differs_len=6|identity_differs_head=\xef\xbf\xbd\xef\xbf\xbd|verdict=FAIL|row_bytes=880|met=1|json=0
+MORE|case=control_bytes_in_a_key|exit=2|want_exit=2|store_identity=FAIL|identity_differs_len=3|identity_differs_head=\r\t\x07|verdict=FAIL|row_bytes=877|met=1|json=0
+MORE|case=all_of_the_block_is_the_line|exit=2|want_exit=2|store_identity=FAIL|identity_differs_len=3791|identity_differs_head=zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz|verdict=FAIL|row_bytes=4665|met=1|json=0
+MORE|case=no_newline_in_the_block|exit=1|want_exit=1|store_identity=-|identity_differs_len=0|identity_differs_head=-|verdict=FAIL|row_bytes=50|met=1|json=0
+MORE|case=line_is_not_utf8_at_the_start|exit=1|want_exit=1|store_identity=-|identity_differs_len=0|identity_differs_head=-|verdict=FAIL|row_bytes=83|met=1|json=0
+MORE|case=cap_not_a_number|exit=1|want_exit=1|store_identity=-|identity_differs_len=0|identity_differs_head=-|verdict=FAIL|row_bytes=51|met=1|json=0
+MORE|case=cap_negative|exit=1|want_exit=1|store_identity=-|identity_differs_len=0|identity_differs_head=-|verdict=FAIL|row_bytes=51|met=1|json=0
+MORE|case=cap_past_u64|exit=1|want_exit=1|store_identity=-|identity_differs_len=0|identity_differs_head=-|verdict=FAIL|row_bytes=51|met=1|json=0
+MORE|case=offset_not_a_number|exit=1|want_exit=1|store_identity=-|identity_differs_len=0|identity_differs_head=-|verdict=FAIL|row_bytes=46|met=1|json=0
+MORE|case=offset_inside_the_header|exit=1|want_exit=1|store_identity=-|identity_differs_len=0|identity_differs_head=-|verdict=FAIL|row_bytes=83|met=1|json=0
+MORE|case=no_arguments|exit=1|met=1|json=0
+MORE|case=no_such_store|exit=1|met=1|json=0
+MORE_DONE|not_met=0|json=0

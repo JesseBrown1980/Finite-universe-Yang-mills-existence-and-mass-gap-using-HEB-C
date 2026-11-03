@@ -1,0 +1,6 @@
+   Compiling autocfg v1.5.1
+   Compiling num-traits v0.2.19
+   Compiling num-integer v0.1.47
+   Compiling num-bigint v0.4.8
+   Compiling evolvers v0.1.0 (/mnt/c/tmp/opus55/allpairs-review-20261103/hard/clones/linux/native/ym/crates/evolvers)
+    Finished `release` profile [optimized] target(s) in 14.04s

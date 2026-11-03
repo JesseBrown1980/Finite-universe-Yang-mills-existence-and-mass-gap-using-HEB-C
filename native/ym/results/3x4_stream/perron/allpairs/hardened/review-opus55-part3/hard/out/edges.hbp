@@ -1,0 +1,15 @@
+EDGE|case=rows_end_on_the_64MiB_chunk|row_bytes=67108864|n=128|payload=68153344|exit=2|rows_read=128|padding_bytes=1044480|padding_nonzero=0|padding=PASS|header_rooms=PASS|bytes_after_stream=0|met=1|json=0
+EDGE|case=rows_end_one_room_before_the_chunk|row_bytes=67108856|n=128|payload=68153344|exit=2|rows_read=128|padding_bytes=1044488|padding_nonzero=0|padding=PASS|header_rooms=PASS|bytes_after_stream=0|met=1|json=0
+EDGE|case=rows_end_one_room_after_the_chunk|row_bytes=67108872|n=129|payload=68153344|exit=2|rows_read=129|padding_bytes=1044472|padding_nonzero=0|padding=PASS|header_rooms=PASS|bytes_after_stream=0|met=1|json=0
+EDGE|case=rows_end_on_a_16MiB_leaf|row_bytes=16777216|n=32|payload=17821696|exit=2|rows_read=32|padding_bytes=1044480|padding_nonzero=0|padding=PASS|header_rooms=PASS|bytes_after_stream=0|met=1|json=0
+EDGE|case=rows_end_where_the_stream_ends|row_bytes=2093056|n=4|payload=2093056|exit=2|rows_read=4|padding_bytes=0|padding_nonzero=0|padding=PASS|header_rooms=PASS|bytes_after_stream=0|met=1|json=0
+EDGE|case=rows_end_one_room_before_the_stream_ends|row_bytes=2093048|n=4|payload=2093056|exit=2|rows_read=4|padding_bytes=8|padding_nonzero=0|padding=PASS|header_rooms=PASS|bytes_after_stream=0|met=1|json=0
+EDGE|case=stray_byte_first_padding_byte_on_chunk_edge|row_bytes=67108864|n=128|payload=68153344|exit=2|rows_read=128|padding_bytes=1044480|padding_nonzero=1|padding=FAIL|header_rooms=PASS|bytes_after_stream=0|met=1|json=0
+EDGE|case=stray_byte_last_padding_byte_on_chunk_edge|row_bytes=67108864|n=128|payload=68153344|exit=2|rows_read=128|padding_bytes=1044480|padding_nonzero=1|padding=FAIL|header_rooms=PASS|bytes_after_stream=0|met=1|json=0
+EDGE|case=stray_byte_first_padding_byte_after_chunk|row_bytes=67108872|n=129|payload=68153344|exit=2|rows_read=129|padding_bytes=1044472|padding_nonzero=1|padding=FAIL|header_rooms=PASS|bytes_after_stream=0|met=1|json=0
+EDGE|case=stray_byte_last_padding_byte|row_bytes=2093048|n=4|payload=2093056|exit=2|rows_read=4|padding_bytes=8|padding_nonzero=1|padding=FAIL|header_rooms=PASS|bytes_after_stream=0|met=1|json=0
+EDGE|case=rows_past_two_chunks_with_a_tail|row_bytes=134217744|n=257|payload=135262208|exit=2|rows_read=257|padding_bytes=1044464|padding_nonzero=0|padding=PASS|header_rooms=PASS|bytes_after_stream=33|met=1|json=0
+EDGE|case=large_rows_straddle_the_chunk|row_bytes=67108880|n=129|payload=68153344|exit=2|rows_read=129|padding_bytes=1044464|padding_nonzero=0|padding=PASS|header_rooms=PASS|bytes_after_stream=0|met=1|json=0
+EDGE|case=large_row_straddles_and_rows_end_on_the_next_chunk|row_bytes=134217728|n=257|payload=135262208|exit=2|rows_read=257|padding_bytes=1044480|padding_nonzero=0|padding=PASS|header_rooms=PASS|bytes_after_stream=0|met=1|json=0
+EDGE|case=large_row_straddles_with_a_stray_last_padding_byte|row_bytes=67108880|n=129|payload=68153344|exit=2|rows_read=129|padding_bytes=1044464|padding_nonzero=1|padding=FAIL|header_rooms=PASS|bytes_after_stream=0|met=1|json=0
+EDGES_DONE|not_met=0|json=0
