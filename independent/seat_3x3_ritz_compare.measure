@@ -8,10 +8,11 @@ RITZ-COMPARE-MICRO|matrix=b33_k3.matrix|JE=1|JB=81|order=3|levels=8|low_end_equa
 RITZ-COMPARE-E12|matrix=b33_k3.matrix|JE=1|JB=9|order=3|levels=8|inside_micro=8|width_1=8|trial_gap=[19686369168,19686369170]|upper_trial_gap=[19000207142,19000207144]|symmetry_diff=[686162024,686162028]|result=PASS|json=0
 RITZ-COMPARE-E12|matrix=b33_k3.matrix|JE=1|JB=27|order=3|levels=8|inside_micro=8|width_1=8|trial_gap=[2012517234,2012517236]|upper_trial_gap=[2009636783,2009636785]|symmetry_diff=[2880449,2880453]|result=PASS|json=0
 RITZ-COMPARE-E12|matrix=b33_k3.matrix|JE=1|JB=81|order=3|levels=8|inside_micro=8|width_1=8|trial_gap=[221783077,221783079]|upper_trial_gap=[221768406,221768408]|symmetry_diff=[14669,14673]|result=PASS|json=0
+RITZ-COMPARE-HASH|file=seat_3x3_vacuum_block_ritz_outward_e12.measure|sha256=fdefb8967b57a6e9935311730d5d5a136364472555057c916618344fb052095c|pinned=1|json=0
 RITZ-LAW-COEFF|law=(9/8)(sqrt14-sqrt6)/r^2|coefficient_e12=[1453688599489,1453688599490]|guard_digits=40|json=0
-RITZ-LAW|matrix=b33_k3.matrix|JE=1|JB=9|order=3|scale=1000000000000|trial_gap=[19686369168,19686369170]|law_e12=[17946772833,17946772834]|law_ppm=[17946,17947]|ratio_ppm=[1096930,1096931]|kind=TRIAL_SPACE_COMPARISON|full_gap=NOT_CERTIFIED|json=0
-RITZ-LAW|matrix=b33_k3.matrix|JE=1|JB=27|order=3|scale=1000000000000|trial_gap=[2012517234,2012517236]|law_e12=[1994085870,1994085871]|law_ppm=[1994,1995]|ratio_ppm=[1009243,1009244]|kind=TRIAL_SPACE_COMPARISON|full_gap=NOT_CERTIFIED|json=0
-RITZ-LAW|matrix=b33_k3.matrix|JE=1|JB=81|order=3|scale=1000000000000|trial_gap=[221783077,221783079]|law_e12=[221565096,221565097]|law_ppm=[221,222]|ratio_ppm=[1000983,1000984]|kind=TRIAL_SPACE_COMPARISON|full_gap=NOT_CERTIFIED|json=0
+RITZ-LAW|matrix=b33_k3.matrix|JE=1|JB=9|order=3|scale=1000000000000|trial_gap=[19686369168,19686369170]|law_e12=[17946772833,17946772834]|law_micro=[17946,17947]|ratio_ppm=[1096930,1096931]|kind=TRIAL_SPACE_COMPARISON|full_gap=NOT_CERTIFIED|json=0
+RITZ-LAW|matrix=b33_k3.matrix|JE=1|JB=27|order=3|scale=1000000000000|trial_gap=[2012517234,2012517236]|law_e12=[1994085870,1994085871]|law_micro=[1994,1995]|ratio_ppm=[1009243,1009244]|kind=TRIAL_SPACE_COMPARISON|full_gap=NOT_CERTIFIED|json=0
+RITZ-LAW|matrix=b33_k3.matrix|JE=1|JB=81|order=3|scale=1000000000000|trial_gap=[221783077,221783079]|law_e12=[221565096,221565097]|law_micro=[221,222]|ratio_ppm=[1000983,1000984]|kind=TRIAL_SPACE_COMPARISON|full_gap=NOT_CERTIFIED|json=0
 RITZ-LAW-REPORT|matrix=b33_k3.matrix|JE=1|JB=9|order=3|report_ratio_ppm=1096900|report_rounding_ppm=[1096850,1096950]|historical_gap=19687|historical_gap_ratio_ppm=[1096966,1096967]|e12_ratio_ppm=[1096930,1096931]|report_agrees_with_e12=1|json=0
 RITZ-LAW-REPORT|matrix=b33_k3.matrix|JE=1|JB=27|order=3|report_ratio_ppm=1009200|report_rounding_ppm=[1009150,1009250]|historical_gap=2012|historical_gap_ratio_ppm=[1008983,1008984]|e12_ratio_ppm=[1009243,1009244]|report_agrees_with_e12=1|json=0
 RITZ-LAW-REPORT|matrix=b33_k3.matrix|JE=1|JB=81|order=3|report_ratio_ppm=1000600|report_rounding_ppm=[1000550,1000650]|historical_gap=222|historical_gap_ratio_ppm=[1001962,1001963]|e12_ratio_ppm=[1000983,1000984]|report_agrees_with_e12=0|json=0
@@ -38,6 +39,14 @@ RITZ-COMPARE-CONTROL|case=e12_trial_gap_narrowed|file=e12|expected=TRIAL_GAP|got
 RITZ-COMPARE-CONTROL|case=e12_row_dropped|file=e12|expected=ROW_COUNT|got=ROW_COUNT|result=PASS|json=0
 RITZ-COMPARE-CONTROL|case=gpt6_interval_moved|file=gpt6|expected=GPT6_DISAGREE|got=GPT6_DISAGREE|result=PASS|json=0
 RITZ-COMPARE-CONTROL|case=gpt6_full_gap_relabelled|file=gpt6|expected=GPT6_DISAGREE|got=GPT6_DISAGREE|result=PASS|json=0
+RITZ-COMPARE-CONTROL|case=outward_unknown_field|file=new|expected=UNKNOWN_FIELD|got=UNKNOWN_FIELD|result=PASS|json=0
+RITZ-COMPARE-CONTROL|case=outward_levels_out_of_order|file=new|expected=LEVEL_ORDER|got=LEVEL_ORDER|result=PASS|json=0
+RITZ-COMPARE-CONTROL|case=e12_unknown_field|file=e12|expected=UNKNOWN_FIELD|got=UNKNOWN_FIELD|result=PASS|json=0
+RITZ-COMPARE-CONTROL|case=e12_levels_out_of_order|file=e12|expected=LEVEL_ORDER|got=LEVEL_ORDER|result=PASS|json=0
+RITZ-COMPARE-CONTROL|case=e12_level_moved_inside_its_cell|file=e12|expected=E12_SHA|got=E12_SHA|result=PASS|json=0
+RITZ-COMPARE-CONTROL|case=gpt6_unknown_field|file=gpt6|expected=UNKNOWN_FIELD|got=UNKNOWN_FIELD|result=PASS|json=0
+RITZ-COMPARE-CONTROL|case=gpt6_method_relabelled|file=gpt6|expected=GPT6_DISAGREE|got=GPT6_DISAGREE|result=PASS|json=0
+RITZ-COMPARE-CONTROL|case=gpt6_json_relabelled|file=gpt6|expected=GPT6_DISAGREE|got=GPT6_DISAGREE|result=PASS|json=0
 PRED-OUTCOME|row=PRED-LEVELS|matrix=b33_k1.matrix|JE=1|JB=27|order=1|met=1|json=0
 PRED-OUTCOME|row=PRED-LEVELS|matrix=b33_k2.matrix|JE=1|JB=27|order=2|met=1|json=0
 PRED-OUTCOME|row=PRED-LEVELS|matrix=b33_k3.matrix|JE=1|JB=9|order=3|met=1|json=0
@@ -58,4 +67,4 @@ PRED-OUTCOME|row=PRED-RATIO|tag=DERIVED|matrix=b33_k3.matrix|JE=1|JB=81|order=3|
 PRED-OUTCOME|row=PRED-CONTROL|control=doctored_outward_row|compare_exit=1|met=1|json=0
 PRED-OUTCOME|row=PRED-CONTROL|control=doctored_e12_row|compare_exit=1|met=1|json=0
 PRED-OUTCOME|row=PRED-CONTROL|control=doctored_historical_file|compare_exit=1|met=1|json=0
-RITZ-COMPARE|result=PASS|micro_rows=5|e12_rows=3|replay_rows=5|law_rows=3|controls=18|predictions_met=20|predictions_missed=0|kind=TRIAL_SPACE_COMPARISON|full_gap=NOT_CERTIFIED|json=0
+RITZ-COMPARE|result=PASS|micro_rows=5|e12_rows=3|replay_rows=5|law_rows=3|controls=26|predictions_met=20|predictions_missed=0|kind=TRIAL_SPACE_COMPARISON|full_gap=NOT_CERTIFIED|json=0

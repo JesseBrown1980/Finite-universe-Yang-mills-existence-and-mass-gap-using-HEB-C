@@ -14,6 +14,8 @@ of 1/scale. Each Ritz value bounds the matching ordered eigenvalue of the full
 Hamiltonian from above. The trial_gap fields are differences of two Ritz values,
 so every row ends kind=RITZ_TRIAL_GAP_ONLY and full_gap=NOT_CERTIFIED. A full-gap
 statement needs a separate full-space lower bound.
+A matrix hash mismatch under a pinned file name, and a level outside the raw
+bisection range, stop the solver with ValueError, under python -O as well.
 Zero floats, Decimal, Fraction, true division, or JSON.
 """
 import argparse
@@ -35,8 +37,8 @@ def load_matrix(path):
     raw = path_obj.read_bytes()
     digest = sha256(raw).hexdigest()
     expected = EXPECTED_MATRIX_SHA.get(path_obj.name)
-    if expected is not None:
-        assert digest == expected, f"matrix sha mismatch for {path_obj.name}"
+    if expected is not None and digest != expected:
+        raise ValueError(f"matrix sha mismatch for {path_obj.name}")
 
     toks = raw.split()
     n = int(toks[0])
@@ -111,7 +113,8 @@ def bracket(a, b, k, scale=1000000, upper=4800):
         return inertia(c)
 
     lo, hi = 0, upper * scale
-    assert count(lo) <= k and count(hi) > k
+    if count(lo) > k or count(hi) <= k:
+        raise ValueError(f"range guard failed: level {k} lies outside the raw range 0..{upper}*{scale}")
     while hi - lo > 1:
         mid = (lo + hi) // 2
         if count(mid) <= k:

@@ -23,7 +23,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 independent/seat_integer_only_gate.py
-          python3 native/scripts/integer_only_audit.py independent/seat_3x3_vacuum_block_ritz.py independent/seat_3x3_ritz_compare.py
+          python3 native/scripts/integer_only_audit.py independent/seat_3x3_vacuum_block_ritz.py independent/seat_3x3_ritz_compare.py independent/seat_3x3_ritz_count_steps.py
       - name: Outward-rounding selftest, with GPT-6's counterexample
         run: |
           set -euo pipefail
@@ -117,16 +117,23 @@ jobs:
           red --old /tmp/d6.measure HISTORICAL_SHA
           sed 's/ritz_e0_micro=53493385\.\.53493386/ritz_e0_micro=53493385..53493387/' "$G" > /tmp/d7.measure
           red --gpt6 /tmp/d7.measure GPT6_DISAGREE
+          sed 's/|kind=/|certified_full_gap=[2011,2013]|kind=/' "$O" > /tmp/d8.measure
+          red --new /tmp/d8.measure UNKNOWN_FIELD
+          sed 's/E3=\[53499210071367,53499210071368\]/E3=[53499211071367,53499211071368]/' "$E" > /tmp/d9.measure
+          red --e12 /tmp/d9.measure LEVEL_ORDER
+          sed 's/E2=\[53499208987244,53499208987245\]/E2=[53499208987245,53499208987246]/' "$E" > /tmp/d10.measure
+          red --e12 /tmp/d10.measure E12_SHA
           red --new /tmp/no-such-receipt.measure UNREADABLE
-          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|doctored_rows_rejected=8|json=0'
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|doctored_files_rejected=10|absent_file_rejected=1|json=0'
       - name: Fail closed on tampered vacuum-ball matrix
         run: |
           set -euo pipefail
           cp -a independent/matrices/b33_k1.matrix /tmp/b33_k1_bad.matrix
           printf 0 | dd of=/tmp/b33_k1_bad.matrix bs=1 seek=16 conv=notrunc status=none
-          if python3 independent/seat_3x3_vacuum_block_ritz.py /tmp/b33_k1_bad.matrix 1 27 --order 1; then
-            echo 'FAIL tampered matrix accepted'; exit 1
-          fi
+          rc=0
+          python3 independent/seat_3x3_vacuum_block_ritz.py /tmp/b33_k1_bad.matrix 1 27 --order 1 2> /tmp/b33_k1_bad.err || rc=$?
+          test "$rc" = 1
+          grep -F 'ZeroDivisionError' /tmp/b33_k1_bad.err
           echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|tamper_rejected=1|json=0'
       - name: The sha256 pin rejects a tampered matrix that keeps its file name
         run: |
@@ -139,3 +146,19 @@ jobs:
           test "$rc" = 1
           grep -F 'matrix sha mismatch for b33_k1.matrix' /tmp/ritz-bad/err.txt
           echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|pinned_name_tamper_rejected=1|json=0'
+      - name: The range guard and the sha256 pin stop the solver under python3 -O
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ritz-opt
+          rc=0
+          python3 -O independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k1.matrix 4 27 --order 1 > /tmp/ritz-opt/range.out 2> /tmp/ritz-opt/range.err || rc=$?
+          test "$rc" = 1
+          grep -F 'range guard failed: level 0' /tmp/ritz-opt/range.err
+          test ! -s /tmp/ritz-opt/range.out
+          sed 's/^0 1 -3$/0 1 -2/' independent/matrices/b33_k1.matrix > /tmp/ritz-opt/b33_k1.matrix
+          rc=0
+          python3 -O independent/seat_3x3_vacuum_block_ritz.py /tmp/ritz-opt/b33_k1.matrix 1 27 --order 1 > /tmp/ritz-opt/sha.out 2> /tmp/ritz-opt/sha.err || rc=$?
+          test "$rc" = 1
+          grep -F 'matrix sha mismatch for b33_k1.matrix' /tmp/ritz-opt/sha.err
+          test ! -s /tmp/ritz-opt/sha.out
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|range_guard_under_O=1|sha_pin_under_O=1|json=0'

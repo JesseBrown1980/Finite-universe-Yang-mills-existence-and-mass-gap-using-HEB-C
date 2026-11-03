@@ -2,18 +2,22 @@
 """Compare the outward 3x3 Ritz receipts with the historical receipt, integer only.
 
 Each check below exits 1 with one RITZ-COMPARE|result=FAIL row when it fails.
-- The historical receipt and the prediction file match their pinned sha256.
+- The historical receipt, the prediction file and the 10^12 receipt match their pinned
+  sha256. The 10^12 pin runs after that receipt's row checks, so a doctored row fails
+  first for its own reason.
+- Every outward and GPT-6 row carries only the fields its format names.
 - Every historical level is the low end of its outward interval at scale 10^6.
-- Every level interval has width 1, at scale 10^6 and at scale 10^12.
+- Every level interval has width 1 and the levels ascend, at scale 10^6 and at scale 10^12.
 - Every difference field equals the interval difference of its levels.
 - Every 10^12 interval lies inside its 10^6 interval.
-- GPT-6's independently printed intervals equal the seat's, row by row.
+- GPT-6's rows carry its method label and json=0, and its printed intervals equal the
+  seat's, row by row.
 - Every doctored copy in the CONTROLS table is rejected for its expected reason.
 
 Also compares the 10^12 trial differences with the third-order law
 (9/8)(sqrt14-sqrt6)/r^2, by math.isqrt with outward rounding, and reports each
 prediction row as met=1 or met=0. A prediction miss is reported and leaves the exit
-code alone. All of these are trial-space numbers, full_gap=NOT_CERTIFIED.
+code alone. The trial differences are trial-space numbers, full_gap=NOT_CERTIFIED.
 
 usage seat_3x3_ritz_compare.py [--old F] [--new F] [--e12 F] [--gpt6 F] [--prediction F]
 """
@@ -32,6 +36,7 @@ REPLAY_NAME = "seat_3x3_ritz_gpt6_replay.measure"
 PREDICTION_NAME = "seat_3x3_ritz_outward_PREDICTION.hbp"
 HISTORICAL_SHA256 = "8500ef4b3b2f1c67ae410155aca06c9932699509efbfe5307c9521d37ae6708c"
 PREDICTION_SHA256 = "a5bb4eab8468c0a5032b1c6f9944ff22b829eb305e5904d96de787f0e59e5ccc"
+E12_SHA256 = "fdefb8967b57a6e9935311730d5d5a136364472555057c916618344fb052095c"
 MICRO = 1000000
 E12 = 1000000000000
 GUARD = 10 ** 40
@@ -40,6 +45,11 @@ REPORT_RATIO_PPM = {"9": 1096900, "27": 1009200, "81": 1000600}
 REPORT_ROUNDING_PPM = 50
 ROW_TAG = "HEBC-3X3-BLOCK-RITZ"
 REPLAY_TAG = "GPT6_3X3_RITZ"
+REPLAY_METHOD = "INTEGER_INTERVAL_LDL"
+OUTWARD_KEYS = frozenset(["matrix", "matrix_sha", "states", "JE", "JB", "order", "subspace_dim", "scale", "trial_gap",
+                          "upper_trial_gap", "symmetry_diff", "kind", "full_gap", "json"] + ["E%d" % k for k in range(8)])
+REPLAY_KEYS = frozenset(["matrix", "states", "JE", "JB", "order", "dim", "ritz_e0_micro", "ritz_e1_micro", "ritz_gap_micro",
+                         "full_gap", "method", "json"])
 BRACKET = re.compile(r"\[(-?[0-9]+),(-?[0-9]+)\]")
 DOTTED = re.compile(r"(-?[0-9]+)\.\.(-?[0-9]+)")
 
@@ -53,7 +63,7 @@ class Fail(Exception):
         self.detail = detail
 
 
-def fields_of(line, tag):
+def fields_of(line, tag, known=None):
     parts = line.split("|")
     if parts[0] != tag:
         raise Fail("MALFORMED", tag + "_row_tag")
@@ -62,14 +72,16 @@ def fields_of(line, tag):
         key, sep, value = part.partition("=")
         if not sep or key in fields:
             raise Fail("MALFORMED", tag + "_field")
+        if known is not None and key not in known:
+            raise Fail("UNKNOWN_FIELD", key)
         fields[key] = value
     return fields
 
 
-def rows_of(text, tag):
+def rows_of(text, tag, known=None):
     if not text.endswith("\n"):
         raise Fail("MALFORMED", tag + "_no_final_newline")
-    return [fields_of(line, tag) for line in text[:-1].split("\n")]
+    return [fields_of(line, tag, known) for line in text[:-1].split("\n")]
 
 
 def need(row, key):
@@ -108,6 +120,9 @@ def levels_of(row, scale):
     for k, (low, high) in enumerate(levels):
         if high - low != 1:
             raise Fail("WIDTH", "E%d_%s" % (k, row_key(row)))
+    for k in range(7):
+        if levels[k][0] > levels[k + 1][0]:
+            raise Fail("LEVEL_ORDER", "E%d_%s" % (k, row_key(row)))
     return levels
 
 
@@ -214,7 +229,7 @@ def law_row(row):
     r = int(need(row, "JB"))
     gap = interval(need(row, "trial_gap"))
     ratio = ratio_ppm(gap, r, E12)
-    text = "RITZ-LAW|%s|scale=%d|trial_gap=%s|law_e12=%s|law_ppm=%s|ratio_ppm=%s|kind=TRIAL_SPACE_COMPARISON|" \
+    text = "RITZ-LAW|%s|scale=%d|trial_gap=%s|law_e12=%s|law_micro=%s|ratio_ppm=%s|kind=TRIAL_SPACE_COMPARISON|" \
            "full_gap=NOT_CERTIFIED|json=0" % (
                row_key(row), E12, show(gap), show(law_interval(r, E12)), show(law_interval(r, MICRO)), show(ratio))
     return text, ratio
@@ -238,7 +253,9 @@ def check_replay_row(seat, replay):
         raise Fail("GPT6_DISAGREE", "size_" + row_key(replay))
     if need(replay, "full_gap") != "NOT_CERTIFIED":
         raise Fail("GPT6_DISAGREE", "full_gap_" + row_key(replay))
-    pairs = (("ritz_e0_micro", "E0"), ("ritz_e1_micro", "E1"), ("ritz_gap_micro", "trial_gap"))
+    if (need(replay, "method"), need(replay, "json")) != (REPLAY_METHOD, "0"):
+        raise Fail("GPT6_DISAGREE", "label_" + row_key(replay))
+    pairs =(("ritz_e0_micro", "E0"), ("ritz_e1_micro", "E1"), ("ritz_gap_micro", "trial_gap"))
     for theirs, ours in pairs:
         if interval(need(replay, theirs), DOTTED) != interval(need(seat, ours)):
             raise Fail("GPT6_DISAGREE", "%s_%s" % (theirs, row_key(replay)))
@@ -248,19 +265,21 @@ def check_replay_row(seat, replay):
                need(replay, "ritz_e1_micro"), need(seat, "E1"), need(replay, "ritz_gap_micro"), need(seat, "trial_gap"))
 
 
+def pinned_row(text, pin, name, reason):
+    digest = sha256(text.encode("ascii")).hexdigest()
+    if digest != pin:
+        raise Fail(reason, digest)
+    return "RITZ-COMPARE-HASH|file=%s|sha256=%s|pinned=1|json=0" % (name, digest)
+
+
 def run_checks(bundle):
     """Every fail-closed check. Returns the receipt rows and the parsed tables."""
-    rows = []
-    pins = (("old", HISTORICAL_SHA256, HISTORICAL_NAME, "HISTORICAL_SHA"), ("pred", PREDICTION_SHA256, PREDICTION_NAME, "PREDICTION_SHA"))
-    for key, pin, name, reason in pins:
-        digest = sha256(bundle[key].encode("ascii")).hexdigest()
-        if digest != pin:
-            raise Fail(reason, digest)
-        rows.append("RITZ-COMPARE-HASH|file=%s|sha256=%s|pinned=1|json=0" % (name, digest))
+    rows = [pinned_row(bundle["old"], HISTORICAL_SHA256, HISTORICAL_NAME, "HISTORICAL_SHA"),
+            pinned_row(bundle["pred"], PREDICTION_SHA256, PREDICTION_NAME, "PREDICTION_SHA")]
     old_rows = rows_of(bundle["old"], ROW_TAG)
-    micro_rows = rows_of(bundle["new"], ROW_TAG)
-    e12_rows = rows_of(bundle["e12"], ROW_TAG)
-    replay_rows = rows_of(bundle["gpt6"], REPLAY_TAG)
+    micro_rows = rows_of(bundle["new"], ROW_TAG, OUTWARD_KEYS)
+    e12_rows = rows_of(bundle["e12"], ROW_TAG, OUTWARD_KEYS)
+    replay_rows = rows_of(bundle["gpt6"], REPLAY_TAG, REPLAY_KEYS)
     if len(old_rows) != 5 or len(micro_rows) != 5 or len(e12_rows) != 3 or len(replay_rows) != 5:
         raise Fail("ROW_COUNT", "%d,%d,%d,%d" % (len(old_rows), len(micro_rows), len(e12_rows), len(replay_rows)))
     for old, new in zip(old_rows, micro_rows):
@@ -273,6 +292,7 @@ def run_checks(bundle):
         if row_key(row) not in micro_by_key:
             raise Fail("ROW_KEY", row_key(row))
         rows.append(check_e12_row(micro_by_key[row_key(row)], row))
+    rows.append(pinned_row(bundle["e12"], E12_SHA256, E12_NAME, "E12_SHA"))
     rows.append("RITZ-LAW-COEFF|law=(9/8)(sqrt14-sqrt6)/r^2|coefficient_e12=%s|guard_digits=40|json=0" % show(law_interval(1, E12)))
     for row in e12_rows:
         text, ratio = law_row(row)
@@ -316,6 +336,11 @@ def drop_last_row(text):
     return text[:text.rstrip("\n").rfind("\n") + 1]
 
 
+def extra_field(field):
+    """A control that adds one field to the first row of a receipt, before its json field."""
+    return lambda text: text.replace("|json=", "|%s|json=" % field, 1)
+
+
 CONTROLS = (
     ("historical_byte_changed", "old", lambda text: text.replace("53493385", "53493384", 1), "HISTORICAL_SHA"),
     ("prediction_byte_changed", "pred", lambda text: text.replace("issue=99", "issue=98", 1), "PREDICTION_SHA"),
@@ -335,6 +360,14 @@ CONTROLS = (
     ("e12_row_dropped", "e12", drop_last_row, "ROW_COUNT"),
     ("gpt6_interval_moved", "gpt6", doctor(3, "ritz_e0_micro", moved(0, 1)), "GPT6_DISAGREE"),
     ("gpt6_full_gap_relabelled", "gpt6", doctor(3, "full_gap", lambda value: "CERTIFIED"), "GPT6_DISAGREE"),
+    ("outward_unknown_field", "new", extra_field("certified_full_gap=[2004,2006]"), "UNKNOWN_FIELD"),
+    ("outward_levels_out_of_order", "new", doctor(3, "E2", moved(3, 3)), "LEVEL_ORDER"),
+    ("e12_unknown_field", "e12", extra_field("note=full_gap_proved"), "UNKNOWN_FIELD"),
+    ("e12_levels_out_of_order", "e12", doctor(1, "E3", moved(MICRO, MICRO)), "LEVEL_ORDER"),
+    ("e12_level_moved_inside_its_cell", "e12", doctor(1, "E2", moved(1, 1)), "E12_SHA"),
+    ("gpt6_unknown_field", "gpt6", extra_field("note=full_gap_proved"), "UNKNOWN_FIELD"),
+    ("gpt6_method_relabelled", "gpt6", doctor(3, "method", lambda value: "FLOATING_POINT"), "GPT6_DISAGREE"),
+    ("gpt6_json_relabelled", "gpt6", doctor(3, "json", lambda value: "1"), "GPT6_DISAGREE"),
 )
 
 
