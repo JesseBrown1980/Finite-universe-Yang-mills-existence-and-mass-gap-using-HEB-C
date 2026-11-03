@@ -1,6 +1,6 @@
 # Finite-universe Yang–Mills with HEB-C
 
-**Current research status — November 3, 2026.** This repository implements exact finite-lattice S₃ gauge Hamiltonians and certified spectral bounds, with the 3×4 Perron certificate at **94.070673 J_E**, a documented full-row reconstruction and **1,632,625,631** exact pair comparisons. [Read the current results and verification register](docs/RESEARCH-STATUS-2026-11-03.md) for the active D3–D8 hardening review, replay milestones, and continuum research track. Earlier run logs retain their dated scope and verdicts.
+**Current research status — November 3, 2026.** This repository implements exact finite-lattice S₃ gauge Hamiltonians and certified spectral bounds, with the 3×4 Perron certificate at **94.070673 J_E**, a documented full-row reconstruction and **1,632,625,631** exact pair comparisons. [Read the current results and verification register](docs/RESEARCH-STATUS-2026-11-03.md) for the active D3–D8 hardening review, replay milestones, and continuum research track. PR #84's count-gate correction is now merged on `main` at `ad0b560`; [PR #85](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/85) contains the D3–D8 hardening source at `9c2c7e6` under review. Earlier run logs retain their dated scope and verdicts.
 
 Exact spectral certificates for S₃ lattice gauge theory on periodic finite
 lattices, run headless through the HEB-C HTTP-0 backend. GitRAM distributes the
