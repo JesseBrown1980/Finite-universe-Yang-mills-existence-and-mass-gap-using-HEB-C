@@ -2,7 +2,65 @@
 
 This register is the current entry point for the finite-universe Yang–Mills / HEB-C project. It puts established results first, names their evidence, and separates current work from preserved historical plans.
 
-**Current main:** `ad0b56075004021914cc32cefa28185bd2daa178` (PR #84 merged). **Repository inventory baseline:** `8057ce7a2fcb4eea4244bb1245700ef00a5286d2` (PR #83 merged). **Hardening review:** source inspection pinned at `9c2c7e67e29e0b2450010bd43c3391638e6670eb`; [PR #85](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/85) is an evolving hardening branch. Its GitHub PR shows the current head; each substantive source revision has its own review and CI evidence. The repository tree contains 2,352 tracked files, including 85 project Markdown documents and two plan-check HBP receipts. All 85 Markdown documents were screened for research status, dated planning statements and editorial framing; primary proof, code and verification documents received focused review. The broader codebase and sealed binary data have distinct execution and audit requirements.
+**Last updated:** November 3, 2026, after [#89](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/89) merged. **Repository inventory baseline:** `8057ce7a2fcb4eea4244bb1245700ef00a5286d2`: 2,352 tracked files, including 85 project Markdown documents and two plan-check HBP receipts, all 85 screened for research status, dated planning statements and editorial framing, with primary proof, code and verification documents read closely. The broader codebase and sealed binary data have distinct execution and audit requirements.
+
+## Today, on one page
+
+**Merged on November 3:**
+
+| PR | What it holds |
+|---|---|
+| [#84](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/84) | `allpairs`: both count gates must read PASS, with a full 3×4 rerun and the second seat's FAIL on record |
+| [#85](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/85) | `allpairs`: D3 to D8 and H1 to H4 fixed, with controls on the old executables, hosted Linux, and full 3×4 runs. The final tool exits 0 in 2,880 s with every predicted field met |
+| [#86](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/86) | This register, and GPT-6's metadata checker |
+| [#87](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/87) | README links between this repository and the companion, the proof plan and the continuum track |
+| [#88](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/88) | The stability plan: the region dictionary and the theorem matching for even square tori, with its correction on δ |
+| [#89](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/89) | The bound with no store on 4×4, 4×5 and 5×5, the second seat's and GPT-6's reviews, and `hybridcheck`, the attack on the hybrid certificate |
+
+**The numbers to remember, at r = 9:**
+
+| Lattice | E₉ − E₈ ≥ | How | Status |
+|---|---:|---|---|
+| 3×3 | 23.914694 | The store, every row, pinned `perroncert` and `check_d_strict.py` | Merged earlier |
+| 3×4 | 24.039673 | The store, every row, pinned `perroncert`, and a Go checker written by an outside seat | Verdict and rule on HOLD |
+| 4×4 | 23.947629 | No store: the hybrid vector with the tighter E₈. E₉ lies between 117.453728 and 117.580284 | Attacked by a separate program on the same model. Another model's attack is open |
+| 4×5 | 23.618291 | The same | The same |
+| 5×5 | 21.792208 | The same | The same |
+
+The simpler no-store bound under those three reads 16.252744, 14.017195 and 4.016734, and it passed the second seat and GPT-6 at its four points.
+
+**Open, in the order I would take them:**
+
+1. GPT-6's attack on the hybrid certificate: all 825,865 low-M states on 4×4, the count of each lump, the Ritz upper values, the 16-dimensional E₈ space. The vectors are on [the release](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/releases/tag/vectors-20261103).
+2. The hybrid form at lower r and on 6×6 and larger, to see how far it carries.
+3. The finite-size constant r₀ of the stability plan as a number, then odd and rectangular tori.
+4. The 2I package in the [companion repository](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved/pull/9): the exact count at 3 J_E is still running, then the addendum, the driver and the official run.
+5. A replay of `fullrebuild` and `allpairs` on another machine, with [`reproduce_oneread_run.sh`](../native/ym/results/3x4_stream/perron/allpairs/oneread/reproduce_oneread_run.sh).
+6. A reading of the one-read change to `allpairs` by another seat, and the other tools that still read through `roomio.rs`.
+7. A Lean proof of the pattern table and the chain.
+
+**Waiting on the operator:**
+
+| Decision | State |
+|---|---|
+| The formal 3×4 gap verdict and the gap rule | HOLD, his word. The draft rule is [#68](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/68) |
+| The continuum claim | NOT CERTIFIED, his word |
+| The 23 older open PRs below | His word on what to do with them |
+
+**Where the data lives.** Code, receipts, reviews and predictions are in this repository. Files too large for git are on the release [`vectors-20261103`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/releases/tag/vectors-20261103): `review-opus55-big-files.tar.gz`, sha256 `014344c914a18fa490c66c13b8b6fd84d3a1517d2091f1e2d3fb4570335cf1fc`, the second seat's 34 vectors, and `attack-big-files.tar.gz`, sha256 `10e218cbf81a4f3a2e534e2c7f552b9d35c7fa2a750abcf69f7aee90ebe727c9`, the attack's 9 vectors. Each file inside is hashed in [`review-opus55/BIG-FILES.hbp`](../native/ym/results/3x4_stream/perron/vector/review-opus55/BIG-FILES.hbp) and [`attack/BIG-FILES.hbp`](../native/ym/results/3x4_stream/perron/vector/attack/BIG-FILES.hbp). The 3×4 store is on [Hugging Face](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store).
+
+**Older open PRs, from October 25 to November 1.** These came before this stretch of work, and each still needs a look before it merges:
+
+| PRs | What they are | Note |
+|---|---|---|
+| [#5](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/5) to [#9](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/9) | Stage 2I and 2J audits and early Sturm inertia seats | #5 has conflicts |
+| [#10](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/10), [#16](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/16), [#17](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/17) | HTTP-0 and SG-RAM test grounds and the integer wave observatory | |
+| [#11](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/11) to [#15](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/15) | Finite S₃ coupling charts, adaptive cells, translation sectors and the SHA experiment | |
+| [#18](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/18) | 3×3 vacuum-ball block-Krylov | 401,759 added lines |
+| [#31](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/31), [#39](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/39), [#42](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/42), [#43](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/43), [#44](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/44), [#47](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/47) | Cloud-seat tests from October 29 and 30, and CHSH controls | |
+| [#52](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/52) | An earlier README status | Superseded by this page |
+| [#61](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/61) | Cantor-27 numerical drive, experimental | |
+| [#68](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/68) | The draft gap-verdict rule | On HOLD by the operator's word |
 
 ## What the system establishes
 
@@ -40,7 +98,7 @@ The finite-lattice Perron certificate gives the reported bound
 
 **Overall FAIL** on the original `allpairs` implementation at `8faadb0`, reported by Claude Opus 5.5 in [ALLPAIRS-REVIEW.md](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/ad0b56075004021914cc32cefa28185bd2daa178/native/ym/results/3x4_stream/perron/allpairs/failclosed/review-opus55/ALLPAIRS-REVIEW.md). The review awarded PASS to window coverage, pair/mismatch checks and an independently written pair-count reader; it awarded FAIL to **item 2 (malformed input and fail-closed behavior)** and **item 5 (claims exceeding their recorded evidence)**. Its own reader reproduced the 3×4 pair count. The machine, public store copy and model lineage are specified in that report.
 
-**Correction record:** [PR #84](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/84) merged the D1/D2 count-gate fixes and recorded an equal-output full 3×4 rerun. [PR #85](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/85) contains D3–D8 hardening and its adversarial controls. The first hosted D3–D8 run retained a FAIL in its D4 peak-memory measurement, while all 279 predicted program outcomes matched. A small-launcher measurement correction was subsequently committed. The historical FAIL and its exact reproduction stay visible alongside the corrected source and later test outcomes.
+**Correction record:** [PR #84](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/84) merged the D1/D2 count-gate fixes and recorded an equal-output full 3×4 rerun. [PR #85](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/85) contains D3–D8 hardening and its adversarial controls. The first hosted D3–D8 run retained a FAIL in its D4 peak-memory measurement, while all 279 predicted program outcomes matched. A small-launcher measurement correction was subsequently committed. The historical FAIL and its exact reproduction stay visible alongside the corrected source and later test outcomes. **Update:** [#85](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/85) merged at `56e0b82`. The controls ran on the old executables and the final one, on this machine and on hosted Linux, and a full 3×4 run on the final tool met every predicted field. Part three of the second seat's review read FAIL on one race and one recipe path, both now fixed, and each finding has a row in [`PERRON-TWO-SIDED.md`](../native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md), section 5.
 
 **Verdict categories:** independently observed on hosted tests; separately source-reviewed by GPT-6; metadata-consistency-checked; full-store independently replayed when a separate run supplies that evidence. Each category has its own provenance.
 
@@ -57,6 +115,8 @@ The finite-lattice Perron certificate gives the reported bound
 | D7 — paired-entry accounting | Entry-specific answered bits plus `lower_repeated` and `upper_without_lower` counters enforce one-to-one matching | Source path inspected; duplicate controls to confirm |
 | D8 — header authentication | A trusted SHA-256 binds the exact header block, whose payload-merkle field is separately verified during streaming | Source path inspected; external pin and tamper controls to confirm |
 
+**Since that review:** the hostile-store controls, the external pin, the duplicate controls and a full 3×4 rerun all ran, in [`PERRON-TWO-SIDED.md`](../native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md), section 5.
+
 The source uses five mandatory `PASS` gates: `header_entries`, `whole_space_count`, `header_rooms`, `padding` and `store_identity`. The replay script uses `set -euo pipefail` and the judge checks original-output hash, output fields, process exit, standard error and executable SHA-256.
 
 **Independent arithmetic and hash checks on the public source values:**
@@ -72,7 +132,7 @@ These checks establish internal consistency and one trusted header commitment. T
 
 ## Current research milestones
 
-1. **Hardening:** complete the corrected D4 memory measurement and independent review of the evolving D3–D8 branch, preserving every FAIL receipt. [PR #85](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/85) retains its own head-specific CI, adversarial controls and merge gate. The GPT-6 source inspection remains pinned to `9c2c7e6`.
+1. **Hardening:** done in [#85](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/85), with every FAIL receipt kept. Next here: a reading of the one-read change by another seat, and the other tools that still read through `roomio.rs`.
 2. **3×4 reproducibility:** replay `allpairs` and `fullrebuild` on a separate machine with pinned source and independently fetched sectors. Retain the outside Go checker's own pair test as a separate verification track.
 3. **Formal 3×4 gap rule:** complete independent review of the whole-space lift, register the revised rule after operator approval, then issue a specifically scoped finite-lattice verdict.
 4. **Volume-uniform finite-group theorem:** instantiate quantum-double stability for the periodic `S₃` model, then test the appropriate theorem hypotheses and constants for Q8, 2T, 2O and 2I.

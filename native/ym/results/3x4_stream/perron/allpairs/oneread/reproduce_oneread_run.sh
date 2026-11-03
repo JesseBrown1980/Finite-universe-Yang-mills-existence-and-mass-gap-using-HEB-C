@@ -9,6 +9,7 @@
 #
 # It reads the store and writes nothing to it. It needs Rust 1.81.0, Python 3, GNU coreutils and about 4 GiB of memory, and hashes 27.2 GB, then reads 26.85 GB four times.
 # Clone with `git clone -c core.autocrlf=false`, which keeps that setting in the clone, so the working copy holds the committed bytes.
+# Check out commit 6ec2a808196dccf60abd8175bbcb4f21ad06a225 first. Its build inputs equal the pin. Later commits add other tools to the same crate, and the check below stops on those.
 # Build hash: on Linux compare the file hash. On Windows the linker stamps each build, so compare pe_normal_hash.py, where a difference means another toolset or source.
 set -euo pipefail
 PIN=$1
