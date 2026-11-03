@@ -1,0 +1,514 @@
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:12:
+ //! gate holds, exit 2 when one fails, exit 1 when the stream cannot be read or its merkle differs. Integer only, json=0.
+ 
+ #![forbid(unsafe_code)]
+[31m-#![deny(clippy::float_arithmetic, clippy::float_cmp, clippy::cast_precision_loss)]
+[0m[32m+#![deny(
+[0m[32m+    clippy::float_arithmetic,
+[0m[32m+    clippy::float_cmp,
+[0m[32m+    clippy::cast_precision_loss
+[0m[32m+)]
+[0m 
+ use std::cmp::Ordering;
+ use std::io::{Read, Seek, SeekFrom};
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:87:
+     }
+ 
+     fn structure_clean(&self) -> bool {
+[31m-        [self.not_ascending, self.out_of_range, self.zero_z, self.positive_off, self.row_sum_nonzero, self.zero_weight, self.missing_diag].iter().all(|&v| v == 0)
+[0m[32m+        [
+[0m[32m+            self.not_ascending,
+[0m[32m+            self.out_of_range,
+[0m[32m+            self.zero_z,
+[0m[32m+            self.positive_off,
+[0m[32m+            self.row_sum_nonzero,
+[0m[32m+            self.zero_weight,
+[0m[32m+            self.missing_diag,
+[0m[32m+        ]
+[0m[32m+        .iter()
+[0m[32m+        .all(|&v| v == 0)
+[0m     }
+ }
+ 
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:104:
+ 
+ impl Window {
+     fn new(start: usize, cap: usize, reserve: usize) -> Window {
+[31m-        Window { start, end: start, closed: false, cap, off: vec![0], w: Vec::new(), ent: Vec::with_capacity(reserve) }
+[0m[32m+        Window {
+[0m[32m+            start,
+[0m[32m+            end: start,
+[0m[32m+            closed: false,
+[0m[32m+            cap,
+[0m[32m+            off: vec![0],
+[0m[32m+            w: Vec::new(),
+[0m[32m+            ent: Vec::with_capacity(reserve),
+[0m[32m+        }
+[0m     }
+ 
+     fn holds(&self, i: usize) -> bool {
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:113:
+ 
+     fn upper(&self, i: usize) -> (u32, &[(u32, i32)]) {
+         let r = i - self.start;
+[31m-        (self.w[r], &self.ent[self.off[r] as usize..self.off[r + 1] as usize])
+[0m[32m+        (
+[0m[32m+            self.w[r],
+[0m[32m+            &self.ent[self.off[r] as usize..self.off[r + 1] as usize],
+[0m[32m+        )
+[0m     }
+ 
+     /// The first row of a window always enters, so every pass advances.
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:127:
+             return;
+         }
+         // Each column was read from a u32, so the cast keeps it exactly.
+[31m-        self.ent.extend(row.entries().filter(|&(j, _)| j > h).map(|(j, z)| (j as u32, z)));
+[0m[32m+        self.ent.extend(
+[0m[32m+            row.entries()
+[0m[32m+                .filter(|&(j, _)| j > h)
+[0m[32m+                .map(|(j, z)| (j as u32, z)),
+[0m[32m+        );
+[0m         self.w.push(row.w);
+         self.off.push(self.ent.len() as u32);
+         self.end = h + 1;
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:174:
+             }
+             Err(_) => {
+                 out.lower_without_upper += 1;
+[31m-                note(detail, format!("ALLPAIRS_BAD|kind=lower_without_upper|row={h}|col={i}|z={z_hi}|json=0"));
+[0m[32m+                note(
+[0m[32m+                    detail,
+[0m[32m+                    format!(
+[0m[32m+                        "ALLPAIRS_BAD|kind=lower_without_upper|row={h}|col={i}|z={z_hi}|json=0"
+[0m[32m+                    ),
+[0m[32m+                );
+[0m             }
+         }
+     }
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:181:
+ }
+ 
+ /// One walk over every row, with the window starting at row `start`. The census runs on the first walk.
+[31m-fn one_pass(dev: &mut segio::Dev, off: u64, hdr: &roomio::Hdr, start: usize, (cap, reserve): (usize, usize), mut census: Option<&mut Census>, detail: &mut Vec<String>) -> Result<PassOut, String> {
+[0m[32m+fn one_pass(
+[0m[32m+    dev: &mut segio::Dev,
+[0m[32m+    off: u64,
+[0m[32m+    hdr: &roomio::Hdr,
+[0m[32m+    start: usize,
+[0m[32m+    (cap, reserve): (usize, usize),
+[0m[32m+    mut census: Option<&mut Census>,
+[0m[32m+    detail: &mut Vec<String>,
+[0m[32m+) -> Result<PassOut, String> {
+[0m     let t0 = std::time::Instant::now();
+     let mut win = Window::new(start, cap, reserve);
+[31m-    let mut out = PassOut { start, ..PassOut::default() };
+[0m[32m+    let mut out = PassOut {
+[0m[32m+        start,
+[0m[32m+        ..PassOut::default()
+[0m[32m+    };
+[0m     let n = hdr.n;
+     roomio::stream(dev, off, hdr, |h, row| {
+         if let Some(c) = census.as_deref_mut() {
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:239:
+     }
+ }
+ 
+[31m-fn run(dev: &mut segio::Dev, off: u64, hdr: &roomio::Hdr, cap: usize, mut each: impl FnMut(usize, &PassOut)) -> Result<Outcome, String> {
+[0m[32m+fn run(
+[0m[32m+    dev: &mut segio::Dev,
+[0m[32m+    off: u64,
+[0m[32m+    hdr: &roomio::Hdr,
+[0m[32m+    cap: usize,
+[0m[32m+    mut each: impl FnMut(usize, &PassOut),
+[0m[32m+) -> Result<Outcome, String> {
+[0m     if u32::try_from(hdr.n).is_err() {
+         return Err("n does not fit in u32".into());
+     }
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:257:
+             cap.min(usize::try_from(census.upper.saturating_sub(kept)).map_err(|_| "upper")?)
+         };
+         let first = passes.is_empty();
+[31m-        let p = one_pass(dev, off, hdr, start, (cap, reserve), first.then_some(&mut census), &mut detail)?;
+[0m[32m+        let p = one_pass(
+[0m[32m+            dev,
+[0m[32m+            off,
+[0m[32m+            hdr,
+[0m[32m+            start,
+[0m[32m+            (cap, reserve),
+[0m[32m+            first.then_some(&mut census),
+[0m[32m+            &mut detail,
+[0m[32m+        )?;
+[0m         if p.end <= start {
+             return Err(format!("no progress at row {start}"));
+         }
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:265:
+         each(passes.len(), &p);
+         passes.push(p);
+     }
+[31m-    Ok(Outcome { census, passes, detail })
+[0m[32m+    Ok(Outcome {
+[0m[32m+        census,
+[0m[32m+        passes,
+[0m[32m+        detail,
+[0m[32m+    })
+[0m }
+ 
+ /// The header line again, for the fields `roomio::Hdr` leaves out.
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:272:
+ fn raw_header(dev: &mut segio::Dev, off: u64) -> Result<String, String> {
+     let mut blk = vec![0u8; 4096];
+[31m-    dev.seek(SeekFrom::Start(off)).map_err(|e| format!("seek: {e}"))?;
+[0m[31m-    dev.read_exact(&mut blk).map_err(|e| format!("read header: {e}"))?;
+[0m[31m-    let end = blk.iter().position(|&b| b == b'\n').ok_or("no header line")?;
+[0m[32m+    dev.seek(SeekFrom::Start(off))
+[0m[32m+        .map_err(|e| format!("seek: {e}"))?;
+[0m[32m+    dev.read_exact(&mut blk)
+[0m[32m+        .map_err(|e| format!("read header: {e}"))?;
+[0m[32m+    let end = blk
+[0m[32m+        .iter()
+[0m[32m+        .position(|&b| b == b'\n')
+[0m[32m+        .ok_or("no header line")?;
+[0m     Ok(String::from_utf8_lossy(&blk[..end]).to_string())
+ }
+ 
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:294:
+ fn real_main(a: &[String]) -> Result<bool, String> {
+     let t0 = std::time::Instant::now();
+     let spec = a.get(1).ok_or("usage: allpairs DEV OFFSET [CAP_ENTRIES]")?;
+[31m-    let off: u64 = a.get(2).ok_or("missing OFFSET")?.parse().map_err(|_| "bad OFFSET")?;
+[0m[32m+    let off: u64 = a
+[0m[32m+        .get(2)
+[0m[32m+        .ok_or("missing OFFSET")?
+[0m[32m+        .parse()
+[0m[32m+        .map_err(|_| "bad OFFSET")?;
+[0m     let cap: usize = match a.get(3) {
+         Some(v) => v.parse().map_err(|_| "bad CAP_ENTRIES")?,
+         None => DEFAULT_CAP,
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:326:
+     };
+     let flat_w_sum: u64 = c.flat_w.iter().map(|&w| u64::from(w)).sum();
+     let flat_list: Vec<String> = c.flat_w.iter().map(u32::to_string).collect();
+[31m-    let pass = o.pairs_clean(hdr.n) && c.structure_clean() && entries_gate != "FAIL" && count_gate != "FAIL";
+[0m[32m+    let pass = o.pairs_clean(hdr.n)
+[0m[32m+        && c.structure_clean()
+[0m[32m+        && entries_gate != "FAIL"
+[0m[32m+        && count_gate != "FAIL";
+[0m     println!(
+         "ALLPAIRS|L={}|sector={}|n={}|rows_read={}|entries={}|header_entries={entries_gate}|diag={}|pairs={}|passes={}|cap_entries={cap}|value_mismatch={}|lower_without_upper={}|upper_without_lower={}|columns_not_ascending={}|column_out_of_range={}|zero_z={}|positive_offdiag={}|row_sum_nonzero={}|zero_weight={}|missing_diag={}|flats={}|flat_w={}|flat_w_sum={flat_w_sum}|sum_w={}|codes={}|whole_space_count={count_gate}|merkle=PASS|verdict={}|secs={}|json=0",
+         hdr.lattice,
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:378:
+     static NEXT: AtomicU32 = AtomicU32::new(0);
+ 
+     fn temp() -> std::path::PathBuf {
+[31m-        std::env::temp_dir().join(format!("allpairs-test-{}-{}", std::process::id(), NEXT.fetch_add(1, AtomicOrdering::Relaxed)))
+[0m[32m+        std::env::temp_dir().join(format!(
+[0m[32m+            "allpairs-test-{}-{}",
+[0m[32m+            std::process::id(),
+[0m[32m+            NEXT.fetch_add(1, AtomicOrdering::Relaxed)
+[0m[32m+        ))
+[0m     }
+ 
+     fn check_file(p: &std::path::Path, n: usize, cap: usize) -> Result<Outcome, String> {
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:408:
+     fn store() -> Vec<roomio::TestRow> {
+         let n = 40u32;
+         let w: Vec<u32> = (0..n).map(|h| 1 + (h * 5 + 3) % 12).collect();
+[31m-        let joined = |a: u32, b: u32| a != b && ((a * 7 + b * 7 + a * b) % 5 == 0 || a.abs_diff(b) == 1 || a.min(b) == 1 && a.max(b) == 39);
+[0m[32m+        let joined = |a: u32, b: u32| {
+[0m[32m+            a != b
+[0m[32m+                && ((a * 7 + b * 7 + a * b) % 5 == 0
+[0m[32m+                    || a.abs_diff(b) == 1
+[0m[32m+                    || a.min(b) == 1 && a.max(b) == 39)
+[0m[32m+        };
+[0m         (0..n)
+             .map(|h| {
+                 let wh = w[h as usize];
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:442:
+         let mut pairs = None;
+         for cap in CAPS {
+             let o = check(&r, cap);
+[31m-            assert!(o.pairs_clean(r.len()) && o.census.structure_clean(), "cap {cap}");
+[0m[32m+            assert!(
+[0m[32m+                o.pairs_clean(r.len()) && o.census.structure_clean(),
+[0m[32m+                "cap {cap}"
+[0m[32m+            );
+[0m             assert!(o.covers(r.len()));
+             assert_eq!(o.census.diag, 40);
+             assert_eq!(*pairs.get_or_insert(o.census.upper), o.census.upper);
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:449:
+             assert_eq!(o.census.entries, o.census.diag + 2 * o.census.upper);
+         }
+         assert!(pairs.unwrap() > 39);
+[31m-        assert_eq!(check(&r, 1).passes.len(), 39, "the last row holds no upper entry, so it shares a window");
+[0m[32m+        assert_eq!(
+[0m[32m+            check(&r, 1).passes.len(),
+[0m[32m+            39,
+[0m[32m+            "the last row holds no upper entry, so it shares a window"
+[0m[32m+        );
+[0m         assert_eq!(check(&r, 100_000).passes.len(), 1);
+     }
+ 
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:466:
+                 assert!(!o.pairs_clean(r.len()));
+                 assert_eq!(o.detail.len(), 1);
+                 let (lo, hi) = (h.min(j as usize), h.max(j as usize));
+[31m-                assert!(o.detail[0].contains(&format!("|i={lo}|h={hi}|")), "{}", o.detail[0]);
+[0m[32m+                assert!(
+[0m[32m+                    o.detail[0].contains(&format!("|i={lo}|h={hi}|")),
+[0m[32m+                    "{}",
+[0m[32m+                    o.detail[0]
+[0m[32m+                );
+[0m             }
+         }
+     }
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:557:
+ 
+     #[test]
+     fn the_largest_stored_values_do_not_overflow() {
+[31m-        let r = vec![(u32::MAX, 3, vec![(1, i32::MIN)]), (u32::MAX, 3, vec![(0, i32::MIN)])];
+[0m[32m+        let r = vec![
+[0m[32m+            (u32::MAX, 3, vec![(1, i32::MIN)]),
+[0m[32m+            (u32::MAX, 3, vec![(0, i32::MIN)]),
+[0m[32m+        ];
+[0m         let o = check(&r, 100);
+         assert_eq!(o.total(|p| p.value_mismatch), 0);
+         assert_eq!(o.total(|p| p.found), 1);
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\evolvers\src\bin\allpairs.rs:564:
+[31m-        let r = vec![(u32::MAX, 3, vec![(1, i32::MIN)]), (u32::MAX, 3, vec![(0, i32::MIN + 1)])];
+[0m[32m+        let r = vec![
+[0m[32m+            (u32::MAX, 3, vec![(1, i32::MIN)]),
+[0m[32m+            (u32::MAX, 3, vec![(0, i32::MIN + 1)]),
+[0m[32m+        ];
+[0m         assert_eq!(check(&r, 100).total(|p| p.value_mismatch), 1);
+     }
+ 
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\roomio.rs:24:
+ 
+ pub fn read_hdr(dev: &mut segio::Dev, off: u64) -> Result<Hdr, String> {
+     let mut blk = vec![0u8; 4096];
+[31m-    dev.seek(SeekFrom::Start(off)).map_err(|e| format!("seek: {e}"))?;
+[0m[31m-    dev.read_exact(&mut blk).map_err(|e| format!("read header: {e}"))?;
+[0m[31m-    let end = blk.iter().position(|&b| b == b'\n').ok_or("no header line")?;
+[0m[32m+    dev.seek(SeekFrom::Start(off))
+[0m[32m+        .map_err(|e| format!("seek: {e}"))?;
+[0m[32m+    dev.read_exact(&mut blk)
+[0m[32m+        .map_err(|e| format!("read header: {e}"))?;
+[0m[32m+    let end = blk
+[0m[32m+        .iter()
+[0m[32m+        .position(|&b| b == b'\n')
+[0m[32m+        .ok_or("no header line")?;
+[0m     let line = String::from_utf8_lossy(&blk[..end]).to_string();
+     if !line.starts_with("YMROOMHDR|") || field(&line, "w_self_adjoint=") != Some("PASS") {
+         return Err("not a YMROOMHDR stream with w_self_adjoint=PASS".into());
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\roomio.rs:33:
+     }
+[31m-    let num = |k: &str| field(&line, k).and_then(|v| v.parse::<u64>().ok()).ok_or_else(|| format!("missing {k}"));
+[0m[32m+    let num = |k: &str| {
+[0m[32m+        field(&line, k)
+[0m[32m+            .and_then(|v| v.parse::<u64>().ok())
+[0m[32m+            .ok_or_else(|| format!("missing {k}"))
+[0m[32m+    };
+[0m     let text = |k: &str| field(&line, k).unwrap_or("").to_string();
+[31m-    Ok(Hdr { n: usize::try_from(num("n=")?).map_err(|_| "n")?, payload: num("payload_bytes=")?, merkle: text("payload_merkle="), lattice: text("L="), sector: text("sector=") })
+[0m[32m+    Ok(Hdr {
+[0m[32m+        n: usize::try_from(num("n=")?).map_err(|_| "n")?,
+[0m[32m+        payload: num("payload_bytes=")?,
+[0m[32m+        merkle: text("payload_merkle="),
+[0m[32m+        lattice: text("L="),
+[0m[32m+        sector: text("sector="),
+[0m[32m+    })
+[0m }
+ 
+ /// One row: weight, magnetic number, and its nonzero entries with j ascending, diagonal included.
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\roomio.rs:54:
+ }
+ 
+ /// Calls `f(h, row)` for every row in index order. A reader thread reads and hashes ahead.
+[31m-pub fn stream<F: FnMut(usize, &Row)>(dev: &mut segio::Dev, off: u64, hdr: &Hdr, mut f: F) -> Result<(), String> {
+[0m[31m-    dev.seek(SeekFrom::Start(off + 4096)).map_err(|e| format!("seek: {e}"))?;
+[0m[32m+pub fn stream<F: FnMut(usize, &Row)>(
+[0m[32m+    dev: &mut segio::Dev,
+[0m[32m+    off: u64,
+[0m[32m+    hdr: &Hdr,
+[0m[32m+    mut f: F,
+[0m[32m+) -> Result<(), String> {
+[0m[32m+    dev.seek(SeekFrom::Start(off + 4096))
+[0m[32m+        .map_err(|e| format!("seek: {e}"))?;
+[0m     let payload = hdr.payload;
+     let merkle = std::thread::scope(|sc| -> Result<String, String> {
+         let (tx, rx) = std::sync::mpsc::sync_channel::<Result<(Vec<u8>, String), String>>(1);
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\roomio.rs:118:
+         Ok(sha::sha256_hex(&shas))
+     })?;
+     if merkle != hdr.merkle {
+[31m-        return Err(format!("payload merkle mismatch: header {} stream {merkle}", hdr.merkle));
+[0m[32m+        return Err(format!(
+[0m[32m+            "payload merkle mismatch: header {} stream {merkle}",
+[0m[32m+            hdr.merkle
+[0m[32m+        ));
+[0m     }
+     Ok(())
+ }
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\segio.rs:23:
+     let oo = |p: &str| OpenOptions::new().read(true).write(write).open(p);
+     if let Some(rest) = spec.strip_prefix("seg:") {
+         let mut it = rest.splitn(4, ':');
+[31m-        let bad = || Error::new(ErrorKind::InvalidInput, "seg spec: seg:<first>:<count>:<seglen>:<prefix>");
+[0m[32m+        let bad = || {
+[0m[32m+            Error::new(
+[0m[32m+                ErrorKind::InvalidInput,
+[0m[32m+                "seg spec: seg:<first>:<count>:<seglen>:<prefix>",
+[0m[32m+            )
+[0m[32m+        };
+[0m         let first: u64 = it.next().and_then(|s| s.parse().ok()).ok_or_else(bad)?;
+         let count: u64 = it.next().and_then(|s| s.parse().ok()).ok_or_else(bad)?;
+         let seglen: u64 = it.next().and_then(|s| s.parse().ok()).ok_or_else(bad)?;
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\segio.rs:37:
+             let name = format!("{prefix}{k:03}.rooms");
+             let f = oo(&name)?;
+             if f.metadata()?.len() != seglen {
+[31m-                return Err(Error::new(ErrorKind::InvalidData, format!("{name}: length != seglen")));
+[0m[32m+                return Err(Error::new(
+[0m[32m+                    ErrorKind::InvalidData,
+[0m[32m+                    format!("{name}: length != seglen"),
+[0m[32m+                ));
+[0m             }
+             files.push(f);
+             names.push(name);
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\segio.rs:44:
+         }
+[31m-        Ok(Dev { files, names, seglen, pos: 0 })
+[0m[32m+        Ok(Dev {
+[0m[32m+            files,
+[0m[32m+            names,
+[0m[32m+            seglen,
+[0m[32m+            pos: 0,
+[0m[32m+        })
+[0m     } else {
+[31m-        Ok(Dev { files: vec![oo(spec)?], names: vec![spec.to_string()], seglen: 0, pos: 0 })
+[0m[32m+        Ok(Dev {
+[0m[32m+            files: vec![oo(spec)?],
+[0m[32m+            names: vec![spec.to_string()],
+[0m[32m+            seglen: 0,
+[0m[32m+            pos: 0,
+[0m[32m+        })
+[0m     }
+ }
+ 
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\segio.rs:73:
+         }
+         let k = self.pos / self.seglen;
+         if k >= self.files.len() as u64 {
+[31m-            return Err(Error::new(ErrorKind::UnexpectedEof, "past end of segmented stream"));
+[0m[32m+            return Err(Error::new(
+[0m[32m+                ErrorKind::UnexpectedEof,
+[0m[32m+                "past end of segmented stream",
+[0m[32m+            ));
+[0m         }
+         let o = self.pos % self.seglen;
+         Ok((k as usize, o, self.seglen - o))
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\segio.rs:125:
+     fn seek(&mut self, to: SeekFrom) -> Result<u64> {
+         self.pos = match to {
+             SeekFrom::Start(p) => p,
+[31m-            SeekFrom::Current(d) => self.pos.checked_add_signed(d).ok_or_else(|| Error::new(ErrorKind::InvalidInput, "seek"))?,
+[0m[32m+            SeekFrom::Current(d) => self
+[0m[32m+                .pos
+[0m[32m+                .checked_add_signed(d)
+[0m[32m+                .ok_or_else(|| Error::new(ErrorKind::InvalidInput, "seek"))?,
+[0m             SeekFrom::End(_) => return Err(Error::new(ErrorKind::Unsupported, "seek from end")),
+         };
+         Ok(self.pos)
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\sha.rs:4:
+ // SHA-256 in pure Rust; no external dependencies, network, float or unsafe.
+ pub fn sha256(input: &[u8]) -> [u8; 32] {
+     const K: [u32; 64] = [
+[31m-        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1,
+[0m[31m-        0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+[0m[31m-        0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786,
+[0m[31m-        0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+[0m[31m-        0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147,
+[0m[31m-        0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+[0m[31m-        0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,
+[0m[31m-        0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+[0m[31m-        0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a,
+[0m[31m-        0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+[0m[31m-        0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+[0m[32m+        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
+[0m[32m+        0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe,
+[0m[32m+        0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f,
+[0m[32m+        0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+[0m[32m+        0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc,
+[0m[32m+        0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,
+[0m[32m+        0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116,
+[0m[32m+        0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+[0m[32m+        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7,
+[0m[32m+        0xc67178f2,
+[0m     ];
+     let mut h: [u32; 8] = [
+[31m-        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f,
+[0m[31m-        0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
+[0m[32m+        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
+[0m[32m+        0x5be0cd19,
+[0m     ];
+     let mut data = input.to_vec();
+     let bit_len = (input.len() as u64).wrapping_mul(8);
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\sha.rs:25:
+     data.push(0x80);
+[31m-    while data.len() % 64 != 56 { data.push(0); }
+[0m[32m+    while data.len() % 64 != 56 {
+[0m[32m+        data.push(0);
+[0m[32m+    }
+[0m     data.extend_from_slice(&bit_len.to_be_bytes());
+     for chunk in data.chunks_exact(64) {
+         let mut w = [0u32; 64];
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\sha.rs:30:
+         for (i, v) in w.iter_mut().take(16).enumerate() {
+             let s = i * 4;
+[31m-            *v = u32::from_be_bytes([chunk[s], chunk[s+1], chunk[s+2], chunk[s+3]]);
+[0m[32m+            *v = u32::from_be_bytes([chunk[s], chunk[s + 1], chunk[s + 2], chunk[s + 3]]);
+[0m         }
+         for i in 16..64 {
+[31m-            let s0 = w[i-15].rotate_right(7) ^ w[i-15].rotate_right(18) ^ (w[i-15] >> 3);
+[0m[31m-            let s1 = w[i-2].rotate_right(17) ^ w[i-2].rotate_right(19) ^ (w[i-2] >> 10);
+[0m[31m-            w[i] = w[i-16].wrapping_add(s0).wrapping_add(w[i-7]).wrapping_add(s1);
+[0m[32m+            let s0 = w[i - 15].rotate_right(7) ^ w[i - 15].rotate_right(18) ^ (w[i - 15] >> 3);
+[0m[32m+            let s1 = w[i - 2].rotate_right(17) ^ w[i - 2].rotate_right(19) ^ (w[i - 2] >> 10);
+[0m[32m+            w[i] = w[i - 16]
+[0m[32m+                .wrapping_add(s0)
+[0m[32m+                .wrapping_add(w[i - 7])
+[0m[32m+                .wrapping_add(s1);
+[0m         }
+         let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut hh] = h;
+         for i in 0..64 {
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\sha.rs:42:
+             let maj = (a & b) ^ (a & c) ^ (b & c);
+             let s1 = e.rotate_right(6) ^ e.rotate_right(11) ^ e.rotate_right(25);
+             let s0 = a.rotate_right(2) ^ a.rotate_right(13) ^ a.rotate_right(22);
+[31m-            let t1 = hh.wrapping_add(s1).wrapping_add(ch).wrapping_add(K[i]).wrapping_add(w[i]);
+[0m[32m+            let t1 = hh
+[0m[32m+                .wrapping_add(s1)
+[0m[32m+                .wrapping_add(ch)
+[0m[32m+                .wrapping_add(K[i])
+[0m[32m+                .wrapping_add(w[i]);
+[0m             let t2 = s0.wrapping_add(maj);
+             hh = g;
+             g = f;
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\sha.rs:54:
+             a = t1.wrapping_add(t2);
+         }
+         let vars = [a, b, c, d, e, f, g, hh];
+[31m-        for (out, v) in h.iter_mut().zip(vars) { *out = out.wrapping_add(v); }
+[0m[32m+        for (out, v) in h.iter_mut().zip(vars) {
+[0m[32m+            *out = out.wrapping_add(v);
+[0m[32m+        }
+[0m     }
+     let mut out = [0u8; 32];
+     for (i, word) in h.iter().enumerate() {
+Diff in \\?\C:\tmp\opus55\ym-review-wt\native\ym\crates\torusl\src\sha.rs:61:
+[31m-        out[i*4..i*4+4].copy_from_slice(&word.to_be_bytes());
+[0m[32m+        out[i * 4..i * 4 + 4].copy_from_slice(&word.to_be_bytes());
+[0m     }
+     out
+ }

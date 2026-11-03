@@ -1,0 +1,3 @@
+MEM_PROBE|exe=D:\ym-3x4-room-run\p0-ball\allpairs\allpairs.exe|args=C:/tmp/opus55/allpairs-review-20261103/attack/stores/m/t64.bin 0 1000|exit=0|samples=14|peak_working_set_bytes=138350592|peak_private_bytes_sampled=118366208|json=0
+MEM_PROBE|exe=D:\ym-3x4-room-run\p0-ball\allpairs\allpairs.exe|args=C:/tmp/opus55/allpairs-review-20261103/attack/stores/m/t256.bin 0 1000|exit=0|samples=55|peak_working_set_bytes=436854784|peak_private_bytes_sampled=538619904|json=0
+MEM_PROBE|exe=D:\ym-3x4-room-run\p0-ball\allpairs\allpairs.exe|args=C:/tmp/opus55/allpairs-review-20261103/attack/stores/m/t1024.bin 0 1000|exit=0|samples=219|peak_working_set_bytes=1228926976|peak_private_bytes_sampled=1782575104|json=0

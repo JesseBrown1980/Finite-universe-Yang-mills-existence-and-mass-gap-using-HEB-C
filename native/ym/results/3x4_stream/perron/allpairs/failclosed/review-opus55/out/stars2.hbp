@@ -1,0 +1,4 @@
+STARS2|case=header_then_boundary|prefix_2cliques=12306|prefix_4cliques=0|split_pair=1|row=56876|row_count=65535|row_start=67108856|placed=1|clean_tool=1|clean_reader_lanes=1|fault_tool=1|fault_reader_lanes=1|pairs=8400659|secs=33|json=0
+STARS2|case=starts_at_boundary|prefix_2cliques=12300|prefix_4cliques=2|split_pair=0|row=56871|row_count=65535|row_start=67108864|placed=1|clean_tool=1|clean_reader_lanes=1|fault_tool=1|fault_reader_lanes=1|pairs=8400664|secs=63|json=0
+STARS2|case=spans_boundary|prefix_2cliques=6842|prefix_4cliques=1|split_pair=0|row=45951|row_count=65535|row_start=66846720|placed=1|clean_tool=1|clean_reader_lanes=1|fault_tool=1|fault_reader_lanes=1|pairs=8395200|secs=92|json=0
+STARS2_DONE|failed=0|secs=92|json=0

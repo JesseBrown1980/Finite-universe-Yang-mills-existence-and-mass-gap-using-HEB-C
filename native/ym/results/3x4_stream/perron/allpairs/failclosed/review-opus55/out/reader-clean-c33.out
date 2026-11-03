@@ -1,0 +1,11 @@
+REVIEW_HEADER|sha256_of_block=035d84766c9f62ba0fbfb23d4c85795cf42ab19502042ed50b83cb4076ebe373|line=YMROOMHDR|L=3x3|sector=Sx+Sy+|n=288645|nl=18|rooms=15697314|entries=15408669|payload_bytes=125825024|stream_bytes=125829120|chunk=16MiB|payload_merkle=c0059b361fecc6e729e31b6078a6badda4be7fa40ea4f924b6af5fbf3b77ab83|keys_sha256=edd911b0d1dc2c280a83ae0efc67119057fe897c98bd8da336ce4ba936a80cbb|w_self_adjoint=PASS|json=0|json=0
+REVIEW_SECTOR|name=dev33.bin|sha256=8b0729dd5c741d805faea86d25f66a597cf2ca72521b175a28492878e23aaa07|manifest_match=0|json=0
+REVIEW_WINDOW|k=0|rows_from=0|rows_to=25242|upper_stored=999963|lower_into_window=999963|json=0
+REVIEW_WINDOW|k=1|rows_from=25242|rows_to=51161|upper_stored=999979|lower_into_window=999979|json=0
+REVIEW_WINDOW|k=2|rows_from=51161|rows_to=79640|upper_stored=999968|lower_into_window=999968|json=0
+REVIEW_WINDOW|k=3|rows_from=79640|rows_to=111246|upper_stored=999969|lower_into_window=999969|json=0
+REVIEW_WINDOW|k=4|rows_from=111246|rows_to=145816|upper_stored=999973|lower_into_window=999973|json=0
+REVIEW_WINDOW|k=5|rows_from=145816|rows_to=188727|upper_stored=999991|lower_into_window=999991|json=0
+REVIEW_WINDOW|k=6|rows_from=188727|rows_to=237279|upper_stored=999996|lower_into_window=999996|json=0
+REVIEW_WINDOW|k=7|rows_from=237279|rows_to=288645|upper_stored=560173|lower_into_window=560173|json=0
+REVIEW_READER|L=3x3|sector=Sx+Sy+|n=288645|rows=288645|entries=15408669|diag=288645|upper=7560012|lower=7560012|not_ascending=0|out_of_range=0|zero_z=0|positive_off=0|row_sum_nonzero=0|zero_weight=0|missing_diag=0|sum_w=60466176|codes=60466176|flats=7|flat_w=1,3,2,3,3,2,4|flat_rows=0,8,15,275436,275443,288631,288633|flat_off_entries=20|max_cnt=55|max_w=216|min_z=-27|max_z=54|max_abs_wz=648|used_rooms=15697314|trailing_rooms=30814|trailing_nonzero_rooms=0|odd_bytes=0|tail_nonzero_bytes=0|stream_read=125829120|merkle=c0059b361fecc6e729e31b6078a6badda4be7fa40ea4f924b6af5fbf3b77ab83|merkle_match=1|sectors_match=0/1|fingerprint_upper=3bee954533a49e58be86030ebbc0df55|fingerprint_lower=3bee954533a49e58be86030ebbc0df55|fingerprint_equal=1|keyed_sum61=0|buckets_nonzero=0|first_bucket=-|windows=8|cap=1000000|verdict=PASS|secs=0|float_used=0|json=0

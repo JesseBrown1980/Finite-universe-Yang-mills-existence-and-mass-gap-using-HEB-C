@@ -1,0 +1,7 @@
+HARNESS_CONTROL|variant=window_forgets_its_last_row|fault_in_tool=1|exit=1|false_pass=0|disagree_verdict=1853|disagree_exit_class=0|disagree_counters=3680|panics=0|turned_red=1|json=0
+HARNESS_CONTROL|variant=value_mismatch_not_counted|fault_in_tool=1|exit=1|false_pass=114|disagree_verdict=114|disagree_exit_class=0|disagree_counters=802|panics=0|turned_red=1|json=0
+HARNESS_CONTROL|variant=closing_a_window_skips_the_row|fault_in_tool=1|exit=101|false_pass=None|disagree_verdict=None|disagree_exit_class=None|disagree_counters=None|panics=None|turned_red=1|json=0
+HARNESS_CONTROL|variant=pair_gates_dropped|fault_in_tool=1|exit=1|false_pass=164|disagree_verdict=164|disagree_exit_class=0|disagree_counters=0|panics=0|turned_red=1|json=0
+HARNESS_CONTROL|variant=lower_entry_answered_twice|fault_in_tool=1|exit=1|false_pass=0|disagree_verdict=1755|disagree_exit_class=0|disagree_counters=741|panics=0|turned_red=1|json=0
+HARNESS_CONTROL|variant=merkle_compare_removed|fault_in_tool=1|exit=1|false_pass=0|disagree_verdict=0|disagree_exit_class=505|disagree_counters=0|panics=0|turned_red=1|json=0
+HARNESS_CONTROLS_DONE|failed=0|json=0

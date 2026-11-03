@@ -1,0 +1,9 @@
+BITFLIP|field=w|flips=6752|exit0=0|exit1=0|exit2=6752|json=0
+BITFLIP|field=mag|flips=3376|exit0=3376|exit1=0|exit2=0|json=0
+BITFLIP|field=cnt|flips=3376|exit0=0|exit1=3356|exit2=20|json=0
+BITFLIP|field=off_column|flips=76672|exit0=0|exit1=0|exit2=76672|json=0
+BITFLIP|field=off_value|flips=76672|exit0=0|exit1=0|exit2=76672|json=0
+BITFLIP|field=diag_column|flips=6752|exit0=0|exit1=0|exit2=6752|json=0
+BITFLIP|field=diag_value|flips=6752|exit0=0|exit1=0|exit2=6752|json=0
+BITFLIP_DONE|store=D:/ym-3x4-room-run/p0-ball/small/2x2/dev.bin|payload_bytes=22544|flips=180352|panics=0|secs=1954|json=0
+exit=0 
