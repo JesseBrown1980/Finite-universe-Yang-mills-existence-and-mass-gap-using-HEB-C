@@ -7,13 +7,13 @@ lists. Each row there names a file, how many findings it holds and why it stays,
 fails as well. A row ending in / covers a whole folder.
 
 Python, by syntax tree: float and complex literals; float(), complex(); random floats; imports of numpy, scipy, mpmath,
-decimal, sympy, pandas, torch, statistics and cmath; math.sqrt and its kin; time.time, perf_counter, monotonic and
+decimal, fractions, sympy, pandas, torch, statistics and cmath; math.sqrt and its kin; time.time, perf_counter, monotonic and
 process_time; true division, unless a string or Path(...) in its operands marks it as a path join; a power with a negative
 constant exponent; format specs and %-formats that print as float.
 Rust: f32, f64, to_f32 and its kin, 1f64, 0.5, 2. and 1e9. C, C++, Go: float, double, float32, float64 and the same
 literals. JavaScript and HTML: Math.*, parseFloat, toFixed and the same literals.
-Native comments and strings are removed first, across lines. Python's exact rationals (Fraction) count where they use
-true division, and the list says which those are.
+Native comments and strings are removed first, across lines. Exact rationals in Python are the integer pairs of intpair.py,
+divided by name with qdiv. A / on any other exact class counts as a finding, and the list says which those are.
 
 usage: no_float_gate.py [ROOT]      Scans ROOT. Exits 1 on a finding that is not listed, or when a listed count has moved.
        no_float_gate.py --selftest  Runs the snippets below. Exits 1 if one is misread. Integer only, json=0.
@@ -25,7 +25,7 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-BAD_IMPORT = {"numpy", "scipy", "mpmath", "decimal", "sympy", "pandas", "torch", "statistics", "cmath"}
+BAD_IMPORT = {"numpy", "scipy", "mpmath", "decimal", "fractions", "sympy", "pandas", "torch", "statistics", "cmath"}
 RANDOM_FLOAT = {"random", "uniform", "gauss", "normalvariate", "betavariate", "expovariate", "triangular"}
 MATH_FLOAT = {"sqrt", "exp", "expm1", "log", "log1p", "log2", "log10", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "sinh", "cosh", "tanh",
               "pow", "hypot", "pi", "e", "tau", "inf", "nan", "fsum", "fmod", "erf", "erfc", "gamma", "lgamma", "dist", "degrees", "radians"}
@@ -203,6 +203,7 @@ FLOATS = (
     ("x.py", "x = 2 ** -3"), ("x.py", "import numpy"), ("x.py", "from decimal import Decimal"), ("x.py", "import math\nx = math.sqrt(2)"),
     ("x.py", "from math import sqrt"), ("x.py", "import time\nx = time.time()"), ("x.py", "from time import monotonic"), ("x.py", "x = rng.random()"),
     ("x.py", 'print(f"{a:.2f}")'), ("x.py", 'print("%.3f" % a)'), ("x.py", 'print(f"{a:.1%}")'),
+    ("x.py", "import fractions"), ("x.py", "from fractions import Fraction"), ("x.py", "from fractions import Fraction as F"), ("x.py", "def f():\n    from fractions import Fraction as F\n    return F(1, 2)"),
     ("x.rs", "let a: f64 = 1;"), ("x.rs", "let a = 0.5;"), ("x.rs", "let a = 2.;"), ("x.rs", "let a = 1e9;"), ("x.rs", "let a = 1f64;"), ("x.rs", "let a = x.to_f64();"),
     ("x.rs", "fn f<'a>(x: f64, y: &'a u8) {}"), ("x.rs", 'let s = "a\nb"; let c = 0.5;'), ("x.rs", "/* a /* b */ c */ let d = 0.5;"), ("x.rs", 'let s = r#"a"b"#; let c = 0.5;'),
     ("x.c", "double a;"), ("x.go", "var a float64"), ("x.html", "<script>Math.sqrt(2)</script>"), ("x.js", "let a = 1.5;"),
@@ -211,6 +212,7 @@ CLEAN = (
     ("x.py", "x = a // b"), ("x.py", 'p = root / "shards" / name'), ("x.py", 'p = root / f"{a}.hbp"'), ("x.py", 'p = base / (name + ".matrix")'), ("x.py", 'p = Path(a) / b'),
     ("x.py", "import math\nx = math.isqrt(9)"), ("x.py", "import time\nx = time.time_ns()"), ("x.py", "import time\ntime.sleep(1)"), ("x.py", 'print(f"{a:08x} {b:>9} {c:d}")'),
     ("x.py", 'print("%%-f %d" % a)'), ("x.py", "x = rng.randrange(2)"), ("x.py", "# 0.5 / float\nx = 1"), ("x.py", 's = "0.5 / float"'), ("x.py", "x = 2 ** 3"),
+    ("x.py", "from intpair import IntPair as F, qdiv\nx = qdiv(F(1, 2), 3)"), ("x.py", "import time\nx = time.monotonic_ns()"), ("x.py", "# from fractions import Fraction\nx = 1"), ("x.py", 's = "from fractions import Fraction"'),
     ("x.rs", "let a = x.0.1;"), ("x.rs", "for i in 0..5 {}"), ("x.rs", "for i in 0..=5 {}"), ("x.rs", "let a = 0x1e5;"), ("x.rs", "fn f<'a>(x: &'a u8, y: &'a u8) {}"), ("x.rs", "let c = 'f';"),
     ("x.rs", '// f64 0.5\nlet a = 1;'), ("x.rs", 'let s = "HTTP/1.1\nf64 0.5";'), ("x.rs", '/* f64 */ let a = 1;'), ("x.rs", 'let s = r#"a"f64"#;'), ("x.rs", "let a = 1.max(2);"), ("x.rs", "let a = 12_345;"),
     ("x.c", 'int a = 1; /* double */'), ("x.go", 'var a uint64'), ("x.html", '<small>HTTP/1.1 Rust 1.81</small>'.replace("1.81", '"1.81"').replace("1.1", '"1.1"')),

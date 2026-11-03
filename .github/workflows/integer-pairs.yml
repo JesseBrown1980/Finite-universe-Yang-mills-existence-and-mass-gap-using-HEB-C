@@ -1,0 +1,61 @@
+# The integer copies that need no local binary or store run here again, and each must print the rows recorded for it, clock fields masked.
+# native/ym/results/integer-pairs-2026-11-03/PREDICTION.hbp names each case, and hosted=1 marks these. Integer only, json=0.
+name: Integer pairs replay
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'native/scripts/intpair.py'
+      - 'native/scripts/test_intpair.py'
+      - 'native/scripts/make_integer_pairs.py'
+      - 'native/ym/python/memory_pilot_runner.py'
+      - 'native/ym/results/integer-pairs-2026-11-03/**'
+      - 'native/ym/results/3x4_stream/perron/perron_climb_integer.py'
+      - 'native/ym/results/3x4_stream/perron/second-seat/integer-redo/**'
+      - 'native/ym/results/3x4_stream/perron/vector/integer-pairs/**'
+      - 'native/ym/results/3x4_stream/perron/vector/review-gpt6/integer-pairs/**'
+      - 'native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/**'
+      - 'independent/seat_adaptive_cells.py'
+      - 'independent/seat_global_coupling.py'
+      - 'independent/seat_integer_ratio.py'
+      - 'independent/seat_magnetic_endpoint.py'
+      - '.github/workflows/integer-pairs.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replay every hosted case
+        run: |
+          set -euo pipefail
+          H=native/ym/results/integer-pairs-2026-11-03
+          python3 -I -X utf8 "$H/run_cases.py" "$H/PREDICTION.hbp" /tmp/pairs /tmp/pairs/LOG.hbp /tmp/pairs/keep --hosted
+      - name: The memory pilot runner compiles
+        run: python3 -m py_compile native/ym/python/memory_pilot_runner.py
+      - name: The comparison goes red on one changed row
+        run: |
+          set -uo pipefail
+          H=native/ym/results/integer-pairs-2026-11-03
+          RO=native/ym/results/3x4_stream/perron/vector/review-opus55
+          sed 's/eta_e9=308980544/eta_e9=308980545/' "$RO/out/two_numbers.out" > /tmp/altered.out
+          printf 'EXPECT|case=control|copy=%s/integer-pairs/py_two_numbers.py|args=%s/given/g-local-5x5-product.hbp|against=/tmp/altered.out|exit=0|json=0\n' "\$RO" "\$RO" > /tmp/control.hbp
+          rc=0
+          python3 -I -X utf8 "$H/run_cases.py" /tmp/control.hbp /tmp/pairs-control /tmp/pairs-control/LOG.hbp /tmp/pairs-control/keep || rc=$?
+          test "$rc" = 1
+          grep -q 'rows_same=0' /tmp/pairs-control/LOG.hbp
+      - name: The comparison goes red on a wrong exit
+        run: |
+          set -uo pipefail
+          H=native/ym/results/integer-pairs-2026-11-03
+          RO=native/ym/results/3x4_stream/perron/vector/review-opus55
+          printf 'EXPECT|case=control2|copy=%s/integer-pairs/py_two_numbers.py|args=%s/given/g-local-5x5-product.hbp|against=%s/out/two_numbers.out|exit=1|json=0\n' "\$RO" "\$RO" "\$RO" > /tmp/control2.hbp
+          rc=0
+          python3 -I -X utf8 "$H/run_cases.py" /tmp/control2.hbp /tmp/pairs-control2 /tmp/pairs-control2/LOG.hbp /tmp/pairs-control2/keep || rc=$?
+          test "$rc" = 1
+          grep -q 'exit_as_predicted=0' /tmp/pairs-control2/LOG.hbp

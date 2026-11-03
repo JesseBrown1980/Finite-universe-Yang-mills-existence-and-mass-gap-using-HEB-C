@@ -1,4 +1,4 @@
-# The operator's rule: "We can't use float." Every pull request's code is scanned for binary floating point, and anything found outside native/scripts/FLOAT-EVIDENCE.txt fails.
+# The operator's rule: "We can't use float." Every pull request's code is scanned for binary floating point and Python's fractions, and anything found outside native/scripts/FLOAT-EVIDENCE.txt fails.
 # Floating-point evidence stays where it is, with its integer redo beside it. Integer only, json=0.
 name: No floating point
 
@@ -12,19 +12,19 @@ permissions:
 jobs:
   no-float:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: The gate reads its own test snippets
         run: python3 -I -X utf8 native/scripts/no_float_gate.py --selftest
       - name: Scan all tracked code
         run: python3 -I -X utf8 native/scripts/no_float_gate.py .
-      - name: The gate goes red on planted floats
+      - name: The gate goes red on planted floats and fractions
         run: |
           set -euo pipefail
           git config user.name gate-control
           git config user.email gate-control@localhost
-          for plant in 'x = 1 / 2|planted_float.py' 'import time; x = time.time()|planted_clock.py' 'fn f() -> u8 { let a = 0.5; 1 }|planted_float.rs'; do
+          for plant in 'x = 1 / 2|planted_float.py' 'import time; x = time.time()|planted_clock.py' 'fn f() -> u8 { let a = 0.5; 1 }|planted_float.rs' 'import fractions|planted_fractions.py' 'from fractions import Fraction as F|planted_fraction_as.py'; do
             file="native/scripts/${plant##*|}"
             printf '%s\n' "${plant%|*}" > "$file"
             git add "$file"
@@ -38,6 +38,18 @@ jobs:
           if python3 -I -X utf8 native/scripts/no_float_gate.py . > /tmp/planted.out; then echo 'the gate passed one more float in a listed file'; exit 1; fi
           grep -q 'count_moved=native/ym/results/3x4_stream/perron/warmcal.py' /tmp/planted.out
           git checkout -q -- native/ym/results/3x4_stream/perron/warmcal.py
+      - name: The integer pair against CPython's class, and every planted break seen
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/test_intpair.py 27 20000
+          python3 -I -X utf8 native/scripts/test_intpair.py --teeth
+      - name: Every integer copy regenerates byte-exact from its original, and reads clean
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/make_integer_pairs.py --selftest
+          python3 -I -X utf8 native/scripts/make_integer_pairs.py . --check
+          H=native/ym/results/integer-pairs-2026-11-03
+          python3 -X utf8 native/scripts/integer_only_audit.py native/scripts/intpair.py native/scripts/make_integer_pairs.py "$H/run_cases.py" "$H/run_original_redirected.py" "$H/check_climb_estimate.py" "$H/test_runlog.py"
       - name: The redone items, in integers
         run: |
           set -euo pipefail
@@ -45,9 +57,6 @@ jobs:
           python3 -I -X utf8 native/ym/independent/gpt6_3x4_meta_check_integer.py
           python3 -I -X utf8 "$P/warmcal_integer.py" "$P/WARMCAL-small.hbp"
           python3 native/scripts/integer_only_audit.py native/ym/independent/gpt6_3x4_meta_check_integer.py "$P/warmcal_integer.py"
-          mkdir -p /tmp/copies
-          python3 -I -X utf8 "$P/second-seat/integer-redo/make_integer_redo.py" "$P/second-seat" /tmp/copies
-          for f in c2_acc c2_fuzz c3_random c4b_open; do cmp "/tmp/copies/$f.py" "$P/second-seat/integer-redo/$f.py"; done
       - name: The division check goes red on a float
         run: |
           printf 'x = 1 / 2\n' > /tmp/plant.py

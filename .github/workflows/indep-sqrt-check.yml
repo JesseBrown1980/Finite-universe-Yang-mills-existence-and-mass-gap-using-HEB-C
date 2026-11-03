@@ -17,13 +17,14 @@ permissions:
 jobs:
   indep-sqrt:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Rust 1.81 and numpy
         run: |
+          # numpy is for the recorded file from commit cf6a2c9 alone. The current indep_verify.py runs on plain ints.
           rustup toolchain install 1.81.0 --profile minimal
           python3 -m pip install --quiet numpy
       - name: Build the kernel
