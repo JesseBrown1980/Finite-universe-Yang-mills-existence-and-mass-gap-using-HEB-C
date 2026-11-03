@@ -17,6 +17,7 @@ This register is the current entry point for the finite-universe Yang–Mills / 
 | [#88](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/88) | The stability plan: the region dictionary and the theorem matching for even square tori, with its correction on δ |
 | [#89](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/89) | The bound with no store on 4×4, 4×5 and 5×5, the second seat's and GPT-6's reviews, and `hybridcheck`, the attack on the hybrid certificate |
 | [#7](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/7) to [#15](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/15), [#18](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/18) | A separate seat's work from October 25 on the 2×2 torus and the 3×3 flat levels, in [`independent/`](../independent/README.md) |
+| [#5](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/5), [#6](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/6) | Stage 2I, the RIME C3 moment test, and Stage 2J, the byte-exact RIME Prism bridge |
 
 **The numbers to remember, at r = 9:**
 
@@ -55,7 +56,6 @@ The simpler no-store bound under those three reads 16.252744, 14.017195 and 4.01
 
 | PRs | What they are | Note |
 |---|---|---|
-| [#5](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/5), [#6](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/6) | Stage 2I and 2J audits of RIME | #5 has conflicts |
 | [#10](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/10), [#16](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/16), [#17](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/17) | HTTP-0 and SG-RAM test grounds and the integer wave observatory | |
 | [#31](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/31), [#39](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/39), [#42](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/42), [#43](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/43), [#44](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/44), [#47](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/47) | Cloud-seat tests from October 29 and 30, and CHSH controls | |
 | [#52](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/52) | An earlier README status | Superseded by this page |
