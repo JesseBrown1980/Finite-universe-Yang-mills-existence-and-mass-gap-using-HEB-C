@@ -1,0 +1,46 @@
+name: Fixture controls for the three checkers
+on:
+  push:
+    branches:
+      - audit/go-fixture-controls-20261103
+permissions:
+  contents: read
+jobs:
+  fixture-controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the outside seat's Go checker from its pinned source
+        shell: bash
+        run: |
+          set -euo pipefail
+          D=native/ym/results/3x4_stream/perron/outside-go-41509351749
+          ( cd "$D" && sha256sum -c source.sha256 )
+          go version
+          mkdir -p /tmp/gochk
+          cp "$D/perron_independent.go" /tmp/gochk/perron_independent.go
+          ( cd /tmp/gochk && go build -o "$RUNNER_TEMP/perron_independent" perron_independent.go )
+      - name: Build allpairs on Rust 1.81
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal
+          cd native/ym
+          cargo +1.81.0 build --locked --release -p evolvers --bin allpairs
+      - name: Run the fixture controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          F=native/ym/results/3x4_stream/perron/allpairs/fixture-controls
+          status=0
+          python3 -I -X utf8 "$F/run_fixture_controls.py" --base "$F/fixture-2x2.rooms.gz" --out "$RUNNER_TEMP/out" \
+            --go "$RUNNER_TEMP/perron_independent" --strict native/ym/results/3x4_stream/perron/check_d_strict.py \
+            --allpairs native/ym/target/release/allpairs || status=$?
+          cat "$RUNNER_TEMP/out/FIXTURE-CONTROLS.hbp" || true
+          exit "$status"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fixture-controls
+          path: ${{ runner.temp }}/out

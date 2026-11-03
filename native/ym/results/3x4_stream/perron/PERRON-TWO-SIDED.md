@@ -30,7 +30,7 @@ Steps that could fail, and what tests each:
 
 | Step | Test |
 |---|---|
-| H′ is W-self-adjoint | On all rows: `check_d_strict.py --self-adjoint`, a random form drawn from SHA-256. The pass also requires E_ab = E_ba exactly on its vectors, and prints how many pairs it compared. With one vector it prints `E_self_adjoint=OPEN` |
+| H′ is W-self-adjoint | On every pair, exactly: `allpairs`, 1,632,625,631 off-diagonal pairs with w_h z_hj = w_j z_jh, 0 mismatches and 0 unpaired entries, in section 5. On all rows: `check_d_strict.py --self-adjoint`, a random form drawn from SHA-256. The pass also requires E_ab = E_ba exactly on its vectors, and prints how many pairs it compared. With one vector it prints `E_self_adjoint=OPEN` |
 | The vectors vanish on the flat rows | The pass refuses any vector that does not |
 | A sum or product leaves its range | On every path to a printed number in `pass` and `grid`, products are checked and exit 2 with no value, and JE and JB are limited to 2⁴⁰. Sums use 256 bits. Unit tests hold the second seat's three cases |
 | The bisection logic | Exact on a 2×2 by hand, against separate code below, and against the second seat's exact inertia |
@@ -176,7 +176,7 @@ The scope of this check:
 - **The values are computed.** The source floors (9,000,000·M·d_h + 1,000,000·Σ z d_j) / d_h on every non-flat row, and holds none of the blind values. The workflow states an expected value for the control alone.
   The blinding was partial: this seat's status messages named these values before the run.
 - **Self-adjointness.** It draws x and y from −3..3 with one fixed seed. One bad pair (h, j) passes when x_h y_j = y_h x_j, which 289 of the 2,401 tuples satisfy (0.12036…, by enumeration). `check_d_strict.py` tests the same
-  property modulo 2⁶¹ − 1, with a false-pass chance of about 10⁻¹⁸. The Go checker's two fault controls stop before that test, so a fault control that reaches its row-sum and self-adjoint gates is open: section 7.
+  property modulo 2⁶¹ − 1, with a false-pass chance of about 10⁻¹⁸. The Go checker's two fault controls in this run stop before that test. On a fixture with every hash repaired, it reports 1,071 of 1,198 single-pair faults, as predicted, and all 211 row-sum faults: below.
 - **The rows.** It reads them as stored, with the merkle and the sector hashes checked. `fullrebuild` compares them with the definition of H: section 7.
 
 ### Every 3×4 row against the definition of H
@@ -197,6 +197,37 @@ The scope of this check:
   which `check_d_strict.py` ties to `passA.bin`, whose weights sum to exactly 6¹³.
 - **Controls.** It matches all rows on 2×2, 2×3 and 3×3. With a store's merkle repaired after one changed entry, M or weight, it reports exactly that mismatch and exits 2, on 4 of 4 controls: [`FULLREBUILD-CONTROLS.hbp`](FULLREBUILD-CONTROLS.hbp).
 - **Who and where.** The second seat wrote it, separately from the store's builder, and it ran on this seat's machine. A replay on another machine is open: section 7.
+
+### Every off-diagonal pair, exactly
+
+[`allpairs`](../../../crates/evolvers/src/bin/allpairs.rs) compares w_h z_hj with w_j z_jh on every off-diagonal pair of the stored rows, in exact integers, with no random vector. An entry with no partner counts as a failure. It reads through `roomio`, so every pass recomputes the payload merkle. An outside seat recommended this check, and the operator relayed its approval.
+Its prediction was written first, in [`allpairs/ALLPAIRS-RUN.hbp`](allpairs/ALLPAIRS-RUN.hbp), with any nonzero counter falsifying W-self-adjointness of the stored rows. It printed, in [`allpairs/ALLPAIRS-3x4.out`](allpairs/ALLPAIRS-3x4.out):
+
+```
+ALLPAIRS|L=3x4|sector=Sx+Sy+|n=45508080|rows_read=45508080|entries=3310759342|header_entries=PASS|diag=45508080|pairs=1632625631|passes=4|cap_entries=470000000|value_mismatch=0|lower_without_upper=0|upper_without_lower=0|columns_not_ascending=0|column_out_of_range=0|zero_z=0|positive_offdiag=0|row_sum_nonzero=0|zero_weight=0|missing_diag=0|flats=7|flat_w=1,3,2,3,3,2,4|flat_w_sum=18|sum_w=13060694016|codes=13060694016|whole_space_count=PASS|merkle=PASS|verdict=PASS|secs=2704|json=0
+```
+
+It exited 0 with an empty standard error, after 2,704 s in 4 passes, each holding at most 470,000,000 upper entries (3.5 GiB). Its executable and source kept their recorded hashes (`c68f25b4…`, `f4ea7e85…`).
+
+The scope of this check:
+
+- **What it reads.** The stored rows and weights. A change that keeps the weighted equality on both sides of a pair passes it, and `fullrebuild` reports that change: 2 entries, on each such control.
+- **Controls.** On 2×2, 2×3 and 3×3, at large and small windows, with a store's merkle repaired after one change: 49 of 49 outcomes as predicted in writing first, in [`allpairs/CONTROLS.hbp`](allpairs/CONTROLS.hbp). A changed value is one mismatch, a moved column is two unpaired entries, and a changed weight breaks every pair of its row. An unrepaired byte stops it at the merkle with exit 1.
+- **The counts beside the pairs.** On the same rows it finds ascending columns in range, no zero entry, no positive off-diagonal, a diagonal on every row and every row sum 0. The weights sum to 6¹³ = 13,060,694,016, with flat weights 1, 3, 2, 3, 3, 2, 4 summing to 18, as in `passA.bin`.
+- **Who and where.** This seat wrote it, and it ran on this seat's machine. A second seat's review, an exact pair test in the outside seat's own code, and a replay on another machine are open: section 7.
+
+### Faults that reach each checker's gates
+
+[`allpairs/fixture-controls/run_fixture_controls.py`](allpairs/fixture-controls/run_fixture_controls.py) puts one fault at a time into a small copy of the 2×2 store, with the merkle, the sector hash and the manifest recomputed, so each checker's later gates see it. The public store stays as it is.
+[run 41575947849](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41575947849) on hosted Linux built the Go checker from its pinned source `8009406c…` with go1.24.13, the version of its own run, and `allpairs` on Rust 1.81. Every outcome below was predicted in writing first, in [`allpairs/ALLPAIRS-RUN.hbp`](allpairs/ALLPAIRS-RUN.hbp), and met, in [`allpairs/fixture-controls/FIXTURE-CONTROLS.hbp`](allpairs/fixture-controls/FIXTURE-CONTROLS.hbp).
+
+| Checker | Clean store | One row-sum fault, on each of 211 rows | One pair fault, on each of 1,198 pairs |
+|---|---|---|---|
+| The outside seat's Go checker | Passes, with the predicted values | 211 reported, at its row-sum gate | 1,071 reported, at its self-adjoint gate with the predicted residual. 127 pass |
+| `check_d_strict.py` | Passes, with the predicted value | 211 reported: 204 at its row-sum gate, and the 7 flat rows at its flat-diagonal gate | 1,198 reported, at its self-adjoint gate |
+| `allpairs` | Passes | 211 reported by row sum, with every pair clean | 1,198 reported, each as one value mismatch with row sums clean |
+
+The 127 are the pairs where x_h y_j = y_h x_j under the Go checker's fixed seed: 10.6% on this fixture, against 289 of 2,401 tuples, 12.04%, over the range. On 3×4, `allpairs` above measures every pair exactly.
 
 ### Which tool made which row
 
@@ -229,8 +260,9 @@ Its first objections as a hostile reader stand as open items: the upper side bou
 
 | Item | Run that measures it |
 |---|---|
-| The outside seat's Go checker, further | Its values are measured, in section 5. Open: a wider range for x and y in its self-adjoint test, and a fault control that reaches its row-sum and self-adjoint gates, which needs a store with a repaired merkle. Earlier runs, on its branch's [`independent-go-perron-20261102.yml`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/audit/independent-go-perron-20261102/.github/workflows/independent-go-perron-20261102.yml): the first stopped after the row loop on the format text this seat gave it, corrected in `PERRON-REVIEW.md`, and diagnostic run [41499253445](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41499253445) printed `trailing=742160 nonzero=0 merkle_matches=true`, as predicted in writing beforehand |
+| The outside seat's Go checker, further | Its values, and its row-sum and self-adjoint gates on fixtures, are measured, in section 5. Open: an exact pair test in its own code, which goes beyond a wider range for x and y. Earlier runs, on its branch's [`independent-go-perron-20261102.yml`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/audit/independent-go-perron-20261102/.github/workflows/independent-go-perron-20261102.yml): the first stopped after the row loop on the format text this seat gave it, corrected in `PERRON-REVIEW.md`, and diagnostic run [41499253445](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41499253445) printed `trailing=742160 nonzero=0 merkle_matches=true`, as predicted in writing beforehand |
 | Every 3×4 row against the definition of H | Done on this seat's machine: all 45,508,080 rows, 0 mismatches, as predicted in writing first, in section 5. Open: a replay on another machine from the public files, about 2.2 h at 6 threads |
+| Every off-diagonal pair, exactly | Done on this seat's machine: 1,632,625,631 pairs, 0 mismatches, as predicted in writing first, in section 5. Open: a second seat's review of `allpairs`, and a replay on another machine from the public files, 2,704 s here |
 | The gap below r = 6.076 on 3×4 | A solve at lower coupling, then the same checks. On 3×3 the flat bound's route ends between r = 4 and 4.06 |
 | `perroncert` guards at absurd inputs | A hardened build with checked products, once the pinned runs are done |
 | A verdict by this route | A rule revision and the operator's word: [`PERRON-RULE-DRAFT.md`](PERRON-RULE-DRAFT.md) |

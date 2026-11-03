@@ -1,7 +1,7 @@
 # Perron lower bound on the level above the flat cluster (draft, November 2, 2026)
 
 **On the 3×4 store the bound certifies 94.070673 J_E, by the author's two checkers and an outside seat's Go checker, and λ₁(H′) ≤ 94.070936 J_E.** The first certificate was 93.061051, and
-[`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md) has how it rose. All 45,508,080 rows of that store match the definition of H, by a second seat's full rebuild. The verdict stays open until the steps in section 4 are done. Claims
+[`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md) has how it rose. All 45,508,080 rows of that store match the definition of H, by a second seat's full rebuild, and all 1,632,625,631 off-diagonal pairs satisfy w_h z_hj = w_j z_jh exactly. The verdict stays open until the steps in section 4 are done. Claims
 are tagged MEASURED, DERIVED (a short proof written here) or CONJECTURE. The rows and hashes are in
 [`PERRON-RESULT.hbp`](PERRON-RESULT.hbp), and [`PERRON-REVIEW.md`](PERRON-REVIEW.md) explains how to check them.
 
@@ -107,6 +107,8 @@ pairs w_h·z_hj = w_j·z_jh. These are samples of the 45,508,080 rows. On all ro
 the key table and W-self-adjointness.
 
 **All 45,508,080 rows.** MEASURED by `second-seat/fullrebuild.rs`, written by the second seat: every row recomputed from the rules and compared with the store, 0 mismatches in canonical key, weight, M or entries, and merkle PASS, in 7,870 s, as predicted in writing first: [`FULLREBUILD-3x4.out`](FULLREBUILD-3x4.out) and [`FULLREBUILD-RUN.hbp`](FULLREBUILD-RUN.hbp). [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 5, has its scope.
+
+**All 1,632,625,631 off-diagonal pairs.** MEASURED by [`allpairs`](../../../crates/evolvers/src/bin/allpairs.rs): w_h·z_hj = w_j·z_jh on every pair in exact integers, 0 mismatches and 0 unpaired entries, with merkle PASS on each of 4 passes, in 2,704 s, as predicted in writing first: [`allpairs/ALLPAIRS-3x4.out`](allpairs/ALLPAIRS-3x4.out) and [`allpairs/ALLPAIRS-RUN.hbp`](allpairs/ALLPAIRS-RUN.hbp). The same section has its scope and its controls.
 
 ### The bound on 3×4
 
@@ -220,6 +222,7 @@ cluster, which fits the single (−,−) flat state. Measuring its sector direct
 | The vector at the top | Done to 0.000263 J_E of the level: 94.070673 by both checkers, and λ₁(H′) ≤ 94.070936 from the same store, in [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md). The hosted climb reached 94.058570 by both checkers, [run 41448187715](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41448187715) |
 | E₉ itself on 3×4 | Interlacing leaves E₉ above λ₁(H′): by about 0.11 J_E on 2×2 and 0.02 on 3×3. The earlier CONJECTURE that λ₁(H′) ≈ 94.0 read low by 0.07. The cluster top of 70.03 plus 3×3's gap of 23.94 gives 93.97 |
 | That the store's rows are H, on 3×4 | Done: `second-seat/fullrebuild.rs` recomputed all 45,508,080 rows from the rules, with 0 mismatches and merkle PASS, as predicted in writing first: [`FULLREBUILD-3x4.out`](FULLREBUILD-3x4.out). Earlier: three samples, with 385,827 exact weighted pairs. Open: a replay on another machine |
+| W-self-adjointness of the stored rows, on 3×4 | Done: `allpairs` compared all 1,632,625,631 off-diagonal pairs exactly, 0 mismatches, as predicted in writing first: [`allpairs/ALLPAIRS-3x4.out`](allpairs/ALLPAIRS-3x4.out). Open: a second seat's review and a replay on another machine |
 | A checker written by someone else | Done: an outside seat's Go checker, from the formats in [`PERRON-REVIEW.md`](PERRON-REVIEW.md), prints 94070673, row 45,507,968, M = 3, as predicted, with its merkle, hash, row-sum and self-adjoint checks passing, [run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749). [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 5, has its values and its scope, and section 7 what stays open on it |
 | The argument itself | Three reviewers accept it on reading, with the lift conditional on the row check, now done on all rows. A second seat attacked the new tools and the lift with its own whole-space builds on 2×2 and 2×3, and refuted no printed bound: [`REVIEW-OPUS55.md`](REVIEW-OPUS55.md) |
 | A verdict by this route | A rule revision and the operator's word: [`PERRON-RULE-DRAFT.md`](PERRON-RULE-DRAFT.md) |

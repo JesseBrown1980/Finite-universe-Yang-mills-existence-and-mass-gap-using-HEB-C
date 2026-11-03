@@ -30,8 +30,8 @@ obligations: see [the theory route](#the-theory-route).
 | 2×2, 2×3 | full physical space, all momenta | 8 levels below t₁ and below t_B at r = 9 | [`native/ym/results/full_space_r9/`](native/ym/results/full_space_r9/summary.hbp) |
 
 **The same gap in the whole gauge-invariant space, by the Perron bound (November 2, 2026).** Author-maintained
-certification, with an outside seat's checker and every row recomputed from the rules on 3×4. These sit beside the rows above. Receipts are in
-[PR #79](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/79), which stays open and unmerged:
+certification, with an outside seat's checker, every row recomputed from the rules and every pair compared exactly on 3×4. These sit beside the rows above. Receipts are in
+[`native/ym/results/3x4_stream/perron/`](native/ym/results/3x4_stream/perron/PERRON-RESULT.hbp), from PR #79:
 
 | Lattice | `t_cert` at r = 9 (J_E) | E₉ − E₈ for every r ≥ 9 | E₉ − E₈ at r = 9 | λ₁(H′) ≤ (J_E) | Rows recomputed from the definition of H |
 |---|---|---|---|---|---|
@@ -42,7 +42,7 @@ certification, with an outside seat's checker and every row recomputed from the 
 
 In the orbit basis every off-diagonal entry of H is ≤ 0. With the flat rows removed to give H′, any positive vector d gives
 E₉ ≥ λ₁(H′) ≥ min_h (H′d)_h / d_h, by Cauchy interlacing and Barta / Collatz–Wielandt, and one sector's rows bound the whole space
-([derivation](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/532951deee3cdada5159a77ee92552ca15ece42e/native/ym/results/3x4_stream/perron/PERRON-BOUND.md)). The solver is untrusted, since a poor d simply gives a weaker bound. Only the exact pass counts.
+([derivation](native/ym/results/3x4_stream/perron/PERRON-BOUND.md)). The solver is untrusted, since a poor d simply gives a weaker bound. Only the exact pass counts.
 `perroncert check` prints `t_cert` on every lattice here, and `check_d_strict.py`, separately written, gives the same value on 3×3 and 3×4, and an outside seat's Go checker gives it on 3×4.
 The λ₁(H′) column comes from `perronritz pass`, by min-max on the span of the stored vectors.
 
@@ -50,7 +50,7 @@ The λ₁(H′) column comes from `perronritz pass`, by min-max on the span of t
   for every r ≥ 6.076. On 3×3 the flat bound's route ends between r = 4 and r = 4.06, from exact brackets on λ₁(H′).
 - **How it was reached.** perroncert's vectors are resolvents, so differences of them are free steps of inverse iteration. The hosted climb
   ([run 41448187715](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41448187715)) reached 94.058570, and a third divided difference of its vector with two lower ones reached
-  94.070673 in one more pass: [`PERRON-TWO-SIDED.md`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/532951deee3cdada5159a77ee92552ca15ece42e/native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md). The first certificate, 93.061051, stays in the record.
+  94.070673 in one more pass: [`PERRON-TWO-SIDED.md`](native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md). The first certificate, 93.061051, stays in the record.
 - **The same vectors on two machines.** Local Windows and hosted Linux, each with its own build, give the same SHA-256 at T = 93.95 after 3 and after 6 passes.
 
 | Evidence for the 3×4 row | Status |
@@ -58,9 +58,10 @@ The λ₁(H′) column comes from `perronritz pass`, by min-max on the span of t
 | `perroncert check` and `check_d_strict.py`, one author | **94.070673 J_E**, same value, row and M, on [`perron/top/x3-c.bin`](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/tree/29723023f37ade227af51e1b92a4a4d55d4bb3f8/perron/top), all structure checks passing |
 | Three outside reviews of the argument | Accepted on reading, with the lift conditional on the row check, now done on all rows |
 | An outside seat's replay of the first certificate, [run 41444444894](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41444444894) | 93.061051 with the same row and M, and 5,556 rebuilt rows matching |
-| A second seat's attempt to refute the new work, with its own exact checks | [No printed bound refuted](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/532951deee3cdada5159a77ee92552ca15ece42e/native/ym/results/3x4_stream/perron/REVIEW-OPUS55.md): 8 of 8 claims survived, and its 8 findings are handled |
-| **A checker written by someone else** | **Passed:** an outside seat's Go checker, [run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749), prints 94.070673 J_E with the same row and M on `x3-c.bin`, and the predicted values on two other vectors, with merkle, sector, vector, row-sum and self-adjoint checks passing and two fault controls rejected. Its self-adjoint test draws x, y from −3..3 with one fixed seed, where one bad pair passes at 289 of 2,401; a wider range is open. [Its log, source and scope](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/532951deee3cdada5159a77ee92552ca15ece42e/native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md) |
-| **Every 3×4 row recomputed from the rules** | **Done:** a second seat's `fullrebuild` gives 45,508,080 rows, 0 mismatches in key, weight, M or entries, and merkle PASS, in 7,870 s on this seat's machine, [as predicted in writing first](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/532951deee3cdada5159a77ee92552ca15ece42e/native/ym/results/3x4_stream/perron/FULLREBUILD-RUN.hbp). Afterwards all 34 local sectors match the public manifest. With a store's merkle repaired after one change, it caught 4 of 4 |
+| A second seat's attempt to refute the new work, with its own exact checks | [No printed bound refuted](native/ym/results/3x4_stream/perron/REVIEW-OPUS55.md): 8 of 8 claims survived, and its 8 findings are handled |
+| **A checker written by someone else** | **Passed:** an outside seat's Go checker, [run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749), prints 94.070673 J_E with the same row and M on `x3-c.bin`, and the predicted values on two other vectors, with merkle, sector, vector, row-sum and self-adjoint checks passing and two fault controls rejected. Its self-adjoint test draws x, y from −3..3 with one fixed seed, where one bad pair passes at 289 of 2,401. On a fixture with every hash repaired, [run 41575947849](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41575947849), it reported all 211 row-sum faults and 1,071 of 1,198 single-pair faults, with 127 passing, each as predicted. [Its log, source and scope](native/ym/results/3x4_stream/perron/PERRON-TWO-SIDED.md) |
+| **Every 3×4 row recomputed from the rules** | **Done:** a second seat's `fullrebuild` gives 45,508,080 rows, 0 mismatches in key, weight, M or entries, and merkle PASS, in 7,870 s on this seat's machine, [as predicted in writing first](native/ym/results/3x4_stream/perron/FULLREBUILD-RUN.hbp). Afterwards all 34 local sectors match the public manifest. With a store's merkle repaired after one change, it caught 4 of 4 |
+| **Every off-diagonal pair compared exactly** | **Done:** `allpairs` gives 1,632,625,631 pairs with w_h z_hj = w_j z_jh, 0 mismatches and 0 unpaired entries, and merkle PASS on each of 4 passes, in 2,704 s on this seat's machine, [as predicted in writing first](native/ym/results/3x4_stream/perron/allpairs/ALLPAIRS-RUN.hbp). Its controls on small stores met all 49 predicted outcomes |
 | A registered rule for this route, and the operator's word on a verdict | Open |
 
 **Point certificates** of E₉ − E₈, in units of J_E:
@@ -214,15 +215,15 @@ ambiguity remains open, and any threshold above 60M stays on HOLD until a spec r
 
 **Other in progress:** full-space counts on 2×4 through the reflection-only
 sectors; a separately written operator and inertia verifier. **Open on the Perron route:** a solve at lower coupling on 3×4; `perroncert` guards at absurd inputs, where it wraps and
-`check_d_strict.py` refuses; on the outside seat's Go checker, a wider x, y range and a fault control that reaches its self-adjoint test;
-a replay of `fullrebuild` on another machine.
+`check_d_strict.py` refuses; on the outside seat's Go checker, an exact pair test in its own code;
+a second seat's review of `allpairs`; a replay of `fullrebuild` and `allpairs` on another machine.
 
 ### Evidence classes and verification
 
 | Evidence class | What is established | Next |
 |---|---|---|
-| Exact integer-arithmetic certificates of fixed-lattice spectral-gap bounds (S₃) | 2×L sector results and 3×3 full-space counts with sealed integer receipts and checks; whole-space Perron bounds on 2×2, 2×3, 3×3 and 3×4, author-maintained, with an outside seat's checker and all rows recomputed on 3×4, in PR #79 | The BHM/TQO volume-uniform proof, the immediate research track |
-| 3×4 dimension, memory and control | 2,177,317,873 reconciled gauge orbits; P4 `PILOT_PASS`, `CAP=12`; hosted control C1–C3 PASS; gap rule registered; 60M production PASS (`negative=0`, `ambiguous=0`); P0 PASS on the store; Perron bound 94.070673 J_E by the author's two checkers and an outside seat's Go checker, with λ₁(H′) ≤ 94.070936 J_E; all 45,508,080 rows recomputed from the rules, 0 mismatches | A rule revision and the operator's word on a 3×4 gap verdict; 90M ambiguity |
+| Exact integer-arithmetic certificates of fixed-lattice spectral-gap bounds (S₃) | 2×L sector results and 3×3 full-space counts with sealed integer receipts and checks; whole-space Perron bounds on 2×2, 2×3, 3×3 and 3×4, author-maintained, with an outside seat's checker, all rows recomputed and all pairs compared exactly on 3×4 | The BHM/TQO volume-uniform proof, the immediate research track |
+| 3×4 dimension, memory and control | 2,177,317,873 reconciled gauge orbits; P4 `PILOT_PASS`, `CAP=12`; hosted control C1–C3 PASS; gap rule registered; 60M production PASS (`negative=0`, `ambiguous=0`); P0 PASS on the store; Perron bound 94.070673 J_E by the author's two checkers and an outside seat's Go checker, with λ₁(H′) ≤ 94.070936 J_E; all 45,508,080 rows recomputed from the rules and all 1,632,625,631 pairs compared exactly, 0 mismatches | A rule revision and the operator's word on a 3×4 gap verdict; 90M ambiguity |
 | Cross-seat operator experiments | Replayed software models of reach, curve, hash and CHSH on discrete lattices | A physical z mechanism; a rule that yields the quantum bound 2√2 from the model |
 | Production | 60M run 41321108365: 18 of 18 column jobs and the merge succeeded, `negative=0`, `ambiguous=0`; no local re-run was needed | A spec revision before any threshold above 60M, if the Perron route leaves one needed |
 
@@ -299,10 +300,10 @@ beyond those.
   vendored Clasy X3 kernel.
 - `.github/workflows/`: GitRAM lanes for regeneration, the 2×5 stages and the
   stage B pipeline, all with sealed fan-ins.
-- In PR #79: `perroncert` (solver and exact check), `check_d_strict.py` (fail-closed Python checker),
+- The Perron route's tools: `perroncert` (solver and exact check), `check_d_strict.py` (fail-closed Python checker),
   `verify_sample_rows.py` (rows rebuilt from the definition), `perronritz` (side from above, every coupling,
-  divided differences), and `second-seat/fullrebuild.rs` (every row recomputed from the rules). `outside-go-41509351749/` holds the outside seat's
-  Go checker, its log and its artifact.
+  divided differences), `second-seat/fullrebuild.rs` (every row recomputed from the rules), and `allpairs` (every off-diagonal pair, exactly). `outside-go-41509351749/` holds the outside seat's
+  Go checker, its log and its artifact, and `allpairs/fixture-controls/` the faults that reach each checker's gates.
 
 ## 2×2 coupling ladder: E₁ − E₀
 
@@ -372,6 +373,6 @@ cargo +1.81.0 run --release --offline --locked -- torus2-independent-verify 1 1 
 cargo +1.81.0 run --release --offline --locked -- serve 5088
 ```
 
-To repeat the 3×4 certificate from public files, or to attack it, see [the review guide](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/532951deee3cdada5159a77ee92552ca15ece42e/native/ym/results/3x4_stream/perron/PERRON-REVIEW.md).
+To repeat the 3×4 certificate from public files, or to attack it, see [the review guide](native/ym/results/3x4_stream/perron/PERRON-REVIEW.md).
 
 Theory and architecture: Jesse Daniel Brown.

@@ -1,0 +1,204 @@
+fixture-controls	Set up job	﻿2026-11-03T04:04:42.5448622Z Current runner version: '2.338.2'
+fixture-controls	Set up job	2026-11-03T04:04:42.5473341Z ##[group]Runner Image Provisioner
+fixture-controls	Set up job	2026-11-03T04:04:42.5474458Z Hosted Compute Agent
+fixture-controls	Set up job	2026-11-03T04:04:42.5475041Z Version: 20261021.618
+fixture-controls	Set up job	2026-11-03T04:04:42.5475788Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+fixture-controls	Set up job	2026-11-03T04:04:42.5476503Z Build Date: 2026-10-21T00:45:21Z
+fixture-controls	Set up job	2026-11-03T04:04:42.5477188Z Worker ID: {71da9059-74e1-45dd-b17c-e18906c5bece}
+fixture-controls	Set up job	2026-11-03T04:04:42.5477877Z Region: westus3
+fixture-controls	Set up job	2026-11-03T04:04:42.5478403Z Cloud: Azure
+fixture-controls	Set up job	2026-11-03T04:04:42.5478989Z ##[endgroup]
+fixture-controls	Set up job	2026-11-03T04:04:42.5480552Z ##[group]Operating System
+fixture-controls	Set up job	2026-11-03T04:04:42.5481230Z Ubuntu
+fixture-controls	Set up job	2026-11-03T04:04:42.5481806Z 24.04.5
+fixture-controls	Set up job	2026-11-03T04:04:42.5482311Z LTS
+fixture-controls	Set up job	2026-11-03T04:04:42.5482901Z ##[endgroup]
+fixture-controls	Set up job	2026-11-03T04:04:42.5483490Z ##[group]Runner Image
+fixture-controls	Set up job	2026-11-03T04:04:42.5484316Z Image: ubuntu-24.04
+fixture-controls	Set up job	2026-11-03T04:04:42.5484892Z Version: 20261025.353.1
+fixture-controls	Set up job	2026-11-03T04:04:42.5485932Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+fixture-controls	Set up job	2026-11-03T04:04:42.5487679Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+fixture-controls	Set up job	2026-11-03T04:04:42.5488899Z ##[endgroup]
+fixture-controls	Set up job	2026-11-03T04:04:42.5490022Z ##[group]GITHUB_TOKEN Permissions
+fixture-controls	Set up job	2026-11-03T04:04:42.5492283Z Contents: read
+fixture-controls	Set up job	2026-11-03T04:04:42.5492877Z Metadata: read
+fixture-controls	Set up job	2026-11-03T04:04:42.5493421Z ##[endgroup]
+fixture-controls	Set up job	2026-11-03T04:04:42.5495685Z Secret source: Actions
+fixture-controls	Set up job	2026-11-03T04:04:42.5496631Z Cache mode: write
+fixture-controls	Set up job	2026-11-03T04:04:42.5497335Z Prepare workflow directory
+fixture-controls	Set up job	2026-11-03T04:04:42.5846603Z Prepare all required actions
+fixture-controls	Set up job	2026-11-03T04:04:42.5915025Z Getting action download info
+fixture-controls	Set up job	2026-11-03T04:04:42.9106098Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+fixture-controls	Set up job	2026-11-03T04:04:43.0069618Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+fixture-controls	Set up job	2026-11-03T04:04:43.2585664Z Complete job name: fixture-controls
+fixture-controls	Run actions/checkout@v4	﻿2026-11-03T04:04:43.3355861Z ##[group]Run actions/checkout@v4
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3356735Z with:
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3357662Z   repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3362169Z   token: ***
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3362699Z   ssh-strict: true
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3363215Z   ssh-user: git
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3363715Z   persist-credentials: true
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3364574Z   clean: true
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3365114Z   sparse-checkout-cone-mode: true
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3365786Z   fetch-depth: 1
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3366292Z   fetch-tags: false
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3366788Z   show-progress: true
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3367348Z   lfs: false
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3367862Z   submodules: false
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3368384Z   set-safe-directory: true
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3368971Z   allow-unsafe-pr-checkout: false
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.3369729Z ##[endgroup]
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6231289Z Syncing repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6234411Z ##[group]Getting Git version info
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6236503Z Working directory is '/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C'
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6238800Z [command]/usr/bin/git version
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6337131Z git version 2.56.0
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6357402Z ##[endgroup]
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6372127Z Temporarily overriding HOME='/home/runner/work/_temp/3e2cf17b-8c34-410d-9449-06946c174240' before making global git config changes
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6375079Z Adding repository directory to the temporary git global config as a safe directory
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6380130Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6431417Z Deleting the contents of '/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C'
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6442532Z ##[group]Initializing the repository
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6444984Z [command]/usr/bin/git init /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6557407Z hint: Using 'master' as the name for the initial branch. This default branch name
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6559132Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6560670Z hint: to use in all of your new repositories, which will suppress this warning,
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6561747Z hint: call:
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6563450Z hint:
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6564655Z hint: 	git config --global init.defaultBranch <name>
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6565663Z hint:
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6566639Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6567966Z hint: 'development'. The just-created branch can be renamed via this command:
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6569263Z hint:
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6570038Z hint: 	git branch -m <name>
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6570926Z hint:
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6571903Z hint: Disable this message with "git config set advice.defaultBranchName false"
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6574754Z Initialized empty Git repository in /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/.git/
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6587019Z [command]/usr/bin/git remote add origin https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6637605Z ##[endgroup]
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6644216Z ##[group]Disabling automatic garbage collection
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6665379Z [command]/usr/bin/git config --local gc.auto 0
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6679497Z ##[endgroup]
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6681059Z ##[group]Setting up auth
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6683596Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.6714000Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.7058755Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.7096689Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.7311249Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.7350830Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.7545551Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.7584530Z ##[endgroup]
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.7585781Z ##[group]Fetching the repository
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:43.7597903Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +62533d115a19a81e6ac23cae005135ed6c22b253:refs/remotes/origin/audit/go-fixture-controls-20261103
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:44.8411026Z From https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:44.8415959Z  * [new ref]         62533d115a19a81e6ac23cae005135ed6c22b253 -> origin/audit/go-fixture-controls-20261103
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:44.8422796Z ##[endgroup]
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:44.8425633Z ##[group]Determining the checkout info
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:44.8428064Z ##[endgroup]
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:44.8429703Z [command]/usr/bin/git sparse-checkout disable
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:44.8477546Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:44.8510193Z ##[group]Checking out the ref
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:44.8516887Z [command]/usr/bin/git checkout --progress --force -B audit/go-fixture-controls-20261103 refs/remotes/origin/audit/go-fixture-controls-20261103
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:45.0184209Z Switched to a new branch 'audit/go-fixture-controls-20261103'
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:45.0188115Z branch 'audit/go-fixture-controls-20261103' set up to track 'origin/audit/go-fixture-controls-20261103'.
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:45.0201625Z ##[endgroup]
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:45.0244150Z [command]/usr/bin/git log -1 --format=%H
+fixture-controls	Run actions/checkout@v4	2026-11-03T04:04:45.0268490Z 62533d115a19a81e6ac23cae005135ed6c22b253
+fixture-controls	Build the outside seat's Go checker from its pinned source	﻿2026-11-03T04:04:45.0559524Z ##[group]Run set -euo pipefail
+fixture-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T04:04:45.0561265Z ^[[36;1mset -euo pipefail^[[0m
+fixture-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T04:04:45.0563011Z ^[[36;1mD=native/ym/results/3x4_stream/perron/outside-go-41509351749^[[0m
+fixture-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T04:04:45.0565345Z ^[[36;1m( cd "$D" && sha256sum -c source.sha256 )^[[0m
+fixture-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T04:04:45.0566976Z ^[[36;1mgo version^[[0m
+fixture-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T04:04:45.0568193Z ^[[36;1mmkdir -p /tmp/gochk^[[0m
+fixture-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T04:04:45.0570034Z ^[[36;1mcp "$D/perron_independent.go" /tmp/gochk/perron_independent.go^[[0m
+fixture-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T04:04:45.0572675Z ^[[36;1m( cd /tmp/gochk && go build -o "$RUNNER_TEMP/perron_independent" perron_independent.go )^[[0m
+fixture-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T04:04:45.0595714Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+fixture-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T04:04:45.0597559Z ##[endgroup]
+fixture-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T04:04:45.0701687Z perron_independent.go: OK
+fixture-controls	Build the outside seat's Go checker from its pinned source	2026-11-03T04:04:45.1099598Z go version go1.24.13 linux/amd64
+fixture-controls	Build allpairs on Rust 1.81	﻿2026-11-03T04:04:50.8552051Z ##[group]Run set -euo pipefail
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:50.8552560Z ^[[36;1mset -euo pipefail^[[0m
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:50.8553035Z ^[[36;1mrustup toolchain install 1.81.0 --profile minimal^[[0m
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:50.8553589Z ^[[36;1mcd native/ym^[[0m
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:50.8554454Z ^[[36;1mcargo +1.81.0 build --locked --release -p evolvers --bin allpairs^[[0m
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:50.8569616Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:50.8570203Z ##[endgroup]
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:50.9043570Z info: syncing channel updates for 1.81.0-x86_64-unknown-linux-gnu
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:51.0537286Z info: latest update on 2024-09-05 for version 1.81.0 (eeb90cda1 2024-09-04)
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:51.0538744Z info: downloading 3 components
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:58.9292155Z 
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:58.9403035Z   1.81.0-x86_64-unknown-linux-gnu installed - rustc 1.81.0 (eeb90cda1 2024-09-04)
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:58.9404066Z 
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:59.0133504Z    Compiling autocfg v1.5.1
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:59.1951120Z    Compiling num-traits v0.2.19
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:59.7587595Z    Compiling num-integer v0.1.47
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:04:59.9249383Z    Compiling num-bigint v0.4.8
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:05:01.8585243Z    Compiling evolvers v0.1.0 (/home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/native/ym/crates/evolvers)
+fixture-controls	Build allpairs on Rust 1.81	2026-11-03T04:05:02.7113938Z     Finished `release` profile [optimized] target(s) in 3.74s
+fixture-controls	Run the fixture controls	﻿2026-11-03T04:05:02.7173709Z ##[group]Run set -euo pipefail
+fixture-controls	Run the fixture controls	2026-11-03T04:05:02.7174447Z ^[[36;1mset -euo pipefail^[[0m
+fixture-controls	Run the fixture controls	2026-11-03T04:05:02.7174926Z ^[[36;1mF=native/ym/results/3x4_stream/perron/allpairs/fixture-controls^[[0m
+fixture-controls	Run the fixture controls	2026-11-03T04:05:02.7175448Z ^[[36;1mstatus=0^[[0m
+fixture-controls	Run the fixture controls	2026-11-03T04:05:02.7176015Z ^[[36;1mpython3 -I -X utf8 "$F/run_fixture_controls.py" --base "$F/fixture-2x2.rooms.gz" --out "$RUNNER_TEMP/out" \^[[0m
+fixture-controls	Run the fixture controls	2026-11-03T04:05:02.7176827Z ^[[36;1m  --go "$RUNNER_TEMP/perron_independent" --strict native/ym/results/3x4_stream/perron/check_d_strict.py \^[[0m
+fixture-controls	Run the fixture controls	2026-11-03T04:05:02.7177502Z ^[[36;1m  --allpairs native/ym/target/release/allpairs || status=$?^[[0m
+fixture-controls	Run the fixture controls	2026-11-03T04:05:02.7178056Z ^[[36;1mcat "$RUNNER_TEMP/out/FIXTURE-CONTROLS.hbp" || true^[[0m
+fixture-controls	Run the fixture controls	2026-11-03T04:05:02.7178507Z ^[[36;1mexit "$status"^[[0m
+fixture-controls	Run the fixture controls	2026-11-03T04:05:02.7192828Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+fixture-controls	Run the fixture controls	2026-11-03T04:05:02.7193265Z ##[endgroup]
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6429810Z FIXTURE_PREDICTION|base_sha256=b31e730606db130585f9560f7adab87444d744876c3a8e36f6f9ef2bf0aa431f|n=211|pairs=1198|go_pairs_reported=1071|go_pairs_passed=127|strict_pairs_reported=1198|allpairs_pairs_reported=1198|rows=211|control=27000000,102,3|blind=-15000000,30,6|json=0
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6432464Z FIXTURE_CONTROLS_DONE|failed=0|json=0
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6501785Z FIXTURE_CASE|tool=go|case=clean|met=1|exit=0|json=0
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6504299Z GO_CLEAN_STDOUT|PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS;control t_cert_milli=27000000 min_row=102 min_mag=3;blind t_cert_milli=-15000000 min_row=30 min_mag=6;flat_rows=7 min_nonzero_mag=3 max_mag=12 weighted_residual=0;payload_zero_padding=1021936 raw_tail_bytes=0 raw_tail_nonzero=0;seconds=0;
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6506289Z FIXTURE_CASE|tool=strict|case=clean|met=1|exit=0|json=0
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6508342Z STRICT_CLEAN_STDOUT|CHECK_D_STRICT|n=211|d_sha256=5008e4e0b6c70f6adab3a3aaee08815e4d89811b1ba8b5260bd124846056ad65|flats=7|flat_rows=0,3,6,96,99,191,193|flat_diag=24|flat_flat_couplings=0|t_cert_milli=27000000|t_cert_JE=27000000/1000000|min_row=102|min_mag=3|min_nonflat_M=3|max_M=12|positive_offdiag=0|bad_d=0|row_sums_zero=PASS|W_self_adjoint=PASS|seed=27|merkle=PASS|secs=0|json=0
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6509775Z FIXTURE_CASE|tool=allpairs|case=clean|met=1|exit=0|json=0
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6510353Z FIXTURE_CASE|tool=go|sweep=rowsum|met=1|rows=211|reported=211|json=0
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6510943Z FIXTURE_CASE|tool=strict|sweep=rowsum|met=1|rows=211|reported=211|json=0
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6511558Z FIXTURE_CASE|tool=allpairs|sweep=rowsum|met=1|rows=211|reported=211|json=0
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6512214Z FIXTURE_CASE|tool=go|sweep=pair|met=1|pairs=1198|reported=1071|passed=127|as_predicted=1198|json=0
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6512865Z FIXTURE_CASE|tool=strict|sweep=pair|met=1|pairs=1198|reported=1198|json=0
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6513495Z FIXTURE_CASE|tool=allpairs|sweep=pair|met=1|pairs=1198|reported=1198|json=0
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6514298Z GO_FIRST_REPORTED|h=1|j=0|stderr=FAIL: weighted self-adjoint integer residual=-36
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6515029Z GO_FIRST_PASSED|h=1|j=10|stdout=PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6516440Z FIXTURE_PREDICTION|base_sha256=b31e730606db130585f9560f7adab87444d744876c3a8e36f6f9ef2bf0aa431f|n=211|pairs=1198|go_pairs_reported=1071|go_pairs_passed=127|strict_pairs_reported=1198|allpairs_pairs_reported=1198|rows=211|control=27000000,102,3|blind=-15000000,30,6|json=0
+fixture-controls	Run the fixture controls	2026-11-03T04:06:14.6517518Z FIXTURE_CONTROLS_DONE|failed=0|json=0
+fixture-controls	Run actions/upload-artifact@v4	﻿2026-11-03T04:06:14.6609641Z ##[group]Run actions/upload-artifact@v4
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:14.6610099Z with:
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:14.6610414Z   name: fixture-controls
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:14.6610795Z   path: /home/runner/work/_temp/out
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:14.6611217Z   if-no-files-found: warn
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:14.6611540Z   compression-level: 6
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:14.6611888Z   overwrite: false
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:14.6612208Z   include-hidden-files: false
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:14.6612575Z ##[endgroup]
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:14.8320107Z (node:14693) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:14.8321450Z (Use `node --trace-deprecation ...` to show where the warning was created)
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:14.8389639Z With the provided path, there will be 1 file uploaded
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:14.8403592Z Artifact name is valid!
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:14.8425131Z Root directory input is valid!
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:15.2041019Z Beginning upload of artifact content to blob storage
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:15.2269001Z (node:14693) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:15.4549597Z Uploaded bytes 909
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:15.5175624Z Finished uploading artifact content to blob storage!
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:15.5176816Z SHA256 digest of uploaded artifact zip is 9219e3a97777506cd64f4c9de3861f1241bf16969311f048d7e9d8d036a8a3fb
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:15.5177856Z Finalizing artifact upload
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:15.9744267Z Artifact fixture-controls.zip successfully finalized. Artifact ID 13203737205
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:15.9745977Z Artifact fixture-controls has been successfully uploaded! Final size is 909 bytes. Artifact ID is 13203737205
+fixture-controls	Run actions/upload-artifact@v4	2026-11-03T04:06:15.9775966Z Artifact download URL: https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41575947849/artifacts/13203737205
+fixture-controls	Post Run actions/checkout@v4	﻿2026-11-03T04:06:16.0011790Z Post job cleanup.
+fixture-controls	Post Run actions/checkout@v4	2026-11-03T04:06:16.0912361Z [command]/usr/bin/git version
+fixture-controls	Post Run actions/checkout@v4	2026-11-03T04:06:16.0956657Z git version 2.56.0
+fixture-controls	Post Run actions/checkout@v4	2026-11-03T04:06:16.0992814Z Temporarily overriding HOME='/home/runner/work/_temp/50a61c7c-726f-4057-9300-03733e784421' before making global git config changes
+fixture-controls	Post Run actions/checkout@v4	2026-11-03T04:06:16.0994573Z Adding repository directory to the temporary git global config as a safe directory
+fixture-controls	Post Run actions/checkout@v4	2026-11-03T04:06:16.1006187Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+fixture-controls	Post Run actions/checkout@v4	2026-11-03T04:06:16.1039952Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+fixture-controls	Post Run actions/checkout@v4	2026-11-03T04:06:16.1074364Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+fixture-controls	Post Run actions/checkout@v4	2026-11-03T04:06:16.1293026Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+fixture-controls	Post Run actions/checkout@v4	2026-11-03T04:06:16.1316845Z http.https://github.com/.extraheader
+fixture-controls	Post Run actions/checkout@v4	2026-11-03T04:06:16.1328167Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+fixture-controls	Post Run actions/checkout@v4	2026-11-03T04:06:16.1362227Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+fixture-controls	Post Run actions/checkout@v4	2026-11-03T04:06:16.1600884Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+fixture-controls	Post Run actions/checkout@v4	2026-11-03T04:06:16.1638182Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+fixture-controls	Complete job	﻿2026-11-03T04:06:16.2063073Z Cleaning up orphan processes
+fixture-controls	Complete job	2026-11-03T04:06:16.2362498Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

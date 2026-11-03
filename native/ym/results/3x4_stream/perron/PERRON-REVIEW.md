@@ -4,8 +4,8 @@ This page is for someone who wants to check this work or break it. A counterexam
 confirmation. Please post either on
 [PR #79](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/79).
 
-**Where it stands, November 2, evening:** the bound stands at **94.070673 J_E**, certified by the author's two checkers on `x3-c.bin`, with λ₁(H′) ≤ 94.070936 from the same store ([`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md)). An outside seat's Go checker, written separately from this page's formats,
-prints the same value, row and M on `x3-c.bin` and on two other vectors, as predicted in writing beforehand ([run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749)). A second seat tried to refute the new work and refuted no printed bound ([`REVIEW-OPUS55.md`](REVIEW-OPUS55.md)). A second seat's `fullrebuild` recomputed all 45,508,080 rows from the rules, with 0 mismatches and merkle PASS, as predicted in writing first ([`FULLREBUILD-3x4.out`](FULLREBUILD-3x4.out)). Earlier the same day:
+**Where it stands, November 3:** the bound stands at **94.070673 J_E**, certified by the author's two checkers on `x3-c.bin`, with λ₁(H′) ≤ 94.070936 from the same store ([`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md)). An outside seat's Go checker, written separately from this page's formats,
+prints the same value, row and M on `x3-c.bin` and on two other vectors, as predicted in writing beforehand ([run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749)). A second seat tried to refute the new work and refuted no printed bound ([`REVIEW-OPUS55.md`](REVIEW-OPUS55.md)). A second seat's `fullrebuild` recomputed all 45,508,080 rows from the rules, with 0 mismatches and merkle PASS, as predicted in writing first ([`FULLREBUILD-3x4.out`](FULLREBUILD-3x4.out)). `allpairs` compared every off-diagonal pair exactly: 1,632,625,631 pairs with w_h z_hj = w_j z_jh, 0 mismatches, as predicted in writing first ([`allpairs/ALLPAIRS-3x4.out`](allpairs/ALLPAIRS-3x4.out)). Faults on small fixtures with every hash repaired reach the row-sum and self-adjoint gates of all three checkers ([`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 5). Earlier the same day:
 three reviewers have read the argument and accept it, with the lift conditional on a row check. An
 outside seat replayed the row rebuild on GitHub Actions from the public data: 2,564 of 2,564 sampled rows match the definition
 of H, including the tightest row, and the store's merkle recomputed from the download matches. A local run matched 4,264 of
@@ -122,11 +122,18 @@ These are the steps most likely to fail, in the order I would test them.
    fullrebuild 341:34:800000000:./sector- passA.bin 3 4 6
    ```
 
+   **All pairs:** [`allpairs`](../../../crates/evolvers/src/bin/allpairs.rs) compares w_h·z_hj with w_j·z_jh on all 1,632,625,631 off-diagonal pairs: 0 mismatches, merkle PASS on each of 4 passes, in 2,704 s with a 3.5 GiB window ([`allpairs/ALLPAIRS-3x4.out`](allpairs/ALLPAIRS-3x4.out)). To repeat it, from `native/ym`, with the sectors there:
+
+   ```
+   cargo +1.81.0 build --locked --release -p evolvers --bin allpairs
+   target/release/allpairs seg:341:34:800000000:./sector- 0 470000000
+   ```
+
    Your own version would be a stronger test. `passA.bin` has 16 bytes per row, in row order, with key as u64, weight as u32
    and magnetic number as u32, little-endian. A key holds the base-6 digits of the gauge-fixed links, least over the orbit,
    and the digits name the permutations 012, 021, 102, 120, 201, 210 in that order. The builder is
    [`ymroom.rs`](../../../crates/torusl/src/bin/ymroom.rs).
-2. **Interlacing in a non-orthonormal basis.** The rows are W-self-adjoint, with W the orbit weights. Check that removing
+2. **Interlacing in a non-orthonormal basis.** The rows are W-self-adjoint, with W the orbit weights, measured on every pair by `allpairs`. Check that removing
    the flat rows and columns is a principal compression after the W^(1/2) similarity.
 3. **Barta for that matrix.** H′ = s − N with N ≥ 0 entrywise, and the bound uses ρ(N) ≤ max_h (Nd)_h / d_h. Check that
    it survives the same similarity.
@@ -184,7 +191,7 @@ flat_rows=7 min_nonzero_mag=3 max_mag=36 weighted_residual=0
 ```
 
 That is the third of three replays. The others gave 93718415 and 94065384 on `d93700000-pass5.bin` and `x3-b.bin`. All four values, rows and M were predicted in writing before the first checker step. Its log, artifact and source are in
-[`outside-go-41509351749/`](outside-go-41509351749/), and [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 5, has its scope: a self-adjoint test on x, y in −3..3, and fault controls that stop at the merkle and at positivity.
+[`outside-go-41509351749/`](outside-go-41509351749/), and [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 5, has its scope: a self-adjoint test on x, y in −3..3, fault controls in that run that stop at the merkle and at positivity, and fixture controls that reach its row-sum and self-adjoint gates.
 
 | Reviewer | Point | Status |
 |---|---|---|
@@ -192,9 +199,10 @@ That is the third of three replays. The others gave 93718415 and 94065384 on `d9
 | 1, 3 | The lift is valid when the sector is the exact symmetry reduction | Accepted in principle. Attack 1, the rows, is measured on all rows by `fullrebuild` |
 | 1, 2, 3 | Rebuild sampled 3×4 rows from `passA.bin` with separate code | **Matched on 3×4:** 2,564 and then 5,556 rows on another machine, and 4,264 locally, across all 34 sectors, then all 45,508,080 rows by `fullrebuild` |
 | 2 | Another seat's pass over the 45.5M rows | Done: run 41444444894 read all 45.5M rows with `check_d_strict.py`, with the same value, row and M |
-| 1 | The builder's aggregate symmetry checksum needs an exact check on pairs, preferably all of them | `verify_sample_rows.py --pairs` checks every pair the rebuilt rows touch, exactly. `check_d_strict.py --self-adjoint` tests all pairs by a random bilinear form drawn from SHA-256. Both ran on 3×4 in run 41444444894: 385,827 exact pairs, and `W_self_adjoint=PASS` |
+| 1 | The builder's aggregate symmetry checksum needs an exact check on pairs, preferably all of them | `verify_sample_rows.py --pairs` checks every pair the rebuilt rows touch, exactly. `check_d_strict.py --self-adjoint` tests all pairs by a random bilinear form drawn from SHA-256. Both ran on 3×4 in run 41444444894: 385,827 exact pairs, and `W_self_adjoint=PASS`. All of them: `allpairs`, 1,632,625,631 pairs, 0 mismatches |
 | Second seat | Refutation of the new tools and the two-sided claims: 8 of 8 claims survived, with 8 findings in wording, labels, provenance and out-of-range input | [`REVIEW-OPUS55.md`](REVIEW-OPUS55.md), and what changed in [`PERRON-TWO-SIDED.md`](PERRON-TWO-SIDED.md), section 6 |
-| Outside seat | Its own Go checker from this page's formats | It stopped first on a wrong line of this page, corrected in section 2. Then [run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749) printed the predicted value, row and M on all four vectors. Open on it: a wider x, y range in its self-adjoint test, where one bad pair passes at 289 of 2,401, and a fault control that reaches that test |
+| Outside seat | Its own Go checker from this page's formats | It stopped first on a wrong line of this page, corrected in section 2. Then [run 41509351749](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749) printed the predicted value, row and M on all four vectors. On fixtures with every hash repaired, [run 41575947849](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41575947849), it reported all 211 row-sum faults and 1,071 of 1,198 single-pair faults, with 127 passing its form, each as predicted. Open on it: an exact pair test in its own code |
+| Outside seat, November 3 | Its decisions on the remaining gates, as written: "Wider self-adjointness test": "APPROVE". "Negative controls that reach row-sum and symmetry validation": "APPROVE". "Full row reconstruction evidence": "ACCEPT the recorded result". "Finite-lattice Perron bound": "ACCEPT as independently reproduced computational evidence". "New formal gap-verdict rule": "HOLD pending final rule review and operator approval". "Continuum Yang–Mills claim": "Not certified" | Both tests are done, the first by the exact test it recommended, and the second on isolated fixtures it recommended. The rule stays a draft |
 | 1 | Run negative controls: wrong merkle, swapped `d`, mutated row | Done: [`STRICT-CONTROLS.hbp`](STRICT-CONTROLS.hbp), 18 of 18, and [`VERIFY-CONTROLS.hbp`](VERIFY-CONTROLS.hbp), 14 of 14 |
 | 1 | `check_d_stream.py` should fail closed, and `assert` vanishes under `python -O` | Confirmed by measurement: a changed byte printed `merkle=PASS` under `-O`. Fixed in `check_d_strict.py`. The recorded runs used `-I`, so their rows stand |
 | 2 | Put the 3×4 run and the location of `d` in the PR | Done: rows here, data on Hugging Face |
