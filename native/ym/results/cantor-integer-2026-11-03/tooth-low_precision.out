@@ -1,0 +1,3 @@
+CANTOR_INT|schema=CANTOR-S3-INTEGER-V1|arithmetic=integers_only|matrix_sha256=902a8a01d527416ea02d7ce54737fa5513d814046a6e9cdd7f9acf67cc864ccb|signal_sha256=1f48fa5083237cd4bdadc3f6c4f9094b864ca1386d7d09b5b27c19b5f27f6913|states=211|nnz=2607|basis=0|samples=729|positive=32|negative=32|zero=665|r=9|lambda=1/27|dt=1/27|c=78|P=48|K=25|auto_K=25|R=2118|sabotage=low_precision|json=0
+CANTOR_INT_BOUND|x_upper=2118/729|remainder_at_most_one_unit=1|delta_units_bits=26|delta_below_2^-110=0|weighted_self_adjoint=PASS|json=0
+CANTOR_INT_VERDICT|result=FAIL|reason=the_error_bound_does_not_hold_at_these_settings|json=0
