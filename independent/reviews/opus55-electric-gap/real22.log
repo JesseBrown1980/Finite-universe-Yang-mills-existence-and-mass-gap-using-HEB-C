@@ -1,0 +1,3 @@
+OWN_REAL_BUILD|L=2x2|links=8|free=5|dim=1393|burnside=1393|nnz=32385|zero_sum_rows=1393|balance_failures=0|weight_sum=7776|json=0
+OWN_REAL_TRANSLATION|commute_failures=0|translation_orbits=385|size_sum=1393|json=0
+OWN_REAL_ANNIHILATE|L=2x2|roots=0,6,12,15,18,21,24,27,30,33,36,42,48|vectors_checked=385|one_per_translation_orbit=1|columns_nonzero=0|largest_abs_entry=14666070988800|prefix_traces=1393,33432,637920,9173088,120314160,1461044304,17003172672,198133801920,2381498133120,29229765183360,345700244736000,3599853788160000,19007228001484800,0|json=0
