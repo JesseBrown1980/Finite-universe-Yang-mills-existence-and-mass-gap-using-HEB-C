@@ -19,6 +19,23 @@ This register is the current entry point for the finite-universe Yang–Mills / 
 The finite-lattice Perron certificate gives the reported bound
 `E₉ − E₈ ≥ 24.039673 J_E` at `r=9`, using the recorded whole-space upper bound `E₈ ≤ 70.031 J_E` and the derived whole-space lift. The corresponding all-`r≥9` expression uses the flat-state upper bound: `E₉ − E₈ ≥ [22.070673 + 3(r−9)] J_E`. The lift is documented in [PERRON-BOUND.md](../native/ym/results/3x4_stream/perron/PERRON-BOUND.md), section 2, and remains a priority for an independently checked derivation.
 
+## Companion finite-group and SU(N) research program
+
+**Verified companion repository:** [Finite-Universe-SU-N-solved](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved), `main` at `f502321674bc7060f4efbbd86295b54baa8060b3` (checked November 3, 2026). Its [README](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved/blob/f502321674bc7060f4efbbd86295b54baa8060b3/README.md) and [finite-group laws](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved/blob/f502321674bc7060f4efbbd86295b54baa8060b3/docs/FINITE_GROUP_LAWS.md) provide the registered results and next-package predictions.
+
+| Track | Recorded achievement | Next milestone |
+|---|---|---|
+| `S₃` strong-coupling confinement | Static-charge potentials, certified finite-coupling string tensions and Wilson-loop calculations on open strips | Connect finite-volume strong-coupling observables to the relevant large-volume estimates |
+| Q8 finite SU(2) subgroup | Exact Wilson-loop series and certified loops; registered W4 FAIL retained | Retest W4 with a preregistered sharper interval or revised observable |
+| 2T finite SU(2) subgroup | Exact series and loop checks all PASS on registered cases | Expand geometry and coupling controls |
+| 2O finite SU(2) subgroup | Exact series in `Q(√2)` and certified loops on 2×3; registered checks PASS | Complete the predicted 2×4 package |
+| 2I finite SU(2) subgroup | Predicted characteristic coefficients and exact orbit dimensions: 296 on open 2×3, 29,288 on open 2×4 | Build and certify the 2I result package |
+| Qutrit variational network | Lower/upper energy enclosures for S₃, Q8 and 2T; N4 FAIL preserved | Resolve the registered N4 boundary behavior |
+| Continuous SU(2) | A representation-basis `j_max` cutoff with rigorous truncation-error enclosures is specified as a development track | Construct and verify the continuous-group Hamiltonian and its error bounds |
+| Four-dimensional SU(N) | [YM continuum track](../native/ym/shadow/CONTINUUM-TRACK.md) specifies renormalization, scale estimates, continuum reconstruction and physical mass-gap milestones | Connect finite-group benchmarks to the separate continuous-group and 3+1-dimensional constructions |
+
+**Two parallel mathematical tracks.** The [finite `S₃` volume-uniform theorem](YM_TOPOLOGICAL_STABILITY_PROOF.md) uses quantum-double stability and extends in principle to other finite-group quantum doubles, with explicit model-specific hypotheses and constants to verify. The companion SU(N) program supplies its own finite-subgroup benchmark series and the planned representation-basis route to continuous SU(2). The [continuum research track](../native/ym/shadow/CONTINUUM-TRACK.md) identifies the four-dimensional renormalization and reconstruction sequence. These tracks share exact arithmetic, GitRAM replay, HBP/HBI evidence and independent-checking methods.
+
 ## Independent second-seat review — recorded verdict
 
 **Overall FAIL** on the original `allpairs` implementation at `8faadb0`, reported by Claude Opus 5.5 in [ALLPAIRS-REVIEW.md](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/ad0b56075004021914cc32cefa28185bd2daa178/native/ym/results/3x4_stream/perron/allpairs/failclosed/review-opus55/ALLPAIRS-REVIEW.md). The review awarded PASS to window coverage, pair/mismatch checks and an independently written pair-count reader; it awarded FAIL to **item 2 (malformed input and fail-closed behavior)** and **item 5 (claims exceeding their recorded evidence)**. Its own reader reproduced the 3×4 pair count. The machine, public store copy and model lineage are specified in that report.
@@ -58,7 +75,9 @@ These checks establish internal consistency and one trusted header commitment. T
 1. **Hardening:** complete the corrected D4 memory measurement and independent review of the evolving D3–D8 branch, preserving every FAIL receipt. [PR #85](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/85) was last checked at `0c04ec0` and retains its own merge gate. The GPT-6 source inspection remains pinned to `9c2c7e6`.
 2. **3×4 reproducibility:** replay `allpairs` and `fullrebuild` on a separate machine with pinned source and independently fetched sectors. Retain the outside Go checker's own pair test as a separate verification track.
 3. **Formal 3×4 gap rule:** complete independent review of the whole-space lift, register the revised rule after operator approval, then issue a specifically scoped finite-lattice verdict.
-4. **Volume and continuum:** establish estimates uniform in lattice volume and construct the continuum theory satisfying the required axioms; connect the spectral lower bound to the continuum mass-gap statement.
+4. **Volume-uniform finite-group theorem:** instantiate quantum-double stability for the periodic `S₃` model, then test the appropriate theorem hypotheses and constants for Q8, 2T, 2O and 2I.
+5. **SU(N) companion program:** continue [Finite-Universe-SU-N-solved](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved), beginning with 2I and 2O 2×4 certificates, then the continuous-SU(2) `j_max` representation basis with rigorous truncation bounds and 3+1-dimensional gauge Hamiltonians.
+6. **Four-dimensional continuum:** use the [existing continuum track](../native/ym/shadow/CONTINUUM-TRACK.md) for renormalization and uniform cross-scale estimates, continuum reconstruction and the physical Yang–Mills mass-gap theorem.
 
 ## Historical documents and present reading order
 
