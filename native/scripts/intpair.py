@@ -24,7 +24,7 @@ HASH_INF = sys.hash_info.inf
 
 
 def _refuse_other_numbers(other):
-    """Every numeric type outside int and IntPair registers as numbers.Number: float, complex, Decimal and Fraction among them."""
+    """float, complex, Decimal and Fraction each register as numbers.Number."""
     if isinstance(other, numbers.Number):
         raise TypeError("IntPair takes int or IntPair, not %s" % type(other).__name__)
 

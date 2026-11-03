@@ -6,7 +6,7 @@ The one file allowed to import fractions and decimal: fractions is the reference
 Every operation runs on both classes with the same operands, and the two outcomes must match: same value, same kind (int or
 pair), same exception type. Operands reach 3,000 bits, denominators are negative as often as positive, zero is common, and some
 denominators are multiples of the hash modulus. Where CPython's class would hand back floating point, IntPair must raise
-TypeError, and that is tested too. rejection_checks makes one deliberate float, half, and one complex, each only to be refused.
+TypeError, and that is tested too. rejection_checks makes two deliberate floats, half and 4 * half, and two complex values, each only to be refused.
 
 usage: test_intpair.py [SEED] [ROUNDS]     Prints one INTPAIR_DIFF row. Exit 1 on any failure.
        test_intpair.py --teeth             Breaks IntPair one way at a time. Every break must be seen. Exit 1 if one is missed.

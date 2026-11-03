@@ -48,7 +48,7 @@ for script in ("test_c.py", "test_c_integer.py"):
     bad += 1 - same
     print("TEST_C_RUN|script=%s|exit=%d|result_same_as_recorded=%d|json=0" % (script, code, same))
 
-# The last commit before the interval's end moved by one second: the integer interval reads 3328, and the file's own assert stops it.
+# The later commit's timestamp moved by one second: the integer interval reads 3328, and the file's own assert stops it.
 moved, count = re.subn(rb"(role=first_committed_verses_in_reviewed_history\|[^\n]*created_utc=2026-08-02T01:50:)26Z", rb"\g<1>27Z", evidence)
 code, written = run_in_temp("test_c_integer.py", moved)
 stopped = 1 if count == 1 and code != 0 and not written else 0
