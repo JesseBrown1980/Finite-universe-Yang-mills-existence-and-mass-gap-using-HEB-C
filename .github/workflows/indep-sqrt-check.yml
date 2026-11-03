@@ -46,7 +46,8 @@ jobs:
           I=native/ym/independent
           K="$I/minors/target/release/indep-minors"
           for s in isqrt primes signs; do
-            python3 -X utf8 "$I/indep_sqrt_check.py" /tmp/indep_recorded.py "$I/indep_verify.py" "$K" "sabotage=$s" > "/tmp/sab-$s.hbp"
-            test "$?" = 1
+            rc=0
+            python3 -X utf8 "$I/indep_sqrt_check.py" /tmp/indep_recorded.py "$I/indep_verify.py" "$K" "sabotage=$s" > "/tmp/sab-$s.hbp" || rc=$?
+            test "$rc" = 1
             tail -1 "/tmp/sab-$s.hbp"
           done

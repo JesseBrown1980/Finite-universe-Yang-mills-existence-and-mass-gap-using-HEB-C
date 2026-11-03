@@ -57,7 +57,6 @@ The simpler no-store bound under those three reads 16.252744, 14.017195 and 4.01
 |---|---|
 | The formal 3×4 gap verdict and the gap rule | HOLD, his word. The draft rule is [#68](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/68) |
 | The continuum claim | NOT CERTIFIED, his word |
-| Closing [#10](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/10) and [#52](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/52) | This session's permission system stopped the closes, so they wait for his word |
 
 **Integers only.** The operator's word: "Floating point should be redone to integer only. Not like redone as if erase the evidence, but say, hey, we need to do this again in integer only so that it works. We can't use float, that's crazy." The floating point that a scan of all 443 code files found, outside the vendored Rust crates, is all in Python apart from a page's CSS sizes:
 
@@ -84,8 +83,8 @@ Python's exact rationals are in 13 of the listed scripts: `product_bound.py`, `p
 | PRs | Where they stand |
 |---|---|
 | [#5](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/5) to [#9](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/9), [#11](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/11) to [#18](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/18), [#31](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/31), [#39](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/39), [#42](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/42) to [#44](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/44), [#47](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/47) | Merged |
-| [#10](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/10) | Open, to close: its commits are already on `main` |
-| [#52](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/52) | Open, to close: its README text is now in the README |
+| [#10](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/10) | Closed on the operator's word, November 3: its head is an ancestor of `main`. The branch is kept |
+| [#52](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/52) | Closed on the operator's word, November 3: the current README and this register supersede its text. The branch is kept |
 | [#61](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/61) | Open as the record of the floating-point run. The operator's word is to redo it in integers and keep the evidence, and [the integer redo](../native/ym/results/cantor-integer-2026-11-03/README.md) is now on `main`, with that run verbatim beside it |
 | [#68](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/68) | Open: the draft gap-verdict rule, on HOLD by the operator's word |
 
