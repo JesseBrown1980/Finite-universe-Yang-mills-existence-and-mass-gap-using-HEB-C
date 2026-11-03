@@ -1,0 +1,6 @@
+PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS
+control t_cert_milli=93061051 min_row=44742735 min_mag=3
+blind t_cert_milli=94070673 min_row=45507968 min_mag=3
+flat_rows=7 min_nonzero_mag=3 max_mag=36 weighted_residual=0
+payload_zero_padding=742160 raw_tail_bytes=349114368 raw_tail_nonzero=347747335
+seconds=382

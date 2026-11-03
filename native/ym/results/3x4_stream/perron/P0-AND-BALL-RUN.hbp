@@ -1,0 +1,17 @@
+P0_PREDICT|written_before_run=1|flat_states=7|flat_diag_max=72|flat_flat_couplings=0|flat_weights=1,3,2,3,3,2,4|payload_merkle=ec03c5f8ea5abd37ed8f80e0e9e7f00e37840a753f33a1008fbd090b18072a0b|est_secs_flatcomp=600_CONJECTURE|est_secs_roomball=3600_CONJECTURE|json=0
+P0_START|at=2026-11-01T23:49:56Z|flatcomp_sha256=f86326a84cbc5fc61798505e6e39667572e58c5961a8bfb3d7ade9ca864b8d18|roomball_sha256=00248f538aaa73ee33e43d70d6fd970053caa2205744b90404f9800ac4b15581|json=0
+P0_RUN|exit=0|secs=972|at=2026-11-02T00:06:08Z|json=0
+FLATCOMP_STORE|L=3x4|sector=Sx+Sy+|n=45508080|payload_bytes=26850881536|payload_merkle=ec03c5f8ea5abd37ed8f80e0e9e7f00e37840a753f33a1008fbd090b18072a0b|merkle=PASS|flat_rows=0,28,49,44742698,44742719,45507967,45507970|flat_weights=1,3,2,3,3,2,4|ms=972119|json=0
+FLATCOMP|matrix=room|n=45508080|flat_states=7|flat_electric_diag=[72,72,72,72,72,72,72]|flat_diag_max=72|flat_flat_couplings=0|json=0
+BALL_RUN|exit=0|secs=6023|at=2026-11-02T01:46:31Z|json=0
+ROOMBALL|L=3x4|sector=Sx+Sy+|K=1|seeds=7|shells=7,20|states=27|nnz=73|entries_leaving_ball=472|merkle=PASS|passes=6|ms=6019981|kind=COMPRESSION_UPPER_BOUNDS|json=0
+ROOMBALL|L=3x4|sector=Sx+Sy+|K=2|seeds=7|shells=7,20,316|states=343|nnz=1547|entries_leaving_ball=11414|merkle=PASS|passes=6|ms=6019983|kind=COMPRESSION_UPPER_BOUNDS|json=0
+ROOMBALL|L=3x4|sector=Sx+Sy+|K=3|seeds=7|shells=7,20,316,3615|states=3958|nnz=34436|entries_leaving_ball=205770|merkle=PASS|passes=6|ms=6019997|kind=COMPRESSION_UPPER_BOUNDS|json=0
+ROOMBALL|L=3x4|sector=Sx+Sy+|K=4|seeds=7|shells=7,20,316,3615,44071|states=48029|nnz=644047|entries_leaving_ball=2625625|merkle=PASS|passes=6|ms=6020191|kind=COMPRESSION_UPPER_BOUNDS|json=0
+ROOMBALL|L=3x4|sector=Sx+Sy+|K=5|seeds=7|shells=7,20,316,3615,44071,393917|states=441946|nnz=8883694|entries_leaving_ball=22702638|merkle=PASS|passes=6|ms=6022048|kind=COMPRESSION_UPPER_BOUNDS|json=0
+665e69fe413d941d3607cfce4bd6c4278048b1289e2e5d4f81017bfbbb61e4b5 *m.K1
+6401226b618fed8631388b35ecf1dfbd49313f001476be0981f2b49857e01eab *m.K2
+80fc1ee89cde04731c7f07e8cdedaf878faf2513e21d8073b7d2b7da59829c5a *m.K3
+a3e13348190cb38397567f34aadfa3c1d68b46133c2d1f16fab37f7be67bc090 *m.K4
+f53a2f59b850165b846d886802e0c744d87109d479e629d5327779dcd9032961 *m.K5
+DONE|at=2026-11-02T01:46:32Z|json=0

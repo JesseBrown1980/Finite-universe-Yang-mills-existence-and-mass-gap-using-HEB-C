@@ -1,0 +1,12 @@
+WARMCAL|L=2x2|lambda1_mid_milli=46467773|t_milli=44000000|t_cert_milli=44896257|min_mag=3|n=211|json=0
+WARMCAL|L=2x2|lambda1_mid_milli=46467773|t_milli=45000000|t_cert_milli=45495024|min_mag=3|n=211|json=0
+WARMCAL|L=2x2|lambda1_mid_milli=46467773|t_milli=46000000|t_cert_milli=46143738|min_mag=3|n=211|json=0
+WARMCAL|L=2x2|lambda1_mid_milli=46467773|t_milli=46300000|t_cert_milli=46349841|min_mag=3|n=211|json=0
+WARMCAL|L=2x2|lambda1_mid_milli=46467773|t_milli=46420000|t_cert_milli=46433969|min_mag=3|n=211|json=0
+WARMCAL_FIT|L=2x2|a=3.4413|b=-0.4480|tag=CONJECTURE|json=0
+WARMCAL|L=2x3|lambda1_mid_milli=58442382|t_milli=56000000|t_cert_milli=56565811|min_mag=3|n=2646|json=0
+WARMCAL|L=2x3|lambda1_mid_milli=58442382|t_milli=57000000|t_cert_milli=57302853|min_mag=3|n=2646|json=0
+WARMCAL|L=2x3|lambda1_mid_milli=58442382|t_milli=58000000|t_cert_milli=58081393|min_mag=3|n=2646|json=0
+WARMCAL|L=2x3|lambda1_mid_milli=58442382|t_milli=58300000|t_cert_milli=58324900|min_mag=3|n=2646|json=0
+WARMCAL|L=2x3|lambda1_mid_milli=58442382|t_milli=58400000|t_cert_milli=58407348|min_mag=3|n=2646|json=0
+WARMCAL_FIT|L=2x3|a=5.7889|b=-0.4968|tag=CONJECTURE|json=0

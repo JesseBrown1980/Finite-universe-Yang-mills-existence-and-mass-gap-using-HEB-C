@@ -1,0 +1,870 @@
+//! perronritz: both sides of the level above the flat cluster from stored vectors, at every coupling, from one pass.
+//!
+//! `perroncert check` gives the side from below: lambda1(H') >= min_h (H'd)_h / d_h for any d > 0. This tool adds two things.
+//!
+//! 1. The side from above. H' is W-self-adjoint, so for any vectors d_1..d_k that vanish on the flat rows, the smallest
+//!    root theta_1 of det(A - theta G), with G_ab = <d_a, d_b>_W and A_ab = <d_a, H'd_b>_W, obeys lambda1(H') <= theta_1
+//!    (min-max). perroncert's vectors are resolvents (H' - t_i)^-1 source, so the span of a few of them filters the high
+//!    levels that the uniform source puts into each one. The printed value is the least integer theta with A - theta G
+//!    not positive definite, tested by exact fraction-free elimination.
+//! 2. Every coupling. H'(r) = E' + r M on the same rows. The pass keeps E_ab and M_ab apart, so the side from above follows
+//!    for any r. For each positive vector it keeps min (E'd)_h / d_h per magnetic number, so the side from below follows
+//!    for any r as min_M (e_M + r M), with the same rounding as `perroncert check`.
+//!
+//! usage: perronritz pass DEV OFFSET JE JB_LIST D_FILE [D_FILE ...]
+//!          JB_LIST is comma-separated, such as 9000,6000. Prints PERRONRITZ rows, exit 0, or exit 2 on a failed condition.
+//!        perronritz dd JE OUT T1 D1 T2 D2 [T3 D3 ...]
+//!          Reads the vectors only, thresholds ascending. With d_i = R(t_i) source and R(t) = (H' - t)^-1 >= 0, the divided
+//!          difference over t_1..t_k equals R(t_1)...R(t_k) source, so k solves give k - 1 extra steps of inverse iteration
+//!          with no further pass: the source cancels, and (H' - t_k) X_k = X_(k-1). Rounding and a solver's leftover can leave
+//!          a few rows out of place, so x = X_k + gamma d_k, with gamma chosen for the best predicted value. A proposal is
+//!          untrusted: `perroncert check` on OUT gives the value, and any positive x is admissible.
+//!        perronritz grid DEV OFFSET JE JB OUT T1 D1 T2 D2 [T3 D3 ...]
+//!          One pass that measures the exact certified value of X_k + gamma d_k for a whole grid of gamma at once. High rows
+//!          carry little of X_k, so a solver's leftover can outweigh it there, and the vectors alone cannot show that. The ratio
+//!          at a row is (A + gamma B) / (X + gamma d), so one read of the row gives every gamma. Writes the best to OUT.
+//! D_FILE is little-endian i64, one per row, as perroncert writes it. Integer-only, Rust 1.81, json=0.
+#![forbid(unsafe_code)]
+#![deny(clippy::float_arithmetic, clippy::float_cmp, clippy::cast_precision_loss)]
+
+use num_bigint::BigInt;
+use num_traits::Signed;
+
+#[allow(dead_code)]
+#[path = "../../../torusl/src/segio.rs"]
+mod segio;
+#[allow(dead_code)]
+#[path = "../../../torusl/src/sha.rs"]
+mod sha;
+#[allow(dead_code)]
+#[path = "../../../torusl/src/roomio.rs"]
+mod roomio;
+
+const SOURCE_BITS: u32 = 30;
+/// The largest |X| a proposal is scaled to, so that the forms of `pass` stay inside i128 for it.
+const X_BITS: u32 = 54;
+
+/// A signed 256-bit sum, enough for any W-weighted form these rows can produce.
+#[derive(Clone, Copy, Default)]
+struct Acc {
+    lo: u128,
+    hi: i128,
+}
+
+impl Acc {
+    fn add(&mut self, v: i128) {
+        #[allow(clippy::cast_sign_loss)]
+        let (lo, carry) = self.lo.overflowing_add(v as u128);
+        self.lo = lo;
+        self.hi += i128::from(carry) - i128::from(v < 0);
+    }
+
+    fn big(self) -> BigInt {
+        (BigInt::from(self.hi) << 128u32) + BigInt::from(self.lo)
+    }
+}
+
+/// Lowest ratio seen at one magnetic number: value, row, and how many rows carry that number.
+#[derive(Clone, Copy)]
+struct MagMin {
+    e_milli: i128,
+    row: usize,
+    rows: u64,
+}
+
+struct Forms {
+    flats: usize,
+    positive_off: u64,
+    flat_nonzero: u64,
+    g: Vec<Vec<Acc>>,
+    e: Vec<Vec<Acc>>,
+    m: Vec<Vec<Acc>>,
+    nonpositive: Vec<u64>,
+    d_min: Vec<i64>,
+    d_max: Vec<i64>,
+    tables: Vec<Vec<Option<MagMin>>>,
+}
+
+fn pass(dev: &mut segio::Dev, off: u64, hdr: &roomio::Hdr, je: i128, ds: &[Vec<i64>]) -> Result<Forms, String> {
+    let k = ds.len();
+    for (i, d) in ds.iter().enumerate() {
+        if d.len() != hdr.n {
+            return Err(format!("vector {i} has {} rows, stream has {}", d.len(), hdr.n));
+        }
+    }
+    let u = 1000 * je;
+    let zero = || vec![vec![Acc::default(); k]; k];
+    let mut f = Forms {
+        flats: 0,
+        positive_off: 0,
+        flat_nonzero: 0,
+        g: zero(),
+        e: zero(),
+        m: zero(),
+        nonpositive: vec![0; k],
+        d_min: vec![i64::MAX; k],
+        d_max: vec![i64::MIN; k],
+        tables: vec![Vec::new(); k],
+    };
+    let mut overflow = false;
+    let mut ed = vec![0i128; k];
+    roomio::stream(dev, off, hdr, |h, row| {
+        if row.mag == 0 {
+            f.flats += 1;
+            f.flat_nonzero += u64::from(ds.iter().any(|d| d[h] != 0));
+            return;
+        }
+        ed.iter_mut().for_each(|v| *v = 0);
+        for (j, z) in row.entries() {
+            f.positive_off += u64::from(j != h && z > 0);
+            let z = i128::from(z);
+            for (v, d) in ed.iter_mut().zip(ds) {
+                *v += z * i128::from(d[j]);
+            }
+        }
+        let w = i128::from(row.w);
+        let mag = i128::from(row.mag);
+        for a in 0..k {
+            let wa = w * i128::from(ds[a][h]);
+            for b in 0..k {
+                let db = i128::from(ds[b][h]);
+                match (wa.checked_mul(db), wa.checked_mul(ed[b])) {
+                    (Some(gv), Some(ev)) => match gv.checked_mul(mag) {
+                        Some(mv) => {
+                            f.g[a][b].add(gv);
+                            f.e[a][b].add(ev);
+                            f.m[a][b].add(mv);
+                        }
+                        None => overflow = true,
+                    },
+                    _ => overflow = true,
+                }
+            }
+        }
+        let idx = usize::from(row.mag);
+        for i in 0..k {
+            let di = ds[i][h];
+            if di <= 0 {
+                f.nonpositive[i] += 1;
+                continue;
+            }
+            f.d_min[i] = f.d_min[i].min(di);
+            f.d_max[i] = f.d_max[i].max(di);
+            let ratio = (u * ed[i]).div_euclid(i128::from(di));
+            let t = &mut f.tables[i];
+            if t.len() <= idx {
+                t.resize(idx + 1, None);
+            }
+            t[idx] = Some(match t[idx] {
+                Some(old) if old.e_milli <= ratio => MagMin { rows: old.rows + 1, ..old },
+                Some(old) => MagMin { e_milli: ratio, row: h, rows: old.rows + 1 },
+                None => MagMin { e_milli: ratio, row: h, rows: 1 },
+            });
+        }
+    })?;
+    if overflow {
+        return Err("a W-weighted product left i128: the vectors are out of the range this tool handles".into());
+    }
+    if f.positive_off > 0 {
+        return Err(format!("{} positive off-diagonal entries: the lower side does not apply", f.positive_off));
+    }
+    if f.flat_nonzero > 0 {
+        return Err(format!("{} flat rows with a nonzero vector entry: the forms would not be those of H'", f.flat_nonzero));
+    }
+    for a in 0..k {
+        for b in 0..a {
+            if f.e[a][b].big() != f.e[b][a].big() {
+                return Err(format!("E is not W-self-adjoint on vectors {b} and {a}"));
+            }
+        }
+    }
+    Ok(f)
+}
+
+/// True when every leading principal minor is positive, by fraction-free elimination.
+fn positive_definite(mut m: Vec<Vec<BigInt>>) -> bool {
+    let n = m.len();
+    let mut prev = BigInt::from(1);
+    for k in 0..n {
+        let pivot = m[k][k].clone();
+        if !pivot.is_positive() {
+            return false;
+        }
+        for i in k + 1..n {
+            for j in k + 1..n {
+                let v = (&m[i][j] * &pivot - &m[i][k] * &m[k][j]) / &prev;
+                m[i][j] = v;
+            }
+        }
+        prev = pivot;
+    }
+    true
+}
+
+fn minus_theta(a: &[Vec<BigInt>], g: &[Vec<BigInt>], theta: i128) -> Vec<Vec<BigInt>> {
+    let t = BigInt::from(theta);
+    a.iter().zip(g).map(|(ra, rg)| ra.iter().zip(rg).map(|(x, y)| x - &t * y).collect()).collect()
+}
+
+/// Least integer theta with A - theta G not positive definite, so lambda1(H') <= theta_1 <= theta.
+fn upper_side(a: &[Vec<BigInt>], g: &[Vec<BigInt>]) -> Result<i128, String> {
+    if !positive_definite(g.to_vec()) {
+        return Err("the vectors are linearly dependent or a vector is zero".into());
+    }
+    let ceil = (&a[0][0] + &g[0][0] - BigInt::from(1)) / &g[0][0];
+    let mut hi = i128::try_from(ceil).map_err(|_| "Rayleigh quotient out of range")?;
+    let mut lo = 0i128;
+    if !positive_definite(minus_theta(a, g, lo)) {
+        return Ok(lo);
+    }
+    while hi - lo > 1 {
+        let mid = lo + (hi - lo) / 2;
+        if positive_definite(minus_theta(a, g, mid)) {
+            lo = mid;
+        } else {
+            hi = mid;
+        }
+    }
+    Ok(hi)
+}
+
+/// The forms of H'(JB) on the chosen vectors, in the units of perroncert's t_milli.
+fn forms_at(f: &Forms, pick: &[usize], je: i128, jb: i128) -> (Vec<Vec<BigInt>>, Vec<Vec<BigInt>>) {
+    let (u, v) = (BigInt::from(1000 * je), BigInt::from(1000 * jb));
+    let a = pick.iter().map(|&x| pick.iter().map(|&y| &u * f.e[x][y].big() + &v * f.m[x][y].big()).collect()).collect();
+    let g = pick.iter().map(|&x| pick.iter().map(|&y| f.g[x][y].big()).collect()).collect();
+    (a, g)
+}
+
+/// min_M (e_M + 1000 JB M): the exact value `perroncert check` prints at this coupling for this vector.
+fn lower_side(table: &[Option<MagMin>], jb: i128) -> Option<(i128, usize, usize)> {
+    table
+        .iter()
+        .enumerate()
+        .filter_map(|(mag, m)| m.map(|m| (m.e_milli + 1000 * jb * i128::try_from(mag).unwrap_or(0), m.row, mag)))
+        .min_by_key(|x| x.0)
+}
+
+fn read_d(path: &str) -> Result<Vec<i64>, String> {
+    let bytes = std::fs::read(path).map_err(|e| format!("read {path}: {e}"))?;
+    if bytes.len() % 8 != 0 {
+        return Err(format!("{path}: length is not a multiple of 8"));
+    }
+    Ok(bytes.chunks_exact(8).map(|c| i64::from_le_bytes([c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7]])).collect())
+}
+
+fn d_bytes(d: &[i64]) -> Vec<u8> {
+    let mut bytes = Vec::with_capacity(d.len() * 8);
+    for v in d {
+        bytes.extend_from_slice(&v.to_le_bytes());
+    }
+    bytes
+}
+
+/// Integer weights of the top divided difference X_k and the next one X_(k-1), on one common scale, such that
+/// (H' - t_k) x = g y for x = sum wx_i d_i and y = sum wy_i d_i.
+#[derive(Debug, PartialEq, Eq)]
+struct Weights {
+    wx: Vec<i128>,
+    wy: Vec<i128>,
+    g: i128,
+}
+
+fn gcd(a: i128, b: i128) -> i128 {
+    let (mut a, mut b) = (a.abs(), b.abs());
+    while b != 0 {
+        (a, b) = (b, a % b);
+    }
+    a
+}
+
+/// Product of (t_b - t_a) / g over pairs a < b of `idx`, skipping index `skip`.
+fn pair_product(ts: &[i128], idx: &[usize], skip: usize, g: i128) -> Result<i128, String> {
+    let mut p = 1i128;
+    for (n, &a) in idx.iter().enumerate() {
+        for &b in &idx[n + 1..] {
+            if a != skip && b != skip {
+                p = p.checked_mul((ts[b] - ts[a]) / g).ok_or("a weight left i128")?;
+            }
+        }
+    }
+    Ok(p)
+}
+
+fn dd_weights(ts: &[i128]) -> Result<Weights, String> {
+    let k = ts.len();
+    if k < 2 {
+        return Err("two or more thresholds are needed".into());
+    }
+    if ts.windows(2).any(|w| w[1] <= w[0]) {
+        return Err("thresholds must ascend".into());
+    }
+    let g = ts.windows(2).fold(0, |acc, w| gcd(acc, w[1] - w[0]));
+    let all: Vec<usize> = (0..k).collect();
+    let low: Vec<usize> = (0..k - 1).collect();
+    let sign = |above: usize| if above % 2 == 0 { 1i128 } else { -1i128 };
+    let mut wx = Vec::with_capacity(k);
+    for &i in &all {
+        wx.push(sign(k - 1 - i) * pair_product(ts, &all, i, g)?);
+    }
+    let mut q = 1i128;
+    for &a in &low {
+        q = q.checked_mul((ts[k - 1] - ts[a]) / g).ok_or("a weight left i128")?;
+    }
+    let mut wy = vec![0i128; k];
+    for &i in &low {
+        wy[i] = sign(k - 2 - i) * pair_product(ts, &low, i, g)?.checked_mul(q).ok_or("a weight left i128")?;
+    }
+    let c = wx.iter().chain(&wy).fold(0, |acc, &w| gcd(acc, w));
+    Ok(Weights { wx: wx.iter().map(|w| w / c).collect(), wy: wy.iter().map(|w| w / c).collect(), g })
+}
+
+fn combine(w: &[i128], ds: &[Vec<i64>], h: usize) -> i128 {
+    w.iter().zip(ds).map(|(&c, d)| c * i128::from(d[h])).sum()
+}
+
+/// The predicted value of x = (X << m) + gamma d_k: t_k + min_h (N / x), with N = (g y << m) + gamma source.
+fn predict(w: &Weights, ds: &[Vec<i64>], t_top: i128, source: i128, m: u32, gamma: i128) -> Option<(i128, usize)> {
+    let top = ds.last()?;
+    let mut best: Option<(i128, usize)> = None;
+    for (h, &dk) in top.iter().enumerate() {
+        if ds.iter().all(|d| d[h] == 0) {
+            continue;
+        }
+        let x = (combine(&w.wx, ds, h) << m) + gamma * i128::from(dk);
+        if x <= 0 {
+            return None;
+        }
+        let n = ((w.g * combine(&w.wy, ds, h)) << m) + gamma * source;
+        let v = t_top + n.div_euclid(x);
+        if best.map_or(true, |b| v < b.0) {
+            best = Some((v, h));
+        }
+    }
+    best
+}
+
+/// One proposal: the thresholds' best predicted value, the scale, gamma, and how many rows of the pure X_k are not positive.
+struct Proposal {
+    predicted: i128,
+    row: usize,
+    m: u32,
+    gamma: i128,
+    pure_nonpositive: u64,
+    w: Weights,
+}
+
+fn propose(je: i128, ts: &[i128], ds: &[Vec<i64>]) -> Result<Proposal, String> {
+    if ds.windows(2).any(|p| p[0].len() != p[1].len()) {
+        return Err("the vectors differ in length".into());
+    }
+    let w = dd_weights(ts)?;
+    let source = (1000 * je) << SOURCE_BITS;
+    let t_top = *ts.last().ok_or("no thresholds")?;
+    let top = ds.last().ok_or("no vectors")?;
+    let (mut biggest, mut pure_nonpositive, mut d_top_max) = (1i128, 0u64, 1i128);
+    for (h, &dk) in top.iter().enumerate() {
+        if ds.iter().all(|d| d[h] == 0) {
+            continue;
+        }
+        let x = combine(&w.wx, ds, h);
+        biggest = biggest.max(x.abs());
+        pure_nonpositive += u64::from(x <= 0);
+        d_top_max = d_top_max.max(i128::from(dk));
+    }
+    let width = 128 - biggest.unsigned_abs().leading_zeros();
+    let m = X_BITS.saturating_sub(width);
+    // The pure vector when it is positive, then gamma on a rising grid, up to where d_k would match X at its peak.
+    let limit = ((biggest << m) / d_top_max).max(1);
+    let mut gamma = if pure_nonpositive == 0 { 0 } else { 1 };
+    let mut best: Option<(i128, usize, i128)> = None;
+    while gamma <= limit {
+        if let Some((v, row)) = predict(&w, ds, t_top, source, m, gamma) {
+            if best.map_or(true, |b| v > b.0) {
+                best = Some((v, row, gamma));
+            }
+        }
+        gamma = if gamma == 0 { 1 } else { gamma + (gamma / 2).max(1) };
+    }
+    let (predicted, row, gamma) = best.ok_or("no gamma gives a positive vector")?;
+    Ok(Proposal { predicted, row, m, gamma, pure_nonpositive, w })
+}
+
+fn apply_proposal(p: &Proposal, ds: &[Vec<i64>]) -> Result<Vec<i64>, String> {
+    let top = ds.last().ok_or("no vectors")?;
+    top.iter()
+        .enumerate()
+        .map(|(h, &dk)| {
+            if ds.iter().all(|d| d[h] == 0) {
+                return Ok(0);
+            }
+            i64::try_from((combine(&p.w.wx, ds, h) << p.m) + p.gamma * i128::from(dk)).map_err(|_| "x out of i64 range".to_string())
+        })
+        .collect()
+}
+
+/// The exact certified value at one gamma: min_h (H'x)_h / x_h, rounded down as in `perroncert check`.
+#[derive(Clone, Copy)]
+struct GridRow {
+    gamma: i128,
+    value: Option<(i128, usize, u16)>,
+    nonpositive: u64,
+}
+
+/// 0, 1, 2, 3, 4, 6, 9, ... up to the gamma at which d_k matches X at its peak.
+fn gamma_grid(x_max: i128, d_max: i128) -> Vec<i128> {
+    let limit = (x_max / d_max.max(1)).max(1);
+    let mut grid = vec![0i128];
+    let mut g = 1i128;
+    while g <= limit {
+        grid.push(g);
+        g += (g / 2).max(1);
+    }
+    grid
+}
+
+fn grid_pass(dev: &mut segio::Dev, off: u64, hdr: &roomio::Hdr, (je, jb): (i128, i128), x: &[i64], dk: &[i64], gammas: &[i128]) -> Result<Vec<GridRow>, String> {
+    if x.len() != hdr.n || dk.len() != hdr.n {
+        return Err(format!("the vectors have {} and {} rows, the stream has {}", x.len(), dk.len(), hdr.n));
+    }
+    let u = 1000 * je;
+    let mut out: Vec<GridRow> = gammas.iter().map(|&gamma| GridRow { gamma, value: None, nonpositive: 0 }).collect();
+    let (mut positive_off, mut flat_nonzero) = (0u64, 0u64);
+    roomio::stream(dev, off, hdr, |h, row| {
+        if row.mag == 0 {
+            flat_nonzero += u64::from(x[h] != 0 || dk[h] != 0);
+            return;
+        }
+        let (mut sx, mut sd) = (0i128, 0i128);
+        for (j, z) in row.entries() {
+            positive_off += u64::from(j != h && z > 0);
+            let z = i128::from(z);
+            sx += z * i128::from(x[j]);
+            sd += z * i128::from(dk[j]);
+        }
+        let mag = 1000 * jb * i128::from(row.mag);
+        let a = u * sx + mag * i128::from(x[h]);
+        let b = u * sd + mag * i128::from(dk[h]);
+        for r in &mut out {
+            let den = i128::from(x[h]) + r.gamma * i128::from(dk[h]);
+            if den <= 0 {
+                r.nonpositive += 1;
+                continue;
+            }
+            let v = (a + r.gamma * b).div_euclid(den);
+            if r.value.map_or(true, |w| v < w.0) {
+                r.value = Some((v, h, row.mag));
+            }
+        }
+    })?;
+    if positive_off > 0 {
+        return Err(format!("{positive_off} positive off-diagonal entries: the bound does not apply"));
+    }
+    if flat_nonzero > 0 {
+        return Err(format!("{flat_nonzero} flat rows with a nonzero vector entry"));
+    }
+    Ok(out)
+}
+
+/// The pure top divided difference on the scale of `propose`, as i64, with its largest entry.
+fn top_difference(ts: &[i128], ds: &[Vec<i64>]) -> Result<(Vec<i64>, i128), String> {
+    let w = dd_weights(ts)?;
+    let n = ds.first().ok_or("no vectors")?.len();
+    if ds.iter().any(|d| d.len() != n) {
+        return Err("the vectors differ in length".into());
+    }
+    let biggest = (0..n).map(|h| combine(&w.wx, ds, h).abs()).max().unwrap_or(1).max(1);
+    let m = X_BITS.saturating_sub(128 - biggest.unsigned_abs().leading_zeros());
+    let x: Vec<i64> = (0..n).map(|h| i64::try_from(combine(&w.wx, ds, h) << m).map_err(|_| "X out of i64 range".to_string())).collect::<Result<_, _>>()?;
+    Ok((x, biggest << m))
+}
+
+fn run_grid(a: &[String]) -> Result<(), String> {
+    let t0 = std::time::Instant::now();
+    let arg = |k: usize, what: &str| a.get(k).ok_or_else(|| format!("missing {what}"));
+    let num = |k: usize, what: &str| -> Result<i128, String> { arg(k, what)?.parse().map_err(|_| format!("bad {what}")) };
+    let off = u64::try_from(num(3, "OFFSET")?).map_err(|_| "bad OFFSET")?;
+    let (je, jb) = (num(4, "JE")?, num(5, "JB")?);
+    if je <= 0 || jb < 0 {
+        return Err("JE must be positive and JB nonnegative".into());
+    }
+    let out = arg(6, "OUT")?;
+    let pairs = &a[7..];
+    if pairs.len() < 4 || pairs.len() % 2 != 0 {
+        return Err("thresholds and vectors come in pairs, two or more of them".into());
+    }
+    let ts: Vec<i128> = pairs.chunks_exact(2).map(|c| c[0].parse().map_err(|_| "bad threshold")).collect::<Result<_, _>>()?;
+    let mut ds: Vec<Vec<i64>> = pairs.chunks_exact(2).map(|c| read_d(&c[1])).collect::<Result<_, _>>()?;
+    let (x, x_max) = top_difference(&ts, &ds)?;
+    let dk = ds.pop().ok_or("no vectors")?;
+    drop(ds);
+    let d_max = dk.iter().map(|&v| i128::from(v)).max().unwrap_or(1);
+    let gammas = gamma_grid(x_max, d_max);
+    let spec = arg(2, "DEV")?;
+    let mut dev = segio::open(spec, false).map_err(|e| format!("open {spec}: {e}"))?;
+    let hdr = roomio::read_hdr(&mut dev, off)?;
+    let rows = grid_pass(&mut dev, off, &hdr, (je, jb), &x, &dk, &gammas)?;
+    for r in &rows {
+        match r.value {
+            Some((v, row, mag)) if r.nonpositive == 0 => println!("PERRONRITZ_GRID|gamma={}|t_cert_milli={v}|min_row={row}|min_mag={mag}|json=0", r.gamma),
+            _ => println!("PERRONRITZ_GRID|gamma={}|result=OPEN|nonpositive_rows={}|json=0", r.gamma, r.nonpositive),
+        }
+    }
+    let best = rows.iter().filter(|r| r.nonpositive == 0).filter_map(|r| r.value.map(|v| (v, r.gamma))).max_by_key(|p| p.0 .0).ok_or("no gamma gives a positive vector")?;
+    let ((value, row, mag), gamma) = best;
+    let y: Vec<i64> = x.iter().zip(&dk).map(|(&v, &d)| i64::try_from(i128::from(v) + gamma * i128::from(d)).map_err(|_| "x out of i64 range".to_string())).collect::<Result<_, _>>()?;
+    let bytes = d_bytes(&y);
+    std::fs::write(out, &bytes).map_err(|e| format!("write: {e}"))?;
+    let names: Vec<String> = ts.iter().map(ToString::to_string).collect();
+    println!(
+        "PERRONRITZ_BEST|L={}|n={}|JE={je}|JB={jb}|order={}|thresholds={}|gamma={gamma}|t_cert_milli={value}|min_row={row}|min_mag={mag}|x_sha256={}|positive_offdiag=0|merkle=PASS|ms={}|json=0",
+        hdr.lattice,
+        hdr.n,
+        ts.len(),
+        names.join(","),
+        sha::sha256_hex(&bytes),
+        t0.elapsed().as_millis()
+    );
+    Ok(())
+}
+
+fn run_pass(a: &[String]) -> Result<(), String> {
+    let t0 = std::time::Instant::now();
+    let arg = |k: usize, what: &str| a.get(k).ok_or_else(|| format!("missing {what}"));
+    let off: u64 = arg(3, "OFFSET")?.parse().map_err(|_| "bad OFFSET")?;
+    let je: i128 = arg(4, "JE")?.parse().map_err(|_| "bad JE")?;
+    if je <= 0 {
+        return Err("JE must be positive".into());
+    }
+    let jbs: Vec<i128> = arg(5, "JB_LIST")?.split(',').map(|v| v.parse().map_err(|_| "bad JB_LIST")).collect::<Result<_, _>>()?;
+    if jbs.iter().any(|&v| v < 0) {
+        return Err("JB must be nonnegative".into());
+    }
+    if a.len() < 7 {
+        return Err("missing D_FILE".into());
+    }
+    let ds: Vec<Vec<i64>> = a[6..].iter().map(|p| read_d(p)).collect::<Result<_, _>>()?;
+    let spec = arg(2, "DEV")?;
+    let mut dev = segio::open(spec, false).map_err(|e| format!("open {spec}: {e}"))?;
+    let hdr = roomio::read_hdr(&mut dev, off)?;
+    let f = pass(&mut dev, off, &hdr, je, &ds)?;
+    let k = ds.len();
+    for (i, p) in a[6..].iter().enumerate() {
+        println!(
+            "PERRONRITZ_D|i={i}|file={p}|d_sha256={}|d_min={}|d_max={}|nonpositive={}|json=0",
+            sha::sha256_hex(&d_bytes(&ds[i])),
+            f.d_min[i],
+            f.d_max[i],
+            f.nonpositive[i]
+        );
+    }
+    for x in 0..k {
+        for y in x..k {
+            println!("PERRONRITZ_FORM|a={x}|b={y}|G={}|E={}|M={}|json=0", f.g[x][y].big(), f.e[x][y].big(), f.m[x][y].big());
+        }
+    }
+    for (i, table) in f.tables.iter().enumerate() {
+        if f.nonpositive[i] > 0 {
+            continue;
+        }
+        for (mag, m) in table.iter().enumerate() {
+            if let Some(m) = m {
+                println!("PERRONRITZ_MAG|i={i}|M={mag}|rows={}|e_milli={}|row={}|json=0", m.rows, m.e_milli, m.row);
+            }
+        }
+    }
+    for &jb in &jbs {
+        for (i, table) in f.tables.iter().enumerate() {
+            if f.nonpositive[i] > 0 {
+                continue;
+            }
+            if let Some((t, row, mag)) = lower_side(table, jb) {
+                println!("PERRONRITZ_LOWER|JB={jb}|vector={i}|t_cert_milli={t}|min_row={row}|min_mag={mag}|json=0");
+            }
+        }
+        for mask in 1u32..(1 << k) {
+            let pick: Vec<usize> = (0..k).filter(|i| mask >> i & 1 == 1).collect();
+            let (fa, fg) = forms_at(&f, &pick, je, jb);
+            let name = pick.iter().map(ToString::to_string).collect::<Vec<_>>().join("+");
+            match upper_side(&fa, &fg) {
+                Ok(t) => println!("PERRONRITZ_UPPER|JB={jb}|vectors={name}|upper_milli={t}|json=0"),
+                Err(e) => println!("PERRONRITZ_UPPER|JB={jb}|vectors={name}|result=OPEN|reason={e}|json=0"),
+            }
+        }
+    }
+    println!(
+        "PERRONRITZ|L={}|sector={}|n={}|flats={}|JE={je}|vectors={k}|positive_offdiag=0|E_self_adjoint=PASS|merkle=PASS|ms={}|json=0",
+        hdr.lattice,
+        hdr.sector,
+        hdr.n,
+        f.flats,
+        t0.elapsed().as_millis()
+    );
+    Ok(())
+}
+
+fn run_dd(a: &[String]) -> Result<(), String> {
+    let arg = |k: usize, what: &str| a.get(k).ok_or_else(|| format!("missing {what}"));
+    let je: i128 = arg(2, "JE")?.parse().map_err(|_| "bad JE")?;
+    if je <= 0 {
+        return Err("JE must be positive".into());
+    }
+    let out = arg(3, "OUT")?;
+    let pairs = &a[4..];
+    if pairs.len() < 4 || pairs.len() % 2 != 0 {
+        return Err("thresholds and vectors come in pairs, two or more of them".into());
+    }
+    let ts: Vec<i128> = pairs.chunks_exact(2).map(|c| c[0].parse().map_err(|_| "bad threshold")).collect::<Result<_, _>>()?;
+    let ds: Vec<Vec<i64>> = pairs.chunks_exact(2).map(|c| read_d(&c[1])).collect::<Result<_, _>>()?;
+    let p = propose(je, &ts, &ds)?;
+    let bytes = d_bytes(&apply_proposal(&p, &ds)?);
+    std::fs::write(out, &bytes).map_err(|e| format!("write: {e}"))?;
+    let names: Vec<String> = ts.iter().map(ToString::to_string).collect();
+    println!(
+        "PERRONRITZ_DD|order={}|thresholds={}|m={}|gamma={}|pure_nonpositive_rows={}|predicted_t_milli={}|predicted_row={}|x_sha256={}|tag=UNTRUSTED_UNTIL_CHECKED|json=0",
+        ts.len(),
+        names.join(","),
+        p.m,
+        p.gamma,
+        p.pure_nonpositive,
+        p.predicted,
+        p.row,
+        sha::sha256_hex(&bytes)
+    );
+    Ok(())
+}
+
+fn main() {
+    let a: Vec<String> = std::env::args().collect();
+    let r = match a.get(1).map(String::as_str) {
+        Some("pass") => run_pass(&a),
+        Some("dd") => run_dd(&a),
+        Some("grid") => run_grid(&a),
+        _ => Err("usage: perronritz pass DEV OFFSET JE JB_LIST D_FILE... | dd JE OUT T1 D1 T2 D2 [...] | grid DEV OFFSET JE JB OUT T1 D1 T2 D2 [...]".to_string()),
+    };
+    if let Err(e) = r {
+        println!("PERRONRITZ_ERROR|{e}|json=0");
+        std::process::exit(2);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn temp(name: &str) -> String {
+        std::env::temp_dir().join(format!("perronritz-test-{}-{name}", std::process::id())).to_str().unwrap().to_string()
+    }
+
+    /// Row 0 is flat. Rows 1 and 2 give H' = [[z1 + r m1, -a], [-a, z2 + r m2]] in units of JE.
+    fn rows(z1: i32, m1: u16, a: i32, z2: i32, m2: u16) -> Vec<roomio::TestRow> {
+        vec![(1, 0, vec![(0, 54), (1, -1)]), (1, m1, vec![(0, -1), (1, z1), (2, -a)]), (1, m2, vec![(1, -a), (2, z2)])]
+    }
+
+    fn forms(name: &str, r: &[roomio::TestRow], ds: &[Vec<i64>]) -> Result<Forms, String> {
+        let p = temp(name);
+        roomio::write_test_stream(std::path::Path::new(&p), r);
+        let mut dev = segio::open(&p, false).unwrap();
+        let hdr = roomio::read_hdr(&mut dev, 0).unwrap();
+        let f = pass(&mut dev, 0, &hdr, 1000, ds);
+        drop(dev);
+        std::fs::remove_file(p).unwrap();
+        f
+    }
+
+    fn upper(f: &Forms, pick: &[usize], jb: i128) -> i128 {
+        let (a, g) = forms_at(f, pick, 1000, jb);
+        upper_side(&a, &g).unwrap()
+    }
+
+    #[test]
+    fn one_vector_gives_its_rayleigh_quotient_and_a_span_gives_the_exact_level() {
+        // H' = [[50, -5], [-5, 50]]: lowest level exactly 45.
+        let ds = vec![vec![0, 1, 3], vec![0, 2, 1]];
+        let f = forms("span", &rows(23, 3, 5, 14, 4), &ds).unwrap();
+        // (1,3): (50 + 450 - 30) / 10 = 47. (2,1): (200 + 50 - 20) / 5 = 46.
+        assert_eq!(upper(&f, &[0], 9000), 47_000_000);
+        assert_eq!(upper(&f, &[1], 9000), 46_000_000);
+        // Two independent vectors span the whole 2-dimensional H', so the side from above is exact.
+        assert_eq!(upper(&f, &[0, 1], 9000), 45_000_000);
+    }
+
+    #[test]
+    fn the_side_from_above_holds_at_another_coupling() {
+        // At JB = 6000: H' = [[23 + 18, -5], [-5, 14 + 24]] = [[41, -5], [-5, 38]], lowest level (79 - sqrt(109)) / 2 = 34.279...
+        let ds = vec![vec![0, 1, 3], vec![0, 2, 1]];
+        let f = forms("coupling", &rows(23, 3, 5, 14, 4), &ds).unwrap();
+        let u = upper(&f, &[0, 1], 6000);
+        assert!(u > 34_279_000 && u <= 34_280_000, "{u}");
+        // Exact: 4 theta^2 - 316 theta + 6132 = 0 at the root, so the printed integer sits just above it.
+        let t = BigInt::from(u);
+        let scale = BigInt::from(1_000_000);
+        assert!(t.clone() * &t - BigInt::from(79) * &t * &scale + BigInt::from(1533) * &scale * &scale <= BigInt::from(0));
+    }
+
+    #[test]
+    fn the_side_from_below_is_the_value_perroncert_check_computes_at_every_coupling() {
+        let d = vec![0i64, 1_000_003, 2_000_029];
+        let r = rows(23, 3, 5, 14, 4);
+        let f = forms("lower", &r, &[d.clone()]).unwrap();
+        for jb in [0i128, 3000, 6000, 9000, 27000] {
+            let direct = [(1usize, 23i128, 3i128, 2usize), (2, 14, 4, 1)]
+                .iter()
+                .map(|&(h, z, m, o)| {
+                    let n = 1000 * jb * m * i128::from(d[h]) + 1_000_000 * (z * i128::from(d[h]) - 5 * i128::from(d[o]));
+                    n.div_euclid(i128::from(d[h]))
+                })
+                .min()
+                .unwrap();
+            assert_eq!(lower_side(&f.tables[0], jb).unwrap().0, direct, "jb {jb}");
+        }
+    }
+
+    #[test]
+    fn rows_that_are_not_self_adjoint_fail_on_two_vectors() {
+        let bad = vec![(1, 0, vec![(0, 54)]), (1, 3, vec![(1, 23), (2, -5)]), (1, 4, vec![(1, -4), (2, 14)])];
+        let e = forms("asym", &bad, &[vec![0, 1, 3], vec![0, 2, 1]]).err().unwrap();
+        assert!(e.contains("self-adjoint"), "{e}");
+    }
+
+    #[test]
+    fn a_nonzero_entry_on_a_flat_row_a_positive_coupling_or_a_short_vector_is_refused() {
+        let r = rows(23, 3, 5, 14, 4);
+        assert!(forms("flat", &r, &[vec![9, 1, 1]]).err().unwrap().contains("flat"));
+        assert!(forms("short", &r, &[vec![0, 1]]).err().unwrap().contains("rows"));
+        let plus = vec![(1, 0, vec![(0, 54)]), (1, 3, vec![(1, 23), (2, 5)]), (1, 4, vec![(1, 5), (2, 14)])];
+        assert!(forms("plus", &plus, &[vec![0, 1, 1]]).err().unwrap().contains("positive"));
+    }
+
+    #[test]
+    fn a_product_out_of_range_fails_closed() {
+        let huge = vec![(u32::MAX, 0, vec![(0, 54)]), (u32::MAX, 36, vec![(1, 72), (2, -1)]), (u32::MAX, 36, vec![(1, -1), (2, 72)])];
+        let e = forms("huge", &huge, &[vec![0, i64::MAX, i64::MAX]]).err().unwrap();
+        assert!(e.contains("i128"), "{e}");
+    }
+
+    #[test]
+    fn dependent_vectors_print_open_instead_of_a_value() {
+        let f = forms("dep", &rows(23, 3, 5, 14, 4), &[vec![0, 1, 3], vec![0, 2, 6]]).unwrap();
+        let (a, g) = forms_at(&f, &[0, 1], 1000, 9000);
+        assert!(upper_side(&a, &g).is_err());
+    }
+
+    #[test]
+    fn the_accumulator_carries_both_ways() {
+        let mut a = Acc::default();
+        a.add(i128::MAX);
+        a.add(i128::MAX);
+        a.add(2);
+        assert_eq!(a.big(), BigInt::from(1) << 128u32);
+        a.add(-1);
+        a.add(i128::MIN);
+        a.add(i128::MIN);
+        assert_eq!(a.big(), BigInt::from(-1));
+    }
+
+    /// Solves (H' - t) d = source by Cramer on H' = [[50, -5], [-5, 60]] in units of JE, whose lowest level is 55 - sqrt(50).
+    fn solved(t: i128) -> Vec<i64> {
+        let source = 1_000_000i128 << SOURCE_BITS;
+        let (a, b) = (50_000_000 - t, 60_000_000 - t);
+        let c = 5_000_000i128;
+        // det scaled down by 10^6 so the products stay in range.
+        let det = a * b / 1_000_000 - c * c / 1_000_000;
+        let d1 = (source * ((b + c) / 1000)) / (det * 1000) * 1_000_000 / 1_000_000;
+        let d2 = (source * ((a + c) / 1000)) / (det * 1000) * 1_000_000 / 1_000_000;
+        vec![0, i64::try_from(d1).unwrap(), i64::try_from(d2).unwrap()]
+    }
+
+    fn checked_value(name: &str, x: Vec<i64>) -> i128 {
+        let f = forms(name, &rows(23, 3, 5, 24, 4), &[x]).unwrap();
+        lower_side(&f.tables[0], 9000).unwrap().0
+    }
+
+    #[test]
+    fn the_weights_are_the_divided_differences() {
+        // Two thresholds: x = d2 - d1, y = d1, g = their difference.
+        assert_eq!(dd_weights(&[10, 30]).unwrap(), Weights { wx: vec![-1, 1], wy: vec![1, 0], g: 20 });
+        // Thresholds 0, 1, 3: X_3 = d0/3 - d1/2 + d2/6, X_2 = d1 - d0. On the scale of 6: 2 d0 - 3 d1 + d2, and 6 X_2 = 6 d1 - 6 d0.
+        assert_eq!(dd_weights(&[0, 1, 3]).unwrap(), Weights { wx: vec![2, -3, 1], wy: vec![-6, 6, 0], g: 1 });
+        assert!(dd_weights(&[5]).is_err());
+        assert!(dd_weights(&[5, 5]).is_err());
+        assert!(dd_weights(&[6, 5]).is_err());
+    }
+
+    #[test]
+    fn more_resolvents_can_only_raise_the_value_and_it_stays_at_or_below_the_level() {
+        // Lowest level of [[50, -5], [-5, 60]] is 55 - sqrt(50) = 47.928932...
+        let level = 47_928_932i128;
+        let ts = [30_000_000i128, 40_000_000, 46_000_000];
+        let ds: Vec<Vec<i64>> = ts.iter().map(|&t| solved(t)).collect();
+        let first = checked_value("o1", ds[2].clone());
+        let p2 = propose(1000, &ts[1..], &ds[1..]).unwrap();
+        let second = checked_value("o2", apply_proposal(&p2, &ds[1..]).unwrap());
+        let p3 = propose(1000, &ts, &ds).unwrap();
+        let third = checked_value("o3", apply_proposal(&p3, &ds).unwrap());
+        // Exact values from rational arithmetic on R(30) R(40) R(46) (1, 1), computed apart from this tool.
+        for (got, exact) in [(first, 47_631_578i128), (second, 47_823_529), (third, 47_870_201)] {
+            assert!((got - exact).abs() <= 2, "{got} {exact}");
+        }
+        assert!(first < second && second < third, "{first} {second} {third}");
+        assert!(third <= level + 1, "{third}");
+        // On a clean solve the prediction from the vectors alone is what the exact pass finds.
+        assert!((p3.predicted - third).abs() <= 2, "{} {third}", p3.predicted);
+        assert_eq!(p3.pure_nonpositive, 0);
+        assert_eq!(p3.gamma, 0);
+    }
+
+    fn grid_on(name: &str, x: &[i64], dk: &[i64], gammas: &[i128], jb: i128) -> Vec<GridRow> {
+        let p = temp(name);
+        roomio::write_test_stream(std::path::Path::new(&p), &rows(23, 3, 5, 24, 4));
+        let mut dev = segio::open(&p, false).unwrap();
+        let hdr = roomio::read_hdr(&mut dev, 0).unwrap();
+        let out = grid_pass(&mut dev, 0, &hdr, (1000, jb), x, dk, gammas).unwrap();
+        drop(dev);
+        std::fs::remove_file(p).unwrap();
+        out
+    }
+
+    #[test]
+    fn every_grid_value_is_what_an_exact_check_of_that_vector_prints() {
+        let (x, dk) = (vec![0i64, 7_000_001, 3_000_017], vec![0i64, 1_000_003, 2_000_029]);
+        let gammas = [0i128, 1, 2, 3, 9, 100];
+        for jb in [9000i128, 6000] {
+            for r in grid_on("gridval", &x, &dk, &gammas, jb) {
+                let y: Vec<i64> = x.iter().zip(&dk).map(|(&a, &b)| a + i64::try_from(r.gamma).unwrap() * b).collect();
+                let f = forms("gridchk", &rows(23, 3, 5, 24, 4), &[y]).unwrap();
+                assert_eq!(r.value.unwrap().0, lower_side(&f.tables[0], jb).unwrap().0, "gamma {} jb {jb}", r.gamma);
+            }
+        }
+    }
+
+    #[test]
+    fn a_gamma_rescues_a_row_that_the_pure_difference_loses() {
+        // Row 2 of X is tiny, as a high row is after a solver's leftover: the pure vector scores badly there.
+        let (x, dk) = (vec![0i64, 100_000_000_000, 3], vec![0i64, 1_000_000, 1_000_000]);
+        let out = grid_on("rescue", &x, &dk, &[0, 1, 10, 1000, 100_000], 9000);
+        let v: Vec<i128> = out.iter().map(|r| r.value.unwrap().0).collect();
+        assert!(v[0] < 0, "{v:?}");
+        assert!(v[4] > v[0], "{v:?}");
+        assert!(v[4] > 40_000_000, "{v:?}");
+    }
+
+    #[test]
+    fn the_gamma_grid_starts_at_zero_and_rises_to_the_limit() {
+        assert_eq!(gamma_grid(1000, 100), vec![0, 1, 2, 3, 4, 6, 9]);
+        assert_eq!(gamma_grid(5, 100), vec![0, 1]);
+    }
+
+    #[test]
+    fn a_row_pushed_out_of_place_gets_a_gamma_and_stays_positive() {
+        let ts = [40_000_000i128, 46_000_000];
+        let mut ds: Vec<Vec<i64>> = ts.iter().map(|&t| solved(t)).collect();
+        // Make row 2 of the upper vector smaller than the lower one, as an unconverged solve can.
+        ds[1][2] = ds[0][2] - 3;
+        let p = propose(1000, &ts, &ds).unwrap();
+        assert_eq!(p.pure_nonpositive, 1);
+        assert!(p.gamma > 0);
+        let x = apply_proposal(&p, &ds).unwrap();
+        assert!(x[1] > 0 && x[2] > 0 && x[0] == 0, "{x:?}");
+    }
+}

@@ -1,0 +1,3 @@
+WARM34_PREDICT|written_before_run=1|at=2026-11-02T11:01:34Z|solve_t_milli=93700000|no_divergence=1|t_cert_milli_range=93700000..93725000|tightest_row=low_M|lambda1_estimate_milli=93820000..94120000|est_basis=small_lattice_fit_1_over_excess_vs_margin_plus_ball_level|est_secs=7800|est_tag=CONJECTURE|start_only_if_check_of_d93000000_agrees=1|operator_word=run_the_warm_start_at_a_higher_threshold_after_the_check|json=0
+WARM34_START|at=2026-11-02T11:25:06Z|solve_t_milli=93700000|full_passes=8|inner=16:500|start_d_sha256=956b73bc6f4ec5712184eb52f67d8e0adab467c1ea843ba257126278368210da|perroncert_sha256=e60b6420aeac8438b327873639763cdcf70f38adbae78445c782e40f904271a9|json=0
+WARM34_STOPPED|at=2026-11-02T12:46:43Z|reason=operator_go_higher|json=0

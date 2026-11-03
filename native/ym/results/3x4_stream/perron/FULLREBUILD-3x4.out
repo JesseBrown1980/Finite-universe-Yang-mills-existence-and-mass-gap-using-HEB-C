@@ -1,0 +1,12 @@
+FULLREBUILD_PROGRESS|rows_done=1112547|of=45508080|bad_key=0|bad_w=0|bad_M=0|bad_entries=0|secs=206|json=0
+FULLREBUILD_PROGRESS|rows_done=5311886|of=45508080|bad_key=0|bad_w=0|bad_M=0|bad_entries=0|secs=936|json=0
+FULLREBUILD_PROGRESS|rows_done=9546042|of=45508080|bad_key=0|bad_w=0|bad_M=0|bad_entries=0|secs=1669|json=0
+FULLREBUILD_PROGRESS|rows_done=13765889|of=45508080|bad_key=0|bad_w=0|bad_M=0|bad_entries=0|secs=2394|json=0
+FULLREBUILD_PROGRESS|rows_done=17975918|of=45508080|bad_key=0|bad_w=0|bad_M=0|bad_entries=0|secs=3117|json=0
+FULLREBUILD_PROGRESS|rows_done=22181834|of=45508080|bad_key=0|bad_w=0|bad_M=0|bad_entries=0|secs=3840|json=0
+FULLREBUILD_PROGRESS|rows_done=26402450|of=45508080|bad_key=0|bad_w=0|bad_M=0|bad_entries=0|secs=4565|json=0
+FULLREBUILD_PROGRESS|rows_done=30615208|of=45508080|bad_key=0|bad_w=0|bad_M=0|bad_entries=0|secs=5306|json=0
+FULLREBUILD_PROGRESS|rows_done=34845553|of=45508080|bad_key=0|bad_w=0|bad_M=0|bad_entries=0|secs=6033|json=0
+FULLREBUILD_PROGRESS|rows_done=39059033|of=45508080|bad_key=0|bad_w=0|bad_M=0|bad_entries=0|secs=6760|json=0
+FULLREBUILD_PROGRESS|rows_done=43261596|of=45508080|bad_key=0|bad_w=0|bad_M=0|bad_entries=0|secs=7481|json=0
+FULLREBUILD|L=3x4|V=12|nl=24|n=45508080|rows_rebuilt=45508080|rows_read=45508080|canonical_key_mismatch=0|weight_mismatch=0|M_mismatch=0|entries_mismatch=0|merkle=PASS|secs=7870|json=0

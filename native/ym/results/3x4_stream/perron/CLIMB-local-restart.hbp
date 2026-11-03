@@ -1,0 +1,5 @@
+CLIMB_START|first_t=93950000|budget_secs=72000|inner=16:500|passes_per_segment=3|known=93000000:61051,93700000:18416|json=0
+CLIMB_SEGMENT|stage=1|t=93950000|seg=1|t_cert_milli=93955575|min_row=44742735|min_mag=3|d_max=192576030126|d_sha256=cf273fbf4a3c034ca2c29ddf5d4230f42b9ef7a8515f031cec3482881e617922|last_change=528|secs=4400|json=0
+CLIMB_ESTIMATE|level_estimate_milli=94065356|from_points=93000000:61051,93700000:18416,93950000:5575|tag=CONJECTURE|json=0
+CLIMB_SEGMENT|stage=2|t=94030000|seg=1|t_cert_milli=94031828|min_row=44742735|min_mag=3|d_max=587146802069|d_sha256=6e3d8cc7c86abbeac36663da582caf069b5bfb84c3f99089b9527b85e1b6624c|last_change=1622544|secs=8788|json=0
+CLIMB_STOPPED|at=2026-11-02T17:52:21Z|by=seat_on_the_plan_given_to_the_operator|reason=hosted_climb_finished|last_full_row=stage2_t94030000_seg1|json=0

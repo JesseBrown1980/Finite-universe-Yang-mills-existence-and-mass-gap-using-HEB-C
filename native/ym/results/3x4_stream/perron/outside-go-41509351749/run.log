@@ -1,0 +1,407 @@
+independent-check	Set up job	﻿2026-11-02T19:22:38.9841127Z Current runner version: '2.338.2'
+independent-check	Set up job	2026-11-02T19:22:38.9863578Z ##[group]Runner Image Provisioner
+independent-check	Set up job	2026-11-02T19:22:38.9864375Z Hosted Compute Agent
+independent-check	Set up job	2026-11-02T19:22:38.9864830Z Version: 20261021.618
+independent-check	Set up job	2026-11-02T19:22:38.9865360Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+independent-check	Set up job	2026-11-02T19:22:38.9865835Z Build Date: 2026-10-21T00:45:21Z
+independent-check	Set up job	2026-11-02T19:22:38.9866415Z Worker ID: {5459b4f5-78a7-4239-876b-d4477b7eaaf4}
+independent-check	Set up job	2026-11-02T19:22:38.9866962Z Region: centralus
+independent-check	Set up job	2026-11-02T19:22:38.9867313Z Cloud: Azure
+independent-check	Set up job	2026-11-02T19:22:38.9867783Z ##[endgroup]
+independent-check	Set up job	2026-11-02T19:22:38.9868796Z ##[group]Operating System
+independent-check	Set up job	2026-11-02T19:22:38.9869286Z Ubuntu
+independent-check	Set up job	2026-11-02T19:22:38.9869650Z 24.04.5
+independent-check	Set up job	2026-11-02T19:22:38.9870084Z LTS
+independent-check	Set up job	2026-11-02T19:22:38.9870785Z ##[endgroup]
+independent-check	Set up job	2026-11-02T19:22:38.9871209Z ##[group]Runner Image
+independent-check	Set up job	2026-11-02T19:22:38.9871669Z Image: ubuntu-24.04
+independent-check	Set up job	2026-11-02T19:22:38.9872097Z Version: 20261025.353.1
+independent-check	Set up job	2026-11-02T19:22:38.9872825Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+independent-check	Set up job	2026-11-02T19:22:38.9874153Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+independent-check	Set up job	2026-11-02T19:22:38.9874885Z ##[endgroup]
+independent-check	Set up job	2026-11-02T19:22:38.9875640Z ##[group]GITHUB_TOKEN Permissions
+independent-check	Set up job	2026-11-02T19:22:38.9877297Z Contents: read
+independent-check	Set up job	2026-11-02T19:22:38.9877687Z Metadata: read
+independent-check	Set up job	2026-11-02T19:22:38.9878057Z ##[endgroup]
+independent-check	Set up job	2026-11-02T19:22:38.9879830Z Secret source: Actions
+independent-check	Set up job	2026-11-02T19:22:38.9880488Z Cache mode: write
+independent-check	Set up job	2026-11-02T19:22:38.9881138Z Prepare workflow directory
+independent-check	Set up job	2026-11-02T19:22:39.0189636Z Prepare all required actions
+independent-check	Set up job	2026-11-02T19:22:39.0225514Z Getting action download info
+independent-check	Set up job	2026-11-02T19:22:39.3680217Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+independent-check	Set up job	2026-11-02T19:22:39.5895442Z Complete job name: independent-check
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	﻿2026-11-02T19:22:39.6581783Z ##[group]Run set -euo pipefail
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6582623Z ^[[36;1mset -euo pipefail^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6583172Z ^[[36;1mcat > /tmp/perron.go.gz.b64 <<'CHECKER'^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6583939Z ^[[36;1mH4sIAAAAAAAAA51bbVPbSrL+jH/FxHWTlYgRkvyKD04VJyE3uRWSVMju1h6WsLI0wgJZciQZ^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6584626Z ^[[36;1mDIT/vt09LxobG8glFZBnerp7enq6n+mRd3fZxyziMw6/sor964i1Fx32lRdFnrGQF1USJ2FQ^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6585306Z ^[[36;1mcXbFC3jkhdPY3WUH82qSFzxicZFPWTXhrJzPZmkCLddJwVmcF9OgasEHoJtXrODpTZKdM+BZ^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6585996Z ^[[36;1m8FleJlVe3GiWJfH835x5jt9+3WJlFWRRUEQsTcZFAIR5lt447HPO4jQPKmQ0yxPQNskkD9Aw^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6586661Z ^[[36;1myTOnMQvCy+Ccs2mQZI1GMp3lRcWsxlZzPI+TvAkPYXEzq/LdchL43R428CzMI2C5O04ykLXU^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6587308Z ^[[36;1mNOEL+gzGKEp8itPgnP5OK/wzCcoJ/hWsYcYT4EIEOZHPsCVOUo4P2FDwc76Y4VNZFWGeXclH^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6587960Z ^[[36;1mEEYDypsyDNIUH6tkypsNu9EAspImASN5WPHoM5M/YIJeh41Yp9t1B/CvJvka3ICloprE7w2A^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6588605Z ^[[36;1mZuB1272a6ijIkpgDc/EzYs0932vv+f1xe9xzw3jMAz7gMY89t992+SDsR7EfRF0/7va87p7r^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6589270Z ^[[36;1m9cduZ9Bt77X7/cGgF/J202DOi8uUK1WROQ/ddtiNBzzoBuOo3efRIB643OV7vB+7Lm/3Bx03^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6589921Z ^[[36;1m6HfbcbsdeK47iMeRu+eOvYHb9wN3DMzBFlWRpx/A7sz4Qc27vXG/PQ57cYeH3b7ne4MOH4Oq^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6590595Z ^[[36;1mvX404G4QBeNOrx96PBh02mNYfCDp+f1BuzfwPTcKgPk4TbJolTUxb3d434uDcAxm3As6vaDT^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6591250Z ^[[36;1mCcftTr/ndmJ33O558OT6bggGdvudQdzje2HY9dpREIDBB+hnKQ/i4+SWs1XmXo/t7zPfxaW+^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6591898Z ^[[36;1mCgoGPkcrJlzFOZqX1dt8OgMnsv7z48Td2Qt24tO7Xuf+f/4DI6qbGWdv8yxOzmHbFPOwYneN^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6592558Z ^[[36;1mrSgpWkzaqsVoXuzRH+GCja2sxWbKdZ71Q/7V2JpKT0LrtdiUll48GysmNSELK4El+ArsrWdK^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6593205Z ^[[36;1mEwIbW3EwT6unaR/M777RiOdZyKKEW7CpGW1sm90x2M/O+xnQVGlm5aVzXEXQ12LN9wcfPw2b^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6593949Z ^[[36;1mLaS0/2DQc7hIKsuz2b3gVAZTmqgVhNU8AGNfBxnEvTQY81RKtYUYXJckpn72AnyqyV69YmIU^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6594622Z ^[[36;1mfqZ2INkqeDUvMtLoEMfFVvNlyUS8YtOkhCgTTobsPK8YtKvdBs9NKbbFTF3sxtZ9QzHNkrQh^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6595304Z ^[[36;1mFceodPzhwMLIpBW1xENLGwZMDR/YcIRT/wJJguhtmglHtYGjqXUTTUUSI4gbBYudt2lecgtG^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6596192Z ^[[36;1mTJCLmIbzmV9bgskZsh+xJHfe5rMbC3wkBjs/zlo2wEZxDjFS8+/5MeltTZzj+dSCgbbdMier^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6596877Z ^[[36;1m3NOcLbim3Dgw75PThzMv51M5d9NWm+cOH5WGRDGqnYNYhc7yLmmqj80NMzYY/t4qGAMfLEOa^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6597543Z ^[[36;1mQLwHTtPgkhvTDh25E23ckzzTJNNgdiKITsd5nmJ3iJ2UUHEhj8Mgy3hhxdTl/DmPQaIl2Y9v^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6598217Z ^[[36;1mKt5iHXevBwvi7e/7LlABOGBAiQMtsjQoldH0ZCZ0vhfJ9BhyObeA7jtfVJYN43C6RDmi7YMD^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6598891Z ^[[36;1mKSEk2Rwmi7PdmgVFVZqc3ic8jUoLhykOZD4gs9FyPvv1i72gmOsc4c6SnkQUJ+6p0G/JsObO^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6599554Z ^[[36;1mTLKrIE0i7WBCv5c/cS9KkahWBo6wOr+vBY+ThRTknYI/bDdtRSt8DlfZ+TOAhcNG7IzzOYRy^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6600221Z ^[[36;1mdMkgLTk1FOwSG9w/4O9+vY7w8fVroTxMWjAdke7HFOdAeUG58zJyijyfYvxod7zXl3LKOAw9^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6600914Z ^[[36;1m4QTHnsq2jYaI5oD+CCdqUyQVn4qwpLQXxtjaMtiOGCQtTq3omSeX2KSMT81iygbduODBZUMy^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6601585Z ^[[36;1muxeL+kJQPbpW80wHS60jWnlZx/ulDRziaOsZ+xOXAYArrkQRZIBAaZ/dCe1K02M3qQehvURk^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6602242Z ^[[36;1mq3UTy8NeRnphtHqSB8pQcQ4RdJwms/dJAWOn8wrWoiRkHlOLSuu4I9mYg8LwJ4doCMYuIUQA^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6602918Z ^[[36;1m4mYSsiGqBU0IlH+fJCWbQoxNSxZAMi+K+QwtOJtDLg81V4XzeZQQPEe5ebYTJeUlOD3IcgRS^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6603784Z ^[[36;1mqTWswQosJyRbTAHf6AmCVp4hTsJ4o1O2FbNtPdpmSGrNmIgwEMATzLp17M5U5HYEd0fQi5CZ^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6604468Z ^[[36;1msTfMxez7InZIFK7LDPyN/YCAgJtKNCufM/Inrve9RF0C5RgTQYhXQw60ooORHkbnebW2I8k+^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6605155Z ^[[36;1mwZgWq/IKUIDAUmrCGb8W6wExclvKumNSkVei4Q5FDpeyaouhtOW2e4VWrKliZcNaTqcAZWyB^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6606144Z ^[[36;1mF8+5TAsOstRpFNI2X7yre82oXuff6BPEVIyrgo9ti3Gy19IsWkwSNLYg758xFIfaOv8sIFjU^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6606958Z ^[[36;1mdNAv9fjGS15Z9FnYCsa4jTWzERzGmx0C1UcVxzIBiWfyBFz+CmaGJLQGluiUCYO63jAF4He0^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6607642Z ^[[36;1mKrSdqXeke9kOU/0yOumZ0oSknidDEGThWPsUxYyBYnyi24YY+rSc1yPSgZqEp9QtoF9tGkMN^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6608446Z ^[[36;1m0m3qqEVejRzZEjwyDRnDKTgFrxCpSoJWLUKZy+T8KCKTC6xhmRKJ2/IDbU3EnDyY1vvfBGYa^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6609128Z ^[[36;1mOQPceOCABCtqFDkcKR7v52kq2bYQqGyI3xKrLXDkjifcIoEBdRBHqTKGj9G8f/t39jeZUxeI^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6609812Z ^[[36;1mWhtGOtKJA7r2pZmUIKof0F5sTkS0I5wAkYBlOe50+phkkDNLmhaF6bJp6+RytqrXSbJ47Q1P^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6610493Z ^[[36;1ma/Vgfu5ShjGlZnl2y4ucSemzIML6RrP2i2UEZqGAYbI4FeZ9oXALRC0JW5AeIMu/jr59+XL0^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6611170Z ^[[36;1m4d23X0170+nlusgprZ0n4bCGRifDaSKCBgGlFpyAaSuALpdX69CnPKNocyBIqC2iNDwGGFIp^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6611932Z ^[[36;1m7ZRSMxN7EcVnwl1AMgJ1fBMZ2rjOvgZOICgnfHV5dYIp4vQP/CzA0Jq51jBIWjpG/CkQBg63^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6612599Z ^[[36;1mFW7ZUvwQ7gD80wtBSILfiMNbPb8HhrhrZs0hk1Uk5z3V2z5C/Agd2NueCwZtyuR8JnxpPbGk^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6613276Z ^[[36;1mWR0iogGMgUOLPszfK2cD3UHF06Vj6zprSBvAMZVOqz+N0yq6AU1T8tKH1ZU4JbAN5dsrgYfq^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6614141Z ^[[36;1mfEugVlcSaJYy/oMZEdix7RxPACnXSTWHw9M/iM/yUTATgV8d34mzPhRvC8n//1OxARRDPIeB^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6614826Z ^[[36;1mfQicgEYWV1wfiqmPbX+wJU6Qzrcwm0qIcwxYz9osXYm0uK1CVAkRGbKERUegwXa2lnylAkH2^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6615513Z ^[[36;1mHb0EV1GrOCJoirZq1RxbyM8Wkn73BL1G04fH6HqFNoT1R+f7RmZ4TLU/5vjbtd+88Wx7PQcj^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6616192Z ^[[36;1mhJJHVXnO0qA4xyfck1jQrhAiB0U4gcwewnjelNOPgiqQ85d1XecIxpDs2HkfWVilcFuokaU1^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6616876Z ^[[36;1mhCZF/PXbl+9n3w4P3tVNRwdfz8CO3w7fPd+KCjIK97pDyw3lquGchgycmRZ3yFDj+2VocMWk^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6617553Z ^[[36;1mX9oMvGzC0GZt35aFZQ1IhVVFCd35lFRVyg+zKAky5++i68ohGYRxJvb2YHhq6yKaKSQUHm8W^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6618241Z ^[[36;1m7+4IQGkTzDM0ouQHPoCdVw5ORW0XXZzjHMCplUilW9RAH3odARFxy8uPYMHd5buQiFe8gCwF^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6618934Z ^[[36;1mpyw46gAZP4doViEWFtqCxSibHCVYsrWq65xFRXBdshmeZ4DJwnYaW4Qv5tLtbPaDtIDoxReV^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6619620Z ^[[36;1mjgK2JKB1XCC+cxd7vN3v7433+nEn6IdeF3puccCCHkbMugVe8OvNG9Z2wZjbMGYcdwedfi/y^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6620292Z ^[[36;1mQt7h3fHeQ1K/L0n3OpHb2RuPvXbb8zw+rh3I4OstuZCYQ0b1mJd9G7Buu7WuUYfsgpdYqK1D^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6620972Z ^[[36;1mNh6DtsfJufMRy7hFfi2XBivI5/Ts9eojX8C2BQc8rWRlgmjxpx4PJxC9sPVoW0LWwKkwk+Pe^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6621761Z ^[[36;1m+PWL/XTeTmcWtNkamxEBYi9L8rOdYzhr/LSpD1UbsQk9I3PEI+doC4Vf55m1BqaWlUQleHvj^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6622421Z ^[[36;1mfM6pzIkRCwBwKWOBLkbqEs//5QCFQoeq9s3jw7ffv3w73oEj/06733HkTRXEhXDznhfJ5cpT^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6623098Z ^[[36;1maalOc6Gj7wEIGujPsggpPzWf4i0KiVeeE6pK4pW/ThqV+LUsXfAHSfT8XDl+LQfNVBrgXyV1^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6623934Z ^[[36;1mip1m3RIP1kuU+qT9gFRUBUxa4/ixQitLqGKb3smaG+DCuEZnQkWCQRiNjHIrwRlLotYnCnUz^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6624630Z ^[[36;1mlSkfOMWzynZUHyT0sIRMJLjFZsPmxiFBnlPFHEYsmGH8I+cssRoPXWtK98rYml58hj1p04oK^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6625332Z ^[[36;1m8+pe2dDCE9p3zoWlrRjJJVQQh0CzsCyIKCtCwxGEgUSOk9wcx4Fd0ZFVZQkWHhwscd88dv4j^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6626031Z ^[[36;1moUaxBZAk1hI5lVlfgeRPCRx0eSRk330jHE18PyM8logZGMmn43xehOZpFDSRHIWWoSOur7Am^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6626727Z ^[[36;1mKMeI0uAyAxCu6113YsZDtkQikLIqwW02XW3wpeEQNQ3ziVtmI0FipWXR33s3eDvwDw4PegN3^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6627410Z ^[[36;1m8O4Qdw4GZAg04sGnTUCPd/ct/QTRIYA9kwZwnpVXhNgAyfRIR2oQ0Ot2213ZFSzqrsYWZPq/^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6628082Z ^[[36;1m8MA6VEU4wH7HN2qtdMimHLK2/Zon55PqYTvKinhaBRCRTdXwrMJOBvL4gC0AAYqb5aZqOvur^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6628767Z ^[[36;1mxRAVtFh06+EvCILZfOrRbx8LXBiE4bdo5wVOSie8EPyg+gxJAwxTV5vUncjEbPoDPmKUyOBB^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6629470Z ^[[36;1mxoel6zJd59AnOJzBCcCqFWdfdzDD7PYykmdUOJRfQxCBICkL4PDrmtxpA5pr+5aQ1TmVweUa^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6630168Z ^[[36;1mndl9UlxQMqpCTHEv40E5qW6YWKimjBwYiTDfPiLe6wnxnWGP5IfinPwUeW84UOriiOcqnOXk^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6630862Z ^[[36;1mCAkvTRWxJoaoQDMhV3/9GrsZT0uubqfq9aZONXBfbQVRSZAfJMiQFQJJ+kZtDUkqPiyR4v9J^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6631552Z ^[[36;1m21c4E9cHFY08bIGUjcC9TVWOiIggu9ZNKxEpontpIZiK5Es+CxSeUASYYyl2gzmgAQioJAXo^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6632584Z ^[[36;1mC6TW1al19ibeS0YX5apoiC274g4EHDTCveXrIoppaiFxv5a4/6hEkLCzRiq9mpRc8SclI0yH^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6633784Z ^[[36;1m5huRGsU5Y6KOGGTpWw/x5Ee9w6HFX21RcUhYEiMMhLm/VFjCHPsuEZvBvO9LJIxIwI3wOAXu^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6634660Z ^[[36;1mDJs+Ma77HgsTFNbWxYlHNoIIhS+jOlQkMloIV714IlxImSJeiFOMPoZD95MjO7h3CeBQgZWG^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6635365Z ^[[36;1mXsBhfoQB8knt1SVthpFmDAa8GKllvajnAIwv0B64kcDtb3Wt+zHWyIlpp8njeAeUP8+zIGW3^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6636067Z ^[[36;1mtZAWu12RMxJyBHu1zPUdJxGSK8BJ8JauGSDz1N4j2GEeqtvEPr+w6y6ATNYrkaxe4XjqQb88^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6636762Z ^[[36;1miCLrFeUv6l7HzH8mM18x801mC5jyzYWxNS7qjVF7Pc4NjqLWYrINxDuwmbYXF0aEfaEM80SY^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6637462Z ^[[36;1mVjenyvQrgZrsWMcfhSzqPfVEBoDxYHBc6CyvKIGJZUW+hhg9LRIFHnRtluQJpdT2VcRkEJEB^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6638166Z ^[[36;1msVPWSmSx4FqYX47FBRCPLZkzbekl2IurIB7xAhCpVlKV9ubdXXa4COA4Hqc5nNisvZbruvgf^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6639142Z ^[[36;1mlgIJt1l0Mjllr5lndJANtqOTC6za7BIFlja2thTGeag98BL6axJyIfWpRagIsCrWofdc+tH0^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6639982Z ^[[36;1mRuiMvLpRMUDHVXxWPJS82uDsPeBM/iqZaIdF2LZe5rvkSpMjlVgSAYIdXZWQFBNZi1DDjYAv^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6640666Z ^[[36;1mkwc1qnn4j83Df3Qevp6HvzKPDTLVPHwxD9+Yh788D395HvpeS12yyUxCqeVPgMb69QhIN4df^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6641372Z ^[[36;1m3iuo+iQIVQeXqgiSFPcvHnJkhtFvzqy5y4KDOKgLZouWXmooWRBXdOOC0Rf2QFOXf+Xxy/lc^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6642086Z ^[[36;1m78gNW14eQ8tJXiCvahJksLHDNCiWpGFoELcqrZq5FqduaV+M6vPhJqHLM6BDdMTMIrtAIJJl^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6642786Z ^[[36;1mq2a4vkI+deT9bWvp5qa+2ZFvLWx65UwciSFEvBUmZhAtl6wr2eCFxM85vulNOE3eJ7bwvQ8s^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6643478Z ^[[36;1mE5aoO1ZBd+RLLMcfDnaweiCOUXiteuKJ117VfY2on9GLG6KAIZZCvLhB15EEHlbLKNnye05I^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6644292Z ^[[36;1meHm6Bm2uuwzVjmdeh5pvFaEmoyW/Nm97n1NVqV8NmtTVIlk6wQF4Lwbtj7/KqPaTsc4wTtyE^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6644962Z ^[[36;1mYF0RZrypRFQXhzacCrm5w1eh/sZLbLy0NgB0WW81mY6Ok/NM3C5t3G4ih4GDlzyNd4LoQr7R^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6645642Z ^[[36;1mL6rsEJmSaB6kI7o6VVyFaWwt7YVK5hv0pC0NFqLMja5M2VsPV2HcrBSrkKjbNrBWoEN+UwKv^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6646324Z ^[[36;1mCabzac1bnale6De/1jARJLIEy+oX1NIbDIYhxgLzKxj5vJrNK/VWANjyq1zvrwfHx3Jnj+hZ^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6647004Z ^[[36;1mOMCZ8DTRdPWwCcxzhuY5Q7OIpn+e4XKcyeWgtn9nKNEUpxSuzlC7s2mSpgksFBrhDHiOCJNl^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6647688Z ^[[36;1mZ5BA4BGGt2pL6zWs22BE/UEkHVOYeHv9d0X5a0T5pih/jSj0Z+RaKrYyUkj2eBBXj8p7zwxH^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6648360Z ^[[36;1mJfFUCGjJ431Lnt3XebApGJYrz6JSTUEAKLpCOE4yfAsWrxXsXdFCtLa97qVu/NqLKFJjmFX3^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6649139Z ^[[36;1mEw2sTpxL2f8IIMuruwb4DeKaTlM8k4fckD8CI/RuGb6p0EyvCNbvLK/jqq8a9LUCMt5rC/Di^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6649814Z ^[[36;1mwDmvWfexpNeRXrmem7xKkBcHglOfOO3MgrLsKn7CQ57iRnsNqOkvDsP/GT8P6OgmddIVVgaz^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6650535Z ^[[36;1mpssKqmMmC7zXFS8kCtZ/wiMxln3IWDyhD+DBAlrmJcdjQTLmBWxf2NTlFINQeZNBnsQ7RcU4^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6651233Z ^[[36;1mgoUFBAY5l4wsE4T+ShUADhRa6okRvJPzynAazRowfIbPGPcomDNLicCvUNlrGejKgMIIOwra^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6651937Z ^[[36;1mrHybyEARAhJsYL5k9g3vvO+Uk8CQoL6JZFAgZsCvPDxLiIl0xIdVAdRozEC+6/obQtbem0kx^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6652612Z ^[[36;1ma/vUGyu/IePBfZnk/6D9ebxhmSVjedkEw+UTIQN0nfkU3JPlsdrr4h5oA8Ov+LKwZa/JcFgp^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6653271Z ^[[36;1mNBr0xcZKu7zqkF/AMTD9ZZZfA0AgQnzfuGlkeaXLnSpXZsir/jocpO0aaBs96ltw1G86okmk^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6654117Z ^[[36;1mvwQnqLQnLdEIZyEK8ytoiPCNj9Rff8cJeusP1Ke+7QQ97Y6so65YYlbk0TzEbzPSnXcFGK9k^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6654841Z ^[[36;1m+BULQDBjWI4rIE6iiAPw3dlRhpFgPCKjGXgODKUqovisXn75IavE+NbAku1qYqXpPvOWG94o^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6655439Z ^[[36;1mzVcVV1W2OpYZSygxPd2aIxRdhs2SlS3u1/8LFChZYZI6AAA=^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6655839Z ^[[36;1mCHECKER^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6656235Z ^[[36;1mbase64 -d /tmp/perron.go.gz.b64 | gzip -d > perron_independent.go^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6657009Z ^[[36;1mecho 'd1c91b342b96722c2ae063a791be7443799f2ed13661ec91fc08a8cdc652c96c  perron_independent.go' | sha256sum -c -^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6657906Z ^[[36;1m# Diagnostic-only patch: still rejects trailing payload; counts bytes and verifies Merkle on failure.^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6658490Z ^[[36;1mpython3 - <<'PY'^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6658809Z ^[[36;1mfrom pathlib import Path^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6659164Z ^[[36;1mp = Path("perron_independent.go")^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6659525Z ^[[36;1ms = p.read_text()^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6660460Z ^[[36;1mold = "\tif _, e := payload.ReadByte(); e != io.EOF {\n\t\tif e != nil {\n\t\t\treturn fmt.Errorf(\"payload trailing read: %w\", e)\n\t\t}\n\t\treturn errors.New(\"unconsumed payload bytes after final row\")\n\t}"^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6663433Z ^[[36;1mnew = "\tif first, e := payload.ReadByte(); e != io.EOF {\n\t\tif e != nil {\n\t\t\treturn fmt.Errorf(\"payload trailing read: %w\", e)\n\t\t}\n\t\tvar leftover, nonzero int64 = 1, 0\n\t\tif first != 0 {\n\t\t\tnonzero++\n\t\t}\n\t\tvar tail [1 << 20]byte\n\t\tfor {\n\t\t\tgot, readErr := payload.Read(tail[:])\n\t\t\tleftover += int64(got)\n\t\t\tfor _, b := range tail[:got] {\n\t\t\t\tif b != 0 {\n\t\t\t\t\tnonzero++\n\t\t\t\t}\n\t\t\t}\n\t\t\tif readErr == io.EOF {\n\t\t\t\tbreak\n\t\t\t}\n\t\t\tif readErr != nil {\n\t\t\t\treturn fmt.Errorf(\"trailing payload read: %w\", readErr)\n\t\t\t}\n\t\t}\n\t\treturn fmt.Errorf(\"unconsumed payload bytes after final row: trailing=%d nonzero=%d merkle_matches=%v\", leftover, nonzero, m.final() == c.merkleHash)\n\t}"^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6666011Z ^[[36;1mif s.count(old) != 1:^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6666410Z ^[[36;1m    raise SystemExit("diagnostic patch anchor mismatch")^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6666854Z ^[[36;1mp.write_text(s.replace(old, new))^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6667198Z ^[[36;1mPY^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6667770Z ^[[36;1mecho '273521d2658c5665a4511fe8ab194b3e9ec8df4a63087c8bbb4ef3639b038f65  perron_independent.go' | sha256sum -c -^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6668413Z ^[[36;1mgo version^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6668772Z ^[[36;1mgo build -o independent-checker perron_independent.go^[[0m
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6689530Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6690079Z ##[endgroup]
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.6913028Z perron_independent.go: OK
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.7129423Z perron_independent.go: OK
+independent-check	Reconstruct and SHA-256 pin independently authored Go source	2026-11-02T19:22:39.7440720Z go version go1.24.13 linux/amd64
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	﻿2026-11-02T19:22:47.5361477Z ##[group]Run set -euo pipefail
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5362440Z ^[[36;1mset -euo pipefail^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5363197Z ^[[36;1mpython3 - <<'PY'^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5364092Z ^[[36;1mfrom pathlib import Path^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5364970Z ^[[36;1mp = Path('perron_independent.go')^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5366047Z ^[[36;1ms = p.read_text()^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5366810Z ^[[36;1mdef change(old, new):^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5367581Z ^[[36;1m    global s^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5368603Z ^[[36;1m    if s.count(old) != 1: raise SystemExit('source anchor mismatch: '+old[:80])^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5369829Z ^[[36;1m    s = s.replace(old, new)^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5371137Z ^[[36;1mchange('expectedPayload  int64 = 26850881536', '''expectedPayload  int64 = 26850881536^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5372539Z ^[[36;1m    expectedZeroPadding int64 = 742160^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5373493Z ^[[36;1m    expectedRawTailBytes int64 = 349114368^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5374597Z ^[[36;1m    expectedRawTailNonzero int64 = 347747335''')^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5377022Z ^[[36;1mchange('blindHash              = "34e71facb2689a46a44cb347604f0b361760020c8810748f6e9cc513daa53686"', '''blindHash              = "34e71facb2689a46a44cb347604f0b361760020c8810748f6e9cc513daa53686"^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5379784Z ^[[36;1m    blind2Hash = "637fe9e293505d950503abbd615840471e4ef14a2a23128d44233992f82999fe"^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5381529Z ^[[36;1m    blind3Hash = "f5c5428db1fc5d91d2ab891689f0dac7263dc26c8f9b60a2db82728f6ea0dcd1"''')^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5383703Z ^[[36;1mchange('sectors                                          int\n\tfault', 'sectors                                          int\n    paddingBytes, rawTailBytes, rawTailNonzero int64\n\tfault')^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5385518Z ^[[36;1ma=s.index('\tif first, e := payload.ReadByte(); e != io.EOF {')^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5386540Z ^[[36;1mb=s.index('\tif bounded.N != 0 {', a)^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5387676Z ^[[36;1ms=s[:a]+'''    // Check declared-payload zero padding and include it in the Merkle.^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5388876Z ^[[36;1m    var insidePadding, paddingNonzero int64^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5389705Z ^[[36;1m    var tail [1 << 20]byte^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5390408Z ^[[36;1m    for {^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5391046Z ^[[36;1m        got, err := payload.Read(tail[:])^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5391906Z ^[[36;1m        insidePadding += int64(got)^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5392909Z ^[[36;1m        for _, v := range tail[:got] { if v != 0 { paddingNonzero++ } }^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5393996Z ^[[36;1m        if err == io.EOF { break }^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5395030Z ^[[36;1m        if err != nil { return fmt.Errorf("payload padding read: %w",err) }^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5396083Z ^[[36;1m    }^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5396932Z ^[[36;1m    if insidePadding != c.paddingBytes || paddingNonzero != 0 {^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5398823Z ^[[36;1m        return fmt.Errorf("payload padding mismatch: trailing=%d nonzero=%d expected=%d",insidePadding,paddingNonzero,c.paddingBytes)^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5400408Z ^[[36;1m    }^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5400962Z ^[[36;1m'''+s[b:]^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5402120Z ^[[36;1ma=s.index('\t// Consume all bytes after payload; require zero padding, then inspect per-sector SHA-256.')^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5403548Z ^[[36;1mb=s.index('\tfor k, h := range hashes {',a)^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5404810Z ^[[36;1ms=s[:a]+'''    // Bytes after payload are authenticated by sector SHA-256, not Merkle.^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5406016Z ^[[36;1m    var rawTailBytes, rawTailNonzero int64^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5406843Z ^[[36;1m    var buf [1 << 20]byte^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5407526Z ^[[36;1m    for {^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5408152Z ^[[36;1m        n, err := stream.Read(buf[:])^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5408963Z ^[[36;1m        rawTailBytes += int64(n)^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5409904Z ^[[36;1m        for _, v := range buf[:n] { if v != 0 { rawTailNonzero++ } }^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5410885Z ^[[36;1m        if err == io.EOF { break }^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5411697Z ^[[36;1m        if err != nil { return err }^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5412644Z ^[[36;1m    }^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5413564Z ^[[36;1m    if rawTailBytes != c.rawTailBytes || rawTailNonzero != c.rawTailNonzero {^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5415938Z ^[[36;1m        return fmt.Errorf("raw tail discrepancy: bytes=%d nonzero=%d expected_bytes=%d expected_nonzero=%d",rawTailBytes,rawTailNonzero,c.rawTailBytes,c.rawTailNonzero)^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5417981Z ^[[36;1m    }^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5418519Z ^[[36;1m'''+s[b:]^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5420149Z ^[[36;1mchange('fmt.Printf("seconds=%d\\n",', '''fmt.Printf("payload_zero_padding=%d raw_tail_bytes=%d raw_tail_nonzero=%d\\n",insidePadding,rawTailBytes,rawTailNonzero)^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5422022Z ^[[36;1m    fmt.Printf("seconds=%d\\n",''')^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5424004Z ^[[36;1mchange('flag.IntVar(&c.sectors, "sectors", 34, "number of sector files (fixture only)")', '''flag.IntVar(&c.sectors, "sectors", 34, "number of sector files (fixture only)")^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5426680Z ^[[36;1m    flag.Int64Var(&c.paddingBytes,"expected-padding",expectedZeroPadding,"zero bytes inside payload (fixture only)")^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5428914Z ^[[36;1m    flag.Int64Var(&c.rawTailBytes,"expected-raw-tail",expectedRawTailBytes,"bytes after payload (fixture only)")^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5431334Z ^[[36;1m    flag.Int64Var(&c.rawTailNonzero,"expected-raw-tail-nonzero",expectedRawTailNonzero,"nonzero bytes after payload (fixture only)")''')^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5435277Z ^[[36;1mchange('c.blindHash != blindHash || c.sectors != 34', '''(c.blindHash != blindHash && c.blindHash != blind2Hash && c.blindHash != blind3Hash) || c.sectors != 34 || c.paddingBytes != expectedZeroPadding || c.rawTailBytes != expectedRawTailBytes || c.rawTailNonzero != expectedRawTailNonzero''')^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5439124Z ^[[36;1mchange('c.sectors > 34 {', 'c.sectors > 34 || c.paddingBytes < 0 || c.rawTailBytes < 0 || c.rawTailNonzero < 0 || c.rawTailNonzero > c.rawTailBytes {')^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5440796Z ^[[36;1mp.write_text(s)^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5441399Z ^[[36;1mPY^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5441968Z ^[[36;1mgofmt -w perron_independent.go^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5443474Z ^[[36;1mecho '8009406cfc74f71b415320fff19e2a84866a6d006f1a9be9c01ca07465632d1e  perron_independent.go' | sha256sum -c -^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5445246Z ^[[36;1msha256sum perron_independent.go > source.sha256^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5446302Z ^[[36;1mgo build -o independent-checker perron_independent.go^[[0m
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5466276Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:47.5467133Z ##[endgroup]
+independent-check	Verify revised Go checker with strict zero-padding and authenticated raw tail	2026-11-02T19:22:48.2880309Z perron_independent.go: OK
+independent-check	Recover disk space for 26.85 GB public data	﻿2026-11-02T19:22:48.4830987Z ##[group]Run set -euo pipefail
+independent-check	Recover disk space for 26.85 GB public data	2026-11-02T19:22:48.4831224Z ^[[36;1mset -euo pipefail^[[0m
+independent-check	Recover disk space for 26.85 GB public data	2026-11-02T19:22:48.4831365Z ^[[36;1mdf -h .^[[0m
+independent-check	Recover disk space for 26.85 GB public data	2026-11-02T19:22:48.4831679Z ^[[36;1msudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/hostedtoolcache /usr/local/share/powershell /opt/az /usr/local/.ghcup || true^[[0m
+independent-check	Recover disk space for 26.85 GB public data	2026-11-02T19:22:48.4832009Z ^[[36;1mdf -h .^[[0m
+independent-check	Recover disk space for 26.85 GB public data	2026-11-02T19:22:48.4848952Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+independent-check	Recover disk space for 26.85 GB public data	2026-11-02T19:22:48.4849166Z ##[endgroup]
+independent-check	Recover disk space for 26.85 GB public data	2026-11-02T19:22:48.4901479Z Filesystem      Size  Used Avail Use% Mounted on
+independent-check	Recover disk space for 26.85 GB public data	2026-11-02T19:22:48.4901944Z /dev/root       145G   59G   86G  41% /
+independent-check	Recover disk space for 26.85 GB public data	2026-11-02T19:24:18.2448175Z Filesystem      Size  Used Avail Use% Mounted on
+independent-check	Recover disk space for 26.85 GB public data	2026-11-02T19:24:18.2448498Z /dev/root       145G   32G  114G  22% /
+independent-check	Fetch Hugging Face data without a token	﻿2026-11-02T19:24:18.2536465Z ##[group]Run set -euo pipefail
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2536814Z ^[[36;1mset -euo pipefail^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2537037Z ^[[36;1mmkdir -p data^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2537400Z ^[[36;1mBASE='https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve'^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2538025Z ^[[36;1mfetch() { curl -fLsS --retry 8 --retry-delay 3 --retry-all-errors --connect-timeout 30 -o "$2" "$1"; }^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2538708Z ^[[36;1mfetch "$BASE/160726aaaf87386090b2b0b9ecf2815ca2634009/SECTORS-341-374.sha256" data/SECTORS-341-374.sha256^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2539457Z ^[[36;1mecho '9213927b3b60cfbeae8efef10730e8c7df2ad52f56159017b048539377886ce3  data/SECTORS-341-374.sha256' | sha256sum -c -^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2540175Z ^[[36;1mfetch "$BASE/d2630edf882f3d9fa125f25680fd9b6a04c98d31/perron/d93000000.bin" data/d93000000.bin^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2541090Z ^[[36;1mecho '956b73bc6f4ec5712184eb52f67d8e0adab467c1ea843ba257126278368210da  data/d93000000.bin' | sha256sum -c -^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2541846Z ^[[36;1mfetch "$BASE/b33f5a0bf3392ba795f39fe726570ad61311b3d4/perron/start/d93700000-pass5.bin" data/d93700000-pass5.bin^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2542636Z ^[[36;1mecho '34e71facb2689a46a44cb347604f0b361760020c8810748f6e9cc513daa53686  data/d93700000-pass5.bin' | sha256sum -c -^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2543244Z ^[[36;1m# Second blind vector: do not supply an expected certificate value.^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2543933Z ^[[36;1mfetch "$BASE/7ed23ce12ffb27fae7b9fd39eb103065f3dd8a37/perron/top/x3-b.bin" data/x3-b.bin^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2544566Z ^[[36;1mecho '637fe9e293505d950503abbd615840471e4ef14a2a23128d44233992f82999fe  data/x3-b.bin' | sha256sum -c -^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2545203Z ^[[36;1mfetch "$BASE/29723023f37ade227af51e1b92a4a4d55d4bb3f8/perron/top/x3-c.bin" data/x3-c.bin^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2545849Z ^[[36;1mecho 'f5c5428db1fc5d91d2ab891689f0dac7263dc26c8f9b60a2db82728f6ea0dcd1  data/x3-c.bin' | sha256sum -c -^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2546352Z ^[[36;1mfor n in $(seq 341 374); do^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2546613Z ^[[36;1m  echo "Downloading sector $n"^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2547053Z ^[[36;1m  fetch "$BASE/160726aaaf87386090b2b0b9ecf2815ca2634009/sector-$n.rooms" "data/sector-$n.rooms"^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2547553Z ^[[36;1mdone^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2547721Z ^[[36;1mdf -h .^[[0m
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2562993Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.2563189Z ##[endgroup]
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:18.4038203Z data/SECTORS-341-374.sha256: OK
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:21.9650887Z data/d93000000.bin: OK
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:25.2234621Z data/d93700000-pass5.bin: OK
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:28.6991321Z data/x3-b.bin: OK
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:48.0342353Z data/x3-c.bin: OK
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:48.0364302Z Downloading sector 341
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:24:54.5408518Z Downloading sector 342
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:25:02.2962699Z Downloading sector 343
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:25:07.6029789Z Downloading sector 344
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:25:12.7432465Z Downloading sector 345
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:25:19.7457408Z Downloading sector 346
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:25:27.1430957Z Downloading sector 347
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:25:35.8059812Z Downloading sector 348
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:25:42.6475904Z Downloading sector 349
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:25:50.2393107Z Downloading sector 350
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:26:00.1672990Z Downloading sector 351
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:26:07.9509890Z Downloading sector 352
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:26:16.6140215Z Downloading sector 353
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:26:22.8645065Z Downloading sector 354
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:26:27.7879116Z Downloading sector 355
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:26:36.8019408Z Downloading sector 356
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:26:45.3911038Z Downloading sector 357
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:26:54.2985216Z Downloading sector 358
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:27:02.6807305Z Downloading sector 359
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:27:08.2657670Z Downloading sector 360
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:27:15.8346139Z Downloading sector 361
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:27:23.4704894Z Downloading sector 362
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:27:30.3154046Z Downloading sector 363
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:27:39.1972841Z Downloading sector 364
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:27:44.8079081Z Downloading sector 365
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:27:54.1826591Z Downloading sector 366
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:28:02.2591380Z Downloading sector 367
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:28:11.1496582Z Downloading sector 368
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:28:17.8336709Z Downloading sector 369
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:28:25.4810162Z Downloading sector 370
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:28:32.6741549Z Downloading sector 371
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:28:42.1829016Z Downloading sector 372
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:28:50.0467163Z Downloading sector 373
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:29:00.1484623Z Downloading sector 374
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:29:07.0598180Z Filesystem      Size  Used Avail Use% Mounted on
+independent-check	Fetch Hugging Face data without a token	2026-11-02T19:29:07.0598679Z /dev/root       145G   58G   87G  41% /
+independent-check	Exact integer certificate and negative controls	﻿2026-11-02T19:29:07.1562078Z ##[group]Run set -euo pipefail
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1562345Z ^[[36;1mset -euo pipefail^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1562609Z ^[[36;1mdeclare -a ARGS=(--dir data --control data/d93000000.bin --blind data/d93700000-pass5.bin)^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1562969Z ^[[36;1m/usr/bin/time -p -o timing.txt ./independent-checker "${ARGS[@]}" > certificate.txt^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1563473Z ^[[36;1mgrep -Fx 'control t_cert_milli=93061051 min_row=44742735 min_mag=3' certificate.txt^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1564025Z ^[[36;1mgrep -Fx 'PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS' certificate.txt^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1564334Z ^[[36;1mfor fault in payload d; do^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1564619Z ^[[36;1m  if ./independent-checker "${ARGS[@]}" --fault "$fault" > "fault-$fault.stdout" 2> "fault-$fault.stderr"; then^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1564940Z ^[[36;1m    echo "FAULT CONTROL $fault INCORRECTLY ACCEPTED" >&2^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1565129Z ^[[36;1m    exit 1^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1565286Z ^[[36;1m  fi^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1565425Z ^[[36;1m  if test -s "fault-$fault.stdout"; then^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1565638Z ^[[36;1m    echo "FAULT CONTROL $fault LEAKED CERTIFICATE VALUE" >&2^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1565827Z ^[[36;1m    exit 1^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1565948Z ^[[36;1m  fi^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1566105Z ^[[36;1m  echo "negative control $fault: rejected with no value"^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1566287Z ^[[36;1mdone^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1566412Z ^[[36;1mcat certificate.txt timing.txt^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1566604Z ^[[36;1msha256sum perron_independent.go > source.sha256^[[0m
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1689689Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:29:07.1689912Z ##[endgroup]
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:36:07.4652434Z control t_cert_milli=93061051 min_row=44742735 min_mag=3
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:36:07.4663008Z PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:42:33.5611619Z negative control payload: rejected with no value
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:42:33.9565338Z negative control d: rejected with no value
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:42:33.9582934Z PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:42:33.9583382Z control t_cert_milli=93061051 min_row=44742735 min_mag=3
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:42:33.9583844Z blind t_cert_milli=93718415 min_row=44742735 min_mag=3
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:42:33.9584144Z flat_rows=7 min_nonzero_mag=3 max_mag=36 weighted_residual=0
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:42:33.9584528Z payload_zero_padding=742160 raw_tail_bytes=349114368 raw_tail_nonzero=347747335
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:42:33.9584851Z seconds=420
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:42:33.9585007Z real 420.18
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:42:33.9585160Z user 393.65
+independent-check	Exact integer certificate and negative controls	2026-11-02T19:42:33.9585306Z sys 4.73
+independent-check	Independent second blind vector exact replay	﻿2026-11-02T19:42:33.9626059Z ##[group]Run set -euo pipefail
+independent-check	Independent second blind vector exact replay	2026-11-02T19:42:33.9654288Z ^[[36;1mset -euo pipefail^[[0m
+independent-check	Independent second blind vector exact replay	2026-11-02T19:42:33.9654793Z ^[[36;1m/usr/bin/time -p -o blind2-timing.txt ./independent-checker --dir data --control data/d93000000.bin --blind data/x3-b.bin --blind-sha 637fe9e293505d950503abbd615840471e4ef14a2a23128d44233992f82999fe > blind2-certificate.txt^[[0m
+independent-check	Independent second blind vector exact replay	2026-11-02T19:42:33.9655372Z ^[[36;1mgrep -Fx 'control t_cert_milli=93061051 min_row=44742735 min_mag=3' blind2-certificate.txt^[[0m
+independent-check	Independent second blind vector exact replay	2026-11-02T19:42:33.9655769Z ^[[36;1mgrep -Fx 'PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS' blind2-certificate.txt^[[0m
+independent-check	Independent second blind vector exact replay	2026-11-02T19:42:33.9656116Z ^[[36;1mcat blind2-certificate.txt blind2-timing.txt^[[0m
+independent-check	Independent second blind vector exact replay	2026-11-02T19:42:33.9682439Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+independent-check	Independent second blind vector exact replay	2026-11-02T19:42:33.9682642Z ##[endgroup]
+independent-check	Independent second blind vector exact replay	2026-11-02T19:48:56.2109006Z control t_cert_milli=93061051 min_row=44742735 min_mag=3
+independent-check	Independent second blind vector exact replay	2026-11-02T19:48:56.2121154Z PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS
+independent-check	Independent second blind vector exact replay	2026-11-02T19:48:56.2131752Z PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS
+independent-check	Independent second blind vector exact replay	2026-11-02T19:48:56.2132490Z control t_cert_milli=93061051 min_row=44742735 min_mag=3
+independent-check	Independent second blind vector exact replay	2026-11-02T19:48:56.2133069Z blind t_cert_milli=94065384 min_row=44742735 min_mag=3
+independent-check	Independent second blind vector exact replay	2026-11-02T19:48:56.2133428Z flat_rows=7 min_nonzero_mag=3 max_mag=36 weighted_residual=0
+independent-check	Independent second blind vector exact replay	2026-11-02T19:48:56.2134019Z payload_zero_padding=742160 raw_tail_bytes=349114368 raw_tail_nonzero=347747335
+independent-check	Independent second blind vector exact replay	2026-11-02T19:48:56.2134629Z seconds=382
+independent-check	Independent second blind vector exact replay	2026-11-02T19:48:56.2134835Z real 382.23
+independent-check	Independent second blind vector exact replay	2026-11-02T19:48:56.2134999Z user 366.30
+independent-check	Independent second blind vector exact replay	2026-11-02T19:48:56.2135157Z sys 3.97
+independent-check	Independent third blind vector exact replay	﻿2026-11-02T19:48:56.2165065Z ##[group]Run set -euo pipefail
+independent-check	Independent third blind vector exact replay	2026-11-02T19:48:56.2165286Z ^[[36;1mset -euo pipefail^[[0m
+independent-check	Independent third blind vector exact replay	2026-11-02T19:48:56.2165786Z ^[[36;1m/usr/bin/time -p -o blind3-timing.txt ./independent-checker --dir data --control data/d93000000.bin --blind data/x3-c.bin --blind-sha f5c5428db1fc5d91d2ab891689f0dac7263dc26c8f9b60a2db82728f6ea0dcd1 > blind3-certificate.txt^[[0m
+independent-check	Independent third blind vector exact replay	2026-11-02T19:48:56.2166386Z ^[[36;1mgrep -Fx 'control t_cert_milli=93061051 min_row=44742735 min_mag=3' blind3-certificate.txt^[[0m
+independent-check	Independent third blind vector exact replay	2026-11-02T19:48:56.2166796Z ^[[36;1mgrep -Fx 'PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS' blind3-certificate.txt^[[0m
+independent-check	Independent third blind vector exact replay	2026-11-02T19:48:56.2167142Z ^[[36;1mcat blind3-certificate.txt blind3-timing.txt^[[0m
+independent-check	Independent third blind vector exact replay	2026-11-02T19:48:56.2181807Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+independent-check	Independent third blind vector exact replay	2026-11-02T19:48:56.2182011Z ##[endgroup]
+independent-check	Independent third blind vector exact replay	2026-11-02T19:55:18.3120115Z control t_cert_milli=93061051 min_row=44742735 min_mag=3
+independent-check	Independent third blind vector exact replay	2026-11-02T19:55:18.3132119Z PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS
+independent-check	Independent third blind vector exact replay	2026-11-02T19:55:18.3143536Z PASS merkle=PASS sector_hashes=PASS vector_hashes=PASS row_sums_zero=PASS W_self_adjoint=PASS
+independent-check	Independent third blind vector exact replay	2026-11-02T19:55:18.3148020Z control t_cert_milli=93061051 min_row=44742735 min_mag=3
+independent-check	Independent third blind vector exact replay	2026-11-02T19:55:18.3148364Z blind t_cert_milli=94070673 min_row=45507968 min_mag=3
+independent-check	Independent third blind vector exact replay	2026-11-02T19:55:18.3148673Z flat_rows=7 min_nonzero_mag=3 max_mag=36 weighted_residual=0
+independent-check	Independent third blind vector exact replay	2026-11-02T19:55:18.3148945Z payload_zero_padding=742160 raw_tail_bytes=349114368 raw_tail_nonzero=347747335
+independent-check	Independent third blind vector exact replay	2026-11-02T19:55:18.3149172Z seconds=382
+independent-check	Independent third blind vector exact replay	2026-11-02T19:55:18.3149286Z real 382.08
+independent-check	Independent third blind vector exact replay	2026-11-02T19:55:18.3149394Z user 366.67
+independent-check	Independent third blind vector exact replay	2026-11-02T19:55:18.3149524Z sys 3.92
+independent-check	Publish independent receipt	﻿2026-11-02T19:55:18.3207958Z ##[group]Run actions/upload-artifact@v4
+independent-check	Publish independent receipt	2026-11-02T19:55:18.3208153Z with:
+independent-check	Publish independent receipt	2026-11-02T19:55:18.3208288Z   name: independent-go-perron-audit
+independent-check	Publish independent receipt	2026-11-02T19:55:18.3208740Z   path: perron_independent.go
+independent-check	Publish independent receipt	source.sha256
+independent-check	Publish independent receipt	blind2-certificate.txt
+independent-check	Publish independent receipt	blind2-timing.txt
+independent-check	Publish independent receipt	blind3-certificate.txt
+independent-check	Publish independent receipt	blind3-timing.txt
+independent-check	Publish independent receipt	certificate.txt
+independent-check	Publish independent receipt	timing.txt
+independent-check	Publish independent receipt	fault-*.stdout
+independent-check	Publish independent receipt	fault-*.stderr
+independent-check	Publish independent receipt	
+independent-check	Publish independent receipt	2026-11-02T19:55:18.3209166Z   if-no-files-found: warn
+independent-check	Publish independent receipt	2026-11-02T19:55:18.3209308Z   compression-level: 6
+independent-check	Publish independent receipt	2026-11-02T19:55:18.3209437Z   overwrite: false
+independent-check	Publish independent receipt	2026-11-02T19:55:18.3209567Z   include-hidden-files: false
+independent-check	Publish independent receipt	2026-11-02T19:55:18.3209710Z ##[endgroup]
+independent-check	Publish independent receipt	2026-11-02T19:55:18.5792639Z (node:3502) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+independent-check	Publish independent receipt	2026-11-02T19:55:18.5793317Z (Use `node --trace-deprecation ...` to show where the warning was created)
+independent-check	Publish independent receipt	2026-11-02T19:55:18.5872302Z With the provided path, there will be 12 files uploaded
+independent-check	Publish independent receipt	2026-11-02T19:55:18.5893362Z Artifact name is valid!
+independent-check	Publish independent receipt	2026-11-02T19:55:18.5896839Z Root directory input is valid!
+independent-check	Publish independent receipt	2026-11-02T19:55:18.8555586Z Beginning upload of artifact content to blob storage
+independent-check	Publish independent receipt	2026-11-02T19:55:18.8802289Z (node:3502) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+independent-check	Publish independent receipt	2026-11-02T19:55:19.0394912Z Uploaded bytes 8545
+independent-check	Publish independent receipt	2026-11-02T19:55:19.0834173Z Finished uploading artifact content to blob storage!
+independent-check	Publish independent receipt	2026-11-02T19:55:19.0834815Z SHA256 digest of uploaded artifact zip is 914819076aebf8c98269ae5164a9e4e61da4c1b5ccb43bdf0df208120bd51d7a
+independent-check	Publish independent receipt	2026-11-02T19:55:19.0836145Z Finalizing artifact upload
+independent-check	Publish independent receipt	2026-11-02T19:55:19.5649901Z Artifact independent-go-perron-audit.zip successfully finalized. Artifact ID 13174098565
+independent-check	Publish independent receipt	2026-11-02T19:55:19.5650671Z Artifact independent-go-perron-audit has been successfully uploaded! Final size is 8545 bytes. Artifact ID is 13174098565
+independent-check	Publish independent receipt	2026-11-02T19:55:19.5655443Z Artifact download URL: https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41509351749/artifacts/13174098565
+independent-check	Complete job	﻿2026-11-02T19:55:19.5823856Z Cleaning up orphan processes
+independent-check	Complete job	2026-11-02T19:55:19.6166816Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

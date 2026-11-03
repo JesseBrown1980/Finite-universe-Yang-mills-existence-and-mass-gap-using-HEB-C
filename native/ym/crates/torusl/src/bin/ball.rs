@@ -45,7 +45,7 @@ fn main() {
     let lx: usize = a[1].parse().unwrap_or(0);
     let ly: usize = a[2].parse().unwrap_or(0);
     let kmax: usize = a[3].parse().unwrap_or(0);
-    if !(2..=4).contains(&lx) || !(2..=4).contains(&ly) || lx * ly > 9 || kmax > 8 {
+    if !(2..=4).contains(&lx) || !(2..=4).contains(&ly) || lx * ly > 12 || kmax > 8 {
         println!("BALL|error=bad_arguments|json=0");
         std::process::exit(1);
     }
