@@ -1,0 +1,52 @@
+# indep_verify.py's two square roots moved from float to math.isqrt. These lines run only on its Python path, so this replays them directly against the recorded commit's file. Integer only, json=0.
+name: Square roots of indep_verify in integers
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'native/ym/independent/indep_verify.py'
+      - 'native/ym/independent/indep_sqrt_check.py'
+      - 'native/ym/independent/minors/**'
+      - 'native/ym/results/independent/INDEPENDENT-2X2-R9-INTEGER.hbp'
+      - '.github/workflows/indep-sqrt-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  indep-sqrt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Rust 1.81 and numpy
+        run: |
+          rustup toolchain install 1.81.0 --profile minimal
+          python3 -m pip install --quiet numpy
+      - name: Build the kernel
+        working-directory: native/ym/independent/minors
+        run: cargo +1.81.0 build --release --locked
+      - name: The recorded file against this one, and the recorded rows
+        run: |
+          set -euo pipefail
+          I=native/ym/independent
+          git show cf6a2c9:native/ym/independent/indep_verify.py > /tmp/indep_recorded.py
+          K="$I/minors/target/release/indep-minors"
+          python3 -X utf8 "$I/indep_sqrt_check.py" /tmp/indep_recorded.py "$I/indep_verify.py" "$K" | tee /tmp/check.hbp
+          grep '^INDEP_SQRT_DONE|failed=0|' /tmp/check.hbp
+          for row in ROWS PRIMES WIDE MATRICES BLOCK; do
+            cmp <(grep "^INDEP_SQRT_$row|" /tmp/check.hbp) <(grep "^INDEP_SQRT_$row|" native/ym/results/independent/INDEPENDENT-2X2-R9-INTEGER.hbp)
+          done
+      - name: Each sabotage goes red
+        run: |
+          set -uo pipefail
+          I=native/ym/independent
+          K="$I/minors/target/release/indep-minors"
+          for s in isqrt primes signs; do
+            python3 -X utf8 "$I/indep_sqrt_check.py" /tmp/indep_recorded.py "$I/indep_verify.py" "$K" "sabotage=$s" > "/tmp/sab-$s.hbp"
+            test "$?" = 1
+            tail -1 "/tmp/sab-$s.hbp"
+          done
