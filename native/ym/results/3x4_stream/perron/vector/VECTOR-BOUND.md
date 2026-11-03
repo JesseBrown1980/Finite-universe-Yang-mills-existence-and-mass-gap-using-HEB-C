@@ -1,6 +1,6 @@
 # A Perron vector with few numbers, and a bound on the level above the flat cluster with no store
 
-**Status: OPEN.** A second seat on this seat's model read it at `f24c5cb`, and its verdict is PASS, [below](#the-second-reader). GPT-6, on another model, read it at `e0466bd`, and its verdict is PASS at the four points it checked, [below](#a-reader-on-another-model). A verdict on the gap needs the operator's word. Everything here concerns one finite torus at a time. Uniformity in volume and the continuum limit are separate obligations.
+**Status: OPEN.** A second seat on this seat's model read it at `f24c5cb`, and its verdict is PASS, [below](#the-second-reader). GPT-6, on another model, read it at `e0466bd`, and its verdict is PASS at the four points it checked, [below](#a-reader-on-another-model). The second seat's stronger hybrid certificate has met a separate program and the pinned checker on the real stores, [below](#the-attack-on-the-hybrid-certificate). A verdict on the gap needs the operator's word. Everything here concerns one finite torus at a time. Uniformity in volume and the continuum limit are separate obligations.
 
 Claims carry MEASURED, DERIVED (a short proof written here) or CONJECTURE. Energies are in J_E, and r = J_B / J_E. The Perron route is in [`../PERRON-BOUND.md`](../PERRON-BOUND.md).
 
@@ -173,7 +173,7 @@ It states the chain in its own words, from interlacing and Barta to E₈ ≤ 3·
 
 ## Two results from the second reader that raise the numbers
 
-Both lie outside the claim it was asked to attack, and nobody but their writer has attacked them yet. The author's rerun above reaches only the small cuts. GPT-6 evaluated the E₈ formula as numbers.
+Both lie outside the claim it was asked to attack. The attack on the hybrid certificate has its own section below. GPT-6 evaluated the E₈ formula as numbers.
 
 **A tighter E₈, for min(Lx, Ly) ≥ 4.** DERIVED by the reader, with each matrix element confirmed in exact integers by `py_e8_dressed.py`. The author rederived the blocks by hand, after reading them. For each flat orbit f take its indicator and the function that counts moves into f. On such a torus two moves or three cannot connect distinct flats, so H on these 16 functions is block diagonal over f, each block [[3·nl, −√(3·nl)], [−√(3·nl), 3·nl + 4r]], and
 
@@ -181,7 +181,7 @@ Both lie outside the claim it was asked to attack, and nobody but their writer h
 
 On 3×3 and 3×4 a three-link dual loop connects flats, and the check prints FAIL there with nonzero cross elements, as the reader predicted.
 
-**A hybrid vector, a lead.** Let d be the actual vector on every orbit with 0 < M ≤ cut, one value per lump above the cut, and 0 on the flats. Rows at M ≤ cut are exact. Rows above are the table's rows, with a move into a lump at M ≤ cut taken at the largest d in that lump. Barta applies as before when the model holds every non-flat orbit with M ≤ cut. `py_lump_counts.py` checks that per lump against C(P; a, b)·N(a, b), with N = 12·3^a·2^b for even a ≥ 2 and N = 12·2^b + 6(−1)^b for a = 0. That N is the Frobenius count on a torus with one puncture per defect (DERIVED by the author), and each row below has `bad=0`.
+**A hybrid vector.** Let d be the actual vector on every orbit with 0 < M ≤ cut, one value per lump above the cut, and 0 on the flats. Rows at M ≤ cut are exact. Rows above are the table's rows, with a move into a lump at M ≤ cut taken at the largest d in that lump. Barta applies as before when the model holds every non-flat orbit with M ≤ cut. `py_lump_counts.py` checks that per lump against C(P; a, b)·N(a, b), with N = 12·3^a·2^b for even a ≥ 2 and N = 12·2^b + 6(−1)^b for a = 0. That N is the Frobenius count on a torus with one puncture per defect (DERIVED by the author), and each row below has `bad=0`.
 
 | Torus, r | Cut | Sector states | E₉ ≥ | E₉ ≤ | E₈ ≤ | E₉ − E₈ ≥ | Store-free bound above |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -190,9 +190,53 @@ On 3×3 and 3×4 a three-link dual loop connects flats, and the check prints FAI
 | 4×5, 9 | 13 | 1,358,823 | 140.546984 | 140.955674 | 116.928693 | 23.618291 | 14.017195 |
 | 5×5, 9 | 11 | 473,677 | 168.020667 | 170.282263 | 146.228459 | 21.792208 | 4.016734 |
 
-MEASURED by one Rust path, `review-opus55/review/src/bin/ritz.rs`, in seconds to minutes with no store. The separately written `py_hybrid_recheck.py` reproduces the row minima exactly on 4×4 at cut 8 (94.475741) and cut 10 (115.534179). The rows at the cuts in this table rest on the one path so far. On the controls the certificate stays below the known upper values: 3×4 at cut 14 gives 94.011545 against 94.070673, and the whole 3×3 space gives 76.443824 against 76.448397.
+MEASURED first by one Rust path, `review-opus55/review/src/bin/ritz.rs`, in seconds to minutes with no store. The separately written `py_hybrid_recheck.py` reproduces the row minima exactly on 4×4 at cut 8 (94.475741) and cut 10 (115.534179). A separate program reads every value in this table, in the next section. On the controls the certificate stays below the known upper values: 3×4 at cut 14 gives 94.011545 against 94.070673, and the whole 3×3 space gives 76.443824 against 76.448397.
 
 Retraction, kept beside: the reader's first hybrid numbers at cut 12 (3×4 93.829570, 4×4 117.345755) are not rigorous. A cut divisible by 3 misses the (0, cut/3) orbits with no two 3-cycles adjacent, since their only moves lead past the cut. The per-lump count caught it, and `py_missing_check.py` matches the missing counts exactly on four models. The table above uses complete cuts only.
+
+## The attack on the hybrid certificate
+
+Directed by the operator. The prediction went to git at `7adc1f7`, before the program existed, with each value taken from the reader's report or from the Frobenius count: [`attack/HYBRID-ATTACK-PREDICTION.hbp`](attack/HYBRID-ATTACK-PREDICTION.hbp). [`hybridcheck`](../../../../crates/evolvers/src/bin/hybridcheck.rs) is new code with its own group, lattice, gauge and canonical form, and it takes the file's format from the reader. For each of the reader's vectors it does three things, from the definition of H:
+
+1. **Every orbit is there.** It decodes each representative and counts its class image by image. The sum per lump must equal C(P; a, b)·N(a, b). Distinct classes whose counts reach that total hold every configuration of the lump.
+2. **Rows at M ≤ cut.** It applies all 3·nl moves of each representative, recomputes every plaquette, and looks each target up by its canonical form. One representative in 97 is repeated at a random image under a symmetry and a gauge transformation, and must give the same row.
+3. **Rows above the cut.** Every row of the table from `local_table.py`, with a move into a lump at M ≤ cut taken at the largest d in that lump.
+
+| Torus, r | Cut | Representatives | Configurations, equal to the count | Moves recomputed | Least exact row | Least table row | Certificate | Seconds |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 4×4, 9 | 14 | 825,865 | 624,556,872 | 79,283,040 | 117.453728 | 117.488311 | **117.453728** | 41 |
+| 4×4, 6 | 14 | 825,865 | 624,556,872 | 79,283,040 | 103.521056 | 103.591623 | **103.521056** | 37 |
+| 4×5, 9 | 13 | 1,358,823 | 642,825,270 | 163,058,760 | 140.546984 | 140.910816 | **140.546984** | 54 |
+| 5×5, 9 | 11 | 473,677 | 563,254,650 | 71,051,550 | 168.020667 | 168.109427 | **168.020667** | 40 |
+
+MEASURED, on Rust 1.81 with `clippy -D warnings` exit 0 and 8 unit tests. All 142 predicted fields are met, in [`attack/ATTACK-COMPARE.hbp`](attack/ATTACK-COMPARE.hbp): 0 classes in one representative, 0 lumps with a wrong count, 0 missing moves, and 0 mismatches in 35,923 images on the main rows. The rows are in [`attack/ATTACK-RUNS-FINAL-BUILD.hbp`](attack/ATTACK-RUNS-FINAL-BUILD.hbp), and each main row took under 100 MB and about a minute.
+
+**On the real stores.** `hybridcheck write` puts the vector over every row of a store, and the pinned `perroncert check` reads it, with the store's own rows at and above the cut:
+
+| Store | Vector | Rows at M ≤ cut, and above | `perroncert check` | Reader's certificate |
+|---|---|---:|---:|---:|
+| 3×3 | Cut 13 | 18,039 and 270,599 | **76.359153** | 76.359153 |
+| 3×3 | The whole space, every row exact | 288,638 and 0 | **76.443824** | 76.443824 |
+| 3×4 | Cut 14 | 279,505 and 45,228,568 | **94.011545** | 94.011545 |
+
+Each is equal to the micro, with merkle PASS, on a checker that shares nothing with either program. The stores check the classes as well: M computed from each store key equals the stored M on every row, and the 3×4 store holds 279,505 rows at M ≤ 14, the number of the reader's representatives. Rows in [`attack/STORE-RUNS.hbp`](attack/STORE-RUNS.hbp).
+
+**Checks that go red, each predicted first.** Both of the reader's retracted cuts exit 2 on the count of lump (0, 4): 45,144 configurations missing on 4×4 and 3,564 on 3×4, the exact numbers its own check found. A claim raised by 1 micro, one value halved, one representative dropped, M miscounted, and a flat given a positive d each exit 2.
+
+**The upper side.** A trial vector fitted by `hybridcheck upper` on the same orbits, with A, B and C recomputed from all plaquettes, predicted first. Any integer vector gives a valid bound, so the fit needs no trust. This rebuilds the values whose vectors the reader's folder had lost, and these vectors are kept, hashed in [`attack/BIG-FILES.hbp`](attack/BIG-FILES.hbp).
+
+| Torus, r | Cut | λ₁(H′) ≤ | E₉ ≤, `hybridcheck` | Reader's E₉ ≤ at that cut |
+|---|---:|---:|---:|---|
+| 4×4, 9 | 14 | 117.571768 | 117.580284 | 117.580279 |
+| 4×4, 6 | 14 | 105.310288 | 105.581160 | 105.584008 |
+| 4×5, 9 | 13 | 140.949531 | 140.954676 | λ₁ ≤ 140.951528 at that cut, E₉ ≤ 140.955674 at cut 12 |
+| 5×5, 9 | 11 | 170.281052 | 170.282511 | 170.282263 |
+
+Two controls: on 3×4 at cut 14, λ₁(H′) ≤ 94.073642, above the certified 94.070673 and 1 micro from the reader's 94.073643; on the whole 3×3 space, λ₁(H′) ≤ 76.448398. A miss, kept: my first upper values used the hybrid vector cut off at the cut. They stay valid and at or above each certificate, and three of the four fell outside my predicted ranges, for example 186.417466 on 5×5 against a predicted ceiling of 173.
+
+So, by a program separate from the reader's, **E₉ lies between 117.453728 and 117.580284 on 4×4 at r = 9**, and with the E₈ bound above, E₉ − E₈ ≥ 23.947629.
+
+**Scope.** The author's program, on the same model as the reader, on one machine. GPT-6 names the same attack as its next review target, and another model's attack stays open. The reader's vectors and these are on the run disk, hashed in the repository, and the public store holds neither yet. Each result is a statement about one finite torus.
 
 ## What limits it
 
@@ -205,7 +249,7 @@ Retraction, kept beside: the reader's first hybrid numbers at cut 12 (3×4 93.82
 | Item | Run that measures it |
 |---|---|
 | Another model's rebuild of the Ritz upper values and of the 16-dimensional E₈ space | GPT-6's own checkpoints, each from the definition of H, with the absent Ritz vectors rerun |
-| An attack on the hybrid certificate at the cuts in its table | A separate program that reads the `.hybrid` vectors, recomputes every row at M ≤ cut from the definition of H and every table row above it, and counts each lump. GPT-6 names the same target: all 825,865 low-M states on 4×4, the count of each lump, and the preserved vectors |
+| Another model's attack on the hybrid certificate | The attack above, with that seat's own code. GPT-6 names the same target: all 825,865 low-M states on 4×4, the count of each lump, the Ritz upper values and the preserved vectors. The vectors would go on the public store for that |
 | The hybrid form at lower r and on 6×6 and larger | The same certificate at those points, with the count of each lump |
 | Vectors with more structure, such as a count of neighbouring pairs of each kind, to close the distance from 89.92 to 94.07 on 3×4 | The same census, with a wider lump |
 | An upper bound on E₈ with many excitations, on 4×4 and beyond | A trial space with the flats and the low-M orbits, with its Rayleigh quotient |

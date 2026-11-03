@@ -1,0 +1,3 @@
+ATTACK_STORE_READ|3x3_13=76359153|3x3_27=76443824|3x4_14=94011545|json=0
+ATTACK_UPPER_RESULT|at=2026-11-03T16:03:04Z|what=the_truncated_hybrid_vector|4x4_r9_E9_upper=118306320|in_range=1|4x4_r6_E9_upper=115363817|in_range=0|4x5_r9_E9_upper=145593321|in_range=0|5x5_r9_E9_upper=186417466|in_range=0|all_at_or_above_the_cert=1|recorded_as=miss_of_three_of_four_ranges|cause=CONJECTURE_a_certificate_vector_is_large_at_the_cut_and_cutting_it_off_costs_more_at_those_points|json=0
+ATTACK_COMPARE_DONE|fields=142|failed=0|json=0
