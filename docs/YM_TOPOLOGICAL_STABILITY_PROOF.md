@@ -139,14 +139,30 @@ I_k = [k(1 − c₁J) − δ, k(1 + c₁J) + δ], k in the spectrum of H₀, δ 
 
 On the 2×2 sites of §3, V = λE has only r = 1 terms, each of norm 48λ: 8 links at ‖h_{E,ℓ}‖ = 6. So J = 48 λ e^{μ}, for any μ > 0, and with H/J_B = H_λ on 𝓗_phys:
 
-  E₉ − E₈ ≥ J_B/2 for every r ≥ r₀ = 48 e^{μ} / min(J₀(μ,2), 1/(2c₁(μ,2))),
+  (E₉ − E₈)/J_B ≥ 1 − c₁J − 2δ(K), from the ends of I₀ and I₁, for J ≤ J₀.
 
-on L × L tori with L even and K = L/2 ≥ 4. So c = 1/2 on this family. Open:
-- **r₀ as a number.** J₀ and c₁ come from BHM's proof, and they have not been traced through it. The certified finite-r data in §7 stand beside this as evidence.
+The first version of this section read "E₉ − E₈ ≥ J_B/2 for every r ≥ r₀ = 48 e^{μ} / min(J₀(μ,2), 1/(2c₁(μ,2))), on L × L tori with L even and K = L/2 ≥ 4". That skipped δ. The second reader
+(GPT-6, on [#88](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/88)) found it and gave the repair below. BHM's prose states the separation of 1/2 in its large-L setting.
+
+- **Large volume.** Take J ≤ min(J₀, 1/(4c₁)), and K₀ with δ(K) ≤ 1/8 for every K ≥ K₀. Then E₉ − E₈ ≥ J_B/2 for every even L = 2K with K ≥ K₀.
+- **The finitely many smaller sides, by min–max.** On 𝓗_phys, H/J_B = M + E/r with E ≥ 0. M has the eight flat states as its zero space, and M ≥ 2 off it, since m_p ≥ 2 on a non-flat plaquette, so E₉/J_B ≥ 2.
+  Each L_t moves a link and so changes the holonomy of its plaquettes, which gives P L_t P = 0 on the flat space P, and P E P = 3·(2L²)·P = 6L²·P. With the flat states as the trial space, E₈/J_B ≤ 6L²/r. So
+
+  E₉ − E₈ ≥ J_B (2 − 6L²/r), which is at least J_B/2 for r ≥ 4L².
+
+  The second reader's form uses only ‖E‖ ≤ 12L² and the raw-space gap: E₉ − E₈ ≥ J_B (1 − 12L²/r), at least J_B/2 for r ≥ 24L². Either closes the step.
+- **Together, for every even L:**
+
+  E₉ − E₈ ≥ J_B/2 for every r ≥ r₀ = max(48 e^{μ}/J₀, 192 c₁ e^{μ}, 4 (2K₀)²),
+
+  with J₀, c₁ and K₀ taken at D = 2 and a chosen μ > 0. So c = 1/2 on this family. This is an existence formula, since K₀, J₀ and c₁ await extraction from BHM's proof.
+
+Open:
+- **r₀ as a number.** J₀, c₁, c₂ and the polynomial in δ come from BHM's proof, and they have not been traced through it. The certified finite-r data in §7 stand beside this as evidence.
 - **Odd sides and rectangles.** BHM states Z_L × Z_L, and the dictionary here is checked for even L. Sites of mixed size for odd L, and Lx ≠ Ly, each need their own check.
 - **The rest of BHM.** This matching rests on its §2 and Theorem 1. Whether its proof uses anything beyond those hypotheses for non-projector G_A has yet to be read through.
 - **Other finite groups.** Cui's theorem covers any finite group, so this route extends to Q8, 2T, 2O and 2I once each group's m_p, its local gap and its link norm replace S₃'s.
-- **A second reader of §3 and of this section.**
+- **Second reader.** GPT-6 read §3 and this section at `ea96c16`, with its own implementation of the geometry: 38,352 regions, 0 failures, geometry PASS, the matching supported, with the finite-size step above to correct. Its reports are on [#88](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/88). It works at the operator's direction and is a different model from this seat's. A reader outside the project is open.
 
 **Alternative: Michalakis–Zwolak**, *Stability of frustration-free
 Hamiltonians*, Commun. Math. Phys. 322, 277 (2013), arXiv:1109.1588. Its added
