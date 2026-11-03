@@ -1,0 +1,63 @@
+name: Independent GPT6 finite S3 proof reconstruction
+
+on:
+  pull_request:
+    paths:
+      - 'independent/gpt6_2x2_from_permutations.py'
+      - 'independent/gpt6_2x2_from_permutations.measure'
+      - 'independent/GPT6_THEOREM_REVIEW_2026-11-03.md'
+      - '.github/workflows/seat-gpt6-independent-theorems.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  independent-1393-exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject floating-point or external numerical dependencies in independent checker
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+          p=Path('independent/gpt6_2x2_from_permutations.py')
+          tree=ast.parse(p.read_text())
+          blocked={'numpy','scipy','json','fractions','decimal','cmath'}
+          for node in ast.walk(tree):
+              if isinstance(node,ast.Constant):
+                  assert not isinstance(node.value,(float,complex)), 'floating/complex literal'
+              if isinstance(node,ast.Import):
+                  assert not any(x.name.split('.')[0] in blocked for x in node.names)
+              if isinstance(node,ast.ImportFrom):
+                  assert (node.module or '').split('.')[0] not in blocked
+              if isinstance(node,ast.Call) and isinstance(node.func,ast.Name):
+                  assert node.func.id not in ('float','complex','eval','exec')
+          print('GPT6_SOURCE_POLICY|integer_only=1|float=0|json=0|third_party=0|result=PASS')
+          PY
+      - name: Rebuild from S3 permutation mathematics and compare every output byte
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I independent/gpt6_2x2_from_permutations.py > /tmp/gpt6_2x2.measure
+          cmp independent/gpt6_2x2_from_permutations.measure /tmp/gpt6_2x2.measure
+          grep -q '^GPT6_INDEPENDENT_MODEL|.*result=PASS|json=0$' /tmp/gpt6_2x2.measure
+          grep -q '^GPT6_SCOPE|.*continuum_mass_gap=OPEN|json=0$' /tmp/gpt6_2x2.measure
+      - name: Deliberately corrupt Schur matrix and require nonzero exit
+        shell: bash
+        run: |
+          set -euo pipefail
+          if python3 -I independent/gpt6_2x2_from_permutations.py --tamper > /tmp/gpt6_bad.out 2>&1; then
+            echo 'FAILED: corrupted operator accepted' >&2
+            exit 2
+          fi
+          grep -q 'AssertionError' /tmp/gpt6_bad.out
+          if grep -q 'GPT6_INDEPENDENT_MODEL.*PASS' /tmp/gpt6_bad.out; then
+            echo 'FAILED: corrupted run printed PASS' >&2
+            exit 2
+          fi
+          echo 'GPT6_TAMPER|weighted_selfadjointness=REJECTED|json=0'
