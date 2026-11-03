@@ -95,10 +95,10 @@ class Watcher:
             stdout=open(log, "w"),
             stderr=subprocess.STDOUT,
         )
-        for _ in range(200):
+        for _ in range(10):
             if log.exists() and "READY" in log.read_text():
                 break
-            time.sleep(0.05)
+            time.sleep(1)
 
     def verify(self, spec: str) -> bool:
         try:

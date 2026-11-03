@@ -1,0 +1,8 @@
+# The four integer copies run through checked_division.py by run_checked.sh. A float at any / stops the run with exit 3. json=0.
+CHECKED_DIVISION_RUN|script=c2_acc|exit=0|wall_secs=3|rows_same_as_plain_run=1|at=2026-11-03T18:45:07Z|sites=0|by_type=|float=0|json=0
+CHECKED_DIVISION_RUN|script=c2_fuzz|exit=0|wall_secs=11|rows_same_as_plain_run=1|at=2026-11-03T18:45:18Z|sites=6|by_type=Fraction:86419|float=0|json=0
+CHECKED_DIVISION_RUN|script=c4b_open|exit=0|wall_secs=5|rows_same_as_plain_run=1|at=2026-11-03T18:45:24Z|sites=2|by_type=|float=0|json=0
+CHECKED_DIVISION_RUN|script=c3_random|exit=0|wall_secs=240|rows_same_as_plain_run=1|at=2026-11-03T18:49:24Z|sites=8|by_type=Fraction:7034183|float=0|json=0
+CHECKED_DIVISION_DONE|at=2026-11-03T18:49:24Z|json=0
+CHECKED_DIVISION_REACH|script=c2_acc|sites=0|script=c4b_open|sites=2|executed=0|because=that_run_stops_at_a_weight_past_i128_before_the_branch|those_two_read_line_by_line=den_starts_at_F_1_and_pure_is_wrapped_in_F|json=0
+CHECKED_DIVISION_RESULT|prediction_met=1|fractions=7120602|floats=0|rows_same_as_plain_run=4_of_4|json=0

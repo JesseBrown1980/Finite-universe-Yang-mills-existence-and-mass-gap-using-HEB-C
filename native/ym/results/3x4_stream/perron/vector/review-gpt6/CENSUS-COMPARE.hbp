@@ -1,0 +1,11 @@
+CENSUS_COMPARE|L=3x3|cut=13|gpt6_nonflat=3590190|gpt6_flat=18|same=1|author_rows=HYBRIDCHECK_CLASSES_configs_in_model=3590190|json=0
+CENSUS_COMPARE|L=3x4|cut=14|gpt6_nonflat=78547410|gpt6_flat=18|same=1|author_rows=HYBRIDCHECK_CLASSES_configs_in_model=78547410|json=0
+CENSUS_COMPARE|L=4x4|cut=8|gpt6_nonflat=2151648|gpt6_flat=18|same=1|author_rows=AUDIT_ENUMERATE_configs=2151666_including_the_flat_18+HYBRIDCHECK_CLASSES_configs_in_model=2151648|json=0
+CENSUS_COMPARE|L=4x4|cut=10|gpt6_nonflat=6919488|gpt6_flat=18|same=1|author_rows=HYBRIDCHECK_CLASSES_configs_in_model=6919488|json=0
+CENSUS_COMPARE|L=4x4|cut=12|gpt6_nonflat=119790792|gpt6_flat=18|same=1|author_rows=AUDIT_ENUMERATE_configs=119790810_including_the_flat_18|json=0
+CENSUS_COMPARE|L=4x4|cut=14|gpt6_nonflat=624556872|gpt6_flat=18|same=1|author_rows=AUDIT_ENUMERATE_configs=624556890_including_the_flat_18+HYBRIDCHECK_CLASSES_configs_in_model=624556872|json=0
+CENSUS_COMPARE|L=4x5|cut=13|gpt6_nonflat=642825270|gpt6_flat=18|same=1|author_rows=HYBRIDCHECK_CLASSES_configs_in_model=642825270|json=0
+CENSUS_COMPARE|L=5x5|cut=11|gpt6_nonflat=563254650|gpt6_flat=18|same=1|author_rows=HYBRIDCHECK_CLASSES_configs_in_model=563254650|json=0
+CENSUS_COMPARE_WITHDRAWN|gpt6_missing_on_4x4_cut12=45144|author_retraction_states=45,144_on_4x4_and_3,564_on_3x4|same=1|json=0
+CENSUS_COMPARE_SCOPE|what_this_compares=totals|per_lump_and_row_inequalities=issue_100_open|json=0
+CENSUS_COMPARE_DONE|compared=8|failed=0|json=0

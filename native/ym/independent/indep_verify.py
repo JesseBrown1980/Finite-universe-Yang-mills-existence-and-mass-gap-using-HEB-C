@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import random
 import sys
+import math
 from itertools import permutations, product
 
 import numpy as np
@@ -189,19 +190,14 @@ def build(lx: int, ly: int):
 def primes_below(limit: int, count: int, skip: set[int]) -> list[int]:
     out, p = [], limit - 1
     while len(out) < count:
-        if p not in skip and all(p % d for d in range(2, int(p**0.5) + 1)):
+        if p not in skip and all(p % d for d in range(2, math.isqrt(p) + 1)):
             out.append(p)
         p -= 1
     return out
 
 
 def isqrt(n: int) -> int:
-    x = int(n**0.5) if n < 2**52 else 1 << ((n.bit_length() + 1) // 2)
-    while x * x > n:
-        x = (x + n // x) // 2
-    while (x + 1) * (x + 1) <= n:
-        x += 1
-    return x
+    return math.isqrt(n)
 
 
 LAST = {}
