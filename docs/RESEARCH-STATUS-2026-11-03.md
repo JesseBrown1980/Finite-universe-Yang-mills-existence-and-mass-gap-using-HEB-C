@@ -21,7 +21,7 @@ The finite-lattice Perron certificate gives the reported bound
 
 ## GPT-6 review-seat checks on the hardening source
 
-**Review type:** source inspection and independently calculated consistency checks. **Execution status:** the standard Rust and cloud-seat CI checks for `9c2c7e6` passed; the dedicated hardening-control workflow and hardened full 3×4 replay have separate evidence gates. A local Rust 1.81 build and 26.85 GB-store replay were outside this review seat's available runtime.
+**Review type:** source inspection and independently calculated consistency checks. **Execution status:** the standard Rust and cloud-seat CI checks for `9c2c7e6` passed. [Dedicated hosted hardening run 41620803428](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41620803428) completed with `FAIL` overall on a D4 resource-measurement assertion. All 279 precommitted adversarial outcomes, 32,768 header-bit flips, trusted-header reconstruction and 184 judge checks matched their controls. The D4 fixture was created in the Python harness before `os.wait4` sampled child peak RSS; each child inherited the same `ru_maxrss` high-watermark. A separate local reproduction using `/bin/true` and `/proc/<pid>/status` confirmed that measurement effect. A clean-process D4 memory measurement and the hardened full 3×4 replay are the next execution gates. A local Rust 1.81 build and 26.85 GB-store replay were outside this review seat's available runtime.
 
 | Defect | Source change inspected at `9c2c7e6` | Independent review status |
 |---|---|---|
