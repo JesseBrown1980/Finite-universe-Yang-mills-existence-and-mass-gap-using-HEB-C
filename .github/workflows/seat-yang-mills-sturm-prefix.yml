@@ -1,0 +1,49 @@
+name: Other-seat integer Sturm prefix (full inertia not certified)
+
+on:
+  push:
+    branches: [seat-yang-mills-direct-sturm-prefix]
+  pull_request:
+    branches: [seat-yang-mills-independent-orbit-audit]
+
+permissions:
+  contents: read
+
+jobs:
+  sturm-prefix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Independent integer S3 matrix and sanitized direct Schur signs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 independent/seat_sturm_integer_matrix.py > /tmp/seat_sturm_matrix.txt
+          g++ -O2 -std=c++17 -Wall -Wextra -Werror -fsanitize=undefined \
+            -fno-sanitize-recover=undefined independent/seat_sturm_prefix.cpp -o /tmp/seat_sturm_prefix
+          /tmp/seat_sturm_prefix --selftest
+          {
+            /tmp/seat_sturm_prefix /tmp/seat_sturm_matrix.txt 1 1 13240 1100
+            /tmp/seat_sturm_prefix /tmp/seat_sturm_matrix.txt 3 5 50840 1300
+          } | tee /tmp/seat_sturm_prefix.measure
+          cmp /tmp/seat_sturm_prefix.measure independent/seat_sturm_prefix.measure
+          test "$(wc -l < /tmp/seat_sturm_prefix.measure)" -eq 2
+          test "$(grep -c '|json=0$' /tmp/seat_sturm_prefix.measure)" -eq 2
+          grep 'result=PARTIAL_PREFIX_CERTIFIED' /tmp/seat_sturm_prefix.measure
+          grep 'remaining_pivots=UNCERTIFIED' /tmp/seat_sturm_prefix.measure
+      - name: Fail closed rather than mis-certify the full 1393-pivot check
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          /tmp/seat_sturm_prefix /tmp/seat_sturm_matrix.txt 1 1 13240 1393 > /tmp/uncertain-1.out 2>&1
+          rc1=$?
+          /tmp/seat_sturm_prefix /tmp/seat_sturm_matrix.txt 3 5 50840 1393 > /tmp/uncertain-2.out 2>&1
+          rc2=$?
+          set -e
+          cat /tmp/uncertain-1.out /tmp/uncertain-2.out
+          test "$rc1" -eq 2
+          test "$rc2" -eq 2
+          grep -F 'FAIL|reason=uncertain_pivot|k=1120|' /tmp/uncertain-1.out
+          grep -F 'FAIL|reason=uncertain_pivot|k=1326|' /tmp/uncertain-2.out

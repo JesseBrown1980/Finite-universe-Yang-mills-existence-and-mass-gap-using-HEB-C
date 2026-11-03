@@ -1,0 +1,48 @@
+name: Other-seat full finite S3 integer Sturm inertia
+
+on:
+  push:
+    branches: [seat-yang-mills-exact-rational-ldl]
+  pull_request:
+    branches: [seat-yang-mills-direct-sturm-prefix]
+
+permissions:
+  contents: read
+
+jobs:
+  full-integer-inertia:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check GMP development headers
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! test -f /usr/include/gmpxx.h; then
+            sudo apt-get update
+            sudo apt-get install -y libgmp-dev
+          fi
+      - name: Reconstruct independent 1393-state operator and compile rigorous verifier
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 independent/seat_sturm_integer_matrix.py > /tmp/seat_s3_matrix.txt
+          g++ -O3 -std=c++17 -Wall -Wextra -Werror independent/seat_sturm_biginterval.cpp             -lgmpxx -lgmp -o /tmp/seat_s3_biginterval
+          /tmp/seat_s3_biginterval --selftest
+          g++ -O3 -std=c++17 -Wall -Wextra -Werror independent/seat_sturm_exact_gmp.cpp             -lgmpxx -lgmp -o /tmp/seat_s3_exact_experimental
+          /tmp/seat_s3_exact_experimental --selftest
+          /tmp/seat_s3_exact_experimental /tmp/seat_s3_matrix.txt 1 1 13240 64             | grep -F 'result=PARTIAL_PREFIX_ONLY'
+      - name: Certify both complete 1393-pivot threshold inertias
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            /tmp/seat_s3_biginterval /tmp/seat_s3_matrix.txt 1 1 13240
+            /tmp/seat_s3_biginterval /tmp/seat_s3_matrix.txt 3 5 50840
+          } | tee /tmp/seat_s3_full_stdout.txt
+          grep '^HEBC-STURM-BIG|result=PASS' /tmp/seat_s3_full_stdout.txt > /tmp/seat_s3_full.measure
+          cmp /tmp/seat_s3_full.measure independent/seat_sturm_full_inertia.measure
+          test "$(wc -l < /tmp/seat_s3_full.measure)" -eq 2
+          test "$(grep -c '|json=0$' /tmp/seat_s3_full.measure)" -eq 2
+          test "$(grep -c 'pivots=1393|negative=1|zero=0|full_E1_inertia_certified=1'             /tmp/seat_s3_full.measure)" -eq 2

@@ -1,0 +1,69 @@
+name: Integer SHA key experiment vs monotone certificate transport
+
+on:
+  push:
+    branches: [seat-yang-mills-sha-inferred-anchor-experiment]
+  pull_request:
+    branches: [seat-yang-mills-integer-translation-sectors]
+
+permissions:
+  contents: read
+
+jobs:
+  hash-not-measurement:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enforce integer-only code paths
+        run: |
+          set -euo pipefail
+          python3 independent/seat_integer_only_gate.py
+      - name: Rebuild all four hash-pinned weighted sector matrices
+        run: |
+          set -euo pipefail
+          python3 independent/seat_translation_sectors.py /tmp/sha-sector | tee /tmp/sha-sector.measure
+          cmp /tmp/sha-sector.measure independent/seat_translation_sectors.measure
+      - name: Try hash mutation and distinct mathematical transport
+        run: |
+          set -euo pipefail
+          python3 independent/seat_sha_measure_experiment.py /tmp/sha-sector 20 180000 | tee /tmp/hash-old.measure
+          python3 independent/seat_sha_measure_experiment.py /tmp/sha-sector 23 180000 | tee /tmp/hash-new.measure
+          cmp /tmp/hash-new.measure independent/seat_sha_measure_experiment.measure
+          python3 independent/seat_sha_measure_experiment.py /tmp/sha-sector 25 180000 | tee /tmp/hash-end.measure
+          grep -F 'inertia_from_hash=UNKNOWN|json=0' /tmp/hash-new.measure
+          grep -F 'mode=ORDER_THEOREM' /tmp/hash-new.measure | grep -F 'negative=1'
+          # SHA content changed but theorem supplies inertia without Sturm.
+          python3 - <<'PY'
+          from pathlib import Path
+          def field(txt,key):
+              line=txt.splitlines()[0]
+              return next(v.split('=',1)[1] for v in line.split('|') if v.startswith(key+'='))
+          a=field(Path('/tmp/hash-old.measure').read_text(),'new_sturm_input_sha')
+          b=field(Path('/tmp/hash-new.measure').read_text(),'new_sturm_input_sha')
+          c=field(Path('/tmp/hash-end.measure').read_text(),'new_sturm_input_sha')
+          assert len({a,b,c})==3 and all(len(x)==64 for x in (a,b,c))
+          print('HEBC-SHA-EXPERIMENT|result=PASS|distinct_actual_integer_matrix_hashes=3|json=0')
+          PY
+          if python3 independent/seat_sha_measure_experiment.py /tmp/sha-sector 26 180000 > /tmp/hash-refuse.measure; then
+            echo 'FAIL unknown extrapolation accepted'; exit 1
+          fi
+          grep -F 'result=REFUSED|mode=PROOF_TRANSPORT' /tmp/hash-refuse.measure
+      - name: Independent full four-sector integer Sturm check of inferred new point
+        run: |
+          set -euo pipefail
+          python3 independent/seat_translation_sturm.py /tmp/sha-sector 10 23 180000 30 1 \
+            | tee /tmp/hash-independent-sturm.measure
+          cmp /tmp/hash-independent-sturm.measure independent/seat_sha_direct_sturm.measure
+          grep -F 'threshold=180000/1000' /tmp/hash-independent-sturm.measure
+          grep -F 'pivots=1393/1393|negative=1' /tmp/hash-independent-sturm.measure
+          grep -F 'ambiguous=0' /tmp/hash-independent-sturm.measure
+          echo 'HEBC-SHA-EXPERIMENT|result=PASS|inferred_equals_direct_sturm=1|json=0'
+      - name: Fail closed on tampered integer matrix
+        run: |
+          set -euo pipefail
+          cp -a /tmp/sha-sector /tmp/sha-sector-bad
+          printf 0 | dd of=/tmp/sha-sector-bad/pp.matrix bs=1 seek=8 conv=notrunc status=none
+          if python3 independent/seat_sha_measure_experiment.py /tmp/sha-sector-bad 23 180000; then
+            echo 'FAIL tampered sector accepted'; exit 1
+          fi

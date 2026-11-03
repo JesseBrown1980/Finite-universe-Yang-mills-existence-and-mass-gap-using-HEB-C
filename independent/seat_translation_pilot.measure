@@ -1,0 +1,4 @@
+HEBC-TRANSLATION-STURM|result=PASS|JE=1|JB=2|threshold=18250/1000|scale_digits=30|pivots=1393/1393|negative=1|sector_negatives=pp:1,pm:0,mp:0,mm:0|ambiguous=0|method=INTEGER_INTERVAL_SCHUR_DIRECT_SUM|json=0
+HEBC-TRANSLATION-STURM|result=PASS|JE=2|JB=5|threshold=34400/1000|scale_digits=30|pivots=1393/1393|negative=1|sector_negatives=pp:1,pm:0,mp:0,mm:0|ambiguous=0|method=INTEGER_INTERVAL_SCHUR_DIRECT_SUM|json=0
+HEBC-TRANSLATION-STURM|result=PASS|JE=2|JB=5|threshold=39400/1000|scale_digits=30|pivots=1393/1393|negative=1|sector_negatives=pp:1,pm:0,mp:0,mm:0|ambiguous=0|method=INTEGER_INTERVAL_SCHUR_DIRECT_SUM|json=0
+HEBC-TRANSLATION-STURM|result=PASS|JE=1|JB=3|threshold=19300/1000|scale_digits=30|pivots=1393/1393|negative=1|sector_negatives=pp:1,pm:0,mp:0,mm:0|ambiguous=0|method=INTEGER_INTERVAL_SCHUR_DIRECT_SUM|json=0

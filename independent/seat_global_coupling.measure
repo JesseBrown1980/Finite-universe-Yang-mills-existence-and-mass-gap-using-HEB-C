@@ -1,0 +1,7 @@
+HEBC-RATIO|result=PASS|model=S3_TORUS2|dim=1393|graph_diameter=8|orbit_weight_sum=7776|nnz=32385|weighted_E_PSD=1|E_norm_le=48|M_norm_le=12|M_weighted_average=8|json=0
+HEBC-RATIO|result=PASS|domain=JE>0,JB>=0|r=JB/JE|gap_ge=6*JE/(24+12*r)^16|method=GROUND_STATE_GRAPH_HARNACK_POINCARE|electric_gap_antecedent=6|global_coupling_uniform=0|json=0
+HEBC-RATIO|result=PASS|electric_chart_r=[0,1]|gap_strict_gt=JE*(31/25+4*r)|input=STAGE2H_E1_1_1_AND_M_TRIAL|json=0
+HEBC-RATIO|result=PASS|electric_chart_r=[1,5/3]|gap_strict_gt=JE*251731/250000|input=STAGE2H_E1_1_1_STAGE2G_E0_3_5|json=0
+HEBC-RATIO|result=PASS|electric_chart_r=[5/3,2]|gap_strict_gt=JE*(1271/75-8*r)|at_r_2_gt=71/75*JE|json=0
+HEBC-RATIO|result=PASS|magnetic_chart_s=(0,1/10000]|gap_strict_gt=JE^2/JB|input=PR11_EIGHT_VACUUM_SECOND_ORDER|json=0
+HEBC-RATIO|result=PASS|claim=ALL_FINITE_POSITIVE_COUPLING_RATIOS_COVERED|proof=GLOBAL_GRAPH_BOUND_PLUS_SHARPER_REGIONS|larger_lattices=UNPROVEN|continuum_YM_proven=0|json=0

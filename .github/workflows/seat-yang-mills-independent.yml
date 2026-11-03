@@ -1,0 +1,27 @@
+name: Other-seat independent finite S3 torus audit
+
+on:
+  push:
+    branches: [seat-yang-mills-independent-orbit-audit]
+  pull_request:
+    branches: [stage2g-certified-torus-gap]
+
+permissions:
+  contents: read
+
+jobs:
+  independent-finite-s3:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fresh permutation-group reconstruction, exact arithmetic and byte-pin
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 independent/seat_yang_mills_audit.py > /tmp/seat_yang_mills_audit.measure
+          cat /tmp/seat_yang_mills_audit.measure
+          cmp independent/seat_yang_mills_audit.measure /tmp/seat_yang_mills_audit.measure
+          test "$(wc -l < /tmp/seat_yang_mills_audit.measure)" -eq 8
+          test "$(grep -c '|json=0$' /tmp/seat_yang_mills_audit.measure)" -eq 8
+          grep -Fx 'HEBC-SEAT-AUDIT|NOTE=rank_one_cholesky_E1_intervals_NOT_independently_reproved|json=0' /tmp/seat_yang_mills_audit.measure

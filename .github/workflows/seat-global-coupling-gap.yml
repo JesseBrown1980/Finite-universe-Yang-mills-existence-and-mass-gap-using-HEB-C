@@ -1,0 +1,40 @@
+name: Finite S3 global coupling gap (exact graph diameter and ratio proof)
+
+on:
+  push:
+    branches: [seat-yang-mills-global-coupling-bound]
+  pull_request:
+    branches: [seat-yang-mills-coupling-region-certificates]
+
+permissions:
+  contents: read
+
+jobs:
+  exact-global-finite-gap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct finite torus and verify exact all-ratio graph inequalities
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 independent/seat_global_coupling.py | tee /tmp/global-gap.measure
+          cmp /tmp/global-gap.measure independent/seat_global_coupling.measure
+          test "$(wc -l < /tmp/global-gap.measure)" -eq 7
+          test "$(grep -c '|json=0$' /tmp/global-gap.measure)" -eq 7
+          grep -F 'graph_diameter=8|orbit_weight_sum=7776|nnz=32385|weighted_E_PSD=1' /tmp/global-gap.measure
+          grep -F 'gap_ge=6*JE/(24+12*r)^16' /tmp/global-gap.measure
+          grep -F 'electric_chart_r=[0,1]|gap_strict_gt=JE*(31/25+4*r)' /tmp/global-gap.measure
+          grep -F 'electric_chart_r=[1,5/3]|gap_strict_gt=JE*251731/250000' /tmp/global-gap.measure
+          grep -F 'electric_chart_r=[5/3,2]|gap_strict_gt=JE*(1271/75-8*r)' /tmp/global-gap.measure
+          grep -F 'magnetic_chart_s=(0,1/10000]|gap_strict_gt=JE^2/JB' /tmp/global-gap.measure
+          grep -F 'claim=ALL_FINITE_POSITIVE_COUPLING_RATIOS_COVERED' /tmp/global-gap.measure
+      - name: Ensure older native eigenvalue provenance and magnetic 8x8 inputs remain pinned
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(grep -c 'full_E1_inertia_certified=1|json=0' independent/seat_sturm_full_inertia.measure)" -eq 2
+          grep -F 'PEP=24I8|first_order_gap=0' independent/seat_magnetic_endpoint.measure
+          python3 independent/seat_magnetic_endpoint.py > /tmp/magnetic2.measure
+          cmp /tmp/magnetic2.measure independent/seat_magnetic_endpoint.measure

@@ -1,0 +1,2 @@
+HEBC-STURM|result=PARTIAL_PREFIX_CERTIFIED|JE=1|JB=1|threshold=13240/1000|pivots_checked=1100/1393|negative_pivots_in_prefix=1|zero_ambiguous_pivots=0|remaining_pivots=UNCERTIFIED|arithmetic=I128_OUTWARD_INTERVAL|json=0
+HEBC-STURM|result=PARTIAL_PREFIX_CERTIFIED|JE=3|JB=5|threshold=50840/1000|pivots_checked=1300/1393|negative_pivots_in_prefix=1|zero_ambiguous_pivots=0|remaining_pivots=UNCERTIFIED|arithmetic=I128_OUTWARD_INTERVAL|json=0
