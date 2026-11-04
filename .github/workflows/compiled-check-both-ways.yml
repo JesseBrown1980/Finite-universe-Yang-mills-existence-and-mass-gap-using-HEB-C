@@ -5,6 +5,8 @@ on:
   workflow_dispatch:
   push:
     branches: [compiled-check-20261104]
+    paths:
+      - 'native/ym/results/compiled-check-20261104/replay_both_ways.py'
 
 permissions:
   contents: read

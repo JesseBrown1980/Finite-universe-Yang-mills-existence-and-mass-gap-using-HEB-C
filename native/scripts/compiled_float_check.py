@@ -53,6 +53,8 @@ MIR_STRING = re.compile(r'"(?:[^"\\]|\\.)*"')
 MIR_FP = re.compile(r"\bf(?:16|32|64|128)\b|\d_?f(?:16|32|64|128)\b")
 CPP_OP = re.compile(r"^\s+(?:(?:v?(?:add|sub|mul|div|sqrt|min|max|ucomi|comi|cmp[a-z]*)s[sd])|v?cvt\w+|f(?:ld|st|add|sub|mul|div|sqrt|ild|ist|xch|chs|abs|com|ucom)\w*)\b", re.M)
 CPP_MOVE = re.compile(r"^\s+(?:v?movs[sd]|v?movd|v?movq)\s[^\n]*%[xy]mm\d", re.M)
+# g++ zeroes a 24-byte object such as a std::vector with pxor, movaps and movq on one xmm register. That is a block move of zero and holds no float.
+CPP_ZEROED_BLOCK = re.compile(r"^\s+v?pxor\s+%xmm(\d+),\s*%xmm\1\n(?:\s+v?mov(?:aps|ups|dqa|dqu)\s+%xmm\1,[^\n]*\n)*\s+v?movq\s+%xmm\1,\s*-?\d*\(%r[a-z0-9]+\)", re.M)
 CPP_CALL = re.compile(
     r"^\s+call[ql]?\s+\*?_*(?:__(?:add|sub|mul|div|neg|extend|trunc|fixuns|fix|floatun|float|cmp|unord|eq|ne|ge|gt|le|lt|pow)\w*?(?:tf|xf|df|sf|hf|bf|td|dd|sd)\d?\w*|__bid_\w+|__dpd_\w+"
     r"|(?:sqrt|cbrt|pow|exp|exp2|expm1|log|log2|log10|log1p|sin|cos|tan|asin|acos|atan|atan2|sinh|cosh|tanh|floor|ceil|round|trunc|rint|nearbyint|fmod|fabs|hypot|ldexp|frexp|modf"
@@ -651,8 +653,9 @@ def loose_files(root, compiled, opt, base, listed):
 
 
 def cpp_read(text):
-    ops = CPP_OP.findall(text) + CPP_MOVE.findall(text) + CPP_CALL.findall(text)
-    return len(CPP_OP.findall(text)) + len(CPP_MOVE.findall(text)) + len(CPP_CALL.findall(text)), ops[:3]
+    text = CPP_ZEROED_BLOCK.sub("", text)
+    ops = [m.group(0) for pattern in (CPP_OP, CPP_MOVE, CPP_CALL) for m in pattern.finditer(text)]
+    return len(ops), ops[:3]
 
 
 def cpp_one(src, cwd):
@@ -832,8 +835,8 @@ IR_MUST_PASS = (
 )
 MIR_MUST_FLAG = ("let _1: f64;", "fn f(_1: f32) -> u8 {", "_0 = const 5e-1_f64;", "_2 = const 1f32;", "static X: f64 = {", "_3 = <f64 as Display>::fmt(move _4) -> [return: bb1, unwind: bb2];")
 MIR_MUST_PASS = ('_1 = const "f64 0.5";', "let _1: u64;", "_2 = foo_f64() -> [return: bb1, unwind: bb2];", "let _1: myf32;")
-CPP_MUST_FLAG = ("\tdivsd\t%xmm1, %xmm0\n", "\tmovsd\t-8(%rbp), %xmm0\n", "\tcvtsi2sdq\t%rax, %xmm0\n", "\tfldt\t16(%rbp)\n", "\tmovq\t%xmm0, %rax\n", "\tcall\tsqrt\n", "\tcall\t__divtf3\n", "\tcall\t__bid_divdd3\n", "\tcall\tsqrt@PLT\n", "\tvaddsd\t%xmm1, %xmm0, %xmm0\n")
-CPP_MUST_PASS = ("\tmovaps\t%xmm0, -32(%rbp)\n", "\tmovdqa\t-48(%rbp), %xmm0\n", "\tcall\t__divti3\n", "\tcall\t__udivti3\n", "\tcall\t__modti3\n", "\tcall\t__multi3\n", "\tmovq\t%rax, %rdx\n", "\tcall\t_Z4sqrti\n", "\t.file\t\"float.cpp\"\n", "\tmovl\t$0, %eax\n")
+CPP_MUST_FLAG = ("\tdivsd\t%xmm1, %xmm0\n", "\tmovsd\t-8(%rbp), %xmm0\n", "\tcvtsi2sdq\t%rax, %xmm0\n", "\tfldt\t16(%rbp)\n", "\tmovq\t%xmm0, %rax\n", "\tcall\tsqrt\n", "\tcall\t__divtf3\n", "\tcall\t__bid_divdd3\n", "\tcall\tsqrt@PLT\n", "\tvaddsd\t%xmm1, %xmm0, %xmm0\n", "\tpxor\t%xmm1, %xmm1\n\tmovq\t%xmm0, -8(%rbp)\n", "\tpxor\t%xmm0, %xmm0\n\tmovsd\t%xmm0, -8(%rbp)\n")
+CPP_MUST_PASS = ("\tmovaps\t%xmm0, -32(%rbp)\n", "\tmovdqa\t-48(%rbp), %xmm0\n", "\tcall\t__divti3\n", "\tcall\t__udivti3\n", "\tcall\t__modti3\n", "\tcall\t__multi3\n", "\tmovq\t%rax, %rdx\n", "\tcall\t_Z4sqrti\n", "\t.file\t\"float.cpp\"\n", "\tmovl\t$0, %eax\n", "\tpxor\t%xmm0, %xmm0\n\tmovaps\t%xmm0, -240(%rbp)\n\tmovq\t%xmm0, -224(%rbp)\n")
 
 
 def mir_flag(line):
