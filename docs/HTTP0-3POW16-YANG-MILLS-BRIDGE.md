@@ -18,9 +18,9 @@ The source commit is **5517268b511d5f28e307b21fc53eede3200ed7b9**. Both SHA-256 
 
 The receipts are already published. Their integrity checks do **not** replace a new independent reconstruction of the Hamiltonian. The formal 3×4 gap-verdict gate and operator approval are separate.
 
-## Independently verifiable source-to-address conversion
+## Separately implemented source-to-address verification
 
-The [standalone Python audit](../native/scripts/verify_http0_ym43.py) independently computes SHA-256 and Git blob SHA-1 for all three pinned files, checks the exact recorded integer fields, verifies the ternary addresses, and rejects intentionally corrupted or missing copies. It uses only Python's standard library and integer arithmetic.
+The [separate Python audit](../native/scripts/verify_http0_ym43.py) computes SHA-256 and Git blob SHA-1 using a separate implementation for all three pinned files, checks the exact recorded integer fields, computes address noncollision across all 729 Clay/Taylor and three Yang–Mills slots, and rejects intentionally corrupted or missing copies. It uses only Python's standard library and integer arithmetic.
 
 Run from the Yang–Mills repository root:
 
@@ -58,3 +58,7 @@ This connection is a **proof-evidence interoperability layer**. The source recor
 The Yang–Mills finite-system scope remains unchanged. The spacing-to-zero continuum limit at fixed finite physical volume stays OPEN.
 
 Verification: [Yang–Mills source auditor workflow](../.github/workflows/http0-ym43.yml) · [HTTP-0 pinned-source workflow](https://github.com/JesseBrown1980/qoled-internet-HEB-C-revisted-HTTP---free-0-hbi-hbp-sha-sh-hash/blob/main/.github/workflows/ym43.yml).
+
+### Audit hardening (November 4, 2026)
+
+The [separate source-audit workflow](../.github/workflows/http0-ym43.yml) now triggers on changes to the three pinned HBP receipts as well as its script and documentation. The Python verifier enumerates the actual 729 Clay/Taylor addresses and all three Yang–Mills addresses, verifies unique and disjoint mappings, and exercises an injected domain overlap as an adversarial control. The Rust verifier has its own address-decoding logic. Both implementations originated from the same research seat; their independent execution and distinct programming languages provide cross-checks rather than independently authored mathematical proofs. The 3×4 source's formal gap verdict remains **OPEN**.
