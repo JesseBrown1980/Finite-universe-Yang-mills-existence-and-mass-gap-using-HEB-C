@@ -1,5 +1,11 @@
 # Finite-universe Yang–Mills with HEB-C
 
+## Measured whole-suite HTTP-0 tests
+
+The [new measured test campaign](docs/HTTP0-YM-WHOLE-TEST-CAMPAIGN.md) runs the entire `native/ym` Rust workspace, five real finite 2×2 sector/count computations through both headless and HTTP-0 routes, all eleven independently sealed cloud packages and the new `3^16` Yang–Mills certificate reader. It records actual elapsed times and compares three canonical receipt files byte for byte.
+
+**Scope:** This is a concurrent finite-system test campaign, **not** a new 45.5-million-row / 1.63-billion-pair 3×4 independent recomputation. The latter requires the separately gated 27.2 GB store and is not accelerated merely by adding virtual HTTP-0 addresses. Existing Yang–Mills proof/OPEN statuses remain unchanged.
+
 ## HTTP-0's exact 3^16 finite Yang–Mills evidence bridge
 
 The [new source-pinned HTTP-0 3^16 contract](docs/HTTP0-3POW16-YANG-MILLS-BRIDGE.md) makes the 3×4 **Perron**, **45,508,080-row reconstruction** and **1,632,625,631 weighted-pair verification** records readable at separate ternary addresses **81, 82 and 83**. Alongside the previously verified Clay/Taylor–Green observations, this gives **732 populated slots** out of **43,046,721 virtual addresses**. The [standalone integer-only source auditor](native/scripts/verify_http0_ym43.py) validates SHA-256, Git blob identity, exact recorded fields, and corrupt/missing source controls.
