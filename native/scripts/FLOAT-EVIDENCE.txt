@@ -1,6 +1,6 @@
 # What the no-float gate lets stand, each with its reason. The operator's word: floating point is to be redone in integers, and the evidence is kept.
 # A file row states how many findings the gate counts in that file, so one more float there fails as well. A path ending in / covers its folder. Anything not listed must hold no floating point.
-native/ym/vendor/ | Third-party integer crates pinned by Cargo.lock. Their float conversions are library surface, and the gate's Rust scan of everything else reads 0 calls to them
+native/ym/vendor/ | Third-party integer crates pinned by Cargo.lock. Every manifest here sets default-features = false, which compiles out the std float paths in their sqrt, cbrt, nth_root, Display and parse. The floats left in their source are listed function by function in no-float-compiled.yml's output, each read from the compiler's IR as reached by no project crate
 native/ym/results/cantor-integer-2026-11-03/float-run-2026-10-31/ | The floating-point run of PR 61, verbatim, as evidence. The integer redo is its parent folder, and its workflow checks these hashes
 independent/seat_adaptive_cells.py | findings=7 | Exact rationals: every / here is on the integer-ratio class of seat_integer_ratio.py, read line by line
 independent/seat_global_coupling.py | findings=3 | Exact rationals: every / here is on the integer-ratio class of seat_integer_ratio.py, read line by line

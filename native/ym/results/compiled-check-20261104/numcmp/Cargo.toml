@@ -1,0 +1,15 @@
+[package]
+name = "numcmp"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.81"
+
+[dependencies]
+num-bigint = { version = "0.4", default-features = false }
+num-integer = { version = "0.1", default-features = false }
+num-traits = { version = "0.2", default-features = false }
+
+[features]
+with_std_paths = ["num-bigint/std", "num-integer/std", "num-traits/std"]
+
+[workspace]

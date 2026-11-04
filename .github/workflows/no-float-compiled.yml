@@ -1,0 +1,86 @@
+# The operator's rule: "The gate must reject operations capable of silently introducing floating-point values." The source scan in no-float.yml reads text. This job reads what the compilers produced:
+# LLVM IR and MIR for every Rust crate, with a call graph into the third-party crates, and assembly for every C and C++ file. Its scope and limits are in native/scripts/compiled_float_check.py.
+# A pass means these reads found nothing in what they read. Integer only, json=0.
+name: No floating point, compiled level
+
+on:
+  workflow_dispatch:
+  pull_request:
+  merge_group:
+  push:
+    branches: [main, compiled-check-20261104]
+
+permissions:
+  contents: read
+
+jobs:
+  no-float-compiled:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust 1.81 and the GMP headers
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libgmp-dev
+          rustc +1.81.0 --version
+          g++ --version | head -1
+      - name: The reader's own lines
+        run: python3 -I -X utf8 native/scripts/compiled_float_check.py selftest
+      - name: Every Rust crate compiled and read, with the call graph
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/compiled_float_check.py rust . | tee /tmp/rust.hbp
+          grep -q '^COMPILED_RUST_DONE|.*|project_fp_lines=0|project_mir_lines=0|project_crates_reaching=0|.*|failed=0|' /tmp/rust.hbp
+      - name: Every C and C++ file compiled and read
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/compiled_float_check.py cpp . | tee /tmp/cpp.hbp
+          grep -q '^COMPILED_CPP_DONE|.*|not_measured=0|failed=0|' /tmp/cpp.hbp
+      - name: Planted floats in Rust go red through the real command
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/compiled_float_check.py plants . rust | tee /tmp/plants-rust.hbp
+          grep -q '^PLANTS_DONE|lang=rust|.*|failed=0|' /tmp/plants-rust.hbp
+      - name: Planted floats in C and C++ go red through the real command
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/compiled_float_check.py plants . cpp | tee /tmp/plants-cpp.hbp
+          grep -q '^PLANTS_DONE|lang=cpp|.*|failed=0|' /tmp/plants-cpp.hbp
+      - name: A tracked float goes red in the full scan, and a tracked verifier is not skipped
+        run: |
+          set -uo pipefail
+          git config user.name gate-control
+          git config user.email gate-control@localhost
+          mkdir -p native/ym/results/planted-full-scan/src
+          printf '[package]\nname = "planted_full_scan"\nversion = "0.1.0"\nedition = "2021"\n\n[dependencies]\n\n[workspace]\n' > native/ym/results/planted-full-scan/Cargo.toml
+          printf 'fn main() { let x = 1 as std::ffi::c_double / 3 as std::ffi::c_double; println!("{}", x as u8); }\n' > native/ym/results/planted-full-scan/src/main.rs
+          printf 'int main() { volatile double a = 1; return static_cast<int>(a / 3); }\n' > native/ym/results/planted-full-scan/plant.cpp
+          ( cd native/ym/results/planted-full-scan && cargo +1.81.0 generate-lockfile --offline )
+          git add -f native/ym/results/planted-full-scan
+          rc=0
+          python3 -I -X utf8 native/scripts/compiled_float_check.py rust . --only native/ym/results/planted-full-scan/Cargo.toml > /tmp/full.hbp || rc=$?
+          test "$rc" = 1
+          grep -q '^COMPILED_PROJECT_FP|unit=native/ym/results/planted-full-scan|crate=planted_full_scan|' /tmp/full.hbp
+          rc=0
+          python3 -I -X utf8 native/scripts/compiled_float_check.py cpp . > /tmp/full-cpp.hbp || rc=$?
+          test "$rc" = 1
+          grep -q '^COMPILED_CPP|file=native/ym/results/planted-full-scan/plant.cpp|fp_ops=[1-9]' /tmp/full-cpp.hbp
+          git rm -r -q -f --cached native/ym/results/planted-full-scan
+          rm -rf native/ym/results/planted-full-scan
+      - name: The exact num comparison on this runner, built both ways, with the sticky flags as the probe's control
+        run: |
+          set -euo pipefail
+          cd native/ym/results/compiled-check-20261104/numcmp
+          cargo +1.81.0 build -q --release --locked --offline
+          CARGO_TARGET_DIR=/tmp/numcmp-std cargo +1.81.0 build -q --release --locked --offline --features with_std_paths
+          target/release/numcmp mxcsr | tee /tmp/mxcsr-off.hbp
+          grep -q '^MXCSR|sqrt=0x0|sqrt_above_2_4096=0x0|cbrt=0x0|display=0x0|parse=0x0|mul_add=0x0|div=0x0|' /tmp/mxcsr-off.hbp
+          /tmp/numcmp-std/release/numcmp mxcsr | tee /tmp/mxcsr-on.hbp
+          grep -q '^MXCSR|sqrt=0x20|.*|display=0x20|parse=0x20|mul_add=0x0|div=0x0|' /tmp/mxcsr-on.hbp
+          target/release/numcmp digest | tee /tmp/numcmp-off.hbp
+          /tmp/numcmp-std/release/numcmp digest > /tmp/numcmp-on.hbp
+          grep -q '^NUMCMP_DONE|.*|failed=0|' /tmp/numcmp-off.hbp
+          cmp /tmp/numcmp-off.hbp /tmp/numcmp-on.hbp
