@@ -61,6 +61,8 @@ CPP_CALL = re.compile(
 )
 NUM_DEP = re.compile(r'^\s*"?(num-[a-z0-9-]+)"?\s*=\s*(.*)$')
 RENAMED_NUM = re.compile(r'package\s*=\s*"(num-[a-z0-9-]+)"')
+ABSOLUTE_PATH = re.compile(r'(#\[path\s*=\s*r?")([A-Za-z]:/[^"]+|/[^"]+)(")')
+PATH_MAP = ((re.compile(r".*/(native/ym/crates/.+)$"), r"\1"), (re.compile(r".*/kernel/core/src/tribit/mod\.rs$"), "native/vendor/clasy_x3/vendor/canonical/tribit/mod.rs"))
 
 
 def say(text):
@@ -231,6 +233,40 @@ def replaced_source_dir(start, root):
     return None
 
 
+def holds_absolute_path(d):
+    for base, dirs, names in os.walk(d):
+        dirs[:] = [x for x in dirs if x != "target"]
+        for n in names:
+            if n.endswith(".rs") and ABSOLUTE_PATH.search(read_text(os.path.join(base, n))):
+                return True
+    return False
+
+
+def map_absolute_paths(scratch, root):
+    """Rewrites absolute #[path] lines in a scratch copy to the same files in this repository. Returns what it mapped."""
+    mapped = []
+    for base, _, names in os.walk(scratch):
+        for n in names:
+            if not n.endswith(".rs"):
+                continue
+            full = os.path.join(base, n)
+            text = read_text(full)
+
+            def one(m):
+                for pattern, repl in PATH_MAP:
+                    if pattern.match(m.group(2)):
+                        to = pattern.sub(repl, m.group(2))
+                        mapped.append((m.group(2), to))
+                        return m.group(1) + os.path.join(root, to).replace("\\", "/") + m.group(3)
+                return m.group(0)
+
+            new = ABSOLUTE_PATH.sub(one, text)
+            if new != text:
+                with open(full, "w", encoding="utf-8", newline="") as f:
+                    f.write(new)
+    return mapped
+
+
 def plan_units(root, manifests):
     """Group manifests into builds: workspace members share one target folder; a crate cargo refuses in place, or whose locked crates the vendor folder lacks, builds in a scratch copy."""
     units = collections.OrderedDict()
@@ -247,6 +283,8 @@ def plan_units(root, manifests):
         # A path-dependency crate with no lock of its own: its own targets build in a scratch copy, locked there, offline.
         if not os.path.exists(os.path.join(ws or d, "Cargo.lock")):
             copy = True
+        if not copy and member and table(text, "workspace") and holds_absolute_path(d):
+            copy = True
         vendor = replaced_source_dir(d, root) if d.startswith(os.path.abspath(root)) else None
         if vendor and lock and not copy:
             have = set(os.listdir(vendor)) if os.path.isdir(vendor) else set()
@@ -258,12 +296,13 @@ def plan_units(root, manifests):
 
 
 def crate_of(path, target):
-    """The crate a compiler output file belongs to: its name up to the hash, or for a build script its package folder's name."""
-    base = os.path.basename(path)
-    name = base.split("-")[0].split(".")[0]
-    if name == "build_script_build":
-        return os.path.basename(os.path.dirname(path)).rsplit("-", 1)[0].replace("-", "_")
-    return name
+    """The crate a compiler output file belongs to: its name up to the hash. Anything under a build script's folder, autocfg's probes among them, belongs to that folder's package."""
+    parts = os.path.relpath(path, target).replace("\\", "/").split("/")
+    if "build" in parts[:2]:
+        i = parts.index("build")
+        if i + 2 < len(parts):
+            return parts[i + 1].rsplit("-", 1)[0].replace("-", "_")
+    return os.path.basename(path).split("-")[0].split(".")[0]
 
 
 def files_under(target, ext):
@@ -445,6 +484,8 @@ def build_unit(root, key, unit, opt, base, n):
         "CARGO_INCREMENTAL": "0",
         "CARGO_PROFILE_RELEASE_OPT_LEVEL": str(opt),
         "CARGO_PROFILE_RELEASE_DEBUG": "0",
+        "CARGO_PROFILE_RELEASE_LTO": "off",
+        "CARGO_PROFILE_RELEASE_CODEGEN_UNITS": "1",
         "CARGO_TERM_COLOR": "never",
     }
     mapping = []
@@ -459,6 +500,8 @@ def build_unit(root, key, unit, opt, base, n):
                 f.write("\n[workspace]\n")
         if not os.path.exists(os.path.join(scratch, "Cargo.lock")):
             run(["cargo", TOOLCHAIN, "generate-lockfile", "--offline"], scratch, env)
+        for frm, to in map_absolute_paths(scratch, root):
+            say("COMPILED_PATH_MAPPED|unit=%s|from=%s|to=%s|json=0" % (shown(original, root), frm, to))
         workdirs = [scratch]
         mapping = [(os.path.abspath(scratch), os.path.abspath(original))]
     else:
@@ -469,9 +512,15 @@ def build_unit(root, key, unit, opt, base, n):
     for w in workdirs:
         code, _, err = run(["cargo", TOOLCHAIN, "rustc", "--release", "--locked", "--all-targets"], w, env)
         if code:
-            rc = code
             tail = [x for x in err.strip().splitlines() if x.strip()]
-            last = clean(tail[-1]) if tail else "-"
+            first = clean(tail[-1]) if tail else "-"
+            code, _, err = run(["cargo", TOOLCHAIN, "rustc", "--release", "--locked"], w, env)
+            if code == 0:
+                say("COMPILED_TESTS_NOT_BUILT|unit=%s|all_targets=%s|default_targets_read=1|json=0" % (shown(w, root), first))
+            else:
+                rc = code
+                tail = [x for x in err.strip().splitlines() if x.strip()]
+                last = clean(tail[-1]) if tail else "-"
     # Features unify across a workspace when all its members build together, so the graph is read that way too.
     if rc == 0 and len(workdirs) > 1:
         code, _, err = run(["cargo", TOOLCHAIN, "build", "--release", "--locked", "--workspace", "--all-targets"], workdirs[0], env)

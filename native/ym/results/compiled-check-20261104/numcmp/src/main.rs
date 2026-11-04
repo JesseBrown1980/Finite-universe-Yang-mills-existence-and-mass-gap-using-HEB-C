@@ -82,7 +82,11 @@ impl Sha {
             c.update(&[0]);
         }
         c.update(&bits.to_be_bytes());
-        c.h.iter().map(|x| format!("{x:08x}")).collect()
+        let mut out = String::with_capacity(64);
+        for x in c.h {
+            out.push_str(&format!("{x:08x}"));
+        }
+        out
     }
 }
 
