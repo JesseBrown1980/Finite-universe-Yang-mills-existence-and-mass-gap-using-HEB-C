@@ -4,10 +4,10 @@ The operator's rule: "The gate must reject operations capable of silently introd
 
 Scope. Compiled code, read after the compiler has resolved names, aliases, macros and generics.
 
-Rust. Each tracked Cargo package is built through `cargo +1.81.0 rustc --release --locked --all-targets`, with optimisation off so nothing folds away,
+Rust. Each tracked Cargo package is built through `cargo +1.81.0 rustc --release --locked --all-targets`, with optimisation off,
 and RUSTFLAGS asking for LLVM IR and MIR from every crate in the build. A crate is third-party when its Cargo.lock entry carries a source; every other crate is a project crate.
  1. Project crates, IR: float types and instructions, with names and quoted text removed first, and inline or module assembly that names float registers or opcodes.
- 2. Project crates, MIR: the types f16, f32, f64, f128. This holds what IR no longer shows: const evaluation, statics, dead functions.
+ 2. Project crates, MIR: the types f16, f32, f64, f128. This holds what IR no longer shows: const evaluation, statics, dead functions, constants folded while the IR is built.
  3. Call graph over all the IR: an edge is any symbol reference in a body or a constant table. A project crate that reaches a function holding a float, or an external float
     function of the standard library, fails. A function present in a third-party crate and not reached is listed as evidence and passes.
  4. Manifests: each num-* dependency must say default-features = false, and must not ask for std or libm by name.
