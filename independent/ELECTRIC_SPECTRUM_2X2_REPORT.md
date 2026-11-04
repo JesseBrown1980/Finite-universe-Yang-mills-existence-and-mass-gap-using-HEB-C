@@ -2,6 +2,8 @@
 
 **November 3, 2026.** Scope: the 1,393 gauge-invariant orbits of the periodic 2×2 S₃ torus at J_B = 0, and the every-ratio bound on that same torus. Integer only, `float_used=0`. Receipts are HBP rows in [`electric_spectrum_2x2.measure`](electric_spectrum_2x2.measure), 330 rows, all `json=0`. The section on the formula gap(E) = 3·min(4, Lx, Ly) covers every periodic torus, with its receipt in [`electric_gap_formula.measure`](electric_gap_formula.measure), 80 rows. A second seat attacked this report at head `689d85d` with the verdict not refuted. Its evidence is in [`reviews/opus55-electric-gap/`](reviews/opus55-electric-gap/README.md), and its findings are applied below, dated November 3.
 
+The seats named here: GPT-6 wrote the builder of routes 1 and 2 and the engine of route 2. **The second seat** is the reviewer, a session on Claude Opus 5.5, with its evidence in the folder above. **The separate seat** is the author this report names for the builder of route 3, [`indep_verify.py`](../native/ym/independent/indep_verify.py), tagged NAMED. **The applying unit** is the working unit of this seat, ACER-CLAUDE-FABLE5, that applied the second seat's findings.
+
 ## Result
 
 The torus has 8 links and 4 vertices, each vertex 4-valent, and its graph is a 4-cycle with doubled edges. E = Σ_links (3 − Σ_t R_t), with t over the 3 transpositions.
@@ -126,6 +128,8 @@ Beside this, November 3. The push times come from GitHub's activity feed and the
 
 Correction, November 3. The second seat found that `predictions` read a wrong value as NOT_MEASURED on 14 of its 24 needle rows: A1, A2, A3, B1, B2, B3, B4, C1, C2, C3, C4, C5, C6 and F1. Each needle row now has a head, which names the receipt row up to its value. A row with that head and a changed value reads MISS. A receipt with no such row reads `NOT_MEASURED|reason=NO_ROW`. The 53 rows on this receipt are byte-equal to the pinned ones, so 47 MET, 0 MISS, 6 NOT_MEASURED stands, and the red controls are under Replay. Its probe, rerun on the fixed script, reads MISS on 23 of the 24. It reads MET on D4, where it appends a character and leaves the needle as a substring, as its report says, and a changed `sturm_rows` at D4 reads MISS in the controls.
 
+Correction beside it, November 3, from the second seat's recheck of head `52134ab`. A partly missing row still read MISS on B6, B10, E1 and E2. With every row of path D removed, R1 to R6 and S1 read an engine reason. An appended row with another value left B6, D3 and E1 at MET. Now every row with the head counts, on B6, B10, path D, path E, R1 to R6, S1 and S2, so a row with another value reads MISS, an appended one included. When every row present reads as predicted, a listed cost with no row reads NO_ROW on B6 and B10, E1 and E2 read NO_ROW with no `INDEP_BUILD|L=2x2|` row, and R1 to R6 and S1 read NO_ROW with 0 rows of either kind for their T. The 53 rows on this receipt stay byte-equal to the pinned ones, so 47 MET, 0 MISS, 6 NOT_MEASURED stands.
+
 ## Where the engine stops
 
 The engine stopped closed at 26 of the 42 thresholds off the spectrum, all between 18 and 30, each with `no sign-definite pivot: UNCERTIFIED`. Every attempt is in the receipt, with its certified sectors.
@@ -173,7 +177,9 @@ Mode `g` checks these steps, MEASURED:
 |---|---|---|
 | `ELECTRIC_G_VERTEX` | All 81 tuples of irreps at a vertex | dim Inv depends on k and s alone, with one τ end at 0 and odd sign ends with no τ at 0 |
 | `ELECTRIC_G_GIRTH` | Every Lx, Ly from 1 to 12 | The shortest cycle, found by removing each link and taking the shortest path between its ends, equals min(4, Lx, Ly) on 144 of 144 |
-| `ELECTRIC_G_TORUS` | Every Lx, Ly from 1 to 6, with 3×7, 4×7, 5×7, 6×7, 7×7 and 8×8 | Every assignment of cost up to the formula, 12,066,273 of them on 8×8: 0 states between 0 and the formula, and m at the formula equal to the number of shortest cycles, on 42 of 42 tori |
+| `ELECTRIC_G_TORUS` | Every Lx, Ly from 1 to 6, with 3×7, 4×7, 5×7, 6×7, 7×7 and 8×8 | Every assignment of cost up to the formula, 12,066,273 of them on 8×8: 1 state at cost 0, 0 states between 0 and the formula, and m at the formula equal to the number of shortest cycles, on 42 of 42 tori |
+
+The rows `ELECTRIC_G_STEP` carry these steps under their own numbers: row 1 is steps 1 and 2 above, row 2 is step 3, row 3 is step 4, row 4 is step 5, and row 5 is the consequence at the gap.
 
 The second seat's 28 tori, by its own character path, with its own incidence and character table. MEASURED, local, and replayed in the workflow. Each reads the formula, and each m equals `ELECTRIC_G_TORUS`, on 28 of 28 rows of `ELECTRIC_G_SECOND_SEAT`:
 
@@ -210,6 +216,9 @@ Red controls, each of which must exit 1 with its reason:
 | Path G with a wrong character of τ, added November 3 | `dim_inv_not_divisible_by_6` |
 | Path G with the formula capped at 3, added November 3 | `girth_differs_from_the_formula`, at 4×4 |
 | Path G with one τ end allowed at a vertex, added November 3 | `m_at_gap_differs_from_the_shortest_cycles`, at 1×2 |
+| Path G with one τ end allowed, starting at 2×2, added November 3 | `states_below_the_formula`, 8 states at 2×2 |
+| Path G with the permutation character (3, 1, 0) in τ's place, added November 3 | `one_tau_end_has_an_invariant` |
+| Path G with dim Inv 2 at a vertex with only trivial ends, added November 3 | `zero_is_not_simple`, at 1×1 |
 
 The prediction check prints every verdict and exits 0, so a miss is recorded beside its row. Its controls, added November 3, read the verdicts:
 
@@ -219,8 +228,20 @@ The prediction check prints every verdict and exits 0, so a miss is recorded bes
 | The row of traces removed | C5 and C6 read NOT_MEASURED with reason NO_ROW |
 | Changed rows at A, B, C, D and F | MISS at A2, A3, B3, B6, C1, D4 and F1 |
 | A certified row added at T = 6000 | D4 reads MISS |
+| The row at cost 12 on 2×2 removed | B6 reads NO_ROW, and B1 to B4 stay MET |
+| The row at cost 6 on 2×3 removed | B10 reads NO_ROW |
+| `INDEP_BUILD` removed, with the counts kept | E1 and E2 read NO_ROW |
+| The row at cost 12 removed and the row at cost 6 changed | B3 and B6 read MISS |
+| Every `ELECTRIC_B_M` row removed | B1 to B4, B6 and B10 read NO_ROW |
+| The certified row at T = 5999 removed | D3 reads NO_ROW |
+| The `INDEP_COUNT` rows removed | E1 and E2 read NO_ROW |
+| Every row of path D removed | D1 to D17, R1 to R6 and S1 read NO_ROW, S2 reads `NO_CERTIFIED_T_IN_S1_OR_NO_MIRROR_ROW`, and S3 reads `NO_T_RUN_ON_BOTH_SIDES` |
+| The `ELECTRIC_D_RUN` rows removed | S3 reads `NO_T_RUN_ON_BOTH_SIDES` |
+| The certified row at T = 20950 removed, with its stops kept | R5 reads `A_SIDE_OF_THE_PAIR_IS_UNCERTIFIED`, S1 reads `ENGINE_UNCERTIFIED_AT_EVERY_T_TRIED`, and S2 reads `NO_CERTIFIED_T_IN_S1_OR_NO_MIRROR_ROW` |
+| A prediction row Z1 added, with no check of its own | Z1 reads `NO_CHECK_FOR_THIS_ID` |
+| Rows with other values appended at B6, B10, `INDEP_COUNT`, `INDEP_BUILD`, a sector at T = 27050, and T = 5999, 23700, 20950, 27050 | MISS at B6, B10, D3, E1, E2, R2, R5, R6, S1, S2 and S3 |
 
-Path E stays a local receipt because of its cost, and F reads its rows.
+Path E stays a local receipt because of its cost, and F reads its rows. Since November 3 the workflow's engines step tests the blob of `native/ym/independent/minors/src/main.rs` in the tree against `ELECTRIC_E_RUN`, and it requires exactly 2 `INDEP_COUNT` rows.
 
 To rerun on any machine:
 
@@ -238,8 +259,8 @@ python3 -I independent/gpt6_sturm_interval.py DIR 1 0 T
 
 ## Open
 
-- A non-author reading of `electric_spectrum_2x2.py`. GPT-6's builder and engine, and the separate seat's builder, came from other seats. Paths A, B, C and F are new code from this one. Beside this, November 3: the second seat read and attacked the script at head `689d85d`. A non-author reading of what came after it, path G and the heads of the prediction check, stays OPEN.
+- A non-author reading of `electric_spectrum_2x2.py`. GPT-6's builder and engine, and the separate seat's builder, came from other seats. Paths A, B, C and F are new code from this one. Beside this, November 3: the second seat read and attacked the script at head `689d85d`. A non-author reading of what came after it, path G and the heads of the prediction check, stays OPEN. Beside this, November 3: the second seat's recheck read the script diff `689d85d..52134ab` in full, at head `52134ab`, with path G and those heads in it. A non-author reading of the script's changes after `52134ab` is OPEN.
 - The formula gap(E) = 3·min(4, Lx, Ly). CONJECTURE. The character path measures it at 2×2 and 2×3, where it reads 6. The branches at 3 and 4 are untested: 3×3 predicts 9 and 4×4 predicts 12. Beside this, November 3: retagged DERIVED in the section on the formula, where 3×3 reads 9 and 4×4 reads 12.
 - The real matrix on 2×3. Path B counts by characters, and paths C, D and E ran on 2×2 only. Beside this, November 3, MEASURED by the second seat with its own gauge fixing, in [`real.rs`](reviews/opus55-electric-gap/real.rs) and [`real23.log`](reviews/opus55-electric-gap/real23.log): dim 47,449, nnz 1,726,321, and P(E) = 0 in checked i128 with the 23 character roots on 7,970 vectors, one per translation orbit, with `columns_nonzero=0`. The multiplicities read back from the prefix traces equal the character table, including m₆ = 3 and m₉ = 2, with costs 3 and 69 absent. Local, and its hosted replay stays OPEN.
 - The bound at every ratio around this count. The Doob and Poincaré step stays a prose proof: GPT-6 read it as PASS and the second seat re-derived it line by line, and a machine check is OPEN. `seat_global_coupling.py` keeps its literal 6 and its row `electric_gap_antecedent=6`, tied to this count by the same-operator step of the workflow and by mode `c`.
-- Larger lattices and the continuum.
+- The gap at J_B > 0 on larger lattices, and the continuum. The pinned row `ELECTRIC_F|result=PASS` reads `larger_lattices=OPEN`, and at J_B = 0 the section on the formula covers every periodic torus.

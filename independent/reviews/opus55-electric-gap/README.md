@@ -21,7 +21,7 @@
 
 ## Bytes
 
-[`SHA256SUMS`](SHA256SUMS) covers every file here apart from this README and itself. Each is byte for byte what the second seat left in its scratch folder, with one change: `chars_full.log` and `chars_low.log` had Windows line ends, and they are filed with those CRs removed. Their source hashes are `3360b4c0f13ec93f8a0161e2fb15ca4cdcce2b0dbd2ce5183ff2f327e66546fe` and `ec554f187744957c38096b5234718442251b1dfa1f3e1822039b8dc9e54dfce1`. The paths in `run_digits.sh` name that scratch folder. To keep this folder small, `rank_sectors.log`, 100,656 bytes with hash `484aad3f5e50e1b8880f01f7faff5ca7c735268ac9f60cccf4829e9200d14a83`, the matrices and the binaries stay in that folder, on this machine at `C:/tmp/opus55/attack-electric-20261103`.
+[`SHA256SUMS`](SHA256SUMS) covers every file here apart from this README and itself, 21 files. Twenty of them are byte for byte what the second seat left in its scratch folder, with one change: `chars_full.log` and `chars_low.log` had Windows line ends, and they are filed with those CRs removed. Their source hashes are `3360b4c0f13ec93f8a0161e2fb15ca4cdcce2b0dbd2ce5183ff2f327e66546fe` and `ec554f187744957c38096b5234718442251b1dfa1f3e1822039b8dc9e54dfce1`. `engine_digits_runs.log` is `engine_digits/runs.log` in that folder. The twenty-first, `seven_tori_rerun.log`, is the applying unit's run of `own_chars.py`, as its row above says. The paths in `run_digits.sh` name that scratch folder. To keep this folder small, `rank_sectors.log`, 100,656 bytes with hash `484aad3f5e50e1b8880f01f7faff5ca7c735268ac9f60cccf4829e9200d14a83`, the matrices and the binaries stay in that folder, on this machine at `C:/tmp/opus55/attack-electric-20261103`.
 
 ## Replay
 
@@ -35,3 +35,5 @@ python3 -I -X utf8 readback.py real23.log tables.log
 ```
 
 [`electric-spectrum-2x2.yml`](../../../.github/workflows/electric-spectrum-2x2.yml) checks the hashes and replays `own_chars.py` on all 28 tori against these logs. Mode `g` of [`electric_spectrum_2x2.py`](../../electric_spectrum_2x2.py) reads the logs into [`electric_gap_formula.measure`](../../electric_gap_formula.measure). The `real.rs` runs and the digits runs stay local receipts, and their hosted replay is OPEN.
+
+The `ownla.rs` logs, `rank_full_p1.log` to `rank_full_p3.log`, `charpoly_full.log` and `charpoly_sectors.log`, are local receipts too, and their hosted replay is OPEN. MEASURED on November 3, by the second seat's recheck and by the unit applying it: clippy-driver at 1.81 with `-D warnings` reads one `needless_range_loop` at line 121 of `ownla.rs`, in the file as it ran, and the file keeps its bytes.
