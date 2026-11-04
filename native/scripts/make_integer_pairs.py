@@ -55,13 +55,16 @@ def wall(name, *readings):
 # (source, destination, text pairs). A source of None takes make_integer_redo.py's output for the file named by the destination.
 COPIES = (
     (None, REDO + "c2_acc.py", []),
-    (None, REDO + "c2_fuzz.py", []),
+    (None, REDO + "c2_fuzz.py", [
+        ("flat = set(rng.sample(range(n), nflat))", "flat = set(integer_sample(rng, range(n), nflat))", 1),
+        ("jbs = rng.sample([0, 1, 777, 4000, 6000, 9000, 27000, 243000], rng.randint(1, 3))", "jbs = integer_sample(rng, [0, 1, 777, 4000, 6000, 9000, 27000, 243000], rng.randint(1, 3))", 1)]),
     (None, REDO + "c3_random.py", []),
     (None, REDO + "c4b_open.py", []),
     (S + "c1_inertia.py", REDO + "c1_inertia.py", wall("t", ("secs_wall={time.time() - t", "1", 1))),
     (S + "c1_small.py", REDO + "c1_small.py", wall("tick", ("|secs={time.time() - tick", "1", 1), ("secs_wall={time.time() - tick", "1", 1))),
     (S + "c4_grid.py", REDO + "c4_grid.py", wall("t0", ("secs_wall={time.time()-t0", "0", 1))),
-    (S + "c5_coupling.py", REDO + "c5_coupling.py", wall("t0", ("secs_wall={time.time()-t0", "0", 1))),
+    (S + "c5_coupling.py", REDO + "c5_coupling.py", wall("t0", ("secs_wall={time.time()-t0", "0", 1)) + [
+        ("jbs = sorted(rng.sample(jbs, min(len(jbs), 28)))", "jbs = sorted(integer_sample(rng, jbs, min(len(jbs), 28)))", 1)]),
     (S + "c6_count.py", REDO + "c6_count.py", wall("t0", ("secs_wall={time.time()-t0", "1", 1), ("secs_wall={time.time()-t0", "0", 2))),
     (S + "c6_lattice.py", REDO + "c6_lattice.py", wall("t0", ("secs_wall={time.time()-t0", "0", 4)) + [
         ('with open(f"{R}/whole{LX}{LY}.pkl", "wb") as f:', 'with open(sys.argv[3], "wb") as f:', 1),
@@ -136,6 +139,16 @@ def is_division(n):
     return isinstance(n, ast.AugAssign) and isinstance(n.op, ast.Div) and not no_float_gate.is_path_join(n.value)
 
 
+def intpair_names(asname, divisions, text):
+    """What the copy imports from intpair: qdiv if it divides, and integer_sample if a text pair put it there."""
+    names = "IntPair as %s" % asname
+    if divisions:
+        names += ", qdiv"
+    if "integer_sample(" in text:
+        names += ", integer_sample"
+    return names
+
+
 def fractions_imports(tree):
     found = []
     for n in ast.walk(tree):
@@ -188,7 +201,7 @@ def rewrite(text, dest):
         indent = text[where.starts[n.lineno - 1]:start]
         if indent.strip():
             raise SystemExit("%s: line %d: the fractions import shares its line" % (dest, n.lineno))
-        names = "IntPair as %s, qdiv" % n.names[0].asname if divisions else "IntPair as %s" % n.names[0].asname
+        names = intpair_names(n.names[0].asname, divisions, text)
         edits.append((start, end - start, path_line(dest, indent).lstrip(" ") + indent + "from intpair import " + names))
     out = text
     for position, removed, put in sorted(edits, key=lambda e: e[0], reverse=True):
@@ -200,9 +213,10 @@ def rewrite(text, dest):
 class Structural(ast.NodeTransformer):
     """The same edits made on the syntax tree."""
 
-    def __init__(self, dest, divisions):
+    def __init__(self, dest, divisions, text):
         self.dest = dest
         self.divisions = divisions
+        self.text = text
 
     def visit_BinOp(self, node):
         self.generic_visit(node)
@@ -220,12 +234,12 @@ class Structural(ast.NodeTransformer):
     def visit_ImportFrom(self, node):
         if node.module != "fractions":
             return node
-        names = "IntPair as %s, qdiv" % node.names[0].asname if self.divisions else "IntPair as %s" % node.names[0].asname
+        names = intpair_names(node.names[0].asname, self.divisions, self.text)
         return ast.parse(path_line(self.dest, "") + "from intpair import " + names + "\n").body
 
 
 def second_path(text, out, dest, divisions):
-    expected = Structural(dest, divisions).visit(ast.parse(text))
+    expected = Structural(dest, divisions, text).visit(ast.parse(text))
     if ast.dump(expected) != ast.dump(ast.parse(out)):
         raise SystemExit("%s: the text rewrite and the syntax-tree rewrite differ" % dest)
 

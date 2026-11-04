@@ -81,3 +81,13 @@ Each copy ran after [`PREDICTION.hbp`](PREDICTION.hbp) was pushed in commit `712
 - The wall times in `RUNS.hbp` are from a machine also running other work at the same priority, so they say how long each run took. The cost against `Fraction` at equal load has one measurement, by the second seat, on the class before `int_power`: `c3_random.py` at seed 27 and 100 cases, the same script and seed on each class, 4 alternating rounds, same load, below normal, Python 3.13.14, gave `IntPair` 47,985 ms and `Fraction` 54,218 ms, 885 per 1000. The cost on any other script is OPEN.
 - `allpairs/failclosed/reproduce_pin_run.sh` reads a different hash from its `RESULT_FILE` row, the only one of the 196 that does. Commit `9c2c7e6` changed that file after the row was written, and this work leaves both as they are.
 - The companion repository `Finite-Universe-SU-N-solved` carries its own copy of the gate, unchanged here.
+
+## Random.sample moved to integers, November 4, 2026
+
+CPython's `Random.sample` is `getrandbits` with rejection and a partial Fisher–Yates or a set of taken positions. Its one float, `ceil(log(3k, 4))`, chooses between those two branches. GPT-6 read that as outside integer-only execution, and the operator relayed its answer: replace the uses and keep seed reproducibility. `integer_sample` in [`native/scripts/intpair.py`](../../../scripts/intpair.py) finds the same power of 4 with a loop.
+
+[The prediction](PREDICTION-INTEGER-SAMPLE.hbp) went up first, at `45821a0`, and [the rows](RERUNS-INTEGER-SAMPLE.hbp) are beside it. On 20,041 cases `integer_sample` returns the same list as `Random.sample` and leaves the generator in the same state, so every later draw is the same. `test_intpair.py 27 20000` prints the same bytes as before. One predicted row missed: a broken control of mine differs only where n − i is a power of 2, and its first test case never reached one. The miss is recorded beside the prediction, and the control now reads a case that does.
+
+Replaced: `native/scripts/test_intpair.py`, and through their generator `integer-redo/c2_fuzz.py` and `integer-redo/c5_coupling.py`. Kept as they ran, under the operator's rule on evidence: the three calls in the second seat's originals. `test_intpair.py --integer-sample` calls `Random.sample` as its reference, as that file does with `fractions`.
+
+**Scope.** This moves the sampling path to integers. `import random` still computes float constants when the standard library loads, and the Python interpreter runs float of its own.

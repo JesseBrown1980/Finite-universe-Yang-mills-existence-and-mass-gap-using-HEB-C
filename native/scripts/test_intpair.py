@@ -10,7 +10,8 @@ TypeError, and that is tested too. rejection_checks makes two deliberate floats,
 
 usage: test_intpair.py [SEED] [ROUNDS]     Prints one INTPAIR_DIFF row. Exit 1 on any failure.
        test_intpair.py --teeth             Breaks IntPair one way at a time. Every break must be seen. Exit 1 if one is missed.
-       test_intpair.py --int-power         int_power against ** on ints, its refusals, and a broken copy that must be seen. Exit 1 on any failure.
+       test_intpair.py --int-power         int_power against ** on ints, its refusals, and a broken copy that must be seen.
+       test_intpair.py --integer-sample    integer_sample against Random.sample, the reference: same list, same state after, two broken copies seen. Exit 1 on any failure.
 The true division here goes through operator.truediv, so this file holds no division token. Integer only, json=0.
 """
 import copy
@@ -24,7 +25,7 @@ import random
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from intpair import IntPair, int_power, qdiv  # noqa: E402
+from intpair import IntPair, int_power, integer_below, integer_sample, qdiv  # noqa: E402
 
 F = fractions.Fraction
 Q = IntPair
@@ -289,8 +290,74 @@ def run(seed, rounds):
         binary_checks(tally, item, other, gen_int(rng))
         pow_checks(tally, item, rng)
         if r % 16 == 0 and len(pool) >= 2:
-            collection_checks(tally, rng.sample(pool, rng.randint(2, min(32, len(pool)))), rng)
+            collection_checks(tally, integer_sample(rng, pool, rng.randint(2, min(32, len(pool)))), rng)
     return tally, made + grid
+
+
+def integer_sample_checks():
+    """integer_sample against Random.sample, the reference here as fractions is above: same list, same generator state after."""
+    cases = differ = 0
+    sizes = list(range(0, 41)) + [64, 85, 86, 100, 349, 350, 1000, 1364, 1365, 4096, 100000]
+    for seed in range(40):
+        for n in sizes:
+            population = list(range(n))
+            ks = sorted({k for k in (0, 1, 2, 5, 6, 7, 10, 28, 32, 86, 117, n // 3, n // 2, n) if 0 <= k <= n})
+            for k in ks:
+                a, b = random.Random(seed * 1000003 + n), random.Random(seed * 1000003 + n)
+                if a.sample(population, k) != integer_sample(b, population, k) or a.getstate() != b.getstate():
+                    differ += 1
+                cases += 1
+    ranged = random.Random(27), random.Random(27)
+    if ranged[0].sample(range(1000000), 300) != integer_sample(ranged[1], range(1000000), 300) or ranged[0].getstate() != ranged[1].getstate():
+        differ += 1
+    cases += 1
+
+    def narrow_table(rng, population, k):
+        """Never widens its branch table."""
+        n = len(population)
+        picks = [None] * k
+        if n <= 21:
+            pool = list(population)
+            for i in range(k):
+                j = integer_below(rng, n - i)
+                picks[i] = pool[j]
+                pool[j] = pool[n - i - 1]
+            return picks
+        taken = set()
+        for i in range(k):
+            j = integer_below(rng, n)
+            while j in taken:
+                j = integer_below(rng, n)
+            taken.add(j)
+            picks[i] = population[j]
+        return picks
+
+    def short_bits(rng, population, k):
+        """Reads the bit count of n - 1."""
+        n = len(population)
+        pool = list(population)
+        picks = [None] * k
+        for i in range(k):
+            bits = (n - i - 1).bit_length()
+            r = rng.getrandbits(bits) if bits else 0
+            while r >= n - i:
+                r = rng.getrandbits(bits)
+            picks[i] = pool[r]
+            pool[r] = pool[n - i - 1]
+        return picks
+
+    seen = {}
+    # narrow_table differs where the wide table keeps the list branch, and short_bits only where n - i is a power of 2.
+    for name, broken, n, k in (("narrow_table", narrow_table, 50, 10), ("short_bits", short_bits, 40, 20)):
+        found = False
+        for seed in range(20):
+            a, b = random.Random(seed), random.Random(seed)
+            if a.sample(list(range(n)), k) != broken(b, list(range(n)), k) or a.getstate() != b.getstate():
+                found = True
+        seen[name] = found
+    teeth = all(seen.values())
+    print("INTEGER_SAMPLE_DIFF|cases=%d|differ=%d|teeth_narrow_table=%d|teeth_short_bits=%d|json=0" % (cases, differ, seen["narrow_table"], seen["short_bits"]))
+    return 0 if differ == 0 and teeth else 1
 
 
 def bad_floor(self):
@@ -492,6 +559,8 @@ def main(argv):
     if argv[:1] == ["--teeth"]:
         SHOWN = 0
         return teeth()
+    if argv[:1] == ["--integer-sample"]:
+        return integer_sample_checks()
     if argv[:1] == ["--int-power"]:
         count, fails = int_power_rows(int_power)
         _, broken_seen = int_power_rows(lambda base, exponent: base ** abs(exponent) + (exponent == 7))
