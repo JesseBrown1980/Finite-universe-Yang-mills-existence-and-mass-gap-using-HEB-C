@@ -1,10 +1,10 @@
-# Integer copy of the output of make_integer_redo.py for c2_fuzz.py, written by native/scripts/make_integer_pairs.py: 6 divisions moved to qdiv and 0 text pairs. The original stays as evidence.
+# Integer copy of the output of make_integer_redo.py for c2_fuzz.py, written by native/scripts/make_integer_pairs.py: 6 divisions moved to qdiv and 2 text pairs. The original stays as evidence.
 # Integer-only copy of second-seat/c2_fuzz.py, made on the operator's word that floating point is to be redone in integers. The original stays beside it as evidence.
 # C2: random synthetic stores run through the pinned binaries, compared with exact forms and an exact smallest root found by a Sturm chain,
 # which shares no logic with the tool's elimination. usage: c2_fuzz.py SEED TRIALS
 import hashlib, math, os, random, struct, subprocess, sys, time
 import os, sys; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", "..", "..", "scripts"))
-from intpair import IntPair as F, qdiv
+from intpair import IntPair as F, qdiv, integer_sample
 
 R = "C:/tmp/opus55/ym-two-sided"
 TOOLS = [f"{R}/bin/perronritz-grid.exe", f"{R}/bin/perronritz.exe"]
@@ -179,7 +179,7 @@ def rank_exact(M):
 def gen_case():
     n = rng.randint(2, 11)
     nflat = rng.randint(0, 2) if n > 3 else 0
-    flat = set(rng.sample(range(n), nflat))
+    flat = set(integer_sample(rng, range(n), nflat))
     # Weights with an lcm so that z_ij = -c L / w_i is an integer and w_i z_ij = -c L symmetric
     pool = rng.choice([[1], [1, 2, 3, 4, 6, 12], [1, 2, 4, 8, 16, 32, 48, 96], [5, 7, 35]])
     w = [rng.choice(pool) for _ in range(n)]
@@ -227,7 +227,7 @@ def gen_case():
     if kind == "zero":
         ds[k - 1] = [0] * n
     je = rng.choice([1000, 1000, 1, 7, 3000])
-    jbs = rng.sample([0, 1, 777, 4000, 6000, 9000, 27000, 243000], rng.randint(1, 3))
+    jbs = integer_sample(rng, [0, 1, 777, 4000, 6000, 9000, 27000, 243000], rng.randint(1, 3))
     return n, flat, w, M, z, rows, ds, je, jbs
 
 

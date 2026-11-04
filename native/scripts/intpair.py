@@ -386,3 +386,46 @@ def qdiv(a, b):
     if not isinstance(a, (int, IntPair)) or not isinstance(b, (int, IntPair)):
         raise TypeError("qdiv takes int or IntPair, not %s and %s" % (type(a).__name__, type(b).__name__))
     return IntPair(a)._div(IntPair(b))
+
+
+def integer_below(rng, n):
+    """A draw in range(n) by rejection on getrandbits, with the bit count CPython's Random uses."""
+    bits = n.bit_length()
+    r = rng.getrandbits(bits)
+    while r >= n:
+        r = rng.getrandbits(bits)
+    return r
+
+
+def integer_sample(rng, population, k):
+    """rng.sample(population, k) in integers: the same list, and rng left in the same state, so every later draw is the same.
+
+    CPython's Random.sample holds one float, ceil(log(3k, 4)), which only chooses between its two branches. Here the smallest
+    power of 4 at least 3k comes from a loop. The branches are a partial Fisher-Yates over a list, and a set of taken positions.
+    test_intpair.py --integer-sample measures the two against each other.
+    """
+    n = len(population)
+    if not 0 <= k <= n:
+        raise ValueError("sample larger than population or is negative")
+    table = 21
+    if k > 5:
+        power = 1
+        while power < 3 * k:
+            power *= 4
+        table += power
+    picks = [None] * k
+    if n <= table:
+        pool = list(population)
+        for i in range(k):
+            j = integer_below(rng, n - i)
+            picks[i] = pool[j]
+            pool[j] = pool[n - i - 1]
+    else:
+        taken = set()
+        for i in range(k):
+            j = integer_below(rng, n)
+            while j in taken:
+                j = integer_below(rng, n)
+            taken.add(j)
+            picks[i] = population[j]
+    return picks

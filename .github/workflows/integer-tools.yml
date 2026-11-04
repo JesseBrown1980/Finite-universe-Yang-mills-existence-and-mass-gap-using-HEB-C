@@ -26,6 +26,7 @@ jobs:
           python3 -I -X utf8 native/scripts/test_intpair.py 27 20000
           python3 -I -X utf8 native/scripts/test_intpair.py --teeth
           python3 -I -X utf8 native/scripts/test_intpair.py --int-power
+          python3 -I -X utf8 native/scripts/test_intpair.py --integer-sample
       - name: Every integer copy regenerates byte-exact from its original, and reads clean
         run: |
           set -euo pipefail

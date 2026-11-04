@@ -1,4 +1,4 @@
-# Integer copy of native/ym/results/3x4_stream/perron/second-seat/c5_coupling.py, written by native/scripts/make_integer_pairs.py: 0 divisions moved to qdiv and 2 text pairs. The original stays as evidence.
+# Integer copy of native/ym/results/3x4_stream/perron/second-seat/c5_coupling.py, written by native/scripts/make_integer_pairs.py: 0 divisions moved to qdiv and 3 text pairs. The original stays as evidence.
 # C5: the coupling table min_M (e_M + 1000 JB M) against perroncert check at that JB, for many JB, including the JB where the tightest M
 # changes. Also runs the old binary that printed the 3x4 upper side next to the new one, on the same small inputs.
 # usage: c5_coupling.py 22|23|33 [n_random_jb]
@@ -6,7 +6,7 @@ import random, subprocess, sys, time
 sys.path.insert(0, "C:/tmp/opus55/ym-two-sided")
 from ownlib import *
 import os, sys; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", "..", "..", "scripts"))
-from intpair import IntPair as F
+from intpair import IntPair as F, integer_sample
 
 R = "C:/tmp/opus55/ym-two-sided"
 NEW, OLD, CHECK = f"{R}/bin/perronritz-grid.exe", f"{R}/bin/perronritz.exe", f"{R}/bin/perroncert.exe"
@@ -105,7 +105,7 @@ for vi, v in enumerate(vecs):
     keepers.update((0, 1, 4000, 5000, 6000, 6500, 7000, 8000, 9000, 12000, 27000))
     jbs = sorted(keepers)
     if which == "33":
-        jbs = sorted(rng.sample(jbs, min(len(jbs), 28)))
+        jbs = sorted(integer_sample(rng, jbs, min(len(jbs), 28)))
     # One pass with the whole list: LOWER rows of the tool itself
     r2 = run(NEW, "pass", DEV, 0, 1000, ",".join(map(str, jbs)), v)
     lowers = {}
