@@ -1,0 +1,57 @@
+LINUX_BIN|exe=allpairs|insns=89617|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=ball|insns=78581|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=cantorint|insns=103959|ARITH=20|X87=0|SCALAR_MOVE=10|functions=5|json=0
+LINUX_FUNC|exe=cantorint|fn=__powidf2|ARITH=3|X87=0|SCALAR_MOVE=3|json=0
+LINUX_FUNC|exe=cantorint|fn=num_bigint::biguint::convert::to_radix_le|ARITH=17|X87=0|SCALAR_MOVE=2|json=0
+LINUX_BIN|exe=cheb|insns=75087|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=cluster|insns=105353|ARITH=35|X87=0|SCALAR_MOVE=13|functions=8|json=0
+LINUX_FUNC|exe=cluster|fn=<num_bigint::biguint::BigUint as num_integer::roots::Roots>::sqrt|ARITH=5|X87=0|SCALAR_MOVE=2|json=0
+LINUX_FUNC|exe=cluster|fn=<u64 as num_integer::roots::Roots>::sqrt::go|ARITH=8|X87=0|SCALAR_MOVE=0|json=0
+LINUX_FUNC|exe=cluster|fn=__powidf2|ARITH=3|X87=0|SCALAR_MOVE=3|json=0
+LINUX_FUNC|exe=cluster|fn=num_bigint::biguint::convert::<impl num_traits::cast::FromPrimitive for num_bigint::biguint::BigUint>::from_f64|ARITH=2|X87=0|SCALAR_MOVE=1|json=0
+LINUX_FUNC|exe=cluster|fn=num_bigint::biguint::convert::to_radix_le|ARITH=17|X87=0|SCALAR_MOVE=2|json=0
+LINUX_BIN|exe=ddcore|insns=71344|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=evolvers|insns=72655|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=fillest|insns=73994|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=flatcomp|insns=83807|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=hebc_ym_http0|insns=109286|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=hybridcheck|insns=121400|ARITH=20|X87=0|SCALAR_MOVE=10|functions=5|json=0
+LINUX_FUNC|exe=hybridcheck|fn=__powidf2|ARITH=3|X87=0|SCALAR_MOVE=3|json=0
+LINUX_FUNC|exe=hybridcheck|fn=num_bigint::biguint::convert::to_radix_le|ARITH=17|X87=0|SCALAR_MOVE=2|json=0
+LINUX_BIN|exe=jump|insns=75145|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=jumpto|insns=96285|ARITH=35|X87=0|SCALAR_MOVE=13|functions=8|json=0
+LINUX_FUNC|exe=jumpto|fn=<num_bigint::biguint::BigUint as num_integer::roots::Roots>::sqrt|ARITH=5|X87=0|SCALAR_MOVE=2|json=0
+LINUX_FUNC|exe=jumpto|fn=<u64 as num_integer::roots::Roots>::sqrt::go|ARITH=8|X87=0|SCALAR_MOVE=0|json=0
+LINUX_FUNC|exe=jumpto|fn=__powidf2|ARITH=3|X87=0|SCALAR_MOVE=3|json=0
+LINUX_FUNC|exe=jumpto|fn=num_bigint::biguint::convert::<impl num_traits::cast::FromPrimitive for num_bigint::biguint::BigUint>::from_f64|ARITH=2|X87=0|SCALAR_MOVE=1|json=0
+LINUX_FUNC|exe=jumpto|fn=num_bigint::biguint::convert::to_radix_le|ARITH=17|X87=0|SCALAR_MOVE=2|json=0
+LINUX_BIN|exe=localaudit|insns=85948|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=onfly|insns=77218|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=onflybench|insns=78167|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=perroncert|insns=83480|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=perronritz|insns=115122|ARITH=20|X87=0|SCALAR_MOVE=10|functions=5|json=0
+LINUX_FUNC|exe=perronritz|fn=__powidf2|ARITH=3|X87=0|SCALAR_MOVE=3|json=0
+LINUX_FUNC|exe=perronritz|fn=num_bigint::biguint::convert::to_radix_le|ARITH=17|X87=0|SCALAR_MOVE=2|json=0
+LINUX_BIN|exe=prodvec|insns=100932|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=roomball|insns=86573|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=roomjump|insns=120731|ARITH=3|X87=0|SCALAR_MOVE=8|functions=4|json=0
+LINUX_FUNC|exe=roomjump|fn=__powidf2|ARITH=3|X87=0|SCALAR_MOVE=3|json=0
+LINUX_BIN|exe=roomschur|insns=98754|ARITH=3|X87=0|SCALAR_MOVE=8|functions=4|json=0
+LINUX_FUNC|exe=roomschur|fn=__powidf2|ARITH=3|X87=0|SCALAR_MOVE=3|json=0
+LINUX_BIN|exe=schurcert|insns=85454|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=shellschur|insns=91515|ARITH=3|X87=0|SCALAR_MOVE=8|functions=4|json=0
+LINUX_FUNC|exe=shellschur|fn=__powidf2|ARITH=3|X87=0|SCALAR_MOVE=3|json=0
+LINUX_BIN|exe=sturmfast|insns=95858|ARITH=3|X87=0|SCALAR_MOVE=8|functions=4|json=0
+LINUX_FUNC|exe=sturmfast|fn=__powidf2|ARITH=3|X87=0|SCALAR_MOVE=3|json=0
+LINUX_BIN|exe=sturmrs|insns=91786|ARITH=3|X87=0|SCALAR_MOVE=8|functions=4|json=0
+LINUX_FUNC|exe=sturmrs|fn=__powidf2|ARITH=3|X87=0|SCALAR_MOVE=3|json=0
+LINUX_BIN|exe=torusl|insns=73990|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=ymconf|insns=80875|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=ymplay|insns=84976|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=ymroom|insns=85155|ARITH=0|X87=0|SCALAR_MOVE=4|functions=3|json=0
+LINUX_BIN|exe=ymsec|insns=85677|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=ymstream|insns=77860|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0
+LINUX_BIN|exe=ymwser|insns=100844|ARITH=20|X87=0|SCALAR_MOVE=10|functions=5|json=0
+LINUX_FUNC|exe=ymwser|fn=__powidf2|ARITH=3|X87=0|SCALAR_MOVE=3|json=0
+LINUX_FUNC|exe=ymwser|fn=num_bigint::biguint::convert::to_radix_le|ARITH=17|X87=0|SCALAR_MOVE=2|json=0
+LINUX_BIN|exe=zconfpt|insns=73595|ARITH=0|X87=0|SCALAR_MOVE=3|functions=2|json=0

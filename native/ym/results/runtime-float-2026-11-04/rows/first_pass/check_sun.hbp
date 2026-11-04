@@ -1,0 +1,12 @@
+CHECK_RUN|repo=sun|state=before|rc=1|last=NO_FLOAT_FEATURES|result=FAIL|manifests=14|num_rows=45|refused=0|json=0|fail_rows=46|json=0
+CHECK_RUN|repo=sun|state=half|rc=1|last=NO_FLOAT_FEATURES|result=FAIL|manifests=14|num_rows=45|refused=0|json=0|fail_rows=30|json=0
+CHECK_RUN|repo=sun|state=after|rc=0|last=NO_FLOAT_FEATURES|result=PASS|manifests=14|num_rows=45|refused=0|json=0|fail_rows=0|json=0
+CHECK_RUN|repo=sun|state=plant_torusl_default|rc=1|last=NO_FLOAT_FEATURES|result=FAIL|manifests=14|num_rows=46|refused=0|json=0|fail_rows=5|json=0
+CHECK_RUN|repo=sun|state=plant_sturmrs_num_integer_default|rc=1|last=NO_FLOAT_FEATURES|result=FAIL|manifests=14|num_rows=45|refused=0|json=0|fail_rows=7|json=0
+CHECK_RUN|repo=sun|state=plant_evolvers_dev_dependency|rc=1|last=NO_FLOAT_FEATURES|result=FAIL|manifests=14|num_rows=45|refused=0|json=0|fail_rows=4|json=0
+CHECK_RUN|repo=sun|state=plant_zwilson_default|rc=1|last=NO_FLOAT_FEATURES|result=FAIL|manifests=14|num_rows=45|refused=0|json=0|fail_rows=7|json=0
+CHECK_RUN|repo=sun|state=empty_repository|rc=3|last=NO_FLOAT_FEATURES|result=FAIL|reason=no_num_crate_seen_so_the_scan_did_not_run|manifests=0|json=0|json=0
+GATE|repo=sun|state=after|gate=cargo_+1.81.0_clippy_--release_--locked_--workspace_--all-targets_-D_warnings|rc=0|secs=10|json=0
+GATE|repo=sun|state=after|gate=cargo_+1.81.0_test_--release_--locked_--workspace|rc=0|secs=73|passed=5|failed=0|ignored=0|json=0
+GATE|repo=sun|state=before|gate=cargo_+1.81.0_clippy_--release_--locked_--workspace_--all-targets_-D_warnings|rc=0|secs=14|json=0
+GATE|repo=sun|state=before|gate=cargo_+1.81.0_test_--release_--locked_--workspace|rc=0|secs=77|passed=5|failed=0|ignored=0|json=0

@@ -13,7 +13,7 @@ The [current results and verification register](docs/RESEARCH-STATUS-2026-11-03.
 | RIME | Stage 2I, the C3 moment test, and Stage 2J, the Prism bridge | [2I](STAGE2I_RIME_C3_HAMILTONIAN_MOMENT_OBSTRUCTION.md), [2J](STAGE2J_RIME_SPHERE_BRIDGE.md) |
 | HTTP-0 | The finite S₃ wave observatory, on exact numerators | [Report](HTTP0_EXACT_INTEGER_NO_ROUNDING.md) |
 | The road to SU(2) | S₃, Q8, 2T and 2O sealed in the companion repository, and 2I in progress | [Companion](https://github.com/JesseBrown1980/Finite-Universe-SU-N-solved) |
-| Integers only | The Cantor-27 drive redone in integers, each value exact to 30 digits, with its floating-point run kept as evidence. The other float uses are redone too, and a gate on every pull request fails on new ones | [Result](native/ym/results/cantor-integer-2026-11-03/README.md), [list](docs/RESEARCH-STATUS-2026-11-03.md) |
+| Integers only | The Cantor-27 drive redone in integers, each value exact to 30 digits, with its floating-point run kept as evidence. The other float uses are redone too, the exact rationals and clocks moved to integer pairs and integer clocks, and a gate on every pull request fails on new ones, its list pinned file by file | [Result](native/ym/results/cantor-integer-2026-11-03/README.md), [list](docs/RESEARCH-STATUS-2026-11-03.md), [pairs](native/ym/results/integer-pairs-2026-11-03/README.md), [run time](native/ym/results/runtime-float-2026-11-04/README.md) |
 | What comes next | The ordered open list | [Register](docs/RESEARCH-STATUS-2026-11-03.md) |
 
 ---

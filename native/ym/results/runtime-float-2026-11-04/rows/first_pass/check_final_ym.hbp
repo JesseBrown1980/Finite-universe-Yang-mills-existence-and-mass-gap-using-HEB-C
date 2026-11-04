@@ -1,0 +1,10 @@
+CHECK_RUN|repo=ym|state=before|rc=1|last=NO_FLOAT_FEATURES|result=FAIL|manifests=34|num_rows=24|refused=15|json=0|fail_rows=25|json=0
+CHECK_RUN|repo=ym|state=half|rc=1|last=NO_FLOAT_FEATURES|result=FAIL|manifests=34|num_rows=24|refused=15|json=0|fail_rows=15|json=0
+CHECK_RUN|repo=ym|state=after|rc=0|last=NO_FLOAT_FEATURES|result=PASS|manifests=34|num_rows=24|refused=15|json=0|fail_rows=0|json=0
+CHECK_RUN|repo=ym|state=plant_torusl_default|rc=1|last=NO_FLOAT_FEATURES|result=FAIL|manifests=34|num_rows=25|refused=15|json=0|fail_rows=5|json=0
+CHECK_RUN|repo=ym|state=plant_sturmrs_num_integer_default|rc=1|last=NO_FLOAT_FEATURES|result=FAIL|manifests=34|num_rows=24|refused=15|json=0|fail_rows=7|json=0
+CHECK_RUN|repo=ym|state=plant_evolvers_dev_dependency|rc=1|last=NO_FLOAT_FEATURES|result=FAIL|manifests=34|num_rows=24|refused=15|json=0|fail_rows=4|json=0
+CHECK_RUN|repo=ym|state=plant_zwilson_default|rc=1|last=NO_FLOAT_FEATURES|result=FAIL|manifests=34|num_rows=24|refused=15|json=0|fail_rows=7|json=0
+CHECK_RUN|repo=ym|state=empty_repository|rc=3|last=NO_FLOAT_FEATURES|result=FAIL|reason=no_num_crate_seen_so_the_scan_did_not_run|manifests=0|json=0|json=0
+VENDOR_DEFAULT_BUILD|repo=ym|rc=0|json=0
+VENDOR_DEFAULT_ASM|repo=ym|bins_with_arith=0|bins=34|json=0

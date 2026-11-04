@@ -1,0 +1,222 @@
+# Each rerun PREDICTION-GATE-V4.hbp names, on the tools of commit 5bfc0d8, as it ran. Rows that hold a clock keep it. json=0.
+LANE|name=windows_intpair|python=3.13.14|priority=below_normal|commit=5bfc0d8a8092f21dee0147ad9e6ff3ea2ff7c6a8|json=0
+INTPAIR_DIFF|seed=27|rounds=200000|values=204160|comparisons=17521323|failures=0|json=0
+INTPAIR_DIFF|seed=28|rounds=200000|values=204160|comparisons=17520971|failures=0|json=0
+INTPAIR_DIFF|seed=29|rounds=200000|values=204160|comparisons=17521717|failures=0|json=0
+INTPAIR_TOOTH|broken=__floor__|failures_seen=2006|json=0
+INTPAIR_TOOTH|broken=__ceil__|failures_seen=3822|json=0
+INTPAIR_TOOTH|broken=__int__|failures_seen=2006|json=0
+INTPAIR_TOOTH|broken=__str__|failures_seen=1081|json=0
+INTPAIR_TOOTH|broken=__hash__|failures_seen=4693|json=0
+INTPAIR_TOOTH|broken=__lt__|failures_seen=12|json=0
+INTPAIR_TOOTH|broken=__eq__|failures_seen=210|json=0
+INTPAIR_TOOTH|broken=__abs__|failures_seen=138|json=0
+INTPAIR_TOOTH|broken=__mod__|failures_seen=2465|json=0
+INTPAIR_TOOTH|broken=__rsub__|failures_seen=300|json=0
+INTPAIR_TOOTH|broken=__round__|failures_seen=416|json=0
+INTPAIR_TOOTH|broken=limit_denominator|failures_seen=471|json=0
+INTPAIR_TOOTH|broken=__pow__|failures_seen=77|json=0
+INTPAIR_TOOTH|broken=__reduce__|failures_seen=296|json=0
+INTPAIR_TOOTH|broken=__eq___lets_other_numbers_through|failures_seen=66|json=0
+INTPAIR_TOOTH|broken=limit_denominator_lets_other_numbers_through|failures_seen=10|json=0
+INTPAIR_TOOTH|broken=__pow___lets_whole_other_numbers_through|failures_seen=2|json=0
+INTPAIR_TOOTH|broken=__rpow___lets_a_float_base_through|failures_seen=8|json=0
+INTPAIR_TOOTH|broken=__round___lets_other_numbers_through|failures_seen=1|json=0
+INTPAIR_TEETH_DONE|breaks=19|missed=0|json=0
+TEETH_AGAINST_RUNS.hbp|rows=20|same=19|differs=__pow__|was=115|now=77|why=__rpow___calls_the_pair_power_directly|json=0
+INTPAIR_INT_POWER|comparisons=1190|failures=0|broken_copy_failures_seen=59|json=0
+LANE|name=linux_intpair_short|python=3.12.3|nice=10|inside=integer-tools.yml_step_1|commit=5bfc0d8a8092f21dee0147ad9e6ff3ea2ff7c6a8|json=0
+INTPAIR_DIFF|seed=27|rounds=20000|values=24160|comparisons=1850477|failures=0|json=0
+INTPAIR_TEETH_DONE|breaks=19|missed=0|json=0
+INTPAIR_INT_POWER|comparisons=1190|failures=0|broken_copy_failures_seen=59|json=0
+# The two new power paths broken by a scratch script at seed 27, 300 rounds, outside --teeth. json=0.
+POWER_BREAK|broken=_power_loses_the_sign_of_a_negative_base|failures_seen=112|json=0
+POWER_BREAK|broken=int_power_off_by_one_at_exponent_5|failures_seen=124|json=0
+POWER_BREAK|broken=the_class_as_it_stands|failures_seen=0|json=0
+POWER_BREAKS_DONE|breaks=2|missed=0|clean_run_failures=0|json=0
+LANE|name=windows_tools|python=3.13.14|commit=5bfc0d8a8092f21dee0147ad9e6ff3ea2ff7c6a8|json=0
+KEPT_OUTPUTS_DONE|kept_outputs=59|rows_same=59|rows_compared=1737|rows_with_a_field_ending_in_keys=1|json=0
+INTEGER_COPIES_DONE|copies=25|divisions_to_qdiv=35|differ=0|json=0
+INTEGER_AUDIT_SELFTEST_DONE|must_hit=25|must_pass=12|failed=0|json=0
+AUDIT_ALL_WORKFLOW_LINES|files=22|violations=0|json=0
+# The second seat's plant list from its recheck of 61b5022, against this gate, by its new_plants.py. Python forms print the value's type. json=0.
+PY_DONE|plants=30|flagged=29|json=0
+NATIVE_DONE|plants=23|flagged=17|json=0
+PLANT_AT_0|PY|t-string_spec_____________________|x_type=int|json=0
+PLANT_AT_0|NATIVE|x.go__|division__________________________________|json=0
+PLANT_AT_0|NATIVE|x.rs__|sqrt_on_a_float_returned_from_a_call______|json=0
+PLANT_AT_0|NATIVE|x.rs__|powi_on_an_inferred_value_________________|json=0
+PLANT_AT_0|NATIVE|x.rs__|num_ToPrimitive_by_another_name___________|json=0
+PLANT_AT_0|NATIVE|x.rs__|Duration_div______________________________|json=0
+PLANT_AT_0|NATIVE|x.rs__|division_in_Rust_on_ints__________________|json=0
+LANE|name=windows_local_cases|python=3.13.14|priority=below_normal|commit=5bfc0d8a8092f21dee0147ad9e6ff3ea2ff7c6a8|cases=the_copies_that_import_intpair_and_need_a_local_binary_or_store|json=0
+RUN|kind=EXPECT|case=product_bound_scan_8|script=native/ym/results/3x4_stream/perron/vector/integer-pairs/product_bound.py|script_sha256=f5e449eb20b2f6dbb419739840dea1c8d1ca8b355b4087ad4ffa570140602239|args=scan 8|exit=0|wall_secs=443|stderr_bytes=0|rows=6|expect_exit=0|exit_as_predicted=1|compared_rows=6|rows_same=1|result=MET|at=2026-11-04T04:44:30Z|json=0
+RUN|kind=EXPECT|case=c2_fuzz_27_300|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c2_fuzz.py|script_sha256=d2461c19c2ce7cb104b1729d500993a2072f4e58a3731c7da1332d029e5b0787|args=27 300|exit=0|wall_secs=13|stderr_bytes=0|rows=1|expect_exit=0|exit_as_predicted=1|compared_rows=1|rows_same=1|result=MET|at=2026-11-04T04:37:20Z|json=0
+RUN|kind=EXPECT|case=c4b_open|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c4b_open.py|script_sha256=c647b75e4544f8bb91adfc027136cc6e3e5658c6818873f0f4aa3b484dac1ce6|args=|exit=0|wall_secs=9|stderr_bytes=0|rows=16|expect_exit=0|exit_as_predicted=1|compared_rows=16|rows_same=1|result=MET|at=2026-11-04T04:37:30Z|json=0
+RUN|kind=EXPECT|case=c4_grid_22|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c4_grid.py|script_sha256=608e14bbb8bade4d88fe7a1865d97260f131386b45d1edd734c49cb0b990d954|args=22|exit=0|wall_secs=15|stderr_bytes=0|rows=22|expect_exit=0|exit_as_predicted=1|compared_rows=22|rows_same=1|result=MET|at=2026-11-04T04:37:45Z|json=0
+RUN|kind=EXPECT|case=c4_grid_23|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c4_grid.py|script_sha256=608e14bbb8bade4d88fe7a1865d97260f131386b45d1edd734c49cb0b990d954|args=23|exit=0|wall_secs=38|stderr_bytes=0|rows=22|expect_exit=0|exit_as_predicted=1|compared_rows=22|rows_same=1|result=MET|at=2026-11-04T04:38:23Z|json=0
+RUN|kind=EXPECT|case=c4_grid_33|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c4_grid.py|script_sha256=608e14bbb8bade4d88fe7a1865d97260f131386b45d1edd734c49cb0b990d954|args=33|exit=0|wall_secs=253|stderr_bytes=0|rows=5|expect_exit=0|exit_as_predicted=1|compared_rows=5|rows_same=1|result=MET|at=2026-11-04T04:42:37Z|json=0
+RUN|kind=EXPECT|case=c5_coupling_22|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c5_coupling.py|script_sha256=0b45a9e61527bdfa0853b9019b7f8de3f0d30fc16f6282b2a3c821014f74cbd2|args=22|exit=0|wall_secs=4|stderr_bytes=0|rows=5|expect_exit=0|exit_as_predicted=1|compared_rows=5|rows_same=1|result=MET|at=2026-11-04T04:37:11Z|json=0
+RUN|kind=EXPECT|case=c5_coupling_23|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c5_coupling.py|script_sha256=0b45a9e61527bdfa0853b9019b7f8de3f0d30fc16f6282b2a3c821014f74cbd2|args=23|exit=0|wall_secs=12|stderr_bytes=0|rows=5|expect_exit=0|exit_as_predicted=1|compared_rows=5|rows_same=1|result=MET|at=2026-11-04T04:37:23Z|json=0
+RUN|kind=EXPECT|case=c5_coupling_33|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c5_coupling.py|script_sha256=0b45a9e61527bdfa0853b9019b7f8de3f0d30fc16f6282b2a3c821014f74cbd2|args=33|exit=0|wall_secs=258|stderr_bytes=0|rows=6|expect_exit=0|exit_as_predicted=1|compared_rows=6|rows_same=1|result=MET|at=2026-11-04T04:41:42Z|json=0
+RUN|kind=EXPECT|case=c6_lift_2x2|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c6_lift.py|script_sha256=d0df8e116c5d7b35aaa306a698b6cd8acbf700336d018429e3fcac7818858f36|args=2 2|exit=0|wall_secs=11|stderr_bytes=0|rows=32|expect_exit=0|exit_as_predicted=1|compared_rows=32|rows_same=1|result=MET|at=2026-11-04T04:41:53Z|json=0
+RUN|kind=EXPECT|case=c6_lift_2x3|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c6_lift.py|script_sha256=d0df8e116c5d7b35aaa306a698b6cd8acbf700336d018429e3fcac7818858f36|args=2 3|exit=0|wall_secs=35|stderr_bytes=0|rows=4|expect_exit=0|exit_as_predicted=1|compared_rows=4|rows_same=1|result=MET|at=2026-11-04T04:42:29Z|json=0
+RUN|kind=EXPECT|case=perron_climb_2x2|script=native/ym/results/3x4_stream/perron/perron_climb_integer.py|script_sha256=426e807b5dc72eb2ce2085e2bf190f2af7e33a18da3722e1540306b68c03e455|args=$R/bin/perroncert.exe $R/dev22.bin $R/vec/2x2-45000000.bin $RUN/climb-copy 46000000 300 16:500 3|exit=0|wall_secs=28|stderr_bytes=0|rows=20|expect_exit=0|exit_as_predicted=1|compared_rows=20|rows_same=1|result=MET|at=2026-11-04T04:42:57Z|json=0
+LANE|name=linux_workflows|python=3.12.3|nice=10|bash=-e|commit=5bfc0d8a8092f21dee0147ad9e6ff3ea2ff7c6a8|clone=git_clone_of_the_branch_at_that_commit|scoped_evidence_hosted_CI_owns_it=1|secs_are_from_the_vm_clock_which_stepped_during_the_lane|json=0
+WORKFLOW_STEP|file=no_float.yml|n=1|of=3|rc=0|secs=0|name=The gate reads its own test snippets|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=no_float.yml|n=2|of=3|rc=0|secs=13|name=Scan the tracked files the gate reads|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=no_float.yml|n=3|of=3|rc=0|secs=191|name=The gate goes red on each plant, for its named reason|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_TREE_AFTER|file=no_float.yml|changed_tracked=0|json=0
+WORKFLOW_STEP|file=integer-tools.yml|n=1|of=5|rc=0|secs=44|name=The integer pair against CPython's class, every planted break seen, and its integer power|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=integer-tools.yml|n=2|of=5|rc=0|secs=13|name=Every integer copy regenerates byte-exact from its original, and reads clean|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=integer-tools.yml|n=3|of=5|rc=0|secs=-6|name=The redone items, in integers|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=integer-tools.yml|n=4|of=5|rc=0|secs=0|name=The division check goes red on a float|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=integer-tools.yml|n=5|of=5|rc=0|secs=187|name=A float in a listed file goes red for its count and pin, and a struct or json float goes red by its format or pin|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_TREE_AFTER|file=integer-tools.yml|changed_tracked=0|json=0
+WORKFLOW_STEP|file=integer-pairs.yml|n=1|of=7|rc=0|secs=307|name=Replay every hosted case|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=integer-pairs.yml|n=2|of=7|rc=0|secs=7|name=test_c's integer copy writes the recorded row|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=integer-pairs.yml|n=3|of=7|rc=0|secs=0|name=The memory pilot runner compiles|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=integer-pairs.yml|n=4|of=7|rc=0|secs=0|name=The comparison goes red on one changed row|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=integer-pairs.yml|n=5|of=7|rc=0|secs=-7|name=The comparison goes red on a wrong exit|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=integer-pairs.yml|n=6|of=7|rc=0|secs=5|name=The comparison reads flat_keys, so an altered row goes red|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=integer-pairs.yml|n=7|of=7|rc=0|secs=0|name=A case with no rows to compare goes red, and so does a run with no cases|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_TREE_AFTER|file=integer-pairs.yml|changed_tracked=0|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=1|of=23|rc=0|secs=0|name=The prediction files equal their commits, and those commits are ancestors of HEAD|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=2|of=23|rc=1|secs=12|name=Integer gates on the script and on the second seat's filed code, with no list row|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=3|of=23|rc=0|secs=0|name=The engines and the kernel source are the bytes that ran, path E holds its two counts, and the receipt is plain rows|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=4|of=23|rc=0|secs=0|name=Path A, one link, pinned rows|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=5|of=23|rc=0|secs=1|name=Path B, characters on 2x2 and 2x3, pinned rows|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=6|of=23|rc=0|secs=45|name=Path C, the annihilator on the real matrix, pinned rows|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=7|of=23|rc=0|secs=8|name=The matrix inside the every-ratio bound is this matrix, pinned rows|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=8|of=23|rc=0|secs=0|name=Path F and the prediction check replay from the pinned rows|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=9|of=23|rc=0|secs=60|name=Path G, the formula by the girth of the torus, pinned rows|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=10|of=23|rc=0|secs=17|name=The second seat's files match their hashes, and its character path replays on its 28 tori|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=11|of=23|rc=0|secs=4|name=Red control, an altered entry of E makes P(E) nonzero|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=12|of=23|rc=0|secs=4|name=Red control, a dropped factor of P leaves P(E) nonzero|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=13|of=23|rc=0|secs=100|name=Red control, a spurious factor of P is caught as a factor P does not need|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=14|of=23|rc=0|secs=0|name=Red controls on the prediction check, where a changed value reads MISS and a missing row reads NOT_MEASURED|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=15|of=23|rc=0|secs=1|name=Controls on the prediction check, where a partly missing row and each other absence read their reason at the ids the script's docstring lists|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=16|of=23|rc=0|secs=0|name=Controls on the prediction check, where an appended row with another value reads MISS|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=17|of=23|rc=0|secs=1|name=Red controls on path G|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=18|of=23|rc=0|secs=0|name=Red controls on the small paths and on the conclusion|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=19|of=23|rc=0|secs=8|name=Build the four sector matrices and match their pins|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=20|of=23|rc=0|secs=306|name=Path D, GPT-6's engine unchanged, at every certified threshold, pinned rows|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=21|of=23|rc=0|secs=130|name=T = 6000 is singular and fails closed, and each recorded stop replays as a stop|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=22|of=23|rc=0|secs=33|name=Red control, a wrong expected count|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=electric-spectrum-2x2.yml|n=23|of=23|rc=0|secs=1|name=Red control, a tampered sector matrix|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_TREE_AFTER|file=electric-spectrum-2x2.yml|changed_tracked=0|json=0
+WORKFLOW_STEP|file=seat-translation-sturm.yml|n=1|of=5|rc=0|secs=6|name=Strict integer-only code audit|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=seat-translation-sturm.yml|n=2|of=5|rc=0|secs=4|name=Reconstruct source and project exact lattice translations|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=seat-translation-sturm.yml|n=3|of=5|rc=0|secs=33|name=Reproduce full Sturm inertia count across all sectors|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=seat-translation-sturm.yml|n=4|of=5|rc=0|secs=30|name=Certify new integer-ratio 2-to-3 pilot anchors and two cells|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=seat-translation-sturm.yml|n=5|of=5|rc=0|secs=0|name=Reject modified matrix hash|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_TREE_AFTER|file=seat-translation-sturm.yml|changed_tracked=0|json=0
+WORKFLOW_STEP|file=seat-global-coupling-gap.yml|n=1|of=3|rc=0|secs=1|name=Strict integer-only Python numeric AST audit|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=seat-global-coupling-gap.yml|n=2|of=3|rc=0|secs=4|name=Reconstruct finite torus and verify exact all-ratio graph inequalities|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=seat-global-coupling-gap.yml|n=3|of=3|rc=0|secs=4|name=Ensure older native eigenvalue provenance and magnetic 8x8 inputs remain pinned|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_TREE_AFTER|file=seat-global-coupling-gap.yml|changed_tracked=0|json=0
+WORKFLOW_STEP|file=seat-yang-mills-adaptive-cells.yml|n=1|of=3|rc=0|secs=0|name=Strict integer-only Python numeric AST audit|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=seat-yang-mills-adaptive-cells.yml|n=2|of=3|rc=0|secs=4|name=Reconstruct source, prove six exact endpoint cells, verify CONDITIONAL labels|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=seat-yang-mills-adaptive-cells.yml|n=3|of=3|rc=0|secs=0|name=Keep original full-inertia and second-order inputs pinned|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_TREE_AFTER|file=seat-yang-mills-adaptive-cells.yml|changed_tracked=0|json=0
+WORKFLOW_STEP|file=seat-yang-mills-coupling-regions.yml|n=1|of=4|rc=0|secs=0|name=Strict integer-only Python numeric AST audit|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=seat-yang-mills-coupling-regions.yml|n=2|of=4|rc=0|secs=0|name=Pin exact 1393-state source operator and Stage 2H antecedents|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=seat-yang-mills-coupling-regions.yml|n=3|of=4|rc=0|secs=4|name=Rebuild finite S3 matrix and prove exact-rational coupling boxes|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=seat-yang-mills-coupling-regions.yml|n=4|of=4|rc=0|secs=3|name=Exact 8-flat first order and second order polynomial; rigorous magnetic small-s gap|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_TREE_AFTER|file=seat-yang-mills-coupling-regions.yml|changed_tracked=0|json=0
+WORKFLOW_STEP|file=cantor-integer-replay.yml|n=1|of=5|rc=0|secs=1|name=Rust 1.81 with clippy|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=cantor-integer-replay.yml|n=2|of=5|rc=0|secs=22|name=Build, clippy and unit tests|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=cantor-integer-replay.yml|n=3|of=5|rc=0|secs=-6|name=The same matrix, the same float evidence|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=cantor-integer-replay.yml|n=4|of=5|rc=0|secs=59|name=Both couplings against the recorded rows|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_STEP|file=cantor-integer-replay.yml|n=5|of=5|rc=0|secs=88|name=The second path on r = 9, written apart|lane=wsl_bash_-e_python_3.12.3|json=0
+WORKFLOW_TREE_AFTER|file=cantor-integer-replay.yml|changed_tracked=0|json=0
+METHOD_FAILED|method=the_first_pass_of_cantor-integer-replay.yml_in_this_lane|what=a_non_login_wsl_shell_held_no_rustup_on_its_path_so_each_step_read_rc_127_or_1|caught_by=rc_127|fix=the_same_blocks_with_cargo_on_the_path|the_rows_above_are_the_second_pass|json=0
+ELECTRIC_STEP_TWO_LOCAL|at=5bfc0d8|rc=1|why=its_grep_required_no_list_row_and_the_v4_gate_gives_4_of_these_files_rows|same_as_hosted_run=41774810472|json=0
+# no_float_base.yml's run blocks under bash -e with GATE_DIR=native/scripts, one base commit against three heads. Its hosted behaviour first shows on a pull request after it reaches main. json=0.
+BASE_SIM|scenario=same_tree|step=1|rc=0|name=A row recording the trusted commit, its gate and the head they read|last=NO_FLOAT_BASE|base_sha=5bfc0d8a8092f21dee0147ad9e6ff3ea2ff7c6a8|gate_sha256=935bd77b893026a88085850484d6899778e73cb2a6b5188615c36101f4469193|head_sha=5bfc0d8a80|json=0
+BASE_SIM|scenario=same_tree|step=2|rc=0|name=The base gate reads its own test snippets|last=NO_FLOAT_SELFTEST_DONE|must_flag=124|must_name_its_rule=158|must_pass=91|file_rows=59|list_rows=14|failed=0|json=0|json=0
+BASE_SIM|scenario=same_tree|step=3|rc=0|name=The base gate reads the pull request's list and files|last=NO_FLOAT_DONE|code_files=495|listed_files=85|listed_folders=2|listed_findings=1444|failed=0|json=0|json=0
+BASE_SIM|scenario=same_tree|step=4|rc=0|name=The gate, the list and both workflows, against the point this pull request forked from|last=NO_FLOAT_LIST_UNCHANGED|json=0|json=0
+BASE_SIM|scenario=float_with_no_row|step=1|rc=0|name=A row recording the trusted commit, its gate and the head they read|last=NO_FLOAT_BASE|base_sha=5bfc0d8a8092f21dee0147ad9e6ff3ea2ff7c6a8|gate_sha256=935bd77b893026a88085850484d6899778e73cb2a6b5188615c36101f4469193|head_sha=a6991bcd01|json=0
+BASE_SIM|scenario=float_with_no_row|step=2|rc=0|name=The base gate reads its own test snippets|last=NO_FLOAT_SELFTEST_DONE|must_flag=124|must_name_its_rule=158|must_pass=91|file_rows=59|list_rows=14|failed=0|json=0|json=0
+BASE_SIM|scenario=float_with_no_row|step=3|rc=1|name=The base gate reads the pull request's list and files|last=NO_FLOAT_DONE|code_files=496|listed_files=85|listed_folders=2|listed_findings=1444|failed=1|json=0|json=0
+BASE_SIM|scenario=float_with_no_row|step=4|rc=0|name=The gate, the list and both workflows, against the point this pull request forked from|last=NO_FLOAT_LIST_UNCHANGED|json=0|json=0
+BASE_SIM|scenario=float_with_its_own_row|step=1|rc=0|name=A row recording the trusted commit, its gate and the head they read|last=NO_FLOAT_BASE|base_sha=5bfc0d8a8092f21dee0147ad9e6ff3ea2ff7c6a8|gate_sha256=935bd77b893026a88085850484d6899778e73cb2a6b5188615c36101f4469193|head_sha=ee2504e168|json=0
+BASE_SIM|scenario=float_with_its_own_row|step=2|rc=0|name=The base gate reads its own test snippets|last=NO_FLOAT_SELFTEST_DONE|must_flag=124|must_name_its_rule=158|must_pass=91|file_rows=59|list_rows=14|failed=0|json=0|json=0
+BASE_SIM|scenario=float_with_its_own_row|step=3|rc=0|name=The base gate reads the pull request's list and files|last=NO_FLOAT_DONE|code_files=496|listed_files=86|listed_folders=2|listed_findings=1445|failed=0|json=0|json=0
+BASE_SIM|scenario=float_with_its_own_row|step=4|rc=1|name=The gate, the list and both workflows, against the point this pull request forked from|last=::error::This pull request changes the gate, its list or a no-float workflow. A person must read that diff before it merges.|json=0
+RUN|kind=EXPECT|case=c3_random_27_3000|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c3_random.py|script_sha256=09505d6a019d93918d64293f33ee104fab94335a774dd97ebc03565441b9cb6f|args=27 3000|exit=0|wall_secs=297|stderr_bytes=0|rows=1|expect_exit=0|exit_as_predicted=1|compared_rows=1|rows_same=1|result=MET|at=2026-11-04T04:45:17Z|json=0
+RUN|kind=EXPECT|case=c7_receipts|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c7_receipts.py|script_sha256=d7962855d16362d09308e9f35c630ee30271d51cf0f8187da2eb30b05ed8a01c|args=|exit=0|wall_secs=0|stderr_bytes=0|rows=46|expect_exit=0|exit_as_predicted=1|compared_rows=46|rows_same=1|result=MET|at=2026-11-04T04:45:10Z|json=0
+RUN|kind=EXPECT|case=own34_post|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/own34_post.py|script_sha256=7d21506889542652a701d793802046ef22d76b9bc3bbe9f94684a0dcd630caa3|args=|exit=0|wall_secs=0|stderr_bytes=0|rows=28|expect_exit=0|exit_as_predicted=1|compared_rows=28|rows_same=1|result=MET|at=2026-11-04T04:45:10Z|json=0
+RUN|kind=EXPECT|case=climb_estimate|script=native/ym/results/integer-pairs-2026-11-03/check_climb_estimate.py|script_sha256=5d75d073a19beba5584e2cfad1e22e284f2e2d4755cfc0e4e94e9bfb075bd4b8|args=|exit=0|wall_secs=0|stderr_bytes=0|rows=4|expect_exit=0|exit_as_predicted=1|compared_rows=4|rows_same=1|result=MET|at=2026-11-04T04:45:10Z|json=0
+RUN|kind=EXPECT|case=memory_pilot_runlog|script=native/ym/results/integer-pairs-2026-11-03/test_runlog.py|script_sha256=a2e1cd9757c6ba5b6a2f469995c3433c222e3ca23f55a0443aebd9c04544a18c|args=$RUN/runlog|exit=0|wall_secs=2|stderr_bytes=0|rows=4|expect_exit=0|exit_as_predicted=1|compared_rows=4|rows_same=1|result=MET|at=2026-11-04T04:45:13Z|json=0
+RUN|kind=EXPECT|case=product_bound_scan_4|script=native/ym/results/3x4_stream/perron/vector/integer-pairs/product_bound.py|script_sha256=f5e449eb20b2f6dbb419739840dea1c8d1ca8b355b4087ad4ffa570140602239|args=scan 4|exit=0|wall_secs=10|stderr_bytes=0|rows=2|expect_exit=0|exit_as_predicted=1|compared_rows=2|rows_same=1|result=MET|at=2026-11-04T04:45:22Z|json=0
+RUN|kind=EXPECT|case=cap_check|script=native/ym/results/3x4_stream/perron/vector/review-gpt6/integer-pairs/cap_check.py|script_sha256=1cfc468983aece57adce1f13af3325d0e15ead27308e94f011de297f0b5a941e|args=$RO/given/g-local-4x4-lump.hbp $RO/given/g-local-4x5-lump.hbp|exit=0|wall_secs=0|stderr_bytes=0|rows=8|expect_exit=0|exit_as_predicted=1|compared_rows=8|rows_same=1|result=MET|at=2026-11-04T04:45:22Z|json=0
+RUN|kind=EXPECT|case=exact_4x4_r9|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 4 9 1 $RO/given/g-local-4x4-lump.hbp 112252744|exit=0|wall_secs=0|stderr_bytes=0|rows=85|expect_exit=0|exit_as_predicted=1|compared_rows=85|rows_same=1|result=MET|at=2026-11-04T04:45:23Z|json=0
+RUN|kind=EXPECT|case=exact_4x4_r6|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 4 6 1 $RO/given/g-local-4x4-lump-r6.hbp 96472613|exit=0|wall_secs=0|stderr_bytes=0|rows=85|expect_exit=0|exit_as_predicted=1|compared_rows=85|rows_same=1|result=MET|at=2026-11-04T04:45:23Z|json=0
+RUN|kind=EXPECT|case=exact_4x5_r9|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 5 9 1 $RO/given/g-local-4x5-lump.hbp 134017195|exit=0|wall_secs=0|stderr_bytes=0|rows=125|expect_exit=0|exit_as_predicted=1|compared_rows=125|rows_same=1|result=MET|at=2026-11-04T04:45:24Z|json=0
+RUN|kind=EXPECT|case=exact_5x5_r9|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=5 5 9 1 $RO/given/g-local-5x5-product.hbp 154016734|exit=0|wall_secs=4|stderr_bytes=0|rows=186|expect_exit=0|exit_as_predicted=1|compared_rows=186|rows_same=1|result=MET|at=2026-11-04T04:45:28Z|json=0
+RUN|kind=EXPECT|case=exact_4x4_r12_with_r9_vector|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 4 12 1 $RO/given/g-local-4x4-lump.hbp|exit=0|wall_secs=0|stderr_bytes=0|rows=84|expect_exit=0|exit_as_predicted=1|compared_rows=84|rows_same=1|result=MET|at=2026-11-04T04:45:28Z|json=0
+RUN|kind=EXPECT|case=exact_3x3_r9|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=3 3 9 1 $RO/given/g-local-3x3-lump.hbp|exit=0|wall_secs=0|stderr_bytes=0|rows=33|expect_exit=0|exit_as_predicted=1|compared_rows=4|rows_same=1|result=MET|at=2026-11-04T04:45:28Z|json=0
+RUN|kind=EXPECT|case=exact_3x4_r9|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=3 4 9 1 $RO/given/g-local-3x4-lump.hbp|exit=0|wall_secs=0|stderr_bytes=0|rows=52|expect_exit=0|exit_as_predicted=1|compared_rows=4|rows_same=1|result=MET|at=2026-11-04T04:45:28Z|json=0
+RUN|kind=EXPECT|case=exactsab_r9_swap_rule|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 4 9 1 $RO/given/g-local-4x4-lump.hbp 112252744 --sabotage=swap_rule|exit=1|wall_secs=0|stderr_bytes=0|rows=85|expect_exit=1|exit_as_predicted=1|compared_rows=85|rows_same=1|result=MET|at=2026-11-04T04:45:28Z|json=0
+RUN|kind=EXPECT|case=exactsab_r9_planar_adj|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 4 9 1 $RO/given/g-local-4x4-lump.hbp 112252744 --sabotage=planar_adj|exit=0|wall_secs=0|stderr_bytes=0|rows=53|expect_exit=0|exit_as_predicted=1|compared_rows=53|rows_same=1|result=MET|at=2026-11-04T04:45:28Z|json=0
+RUN|kind=EXPECT|case=exactsab_r9_dent|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 4 9 1 $RO/given/g-local-4x4-lump.hbp 112252744 --sabotage=dent|exit=1|wall_secs=0|stderr_bytes=0|rows=85|expect_exit=1|exit_as_predicted=1|compared_rows=85|rows_same=1|result=MET|at=2026-11-04T04:45:29Z|json=0
+RUN|kind=EXPECT|case=exactsab_r9_wrong_M|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 4 9 1 $RO/given/g-local-4x4-lump.hbp 112252744 --sabotage=wrong_M|exit=1|wall_secs=0|stderr_bytes=0|rows=85|expect_exit=1|exit_as_predicted=1|compared_rows=85|rows_same=1|result=MET|at=2026-11-04T04:45:29Z|json=0
+RUN|kind=EXPECT|case=exactsab_r9_nonzero_flat|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 4 9 1 $RO/given/g-local-4x4-lump.hbp 112252744 --sabotage=nonzero_flat|exit=1|wall_secs=0|stderr_bytes=0|rows=85|expect_exit=1|exit_as_predicted=1|compared_rows=85|rows_same=1|result=MET|at=2026-11-04T04:45:29Z|json=0
+RUN|kind=EXPECT|case=exactsab_r6_swap_rule|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 4 6 1 $RO/given/g-local-4x4-lump-r6.hbp 96472613 --sabotage=swap_rule|exit=1|wall_secs=0|stderr_bytes=0|rows=85|expect_exit=1|exit_as_predicted=1|compared_rows=85|rows_same=1|result=MET|at=2026-11-04T04:45:29Z|json=0
+RUN|kind=EXPECT|case=exactsab_r6_planar_adj|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 4 6 1 $RO/given/g-local-4x4-lump-r6.hbp 96472613 --sabotage=planar_adj|exit=1|wall_secs=0|stderr_bytes=0|rows=53|expect_exit=1|exit_as_predicted=1|compared_rows=53|rows_same=1|result=MET|at=2026-11-04T04:45:29Z|json=0
+RUN|kind=EXPECT|case=exactsab_r6_dent|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 4 6 1 $RO/given/g-local-4x4-lump-r6.hbp 96472613 --sabotage=dent|exit=1|wall_secs=0|stderr_bytes=0|rows=85|expect_exit=1|exit_as_predicted=1|compared_rows=85|rows_same=1|result=MET|at=2026-11-04T04:45:30Z|json=0
+RUN|kind=EXPECT|case=exactsab_r6_wrong_M|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 4 6 1 $RO/given/g-local-4x4-lump-r6.hbp 96472613 --sabotage=wrong_M|exit=1|wall_secs=0|stderr_bytes=0|rows=85|expect_exit=1|exit_as_predicted=1|compared_rows=85|rows_same=1|result=MET|at=2026-11-04T04:45:30Z|json=0
+RUN|kind=EXPECT|case=exactsab_r6_nonzero_flat|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|script_sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|args=4 4 6 1 $RO/given/g-local-4x4-lump-r6.hbp 96472613 --sabotage=nonzero_flat|exit=1|wall_secs=0|stderr_bytes=0|rows=85|expect_exit=1|exit_as_predicted=1|compared_rows=85|rows_same=1|result=MET|at=2026-11-04T04:45:30Z|json=0
+RUN|kind=EXPECT|case=verify_low_4x4_r9|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_verify_low.py|script_sha256=8c46deac02e34ab09a9cfd30122df4fb1fa784fd5a0d671ba0ceb8f42f4313a7|args=$RO/out/hunt_4x4_r9.out 4 4 9 $RO/given/g-local-4x4-lump.hbp 112252744|exit=0|wall_secs=0|stderr_bytes=0|rows=1|expect_exit=0|exit_as_predicted=1|compared_rows=1|rows_same=1|result=MET|at=2026-11-04T04:45:30Z|json=0
+RUN|kind=EXPECT|case=verify_low_4x4_r6|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_verify_low.py|script_sha256=8c46deac02e34ab09a9cfd30122df4fb1fa784fd5a0d671ba0ceb8f42f4313a7|args=$RO/out/hunt_4x4_r6.out 4 4 6 $RO/given/g-local-4x4-lump-r6.hbp 96472613|exit=0|wall_secs=0|stderr_bytes=0|rows=1|expect_exit=0|exit_as_predicted=1|compared_rows=1|rows_same=1|result=MET|at=2026-11-04T04:45:31Z|json=0
+RUN|kind=EXPECT|case=verify_low_4x5_r9|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_verify_low.py|script_sha256=8c46deac02e34ab09a9cfd30122df4fb1fa784fd5a0d671ba0ceb8f42f4313a7|args=$RO/out/hunt_4x5_r9.out 4 5 9 $RO/given/g-local-4x5-lump.hbp 134017195|exit=0|wall_secs=0|stderr_bytes=0|rows=1|expect_exit=0|exit_as_predicted=1|compared_rows=1|rows_same=1|result=MET|at=2026-11-04T04:45:37Z|json=0
+RUN|kind=EXPECT|case=verify_low_5x5_r9|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_verify_low.py|script_sha256=8c46deac02e34ab09a9cfd30122df4fb1fa784fd5a0d671ba0ceb8f42f4313a7|args=$RO/out/hunt_5x5_r9.out 5 5 9 $RO/given/g-local-5x5-product.hbp 154016734|exit=0|wall_secs=0|stderr_bytes=0|rows=1|expect_exit=0|exit_as_predicted=1|compared_rows=1|rows_same=1|result=MET|at=2026-11-04T04:45:31Z|json=0
+RUN|kind=EXPECT|case=ctl_verify_low|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_verify_low.py|script_sha256=8c46deac02e34ab09a9cfd30122df4fb1fa784fd5a0d671ba0ceb8f42f4313a7|args=$RO/tmp/hunt_altered.out 4 4 9 $RO/given/g-local-4x4-lump.hbp 112252744|exit=1|wall_secs=0|stderr_bytes=0|rows=1|expect_exit=1|exit_as_predicted=1|compared_rows=1|rows_same=1|result=MET|at=2026-11-04T04:45:31Z|json=0
+RUN|kind=EXPECT|case=two_numbers|script=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_two_numbers.py|script_sha256=a4944ffcb5ad1ace0b6d217c41a4eadad1131b3503993af81460b6337e5aaa19|args=$RO/given/g-local-5x5-product.hbp|exit=0|wall_secs=0|stderr_bytes=0|rows=1|expect_exit=0|exit_as_predicted=1|compared_rows=1|rows_same=1|result=MET|at=2026-11-04T04:45:31Z|json=0
+RUN|kind=EXPECT|case=seat_integer_ratio|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/checked_division.py|script_sha256=0e4bac8ca249656e29142c359b8bc461e977436b9247efed98c438050188dcd1|args=$WT/independent/seat_integer_ratio.py|exit=0|wall_secs=0|stderr_bytes=0|rows=2|note=CHECKED_DIVISION;script=seat_integer_ratio.py;sites=4;by_type=IntegerRatio:4;float=0;json=0|expect_exit=0|exit_as_predicted=1|compared_rows=1|rows_same=1|result=MET|at=2026-11-04T04:45:31Z|json=0
+RUN|kind=EXPECT|case=seat_adaptive_cells|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/checked_division.py|script_sha256=0e4bac8ca249656e29142c359b8bc461e977436b9247efed98c438050188dcd1|args=$WT/independent/seat_adaptive_cells.py|exit=0|wall_secs=4|stderr_bytes=0|rows=12|note=CHECKED_DIVISION;script=seat_adaptive_cells.py;sites=10;by_type=IntegerRatio:14,PosixPath:3;float=0;json=0|expect_exit=0|exit_as_predicted=1|compared_rows=11|rows_same=1|result=MET|at=2026-11-04T04:45:35Z|json=0
+RUN|kind=EXPECT|case=seat_global_coupling|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/checked_division.py|script_sha256=0e4bac8ca249656e29142c359b8bc461e977436b9247efed98c438050188dcd1|args=$WT/independent/seat_global_coupling.py|exit=0|wall_secs=6|stderr_bytes=0|rows=8|note=CHECKED_DIVISION;script=seat_global_coupling.py;sites=6;by_type=IntegerRatio:9,PosixPath:3;float=0;json=0|expect_exit=0|exit_as_predicted=1|compared_rows=7|rows_same=1|result=MET|at=2026-11-04T04:45:40Z|json=0
+RUN|kind=EXPECT|case=seat_magnetic_endpoint|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/checked_division.py|script_sha256=0e4bac8ca249656e29142c359b8bc461e977436b9247efed98c438050188dcd1|args=$WT/independent/seat_magnetic_endpoint.py|exit=0|wall_secs=4|stderr_bytes=0|rows=13|note=CHECKED_DIVISION;script=seat_magnetic_endpoint.py;sites=3;by_type=IntegerRatio:9,PosixPath:1;float=0;json=0|expect_exit=0|exit_as_predicted=1|compared_rows=12|rows_same=1|result=MET|at=2026-11-04T04:45:45Z|json=0
+RUN|kind=EXPECT|case=replay_paths_hosted|script=native/ym/results/3x4_stream/perron/second-seat/integer-redo/checked_division.py|script_sha256=0e4bac8ca249656e29142c359b8bc461e977436b9247efed98c438050188dcd1|args=$WT/native/ym/results/z-one-matrix-20261030/curve_ABC/replay.py|exit=0|wall_secs=0|stderr_bytes=0|rows=4|note=CHECKED_DIVISION;script=replay.py;sites=10;by_type=PosixPath:24;float=0;json=0|expect_exit=0|exit_as_predicted=1|compared_rows=3|rows_same=1|result=MET|at=2026-11-04T04:45:45Z|json=0
+RUN|kind=EXPECT|case=test_c_integer|script=native/ym/results/integer-pairs-2026-11-03/check_test_c_integer.py|script_sha256=f6696a16dc1045df54e3e1db99d110c61a067df20a965ba48dd5c5174633fed7|args=|exit=0|wall_secs=0|stderr_bytes=0|rows=4|expect_exit=0|exit_as_predicted=1|compared_rows=4|rows_same=1|result=MET|at=2026-11-04T04:45:52Z|json=0
+RUN_CASES_DONE|file=PREDICTION.hbp|ran=35|missed=0|json=0
+RUN_CASES_DONE|file=PREDICTION-AFTER-ATTACK.hbp|ran=1|missed=0|json=0
+PREDICTION_RESULT|name=intpair_seed_27|predicted=comparisons=17521323;failures=0|measured=comparisons=17521323;failures=0|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=intpair_seed_28|predicted=comparisons=17520971;failures=0|measured=comparisons=17520971;failures=0|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=intpair_seed_29|predicted=comparisons=17521717;failures=0|measured=comparisons=17521717;failures=0|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=teeth|predicted=breaks=19;missed=0;__pow___at_or_below_115_and_above_0|measured=broken=__pow__,failures_seen=77;breaks=19,missed=0|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=int_power|predicted=comparisons=1190;failures=0;broken_copy_failures_seen_above_0|measured=comparisons=1190;failures=0;broken_copy_failures_seen=59|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=intpair_seed_27_short|predicted=comparisons=1850477;failures=0|measured=seed=27;rounds=20000;values=24160;comparisons=1850477;failures=0|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=kept_outputs|predicted=59_of_59;1737_rows|measured=kept_outputs=59;rows_same=59;rows_compared=1737;rows_with_a_field_ending_in_keys=1|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=copies|predicted=copies=25;divisions_to_qdiv=35;differ=0|measured=copies=25;divisions_to_qdiv=35;differ=0|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=local_cases|predicted=12_MET;144_rows_the_same|measured=12_MET;144_rows|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=no_float_workflow_run_blocks|predicted=every_step_rc_0|measured=steps=3;failed=0|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=integer_tools_run_blocks|predicted=every_step_rc_0|measured=steps=5;failed=0|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=integer_pairs_run_blocks|predicted=every_step_rc_0|measured=steps=7;failed=0|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=hosted_cases|predicted=PREDICTION.hbp;ran=35;missed=0;and;PREDICTION-AFTER-ATTACK.hbp;ran=1;missed=0|measured=file=PREDICTION.hbp,ran=35,missed=0;file=PREDICTION-AFTER-ATTACK.hbp,ran=1,missed=0|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=verify_cantorint|predicted=the_workflow_steps_read_their_pinned_rows|measured=steps=1;failed=0|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=seat_translation_sturm|predicted=the_workflow_steps_read_their_pinned_rows|measured=steps=1;failed=0|result=MET|tag=MEASURED|json=0
+PREDICTION_RESULT|name=electric_paths_b_and_g_and_same|predicted=the_workflow_steps_read_their_pinned_rows|measured=steps=3;failed=0|result=MET|tag=MEASURED|json=0
+ELECTRIC_STEP_TWO_AFTER_THE_FIX|rc=0|reads=the_scan_at_failed_0_and_4_rows_by_path|lane=windows_git_bash_-e_python_3.13.14|json=0
+# The value types inside the second seat's two pickles, behind the list's pickle rows, walked in Python. json=0.
+PICKLE_TYPES|file=whole22.pkl|objects=70787|types=dict:1395,int:69380,list:5,str:7|json=0
+PICKLE_TYPES|file=whole23.pkl|objects=3647753|types=dict:47451,int:3600290,list:5,str:7|json=0
+NOT_MEASURED|subject=python_3.14_on_the_moved_tools|reason=NO_TOOLCHAIN|the_row_at_61b5022_stands_in_RUNS.hbp|json=0
+COMPILED_OPEN_ITEM_READ|item=integer-pairs-20261103_conflicts_with_this_branch_on_the_vendor_row_of_FLOAT-EVIDENCE.txt|in=COMPILED-RESULT.hbp|by=the_vendor_row_states_what_ran_what_the_manifests_did_and_what_stays_unreached|json=0
+LIST_AT_THIS_COMMIT|file_rows=85|folder_rows=2|file_findings=490|folder_findings=954|vendor=879|float_run=75|code_files=495|by=no_float_gate.py|json=0
+# Hosted runs read after the push, by gh run view. json=0.
+HOSTED_RUN|workflow=No_floating_point|run=41773750035|head=5bfc0d8|event=push|conclusion=success|jobs=no-float:success|json=0
+HOSTED_RUN|workflow=Integer_tools|run=41773750050|head=5bfc0d8|event=push|conclusion=success|jobs=integer-tools:success|json=0
+HOSTED_RUN|workflow=Integer_pairs_replay|run=41773750135|head=5bfc0d8|event=push|conclusion=success|jobs=replay:success|json=0
+HOSTED_RUN|workflow=No_floating_point,_compiled_level|run=41773749985|head=5bfc0d8|event=push|conclusion=success|jobs=no-float-compiled:success|json=0
+HOSTED_RUN|workflow=Electric_spectrum_of_the_2x2_S3_torus,_gap(E)_=_6|run=41774810472|head=5bfc0d8|event=workflow_dispatch|conclusion=failure|jobs=inertia:success,exact-paths:failure|json=0
+HOSTED_RUN|workflow=Integer_Z2xZ2_sector_reduction_and_four_full_inertia_controls|run=41774816830|head=5bfc0d8|event=workflow_dispatch|conclusion=success|jobs=integer-translation-sectors:success|json=0
+HOSTED_RUN|workflow=Finite_S3_global_coupling_gap_(exact_graph_diameter_and_ratio_proof)|run=41774851620|head=5bfc0d8|event=workflow_dispatch|conclusion=success|jobs=exact-global-finite-gap:success|json=0
+HOSTED_RUN|workflow=Cantor-27_drive_in_integers_only_(Rust_1.81)|run=41774847650|head=5bfc0d8|event=workflow_dispatch|conclusion=success|jobs=cantor-integer:success|json=0
+HOSTED_READ|run=41773750035|job=no-float|rows=NO_FLOAT_SELFTEST_DONE;must_flag=124;must_name_its_rule=158;must_pass=91;file_rows=59;list_rows=14;failed=0,NO_FLOAT_DONE;code_files=495;listed_files=85;listed_folders=2;listed_findings=1444;failed=0|json=0
+HOSTED_READ|run=41773750050|job=integer-tools|rows=INTPAIR_DIFF;seed=27;rounds=20000;values=24160;comparisons=1850477;failures=0,INTPAIR_TEETH_DONE;breaks=19;missed=0,INTPAIR_INT_POWER;comparisons=1190;failures=0;broken_copy_failures_seen=59,INTEGER_COPIES_DONE;copies=25;divisions_to_qdiv=35;differ=0,INTEGER_AUDIT_SELFTEST_DONE;must_hit=25;must_pass=12;failed=0,WARMCAL_INTEGER_DONE;stores=2;failed=0|json=0
+HOSTED_READ|run=41773750135|job=replay|rows=RUN_CASES_DONE;file=PREDICTION.hbp;ran=35;missed=0,RUN_CASES_DONE;file=PREDICTION-AFTER-ATTACK.hbp;ran=1;missed=0|json=0
+HOSTED_READ|run=41773749985|job=no-float-compiled|rows=COMPILED_RUST_DONE;manifests=37;units=33;built=32;listed_not_built=6;loose_rs_built=7;project_fp_lines=0;project_mir_lines=0;project_crates_reaching=0;float_functions_in_third_party_or_external=82;of_those_unreached=82;failed=0,COMPILED_CPP_DONE;files=3;measured=3;not_measured=0;failed=0,PLANTS_DONE;lang=rust;plants=18;red=18;controls=3;green=3;failed=0|json=0
+ELECTRIC_STEP_TWO|run=41774810472|head=5bfc0d8|conclusion=failure|step=Integer_gates_on_the_script_and_on_the_second_seat's_filed_code_with_no_list_row|why=its_grep_required_no_list_row_for_these_files_and_the_v4_gate_gives_4_of_them_rows|other_job=inertia:success|fixed_by=the_step_now_counts_those_4_rows_by_path|json=0

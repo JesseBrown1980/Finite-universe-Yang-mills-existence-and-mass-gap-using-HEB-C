@@ -58,12 +58,13 @@ jobs:
           4ee284590ea088f153f829ab94097389298c9255 independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION.hbp
           ea23e312bf8f50f8f6f11aab7aa6944d3b75441d independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION-2.hbp
           ROWS
-      - name: Integer gates on the script and on the second seat's filed code, with no list row
+      - name: Integer gates on the script and on the second seat's filed code, with the 4 list rows the v4 gate's import and power routes need
         run: |
           set -euo pipefail
           python3 -I -X utf8 native/scripts/integer_only_audit.py independent/electric_spectrum_2x2.py independent/reviews/opus55-electric-gap/*.py
           python3 -I -X utf8 native/scripts/no_float_gate.py .
-          rc=0; grep -q -E 'electric_spectrum|reviews/opus55-electric-gap' native/scripts/FLOAT-EVIDENCE.txt || rc=$?; test "$rc" = 1
+          # Each row pins its file, so one more finding or changed byte fails the gate above. A fifth row here would mean a new file on these routes.
+          test "$(grep -c -E '^independent/(electric_spectrum|reviews/opus55-electric-gap/)' native/scripts/FLOAT-EVIDENCE.txt)" = 4
       - name: The engines and the kernel source are the bytes that ran, path E holds its two counts, and the receipt is plain rows
         run: |
           set -euo pipefail

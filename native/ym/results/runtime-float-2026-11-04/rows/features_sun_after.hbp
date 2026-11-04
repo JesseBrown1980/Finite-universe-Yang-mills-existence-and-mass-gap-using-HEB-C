@@ -1,0 +1,15 @@
+FEATURES|repo=sun|variant=after|manifest=native/Cargo.toml|bins=hebc,hebc_http0_sgram|num_deps=0|workspace_view=no_num_dep|json=0
+FEATURES|repo=sun|variant=after|manifest=native/ym/Cargo.toml|bins=-|num-bigint=none|num-integer=i128|num-traits=i128|std_on_crates=0|workspace_view=num-bigint=none;num-integer=i128;num-traits=i128|json=0
+FEATURES|repo=sun|variant=after|manifest=native/ym/backend/Cargo.toml|bins=hebc_ym_http0|num_deps=0|workspace_view=-|json=0
+FEATURES|repo=sun|variant=after|manifest=native/ym/crates/evolvers/Cargo.toml|bins=cheb,cluster,ddcore,evolvers,fillest,flatcomp,jump,jumpto|num-bigint=none|num-integer=i128|num-traits=i128|std_on_crates=0|workspace_view=-|json=0
+FEATURES|repo=sun|variant=after|manifest=native/ym/crates/fgroup/Cargo.toml|bins=fgcheck,fgconf,fgqnn,fgwser,sturmq2|num-bigint=none|num-integer=i128|num-traits=i128|std_on_crates=0|workspace_view=-|json=0
+FEATURES|repo=sun|variant=after|manifest=native/ym/crates/sturmrs/Cargo.toml|bins=roomschur,shellschur,sturmfast,sturmrs,ymwser|num-bigint=none|num-integer=i128|num-traits=i128|std_on_crates=0|workspace_view=-|json=0
+FEATURES|repo=sun|variant=after|manifest=native/ym/crates/torusl/Cargo.toml|bins=ball,onfly,onflybench,torusl,ymconf,ymplay,ymroom,ymsec,ymstream,zconfpt|num_deps=0|workspace_view=-|json=0
+FEATURES|repo=sun|variant=after|manifest=native/ym/results/z2o-2026-10-30-cloud/z2o/Cargo.toml|bins=z2o|num-bigint=none|num-integer=i128|num-traits=i128|std_on_crates=0|workspace_view=num-bigint=none;num-integer=i128;num-traits=i128|json=0
+FEATURES|repo=sun|variant=after|manifest=native/ym/results/zconfcert-2026-10-30-cloud/zconfcert/Cargo.toml|bins=zconfcert|num_deps=0|workspace_view=no_num_dep|json=0
+FEATURES|repo=sun|variant=after|manifest=native/ym/results/zq8-2026-10-30-cloud/zq8/Cargo.toml|bins=zq8|num-bigint=none|num-integer=i128|num-traits=i128|std_on_crates=0|workspace_view=num-bigint=none;num-integer=i128;num-traits=i128|json=0
+FEATURES|repo=sun|variant=after|manifest=native/ym/results/zqnn-2026-10-31-cloud/zqnn/Cargo.toml|bins=zqnn|num-bigint=none|num-integer=i128|num-traits=i128|std_on_crates=0|workspace_view=num-bigint=none;num-integer=i128;num-traits=i128|json=0
+FEATURES|repo=sun|variant=after|manifest=native/ym/results/zt2-2026-10-30-cloud/zt2/Cargo.toml|bins=zt2|num-bigint=none|num-integer=i128|num-traits=i128|std_on_crates=0|workspace_view=num-bigint=none;num-integer=i128;num-traits=i128|json=0
+FEATURES|repo=sun|variant=after|manifest=native/ym/results/zwilson-2026-10-30-cloud/zwilson/Cargo.toml|bins=zwilson|num-bigint=none|num-integer=i128|num-traits=i128|std_on_crates=0|workspace_view=num-bigint=none;num-integer=i128;num-traits=i128|json=0
+FEATURES|repo=sun|variant=after|manifest=results/zconf-2026-10-30-cloud/zconf/Cargo.toml|bins=zconf|num_deps=0|workspace_view=no_num_dep|json=0
+FEATURES_TALLY|repo=sun|variant=after|manifests=14|with_num=9|std_on=0|tree_errors=0|json=0
