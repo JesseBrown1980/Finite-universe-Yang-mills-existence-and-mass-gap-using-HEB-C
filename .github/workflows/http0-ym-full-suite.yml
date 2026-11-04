@@ -1,0 +1,138 @@
+name: HTTP-0 measured finite Yang-Mills test campaign
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/http0-ym-full-suite.yml'
+      - '.github/workflows/hebc-ym-cloud-replay.yml'
+      - 'native/ym/scripts/http0_full_tests.sh'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-unit:
+    name: Build once and test all native YM Rust crates
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: rustup toolchain install 1.81.0 --profile minimal --component clippy
+      - name: Full Rust workspace tests, Clippy, optimized shared binaries
+        working-directory: native/ym
+        run: |
+          set -euo pipefail
+          t0=$(date +%s)
+          cargo +1.81.0 test --offline --locked --workspace --all-targets | tee workspace-tests.log
+          echo "YM_FULL_UNIT|secs=$(( $(date +%s)-t0 ))|status=PASS|json=0" | tee -a workspace-tests.log
+          cargo +1.81.0 clippy --offline --locked --workspace --all-targets -- -D warnings
+          t0=$(date +%s)
+          cargo +1.81.0 build --release --offline --locked --workspace --bins
+          test -x target/release/hebc_ym_http0
+          echo "YM_FULL_BUILD|secs=$(( $(date +%s)-t0 ))|status=PASS|json=0" | tee build-result.hbp
+      - uses: actions/upload-artifact@v4
+        with:
+          name: finite-ym-rust81-once
+          path: |
+            native/ym/target/release/hebc_ym_http0
+            native/ym/target/release/ymsec
+            native/ym/target/release/flatcomp
+            native/ym/target/release/cluster
+            native/ym/target/release/shellschur
+            native/ym/target/release/sturmfast
+            native/ym/workspace-tests.log
+            native/ym/build-result.hbp
+          if-no-files-found: error
+  full-http0-routes:
+    name: Recalculate and reverify 2x2 ${{ matrix.label }}
+    needs: build-unit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        include:
+          - { label: sector_pp, spec: 'sector/2/2/1/1' }
+          - { label: sector_pn, spec: 'sector/2/2/1/-1' }
+          - { label: sector_np, spec: 'sector/2/2/-1/1' }
+          - { label: sector_nn, spec: 'sector/2/2/-1/-1' }
+          - { label: mixed_count, spec: 'count/2/2/1/1/1/27/64000/15/10' }
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          name: finite-ym-rust81-once
+          path: native/ym
+      - name: Measure headless and HTTP-0 with actual independent reexecution
+        env:
+          SPEC: ${{ matrix.spec }}
+          LABEL: ${{ matrix.label }}
+        run: |
+          set -euo pipefail
+          chmod +x native/ym/target/release/hebc_ym_http0 native/ym/target/release/ymsec native/ym/target/release/flatcomp native/ym/target/release/cluster native/ym/target/release/shellschur native/ym/target/release/sturmfast
+          bin="$PWD/native/ym/target/release/hebc_ym_http0"
+          bash native/ym/scripts/http0_full_tests.sh "$bin" "http0-results/$LABEL" 55249 "$SPEC"
+          (cd "http0-results/$LABEL" && sha256sum -c SHA256SUMS)
+          grep -F '|canonical=BYTE_IDENTICAL|reexecution=PASS|route=PASS|' "http0-results/$LABEL/RESULT.hbp"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: http0-ym-${{ matrix.label }}
+          path: |
+            http0-results/${{ matrix.label }}/RESULT.hbp
+            http0-results/${{ matrix.label }}/SHA256SUMS
+            http0-results/${{ matrix.label }}/HTTP0.hbp
+          if-no-files-found: error
+  new-http0-index:
+    name: Verify merged 3^16 portal with Yang-Mills source and tamper controls
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: JesseBrown1980/qoled-internet-HEB-C-revisted-HTTP---free-0-hbi-hbp-sha-sh-hash
+          ref: 7d712a1695b97653e28fa1687f59ccd547cbb32f
+          path: http0-portal
+          persist-credentials: false
+      - name: Independent source SHA audit
+        run: |
+          set -euo pipefail
+          python3 -I native/scripts/verify_http0_ym43.py . | tee ym-source.hbp
+          grep -F 'gap_verdict=OPEN|physics_reexecuted=0|status=PASS' ym-source.hbp
+      - run: rustup toolchain install 1.81.0 --profile minimal --component clippy
+      - name: Actual HTTP-0 socket/ternary tests and source-backed lookup
+        env:
+          HEB_C_YM43_ROOT: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          cargo +1.81.0 test --manifest-path http0-portal/Cargo.toml --locked --offline --test ym43_http
+          cargo +1.81.0 test --manifest-path http0-portal/Cargo.toml --locked --offline --lib ym43
+          cargo +1.81.0 build --manifest-path http0-portal/Cargo.toml --release --locked --offline
+          http0-portal/target/release/hebc-portal --ym43-verify "$GITHUB_WORKSPACE" | tee http0-source.hbp
+          grep -F 'capacity=43046721|ym_occupied=3|combined_occupied=732|source_sha256=PASS|source_fields=PASS|gap_verdict=OPEN|full_ym_rows_reexecuted=0|status=PASS' http0-source.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: http0-3pow16-source-verification
+          path: |
+            ym-source.hbp
+            http0-source.hbp
+          if-no-files-found: warn
+  complete:
+    name: All runnable HTTP-0 finite YM tests passed
+    needs: [build-unit, full-http0-routes, new-http0-index]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every test lane and preserve the full-3x4 boundary
+        env:
+          UNIT: ${{ needs.build-unit.result }}
+          ROUTES: ${{ needs.full-http0-routes.result }}
+          SOURCE: ${{ needs.new-http0-index.result }}
+        run: |
+          set -euo pipefail
+          echo "YM_FULL_CAMPAIGN|unit=$UNIT|route=$ROUTES|source=$SOURCE|full_3x4_hamiltonian_rebuild=NOT_RUN|full_3x4_weighted_pairs_recheck=NOT_RUN|virtual_address_speedup_claim=0|json=0"
+          test "$UNIT" = success
+          test "$ROUTES" = success
+          test "$SOURCE" = success
