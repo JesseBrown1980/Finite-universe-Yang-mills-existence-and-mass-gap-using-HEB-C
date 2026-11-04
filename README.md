@@ -1,5 +1,7 @@
 # Finite-universe Yang–Mills with HEB-C
 
+**Data on Hugging Face:** [Jessedbrown/ym-3x4-room-store](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store) holds the 3×4 store, the certificate vectors and an evidence archive, the files too large for git. Its card maps every folder, and the status of each result is read here.
+
 ## Where we stand, November 4, 2026
 
 All of it is on GitHub, and this table is kept current. The full register, with the open list and the decisions waiting on the operator, is [`docs/RESEARCH-STATUS-2026-11-03.md`](docs/RESEARCH-STATUS-2026-11-03.md).
