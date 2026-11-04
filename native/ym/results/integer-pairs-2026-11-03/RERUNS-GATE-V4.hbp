@@ -220,3 +220,16 @@ HOSTED_READ|run=41773750050|job=integer-tools|rows=INTPAIR_DIFF;seed=27;rounds=2
 HOSTED_READ|run=41773750135|job=replay|rows=RUN_CASES_DONE;file=PREDICTION.hbp;ran=35;missed=0,RUN_CASES_DONE;file=PREDICTION-AFTER-ATTACK.hbp;ran=1;missed=0|json=0
 HOSTED_READ|run=41773749985|job=no-float-compiled|rows=COMPILED_RUST_DONE;manifests=37;units=33;built=32;listed_not_built=6;loose_rs_built=7;project_fp_lines=0;project_mir_lines=0;project_crates_reaching=0;float_functions_in_third_party_or_external=82;of_those_unreached=82;failed=0,COMPILED_CPP_DONE;files=3;measured=3;not_measured=0;failed=0,PLANTS_DONE;lang=rust;plants=18;red=18;controls=3;green=3;failed=0|json=0
 ELECTRIC_STEP_TWO|run=41774810472|head=5bfc0d8|conclusion=failure|step=Integer_gates_on_the_script_and_on_the_second_seat's_filed_code_with_no_list_row|why=its_grep_required_no_list_row_for_these_files_and_the_v4_gate_gives_4_of_them_rows|other_job=inertia:success|fixed_by=the_step_now_counts_those_4_rows_by_path|json=0
+# Hosted runs at cf796e5, the commit that holds the electric step fix. This file and the README are all that moved after it. json=0.
+HOSTED_RUN|workflow=No_floating_point|run=41777026341|head=cf796e5|event=push|conclusion=success|jobs=no-float:success|json=0
+HOSTED_RUN|workflow=Integer_tools|run=41777026332|head=cf796e5|event=push|conclusion=success|jobs=integer-tools:success|json=0
+HOSTED_RUN|workflow=Integer_pairs_replay|run=41777026297|head=cf796e5|event=push|conclusion=success|jobs=replay:success|json=0
+HOSTED_RUN|workflow=No_floating_point,_compiled_level|run=41777026289|head=cf796e5|event=push|conclusion=success|jobs=no-float-compiled:success|json=0
+HOSTED_RUN|workflow=Electric_spectrum_of_the_2x2_S3_torus,_gap(E)_=_6|run=41777026097|head=cf796e5|event=workflow_dispatch|conclusion=success|jobs=inertia:success,exact-paths:success|json=0
+HOSTED_RUN|workflow=Cantor-27_drive_in_integers_only_(Rust_1.81)|run=41777029504|head=cf796e5|event=workflow_dispatch|conclusion=success|jobs=cantor-integer:success|json=0
+HOSTED_RUN|workflow=Integer_Z2xZ2_sector_reduction_and_four_full_inertia_controls|run=41777033421|head=cf796e5|event=workflow_dispatch|conclusion=success|jobs=integer-translation-sectors:success|json=0
+HOSTED_RUN|workflow=Finite_S3_global_coupling_gap_(exact_graph_diameter_and_ratio_proof)|run=41777037394|head=cf796e5|event=workflow_dispatch|conclusion=success|jobs=exact-global-finite-gap:success|json=0
+HOSTED_RUN|workflow=Finite_S3_exact_adaptive_cells_and_large-r_derivative_proof|run=41777040676|head=cf796e5|event=workflow_dispatch|conclusion=success|jobs=verify-cells:success|json=0
+HOSTED_RUN|workflow=Independent_finite_S3_coupling_regions_and_magnetic_8-flat_gap|run=41777044751|head=cf796e5|event=workflow_dispatch|conclusion=success|jobs=exact-coupling-theorems:success|json=0
+HOSTED_RUN|workflow=Integer_SHA_key_experiment_vs_monotone_certificate_transport|run=41777048292|head=cf796e5|event=workflow_dispatch|conclusion=success|jobs=hash-not-measurement:success|json=0
+HOSTED_RUN|workflow=3x3_finite_S3_vacuum-ball_block-Krylov_Ritz_verification|run=41777053378|head=cf796e5|event=workflow_dispatch|conclusion=success|jobs=block-ritz-verify:success|json=0
