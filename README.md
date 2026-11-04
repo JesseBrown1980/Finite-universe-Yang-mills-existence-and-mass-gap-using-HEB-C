@@ -1,5 +1,11 @@
 # Finite-universe Yang–Mills with HEB-C
 
+## HTTP-0's exact 3^16 finite Yang–Mills evidence bridge
+
+The [new source-pinned HTTP-0 3^16 contract](docs/HTTP0-3POW16-YANG-MILLS-BRIDGE.md) makes the 3×4 **Perron**, **45,508,080-row reconstruction** and **1,632,625,631 weighted-pair verification** records readable at separate ternary addresses **81, 82 and 83**. Alongside the previously verified Clay/Taylor–Green observations, this gives **732 populated slots** out of **43,046,721 virtual addresses**. The [standalone integer-only source auditor](native/scripts/verify_http0_ym43.py) validates SHA-256, Git blob identity, exact recorded fields, and corrupt/missing source controls.
+
+This is an **evidence-index interoperability layer**—not 43 million computed Yang–Mills states, a new eigensolve, or an upgrade to the formal 3×4 gap verdict. The Perron source's **gap_verdict=OPEN** and the operator's separate HOLD requirements remain explicit. [Live HTTP-0 implementation](https://github.com/JesseBrown1980/qoled-internet-HEB-C-revisted-HTTP---free-0-hbi-hbp-sha-sh-hash/blob/main/src/ym43.rs).
+
 **Data on Hugging Face:** [Jessedbrown/ym-3x4-room-store](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store) holds the 3×4 store, the certificate vectors and an evidence archive, the files too large for git. Its card maps every folder, and the status of each result is read here.
 
 ## Where we stand, November 4, 2026
