@@ -225,6 +225,15 @@ jobs:
           check
           reads MISS B3 B6
           summary 53 45 2 6
+          sed 's/^ELECTRIC_B_M|L=2x2|cost=3|m=0|/ELECTRIC_B_M|L=2x2|cost=3|m=1|/' "$M" > /tmp/bad.measure
+          check
+          reads MISS B2 B6
+          summary 53 45 2 6
+          sed 's/^ELECTRIC_B_M|L=2x3|cost=12|m=18|/ELECTRIC_B_M|L=2x3|cost=12|m=19|/' "$M" > /tmp/bad.measure
+          rc=0; cmp -s "$M" /tmp/bad.measure || rc=$?; test "$rc" = 1
+          check
+          reads MET B10
+          summary 53 47 0 6
           grep -v '^ELECTRIC_B_M|' "$M" > /tmp/bad.measure
           check
           reads "$no_row" B1 B2 B3 B4 B6 B10
