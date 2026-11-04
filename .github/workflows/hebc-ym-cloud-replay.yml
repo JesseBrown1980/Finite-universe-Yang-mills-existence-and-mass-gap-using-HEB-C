@@ -19,6 +19,7 @@ on:
       - 'native/ym/Cargo.lock'
       - 'native/src/**'
       - '.github/workflows/hebc-ym-cloud-replay.yml'
+      - '.github/workflows/http0-ym-full-suite.yml'
 
 permissions:
   contents: read
