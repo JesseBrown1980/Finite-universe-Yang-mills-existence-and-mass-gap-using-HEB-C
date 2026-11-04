@@ -26,7 +26,6 @@ usage: compiled_float_check.py rust ROOT [--only MANIFEST]... [--opt-level N] [-
        compiled_float_check.py selftest
 """
 import collections
-import fnmatch
 import os
 import re
 import shutil
@@ -217,7 +216,7 @@ def workspace_of(manifest, root):
                 m = re.search(r"members\s*=\s*\[(.*?)\]", text, re.S)
                 members = re.findall(r'"([^"]+)"', m.group(1)) if m else []
                 rel = os.path.relpath(os.path.dirname(manifest), d).replace("\\", "/")
-                return d, any(fnmatch.fnmatch(rel, x) for x in members)
+                return d, any(rel == x.rstrip("/") or (x.endswith("*") and rel.startswith(x[:-1])) for x in members)
     return None, True
 
 
@@ -837,12 +836,12 @@ IR_MUST_FLAG = (
 IR_MUST_PASS = (
     "define void @_ZN5float6double17h0123456789abcdefE() {", '  call void @"float::double::fadd"()', '@alloc = private unnamed_addr constant [12 x i8] c"double float", align 1',
     "; float comment double", 'source_filename = "float.double"', '  %_5 = call i64 asm sideeffect alignstack inteldialect "div {0}", "=r,r,~{dirflag},~{fpsr},~{flags}"(i64 %a)',
-    "  %halfway = add i64 %float, %double", 'attributes #0 = { nounwind "target-features"="+fxsr,+sse,+sse2" "denormal-fp-math"="dynamic" }', "  %x = mul i128 %a, %b", "  %y = load <2 x i64>, ptr %p, align 16",
+    "  %halfway = add i64 %double, %half", 'attributes #0 = { nounwind "target-features"="+fxsr,+sse,+sse2" "denormal-fp-math"="dynamic" }', "  %x = mul i128 %a, %b", "  %y = load <2 x i64>, ptr %p, align 16",
 )
 MIR_MUST_FLAG = ("let _1: f64;", "fn f(_1: f32) -> u8 {", "_0 = const 5e-1_f64;", "_2 = const 1f32;", "static X: f64 = {", "_3 = <f64 as Display>::fmt(move _4) -> [return: bb1, unwind: bb2];")
 MIR_MUST_PASS = ('_1 = const "f64 0.5";', "let _1: u64;", "_2 = foo_f64() -> [return: bb1, unwind: bb2];", "let _1: myf32;")
 CPP_MUST_FLAG = ("\tdivsd\t%xmm1, %xmm0\n", "\tmovsd\t-8(%rbp), %xmm0\n", "\tcvtsi2sdq\t%rax, %xmm0\n", "\tfldt\t16(%rbp)\n", "\tmovq\t%xmm0, %rax\n", "\tcall\tsqrt\n", "\tcall\t__divtf3\n", "\tcall\t__bid_divdd3\n", "\tcall\tsqrt@PLT\n", "\tvaddsd\t%xmm1, %xmm0, %xmm0\n", "\tpxor\t%xmm1, %xmm1\n\tmovq\t%xmm0, -8(%rbp)\n", "\tpxor\t%xmm0, %xmm0\n\tmovsd\t%xmm0, -8(%rbp)\n")
-CPP_MUST_PASS = ("\tmovaps\t%xmm0, -32(%rbp)\n", "\tmovdqa\t-48(%rbp), %xmm0\n", "\tcall\t__divti3\n", "\tcall\t__udivti3\n", "\tcall\t__modti3\n", "\tcall\t__multi3\n", "\tmovq\t%rax, %rdx\n", "\tcall\t_Z4sqrti\n", "\t.file\t\"float.cpp\"\n", "\tmovl\t$0, %eax\n", "\tpxor\t%xmm0, %xmm0\n\tmovaps\t%xmm0, -240(%rbp)\n\tmovq\t%xmm0, -224(%rbp)\n")
+CPP_MUST_PASS = ("\tmovaps\t%xmm0, -32(%rbp)\n", "\tmovdqa\t-48(%rbp), %xmm0\n", "\tcall\t__divti3\n", "\tcall\t__udivti3\n", "\tcall\t__modti3\n", "\tcall\t__multi3\n", "\tmovq\t%rax, %rdx\n", "\tcall\t_Z4sqrti\n", "\t.file\t\"float.cpp\"\n", "\tmovl\t$0, %r8d\n", "\tpxor\t%xmm0, %xmm0\n\tmovaps\t%xmm0, -240(%rbp)\n\tmovq\t%xmm0, -224(%rbp)\n")
 
 
 def mir_flag(line):

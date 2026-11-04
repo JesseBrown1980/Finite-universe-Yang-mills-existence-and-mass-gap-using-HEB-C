@@ -29,6 +29,7 @@ else:
     SHARD_GROUPS = ()
     EXTRA_UNITS = ()
 fails = 0
+failed_specs = {}
 
 
 def say(text):
@@ -103,7 +104,7 @@ def verify_group(state, group):
     with concurrent.futures.ThreadPoolExecutor(os.cpu_count() or 2) as ex:
         list(ex.map(one, rest))
     say("VERIFY_DONE|state=%s|group=%s|shards=%d|passed=%d|failed=%d|secs=%d|compared=run.hbp,index.hbi,run.anchor|json=0" % (state, group, len(specs), len(specs) - len(bad), len(bad), (time.monotonic_ns() - a) // 1000000000))
-    fails += len(bad)
+    failed_specs[(state, group)] = set(bad)
     shutil.rmtree(root, ignore_errors=True)
 
 
@@ -229,6 +230,11 @@ def run_all():
     for state in ("before", "after"):
         for group in SHARD_GROUPS:
             verify_group(state, group)
+    # A shard that fails on both builds differs from its record for a reason older than this branch. A shard that fails on one build is what this job looks for.
+    for group in SHARD_GROUPS:
+        b, a = failed_specs[("before", group)], failed_specs[("after", group)]
+        say("VERIFY_BOTH_WAYS|group=%s|fail_on_both=%d|only_before=%d|only_after=%d|kinds_on_both=%s|json=0" % (group, len(a & b), len(b - a), len(a - b), ",".join(sorted({s.split("/")[0] for s in a & b})) or "-"))
+        fails += len(a ^ b)
     exes()
     say("BOTH_WAYS_DONE|failed=%d|json=0" % fails)
     return 1 if fails else 0
