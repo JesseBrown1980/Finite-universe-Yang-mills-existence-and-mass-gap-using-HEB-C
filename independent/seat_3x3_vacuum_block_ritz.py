@@ -9,7 +9,13 @@ Seeds an 8-dimensional subspace with all eight flat vacua simultaneously,
 avoiding single-vector deflation drift. Evaluates exact generalized
 Rayleigh-Ritz eigenvalues using fraction-free Bareiss elimination.
 
-Outputs exact micro-unit enclosures for all 8 vacuum states.
+Prints each of the 8 lowest Ritz values as an outward integer interval in units
+of 1/scale. Each Ritz value bounds the matching ordered eigenvalue of the full
+Hamiltonian from above. The trial_gap fields are differences of two Ritz values,
+so every row ends kind=RITZ_TRIAL_GAP_ONLY and full_gap=NOT_CERTIFIED. A full-gap
+statement needs a separate full-space lower bound.
+A matrix hash mismatch under a pinned file name, and a level outside the raw
+bisection range, stop the solver with ValueError, under python -O as well.
 Zero floats, Decimal, Fraction, true division, or JSON.
 """
 import argparse
@@ -31,8 +37,8 @@ def load_matrix(path):
     raw = path_obj.read_bytes()
     digest = sha256(raw).hexdigest()
     expected = EXPECTED_MATRIX_SHA.get(path_obj.name)
-    if expected is not None:
-        assert digest == expected, f"matrix sha mismatch for {path_obj.name}"
+    if expected is not None and digest != expected:
+        raise ValueError(f"matrix sha mismatch for {path_obj.name}")
 
     toks = raw.split()
     n = int(toks[0])
@@ -107,7 +113,8 @@ def bracket(a, b, k, scale=1000000, upper=4800):
         return inertia(c)
 
     lo, hi = 0, upper * scale
-    assert count(lo) <= k and count(hi) > k
+    if count(lo) > k or count(hi) <= k:
+        raise ValueError(f"range guard failed: level {k} lies outside the raw range 0..{upper}*{scale}")
     while hi - lo > 1:
         mid = (lo + hi) // 2
         if count(mid) <= k:
@@ -117,7 +124,31 @@ def bracket(a, b, k, scale=1000000, upper=4800):
     return lo, hi
 
 
-def solve_block_ritz(matrix_path, je, jb, order=3):
+def outward_interval(lo, hi):
+    """Integer interval around x from the raw bracket lo <= 24*x < hi.
+
+    Floors the low end and ceils the high end, in the same integer unit as x.
+    """
+    return lo // 24, (hi + 23) // 24
+
+
+def outward_selftest():
+    """Fails closed unless outward_interval encloses every value it is given."""
+    # GPT-6 counterexample: x = 5/16 has raw bracket 7 < 24*x < 8.
+    low, high = outward_interval(7, 8)
+    if (low, high) != (0, 1) or not low * 16 <= 5 <= high * 16:
+        raise ValueError("outward rounding misses the GPT-6 counterexample")
+    # The historical rule floors both ends, which gives [0,0] and drops x = 5/16.
+    if (7 // 24) * 16 <= 5 <= (8 // 24) * 16:
+        raise ValueError("selftest control: floor of both ends must lose x = 5/16")
+    # Every raw unit bracket gives a width-1 interval that holds both raw ends.
+    for lo in range(-48, 4801):
+        low, high = outward_interval(lo, lo + 1)
+        if high - low != 1 or 24 * low > lo or lo + 1 > 24 * high:
+            raise ValueError("outward rounding failed on a raw unit bracket")
+
+
+def solve_block_ritz(matrix_path, je, jb, order=3, scale=1000000):
     start = monotonic_ns()
     n, w, mag, rest, mat_sha = load_matrix(matrix_path)
     col = build_system(n, w, mag, rest, je, jb)
@@ -146,8 +177,8 @@ def solve_block_ritz(matrix_path, je, jb, order=3):
 
     energies = []
     for k in range(8):
-        lo, hi = bracket(a, b, k, scale=1000000)
-        energies.append((lo // 24, hi // 24))
+        lo, hi = bracket(a, b, k, scale=scale)
+        energies.append(outward_interval(lo, hi))
 
     e0_lo, e0_hi = energies[0]
     e1_lo, e1_hi = energies[1]
@@ -157,29 +188,44 @@ def solve_block_ritz(matrix_path, je, jb, order=3):
     gap_hi = e1_hi - e0_lo
     upper_gap_lo = e7_lo - e6_hi
     upper_gap_hi = e7_hi - e6_lo
+    symmetry_lo = gap_lo - upper_gap_hi
+    symmetry_hi = gap_hi - upper_gap_lo
     elapsed_ms = (monotonic_ns() - start) // 1000000
 
     name = Path(matrix_path).name
-    e_str = ",".join(f"{lo}" for lo, _ in energies)
+    level_str = "|".join(f"E{k}=[{lo},{hi}]" for k, (lo, hi) in enumerate(energies))
     print(
         f"HEBC-3X3-BLOCK-RITZ|matrix={name}|matrix_sha={mat_sha[:16]}|states={n}|"
-        f"JE={je}|JB={jb}|order={order}|subspace_dim={dim}|"
-        f"E0={e0_lo}/1000000|E1={e1_lo}/1000000|gap=[{gap_lo},{gap_hi}]/1000000|"
-        f"upper_gap=[{upper_gap_lo},{upper_gap_hi}]/1000000|"
-        f"all_8_vacua_micro={e_str}|symmetry_diff={gap_lo - upper_gap_lo}|"
-        f"kind=VACUUM_BLOCK_RITZ_UPPER_BOUNDS|json=0"
+        f"JE={je}|JB={jb}|order={order}|subspace_dim={dim}|scale={scale}|{level_str}|"
+        f"trial_gap=[{gap_lo},{gap_hi}]|"
+        f"upper_trial_gap=[{upper_gap_lo},{upper_gap_hi}]|"
+        f"symmetry_diff=[{symmetry_lo},{symmetry_hi}]|"
+        f"kind=RITZ_TRIAL_GAP_ONLY|full_gap=NOT_CERTIFIED|json=0"
     )
     return energies
 
 
 def main():
     p = argparse.ArgumentParser(description="3x3 Vacuum-ball block-Krylov Ritz solver")
-    p.add_argument("matrix", type=str, help="path to .matrix file")
-    p.add_argument("je", type=int, help="JE coupling")
-    p.add_argument("jb", type=int, help="JB coupling")
+    p.add_argument("matrix", type=str, nargs="?", help="path to .matrix file")
+    p.add_argument("je", type=int, nargs="?", help="JE coupling")
+    p.add_argument("jb", type=int, nargs="?", help="JB coupling")
     p.add_argument("--order", type=int, default=3, help="Krylov block order (default 3)")
+    p.add_argument("--scale", type=int, default=1000000, help="print levels in units of 1/scale (default 1000000)")
+    p.add_argument("--selftest", action="store_true", help="run the outward-rounding selftest and exit")
     args = p.parse_args()
-    solve_block_ritz(args.matrix, args.je, args.jb, args.order)
+    outward_selftest()
+    if args.selftest:
+        print(
+            "HEBC-3X3-BLOCK-RITZ-SELFTEST|counterexample=7<24E<8|interval=[0,1]|"
+            "historical_rule=[0,0]|unit_brackets=4849|result=PASS|json=0"
+        )
+        return
+    if args.matrix is None or args.je is None or args.jb is None:
+        p.error("matrix, je and jb are required")
+    if args.scale < 1:
+        p.error("--scale must be a positive integer")
+    solve_block_ritz(args.matrix, args.je, args.jb, args.order, args.scale)
 
 
 if __name__ == "__main__":
