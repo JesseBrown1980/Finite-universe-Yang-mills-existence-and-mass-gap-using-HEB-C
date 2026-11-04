@@ -18,10 +18,12 @@ Modes, each exits 1 on the first check that does not hold:
                             of the torus multigraph, and every low-cost assignment of the tori listed below. With
                             FOLDER, also the second seat's 28 tori from its logs there.
   predictions PRED RETRY RETRY2 MEASURE
-                            Each prediction row against the rows in MEASURE. A row with another value reads MISS, an
-                            appended row included, since every row with the head counts. When every row present reads
-                            as predicted, a row absent from MEASURE reads NOT_MEASURED with its reason. It prints every
-                            verdict and exits 0, so a miss is recorded beside its row.
+                            Each prediction row against the rows in MEASURE. At B6, B10, paths D and E, R1 to R6, S1 and
+                            S2, a row with another value reads MISS, an appended row included, since every row with the
+                            head counts, and when every row present reads as predicted, a row absent from MEASURE reads
+                            NOT_MEASURED with its reason. S3 reads the last sector row at each T and sector: a removed
+                            row reads MISS, and a receipt with no sector rows reads MET. It prints every verdict and exits
+                            0 on a receipt whose rows are well formed, so a miss is recorded beside its row.
 
 Red controls, each must exit 1:
   a --alter-entry, b --bad-character, c --alter-entry, c --drop-factor C, c --add-factor C, g --bad-character,

@@ -199,7 +199,7 @@ jobs:
           check /tmp/bad.measure > /tmp/red.out
           grep -q '^PREDICTION_CHECK|id=D4|.*|verdict=MISS|json=0$' /tmp/red.out
           grep -q '^PREDICTION_SUMMARY|rows=53|met=46|miss=1|not_measured=6|json=0$' /tmp/red.out
-      - name: Controls on the prediction check, where a partly missing row and each other absence read their reason
+      - name: Controls on the prediction check, where a partly missing row and each other absence read their reason at the ids the script's docstring lists
         run: |
           set -euo pipefail
           M=independent/electric_spectrum_2x2.measure
