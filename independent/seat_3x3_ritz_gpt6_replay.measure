@@ -1,0 +1,5 @@
+GPT6_3X3_RITZ|matrix=b33_k1.matrix|states=206|JE=1|JB=27|order=1|dim=16|ritz_e0_micro=53496532..53496533|ritz_e1_micro=53498537..53498538|ritz_gap_micro=2004..2006|full_gap=NOT_CERTIFIED|method=INTEGER_INTERVAL_LDL|json=0
+GPT6_3X3_RITZ|matrix=b33_k2.matrix|states=4454|JE=1|JB=27|order=2|dim=24|ritz_e0_micro=53493574..53493575|ritz_e1_micro=53495589..53495590|ritz_gap_micro=2014..2016|full_gap=NOT_CERTIFIED|method=INTEGER_INTERVAL_LDL|json=0
+GPT6_3X3_RITZ|matrix=b33_k3.matrix|states=59246|JE=1|JB=9|order=3|dim=32|ritz_e0_micro=52422539..52422540|ritz_e1_micro=52442226..52442227|ritz_gap_micro=19686..19688|full_gap=NOT_CERTIFIED|method=INTEGER_INTERVAL_LDL|json=0
+GPT6_3X3_RITZ|matrix=b33_k3.matrix|states=59246|JE=1|JB=27|order=3|dim=32|ritz_e0_micro=53493385..53493386|ritz_e1_micro=53495397..53495398|ritz_gap_micro=2011..2013|full_gap=NOT_CERTIFIED|method=INTEGER_INTERVAL_LDL|json=0
+GPT6_3X3_RITZ|matrix=b33_k3.matrix|states=59246|JE=1|JB=81|order=3|dim=32|ritz_e0_micro=53832661..53832662|ritz_e1_micro=53832883..53832884|ritz_gap_micro=221..223|full_gap=NOT_CERTIFIED|method=INTEGER_INTERVAL_LDL|json=0
