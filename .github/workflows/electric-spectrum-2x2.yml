@@ -11,6 +11,7 @@ on:
       - 'independent/electric_spectrum_2x2.py'
       - 'independent/electric_spectrum_2x2_assemble.sh'
       - 'independent/electric_spectrum_2x2.measure'
+      - 'independent/electric_spectrum_2x2_engines_moved.hbp'
       - 'independent/electric_gap_formula.measure'
       - 'independent/reviews/opus55-electric-gap/**'
       - 'independent/ELECTRIC-SPECTRUM-2X2-PREDICTION.hbp'
@@ -71,8 +72,19 @@ jobs:
           rc=0; grep -qv '|json=0$' "$M" || rc=$?; test "$rc" = 1
           grep '^ELECTRIC_ENGINE|' "$M" > /tmp/engines.pin
           test "$(wc -l < /tmp/engines.pin)" -eq 4
+          # An engine that moved after it ran is read at the commit that held it, and the file now must be the one its ENGINE_MOVED row names.
           while IFS='|' read -r _ file sha _; do
-            test "$(sha256sum "${file#file=}" | cut -d' ' -f1)" = "${sha#sha256=}"
+            path="${file#file=}"
+            moved="$(grep -F "|file=$path|" independent/electric_spectrum_2x2_engines_moved.hbp || true)"
+            if [ -n "$moved" ]; then
+              commit="$(printf '%s\n' "$moved" | sed -n 's/.*|ran_at_commit=\([0-9a-f]*\)|.*/\1/p')"
+              now="$(printf '%s\n' "$moved" | sed -n 's/.*|sha256_now=\([0-9a-f]*\)|.*/\1/p')"
+              git merge-base --is-ancestor "$commit" HEAD
+              test "$(git show "$commit:$path" | sha256sum | cut -d' ' -f1)" = "${sha#sha256=}"
+              test "$(sha256sum "$path" | cut -d' ' -f1)" = "$now"
+            else
+              test "$(sha256sum "$path" | cut -d' ' -f1)" = "${sha#sha256=}"
+            fi
           done < /tmp/engines.pin
           test "$(grep -c '^INDEP_COUNT|' "$M")" -eq 2
           test "$(grep -c '^ELECTRIC_E_RUN|' "$M")" -eq 1

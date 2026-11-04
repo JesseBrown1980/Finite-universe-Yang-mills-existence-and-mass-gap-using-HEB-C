@@ -13,6 +13,7 @@ A float, complex, Decimal or Fraction raises TypeError from every operator and c
 lookup that reaches a pair by its hash. A str or None raises TypeError from arithmetic and ordering, and == reads them as
 unequal, as on any Python object. limit_denominator and round take int or IntPair. A power with a non-integer exponent and a
 non-empty format spec raise TypeError too, because those are the places where the same class in CPython hands back floating point.
+Powers go through int_power, in ints by squaring, which refuses a negative exponent. The pair's own negative powers are the reciprocal, exact.
 test_intpair.py compares this against CPython's class value for value. Integer only, json=0.
 """
 from math import gcd
@@ -21,6 +22,22 @@ import sys
 
 HASH_MODULUS = sys.hash_info.modulus
 HASH_INF = sys.hash_info.inf
+
+
+def int_power(base, exponent):
+    """base to a whole exponent at or above zero, by squaring, in ints. A negative exponent raises ValueError, where ** on two ints gives floating point."""
+    if not isinstance(exponent, int):
+        raise TypeError("int_power takes an int exponent, not %s" % type(exponent).__name__)
+    if exponent < 0:
+        raise ValueError("int_power takes an exponent at or above zero, not %d" % exponent)
+    result = 1
+    while exponent:
+        if exponent & 1:
+            result *= base
+        exponent >>= 1
+        if exponent:
+            base *= base
+    return result
 
 
 def _refuse_other_numbers(other):
@@ -236,14 +253,18 @@ class IntPair:
         elif not isinstance(exponent, int):
             _refuse_other_numbers(exponent)
             return NotImplemented
+        return self._power(exponent)
+
+    def _power(self, exponent):
+        """This pair to a whole exponent, negative included: the reciprocal of a pair is exact."""
         if exponent >= 0:
-            return _make(self._n ** exponent, self._d ** exponent)
+            return _make(int_power(self._n, exponent), int_power(self._d, exponent))
         power = -exponent
         if self._n > 0:
-            return _make(self._d ** power, self._n ** power)
+            return _make(int_power(self._d, power), int_power(self._n, power))
         if self._n == 0:
-            raise ZeroDivisionError("IntPair(%d, 0)" % self._d ** power)
-        return _make((-self._d) ** power, (-self._n) ** power)
+            raise ZeroDivisionError("IntPair(%d, 0)" % int_power(self._d, power))
+        return _make(int_power(-self._d, power), int_power(-self._n, power))
 
     def __rpow__(self, base, modulo=None):
         if modulo is not None or not isinstance(base, int):
@@ -251,8 +272,8 @@ class IntPair:
         if self._d != 1:
             raise TypeError("a power with a non-integer exponent has no exact pair in general")
         if self._n >= 0:
-            return base ** self._n
-        return IntPair(base) ** self._n
+            return int_power(base, self._n)
+        return IntPair(base)._power(self._n)
 
     def __pos__(self):
         return _make(self._n, self._d)
@@ -286,7 +307,12 @@ class IntPair:
             return whole if whole % 2 == 0 else whole + 1
         if not isinstance(ndigits, (int, IntPair)):
             raise TypeError("round takes int or IntPair digits, not %s" % type(ndigits).__name__)
-        shift = 10 ** abs(ndigits)
+        digits = abs(ndigits)
+        if isinstance(digits, IntPair):
+            if digits._d != 1:
+                raise TypeError("a power with a non-integer exponent has no exact pair in general")
+            digits = digits._n
+        shift = int_power(10, digits)
         if ndigits > 0:
             return IntPair(round(self * shift), shift)
         return IntPair(round(self._div(IntPair(shift))) * shift)

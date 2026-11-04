@@ -1,4 +1,4 @@
-# The operator's rule: "The gate must reject operations capable of silently introducing floating-point values." The source scan in no-float.yml reads text. This job reads what the compilers produced:
+# The operator's rule: "The gate must reject operations capable of silently introducing floating-point values." The source scan in no_float.yml reads text. This job reads what the compilers produced:
 # LLVM IR and MIR for every Rust crate, with a call graph into the third-party crates, and assembly for every C and C++ file. Its scope and limits are in native/scripts/compiled_float_check.py.
 # A pass means these reads found nothing in what they read. Integer only, json=0.
 name: No floating point, compiled level
@@ -8,7 +8,7 @@ on:
   pull_request:
   merge_group:
   push:
-    branches: [main, compiled-check-20261104]
+    branches: [main, compiled-check-20261104, integer-pairs-20261103]
 
 permissions:
   contents: read

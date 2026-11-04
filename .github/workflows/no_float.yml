@@ -1,0 +1,96 @@
+# The operator's rule: "We can't use float." Every pull request and every push to main is scanned for binary floating point and for Python's Fraction, and anything found outside FLOAT-EVIDENCE.txt fails. Integer only, json=0.
+# This job runs the copies of the gate, the list and this file that the change itself holds. no_float_base.yml is the job that runs a gate the change cannot edit.
+# The job name is what branch protection requires. Set GATE_DIR to the folder that holds no_float_gate.py and FLOAT-EVIDENCE.txt.
+name: No floating point
+
+on:
+  pull_request:
+  push:
+    branches: [main, integer-pairs-20261103]
+
+permissions:
+  contents: read
+
+env:
+  GATE_DIR: native/scripts
+
+jobs:
+  no-float:
+    # ubuntu-24.04 keeps python3 at 3.12, one of the two versions the gate's selftest was measured on.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: The gate reads its own test snippets
+        run: python3 -I -X utf8 "$GATE_DIR/no_float_gate.py" --selftest
+      - name: Scan the tracked files the gate reads
+        run: python3 -I -X utf8 "$GATE_DIR/no_float_gate.py" .
+      - name: The gate goes red on each plant, for its named reason
+        run: |
+          set -euo pipefail
+          gate="$GATE_DIR/no_float_gate.py"
+          list="$GATE_DIR/FLOAT-EVIDENCE.txt"
+          cp "$list" /tmp/list.kept
+          # An expected failure: exit 1, and the reason in the output.
+          red() {
+            rc=0
+            python3 -I -X utf8 "$gate" . > /tmp/plant.out || rc=$?
+            if [ "$rc" != 1 ]; then echo "the gate gave rc=$rc, wanted red: $1"; cat /tmp/plant.out; exit 1; fi
+            if ! grep -qF -- "$1" /tmp/plant.out; then echo "red for another reason, wanted: $1"; cat /tmp/plant.out; exit 1; fi
+          }
+          green() {
+            rc=0
+            python3 -I -X utf8 "$gate" . > /tmp/plant.out || rc=$?
+            if [ "$rc" != 0 ]; then echo "the gate gave rc=$rc, wanted green: $1"; cat /tmp/plant.out; exit 1; fi
+          }
+          plant() {
+            file="$GATE_DIR/$1"
+            printf "$3" > "$file"
+            git add "$file"
+            red "file=$file|first=$2"
+            git rm -q -f --cached "$file"
+            rm -f "$file"
+          }
+          plant planted_float.py 'true division' 'x = 1 / 2\n'
+          plant planted_float.rs 'rust float literal' 'fn f() -> u8 { let a = 0.5; 1 }\n'
+          plant planted_float.cpp 'c float literal' 'auto x = 1e5f;\n'
+          plant planted_float.js 'javascript division' 'let x = `${1/3}`;\n'
+          plant planted-é.py 'true division' 'x = 1 / 2\n'
+          plant planted_bom.py 'true division at line 1' '\xef\xbb\xbfx = 1 / 2\n'
+          plant planted_cookie.py '[source_bytes] source encoding utf-7' '# coding: utf-7\nx = 1\n#+AAo-x = 1 +AC8- 2\n'
+
+          # A row with no reason.
+          file="$GATE_DIR/planted_row.py"
+          printf 'y = z / 2\n' > "$file"
+          git add "$file"
+          python3 -I -X utf8 "$gate" --pins "$file" >> "$list"
+          red "row_without_a_reason=$file"
+          cp /tmp/list.kept "$list"
+
+          # A count swap: the row holds, then one finding is traded for another at the same count.
+          printf '%skept for this test\n' "$(python3 -I -X utf8 "$gate" --pins "$file")" >> "$list"
+          green "a row with its pin and reason"
+          printf 'y = z ** -1\n' > "$file"
+          git add "$file"
+          red "pin_moved=$file"
+          if grep -qF "count_moved=$file" /tmp/plant.out; then echo "the swap moved the count, so it tested nothing"; exit 1; fi
+          git rm -q -f --cached "$file"
+          rm -f "$file"
+          cp /tmp/list.kept "$list"
+
+          # A folder row: it holds, then a new file goes in under it.
+          folder="$GATE_DIR/planted_folder/"
+          mkdir "$folder"
+          printf 'fn f() -> f64 { 0.5 }\n' > "${folder}kept.rs"
+          git add "${folder}kept.rs"
+          printf '%skept for this test\n' "$(python3 -I -X utf8 "$gate" --pins "$folder")" >> "$list"
+          green "a folder row with its pin and reason"
+          printf 'y = 1 / 2\n' > "${folder}helper.py"
+          git add "${folder}helper.py"
+          red "pin_moved=$folder"
+          git rm -q -r -f --cached "$folder"
+          rm -rf "$folder"
+          cp /tmp/list.kept "$list"
+          green "the tree as it was"

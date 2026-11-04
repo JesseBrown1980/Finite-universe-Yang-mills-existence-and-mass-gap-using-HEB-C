@@ -4,6 +4,8 @@ name: Integer pairs replay
 
 on:
   workflow_dispatch:
+  push:
+    branches: [integer-pairs-20261103]
   pull_request:
     paths:
       - 'native/scripts/intpair.py'

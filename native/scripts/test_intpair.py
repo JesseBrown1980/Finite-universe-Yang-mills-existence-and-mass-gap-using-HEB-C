@@ -10,6 +10,7 @@ TypeError, and that is tested too. rejection_checks makes two deliberate floats,
 
 usage: test_intpair.py [SEED] [ROUNDS]     Prints one INTPAIR_DIFF row. Exit 1 on any failure.
        test_intpair.py --teeth             Breaks IntPair one way at a time. Every break must be seen. Exit 1 if one is missed.
+       test_intpair.py --int-power         int_power against ** on ints, its refusals, and a broken copy that must be seen. Exit 1 on any failure.
 The true division here goes through operator.truediv, so this file holds no division token. Integer only, json=0.
 """
 import copy
@@ -23,7 +24,7 @@ import random
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from intpair import IntPair, qdiv  # noqa: E402
+from intpair import IntPair, int_power, qdiv  # noqa: E402
 
 F = fractions.Fraction
 Q = IntPair
@@ -95,7 +96,7 @@ def gen_int(rng):
     if k == 12:
         return sign * ((1 << rng.randrange(1, 300)) + rng.randint(-1, 1))
     if k == 13:
-        return sign * 10 ** rng.randrange(0, 40) * rng.randint(1, 9)
+        return sign * int_power(10, rng.randrange(0, 40)) * rng.randint(1, 9)
     if k == 14:
         return 0
     return sign * rng.randint(1, 2)
@@ -463,11 +464,39 @@ def teeth():
     return 1 if missed else 0
 
 
+def int_power_rows(power):
+    """(comparisons, failures): power against ** on a grid of int bases and exponents, then its refusals of a negative or non-int exponent."""
+    count, fails = 0, 0
+    for base in list(range(-12, 13)) + [P, -P, 1 << 200, -(3 << 300)]:
+        for exponent in range(0, 40):
+            count += 1
+            got = power(base, exponent)
+            if type(got) is not int or got != base ** exponent:
+                fails += 1
+    half = operator.truediv(1, 2)
+    for exponent, refused in ((-1, ValueError), (-2, ValueError), (-40, ValueError), (half, TypeError), (F(2), TypeError), (Q(2), TypeError)):
+        for base in (0, 1, 2, -3, 10):
+            count += 1
+            try:
+                power(base, exponent)
+            except refused:
+                continue
+            except (TypeError, ValueError, ArithmeticError):
+                pass
+            fails += 1
+    return count, fails
+
+
 def main(argv):
     global SHOWN
     if argv[:1] == ["--teeth"]:
         SHOWN = 0
         return teeth()
+    if argv[:1] == ["--int-power"]:
+        count, fails = int_power_rows(int_power)
+        _, broken_seen = int_power_rows(lambda base, exponent: base ** abs(exponent) + (exponent == 7))
+        print("INTPAIR_INT_POWER|comparisons=%d|failures=%d|broken_copy_failures_seen=%d|json=0" % (count, fails, broken_seen), flush=True)
+        return 1 if fails or not broken_seen else 0
     seed = int(argv[0]) if argv else 27
     rounds = int(argv[1]) if len(argv) > 1 else 20000
     tally, values = run(seed, rounds)

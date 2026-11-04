@@ -8,8 +8,8 @@ becomes x = qdiv(x , y). The fractions import becomes intpair, with a sys.path l
 sits. Every further edit is a text pair in COPIES below, applied first, and must occur exactly as many times as stated.
 
 The rewrite is checked against a second path: the same divisions and import replaced in the syntax tree must dump the same as the
-parsed copy. The copy must then read in no_float_gate.py the count its row in FLOAT-EVIDENCE.txt states, or 0 with no row, and 0 hits
-in integer_only_audit.py.
+parsed copy. The copy must then read in no_float_gate.py, with the tracked names of the tree at ROOT, the count its row in
+FLOAT-EVIDENCE.txt states, or 0 with no row, and 0 hits in integer_only_audit.py. The row's pin is the gate's own check.
 
 usage: make_integer_pairs.py ROOT --write     Writes every copy under the repository at ROOT.
        make_integer_pairs.py ROOT --check     Regenerates every copy and compares bytes with what is there. Exit 1 on a difference.
@@ -247,6 +247,7 @@ def build(source_text, source_name, dest, pairs):
 def regenerate(root):
     """Yields (destination, text, divisions, pairs, source name)."""
     _, listed_files, _ = no_float_gate.listed()
+    local = no_float_gate.local_modules({row[3] for row in no_float_gate.ls_files(root)})
     with tempfile.TemporaryDirectory() as tmp:
         subprocess.run([sys.executable, "-I", "-X", "utf8", os.path.join(root, REDO, "make_integer_redo.py"), os.path.join(root, S), tmp], check=True, capture_output=True)
         for source, dest, pairs in COPIES:
@@ -257,9 +258,10 @@ def regenerate(root):
                 name = source
                 text = open(os.path.join(root, source), encoding="utf-8", newline="").read()
             out, divisions = build(text, name, dest, pairs)
-            found = no_float_gate.python_findings(out)
-            if len(found) != listed_files.get(dest, 0):
-                raise SystemExit("%s: the gate reads %d findings, its row states %d, first %s" % (dest, len(found), listed_files.get(dest, 0), found[0] if found else "none"))
+            found = no_float_gate.python_findings(out, local)
+            listed_count = listed_files[dest][0] if dest in listed_files else 0
+            if len(found) != listed_count:
+                raise SystemExit("%s: the gate reads %d findings, its row states %d, first %s" % (dest, len(found), listed_count, found[0] if found else "none"))
             yield dest, out, divisions, pairs, name
 
 

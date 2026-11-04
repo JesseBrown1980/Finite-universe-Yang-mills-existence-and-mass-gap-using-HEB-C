@@ -44,6 +44,22 @@ INDEP_KERNEL_PIN = "c5a66e8fafdf56b63eb385085ef3b352a7559e6072f8c99791b74b46392b
 INDEP_KERNEL_SOURCE_BLOB = "b159b7eda3c60ea24e518c855800116ac2fff2d7"
 
 
+def int_power(base, exponent):
+    """base to a whole exponent at or above zero, by squaring, in ints. A negative exponent raises ValueError, where ** on two ints gives floating point."""
+    if not isinstance(exponent, int):
+        raise TypeError("int_power takes an int exponent, not %s" % type(exponent).__name__)
+    if exponent < 0:
+        raise ValueError("int_power takes an exponent at or above zero, not %d" % exponent)
+    result = 1
+    while exponent:
+        if exponent & 1:
+            result *= base
+        exponent >>= 1
+        if exponent:
+            base *= base
+    return result
+
+
 def emit(tag, *fields):
     print("|".join((tag,) + fields + ("json=0",)), flush=True)
 
@@ -217,7 +233,7 @@ def character_table(lx, ly, characters):
 
 def burnside(links, vertices):
     free = links - vertices + 1
-    total = 6 ** free + 3 * 2 ** free + 2 * 3 ** free
+    total = int_power(6, free) + 3 * int_power(2, free) + 2 * int_power(3, free)
     if total % 6:
         fail("B", "burnside_not_divisible")
     return total // 6
@@ -965,7 +981,7 @@ def low_cost_states(links, vertices, dims, top, cycle_size):
                 degree[b] = degree.get(b, 0) + 1
             if count == cycle_size and all(d == 2 for d in degree.values()):
                 cycles += 1
-            untouched = dims[0, 0] ** (vertices - len(degree))
+            untouched = int_power(dims[0, 0], vertices - len(degree))
             for signs in range(count + 1):
                 if 6 * signs + 3 * (count - signs) > top:
                     break

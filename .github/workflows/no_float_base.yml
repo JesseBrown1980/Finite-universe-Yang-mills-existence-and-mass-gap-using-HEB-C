@@ -1,0 +1,102 @@
+# The operator's rule: "We can't use float." These two jobs run the base branch's copy of this file on every pull request, so a pull request cannot edit them or the gate they run.
+# Set GATE_DIR to the folder that holds no_float_gate.py and FLOAT-EVIDENCE.txt.
+# GitHub blocks pull_request_target by default from December 2, 2026, with trial blocks on November 9 and 16, 16:00 to 18:00 UTC, and a repository Actions policy allows this one path, .github/workflows/no_float_base.yml, so this file keeps its name.
+#
+# Why pull_request_target is safe here. That event runs with the base branch's workflow and a read token, on pull requests from forks too. The danger it carries is running the pull request's code with that token.
+# Nothing here runs anything from the pull request:
+# - The gate is copied from the base commit, and -I keeps a pull request's re.py or ast.py off the import path.
+# - The pull request's tree is checked out at a separate path, as data. persist-credentials: false leaves no token on disk beside it. submodules: false and lfs: false fetch nothing further on its say-so.
+# - The gate reads that tree only with git ls-files and git cat-file: object bytes, with no filter, no hook, no attribute driver, and no symlink followed. It parses Python with ast and reads the rest with regular expressions, and it never imports or runs what it reads.
+# - The list is taken with git cat-file, so a list that is a symlink in the pull request yields its target's name, which fails as a bad row.
+# - The second job compares trees with git diff-tree, plumbing that runs no diff driver or textconv.
+# - No value from the pull request reaches a run: line. The head sha and repository name go through with: inputs only, and the row below reads the sha back from the head path with git rev-parse, which prints hex digits.
+# - The gate prints each row on one line with newlines escaped, so a file name cannot start a workflow command in the log.
+# Keep it this way. A step that builds, installs, tests or sources anything from the head path breaks all of the above.
+name: No floating point, base gate
+
+on:
+  pull_request_target:
+
+permissions:
+  contents: read
+
+env:
+  GATE_DIR: native/scripts
+
+jobs:
+  # The base commit's gate reads the pull request's list and files. A same-change edit to the gate cannot help a float past it. A float that brings its own pinned row passes this job, since the list comes from the pull request, and the job below flags that row.
+  no-float-base:
+    # ubuntu-24.04 keeps python3 at 3.12, one of the two versions the gate's selftest was measured on.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: The base commit, which holds the gate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # On pull_request_target this is the base branch's commit.
+          ref: ${{ github.sha }}
+          path: base
+          persist-credentials: false
+      - name: The pull request's tree, as data
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: head
+          persist-credentials: false
+          submodules: false
+          lfs: false
+      - name: A row recording the trusted commit, its gate and the head they read
+        run: |
+          set -euo pipefail
+          base_sha=$(git -C base rev-parse HEAD)
+          gate_sha256=$(sha256sum "base/$GATE_DIR/no_float_gate.py" | cut -d' ' -f1)
+          head_sha=$(git -C head rev-parse HEAD)
+          echo "NO_FLOAT_BASE|base_sha=$base_sha|gate_sha256=$gate_sha256|head_sha=$head_sha|json=0"
+      - name: The base gate reads its own test snippets
+        run: python3 -I -X utf8 "base/$GATE_DIR/no_float_gate.py" --selftest
+      - name: The base gate reads the pull request's list and files
+        run: |
+          set -euo pipefail
+          mkdir gate-run
+          cp "base/$GATE_DIR/no_float_gate.py" gate-run/no_float_gate.py
+          git -C head cat-file blob "HEAD:$GATE_DIR/FLOAT-EVIDENCE.txt" > gate-run/FLOAT-EVIDENCE.txt
+          python3 -I -X utf8 gate-run/no_float_gate.py head
+
+  # Red when the pull request changes the gate, the list or either workflow. It is deliberately a visible flag: such a change may be right, and a person must read that diff.
+  no-float-list-unchanged:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: The base commit, with its history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          path: base
+          persist-credentials: false
+          fetch-depth: 0
+      - name: The pull request's commits, as data
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: head
+          persist-credentials: false
+          fetch-depth: 0
+          submodules: false
+          lfs: false
+      - name: The gate, the list and both workflows, against the point this pull request forked from
+        run: |
+          set -euo pipefail
+          # The fork point keeps a later change on the base branch from reading as this pull request's change.
+          git -C head fetch -q --no-tags "$PWD/base" HEAD
+          fork=$(git -C head merge-base FETCH_HEAD HEAD)
+          changed=$(git -C head diff-tree -r --no-renames --name-only "$fork" HEAD -- "$GATE_DIR/no_float_gate.py" "$GATE_DIR/FLOAT-EVIDENCE.txt" .github/workflows/no_float.yml .github/workflows/no_float_base.yml)
+          if [ -n "$changed" ]; then
+            for path in $changed; do
+              echo "NO_FLOAT_LIST_CHANGED|path=$path|json=0"
+            done
+            echo "::error::This pull request changes the gate, its list or a no-float workflow. A person must read that diff before it merges."
+            exit 1
+          fi
+          echo "NO_FLOAT_LIST_UNCHANGED|json=0"
