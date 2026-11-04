@@ -1,0 +1,8 @@
+# What compiled_float_check.py cannot compile, each with its reason. A path here that starts to compile fails as stale; a tracked Rust source or package that fails to compile and is not here fails.
+# These sources are read as text by no_float_gate.py, and their compiled forms are read where the row says.
+native/ym/results/3x4_stream/perron/allpairs/hardened/review-opus55-part3/hard/fix | A template with no source of its own: hard/fix/patch.py writes allpairs.rs into it at a pin, and hard/recipe_linux.sh builds the result
+native/ym/results/3x4_stream/perron/allpairs/failclosed/review-opus55/fuzz/harness_tail.rs | A fragment, already appended to fuzz/src/main.rs, which this check builds and reads
+native/ym/results/3x4_stream/perron/allpairs/hardened/review-opus55-part2/diff/harness_tail.rs | A fragment, already appended to diff/fuzz/src/main.rs, which this check builds and reads
+native/ym/results/3x4_stream/perron/allpairs/hardened/review-opus55-part3/hard/harness_tail.rs | A fragment that hard/fix/patch.py appends to allpairs.rs
+native/ym/results/3x4_stream/perron/vector/review-opus55/tmp/hybrid_fn.rs | A fragment of the second seat's hybrid review, a function body with no crate around it
+native/ym/results/zlight-2026-10-30-cloud/run1/main.rs | The first version of zlight's driver: its run.sh swaps it into a scratch copy that has the sha2 crate. Its hash stays pinned in SHA256SUMS
