@@ -18,13 +18,15 @@ Modes, each exits 1 on the first check that does not hold:
                             of the torus multigraph, and every low-cost assignment of the tori listed below. With
                             FOLDER, also the second seat's 28 tori from its logs there.
   predictions PRED RETRY RETRY2 MEASURE
-                            Each prediction row against the rows in MEASURE. A changed value reads MISS, and a row
-                            absent from MEASURE reads NOT_MEASURED with its reason. It prints every verdict and exits
-                            0, so a miss is recorded beside its row.
+                            Each prediction row against the rows in MEASURE. A row with another value reads MISS, an
+                            appended row included, since every row with the head counts. When every row present reads
+                            as predicted, a row absent from MEASURE reads NOT_MEASURED with its reason. It prints every
+                            verdict and exits 0, so a miss is recorded beside its row.
 
 Red controls, each must exit 1:
   a --alter-entry, b --bad-character, c --alter-entry, c --drop-factor C, c --add-factor C, g --bad-character,
-  g --cap C, g --alter-vertex, and f on a MEASURE with a changed row.
+  g --cap C, g --alter-vertex, g --alter-vertex-from-2x2, g --permutation-character, g --alter-empty-vertex,
+  and f on a MEASURE with a changed row.
 """
 import os
 import runpy
@@ -686,80 +688,92 @@ LOW_TABLE = {"B10": ("2x3", ((0, 1), (3, 0), (6, 3), (9, 2), (72, 1)))}
 NO_ROW = "NOT_MEASURED|reason=NO_ROW"
 
 
+def rows_with_head(lines, head):
+    return [line for line in lines if line.startswith(head)]
+
+
+def every_row_holds(rows, *needles):
+    return all(needle in row for row in rows for needle in needles)
+
+
 def needle_verdict(pid, lines):
     """MET when every row with the head holds the needles, MISS when one with the head differs, NO_ROW when none has it."""
     head, *needles = PREDICTION_NEEDLES[pid]
     contradiction = PREDICTION_CONTRADICTED_BY.get(pid)
     if contradiction and any(line.startswith(contradiction) for line in lines):
         return "MISS"
-    rows = [line for line in lines if line.startswith(head)]
+    rows = rows_with_head(lines, head)
     if not rows:
         return NO_ROW
-    return "MET" if all(all(needle in row for needle in needles) for row in rows) else "MISS"
+    return "MET" if every_row_holds(rows, *needles) else "MISS"
+
+
+def table_verdict(label, listed, closed, lines):
+    """MISS when a row of the table reads another m than the list gives its cost, where a closed list gives every other
+    cost m = 0. Then NO_ROW when a listed cost has no row, and MET when each listed cost has one."""
+    rows = [row_cells(line) for line in rows_with_head(lines, "ELECTRIC_B_M|L=%s|cost=" % label)]
+    for cell in rows:
+        if cell.get("m") != listed.get(cell["cost"], "0" if closed else cell.get("m")):
+            return "MISS"
+    return NO_ROW if set(listed) - {cell["cost"] for cell in rows} else "MET"
 
 
 def verdict_for(fields, lines):
     pid = fields["id"]
     if pid in FULL_TABLE:
         label, text = FULL_TABLE[pid]
-        pairs = [piece.split(":") for piece in text.split(",")]
-        expect = [["ELECTRIC_B_M|L=%s|cost=%s|m=%s|" % (label, c, m)] for c, m in pairs]
-        total = "ELECTRIC_B_M|L=%s|" % label
-        if not any(total in line for line in lines):
-            return NO_ROW
-        listed = {int(c) for c, _ in pairs}
-        for line in lines:
-            if line.startswith(total):
-                cell = dict(p.split("=", 1) for p in line.split("|")[1:-1])
-                if int(cell["cost"]) not in listed and cell["m"] != "0":
-                    return "MISS"
-        return "MET" if all(holds(lines, *needles) for needles in expect) else "MISS"
+        return table_verdict(label, dict(piece.split(":") for piece in text.split(",")), True, lines)
     if pid in LOW_TABLE:
         label, pairs = LOW_TABLE[pid]
-        if not any(("ELECTRIC_B_M|L=%s|" % label) in line for line in lines):
-            return NO_ROW
-        return "MET" if all(holds(lines, "ELECTRIC_B_M|L=%s|cost=%d|m=%d|" % (label, c, m)) for c, m in pairs) else "MISS"
+        return table_verdict(label, {str(c): str(m) for c, m in pairs}, False, lines)
     if pid in PREDICTION_NEEDLES:
         return needle_verdict(pid, lines)
     if fields.get("path") == "D" and "T" in fields:
         t = fields["T"]
-        head = "GPT6_STURM|JE=1|JB=0|threshold=%s/1000|" % t
-        if not any(head in line for line in lines):
+        rows = rows_with_head(lines, "GPT6_STURM|JE=1|JB=0|threshold=%s/1000|" % t)
+        if not rows:
             if holds(lines, "ELECTRIC_D_UNCERTIFIED|T=%s|" % t):
                 return "NOT_MEASURED|reason=ENGINE_UNCERTIFIED_AT_THIS_T"
             return NO_ROW
-        needles = [head, "|negative=%s|" % fields["negative"]]
+        needles = ["|negative=%s|" % fields["negative"]]
         if "counts" in fields:
             needles.append("|counts=%s|" % fields["counts"])
-        return "MET" if holds(lines, *needles) else "MISS"
+        return "MET" if every_row_holds(rows, *needles) else "MISS"
     if fields.get("path") == "E":
-        head = "INDEP_COUNT|L=2x2|r=0|t_milli=%s|" % fields["t_milli"]
-        if not any(head in line for line in lines):
-            return NO_ROW
-        built = holds(lines, "INDEP_BUILD|L=2x2|gauge_orbits=%s|" % fields["gauge_orbits"])
-        return "MET" if built and holds(lines, head + "N=%s|" % fields["N"], "result=COMPUTED") else "MISS"
+        runs = rows_with_head(lines, "INDEP_COUNT|L=2x2|r=0|t_milli=%s|" % fields["t_milli"])
+        builds = rows_with_head(lines, "INDEP_BUILD|L=2x2|")
+        if not every_row_holds(runs, "|N=%s|" % fields["N"], "|result=COMPUTED|"):
+            return "MISS"
+        if not every_row_holds(builds, "|gauge_orbits=%s|" % fields["gauge_orbits"]):
+            return "MISS"
+        return "MET" if runs and builds else NO_ROW
     return "NOT_MEASURED|reason=NO_CHECK_FOR_THIS_ID"
 
 
-def sturm_counts(lines, t):
-    """The sector counts of the certified row at T, or None."""
-    head = "GPT6_STURM|JE=1|JB=0|threshold=%d/1000|" % t
-    for line in lines:
-        if head in line:
-            cells = dict(p.split("=", 1) for p in line.split("|")[1:] if "=" in p)
-            return int(cells["negative"]), tuple(int(x) for x in cells["counts"].split(","))
-    return None
+def sturm_readings(lines, t):
+    """Each certified row at T as (negative, sector counts), in receipt order."""
+    readings = []
+    for line in rows_with_head(lines, "GPT6_STURM|JE=1|JB=0|threshold=%d/1000|" % t):
+        cells = row_cells(line)
+        readings.append((int(cells["negative"]), tuple(int(x) for x in cells["counts"].split(","))))
+    return readings
 
 
 def certified_in_interval(lines, interval):
-    """The sector counts of the first certified row with T strictly inside the open interval, or None."""
+    """The sector counts of every certified row with T strictly inside the open interval, in receipt order."""
     low, high = (int(x) * 1000 for x in interval.split(","))
-    for line in lines:
-        if line.startswith("GPT6_STURM|JE=1|JB=0|threshold="):
-            t = int(line.split("threshold=")[1].split("/")[0])
-            if low < t < high:
-                return sturm_counts(lines, t)[1]
-    return None
+    found = []
+    for line in rows_with_head(lines, "GPT6_STURM|JE=1|JB=0|threshold="):
+        cells = row_cells(line)
+        if low < int(cells["threshold"].split("/")[0]) < high:
+            found.append(tuple(int(x) for x in cells["counts"].split(",")))
+    return found
+
+
+def stopped_in_interval(lines, interval):
+    """Whether a stopped run has its T strictly inside the open interval."""
+    low, high = (int(x) * 1000 for x in interval.split(","))
+    return any(low < int(row_cells(line)["T"]) < high for line in rows_with_head(lines, "ELECTRIC_D_UNCERTIFIED|T="))
 
 
 def retry_checks(retry_file, lines, counts):
@@ -770,16 +784,17 @@ def retry_checks(retry_file, lines, counts):
         pid = fields["id"]
         if "open_interval" in fields:
             attempts = [int(t) for t in fields["T_list"].split(",")]
-            first = certified_row(lines, attempts)
+            rows = certified_rows(lines, attempts)
             stopped = sum(1 for t in attempts if holds(lines, "ELECTRIC_D_UNCERTIFIED|T=%d|" % t))
-            if first is None:
-                verdict = "NOT_MEASURED|reason=ENGINE_UNCERTIFIED_AT_EVERY_T_TRIED"
+            if not rows:
+                verdict = "NOT_MEASURED|reason=ENGINE_UNCERTIFIED_AT_EVERY_T_TRIED" if stopped else NO_ROW
                 extra = ["uncertified_attempts=%d" % stopped]
             else:
-                met = first[1][0] == int(fields["negative"]) and ("pp" not in fields or first[1][1][0] == int(fields["pp"]))
-                verdict = "MET" if met else "MISS"
-                extra = ["certified_T=%d" % first[0], "negative=%d" % first[1][0],
-                         "counts=" + ",".join(map(str, first[1][1])), "uncertified_attempts=%d" % stopped]
+                wrong = [row for row in rows if row[1][0] != int(fields["negative"]) or ("pp" in fields and row[1][1][0] != int(fields["pp"]))]
+                verdict = "MISS" if wrong else "MET"
+                shown = (wrong or rows)[0]
+                extra = ["certified_T=%d" % shown[0], "negative=%d" % shown[1][0],
+                         "counts=" + ",".join(map(str, shown[1][1])), "uncertified_attempts=%d" % stopped]
             counts[verdict.split("|")[0]] += 1
             emit("PREDICTION_CHECK", "id=" + pid, "path=D", "source=retry", "open_interval=" + fields["open_interval"],
                  "verdict=" + verdict, *extra)
@@ -787,11 +802,14 @@ def retry_checks(retry_file, lines, counts):
             low, high = fields["pair"].split("_with_")
             below, above = certified_in_interval(lines, low), certified_in_interval(lines, high)
             if below and above:
-                total = tuple(a + b for a, b in zip(below, above))
-                verdict = "MET" if total == (385, 336, 336, 336) else "MISS"
-                extra = ["sum=" + ",".join(map(str, total))]
-            else:
+                totals = [tuple(a + b for a, b in zip(x, y)) for x in below for y in above]
+                wrong = [total for total in totals if total != (385, 336, 336, 336)]
+                verdict = "MISS" if wrong else "MET"
+                extra = ["sum=" + ",".join(map(str, (wrong or totals)[0]))]
+            elif (below or stopped_in_interval(lines, low)) and (above or stopped_in_interval(lines, high)):
                 verdict, extra = "NOT_MEASURED|reason=A_SIDE_OF_THE_PAIR_IS_UNCERTIFIED", []
+            else:
+                verdict, extra = NO_ROW, []
             counts[verdict.split("|")[0]] += 1
             emit("PREDICTION_CHECK", "id=" + pid, "path=D", "source=retry", "pair=" + fields["pair"], "verdict=" + verdict, *extra)
 
@@ -824,8 +842,17 @@ def mirror_pairs(lines):
     return pairs, agree
 
 
-def certified_row(lines, attempts):
-    return next(((t, sturm_counts(lines, t)) for t in attempts if sturm_counts(lines, t)), None)
+def certified_rows(lines, attempts):
+    """Each certified row at the T listed, as (T, (negative, sector counts)), in the order of the list."""
+    return [(t, reading) for t in attempts for reading in sturm_readings(lines, t)]
+
+
+def retry2_verdict(rows, fields):
+    """The verdict on certified rows against the predicted reading, with the fields of the first row that differs, or else of the first row."""
+    predicted = int(fields["negative"]), tuple(int(x) for x in fields["counts"].split(","))
+    wrong = [row for row in rows if row[1] != predicted]
+    t, (negative, sectors) = (wrong or rows)[0]
+    return "MISS" if wrong else "MET", ["certified_T=%d" % t, "negative=%d" % negative, "counts=" + ",".join(map(str, sectors))]
 
 
 def retry2_checks(retry2_file, lines, counts):
@@ -838,21 +865,19 @@ def retry2_checks(retry2_file, lines, counts):
         extra = []
         if pid == "S1":
             attempts = [int(t) for t in fields["T_list"].split(",")]
-            first = certified_row(lines, attempts)
-            if first is None:
-                verdict = "NOT_MEASURED|reason=ENGINE_UNCERTIFIED_AT_EVERY_T_TRIED"
+            rows = certified_rows(lines, attempts)
+            if not rows:
+                stopped = any(holds(lines, "ELECTRIC_D_UNCERTIFIED|T=%d|" % t) for t in attempts)
+                verdict = "NOT_MEASURED|reason=ENGINE_UNCERTIFIED_AT_EVERY_T_TRIED" if stopped else NO_ROW
             else:
-                row = "%d" % first[1][0], ",".join(map(str, first[1][1]))
-                verdict = "MET" if row == (fields["negative"], fields["counts"]) else "MISS"
-                extra = ["certified_T=%d" % first[0], "negative=" + row[0], "counts=" + row[1]]
+                first = rows[0]
+                verdict, extra = retry2_verdict(rows, fields)
         elif pid == "S2":
-            mirror = sturm_counts(lines, 48000 - first[0]) if first else None
-            if mirror is None:
+            mirror = certified_rows(lines, [48000 - first[0]]) if first else []
+            if not mirror:
                 verdict = "NOT_MEASURED|reason=NO_CERTIFIED_T_IN_S1_OR_NO_MIRROR_ROW"
             else:
-                row = "%d" % mirror[0], ",".join(map(str, mirror[1]))
-                verdict = "MET" if row == (fields["negative"], fields["counts"]) else "MISS"
-                extra = ["certified_T=%d" % (48000 - first[0]), "negative=" + row[0], "counts=" + row[1]]
+                verdict, extra = retry2_verdict(mirror, fields)
         else:
             pairs, agree = mirror_pairs(lines)
             verdict = "MET" if pairs and pairs == agree else ("MISS" if pairs else "NOT_MEASURED|reason=NO_T_RUN_ON_BOTH_SIDES")
@@ -924,12 +949,13 @@ def girth(links, vertices):
     return best
 
 
-def low_cost_states(links, dims, top, cycle_size):
-    """Reads every assignment of cost at most top. Returns the states by (sign links, tau links), the assignments read,
-    and how many sets of cycle_size links have degree exactly 2 at each vertex they touch."""
-    states_by_labels = {(0, 0): 1}
-    assignments, cycles = 1, 0
-    for count in range(1, top // 3 + 1):
+def low_cost_states(links, vertices, dims, top, cycle_size):
+    """Reads every assignment of cost at most top, from the all-trivial one up, with dim Inv at every vertex. Returns the
+    states by (sign links, tau links), the assignments read, and how many sets of cycle_size links have degree exactly 2
+    at each vertex they touch."""
+    states_by_labels = {}
+    assignments, cycles = 0, 0
+    for count in range(top // 3 + 1):
         for chosen in combinations(links, count):
             degree = {}
             for a, b in chosen:
@@ -937,6 +963,7 @@ def low_cost_states(links, dims, top, cycle_size):
                 degree[b] = degree.get(b, 0) + 1
             if count == cycle_size and all(d == 2 for d in degree.values()):
                 cycles += 1
+            untouched = dims[0, 0] ** (vertices - len(degree))
             for signs in range(count + 1):
                 if 6 * signs + 3 * (count - signs) > top:
                     break
@@ -946,7 +973,7 @@ def low_cost_states(links, dims, top, cycle_size):
                     for position in sign_positions:
                         for end in chosen[position]:
                             sign_ends[end] = sign_ends.get(end, 0) + 1
-                    states = 1
+                    states = untouched
                     for v, d in degree.items():
                         s = sign_ends.get(v, 0)
                         states *= dims[d - s, s]
@@ -966,7 +993,7 @@ def torus_row(lx, ly, dims, cap):
     formula = 3 * min(cap, lx, ly)
     if 3 * value != formula:
         fail("G", "girth_differs_from_the_formula", "L=" + label, "girth=%d" % value, "formula=%d" % formula)
-    labels, assignments, cycles = low_cost_states(links, dims, formula, value)
+    labels, assignments, cycles = low_cost_states(links, lx * ly, dims, formula, value)
     by_cost = {}
     for (signs, taus), states in labels.items():
         by_cost[6 * signs + 3 * taus] = by_cost.get(6 * signs + 3 * taus, 0) + states
@@ -1023,12 +1050,11 @@ def second_seat_rows(folder, enumerated):
          "rows_from_the_second_seats_logs=%d" % (len(tori) - rerun), "rows_from_a_rerun_of_its_script=%d" % rerun)
 
 
-def path_g(folder, characters, cap, alter_vertex):
+def path_g(folder, characters, cap, altered_dims=(), first_side=1):
     dims = vertex_rule(characters)
     emit("ELECTRIC_G_VERTEX", "tuples=81", "dim_inv_by_k_tau_ends_s_sign_ends=" + ",".join("k%ds%d:%d" % (k, s, dims[k, s]) for k, s in sorted(dims)),
          "one_tau_end=0", "odd_sign_ends_with_no_tau=0", "result=PASS")
-    if alter_vertex:
-        dims[1, 0] = 1
+    dims.update(altered_dims)
     checked = 0
     for lx in range(1, GIRTH_UP_TO + 1):
         for ly in range(1, GIRTH_UP_TO + 1):
@@ -1038,9 +1064,10 @@ def path_g(folder, characters, cap, alter_vertex):
             checked += 1
     emit("ELECTRIC_G_GIRTH", "Lx=1..%d" % GIRTH_UP_TO, "Ly=1..%d" % GIRTH_UP_TO, "method=each_link_removed_then_shortest_path_between_its_ends",
          "girth_equal_to_min(4,Lx,Ly)=%d/%d" % (checked, checked), "result=PASS")
-    tori = [(lx, ly) for lx in range(1, ENUMERATED_UP_TO + 1) for ly in range(1, ENUMERATED_UP_TO + 1)] + list(ENUMERATED_ALSO)
+    sides = range(first_side, ENUMERATED_UP_TO + 1)
+    tori = [(lx, ly) for lx in sides for ly in sides] + list(ENUMERATED_ALSO)
     enumerated = dict(torus_row(lx, ly, dims, cap) for lx, ly in tori)
-    labels, _, _ = low_cost_states(torus_links(2, 2), dims, 12, 0)
+    labels, _, _ = low_cost_states(torus_links(2, 2), 4, dims, 12, 0)
     split = {key: labels.get(key, 0) for key in ((2, 0), (1, 2), (0, 4))}
     if sum(split.values()) != 34:
         fail("G", "split_at_cost_12_differs_from_34", "states=%d" % sum(split.values()))
@@ -1083,13 +1110,19 @@ def main(argv):
     elif mode == "f" and len(rest) == 1:
         path_f(rest[0])
     elif mode == "g" and rest == ["--bad-character"]:
-        path_g(None, (CHARACTERS[0], CHARACTERS[1], (2, 0, 1)), FORMULA_CAP, False)
+        path_g(None, (CHARACTERS[0], CHARACTERS[1], (2, 0, 1)), FORMULA_CAP)
+    elif mode == "g" and rest == ["--permutation-character"]:
+        path_g(None, (CHARACTERS[0], CHARACTERS[1], (3, 1, 0)), FORMULA_CAP)
     elif mode == "g" and len(rest) == 2 and rest[0] == "--cap":
-        path_g(None, CHARACTERS, int(rest[1]), False)
+        path_g(None, CHARACTERS, int(rest[1]))
     elif mode == "g" and rest == ["--alter-vertex"]:
-        path_g(None, CHARACTERS, FORMULA_CAP, True)
+        path_g(None, CHARACTERS, FORMULA_CAP, {(1, 0): 1})
+    elif mode == "g" and rest == ["--alter-vertex-from-2x2"]:
+        path_g(None, CHARACTERS, FORMULA_CAP, {(1, 0): 1}, 2)
+    elif mode == "g" and rest == ["--alter-empty-vertex"]:
+        path_g(None, CHARACTERS, FORMULA_CAP, {(0, 0): 2})
     elif mode == "g" and len(rest) <= 1:
-        path_g(rest[0] if rest else None, CHARACTERS, FORMULA_CAP, False)
+        path_g(rest[0] if rest else None, CHARACTERS, FORMULA_CAP)
     elif mode == "predictions" and len(rest) == 4:
         predictions(rest[0], rest[1], rest[2], rest[3])
     else:

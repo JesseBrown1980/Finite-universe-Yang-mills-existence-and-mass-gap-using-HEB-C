@@ -26,6 +26,7 @@ on:
       - 'independent/seat_sturm_full_inertia.measure'
       - 'independent/seat_magnetic_endpoint.measure'
       - 'native/ym/independent/indep_verify.py'
+      - 'native/ym/independent/minors/src/main.rs'
       - '.github/workflows/electric-spectrum-2x2.yml'
   workflow_dispatch:
 
@@ -62,7 +63,7 @@ jobs:
           python3 -I -X utf8 native/scripts/integer_only_audit.py independent/electric_spectrum_2x2.py independent/reviews/opus55-electric-gap/*.py
           python3 -I -X utf8 native/scripts/no_float_gate.py .
           rc=0; grep -q -E 'electric_spectrum|reviews/opus55-electric-gap' native/scripts/FLOAT-EVIDENCE.txt || rc=$?; test "$rc" = 1
-      - name: The engines are the bytes that ran, and the receipt is plain rows
+      - name: The engines and the kernel source are the bytes that ran, path E holds its two counts, and the receipt is plain rows
         run: |
           set -euo pipefail
           M=independent/electric_spectrum_2x2.measure
@@ -73,6 +74,10 @@ jobs:
           while IFS='|' read -r _ file sha _; do
             test "$(sha256sum "${file#file=}" | cut -d' ' -f1)" = "${sha#sha256=}"
           done < /tmp/engines.pin
+          test "$(grep -c '^INDEP_COUNT|' "$M")" -eq 2
+          test "$(grep -c '^ELECTRIC_E_RUN|' "$M")" -eq 1
+          kernel_source_blob="$(sed -n 's/^ELECTRIC_E_RUN|.*|kernel_source_blob=\([0-9a-f]*\)|.*/\1/p' "$M")"
+          test "$(git rev-parse HEAD:native/ym/independent/minors/src/main.rs)" = "$kernel_source_blob"
       - name: Path A, one link, pinned rows
         run: |
           set -euo pipefail
@@ -194,6 +199,86 @@ jobs:
           check /tmp/bad.measure > /tmp/red.out
           grep -q '^PREDICTION_CHECK|id=D4|.*|verdict=MISS|json=0$' /tmp/red.out
           grep -q '^PREDICTION_SUMMARY|rows=53|met=46|miss=1|not_measured=6|json=0$' /tmp/red.out
+      - name: Controls on the prediction check, where a partly missing row and each other absence read their reason
+        run: |
+          set -euo pipefail
+          M=independent/electric_spectrum_2x2.measure
+          P=independent/ELECTRIC-SPECTRUM-2X2-PREDICTION.hbp
+          check() { python3 -I -X utf8 independent/electric_spectrum_2x2.py predictions "$P" independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION.hbp independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION-2.hbp /tmp/bad.measure > /tmp/red.out; }
+          reads() { verdict=$1; shift; for id in "$@"; do grep -q "^PREDICTION_CHECK|id=$id|.*|verdict=$verdict|" /tmp/red.out; done; }
+          summary() { grep -qx "PREDICTION_SUMMARY|rows=$1|met=$2|miss=$3|not_measured=$4|json=0" /tmp/red.out; }
+          no_row='NOT_MEASURED|reason=NO_ROW'
+          grep -v '^ELECTRIC_B_M|L=2x2|cost=12|' "$M" > /tmp/bad.measure
+          check
+          reads "$no_row" B6
+          reads MET B1 B2 B3 B4
+          summary 53 46 0 7
+          grep -v '^ELECTRIC_B_M|L=2x3|cost=6|' "$M" > /tmp/bad.measure
+          check
+          reads "$no_row" B10
+          summary 53 46 0 7
+          grep -v '^INDEP_BUILD|L=2x2|' "$M" > /tmp/bad.measure
+          check
+          reads "$no_row" E1 E2
+          summary 53 45 0 8
+          grep -v '^ELECTRIC_B_M|L=2x2|cost=12|' "$M" | sed 's/^ELECTRIC_B_M|L=2x2|cost=6|m=4|/ELECTRIC_B_M|L=2x2|cost=6|m=5|/' > /tmp/bad.measure
+          check
+          reads MISS B3 B6
+          summary 53 45 2 6
+          grep -v '^ELECTRIC_B_M|' "$M" > /tmp/bad.measure
+          check
+          reads "$no_row" B1 B2 B3 B4 B6 B10
+          summary 53 41 0 12
+          grep -v '^GPT6_STURM|.*|threshold=5999/1000|' "$M" > /tmp/bad.measure
+          check
+          reads "$no_row" D3
+          summary 53 46 0 7
+          grep -v '^INDEP_COUNT|' "$M" > /tmp/bad.measure
+          check
+          reads "$no_row" E1 E2
+          summary 53 45 0 8
+          grep -v -E '^(GPT6_STURM|ELECTRIC_D_[A-Z]+)\|' "$M" > /tmp/bad.measure
+          check
+          reads "$no_row" D1 D2 D3 D4 D5 D6 D7 D8 D9 D10 D11 D12 D13 D14 D15 D16 D17 R1 R2 R3 R4 R5 R6 S1
+          reads 'NOT_MEASURED|reason=NO_CERTIFIED_T_IN_S1_OR_NO_MIRROR_ROW' S2
+          reads 'NOT_MEASURED|reason=NO_T_RUN_ON_BOTH_SIDES' S3
+          summary 53 27 0 26
+          grep -v '^ELECTRIC_D_RUN|' "$M" > /tmp/bad.measure
+          check
+          reads 'NOT_MEASURED|reason=NO_T_RUN_ON_BOTH_SIDES' S3
+          summary 53 46 0 7
+          grep -v '^GPT6_STURM|.*|threshold=20950/1000|' "$M" > /tmp/bad.measure
+          check
+          reads 'NOT_MEASURED|reason=A_SIDE_OF_THE_PAIR_IS_UNCERTIFIED' R5
+          reads 'NOT_MEASURED|reason=ENGINE_UNCERTIFIED_AT_EVERY_T_TRIED' S1
+          reads 'NOT_MEASURED|reason=NO_CERTIFIED_T_IN_S1_OR_NO_MIRROR_ROW' S2
+          summary 53 44 0 9
+          { cat "$P"; echo 'PREDICT|id=Z1|path=Z|source=unit|tag=CONJECTURE|json=0'; } > /tmp/pred.hbp
+          P=/tmp/pred.hbp
+          cp "$M" /tmp/bad.measure
+          check
+          reads 'NOT_MEASURED|reason=NO_CHECK_FOR_THIS_ID' Z1
+          summary 54 47 0 7
+      - name: Controls on the prediction check, where an appended row with another value reads MISS
+        run: |
+          set -euo pipefail
+          M=independent/electric_spectrum_2x2.measure
+          sturm() { echo "GPT6_STURM|JE=1|JB=0|threshold=$1/1000|digits=40|pivots=1393|negative=$2|counts=$3|ambiguous=0|json=0"; }
+          { cat "$M"
+            echo 'ELECTRIC_B_M|L=2x2|cost=12|m=35|cumulative=40|json=0'
+            echo 'ELECTRIC_B_M|L=2x3|cost=6|m=4|cumulative=5|json=0'
+            echo 'INDEP_COUNT|L=2x2|r=0|t_milli=5999000|N=2|result=COMPUTED|json=0'
+            echo 'INDEP_BUILD|L=2x2|gauge_orbits=1394|json=0'
+            echo 'ELECTRIC_D_SECTOR|T=27050|sector=pp|negative=311|json=0'
+            sturm 5999 2 2,0,0,0
+            sturm 23700 448 124,109,109,106
+            sturm 20950 256 76,61,61,58
+            sturm 27050 1139 311,275,275,278
+          } > /tmp/bad.measure
+          python3 -I -X utf8 independent/electric_spectrum_2x2.py predictions independent/ELECTRIC-SPECTRUM-2X2-PREDICTION.hbp independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION.hbp independent/ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION-2.hbp /tmp/bad.measure > /tmp/red.out
+          for id in B6 B10 D3 E1 E2 R2 R5 R6 S1 S2 S3; do grep -q "^PREDICTION_CHECK|id=$id|.*|verdict=MISS|" /tmp/red.out; done
+          grep -qx 'PREDICTION_SUMMARY|rows=53|met=36|miss=11|not_measured=6|json=0' /tmp/red.out
+          test "$(grep -c '^INDEP_COUNT|' /tmp/bad.measure)" -eq 3
       - name: Red controls on path G
         run: |
           set -euo pipefail
@@ -206,6 +291,15 @@ jobs:
           rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py g --alter-vertex > /tmp/red.out || rc=$?
           test "$rc" = 1
           grep -q '^ELECTRIC_FAIL|path=G|reason=m_at_gap_differs_from_the_shortest_cycles|L=1x2|m=4|cycles=2|' /tmp/red.out
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py g --alter-vertex-from-2x2 > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=G|reason=states_below_the_formula|L=2x2|states=8|formula=6|' /tmp/red.out
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py g --permutation-character > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=G|reason=one_tau_end_has_an_invariant|' /tmp/red.out
+          rc=0; python3 -I -X utf8 independent/electric_spectrum_2x2.py g --alter-empty-vertex > /tmp/red.out || rc=$?
+          test "$rc" = 1
+          grep -q '^ELECTRIC_FAIL|path=G|reason=zero_is_not_simple|L=1x1|' /tmp/red.out
       - name: Red controls on the small paths and on the conclusion
         run: |
           set -euo pipefail
