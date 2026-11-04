@@ -1,15 +1,21 @@
-name: Independent HTTP-0 3^16 Yang-Mills source audit
+name: Separate-implementation HTTP-0 3^16 Yang-Mills source audit
 on:
   pull_request:
     branches: [main]
     paths:
       - 'native/scripts/verify_http0_ym43.py'
+      - 'native/ym/results/3x4_stream/perron/PERRON-RESULT.hbp'
+      - 'native/ym/results/3x4_stream/perron/FULLREBUILD-RUN.hbp'
+      - 'native/ym/results/3x4_stream/perron/allpairs/ALLPAIRS-RUN.hbp'
       - 'docs/HTTP0-3POW16-YANG-MILLS-BRIDGE.md'
       - '.github/workflows/http0-ym43.yml'
   push:
     branches: [main]
     paths:
       - 'native/scripts/verify_http0_ym43.py'
+      - 'native/ym/results/3x4_stream/perron/PERRON-RESULT.hbp'
+      - 'native/ym/results/3x4_stream/perron/FULLREBUILD-RUN.hbp'
+      - 'native/ym/results/3x4_stream/perron/allpairs/ALLPAIRS-RUN.hbp'
       - 'docs/HTTP0-3POW16-YANG-MILLS-BRIDGE.md'
       - '.github/workflows/http0-ym43.yml'
 permissions:
@@ -22,12 +28,12 @@ jobs:
     steps:
       - name: Checkout proposed Yang-Mills source audit
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Check original source receipts against independent SHA256/Git blob oracle
+      - name: Check original source receipts against separately implemented SHA256/Git blob oracle
         run: |
           set -euo pipefail
           python3 native/scripts/verify_http0_ym43.py . | tee ym43-source-audit.hbp
           grep -F 'YM43_VERIFY|source_commit=5517268b511d5f28e307b21fc53eede3200ed7b9|power=3^16|capacity=43046721|sources=3|address_collision=0|source_sha256=PASS|git_blob_sha1=PASS|field_validation=PASS|gap_verdict=OPEN|physics_reexecuted=0|status=PASS' ym43-source-audit.hbp
-          grep -F 'YM43_CONTROLS|corrupt_receipt=REJECTED|missing_receipt=REJECTED|status=PASS' ym43-source-audit.hbp
+          grep -F 'YM43_CONTROLS|corrupt_receipt=REJECTED|missing_receipt=REJECTED|address_collision_injected=DETECTED|status=PASS' ym43-source-audit.hbp
       - name: Store source-only independent audit receipt
         uses: actions/upload-artifact@v4
         with:
