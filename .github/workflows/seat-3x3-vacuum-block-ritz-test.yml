@@ -2,7 +2,7 @@ name: 3x3 finite S3 vacuum-ball block-Krylov Ritz verification
 
 on:
   push:
-    branches: [seat-yang-mills-3x3-vacuum-block-ritz, ritz-outward-20261103]
+    branches: [seat-yang-mills-3x3-vacuum-block-ritz]
   pull_request:
     paths:
       - 'independent/**'
@@ -155,10 +155,15 @@ jobs:
           test "$rc" = 1
           grep -F 'range guard failed: level 0' /tmp/ritz-opt/range.err
           test ! -s /tmp/ritz-opt/range.out
+          rc=0
+          python3 -O independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k1.matrix -1 27 --order 1 > /tmp/ritz-opt/low.out 2> /tmp/ritz-opt/low.err || rc=$?
+          test "$rc" = 1
+          grep -F 'range guard failed: level 0' /tmp/ritz-opt/low.err
+          test ! -s /tmp/ritz-opt/low.out
           sed 's/^0 1 -3$/0 1 -2/' independent/matrices/b33_k1.matrix > /tmp/ritz-opt/b33_k1.matrix
           rc=0
           python3 -O independent/seat_3x3_vacuum_block_ritz.py /tmp/ritz-opt/b33_k1.matrix 1 27 --order 1 > /tmp/ritz-opt/sha.out 2> /tmp/ritz-opt/sha.err || rc=$?
           test "$rc" = 1
           grep -F 'matrix sha mismatch for b33_k1.matrix' /tmp/ritz-opt/sha.err
           test ! -s /tmp/ritz-opt/sha.out
-          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|range_guard_under_O=1|sha_pin_under_O=1|json=0'
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|range_guard_under_O=2|sha_pin_under_O=1|json=0'

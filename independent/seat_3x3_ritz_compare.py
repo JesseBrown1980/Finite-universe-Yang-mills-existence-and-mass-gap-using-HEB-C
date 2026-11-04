@@ -255,7 +255,7 @@ def check_replay_row(seat, replay):
         raise Fail("GPT6_DISAGREE", "full_gap_" + row_key(replay))
     if (need(replay, "method"), need(replay, "json")) != (REPLAY_METHOD, "0"):
         raise Fail("GPT6_DISAGREE", "label_" + row_key(replay))
-    pairs =(("ritz_e0_micro", "E0"), ("ritz_e1_micro", "E1"), ("ritz_gap_micro", "trial_gap"))
+    pairs = (("ritz_e0_micro", "E0"), ("ritz_e1_micro", "E1"), ("ritz_gap_micro", "trial_gap"))
     for theirs, ours in pairs:
         if interval(need(replay, theirs), DOTTED) != interval(need(seat, ours)):
             raise Fail("GPT6_DISAGREE", "%s_%s" % (theirs, row_key(replay)))
