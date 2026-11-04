@@ -1,0 +1,33 @@
+VECTOR|file=g-local-3x3-lump.hbp|rows=30|lumps=30|missing=0|extra=0|nonpositive=0|json=0
+TABLE_MIN|Lx=3|Ly=3|r=9/1|points=997|lumps_with_points=29|t_micro=73106758|at=(0, 9)|n={'ee': 0, 'eT': 0, 'eC': 0, 'TTs': 0, 'TTd': 0, 'TC': 0, 'CC': 18}|json=0
+GAP|flat_bound=54|gap_micro=19106758|json=0
+TIGHTEST_LUMPS|(0, 9):73106758;(2, 7):73106761;(4, 5):73106769;(6, 3):73106777;(8, 1):73106785;(8, 0):73106786;(6, 0):73106786;(4, 0):73106788;(2, 6):73106789;(2, 0):73106790;(4, 4):73106798;(0, 1):73106798|json=0
+LUMPMIN|a=0|b=1|micro=73106798|n=[14, 0, 4, 0, 0, 0, 0]|json=0
+LUMPMIN|a=0|b=2|micro=73106855|n=[11, 0, 6, 0, 0, 0, 1]|json=0
+LUMPMIN|a=0|b=3|micro=73106833|n=[9, 0, 6, 0, 0, 0, 3]|json=0
+LUMPMIN|a=0|b=4|micro=73106837|n=[7, 0, 6, 0, 0, 0, 5]|json=0
+LUMPMIN|a=0|b=5|micro=73106830|n=[5, 0, 6, 0, 0, 0, 7]|json=0
+LUMPMIN|a=0|b=6|micro=73106830|n=[3, 0, 6, 0, 0, 0, 9]|json=0
+LUMPMIN|a=0|b=7|micro=73106830|n=[1, 0, 6, 0, 0, 0, 11]|json=0
+LUMPMIN|a=0|b=8|micro=73106807|n=[0, 0, 4, 0, 0, 0, 14]|json=0
+LUMPMIN|a=0|b=9|micro=73106758|n=[0, 0, 0, 0, 0, 0, 18]|json=0
+LUMPMIN|a=2|b=0|micro=73106790|n=[11, 6, 0, 0, 1, 0, 0]|json=0
+LUMPMIN|a=2|b=1|micro=73106803|n=[9, 4, 2, 1, 0, 2, 0]|json=0
+LUMPMIN|a=2|b=2|micro=73106814|n=[7, 3, 3, 1, 0, 3, 1]|json=0
+LUMPMIN|a=2|b=3|micro=73106807|n=[5, 3, 3, 1, 0, 3, 3]|json=0
+LUMPMIN|a=2|b=4|micro=73106806|n=[3, 3, 3, 1, 0, 3, 5]|json=0
+LUMPMIN|a=2|b=5|micro=73106803|n=[1, 3, 3, 1, 0, 3, 7]|json=0
+LUMPMIN|a=2|b=6|micro=73106789|n=[0, 2, 2, 1, 0, 4, 9]|json=0
+LUMPMIN|a=2|b=7|micro=73106761|n=[0, 0, 0, 1, 0, 6, 11]|json=0
+LUMPMIN|a=4|b=0|micro=73106788|n=[7, 6, 0, 5, 0, 0, 0]|json=0
+LUMPMIN|a=4|b=1|micro=73106807|n=[5, 4, 2, 5, 0, 2, 0]|json=0
+LUMPMIN|a=4|b=2|micro=73106816|n=[3, 3, 3, 5, 0, 3, 1]|json=0
+LUMPMIN|a=4|b=3|micro=73106811|n=[1, 3, 3, 5, 0, 3, 3]|json=0
+LUMPMIN|a=4|b=4|micro=73106798|n=[0, 2, 2, 5, 0, 4, 5]|json=0
+LUMPMIN|a=4|b=5|micro=73106769|n=[0, 0, 0, 5, 0, 6, 7]|json=0
+LUMPMIN|a=6|b=0|micro=73106786|n=[3, 6, 0, 9, 0, 0, 0]|json=0
+LUMPMIN|a=6|b=1|micro=73106811|n=[1, 4, 2, 9, 0, 2, 0]|json=0
+LUMPMIN|a=6|b=2|micro=73106807|n=[0, 2, 2, 9, 0, 4, 1]|json=0
+LUMPMIN|a=6|b=3|micro=73106777|n=[0, 0, 0, 9, 0, 6, 3]|json=0
+LUMPMIN|a=8|b=0|micro=73106786|n=[0, 4, 0, 14, 0, 0, 0]|json=0
+LUMPMIN|a=8|b=1|micro=73106785|n=[0, 0, 0, 14, 0, 4, 0]|json=0

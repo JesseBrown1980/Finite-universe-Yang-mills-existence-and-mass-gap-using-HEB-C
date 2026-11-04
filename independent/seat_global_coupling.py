@@ -74,7 +74,7 @@ assert e1_11-12==Q(31,25)
 
 def lower_all_r(r):
     assert r>=0
-    return Q(6,1)/(24+12*r)**(2*diameter)
+    return Q(6,1)/(24+12*r)**16  # 2*diameter, with the assert above reading diameter==8
 
 # Exact rational sanity checks; the analytic inequalities cover ALL real r>=0.
 for ratio in [Q(0),Q(1,10),Q(1),Q(5,3),Q(2),Q(100),Q(10000)]:

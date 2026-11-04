@@ -17,6 +17,22 @@ from seat_translation_sectors import EXPECTED_BLOCK_SHA, EXPECTED_DIM
 PRECISION_DEFAULT = 30
 
 
+def int_power(base, exponent):
+    """base to a whole exponent at or above zero, by squaring, in ints. A negative exponent raises ValueError, where ** on two ints gives floating point."""
+    if not isinstance(exponent, int):
+        raise TypeError("int_power takes an int exponent, not %s" % type(exponent).__name__)
+    if exponent < 0:
+        raise ValueError("int_power takes an exponent at or above zero, not %d" % exponent)
+    result = 1
+    while exponent:
+        if exponent & 1:
+            result *= base
+        exponent >>= 1
+        if exponent:
+            base *= base
+    return result
+
+
 def ceil_div(a, b):
     assert b != 0
     return -((-a) // b)
@@ -71,7 +87,7 @@ def read_matrix(directory, name, je, jb, t, digits):
     rest = tok[1 + 2*n:]
     if len(rest) % 3 or any(z <= 0 for z in w):
         raise ValueError("sector format error")
-    scale = 10 ** digits
+    scale = int_power(10, digits)
     A = [dict() for _ in range(n)]
     rows = [dict() for _ in range(n)]
     for k in range(0, len(rest), 3):

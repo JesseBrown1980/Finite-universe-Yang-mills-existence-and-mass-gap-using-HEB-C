@@ -1,8 +1,10 @@
+# Integer copy of the output of make_integer_redo.py for c3_random.py, written by native/scripts/make_integer_pairs.py: 8 divisions moved to qdiv and 0 text pairs. The original stays as evidence.
 # Integer-only copy of second-seat/c3_random.py, made on the operator's word that floating point is to be redone in integers. The original stays beside it as evidence.
 # C3: exact-rational attack on the divided-difference identities and on monotonicity of the value, on random Z-matrices.
 # Non-symmetric, reducible and symmetric matrices, any order of thresholds, t_k above and below mu, uniform and random sources.
 import random, sys, itertools, time
-from fractions import Fraction as F
+import os, sys; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", "..", "..", "scripts"))
+from intpair import IntPair as F, qdiv
 
 seed = int(sys.argv[1]) if len(sys.argv) > 1 else 27
 trials = int(sys.argv[2]) if len(sys.argv) > 2 else 3000
@@ -17,7 +19,7 @@ def minors_positive(A):
         if p <= 0:
             return False
         for i in range(k + 1, n):
-            f = m[i][k] / p
+            f = qdiv(m[i][k] , p)
             if f:
                 for j in range(k, n):
                     m[i][j] -= f * m[k][j]
@@ -39,9 +41,9 @@ def solve(A, b):
         m[k], m[piv] = m[piv], m[k]
         for i in range(n):
             if i != k and m[i][k] != 0:
-                f = m[i][k] / m[k][k]
+                f = qdiv(m[i][k] , m[k][k])
                 m[i] = [x - f * y for x, y in zip(m[i], m[k])]
-    return [m[i][n] / m[i][i] for i in range(n)]
+    return [qdiv(m[i][n] , m[i][i]) for i in range(n)]
 
 
 def shift(H, t):
@@ -51,7 +53,7 @@ def shift(H, t):
 
 def value(H, x):
     n = len(H)
-    return min(sum(H[i][j] * x[j] for j in range(n)) / x[i] for i in range(n))
+    return min(qdiv(sum(H[i][j] * x[j] for j in range(n)) , x[i]) for i in range(n))
 
 
 def apply_h(H, x):
@@ -67,8 +69,8 @@ def random_z(n, kind):
             for j in range(i + 1, n):
                 if rng.randrange(2) == 0:
                     v = F(rng.randint(1, 12))  # w_i z_ij = w_j z_ji = -v
-                    H[i][j] = -v / w[i]
-                    H[j][i] = -v / w[j]
+                    H[i][j] = qdiv(-v , w[i])
+                    H[j][i] = qdiv(-v , w[j])
             H[i][i] = F(rng.randint(1, 80))
     elif kind == "reducible":
         cut = rng.randint(1, n - 1)
@@ -94,7 +96,7 @@ def level_bracket(H):
     while not minors_positive(shift(H, lo)):
         lo -= 100
     for _ in range(40):
-        mid = (lo + hi) / 2
+        mid = qdiv((lo + hi) , 2)
         if minors_positive(shift(H, mid)):
             lo = mid
         else:
@@ -129,7 +131,7 @@ for trial in range(trials):
                 if j != i:
                     den *= ts[i] - ts[j]
             for h in range(n):
-                out[h] += ds[i][h] / den
+                out[h] += qdiv(ds[i][h] , den)
         return out
 
     # Every ordering of the thresholds: the chain is X_{p1}, X_{p1 p2}, ...

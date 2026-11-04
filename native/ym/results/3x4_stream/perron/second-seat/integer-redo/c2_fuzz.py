@@ -1,8 +1,10 @@
+# Integer copy of the output of make_integer_redo.py for c2_fuzz.py, written by native/scripts/make_integer_pairs.py: 6 divisions moved to qdiv and 0 text pairs. The original stays as evidence.
 # Integer-only copy of second-seat/c2_fuzz.py, made on the operator's word that floating point is to be redone in integers. The original stays beside it as evidence.
 # C2: random synthetic stores run through the pinned binaries, compared with exact forms and an exact smallest root found by a Sturm chain,
 # which shares no logic with the tool's elimination. usage: c2_fuzz.py SEED TRIALS
 import hashlib, math, os, random, struct, subprocess, sys, time
-from fractions import Fraction as F
+import os, sys; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..", "..", "..", "scripts"))
+from intpair import IntPair as F, qdiv
 
 R = "C:/tmp/opus55/ym-two-sided"
 TOOLS = [f"{R}/bin/perronritz-grid.exe", f"{R}/bin/perronritz.exe"]
@@ -54,7 +56,7 @@ def det_poly(A, G):
                 d = -d
             d *= m[c][c]
             for i in range(c + 1, k):
-                f = m[i][c] / m[c][c]
+                f = qdiv(m[i][c] , m[c][c])
                 if f:
                     m[i] = [a - f * b for a, b in zip(m[i], m[c])]
         ys.append(d)
@@ -71,7 +73,7 @@ def det_poly(A, G):
                 for t in range(len(basis) - 1):
                     basis[t] += basis[t + 1] * (-xs[j])
         for t in range(k + 1):
-            coef[t] += ys[i] * basis[t] / den
+            coef[t] += qdiv(ys[i] * basis[t] , den)
     return coef
 
 
@@ -86,7 +88,7 @@ def pmod(a, b):
     a = strip(a)
     b = strip(b)
     while len(a) >= len(b):
-        q = a[-1] / b[-1]
+        q = qdiv(a[-1] , b[-1])
         off = len(a) - len(b)
         for i, v in enumerate(b):
             a[i + off] -= q * v
@@ -130,7 +132,7 @@ def smallest_root_ceil(A, G):
     hi = 1
     while sc(chain, F(-hi)) != sc(chain, F(hi)) and False:
         pass
-    bound = 1 + max(abs(c) for c in strip(p)) / abs(strip(p)[-1])  # Cauchy
+    bound = 1 + qdiv(max(abs(c) for c in strip(p)) , abs(strip(p)[-1]))  # Cauchy
     lo = -math.ceil(bound)
     hi = math.ceil(bound)
     # roots in (lo, t] = V(lo) - V(t)
@@ -151,7 +153,7 @@ def pd_exact(M):
         if m[c][c] <= 0:
             return False
         for i in range(c + 1, n):
-            f = m[i][c] / m[c][c]
+            f = qdiv(m[i][c] , m[c][c])
             if f:
                 m[i] = [a - f * b for a, b in zip(m[i], m[c])]
     return True
@@ -167,7 +169,7 @@ def rank_exact(M):
             continue
         m[rk], m[p] = m[p], m[rk]
         for i in range(rk + 1, n):
-            f = m[i][c] / m[rk][c]
+            f = qdiv(m[i][c] , m[rk][c])
             if f:
                 m[i] = [a - f * b for a, b in zip(m[i], m[rk])]
         rk += 1

@@ -1,0 +1,52 @@
+XMM_CENSUS|exes=63|instructions=3614285|mnemonics=46|json=0
+XMM_MNEMONIC|movapd|count=160|json=0
+XMM_MNEMONIC|movaps|count=39155|json=0
+XMM_MNEMONIC|movd|count=944|json=0
+XMM_MNEMONIC|movdqa|count=12405|json=0
+XMM_MNEMONIC|movdqu|count=6286|json=0
+XMM_MNEMONIC|movlhps|count=5|json=0
+XMM_MNEMONIC|movlps|count=88|json=0
+XMM_MNEMONIC|movmskps|count=130|json=0
+XMM_MNEMONIC|movq|count=1838|json=0
+XMM_MNEMONIC|movsd|count=112|json=0
+XMM_MNEMONIC|movupd|count=25|json=0
+XMM_MNEMONIC|movups|count=36251|json=0
+XMM_MNEMONIC|packssdw|count=8|json=0
+XMM_MNEMONIC|packsswb|count=4|json=0
+XMM_MNEMONIC|packuswb|count=52|json=0
+XMM_MNEMONIC|paddb|count=42|json=0
+XMM_MNEMONIC|paddd|count=63|json=0
+XMM_MNEMONIC|paddq|count=1626|json=0
+XMM_MNEMONIC|pand|count=1450|json=0
+XMM_MNEMONIC|pandn|count=109|json=0
+XMM_MNEMONIC|pcmpeqb|count=1245|json=0
+XMM_MNEMONIC|pcmpeqd|count=268|json=0
+XMM_MNEMONIC|pcmpgtb|count=600|json=0
+XMM_MNEMONIC|pcmpgtd|count=71|json=0
+XMM_MNEMONIC|pinsrw|count=3|json=0
+XMM_MNEMONIC|pmaxub|count=14|json=0
+XMM_MNEMONIC|pminub|count=28|json=0
+XMM_MNEMONIC|pmovmskb|count=1230|json=0
+XMM_MNEMONIC|pmuludq|count=4|json=0
+XMM_MNEMONIC|por|count=723|json=0
+XMM_MNEMONIC|pshufd|count=2380|json=0
+XMM_MNEMONIC|pshufhw|count=84|json=0
+XMM_MNEMONIC|pshuflw|count=847|json=0
+XMM_MNEMONIC|psllq|count=90|json=0
+XMM_MNEMONIC|psllw|count=5|json=0
+XMM_MNEMONIC|psrlq|count=846|json=0
+XMM_MNEMONIC|psubq|count=15|json=0
+XMM_MNEMONIC|punpckhbw|count=28|json=0
+XMM_MNEMONIC|punpckhqdq|count=126|json=0
+XMM_MNEMONIC|punpcklbw|count=815|json=0
+XMM_MNEMONIC|punpcklqdq|count=190|json=0
+XMM_MNEMONIC|pxor|count=1606|json=0
+XMM_MNEMONIC|shufpd|count=9|json=0
+XMM_MNEMONIC|shufps|count=44|json=0
+XMM_MNEMONIC|xorpd|count=22|json=0
+XMM_MNEMONIC|xorps|count=4568|json=0
+SCALAR_MOVE_CONTEXT|count=63|text=cmp al,1Ah ; jae ADDR ; movsd xmm0,mmword ptr [rbp-10h] ; mov qword ptr [rbp-28h],rcx ; mov qword ptr [rbp-20h],r9|json=0
+SCALAR_MOVE_CONTEXT|count=2|text=inc r15 ; mov qword ptr [rbp+300h],r15 ; movsd xmm6,mmword ptr [r14+8] ; mov r15,qword ptr [rbp+2D0h] ; cmp r15,qword ptr [rbp+2C0h]|json=0
+SCALAR_MOVE_CONTEXT|count=3|text=mov eax,dword ptr [rbp-60h] ; movups xmm0,xmmword ptr [rbp-5Ch] ; movsd xmm1,mmword ptr [rbp-4Ch] ; mov edx,dword ptr [rbp-40h] ; mov ecx,dword ptr [rbp-44h]|json=0
+SCALAR_MOVE_CONTEXT|count=22|text=por xmm4,xmm3 ; movdqu xmmword ptr [rsi+rbx*8],xmm4 ; movsd xmm6,xmm2 ; pshufd xmm3,xmm5,4Eh ; por xmm3,xmm6|json=0
+SCALAR_MOVE_CONTEXT|count=22|text=psrlq xmm4,xmm1 ; psrlq xmm5,xmm1 ; movsd xmm3,xmm6 ; pshufd xmm4,xmm4,4Eh ; por xmm4,xmm3|json=0

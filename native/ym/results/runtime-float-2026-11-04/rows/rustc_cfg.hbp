@@ -1,0 +1,36 @@
+RUSTC_CFG|repo=ym|variant=before|crate=num_bigint|metadata=ee6f934ddf8a9776|cfg_features=default,std|std=1|json=0
+RUSTC_CFG|repo=ym|variant=before|crate=num_integer|metadata=720bd8f9d4c5f102|cfg_features=default,i128,std|std=1|json=0
+RUSTC_CFG|repo=ym|variant=before|crate=num_traits|metadata=1e4a6c6e293894cb|cfg_features=default,i128,std|std=1|json=0
+FINGERPRINT|repo=ym|variant=before|unit=num-bigint-ee6f934ddf8a9776|features=['default', 'std']|json=0
+FINGERPRINT|repo=ym|variant=before|unit=num-integer-720bd8f9d4c5f102|features=['default', 'i128', 'std']|json=0
+FINGERPRINT|repo=ym|variant=before|unit=num-traits-1e4a6c6e293894cb|features=['default', 'i128', 'std']|json=0
+RUSTC_CFG|repo=ym|variant=half|crate=num_bigint|metadata=c07bf28f885c4207|cfg_features=none|std=0|json=0
+RUSTC_CFG|repo=ym|variant=half|crate=num_integer|metadata=720bd8f9d4c5f102|cfg_features=default,i128,std|std=1|json=0
+RUSTC_CFG|repo=ym|variant=half|crate=num_traits|metadata=1e4a6c6e293894cb|cfg_features=default,i128,std|std=1|json=0
+FINGERPRINT|repo=ym|variant=half|unit=num-bigint-c07bf28f885c4207|features=[]|json=0
+FINGERPRINT|repo=ym|variant=half|unit=num-integer-720bd8f9d4c5f102|features=['default', 'i128', 'std']|json=0
+FINGERPRINT|repo=ym|variant=half|unit=num-traits-1e4a6c6e293894cb|features=['default', 'i128', 'std']|json=0
+RUSTC_CFG|repo=ym|variant=after|crate=num_bigint|metadata=01edcf366d62985f|cfg_features=none|std=0|json=0
+RUSTC_CFG|repo=ym|variant=after|crate=num_integer|metadata=3a585b42e446208c|cfg_features=i128|std=0|json=0
+RUSTC_CFG|repo=ym|variant=after|crate=num_traits|metadata=c454566fa1bddc8c|cfg_features=i128|std=0|json=0
+FINGERPRINT|repo=ym|variant=after|unit=num-bigint-01edcf366d62985f|features=[]|json=0
+FINGERPRINT|repo=ym|variant=after|unit=num-integer-3a585b42e446208c|features=['i128']|json=0
+FINGERPRINT|repo=ym|variant=after|unit=num-traits-c454566fa1bddc8c|features=['i128']|json=0
+RUSTC_CFG|repo=sun|variant=before|crate=num_bigint|metadata=ee6f934ddf8a9776|cfg_features=default,std|std=1|json=0
+RUSTC_CFG|repo=sun|variant=before|crate=num_integer|metadata=720bd8f9d4c5f102|cfg_features=default,i128,std|std=1|json=0
+RUSTC_CFG|repo=sun|variant=before|crate=num_traits|metadata=1e4a6c6e293894cb|cfg_features=default,i128,std|std=1|json=0
+FINGERPRINT|repo=sun|variant=before|unit=num-bigint-ee6f934ddf8a9776|features=['default', 'std']|json=0
+FINGERPRINT|repo=sun|variant=before|unit=num-integer-720bd8f9d4c5f102|features=['default', 'i128', 'std']|json=0
+FINGERPRINT|repo=sun|variant=before|unit=num-traits-1e4a6c6e293894cb|features=['default', 'i128', 'std']|json=0
+RUSTC_CFG|repo=sun|variant=half|crate=num_bigint|metadata=c07bf28f885c4207|cfg_features=none|std=0|json=0
+RUSTC_CFG|repo=sun|variant=half|crate=num_integer|metadata=720bd8f9d4c5f102|cfg_features=default,i128,std|std=1|json=0
+RUSTC_CFG|repo=sun|variant=half|crate=num_traits|metadata=1e4a6c6e293894cb|cfg_features=default,i128,std|std=1|json=0
+FINGERPRINT|repo=sun|variant=half|unit=num-bigint-c07bf28f885c4207|features=[]|json=0
+FINGERPRINT|repo=sun|variant=half|unit=num-integer-720bd8f9d4c5f102|features=['default', 'i128', 'std']|json=0
+FINGERPRINT|repo=sun|variant=half|unit=num-traits-1e4a6c6e293894cb|features=['default', 'i128', 'std']|json=0
+RUSTC_CFG|repo=sun|variant=after|crate=num_bigint|metadata=01edcf366d62985f|cfg_features=none|std=0|json=0
+RUSTC_CFG|repo=sun|variant=after|crate=num_integer|metadata=3a585b42e446208c|cfg_features=i128|std=0|json=0
+RUSTC_CFG|repo=sun|variant=after|crate=num_traits|metadata=c454566fa1bddc8c|cfg_features=i128|std=0|json=0
+FINGERPRINT|repo=sun|variant=after|unit=num-bigint-01edcf366d62985f|features=[]|json=0
+FINGERPRINT|repo=sun|variant=after|unit=num-integer-3a585b42e446208c|features=['i128']|json=0
+FINGERPRINT|repo=sun|variant=after|unit=num-traits-c454566fa1bddc8c|features=['i128']|json=0

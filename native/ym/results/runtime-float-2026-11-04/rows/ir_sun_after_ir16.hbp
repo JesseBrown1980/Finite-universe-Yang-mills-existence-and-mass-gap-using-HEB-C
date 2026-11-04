@@ -1,0 +1,38 @@
+IR_FUNC|repo=sun|variant=after|crate=num_traits|fn=num_traits::pow::pow|fp_lines=11|first=define internal fastcc noundef double @_ZN10num_traits3pow3pow17hbd1cc2f131a8cb12E(i64 noundef %0) unnamed_add|json=0
+IR_FUNC|repo=sun|variant=after|crate=num_traits|fn=num_traits::pow::pow|fp_lines=11|first=define internal fastcc noundef float @_ZN10num_traits3pow3pow17he882e62fd4fffe4fE(i64 noundef %0) unnamed_addr|json=0
+IR_FUNC|repo=sun|variant=after|crate=num_traits|fn=<f32 as num_traits::Num>::from_str_radix|fp_lines=44|first=%.pre325 = uitofp i32 %radix to float|json=0
+IR_FUNC|repo=sun|variant=after|crate=num_traits|fn=<f64 as num_traits::Num>::from_str_radix|fp_lines=56|first=%_116 = load double, ptr %7, align 8, !noundef !4|json=0
+IR_TALLY|repo=sun|variant=after|ll_files=562|defined=5967|with_fp=4|by_crate=num_traits=4|json=0
+IR_REACH|repo=sun|variant=after|crate=ball|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=cheb|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=cluster|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=continuum_clay_variation|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=ddcore|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=evolvers|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=fgcheck|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=fgconf|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=fgqnn|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=fgroup|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=fgwser|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=fillest|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=flatcomp|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=hebc_finite_yang_mills|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=hebc_ym_http0|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=jump|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=jumpto|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=navier_stokes_regularity_spectral|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=onfly|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=onflybench|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=roomschur|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=shellschur|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=sturmfast|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=sturmq2|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=sturmrs|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=torusl|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=ymconf|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=ymplay|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=ymroom|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=ymsec|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=ymstream|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=ymwser|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=sun|variant=after|crate=zconfpt|fp_functions_reached=0|in_own_crate=0|names=-|json=0

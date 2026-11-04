@@ -1,0 +1,4 @@
+RUNLOG_TEST|case=finished|exit=0|secs_is_int=1|log_read_back=1|json=0
+RUNLOG_TEST|case=exit_7|exit=7|secs_is_int=1|json=0
+RUNLOG_TEST|case=timeout|exit=124|secs_is_int=1|secs_in_range=1|json=0
+RUNLOG_TEST_DONE|cases=3|failed=0|json=0

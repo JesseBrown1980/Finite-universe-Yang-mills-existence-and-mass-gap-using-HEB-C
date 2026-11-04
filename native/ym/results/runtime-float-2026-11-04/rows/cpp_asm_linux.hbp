@@ -1,0 +1,8 @@
+CPP_ASM_READ|exe=control_planted_float|insns=91|ARITH=6|X87=0|SCALAR_MOVE=0|functions=2|json=0
+CPP_ASM_FUNC|exe=control_planted_float|fn=f(double, double)|ARITH=2|X87=0|SCALAR_MOVE=0|json=0
+CPP_ASM_FUNC|exe=control_planted_float|fn=main|ARITH=4|X87=0|SCALAR_MOVE=0|json=0
+CPP_ASM_READ|exe=prefix|insns=4330|ARITH=0|X87=0|SCALAR_MOVE=0|functions=0|json=0
+CPP_ASM_READ|exe=biginterval|insns=35614|ARITH=7|X87=0|SCALAR_MOVE=2|functions=1|json=0
+CPP_ASM_FUNC|exe=biginterval|fn=__gmpn_tdiv_qr|ARITH=7|X87=0|SCALAR_MOVE=2|json=0
+CPP_ASM_READ|exe=exactgmp|insns=44239|ARITH=7|X87=0|SCALAR_MOVE=2|functions=1|json=0
+CPP_ASM_FUNC|exe=exactgmp|fn=__gmpn_tdiv_qr|ARITH=7|X87=0|SCALAR_MOVE=2|json=0

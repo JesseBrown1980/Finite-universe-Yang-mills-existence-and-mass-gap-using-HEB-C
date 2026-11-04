@@ -59,12 +59,28 @@ while top > bot:
 x_ceil = -(-row_sum // 729)
 
 
+def int_power(base, exponent):
+    """base to a whole exponent at or above zero, by squaring, in ints. A negative exponent raises ValueError, where ** on two ints gives floating point."""
+    if not isinstance(exponent, int):
+        raise TypeError("int_power takes an int exponent, not %s" % type(exponent).__name__)
+    if exponent < 0:
+        raise ValueError("int_power takes an exponent at or above zero, not %d" % exponent)
+    result = 1
+    while exponent:
+        if exponent & 1:
+            result *= base
+        exponent >>= 1
+        if exponent:
+            base *= base
+    return result
+
+
 def root_up(v):
     s = isqrt(v)
     return s if s * s == v else s + 1
 
 
-delta = 729 * (K * 3 ** x_ceil * root_up(2 * sum(w)) + root_up(w[0]) + 1)
+delta = 729 * (K * int_power(3, x_ceil) * root_up(2 * sum(w)) + root_up(w[0]) + 1)
 re, im = [0] * n, [0] * n
 re[0] = 1 << P
 for f in seq:

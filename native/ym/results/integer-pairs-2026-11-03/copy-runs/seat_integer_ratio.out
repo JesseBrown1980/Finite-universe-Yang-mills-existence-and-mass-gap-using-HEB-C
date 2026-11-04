@@ -1,0 +1,2 @@
+HEBC-INTEGER-RATIO|result=PASS|numeric_runtime=int_only|float=0|json=0
+CHECKED_DIVISION|script=seat_integer_ratio.py|sites=4|by_type=IntegerRatio:4|float=0|json=0

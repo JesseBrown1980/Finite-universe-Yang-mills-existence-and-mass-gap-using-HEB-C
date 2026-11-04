@@ -57,15 +57,15 @@ def safe(v: object) -> str:
 
 def runlog(command: list[str], outfile: Path, env: dict | None = None,
            timeout: int = 19000, preexec_fn=None) -> tuple[int, int]:
-    t0 = time.monotonic()
+    t0 = time.monotonic_ns()
     with outfile.open("w", encoding="utf-8") as stream:
         try:
             cp = subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT,
                                 env=env, timeout=timeout, preexec_fn=preexec_fn,
                                 check=False)
-            return cp.returncode, int(time.monotonic() - t0)
+            return cp.returncode, (time.monotonic_ns() - t0) // 10**9
         except subprocess.TimeoutExpired:
-            return 124, int(time.monotonic() - t0)
+            return 124, (time.monotonic_ns() - t0) // 10**9
 
 def ensure(cond: bool, reason: str) -> None:
     if not cond:
@@ -90,7 +90,7 @@ def capture_identity() -> None:
     ]
     emit(f"PILOT_IDENTITY|run={safe(os.environ.get('GITHUB_RUN_ID', '-'))}|head={git_head()}|budget={BUDGET}|json=0")
     for path in paths:
-        p = ROOT / path
+        p = ROOT.joinpath(path)
         ensure(p.is_file(), "missing_identity_file_" + path.replace("/", "_"))
         emit(f"PILOT_SOURCE|file={path}|sha256={digest(p)}|json=0")
     for binname in ("ymroom", "roomschur"):
@@ -194,7 +194,7 @@ def cgroup_run(parent: Path, k: int, room: Path) -> None:
         cmd = ["/usr/bin/time", "-v", "-o", str(tfile),
                str(ROOT / "native/ym/target/release/roomschur"), str(room),
                "0", "1000", "9000", "60000000", "12", "1000", "2"]
-        t0 = time.monotonic()
+        t0 = time.monotonic_ns()
         with log.open("w", encoding="utf-8") as stream:
             proc = subprocess.Popen(cmd, stdout=stream, stderr=subprocess.STDOUT,
                                     env=env, preexec_fn=join, start_new_session=True)
@@ -205,7 +205,7 @@ def cgroup_run(parent: Path, k: int, room: Path) -> None:
                 anon_max = max(anon_max, int(m.group(1)))
                 time.sleep(1)
             code = proc.wait()
-        secs = int(time.monotonic() - t0)
+        secs = (time.monotonic_ns() - t0) // 10**9
         mm = re.search(r"^anon (\d+)$", (cg / "memory.stat").read_text(), re.MULTILINE)
         if mm:
             anon_max = max(anon_max, int(mm.group(1)))

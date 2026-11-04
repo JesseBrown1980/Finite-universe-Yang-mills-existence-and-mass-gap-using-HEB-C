@@ -1,0 +1,1 @@
+{'cases': 3000, 'chains': 117742, 'id_fail': 0, 'pos_fail': 0, 'eq_fail': 0, 'mono_fail': 0, 'above_level': 0, 'tk_below_mu': 95092, 'tk_above_mu': 22650, 'min_slack': '0'} secs=729

@@ -1,0 +1,6 @@
+BRANCH_BUILD|repo=ym|commit=54af7ff252af82a5c046a18305479525e5b3443e|rc=0|json=0
+BRANCH_TEXT_VS_MY_AFTER|repo=ym|bins_same_text=34|bins_differ=0|differ_names=none|json=0
+BRANCH_BIN_CHECK|repo=ym|NO_FLOAT_BINARIES|result=PASS|binaries=34|with_float=0|json=0
+BRANCH_BUILD|repo=sun|commit=019c1bd5e3d85a962d056291d82907230101c1b6|rc=0|json=0
+BRANCH_TEXT_VS_MY_AFTER|repo=sun|bins_same_text=29|bins_differ=0|differ_names=none|json=0
+BRANCH_BIN_CHECK|repo=sun|NO_FLOAT_BINARIES|result=PASS|binaries=29|with_float=0|json=0

@@ -7,6 +7,22 @@ from functools import total_ordering
 from math import gcd
 
 
+def int_power(base, exponent):
+    """base to a whole exponent at or above zero, by squaring, in ints. A negative exponent raises ValueError, where ** on two ints gives floating point."""
+    if not isinstance(exponent, int):
+        raise TypeError("int_power takes an int exponent, not %s" % type(exponent).__name__)
+    if exponent < 0:
+        raise ValueError("int_power takes an exponent at or above zero, not %d" % exponent)
+    result = 1
+    while exponent:
+        if exponent & 1:
+            result *= base
+        exponent >>= 1
+        if exponent:
+            base *= base
+    return result
+
+
 @total_ordering
 class IntegerRatio:
     __slots__ = ("num", "den")
@@ -71,10 +87,10 @@ class IntegerRatio:
         if type(exponent) is not int:
             return NotImplemented
         if exponent >= 0:
-            return IntegerRatio(self.num ** exponent, self.den ** exponent)
+            return IntegerRatio(int_power(self.num, exponent), int_power(self.den, exponent))
         if self.num == 0:
             raise ZeroDivisionError("negative power of zero")
-        return IntegerRatio(self.den ** (-exponent), self.num ** (-exponent))
+        return IntegerRatio(int_power(self.den, -exponent), int_power(self.num, -exponent))
 
     def __eq__(self, other):
         rhs = self.coerce(other)
@@ -110,6 +126,13 @@ def selftest():
     assert 1 / R(3, 4) == R(4, 3)
     assert R(2, 3) ** 3 == R(8, 27)
     assert R(2, 3) ** -1 == R(3, 2)
+    assert int_power(-3, 5) == -243 and int_power(0, 0) == 1 and int_power(10, 30) == 10 ** 30
+    try:
+        int_power(2, -1)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("int_power took a negative exponent")
     assert R(-1, 3) < 0 < R(1, 3)
     assert min(R(2, 3), R(1, 2)) == R(1, 2)
     assert sum((R(1, 2), R(1, 3))) == R(5, 6)

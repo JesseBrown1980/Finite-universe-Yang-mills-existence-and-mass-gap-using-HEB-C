@@ -1,0 +1,1 @@
+C2_FUZZ|seed=27|{'cases': 300, 'form_mismatch': 0, 'upper_rows': 3476, 'upper_mismatch': 0, 'open_rows': 352, 'open_mismatch': 0, 'unsound': 0, 'not_least_negative': 186, 'lower_rows': 1130, 'lower_mismatch': 0, 'old_new_differ': 0, 'refused': 4}|secs_wall=105|json=0

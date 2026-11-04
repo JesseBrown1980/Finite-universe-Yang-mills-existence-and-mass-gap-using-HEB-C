@@ -1,0 +1,11 @@
+STORE|L=2x2|n=211|merkle_own=True|padding_zero=True|json=0
+AUDIT {'n': 211, 'bad_sym': 0, 'bad_sum': 0, 'pos_off': 0, 'flats': [0, 3, 6, 96, 99, 191, 193], 'flat_flat': 0, 'flat_diag': [24, 24, 24, 24, 24, 24, 24], 'min_nonflat_M': 3, 'max_M': 12}
+SYMMETRIC_A|bad=0|json=0
+LDL|ops=58284|secs_wall=0.2|json=0
+ITER|0|barta_floor=46419878|barta_row=102|rayleigh_ceil=46469048|width=49170|min_x_bits=591|secs_wall=0.2|json=0
+ITER|1|barta_floor=46467124|barta_row=102|rayleigh_ceil=46467674|width=550|min_x_bits=590|secs_wall=0.3|json=0
+ITER|2|barta_floor=46467664|barta_row=102|rayleigh_ceil=46467674|width=10|min_x_bits=590|secs_wall=0.4|json=0
+ITER|3|barta_floor=46467673|barta_row=4|rayleigh_ceil=46467674|width=1|min_x_bits=590|secs_wall=0.4|json=0
+ITER|4|barta_floor=46467673|barta_row=1|rayleigh_ceil=46467674|width=1|min_x_bits=590|secs_wall=0.5|json=0
+ITER|5|barta_floor=46467673|barta_row=1|rayleigh_ceil=46467674|width=1|min_x_bits=590|secs_wall=0.5|json=0
+RESULT|L=2x2|JB=9000|lambda1_ge=46467673|lambda1_le=46467674|json=0

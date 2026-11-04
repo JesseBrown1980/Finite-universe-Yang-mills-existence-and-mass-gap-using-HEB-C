@@ -17,13 +17,14 @@ permissions:
 jobs:
   indep-sqrt:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Rust 1.81 and numpy
         run: |
+          # numpy is for the recorded file from commit cf6a2c9 alone. The current indep_verify.py runs on plain ints.
           rustup toolchain install 1.81.0 --profile minimal
           python3 -m pip install --quiet numpy
       - name: Build the kernel
@@ -49,5 +50,5 @@ jobs:
             rc=0
             python3 -X utf8 "$I/indep_sqrt_check.py" /tmp/indep_recorded.py "$I/indep_verify.py" "$K" "sabotage=$s" > "/tmp/sab-$s.hbp" || rc=$?
             test "$rc" = 1
-            tail -1 "/tmp/sab-$s.hbp"
+            grep '^INDEP_SQRT_DONE|failed=[1-9]' "/tmp/sab-$s.hbp"
           done

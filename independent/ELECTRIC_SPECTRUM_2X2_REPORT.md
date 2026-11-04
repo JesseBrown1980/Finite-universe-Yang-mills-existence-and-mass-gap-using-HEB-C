@@ -86,6 +86,8 @@ The code is [`electric_spectrum_2x2.py`](electric_spectrum_2x2.py), one mode per
 
 Beside this, November 3. The priority of the runs of paths D and E is `NOT_MEASURED|reason=NOT_REACHABLE_FROM_HERE`: `lane=local_below_normal` in their rows is a literal in the assembler, and the launcher left no record. The second seat's own engine runs were at below-normal priority, confirmed by process class.
 
+Beside this, November 4. After path E ran, the integer-pairs branch moved `leading_minor_signs` in `indep_verify.py` from numpy to plain ints. The `ELECTRIC_ENGINE` row keeps `a501b563…`, the file that ran, and [`electric_spectrum_2x2_engines_moved.hbp`](electric_spectrum_2x2_engines_moved.hbp) names the move, so the workflow reads that hash at the commit that held it and pins the file as it stands now. Path E went through the Rust kernel, and `indep_sqrt_check.py` compares the moved lines. `burnside` and path G's vertex count moved from `**` to `int_power`, which refuses a negative exponent, and paths B and G read their pinned rows.
+
 **F, the conclusion.** `f MEASURE` reads the pinned rows and prints each step. It fails on a missing or changed row. Since November 3 its required rows also hold the code hash and the kernel hash in `INDEP_RUN`, the same code hash in the `ELECTRIC_ENGINE` row of `indep_verify.py`, and the source blob in `ELECTRIC_E_RUN`, each at its pinned value.
 
 1. From path A and `ELECTRIC_C_LINKS`, the spectrum of E lies in 3Z ∩ [0, 48].

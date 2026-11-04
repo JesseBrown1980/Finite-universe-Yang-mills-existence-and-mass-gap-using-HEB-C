@@ -1,0 +1,8 @@
+CAP_CHECK|L=4x4|lump=0,3|n_ee=20|n_eC=12|n_CC=0|ratio_micro=142812979|real_cap=2|planar_cap=2|at_or_under_real_cap=1|bound_micro=112252744|json=0
+CAP_CHECK|L=4x4|lump=0,3|n_ee=21|n_eC=10|n_CC=1|ratio_micro=127532861|real_cap=2|planar_cap=2|at_or_under_real_cap=1|bound_micro=112252744|json=0
+CAP_CHECK|L=4x4|lump=0,3|n_ee=22|n_eC=8|n_CC=2|ratio_micro=112252744|real_cap=2|planar_cap=2|at_or_under_real_cap=1|bound_micro=112252744|json=0
+CAP_CHECK|L=4x4|lump=0,3|n_ee=23|n_eC=6|n_CC=3|ratio_micro=96972626|real_cap=2|planar_cap=2|at_or_under_real_cap=0|bound_micro=112252744|json=0
+CAP_CHECK|L=4x5|lump=0,3|n_ee=28|n_eC=12|n_CC=0|ratio_micro=163974434|real_cap=2|planar_cap=2|at_or_under_real_cap=1|bound_micro=134017195|json=0
+CAP_CHECK|L=4x5|lump=0,3|n_ee=29|n_eC=10|n_CC=1|ratio_micro=148995815|real_cap=2|planar_cap=2|at_or_under_real_cap=1|bound_micro=134017195|json=0
+CAP_CHECK|L=4x5|lump=0,3|n_ee=30|n_eC=8|n_CC=2|ratio_micro=134017195|real_cap=2|planar_cap=2|at_or_under_real_cap=1|bound_micro=134017195|json=0
+CAP_CHECK|L=4x5|lump=0,3|n_ee=31|n_eC=6|n_CC=3|ratio_micro=119038576|real_cap=2|planar_cap=2|at_or_under_real_cap=0|bound_micro=134017195|json=0

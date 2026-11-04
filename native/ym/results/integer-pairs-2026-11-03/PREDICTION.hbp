@@ -1,0 +1,100 @@
+# Written and pushed before any integer copy ran. Each EXPECT row names one copy, its arguments, the recorded rows it must print and its exit, with clock fields masked. run_cases.py reads these rows as they stand. json=0.
+INTEGER_PAIRS_PREDICTION|at=2026-11-03T20:09:21Z|question=do_the_integer_copies_print_the_rows_recorded_for_the_originals|tool=native/scripts/intpair.py|rewriter=native/scripts/make_integer_pairs.py|runner=run_cases.py|priority=below_normal|json=0
+PREDICTION_STATE|originals_run_for_a_baseline=ORIGINALS.hbp_rows_in_original-runs|those_ran_before_this_file|integer_copies_run_so_far=0|intpair_differential_test_ran_during_its_writing=1|so_its_rows_below_are_for_the_final_seeds_only|json=0
+EXPECT_INTPAIR|run=test_intpair.py|seeds=27,28,29|rounds=200000|failures=0|teeth_missed=0|json=0
+EXPECT_REWRITER|run=make_integer_pairs.py_--check|differ=0|audit_hits=0|gate_findings_in_copies=0|selftest_failed=0|json=0
+EXPECT_GATE|run=no_float_gate.py|fractions_flagged=1|failed=0_after_the_list_is_updated|selftest_failed=0|json=0
+EXPECT_INDEP_SQRT|run=indep_sqrt_check.py_with_the_plain_int_file|rows=ROWS,PRIMES,WIDE,MATRICES,BLOCK_same_as_native/ym/results/independent/INDEPENDENT-2X2-R9-INTEGER.hbp|failed=0|sabotage_exit=1_on_isqrt,primes,signs|wall_secs_under=1800|json=0
+EXPECT_SEATS|run=checked_division.py_on_the_four_seat_files|float=0|rows_same_as_each_measure_file|count_of_IntegerRatio=unknown_before_the_run|json=0
+EXPECT_REPLAY_PATHS|run=checked_division.py_on_replay.py|on_windows=exit_1_at_its_byte_compare_because_Path.write_text_writes_CRLF_here|every_division_reached_gives_a_path|float=0|hosted_linux=exit_0_with_its_three_rows|json=0
+EXPECT_NOT_RUN_HERE|run=perron_climb_integer.py_on_the_3x4_store|because=a_climb_takes_the_store_through_full_perroncert_passes|instead=estimate_on_recorded_points_and_a_climb_on_the_2x2_store_against_the_original|json=0
+EXPECT|case=c2_acc|copy=$P/second-seat/integer-redo/c2_acc.py|against=$HERE/baseline/c2_acc.out|exit=0|json=0
+EXPECT|case=c2_fuzz_27_300|copy=$P/second-seat/integer-redo/c2_fuzz.py|args=27 300|against=$HERE/baseline/c2_fuzz.out|exit=0|json=0
+EXPECT|case=c4b_open|copy=$P/second-seat/integer-redo/c4b_open.py|against=$HERE/baseline/c4b_open.out|exit=0|json=0
+EXPECT|case=c3_random_27_3000|copy=$P/second-seat/integer-redo/c3_random.py|args=27 3000|against=$HERE/baseline/c3_random.out|hosted=1|exit=0|json=0
+EXPECT|case=c7_receipts|copy=$P/second-seat/integer-redo/c7_receipts.py|against=$HERE/original-runs/c7_receipts.out|hosted=1|exit=0|json=0
+EXPECT|case=own34_post|copy=$P/second-seat/integer-redo/own34_post.py|against=$HERE/original-runs/own34_post.out|hosted=1|exit=0|json=0
+EXPECT|case=c1_inertia_2x2|copy=$P/second-seat/integer-redo/c1_inertia.py|args=$R/dev22.bin 9000 46467673 46467674 46466823|against=$HERE/original-runs/c1_inertia_2x2.out|exit=0|json=0
+EXPECT|case=c1_small_2x2|copy=$P/second-seat/integer-redo/c1_small.py|args=$R/dev22.bin 9000 46400000 6|against=$HERE/original-runs/c1_small_2x2.out|exit=0|json=0
+EXPECT|case=c1_small_2x3|copy=$P/second-seat/integer-redo/c1_small.py|args=$R/dev23.bin 9000 58400000 5|against=$HERE/original-runs/c1_small_2x3.out|exit=0|json=0
+EXPECT|case=c4_grid_22|copy=$P/second-seat/integer-redo/c4_grid.py|args=22|against=$HERE/original-runs/c4_grid_22.out|exit=0|json=0
+EXPECT|case=c4_grid_23|copy=$P/second-seat/integer-redo/c4_grid.py|args=23|against=$HERE/original-runs/c4_grid_23.out|exit=0|json=0
+EXPECT|case=c4_grid_33|copy=$P/second-seat/integer-redo/c4_grid.py|args=33|against=$HERE/original-runs/c4_grid_33.out|exit=0|json=0
+EXPECT|case=c5_coupling_22|copy=$P/second-seat/integer-redo/c5_coupling.py|args=22|against=$HERE/original-runs/c5_coupling_22.out|exit=0|json=0
+EXPECT|case=c5_coupling_23|copy=$P/second-seat/integer-redo/c5_coupling.py|args=23|against=$HERE/original-runs/c5_coupling_23.out|exit=0|json=0
+EXPECT|case=c5_coupling_33|copy=$P/second-seat/integer-redo/c5_coupling.py|args=33|against=$HERE/original-runs/c5_coupling_33.out|exit=0|json=0
+EXPECT|case=c6_lift_2x2|copy=$P/second-seat/integer-redo/c6_lift.py|args=2 2|against=$HERE/original-runs/c6_lift_2x2.out|exit=0|json=0
+EXPECT|case=c6_lift_2x3|copy=$P/second-seat/integer-redo/c6_lift.py|args=2 3|against=$HERE/original-runs/c6_lift_2x3.out|exit=0|json=0
+EXPECT|case=c6_lattice_2x2|copy=$P/second-seat/integer-redo/c6_lattice.py|args=2 2 $RUN/whole22.pkl|against=$HERE/original-runs/c6_lattice_2x2.out|also=$RUN/whole22.pkl $R/whole22.pkl|exit=0|json=0
+EXPECT|case=c6_lattice_2x3|copy=$P/second-seat/integer-redo/c6_lattice.py|args=2 3 $RUN/whole23.pkl|against=$HERE/original-runs/c6_lattice_2x3.out|also=$RUN/whole23.pkl $R/whole23.pkl|exit=0|json=0
+EXPECT|case=c6_count|copy=$P/second-seat/integer-redo/c6_count.py|against=$HERE/baseline/c6_count.out|timeout=1800|exit=0|json=0
+EXPECT|case=own33_check_c2|copy=$P/second-seat/integer-redo/own33_check.py|args=$R/dev33.bin $R/own33-c2.bin 9000 $RUN/own33-c2-i64.bin|against=$HERE/original-runs/own33_check_c2.out|also=$RUN/own33-c2-i64.bin $R/own33-c2-i64.bin|exit=0|json=0
+EXPECT|case=perron_climb_2x2|copy=$P/perron_climb_integer.py|args=$R/bin/perroncert.exe $R/dev22.bin $R/vec/2x2-45000000.bin $RUN/climb-copy 46000000 300 16:500 3|against=$HERE/original-runs/perron_climb_2x2.out|timeout=600|exit=0|json=0
+EXPECT|case=climb_estimate|copy=$HERE/check_climb_estimate.py|against=$HERE/expected/climb_estimates.hbp|hosted=1|exit=0|json=0
+EXPECT|case=hash_store|copy=$P/hash_store_integer.py|args=$WT/native/ym/results/3x4_room_backed/receipts/hf-store/SECTORS-341-374.sha256|against=$HERE/expected/store_hashes.hbp|timeout=1800|exit=0|json=0
+EXPECT|case=memory_pilot_runlog|copy=$HERE/test_runlog.py|args=$RUN/runlog|against=$HERE/expected/runlog.hbp|hosted=1|exit=0|json=0
+EXPECT|case=product_bound_scan_8|copy=$P/vector/integer-pairs/product_bound.py|args=scan 8|against=$P/vector/PRODUCT-SCAN.hbp|timeout=3000|exit=0|json=0
+EXPECT|case=product_bound_scan_4|copy=$P/vector/integer-pairs/product_bound.py|args=scan 4|against=$P/vector/PRODUCT-SCAN.hbp|first=2|hosted=1|timeout=1200|exit=0|json=0
+EXPECT|case=cap_check|copy=$P/vector/review-gpt6/integer-pairs/cap_check.py|args=$RO/given/g-local-4x4-lump.hbp $RO/given/g-local-4x5-lump.hbp|against=$P/vector/review-gpt6/CAP-CHECK.hbp|first=8|hosted=1|exit=0|json=0
+EXPECT|case=exact_4x4_r9|copy=$RO/integer-pairs/py_exact_t.py|args=4 4 9 1 $RO/given/g-local-4x4-lump.hbp 112252744|against=$RO/out/exact_4x4_r9.out|hosted=1|exit=0|json=0
+EXPECT|case=exact_4x4_r6|copy=$RO/integer-pairs/py_exact_t.py|args=4 4 6 1 $RO/given/g-local-4x4-lump-r6.hbp 96472613|against=$RO/out/exact_4x4_r6.out|hosted=1|exit=0|json=0
+EXPECT|case=exact_4x5_r9|copy=$RO/integer-pairs/py_exact_t.py|args=4 5 9 1 $RO/given/g-local-4x5-lump.hbp 134017195|against=$RO/out/exact_4x5_r9.out|hosted=1|exit=0|json=0
+EXPECT|case=exact_5x5_r9|copy=$RO/integer-pairs/py_exact_t.py|args=5 5 9 1 $RO/given/g-local-5x5-product.hbp 154016734|against=$RO/out/exact_5x5_r9.out|hosted=1|exit=0|json=0
+EXPECT|case=exact_4x4_r12_with_r9_vector|copy=$RO/integer-pairs/py_exact_t.py|args=4 4 12 1 $RO/given/g-local-4x4-lump.hbp|against=$RO/out/exact_4x4_r12_with_r9_vector.out|hosted=1|exit=0|json=0
+EXPECT|case=exact_3x3_r9|copy=$RO/integer-pairs/py_exact_t.py|args=3 3 9 1 $RO/given/g-local-3x3-lump.hbp|against=$RO/out/exact_t_rest.out|segment=3|prefixes=VECTOR,TABLE_MIN,GAP,TIGHTEST_LUMPS|hosted=1|exit=0|json=0
+EXPECT|case=exact_3x4_r9|copy=$RO/integer-pairs/py_exact_t.py|args=3 4 9 1 $RO/given/g-local-3x4-lump.hbp|against=$RO/out/exact_t_rest.out|segment=4|prefixes=VECTOR,TABLE_MIN,GAP,TIGHTEST_LUMPS|hosted=1|exit=0|json=0
+EXPECT|case=exactsab_r9_swap_rule|copy=$RO/integer-pairs/py_exact_t.py|args=4 4 9 1 $RO/given/g-local-4x4-lump.hbp 112252744 --sabotage=swap_rule|against=$RO/out/exactsab_r9_swap_rule.out|hosted=1|exit=1|json=0
+EXPECT|case=exactsab_r9_planar_adj|copy=$RO/integer-pairs/py_exact_t.py|args=4 4 9 1 $RO/given/g-local-4x4-lump.hbp 112252744 --sabotage=planar_adj|against=$RO/out/exactsab_r9_planar_adj.out|hosted=1|exit=0|json=0
+EXPECT|case=exactsab_r9_dent|copy=$RO/integer-pairs/py_exact_t.py|args=4 4 9 1 $RO/given/g-local-4x4-lump.hbp 112252744 --sabotage=dent|against=$RO/out/exactsab_r9_dent.out|hosted=1|exit=1|json=0
+EXPECT|case=exactsab_r9_wrong_M|copy=$RO/integer-pairs/py_exact_t.py|args=4 4 9 1 $RO/given/g-local-4x4-lump.hbp 112252744 --sabotage=wrong_M|against=$RO/out/exactsab_r9_wrong_M.out|hosted=1|exit=1|json=0
+EXPECT|case=exactsab_r9_nonzero_flat|copy=$RO/integer-pairs/py_exact_t.py|args=4 4 9 1 $RO/given/g-local-4x4-lump.hbp 112252744 --sabotage=nonzero_flat|against=$RO/out/exactsab_r9_nonzero_flat.out|hosted=1|exit=1|json=0
+EXPECT|case=exactsab_r6_swap_rule|copy=$RO/integer-pairs/py_exact_t.py|args=4 4 6 1 $RO/given/g-local-4x4-lump-r6.hbp 96472613 --sabotage=swap_rule|against=$RO/out/exactsab_r6_swap_rule.out|hosted=1|exit=1|json=0
+EXPECT|case=exactsab_r6_planar_adj|copy=$RO/integer-pairs/py_exact_t.py|args=4 4 6 1 $RO/given/g-local-4x4-lump-r6.hbp 96472613 --sabotage=planar_adj|against=$RO/out/exactsab_r6_planar_adj.out|hosted=1|exit=1|json=0
+EXPECT|case=exactsab_r6_dent|copy=$RO/integer-pairs/py_exact_t.py|args=4 4 6 1 $RO/given/g-local-4x4-lump-r6.hbp 96472613 --sabotage=dent|against=$RO/out/exactsab_r6_dent.out|hosted=1|exit=1|json=0
+EXPECT|case=exactsab_r6_wrong_M|copy=$RO/integer-pairs/py_exact_t.py|args=4 4 6 1 $RO/given/g-local-4x4-lump-r6.hbp 96472613 --sabotage=wrong_M|against=$RO/out/exactsab_r6_wrong_M.out|hosted=1|exit=1|json=0
+EXPECT|case=exactsab_r6_nonzero_flat|copy=$RO/integer-pairs/py_exact_t.py|args=4 4 6 1 $RO/given/g-local-4x4-lump-r6.hbp 96472613 --sabotage=nonzero_flat|against=$RO/out/exactsab_r6_nonzero_flat.out|hosted=1|exit=1|json=0
+EXPECT|case=verify_low_4x4_r9|copy=$RO/integer-pairs/py_verify_low.py|args=$RO/out/hunt_4x4_r9.out 4 4 9 $RO/given/g-local-4x4-lump.hbp 112252744|against=$RO/out/verify_low_4x4_r9.out|hosted=1|exit=0|json=0
+EXPECT|case=verify_low_4x4_r6|copy=$RO/integer-pairs/py_verify_low.py|args=$RO/out/hunt_4x4_r6.out 4 4 6 $RO/given/g-local-4x4-lump-r6.hbp 96472613|against=$RO/out/verify_low_4x4_r6.out|hosted=1|exit=0|json=0
+EXPECT|case=verify_low_4x5_r9|copy=$RO/integer-pairs/py_verify_low.py|args=$RO/out/hunt_4x5_r9.out 4 5 9 $RO/given/g-local-4x5-lump.hbp 134017195|against=$RO/out/verify_low_4x5_r9.out|hosted=1|exit=0|json=0
+EXPECT|case=verify_low_5x5_r9|copy=$RO/integer-pairs/py_verify_low.py|args=$RO/out/hunt_5x5_r9.out 5 5 9 $RO/given/g-local-5x5-product.hbp 154016734|against=$RO/out/verify_low_5x5_r9.out|hosted=1|exit=0|json=0
+EXPECT|case=ctl_verify_low|copy=$RO/integer-pairs/py_verify_low.py|args=$RO/tmp/hunt_altered.out 4 4 9 $RO/given/g-local-4x4-lump.hbp 112252744|against=$RO/out/ctl_verify_low.out|hosted=1|exit=1|json=0
+EXPECT|case=two_numbers|copy=$RO/integer-pairs/py_two_numbers.py|args=$RO/given/g-local-5x5-product.hbp|against=$RO/out/two_numbers.out|hosted=1|exit=0|json=0
+EXPECT|case=brute_windows|copy=$P/allpairs/failclosed/review-opus55/attack/integer-clock/brute_windows.py|args=D:/ym-3x4-room-run/p0-ball/allpairs/allpairs.exe $RUN/brute-windows.hbp|against=$P/allpairs/failclosed/review-opus55/out/brute-windows.hbp|timeout=1800|exit=0|json=0
+EXPECT|case=reader_controls|copy=$P/allpairs/failclosed/review-opus55/attack/integer-clock/reader_controls.py|args=$RUN/reader-controls.hbp|against=$P/allpairs/failclosed/review-opus55/out/reader-controls.hbp|timeout=2400|exit=0|json=0
+EXPECT|case=stars|copy=$P/allpairs/failclosed/review-opus55/attack/integer-clock/stars.py|args=$RUN/stars.hbp|against=$P/allpairs/failclosed/review-opus55/out/stars.hbp|timeout=3000|exit=0|json=0
+EXPECT|case=stars2|copy=$P/allpairs/failclosed/review-opus55/attack/integer-clock/stars2.py|args=$RUN/stars2.hbp|against=$P/allpairs/failclosed/review-opus55/out/stars2.hbp|timeout=1200|exit=0|json=0
+EXPECT|case=seat_integer_ratio|copy=$P/second-seat/integer-redo/checked_division.py|args=$WT/independent/seat_integer_ratio.py|against=$HERE/expected/seat_integer_ratio.hbp|note=CHECKED_DIVISION||hosted=1|exit=0|json=0
+EXPECT|case=seat_adaptive_cells|copy=$P/second-seat/integer-redo/checked_division.py|args=$WT/independent/seat_adaptive_cells.py|against=$WT/independent/seat_adaptive_cells.measure|note=CHECKED_DIVISION||hosted=1|timeout=1800|exit=0|json=0
+EXPECT|case=seat_global_coupling|copy=$P/second-seat/integer-redo/checked_division.py|args=$WT/independent/seat_global_coupling.py|against=$WT/independent/seat_global_coupling.measure|note=CHECKED_DIVISION||hosted=1|timeout=1800|exit=0|json=0
+EXPECT|case=seat_magnetic_endpoint|copy=$P/second-seat/integer-redo/checked_division.py|args=$WT/independent/seat_magnetic_endpoint.py|against=$WT/independent/seat_magnetic_endpoint.measure|note=CHECKED_DIVISION||hosted=1|timeout=1800|exit=0|json=0
+EXPECT|case=replay_paths_hosted|copy=$P/second-seat/integer-redo/checked_division.py|args=$WT/native/ym/results/z-one-matrix-20261030/curve_ABC/replay.py|against=$HERE/expected/replay.hbp|note=CHECKED_DIVISION||hosted=1|exit=0|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c2_acc.py|sha256=f7f258a0b6b93dd652b2648a9974830fb9ee750c00372a205d79096bb0163f86|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c2_fuzz.py|sha256=d2461c19c2ce7cb104b1729d500993a2072f4e58a3731c7da1332d029e5b0787|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c3_random.py|sha256=09505d6a019d93918d64293f33ee104fab94335a774dd97ebc03565441b9cb6f|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c4b_open.py|sha256=c647b75e4544f8bb91adfc027136cc6e3e5658c6818873f0f4aa3b484dac1ce6|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c1_inertia.py|sha256=caf77bdf9b6c4ef241ba6e78626d44c88f22978e5b45b0fd2b67735179f1ff52|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c1_small.py|sha256=f9916621f672d7dda9286cd3a0ad715d84eb8ac0220b95f5ec66a0be1891b5ce|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c4_grid.py|sha256=608e14bbb8bade4d88fe7a1865d97260f131386b45d1edd734c49cb0b990d954|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c5_coupling.py|sha256=0b45a9e61527bdfa0853b9019b7f8de3f0d30fc16f6282b2a3c821014f74cbd2|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c6_count.py|sha256=85f7b91d716a2f8e25c2dd6b2b2c0537f87eb9830aaa18348b3cfe964aa0ab8f|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c6_lattice.py|sha256=cb7ff26b7658eb6b22c367dd4f4701d6f0bc143a9e605489d96fe48bd4ddedd7|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c6_lift.py|sha256=d0df8e116c5d7b35aaa306a698b6cd8acbf700336d018429e3fcac7818858f36|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/c7_receipts.py|sha256=d7962855d16362d09308e9f35c630ee30271d51cf0f8187da2eb30b05ed8a01c|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/own33_check.py|sha256=7ac317361c77f0ea5a428702c52cb9de94deddaa5f9ff6c96ecb12710ce4aa09|json=0
+COPY|file=native/ym/results/3x4_stream/perron/second-seat/integer-redo/own34_post.py|sha256=7d21506889542652a701d793802046ef22d76b9bc3bbe9f94684a0dcd630caa3|json=0
+COPY|file=native/ym/results/3x4_stream/perron/perron_climb_integer.py|sha256=426e807b5dc72eb2ce2085e2bf190f2af7e33a18da3722e1540306b68c03e455|json=0
+COPY|file=native/ym/results/3x4_stream/perron/hash_store_integer.py|sha256=e26bbcaa1ab008544077f93b27bb61de6f91016e4d6b223767d3b1e7b6a98fd9|json=0
+COPY|file=native/ym/results/3x4_stream/perron/vector/integer-pairs/product_bound.py|sha256=f5e449eb20b2f6dbb419739840dea1c8d1ca8b355b4087ad4ffa570140602239|json=0
+COPY|file=native/ym/results/3x4_stream/perron/vector/review-gpt6/integer-pairs/cap_check.py|sha256=1cfc468983aece57adce1f13af3325d0e15ead27308e94f011de297f0b5a941e|json=0
+COPY|file=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_exact_t.py|sha256=ff5ee2ea69268b51e178c5087826fd6192c8e9b8cc78fd3de07b71c728b659fc|json=0
+COPY|file=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_two_numbers.py|sha256=a4944ffcb5ad1ace0b6d217c41a4eadad1131b3503993af81460b6337e5aaa19|json=0
+COPY|file=native/ym/results/3x4_stream/perron/vector/review-opus55/integer-pairs/py_verify_low.py|sha256=8c46deac02e34ab09a9cfd30122df4fb1fa784fd5a0d671ba0ceb8f42f4313a7|json=0
+COPY|file=native/ym/results/3x4_stream/perron/allpairs/failclosed/review-opus55/attack/integer-clock/brute_windows.py|sha256=fc0a4a5e64dd1672fd44c31bb8c79a7ba354ea71bd58658a044286eb91e047e9|json=0
+COPY|file=native/ym/results/3x4_stream/perron/allpairs/failclosed/review-opus55/attack/integer-clock/reader_controls.py|sha256=5548a89cc9d6a9ca603b7fefec5e52fe07e502c2eed79e8d9432b290fe7b2e46|json=0
+COPY|file=native/ym/results/3x4_stream/perron/allpairs/failclosed/review-opus55/attack/integer-clock/stars.py|sha256=0dd34925e0a030958c24c1df44b39fd61e62dcc1c67916f9172fec0b9bf9fe5d|json=0
+COPY|file=native/ym/results/3x4_stream/perron/allpairs/failclosed/review-opus55/attack/integer-clock/stars2.py|sha256=9f34bcaa24a4ce3ec90a169d52345622cd188ef825fb6c20d77f5c02a3f7c950|json=0
+TOOL|file=native/scripts/intpair.py|sha256=0f02452c41cff4edd4ccb4dcbfc0e3bf53b48eacbd93a87f0aa6231c9cb665dc|json=0
+TOOL|file=native/scripts/make_integer_pairs.py|sha256=c3fff2c6a2fd2619a23f8e49f9921f965a6c670425faca064746cbd3e6bde7d2|json=0
+TOOL|file=native/scripts/test_intpair.py|sha256=93a3135cf77e59ad3c48c652bf1bcdcc526b74ede351a13c8ba05cbb706ec4fc|json=0
+TOOL|file=native/ym/results/integer-pairs-2026-11-03/run_cases.py|sha256=1e2bc843327ec87df3aa6d71fb535749dcf4b6748e4860cd49e14f617a877fa5|json=0
+BASELINE_BYTES|whole22.pkl=3cdcc5731bf9335f8500a2aced8217988bcde98223ec44e7437e6cb6cf3a812e|whole23.pkl=596294a0d705f95eb1bed017d87269987ccacfa430041ffa49cd0bc9dde0fe70|own33-c2-i64.bin=fdc1ade8ff7d06dfd3bdeeb1a86239764629ebf11936403fc5b05ba608f3bb25|the_originals_rerun_wrote_these_same_bytes=1|json=0

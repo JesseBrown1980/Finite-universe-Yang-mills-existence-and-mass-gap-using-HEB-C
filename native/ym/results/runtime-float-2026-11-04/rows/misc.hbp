@@ -1,0 +1,74 @@
+GDB|variant=before|exe_sha256=2b4add09f69df8cf59e868a007d68911fa697eb3c72a838290c434221ac2d77b|input=b33_k1.matrix 1 9|breakpoints=rva_0x2d6f7_divsd,rva_0x2d6e3_subpd,rva_0x2d723_cvttsd2si|hits=34,34,34|debugger=gdb_18.1_mingw|json=0
+GDB_LIB|variant=before|exe_sha256=2b4add09f69df8cf59e868a007d68911fa697eb3c72a838290c434221ac2d77b|input=b33_k1.matrix 1 9|breakpoints=ucrtbase_ceil,log2,pow,trunc,sqrt|hit_rows=34|exited_normally=1|debugger=gdb_18.1_mingw|json=0
+GDB_LIB|variant=after|exe_sha256=92ad6373ee87e62b78ea2f77e2326fbb4b620d3ccdc4bbf9483842785f40cab1|input=b33_k1.matrix 1 9|breakpoints=ucrtbase_ceil,log2,pow,trunc,sqrt|hit_rows=none|exited_normally=1|debugger=gdb_18.1_mingw|json=0
+FPTRACE_CONTROL|mode=mxcsr|program=ctl_float|mode=mxcsr|exit=0|sites_listed=0|sites_hit=0|site_hits=0|traps=0|steps=0|steps_in_exe=0|budget_hit=0|step_rearms=0|classes=-|json=0
+FPTRACE_CONTROL|mode=trap|program=ctl_float|mode=trap|exit=0|sites_listed=0|sites_hit=0|site_hits=0|traps=1018|steps=0|steps_in_exe=0|budget_hit=0|step_rearms=0|classes=-|json=0
+FPTRACE_CONTROL|mode=step|program=ctl_float|mode=step|exit=0|sites_listed=0|sites_hit=0|site_hits=0|traps=0|steps=1957074|steps_in_exe=19634|budget_hit=0|step_rearms=4|classes=ARITH=1521,LOGIC=951,MOVE=16936,OTHER=1937624,SCALAR_MOVE=22,X87=20|json=0
+FPTRACE_CONTROL|mode=mxcsr|program=ctl_int|mode=mxcsr|exit=0|sites_listed=0|sites_hit=0|site_hits=0|traps=0|steps=0|steps_in_exe=0|budget_hit=0|step_rearms=0|classes=-|json=0
+FPTRACE_CONTROL|mode=trap|program=ctl_int|mode=trap|exit=0|sites_listed=0|sites_hit=0|site_hits=0|traps=0|steps=0|steps_in_exe=0|budget_hit=0|step_rearms=0|classes=-|json=0
+FPTRACE_CONTROL|mode=step|program=ctl_int|mode=step|exit=0|sites_listed=0|sites_hit=0|site_hits=0|traps=0|steps=1963283|steps_in_exe=12448|budget_hit=0|step_rearms=4|classes=LOGIC=951,MOVE=16917,OTHER=1945393,SCALAR_MOVE=22|json=0
+FPTRACE_CONTROL_EXPECT|program=ctl_float|known=divsd_1011_inexact,addsd_500_exact,sqrtsd_7_inexact_3_exact,x87_20|trap_expect=1018|step_arith_expect=1521|json=0
+FPTRACE_CONTROL|mode=sites|program=ctl_float|mode=sites|exit=0|sites_listed=23|sites_hit=23|site_hits=1541|traps=0|steps=0|steps_in_exe=0|budget_hit=0|step_rearms=0|classes=-|json=0
+STEP|variant=before|exe_sha256=2b4add09f69df8cf59e868a007d68911fa697eb3c72a838290c434221ac2d77b|input=b33_k1.matrix 1 9 1 0 1 1|mode=step|exit=0|sites_listed=0|sites_hit=0|site_hits=0|traps=0|steps=4787204|steps_in_exe=1306601|budget_hit=0|step_rearms=4|classes=ARITH=44,LOGIC=1766,MOVE=52638,OTHER=4732720,SCALAR_MOVE=36|json=0
+STEP_EXEC_BY_MODULE|module=EXE|class=ARITH|addresses=16|hits=40|json=0
+STEP_EXEC_BY_MODULE|module=ucrtbase.dll|class=ARITH|addresses=1|hits=4|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2d6e3|class=ARITH|hits=4|bytes=660f5c0d75100200|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2d6f3|class=ARITH|hits=4|bytes=f20f58c1f20f5e05|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2d6f7|class=ARITH|hits=4|bytes=f20f5e05e11b0200|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2d706|class=ARITH|hits=4|bytes=660f2e05c21b0200|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2d71d|class=ARITH|hits=4|bytes=660f2ec8764cf248|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2d723|class=ARITH|hits=4|bytes=f2480f2cd04989d0|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2d72f|class=ARITH|hits=4|bytes=f20f5c05911b0200|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2d737|class=ARITH|hits=4|bytes=f2480f2cf04c21c6|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2f129|class=ARITH|hits=1|bytes=660f5c052ff60100|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2f139|class=ARITH|hits=1|bytes=f20f58c80f57c0f2|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2f140|class=ARITH|hits=1|bytes=f20f51c1f2480f2c|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2f144|class=ARITH|hits=1|bytes=f2480f2cc04889c2|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2f154|class=ARITH|hits=1|bytes=f20f5c0d6c010200|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2f15c|class=ARITH|hits=1|bytes=f24c0f2cc14921d0|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2f16d|class=ARITH|hits=1|bytes=660f2ec1490f43c0|json=0
+STEP_ARITH_before|EXEC|module=EXE|rva=0x2f175|class=ARITH|hits=1|bytes=660f2e057b150200|json=0
+STEP_ARITH_before|EXEC|module=ucrtbase.dll|rva=0xa88d0|class=ARITH|hits=4|bytes=660f3a0bc00ac3cc|json=0
+STEP|variant=after|exe_sha256=92ad6373ee87e62b78ea2f77e2326fbb4b620d3ccdc4bbf9483842785f40cab1|input=b33_k1.matrix 1 9 1 0 1 1|mode=step|exit=0|sites_listed=0|sites_hit=0|site_hits=0|traps=0|steps=4786923|steps_in_exe=1306472|budget_hit=0|step_rearms=4|classes=LOGIC=1764,MOVE=52615,OTHER=4732512,SCALAR_MOVE=32|json=0
+ADV_FILE|name=rows_std|bytes=14399713|sha256=548fc1094e31217269fa6c0bcf249177a31b8c0b2ed05aaa6b4ac0703b4eaaef|json=0
+ADV_FILE|name=rows_nostd|bytes=14399713|sha256=548fc1094e31217269fa6c0bcf249177a31b8c0b2ed05aaa6b4ac0703b4eaaef|json=0
+ADV_FILE|name=rows_py|bytes=14399713|sha256=548fc1094e31217269fa6c0bcf249177a31b8c0b2ed05aaa6b4ac0703b4eaaef|json=0
+ADV_FILE|name=parse_std|bytes=2151|sha256=8521724e11bf57dc82fb4ef0ee3e5ce8f0e69a283a6012b6d0a33fb4206551ba|json=0
+ADV_FILE|name=parse_nostd|bytes=2151|sha256=8521724e11bf57dc82fb4ef0ee3e5ce8f0e69a283a6012b6d0a33fb4206551ba|json=0
+ADV_DONE_ROW|DONE|rows=141377|violations=0|json=0
+ADV_std|FLAGS|family=pow2|sse_flags=0x28|rows_so_far=24602|violations_so_far=0|json=0
+ADV_std|FLAGS|family=square|sse_flags=0x28|rows_so_far=62402|violations_so_far=0|json=0
+ADV_std|FLAGS|family=edge|sse_flags=0x28|rows_so_far=70202|violations_so_far=0|json=0
+ADV_std|FLAGS|family=randsq|sse_flags=0x28|rows_so_far=79427|violations_so_far=0|json=0
+ADV_std|FLAGS|family=above4096|sse_flags=0x28|rows_so_far=81427|violations_so_far=0|json=0
+ADV_std|FLAGS|family=dec|sse_flags=0x28|rows_so_far=88929|violations_so_far=0|json=0
+ADV_std|FLAGS|family=small|sse_flags=0x20|rows_so_far=93026|violations_so_far=0|json=0
+ADV_std|FLAGS|family=prim|sse_flags=0x20|rows_so_far=129976|violations_so_far=0|json=0
+ADV_std|FLAGS|family=u16|sse_flags=0x20|rows_so_far=129977|violations_so_far=0|json=0
+ADV_std|FLAGS|family=radix|sse_flags=0x20|rows_so_far=141377|violations_so_far=0|json=0
+ADV_std|ADV_DONE|rows=141377|violations=0|json=0
+ADV_EXE|build=std|exe_sha256=602be6b630028ef5c11b0659e46c224e51649724df85eb70997ad7a660d0538c|json=0
+ADV_U32|build=std|EXH|u32_sqrt|count=4294967296|violations=0|digest=10130493455218769920|FLAGS|family=u32|sse_flags=0x20|json=0|json=0
+ADV_TIME|build=std|rows_run=std_rc=0 secs=21|u32_run=exhstd_rc=0 secs=60|json=0
+ADV_nostd|FLAGS|family=pow2|sse_flags=0x0|rows_so_far=24602|violations_so_far=0|json=0
+ADV_nostd|FLAGS|family=square|sse_flags=0x0|rows_so_far=62402|violations_so_far=0|json=0
+ADV_nostd|FLAGS|family=edge|sse_flags=0x0|rows_so_far=70202|violations_so_far=0|json=0
+ADV_nostd|FLAGS|family=randsq|sse_flags=0x0|rows_so_far=79427|violations_so_far=0|json=0
+ADV_nostd|FLAGS|family=above4096|sse_flags=0x0|rows_so_far=81427|violations_so_far=0|json=0
+ADV_nostd|FLAGS|family=dec|sse_flags=0x0|rows_so_far=88929|violations_so_far=0|json=0
+ADV_nostd|FLAGS|family=small|sse_flags=0x0|rows_so_far=93026|violations_so_far=0|json=0
+ADV_nostd|FLAGS|family=prim|sse_flags=0x0|rows_so_far=129976|violations_so_far=0|json=0
+ADV_nostd|FLAGS|family=u16|sse_flags=0x0|rows_so_far=129977|violations_so_far=0|json=0
+ADV_nostd|FLAGS|family=radix|sse_flags=0x0|rows_so_far=141377|violations_so_far=0|json=0
+ADV_nostd|ADV_DONE|rows=141377|violations=0|json=0
+ADV_EXE|build=nostd|exe_sha256=8c093df414ab17ea64787c3a4b6c75e3e80ea8e76273c9603b399f52a5bfc52e|json=0
+ADV_U32|build=nostd|EXH|u32_sqrt|count=4294967296|violations=0|digest=10130493455218769920|FLAGS|family=u32|sse_flags=0x0|json=0|json=0
+ADV_TIME|build=nostd|rows_run=nostd_rc=0 secs=27|u32_run=exhnostd_rc=0 secs=97|json=0
+PYTHON_SCOPE|interpreter=cpython_3.13.2|script=empty.py|flags=-I_-S_-X_utf8|traps=128|by_module=python313.dll=128|json=0
+PYTHON_SCOPE|interpreter=cpython_3.13.2|script=intonly.py|flags=-I_-S_-X_utf8|traps=135|by_module=python313.dll=131,ucrtbase.dll=4|json=0
+CPP_EXE|label=prefix_static_mingw|insns=227408|ARITH=115|X87=194|SCALAR_MOVE=242|functions_with_float=70|json=0
+CPP_HOST_trap|FPTRACE|mode=trap|exit=0|sites_listed=0|sites_hit=0|site_hits=0|traps=0|steps=0|steps_in_exe=0|budget_hit=0|step_rearms=0|classes=-|json=0
+CPP_HOST_sites|SITE_HIT|rva=0xfc94|hits=1|class=X87|mnemonic=fninit|fn=_fpreset|json=0
+CPP_HOST_sites|FPTRACE|mode=sites|exit=0|sites_listed=309|sites_hit=1|site_hits=1|traps=0|steps=0|steps_in_exe=0|budget_hit=0|step_rearms=0|classes=-|json=0
+CPP_HOST_mxcsr|FPTRACE|mode=mxcsr|exit=0|sites_listed=0|sites_hit=0|site_hits=0|traps=0|steps=0|steps_in_exe=0|budget_hit=0|step_rearms=0|classes=-|json=0
+CPP_HOST_EXE|file=seat_sturm_prefix.cpp|compiler=g++_16.2.0_mingw|flags=O2_std17_Wall_Wextra_Werror_static|exe_sha256=3873a0ecc9cca14e4ab1edffb67360dd8598235f5668b52fa3af9c8a52a42d0e|input=seat_matrix.txt 1 1 13240 1100|input_sha256=91ea75eae5c72521752febe714d88bdfe96fd380b059f7a24d8d65fea1afd98a|json=0

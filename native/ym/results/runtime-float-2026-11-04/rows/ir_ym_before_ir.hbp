@@ -1,0 +1,59 @@
+IR_FUNC|repo=ym|variant=before|crate=num_bigint|fn=num_bigint::biguint::convert::from_radix_digits_be|fp_lines=9|first=%_5 = uitofp i32 %radix to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_bigint|fn=num_bigint::biguint::convert::<impl num_traits::cast::FromPrimitive for num_bigint::biguint::BigUint>::from_f64|fp_lines=6|first=define internal fastcc void @"_ZN10num_bigint7biguint7convert90_$LT$impl$u20$num_traits..cast..FromPrimitive$u|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_bigint|fn=num_bigint::biguint::convert::to_radix_le|fp_lines=14|first=%_7.i14 = uitofp i64 %_0.sroa.0.0.i to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_bigint|fn=<num_bigint::biguint::BigUint as num_integer::roots::Roots>::nth_root|fp_lines=10|first=%_9.i = uitofp i64 %ret.sroa.0.3.i.i to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_bigint|fn=<num_bigint::biguint::BigUint as num_integer::roots::Roots>::sqrt|fp_lines=7|first=%_9.i = uitofp i64 %ret.sroa.0.3.i.i to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_bigint|fn=<num_bigint::biguint::BigUint as num_integer::roots::Roots>::cbrt|fp_lines=7|first=%_9.i = uitofp i64 %ret.sroa.0.3.i.i to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_integer|fn=<u8 as num_integer::roots::Roots>::nth_root::go|fp_lines=3|first=%_10.i = uitofp i8 %0 to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_integer|fn=<u8 as num_integer::roots::Roots>::sqrt::go|fp_lines=3|first=%_10 = uitofp i8 %0 to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_integer|fn=<u16 as num_integer::roots::Roots>::nth_root::go|fp_lines=3|first=%_10.i = uitofp i16 %0 to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_integer|fn=<u16 as num_integer::roots::Roots>::sqrt::go|fp_lines=3|first=%_10 = uitofp i16 %0 to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_integer|fn=<u32 as num_integer::roots::Roots>::nth_root::go|fp_lines=3|first=%_10.i = uitofp i32 %0 to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_integer|fn=<u32 as num_integer::roots::Roots>::sqrt::go|fp_lines=3|first=%_10 = uitofp i32 %0 to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_integer|fn=<u64 as num_integer::roots::Roots>::nth_root::go|fp_lines=9|first=%_10.i = uitofp i64 %0 to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_integer|fn=<u64 as num_integer::roots::Roots>::sqrt::go|fp_lines=3|first=%_10 = uitofp i64 %0 to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_integer|fn=<u64 as num_integer::roots::Roots>::cbrt::go|fp_lines=3|first=%_20 = uitofp i64 %0 to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_integer|fn=<u128 as num_integer::roots::Roots>::sqrt::go|fp_lines=6|first=%_10.i.i.i = uitofp i64 %3 to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_integer|fn=<usize as num_integer::roots::Roots>::nth_root::go|fp_lines=9|first=%_10.i = uitofp i64 %0 to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_integer|fn=<usize as num_integer::roots::Roots>::sqrt::go|fp_lines=3|first=%_10 = uitofp i64 %0 to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_integer|fn=<usize as num_integer::roots::Roots>::cbrt::go|fp_lines=3|first=%_19 = uitofp i64 %0 to double|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_traits|fn=<f32 as num_traits::Num>::from_str_radix|fp_lines=47|first=%1 = bitcast i32 %.sroa.5.0.extract.trunc to float|json=0
+IR_FUNC|repo=ym|variant=before|crate=num_traits|fn=<f64 as num_traits::Num>::from_str_radix|fp_lines=55|first=%_116 = load double, ptr %7, align 8, !noundef !9|json=0
+IR_TALLY|repo=ym|variant=before|ll_files=42|defined=3920|with_fp=21|by_crate=num_bigint=6,num_integer=13,num_traits=2|json=0
+IR_REACH|repo=ym|variant=before|crate=allpairs|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=ball|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=cantorint|fp_functions_reached=1|in_own_crate=0|names=num_bigint::biguint::convert::to_radix_le|json=0
+IR_REACH|repo=ym|variant=before|crate=cheb|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=cluster|fp_functions_reached=4|in_own_crate=0|names=<num_bigint::biguint::BigUint as num_integer::roots::Roots>::sqrt;<u64 as num_integer::roots::Roots>::sqrt::go;num_bigint::biguint::convert::<impl num_traits::cast::FromPrimitive for num_bigint::biguin;num_bigint::biguint::convert::to_radix_le|json=0
+IR_REACH|repo=ym|variant=before|crate=continuum_clay_variation|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=ddcore|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=evolvers|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=fillest|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=flatcomp|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=hebc_finite_yang_mills|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=hebc_ym_http0|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=hybridcheck|fp_functions_reached=1|in_own_crate=0|names=num_bigint::biguint::convert::to_radix_le|json=0
+IR_REACH|repo=ym|variant=before|crate=jump|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=jumpto|fp_functions_reached=4|in_own_crate=0|names=<num_bigint::biguint::BigUint as num_integer::roots::Roots>::sqrt;<u64 as num_integer::roots::Roots>::sqrt::go;num_bigint::biguint::convert::<impl num_traits::cast::FromPrimitive for num_bigint::biguin;num_bigint::biguint::convert::to_radix_le|json=0
+IR_REACH|repo=ym|variant=before|crate=localaudit|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=navier_stokes_regularity_spectral|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=onfly|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=onflybench|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=perroncert|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=perronritz|fp_functions_reached=1|in_own_crate=0|names=num_bigint::biguint::convert::to_radix_le|json=0
+IR_REACH|repo=ym|variant=before|crate=prodvec|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=roomball|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=roomjump|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=roomschur|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=schurcert|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=shellschur|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=sturmfast|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=sturmrs|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=torusl|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=ymconf|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=ymplay|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=ymroom|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=ymsec|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=ymstream|fp_functions_reached=0|in_own_crate=0|names=-|json=0
+IR_REACH|repo=ym|variant=before|crate=ymwser|fp_functions_reached=1|in_own_crate=0|names=num_bigint::biguint::convert::to_radix_le|json=0
+IR_REACH|repo=ym|variant=before|crate=zconfpt|fp_functions_reached=0|in_own_crate=0|names=-|json=0

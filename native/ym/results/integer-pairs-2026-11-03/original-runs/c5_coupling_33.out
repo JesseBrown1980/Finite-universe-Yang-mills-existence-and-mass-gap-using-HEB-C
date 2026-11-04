@@ -1,0 +1,6 @@
+VECTOR_DONE|w33-76200000-12_200.bin|jbs=28|secs_wall=63|json=0
+VECTOR_DONE|w33-76430000-12_200.bin|jbs=28|secs_wall=123|json=0
+VECTOR_DONE|33-x3a.bin|jbs=28|secs_wall=189|json=0
+VECTOR_DONE|33-r5000.bin|jbs=28|secs_wall=241|json=0
+VECTOR_DONE|33-r4000.bin|jbs=28|secs_wall=292|json=0
+C5|store=33|{'vectors': 5, 'jb_tested': 140, 'value_mismatch': 0, 'label_mismatch': 0, 'lower_row_mismatch': 0, 'own_mismatch': 0, 'ties_at_integer_jb': 0, 'envelope_breaks': 36}|json=0

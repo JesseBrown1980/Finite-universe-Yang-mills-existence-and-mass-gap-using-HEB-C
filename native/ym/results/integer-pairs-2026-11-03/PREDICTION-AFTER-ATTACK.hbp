@@ -1,0 +1,20 @@
+# Written and pushed before the reruns it names, after the second seat's attack on commit 1a318ec. PREDICTION.hbp stays as it was at 712fab4, and its TOOL rows keep the hashes of that commit. run_cases.py reads the EXPECT row below as it stands. json=0.
+PREDICTION_AFTER_ATTACK|at=2026-11-03T22:42:01Z|question=do_the_findings_fixes_move_any_measured_row|attack_head=1a318ece2f2f2469796c736916676f650602a8c5|priority=below_normal|json=0
+PREDICTION_STATE|test_intpair_short_runs_during_writing=seeds_27_and_28_at_50_and_200_rounds|gate_scans_during_writing=1|so_those_rows_below_are_for_the_final_runs_only|test_c_integer_runs_so_far=0|reruns_of_the_copies_so_far=0|json=0
+EXPECT|case=test_c_integer|copy=$HERE/check_test_c_integer.py|against=$HERE/expected/test_c_integer.hbp|hosted=1|exit=0|json=0
+EXPECT_INTPAIR|run=test_intpair.py|seed_27_comparisons=17521323|seed_28_comparisons=17520971|seed_29_comparisons=17521717|total=52564011|failures=0|because=488_new_checks_each_seed_and_the_same_draws|json=0
+EXPECT_TEETH|run=test_intpair.py_--teeth|breaks=19|missed=0|json=0
+EXPECT_REWRITER|run=make_integer_pairs.py_--check|copies=25|divisions_to_qdiv=35|differ=0|audit_hits=0|every_copy_hash_as_in_PREDICTION.hbp=1|selftest_snippets=15|selftest_failed=0|json=0
+EXPECT_GATE|run=no_float_gate.py|selftest_must_flag=93|selftest_must_pass=44|selftest_failed=0|scan_failed=0|listed_files=98|listed_folders=2|json=0
+EXPECT_MASK|run=run_cases.py_masked_rows_on_the_59_kept_outputs|rows_same=59_of_59|altered_flat_keys_row=rows_same_0_result_MISS_exit_1|json=0
+EXPECT_ZERO_WORK|case_with_no_rows=compared_rows_0_rows_same_0_exit_1|rows_file_with_no_cases=ran_0_exit_1|json=0
+EXPECT_HOSTED|run=run_cases.py_PREDICTION.hbp_--hosted_on_Linux|ran=35|missed=0|json=0
+EXPECT_RERUN|run=run_cases.py_on_the_copies_that_use_pairs_and_need_a_local_store|cases=c2_fuzz_27_300,c4b_open,c4_grid_22,c4_grid_23,c5_coupling_22,c6_lift_2x2,perron_climb_2x2,product_bound_scan_8|every_row_same_as_at_712fab4=1|json=0
+TOOL|file=native/scripts/intpair.py|sha256=c2405aaee6557ba0ee529177d7fe7e9b6290d097582e63037fa26bae1dc0b8f4|json=0
+TOOL|file=native/scripts/test_intpair.py|sha256=53158875180a86d7d6a95b41cc726abb50d29f0bdb0c50eaaf5aa9821e518a30|json=0
+TOOL|file=native/scripts/make_integer_pairs.py|sha256=6e94e6fde1a475c6e8f30b33ba106f00a3b01efcf9e6ae0c584ffdb0d9cff798|json=0
+TOOL|file=native/scripts/no_float_gate.py|sha256=6e5efb4dcb44b9f56322d7062165199fce005c531255547db88ed6cf4d1a890e|json=0
+TOOL|file=native/scripts/integer_only_audit.py|sha256=1a944ff3a5f8653618470bcd767947faff491d6ec99068de47c8e9e779e2ffc7|json=0
+TOOL|file=native/ym/results/integer-pairs-2026-11-03/run_cases.py|sha256=5be21bc96ff7421d899acbf4595d4a1fac743933a48c444e3f96f1054f7fbea5|json=0
+TOOL|file=native/ym/results/integer-pairs-2026-11-03/check_test_c_integer.py|sha256=fb27cdb2d76ea6ad7f91d592bcf44c032de4020bc421b47a7ed8c30805245fbe|json=0
+TOOL|file=native/ym/results/z-one-matrix-20261030/curve_ABC/C/test_c_integer.py|sha256=0348268f107abee0f65d1100db1ef4d0aa63a0a6a4eb798dec063c4efb4ac55b|json=0

@@ -1,0 +1,18 @@
+# The originals that have no recorded rows of their own, run unchanged at below normal priority to give the baseline their integer copies must reproduce. Their standard output is in original-runs/. json=0.
+ORIGINAL|case=c7_receipts|script=$P/second-seat/c7_receipts.py|timeout=900|json=0
+ORIGINAL|case=own34_post|script=$P/second-seat/own34_post.py|timeout=900|json=0
+ORIGINAL|case=c1_inertia_2x2|script=$P/second-seat/c1_inertia.py|args=$R/dev22.bin 9000 46467673 46467674 46466823|timeout=900|json=0
+ORIGINAL|case=c1_small_2x2|script=$P/second-seat/c1_small.py|args=$R/dev22.bin 9000 46400000 6|timeout=900|json=0
+ORIGINAL|case=c1_small_2x3|script=$P/second-seat/c1_small.py|args=$R/dev23.bin 9000 58400000 5|timeout=900|json=0
+ORIGINAL|case=perron_climb_2x2|script=$P/perron_climb.py|args=$R/bin/perroncert.exe $R/dev22.bin $R/vec/2x2-45000000.bin $RUN/climb-orig 46000000 300 16:500 3|timeout=600|json=0
+ORIGINAL|case=own33_check_c2|script=$P/second-seat/own33_check.py|args=$R/dev33.bin $R/own33-c2.bin 9000 $RUN/orig-own33-c2-i64.bin|timeout=900|json=0
+ORIGINAL|case=c6_lattice_2x2|script=$HERE/run_original_redirected.py|args=$P/second-seat/c6_lattice.py $R/whole22.pkl $RUN/orig-whole22.pkl 2 2|timeout=900|json=0
+ORIGINAL|case=c6_lift_2x2|script=$P/second-seat/c6_lift.py|args=2 2|timeout=900|json=0
+ORIGINAL|case=c4_grid_22|script=$P/second-seat/c4_grid.py|args=22|timeout=900|json=0
+ORIGINAL|case=c4_grid_23|script=$P/second-seat/c4_grid.py|args=23|timeout=900|json=0
+ORIGINAL|case=c5_coupling_22|script=$P/second-seat/c5_coupling.py|args=22|timeout=900|json=0
+ORIGINAL|case=c5_coupling_23|script=$P/second-seat/c5_coupling.py|args=23|timeout=900|json=0
+ORIGINAL|case=c6_lattice_2x3|script=$HERE/run_original_redirected.py|args=$P/second-seat/c6_lattice.py $R/whole23.pkl $RUN/orig-whole23.pkl 2 3|timeout=900|json=0
+ORIGINAL|case=c6_lift_2x3|script=$P/second-seat/c6_lift.py|args=2 3|timeout=900|json=0
+ORIGINAL|case=c4_grid_33|script=$P/second-seat/c4_grid.py|args=33|timeout=900|json=0
+ORIGINAL|case=c5_coupling_33|script=$P/second-seat/c5_coupling.py|args=33|timeout=900|json=0

@@ -1,0 +1,6 @@
+COST|tool=cluster|rounds=9|before_us=608601|after_us=601301|after_per_1000_before=988|json=0
+COST|tool=jumpto_fixed|rounds=9|before_us=1335901|after_us=1317039|after_per_1000_before=985|json=0
+COST|tool=hybridcheck|rounds=9|before_us=4505498|after_us=4451447|after_per_1000_before=988|json=0
+COST|tool=perronritz_pass|rounds=9|before_us=230421|after_us=232810|after_per_1000_before=1010|json=0
+COST|tool=sturmq2_interval|rounds=9|before_us=180275|after_us=178868|after_per_1000_before=992|json=0
+COST|tool=adv_rows|rounds=1|before_us=19401336|after_us=23238712|after_per_1000_before=1197|json=0
