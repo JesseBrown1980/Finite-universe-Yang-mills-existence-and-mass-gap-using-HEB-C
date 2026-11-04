@@ -1,0 +1,8 @@
+ELECTRIC_RETRY_PREDICTION_HEAD|file=ELECTRIC-SPECTRUM-2X2-RETRY-PREDICTION.hbp|beside=ELECTRIC-SPECTRUM-2X2-PREDICTION.hbp|written_before_these_runs=1|every_row_tag=CONJECTURE|json=0
+ELECTRIC_RETRY_WHY|registered_T=19700,22700,25700,28700|each_read=no_sign-definite_pivot_UNCERTIFIED|rule_from_the_brief=record_that_row_and_take_another_T_in_the_same_open_interval|order=attempts_run_in_the_listed_order_and_an_interval_stops_at_its_first_certified_T|every_attempt_is_recorded|json=0
+RETRY_PREDICT|id=R1|open_interval=18,21|T_list=18700,20300,19300,20700,18300,19900,20100,18900|negative=255|source=the_cumulative_table_of_path_B_and_path_C|tag=CONJECTURE|json=0
+RETRY_PREDICT|id=R2|open_interval=21,24|T_list=21700,23300,22300,23700,21300,22900,23100,21900|negative=447|pp=123|source=the_cumulative_table_and_the_pp_row_of_the_stopped_run_at_T=22700|tag=CONJECTURE|json=0
+RETRY_PREDICT|id=R3|open_interval=24,27|T_list=24300,26300,25300,26700,24700,25900,26100,24900|negative=946|pp=262|source=the_cumulative_table_and_the_pp_row_of_the_stopped_run_at_T=25700|tag=CONJECTURE|json=0
+RETRY_PREDICT|id=R4|open_interval=27,30|T_list=27300,29300,28300,29700,27700,28900,29100,27900|negative=1138|source=the_cumulative_table_of_path_B_and_path_C|tag=CONJECTURE|json=0
+RETRY_PREDICT|id=R5|pair=18,21_with_27,30|value=the_sector_counts_add_to_385,336,336,336|reason=reflection_c_to_48-c_preserves_each_translation_sector|tag=CONJECTURE|json=0
+RETRY_PREDICT|id=R6|pair=21,24_with_24,27|value=the_sector_counts_add_to_385,336,336,336|reason=reflection_c_to_48-c_preserves_each_translation_sector|tag=CONJECTURE|json=0

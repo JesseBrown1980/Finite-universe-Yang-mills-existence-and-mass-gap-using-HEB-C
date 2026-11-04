@@ -27,8 +27,10 @@ dated note sits beside it. The current results table is in the [README](README.m
 |---|---|---|
 | 2B, 11D two-plaquette | done | [report](STAGE2B_DOUBLE_PLAQUETTE_EXACT_SPECTRUM.md) |
 | 2C, 1,393D 2×2 torus | done; mixed-coupling gap **certified**, e.g. E₁ − E₀ ∈ [5.605801, 5.608535] at (J_E, J_B) = (1, 1) | [README](README.md), section "2×2 coupling ladder" |
+| 2×2, the electric end | (November 3) gap(E) = 6 exactly at J_B = 0, by an exact annihilator on the real matrix and two inertia engines, the antecedent of the bound at every ratio. gap(E) = 3·min(4, Lx, Ly) is DERIVED on every periodic S₃ torus | [`ELECTRIC_SPECTRUM_2X2_REPORT.md`](independent/ELECTRIC_SPECTRUM_2X2_REPORT.md) |
 | 2×L sectors (2×2 to 2×5) | E₉ − E₈ certified for every r ≥ 9, zero momentum; 2×5 sealed `PASS` | [`native/ym/results/2xL/`](native/ym/results/2xL/), [`2x5_stage_b/`](native/ym/results/2x5_stage_b/) |
 | 3×3 | zero momentum E₉ − E₈ ≥ 23.357514 J_E for r ≥ 9; full space (10,097,891 states, all momenta) ≥ 17.9 J_E, certify `PASS` | [`3x3_full_space/`](native/ym/results/3x3_full_space/CERTIFY-RESULT.md) |
+| 3×3 Ritz report | Outward rounding, trial-space labels, receipts at scales 10⁶ and 10¹², and GPT-6's verifier on all five rows, with the old receipt kept. `full_gap=NOT_CERTIFIED` | [Report](independent/SEAT_3X3_VACUUM_BLOCK_RITZ_REPORT.md) |
 | Gap law | E₉ − E₈ = 3r·J_E − c_L·J_E/r + O(1/r²), c_L = 21 on 3×3, 3×4, 4×4 | [`zgap2-2026-10-30-cloud/`](native/ym/results/zgap2-2026-10-30-cloud/) |
 | 3×4 (45,508,080-state (+,+) sector) | control C1–C3 PASS (run 41294035019); gap rule registered (`d635a6e5…`); **60M production run [41321108365](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/41321108365) passed, `negative=0`, `ambiguous=0`**. 60M gives a vacuum lower bound, not a gap; thresholds above 60M stay on HOLD | [`native/ym/results/3x4_stream/`](native/ym/results/3x4_stream/) |
 | Stage 3, continuum | open; the finite certificates do not establish it | [theory route](docs/YM_TOPOLOGICAL_STABILITY_PROOF.md) |

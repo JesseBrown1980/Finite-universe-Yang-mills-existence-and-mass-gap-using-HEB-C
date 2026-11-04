@@ -6,6 +6,7 @@ on:
   pull_request:
     paths:
       - 'independent/**'
+      - 'native/scripts/integer_only_audit.py'
       - '.github/workflows/seat-3x3-vacuum-block-ritz-test.yml'
   workflow_dispatch:
 
@@ -22,7 +23,27 @@ jobs:
         run: |
           set -euo pipefail
           python3 independent/seat_integer_only_gate.py
-      - name: Reproduce exact 3x3 vacuum-ball block-Krylov Ritz receipts
+          python3 native/scripts/integer_only_audit.py independent/seat_3x3_vacuum_block_ritz.py independent/seat_3x3_ritz_compare.py independent/seat_3x3_ritz_count_steps.py
+      - name: Outward-rounding selftest, with GPT-6's counterexample
+        run: |
+          set -euo pipefail
+          python3 independent/seat_3x3_vacuum_block_ritz.py --selftest | tee /tmp/selftest.hbp
+          grep -F 'counterexample=7<24E<8|interval=[0,1]|historical_rule=[0,0]' /tmp/selftest.hbp
+          grep -F 'result=PASS|json=0' /tmp/selftest.hbp
+          sed 's|return lo // 24, (hi + 23) // 24|return lo // 24, hi // 24|' independent/seat_3x3_vacuum_block_ritz.py > /tmp/seat_historical_rounding.py
+          rc=0
+          python3 /tmp/seat_historical_rounding.py --selftest || rc=$?
+          test "$rc" = 1
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|selftest_red_on_historical_rounding=1|json=0'
+      - name: The historical receipt and the original report text are unchanged
+        run: |
+          set -euo pipefail
+          echo '8500ef4b3b2f1c67ae410155aca06c9932699509efbfe5307c9521d37ae6708c  independent/seat_3x3_vacuum_block_ritz.measure' | sha256sum -c -
+          R=independent/SEAT_3X3_VACUUM_BLOCK_RITZ_REPORT.md
+          test "$(head -n 3 "$R" | sha256sum | cut -d' ' -f1)" = 19583929b1d55479451d3b6b6c444ffa197f9e6e181111d0708455b20b56c5bf
+          test "$(sed -n '/^## Original report as written/,$p' "$R" | tail -n +3 | sha256sum | cut -d' ' -f1)" = 3ae340e835ac0f768d3272ac2aafeda4beca7d05b757e3609fcdb50fe81e04b0
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|historical_receipt_pinned=1|original_report_text_pinned=1|json=0'
+      - name: Reproduce the outward receipts at scale 10^6
         run: |
           set -euo pipefail
           python3 independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k1.matrix 1 27 --order 1 > /tmp/test.measure
@@ -30,15 +51,119 @@ jobs:
           python3 independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k3.matrix 1 9 --order 3 >> /tmp/test.measure
           python3 independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k3.matrix 1 27 --order 3 >> /tmp/test.measure
           python3 independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k3.matrix 1 81 --order 3 >> /tmp/test.measure
-          cmp /tmp/test.measure independent/seat_3x3_vacuum_block_ritz.measure
-          grep -F 'matrix=b33_k3.matrix' /tmp/test.measure | grep -F 'symmetry_diff=0'
-          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|receipts_verified=5|json=0'
+          cmp /tmp/test.measure independent/seat_3x3_vacuum_block_ritz_outward.measure
+          test "$(grep -c -F 'kind=RITZ_TRIAL_GAP_ONLY|full_gap=NOT_CERTIFIED|json=0' /tmp/test.measure)" = 5
+          grep -F 'JB=81|' /tmp/test.measure | grep -F 'symmetry_diff=[-2,2]'
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|receipts_verified=5|scale=1000000|json=0'
+      - name: Reproduce the outward receipts at scale 10^12
+        run: |
+          set -euo pipefail
+          for r in 9 27 81; do
+            python3 independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k3.matrix 1 "$r" --order 3 --scale 1000000000000
+          done > /tmp/test_e12.measure
+          cmp /tmp/test_e12.measure independent/seat_3x3_vacuum_block_ritz_outward_e12.measure
+          test "$(grep -c -F 'kind=RITZ_TRIAL_GAP_ONLY|full_gap=NOT_CERTIFIED|json=0' /tmp/test_e12.measure)" = 3
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|receipts_verified=3|scale=1000000000000|json=0'
+      - name: Replay GPT-6's independent verifier on all five rows
+        run: |
+          set -euo pipefail
+          python3 -I independent/gpt6_3x3_ritz_independent.py independent/matrices/b33_k1.matrix 1 27 1 > /tmp/replay.measure
+          python3 -I independent/gpt6_3x3_ritz_independent.py independent/matrices/b33_k2.matrix 1 27 2 >> /tmp/replay.measure
+          python3 -I independent/gpt6_3x3_ritz_independent.py independent/matrices/b33_k3.matrix 1 9 3 >> /tmp/replay.measure
+          python3 -I independent/gpt6_3x3_ritz_independent.py independent/matrices/b33_k3.matrix 1 27 3 >> /tmp/replay.measure
+          python3 -I independent/gpt6_3x3_ritz_independent.py independent/matrices/b33_k3.matrix 1 81 3 >> /tmp/replay.measure
+          cmp /tmp/replay.measure independent/seat_3x3_ritz_gpt6_replay.measure
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|gpt6_replay_rows=5|json=0'
+      - name: Compare the regenerated receipts with the historical receipt and the law
+        run: |
+          set -euo pipefail
+          python3 independent/seat_3x3_ritz_compare.py --new /tmp/test.measure --e12 /tmp/test_e12.measure --gpt6 /tmp/replay.measure > /tmp/compare.measure
+          cmp /tmp/compare.measure independent/seat_3x3_ritz_compare.measure
+          tail -n 1 /tmp/compare.measure | grep -F 'RITZ-COMPARE|result=PASS'
+      - name: Bisection steps per level, against the prediction's count
+        run: |
+          set -euo pipefail
+          python3 independent/seat_3x3_ritz_count_steps.py > /tmp/steps.measure
+          cmp /tmp/steps.measure independent/seat_3x3_ritz_count_steps.measure
+          grep -F 'E0=' /tmp/steps.measure | sed -E 's/^.*\|(E0=.*\|E7=\[[0-9]+,[0-9]+\])\|json=0$/\1/' > /tmp/steps_levels.txt
+          cat /tmp/test.measure /tmp/test_e12.measure | sed -E 's/^.*\|(E0=.*\|E7=\[[0-9]+,[0-9]+\])\|trial_gap=.*$/\1/' > /tmp/receipt_levels.txt
+          cmp /tmp/steps_levels.txt /tmp/receipt_levels.txt
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|step_counts_pinned=1|levels_equal_receipts=8|json=0'
+      - name: A doctored receipt turns the compare red
+        run: |
+          set -euo pipefail
+          O=independent/seat_3x3_vacuum_block_ritz_outward.measure
+          E=independent/seat_3x3_vacuum_block_ritz_outward_e12.measure
+          H=independent/seat_3x3_vacuum_block_ritz.measure
+          G=independent/seat_3x3_ritz_gpt6_replay.measure
+          red() {
+            rc=0
+            python3 independent/seat_3x3_ritz_compare.py "$1" "$2" > /tmp/red.hbp || rc=$?
+            cat /tmp/red.hbp
+            test "$rc" = 1
+            grep -F "result=FAIL|reason=$3|" /tmp/red.hbp
+          }
+          sed 's/E0=\[53493385,53493386\]/E0=[53493384,53493385]/' "$O" > /tmp/d1.measure
+          red --new /tmp/d1.measure LOW_END
+          sed 's/E0=\[53493385,53493386\]/E0=[53493385,53493385]/' "$O" > /tmp/d2.measure
+          red --new /tmp/d2.measure WIDTH
+          sed 's/trial_gap=\[2011,2013\]/trial_gap=[2012,2012]/' "$O" > /tmp/d3.measure
+          red --new /tmp/d3.measure TRIAL_GAP
+          sed 's/full_gap=NOT_CERTIFIED/full_gap=CERTIFIED/' "$O" > /tmp/d4.measure
+          red --new /tmp/d4.measure LABEL
+          sed 's/E0=\[53493385093791,53493385093792\]/E0=[53493386093791,53493386093792]/' "$E" > /tmp/d5.measure
+          red --e12 /tmp/d5.measure E12_OUTSIDE_MICRO
+          sed 's/E0=53493385/E0=53493384/' "$H" > /tmp/d6.measure
+          red --old /tmp/d6.measure HISTORICAL_SHA
+          sed 's/ritz_e0_micro=53493385\.\.53493386/ritz_e0_micro=53493385..53493387/' "$G" > /tmp/d7.measure
+          red --gpt6 /tmp/d7.measure GPT6_DISAGREE
+          sed 's/|kind=/|certified_full_gap=[2011,2013]|kind=/' "$O" > /tmp/d8.measure
+          red --new /tmp/d8.measure UNKNOWN_FIELD
+          sed 's/E3=\[53499210071367,53499210071368\]/E3=[53499211071367,53499211071368]/' "$E" > /tmp/d9.measure
+          red --e12 /tmp/d9.measure LEVEL_ORDER
+          sed 's/E2=\[53499208987244,53499208987245\]/E2=[53499208987245,53499208987246]/' "$E" > /tmp/d10.measure
+          red --e12 /tmp/d10.measure E12_SHA
+          red --new /tmp/no-such-receipt.measure UNREADABLE
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|doctored_files_rejected=10|absent_file_rejected=1|json=0'
       - name: Fail closed on tampered vacuum-ball matrix
         run: |
           set -euo pipefail
           cp -a independent/matrices/b33_k1.matrix /tmp/b33_k1_bad.matrix
           printf 0 | dd of=/tmp/b33_k1_bad.matrix bs=1 seek=16 conv=notrunc status=none
-          if python3 independent/seat_3x3_vacuum_block_ritz.py /tmp/b33_k1_bad.matrix 1 27 --order 1; then
-            echo 'FAIL tampered matrix accepted'; exit 1
-          fi
+          rc=0
+          python3 independent/seat_3x3_vacuum_block_ritz.py /tmp/b33_k1_bad.matrix 1 27 --order 1 2> /tmp/b33_k1_bad.err || rc=$?
+          test "$rc" = 1
+          grep -F 'ZeroDivisionError' /tmp/b33_k1_bad.err
           echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|tamper_rejected=1|json=0'
+      - name: The sha256 pin rejects a tampered matrix that keeps its file name
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ritz-bad
+          cp -a independent/matrices/b33_k1.matrix /tmp/ritz-bad/b33_k1.matrix
+          printf 0 | dd of=/tmp/ritz-bad/b33_k1.matrix bs=1 seek=16 conv=notrunc status=none
+          rc=0
+          python3 independent/seat_3x3_vacuum_block_ritz.py /tmp/ritz-bad/b33_k1.matrix 1 27 --order 1 2> /tmp/ritz-bad/err.txt || rc=$?
+          test "$rc" = 1
+          grep -F 'matrix sha mismatch for b33_k1.matrix' /tmp/ritz-bad/err.txt
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|pinned_name_tamper_rejected=1|json=0'
+      - name: The range guard and the sha256 pin stop the solver under python3 -O
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ritz-opt
+          rc=0
+          python3 -O independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k1.matrix 4 27 --order 1 > /tmp/ritz-opt/range.out 2> /tmp/ritz-opt/range.err || rc=$?
+          test "$rc" = 1
+          grep -F 'range guard failed: level 0' /tmp/ritz-opt/range.err
+          test ! -s /tmp/ritz-opt/range.out
+          rc=0
+          python3 -O independent/seat_3x3_vacuum_block_ritz.py independent/matrices/b33_k1.matrix -1 27 --order 1 > /tmp/ritz-opt/low.out 2> /tmp/ritz-opt/low.err || rc=$?
+          test "$rc" = 1
+          grep -F 'range guard failed: level 0' /tmp/ritz-opt/low.err
+          test ! -s /tmp/ritz-opt/low.out
+          sed 's/^0 1 -3$/0 1 -2/' independent/matrices/b33_k1.matrix > /tmp/ritz-opt/b33_k1.matrix
+          rc=0
+          python3 -O independent/seat_3x3_vacuum_block_ritz.py /tmp/ritz-opt/b33_k1.matrix 1 27 --order 1 > /tmp/ritz-opt/sha.out 2> /tmp/ritz-opt/sha.err || rc=$?
+          test "$rc" = 1
+          grep -F 'matrix sha mismatch for b33_k1.matrix' /tmp/ritz-opt/sha.err
+          test ! -s /tmp/ritz-opt/sha.out
+          echo 'HEBC-3X3-BLOCK-RITZ|result=PASS|range_guard_under_O=2|sha_pin_under_O=1|json=0'
