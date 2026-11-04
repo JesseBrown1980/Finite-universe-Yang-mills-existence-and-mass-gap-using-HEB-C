@@ -12,11 +12,12 @@ and RUSTFLAGS asking for LLVM IR and MIR from every crate in the build. A crate 
     function of the standard library, fails. A function present in a third-party crate and not reached is listed as evidence and passes.
  4. Manifests: each num-* dependency must say default-features = false, and must not ask for std or libm by name.
  5. Tracked .rs files no package compiled are built alone with rustc and read the same way. What cannot be built is a failure unless COMPILED-NOT-BUILT.txt beside this file names it.
+ 6. A tracked compiled object (.rlib, .o, .a, .so, .dll, .exe, .pyc, .wasm and the like) fails, because no reader here can see inside it.
 C and C++. Each tracked source is compiled -O0 -S and read for scalar float opcodes, scalar float moves, and calls to the soft-float and libm routines.
 
 Limits, measured or by construction. It reads what these builds compile, on one target and one set of cfg values. The standard library is precompiled, so its bodies are not read:
 an external function counts by its signature and by its path under core::fmt::float, core::num::flt2dec, core::num::dec2flt, core::f32, core::f64, std::f32, std::f64. Doc-tests are not
-compiled here. Precompiled objects and static libraries named by a build script, child processes, files read at run time and code a program writes while running are outside it. Python,
+compiled here. Objects and static libraries from outside the tree that a build script names, child processes, files read at run time and code a program writes while running are outside it. Python,
 JavaScript and shell are outside it; no_float_gate.py and the checked runs cover those for what they read. A pass means these reads found nothing in what they read. Integer only, json=0.
 
 usage: compiled_float_check.py rust ROOT [--only MANIFEST]... [--opt-level N] [--keep TARGET_BASE]
@@ -63,6 +64,7 @@ CPP_CALL = re.compile(
 )
 NUM_DEP = re.compile(r'^\s*"?(num-[a-z0-9-]+)"?\s*=\s*(.*)$')
 RENAMED_NUM = re.compile(r'package\s*=\s*"(num-[a-z0-9-]+)"')
+TRACKED_OBJECT = re.compile(r"\.(rlib|rmeta|o|obj|a|lib|so|dll|dylib|exe|pyc|pyo|pyd|wasm|class|jar|whl|pyz)$", re.I)
 ABSOLUTE_PATH = re.compile(r'(#\[path\s*=\s*r?")([A-Za-z]:/[^"]+|/[^"]+)(")')
 PATH_MAP = ((re.compile(r".*/(native/ym/crates/.+)$"), r"\1"), (re.compile(r".*/kernel/core/src/tribit/mod\.rs$"), "native/vendor/clasy_x3/vendor/canonical/tribit/mod.rs"))
 
@@ -539,6 +541,10 @@ def rust_check(root, only, opt, keep):
     root = os.path.abspath(root)
     manifests = manifests_of(root, only)
     fails = 0
+    for p in tracked(root):
+        if TRACKED_OBJECT.search(p):
+            fails += 1
+            say("COMPILED_TRACKED_OBJECT|file=%s|json=0" % p)
     for m in manifests:
         for crate, problem in manifest_findings(m):
             fails += 1
