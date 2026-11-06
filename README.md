@@ -389,6 +389,11 @@ is r·(E₁ − E₀) → √14 − √6. Ledger and method:
   git blob, with Rust HBP/HBI receipts around them. The carrier holds all 27 coefficients and round-trips
   byte for byte in both decoders, and every malformed carrier in its fixtures stops closed.
   [Report](STAGE2J_RIME_SPHERE_BRIDGE.md).
+- **Stage 2K, issue #3 bindings:** six source-pinned bindings tested on the 1,393-state torus. C1 binds to the
+  flat winding (2 fixed, two 3-cycles); R has no extension to the 1,393 states (the 2×2 lattice has 32
+  automorphisms, none of order three); "instant" binds in the kernel's freeze; z and "Z-instant" stay unbound; the
+  §71.5 arm plane reproduces H_B on 1,393/1,393 states and its residual is the trivial representation.
+  [Report](STAGE2K_ISSUE3_BINDINGS.md).
 - **HTTP-0 finite S₃ wave observatory:** an explicitly specified second-order wave equation on all 1,393
   components, as an exact integer-numerator recurrence on arbitrary-length integers, served with controls and a
   web page. [First version](HTTP0_FINITE_S3_WAVE_OBSERVATORY.md), [its correction to exact numerators](HTTP0_EXACT_INTEGER_NO_ROUNDING.md).

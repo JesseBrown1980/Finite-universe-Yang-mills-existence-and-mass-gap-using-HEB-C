@@ -27,6 +27,12 @@ const OSCILLATOR_SOURCE: &[u8] =
 pub const C1_CONNECTED: bool = false;
 pub const Z_INSTANT_CONNECTED: bool = false;
 pub const SHADOW_CAT_TORI_CONNECTED: bool = false;
+/// Issue #3: Law 71 §71.13 C1 = R(C0), with the source trianti R, is bound
+/// C3-equivariantly to the order-three winding on the eight flat S3 torus
+/// classes (two fixed, two three-cycles, three base points per cycle).
+/// Test: issue3_bindings::tests::c1_is_the_flat_winding_up_to_three_base_points_per_cycle.
+/// Scope is the flat moduli; C1_CONNECTED above stays for the 1,393 states.
+pub const C1_FLAT_WINDING_BOUND: bool = true;
 
 /// The ternary lattice's existing enum is the *only* owner of direction.
 fn encode_key(key: TransitionKey, sink: &mut Vec<u8>) {

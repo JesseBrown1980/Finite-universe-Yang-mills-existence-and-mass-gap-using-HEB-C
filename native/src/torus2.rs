@@ -63,7 +63,7 @@ pub fn gauge_fix(links:[u8;8])->[u8;5] {
     q
 }
 fn index(x:usize,y:usize)->usize {(x%2)*2+(y%2)}
-fn plaquette(s:&[u8;8],x:usize,y:usize)->u8{
+pub(crate) fn plaquette(s:&[u8;8],x:usize,y:usize)->u8{
     let a=index(x,y);
     let right=index(x+1,y);
     let up=index(x,y+1);

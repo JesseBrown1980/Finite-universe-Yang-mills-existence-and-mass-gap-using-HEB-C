@@ -80,8 +80,9 @@ cargo +1.81.0 run --release --locked --offline -- double-verify double-1-1
   barriers and all 45/405/3,645 local keys, with six role types per key.
 - **The index.** A gauge-invariant 243-sector index of the 1,393 torus orbit
   labels is written with HBI/HBP/SHA/SH/HASH receipts.
-- **Next bindings.** The C1, Z-instant and Shadow Cat torus residual bindings
-  are the next items to source.
+- **Issue #3 bindings.** C1, instant, z, Z-instant and the §71.5 residual are
+  tested in `src/issue3_bindings.rs`; verdicts in
+  [STAGE2K](../STAGE2K_ISSUE3_BINDINGS.md) (`hebc issue3-audit`, `hebc issue3-verify`).
 
 ```sh
 cargo +1.81.0 run --release --offline --locked -- constellation-audit constellation-evidence

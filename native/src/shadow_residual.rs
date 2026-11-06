@@ -19,7 +19,7 @@ use std::path::Path;
 fn conjugate(g:u8,x:u8)->u8 {mul(mul(g,x),inv(g))}
 /// Based Wilson holonomies transformed by global gauge conjugation.
 /// Flatness means x and y commute, so this is a homomorphism Z^2 -> S3.
-fn canonical_pair(x:u8,y:u8)->(u8,u8) {
+pub(crate) fn canonical_pair(x:u8,y:u8)->(u8,u8) {
     (0..6).map(|g|(conjugate(g,x),conjugate(g,y)))
         .min().expect("S3 identity exists")
 }
@@ -28,7 +28,7 @@ fn canonical_pair(x:u8,y:u8)->(u8,u8) {
 /// For COMMUTING holonomies only: (x,y) -> (y^-1, x y^-1).
 /// R^3=id. This is a genuine C3 / order-three mapping-class action on
 /// the finite flat-connection moduli space, not on all nonflat lattice fields.
-fn winding_rotation(x:u8,y:u8)->(u8,u8) {
+pub(crate) fn winding_rotation(x:u8,y:u8)->(u8,u8) {
     (inv(y),mul(x,inv(y)))
 }
 
