@@ -106,3 +106,8 @@ cmp issue3-evidence/run.hbp ym/results/issue3-bindings-20261106/evidence/run.hbp
 ```
 
 Scope: a finite S3 lattice on a 2×2 periodic torus. The continuum four-dimensional question is a separate one.
+
+## Scope of the original-function check, and where the open items went
+
+- **R is re-expressed, not called.** The rotation is written as one line over the vendored Clasy `Trit`, from its pinned source rule: the simulator's `tribit.rs` lines 116–118, blob 9a27567d. The simulator's own function is not compiled or called here. Vendoring `tribit.rs` byte for byte through `#[path]`, with the same tests, is item 4 of #120.
+- **#120 holds the rest of #3:** three tori with nine branches; "Z-instant" as one operator; R on all 1,393 states; that original-function call; and the LAW-036 recall lead. Each is OPEN there.
