@@ -47,7 +47,7 @@ jobs:
           go build -trimpath -o checker ./cmd/ymcheck
           ./controls.sh
           tail -n 1 CONTROLS.hbp
-          grep -q '^SUMMARY|controls=87|match=87|mismatch=0|' CONTROLS.hbp
+          grep -q '^SUMMARY|controls=117|match=117|mismatch=0|' CONTROLS.hbp
 
       - name: Download the store, both d files and the sector list; check every hash
         working-directory: ${{ env.CHECKER_DIR }}

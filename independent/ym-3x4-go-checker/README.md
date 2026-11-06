@@ -2,14 +2,56 @@
 
 `ymcheck` reads the YMROOMHDR room store once from standard input and checks one or more `d` files
 in that same pass. It was written only from the owner's published FORMAT and CHECK specification
-(quoted at the end of this file). It uses only the Go standard library, and its arithmetic is
-integer-only.
+and the owner's later decision on the store layout (both quoted at the end of this file). It uses
+only the Go standard library, and its arithmetic is integer-only.
+
+## Store layout (the owner's payload-only decision)
+
+The store is the 4096-byte header plus `payload_bytes`. Nothing after that is store.
+
+```
+stream offset 0                    4096                 4096+R               4096+payload_bytes        end of input
+              | header (4096 B)    | rows h = 0..n-1    | zero tail          | room-file bytes ...      |
+                                   |<------------- payload_bytes ----------->|
+                                   |<------------ covered by the merkle ---->|
+```
+
+- Rows come first, in index order. `R` is the payload offset where row n-1 ends (reported as
+  `rows_end_payload_offset`).
+- Every payload byte after the last row, up to `payload_bytes`, must be zero. These bytes are inside
+  the merkle, exactly as the spec defines it. Their count is reported as `payload_zero_tail_bytes`.
+  A nonzero byte there fails with `payload_zero_tail_nonzero`.
+- Bytes after header + `payload_bytes` belong to the room file. The checker reads them to end of
+  input, so a writer such as `cat ... | ./checker` never gets SIGPIPE. It counts them
+  (`after_payload_bytes`) but never interprets them and never requires them to be zero. They stay
+  pinned only by the per-sector SHA-256 list.
+
+The owner's decision, verbatim (it supersedes the spec's "then zero padding" line):
+
+> "Payload-only: The store is the 4096-byte header plus payload_bytes. Rows come first; every byte
+> after the last row up to payload_bytes must be zero (inside the merkle). Bytes after payload_bytes
+> belong to the room file, are not read as store, and stay pinned by the sector SHA-256."
+
+Why the decision was needed: the earlier version of this checker (sha256 `7d40a3866da67164f8ee277280f374161c0ab891f9441934a3039adccb8d7256`)
+required the n rows to fill `payload_bytes` exactly, and every byte after the payload to be zero.
+On the real store it stopped with `payload_has_bytes_after_row_n:payload_offset=26850139376`. The
+measurements reported with that run:
+
+| Region | Stream offsets | Bytes | Content |
+|---|---|---|---|
+| header | 0 .. 4,095 | 4,096 | YMROOMHDR line |
+| rows | 4,096 .. 26,850,143,471 | 26,850,139,376 | the 45,508,080 rows |
+| zero tail | 26,850,143,472 .. 26,850,885,631 | 742,160 | all zero |
+| room-file bytes | 26,850,885,632 .. end of sector-374 | 349,114,368 | Host8 room stubs, about 255 of 256 bytes nonzero |
+
+If those measurements hold, the real run's STORE row should show
+`rows_end_payload_offset=26850139376|payload_zero_tail_bytes=742160|after_payload_bytes=349114368`.
 
 | Path | What it is |
 |---|---|
 | `cmd/ymcheck/main.go` | the checker (the only file the CI result depends on) |
 | `cmd/ymcheck/main_test.go` | unit tests: 128/256-bit arithmetic, floor division, comparison vs `math/big`; splitter under random chunking |
-| `cmd/ymgen/*.go` | synthetic store generator, byte flipper, big-int reference checker (`ref`), exact eigenvalue tool (`eigen`), streaming benchmark (`bench`) |
+| `cmd/ymgen/*.go` | synthetic store generator (with `-ztail` zero tails and `-pad`/`-pad-fill` room-file bytes), byte flipper, re-merkler, room-byte streamer (`fill`), big-int reference checker (`ref`), exact eigenvalue tool (`eigen`), streaming benchmark (`bench`) |
 | `controls.sh` | builds everything, runs every control, writes `CONTROLS.hbp` |
 | `CONTROLS.hbp` | every control: command, expected, actual, verdict |
 | `ci/ym-go-checker.yml` | ready-to-copy GitHub Actions workflow for the real run |
@@ -58,9 +100,11 @@ for s in $(seq 341 374); do curl -sSfL "$HF/$STORE_REV/sector-$s.rooms"; done \
 ```
 
 The `-expect-*` pins tie the header to the values the owner published. The payload merkle then
-covers every payload byte, and the padding must be zero. Together these make the stream
-self-verifying even without the per-sector hashes. The workflow in `ci/` also hashes each sector
-on the fly with `tee` and compares it with `SECTORS-341-374.sha256`.
+covers every store byte after the header: the rows and the zero tail. Together these make the
+store self-verifying even without the per-sector hashes. The room-file bytes after
+`payload_bytes` are not store, and the checker does not verify them. Only the per-sector SHA-256
+list pins them. The workflow in `ci/` hashes each sector on the fly with `tee` and compares it
+with `SECTORS-341-374.sha256`.
 
 For the control vector, the expected row is
 `CERT|d=d93000000.bin|...|t_cert=93061051|row=44742735|mag=3|...`.
@@ -73,10 +117,13 @@ For the control vector, the expected row is
 
 ```
 CERT|d=<file>|d_sha256=<hex>|t_cert=<int>|row=<h>|mag=<m>|rows_at_min=<count>|json=0
-STORE|n=<n>|payload_bytes=<b>|merkle=PASS|flat_rows=<k>|min_nonzero_mag=<m>|max_mag=<M>|row_sums_zero=PASS|w_symmetry=PASS|seed=<s>|entries=<total>|nonflat_rows=..|diag_not_once_rows=..|min_w=..|max_w=..|padding_bytes=..|payload_merkle=<hex>|w_symmetry_lhs=<exact integer>|secs=<s>|json=0
+STORE|n=<n>|payload_bytes=<b>|merkle=PASS|flat_rows=<k>|min_nonzero_mag=<m>|max_mag=<M>|row_sums_zero=PASS|w_symmetry=PASS|seed=<s>|entries=<total>|nonflat_rows=..|diag_not_once_rows=..|min_w=..|max_w=..|rows_end_payload_offset=<R>|payload_zero_tail_bytes=<b-R>|after_payload_bytes=<count>|payload_merkle=<hex>|w_symmetry_lhs=<exact integer>|secs=<s>|json=0
 ```
 
   `row` is the smallest index that attains the minimum, and `rows_at_min` counts all such rows.
+  `rows_end_payload_offset` is the payload offset where row n-1 ends. `payload_zero_tail_bytes` is
+  the number of zero bytes from there up to `payload_bytes`. `after_payload_bytes` counts the bytes
+  read after header + `payload_bytes`. These three replace the earlier `padding_bytes` field.
   `diag_not_once_rows` counts rows whose diagonal entry does not appear exactly once. This is
   for information only; the spec does not make it a condition. `w_symmetry_lhs` is the common
   exact value of both sides of the identity.
@@ -87,10 +134,11 @@ STORE|n=<n>|payload_bytes=<b>|merkle=PASS|flat_rows=<k>|min_nonzero_mag=<m>|max_
 **Single pass.** A reader goroutine takes the 4096-byte header, then reads the payload in
 16 MiB leaves exactly as the merkle defines them. Each leaf goes to the SHA-256 workers and to a
 splitter. The splitter walks the row boundaries, reading only `cnt`, enforces exactly `n` rows
-filling exactly `payload_bytes`, and hands batches of whole rows to the row workers. Rows that
-straddle a leaf are copied into a carry buffer. After the payload, the rest of the stream is
-drained and must be all zero bytes, of any length. Results print only after every goroutine has
-finished and every check has passed.
+inside `payload_bytes`, and hands batches of whole rows to the row workers. Rows that straddle a
+leaf are copied into a carry buffer. Once row n-1 ends, the splitter records that offset and
+requires every remaining payload byte, in that leaf and any later leaf, to be zero. After
+`payload_bytes`, the reader drains the rest of the input to end of file and only counts it.
+Results print only after every goroutine has finished and every check has passed.
 
 **Header.** The first `\n` must fall inside the first 4096 bytes. After it there may only be NUL,
 space or newline bytes. The text may end in NUL/space/CR padding but holds no other NUL. It must
@@ -126,11 +174,15 @@ with coreutils (`split -b 16777216 --filter=sha256sum`).
 
 **Fail closed.** These conditions each print FAIL and exit 2:
 
-- parse error, short stream, long stream, row-count mismatch
+- parse error, short stream, row-count mismatch (the payload ends before row n-1 or inside a row)
+- a nonzero byte between the end of row n-1 and `payload_bytes` (`payload_zero_tail_nonzero`)
 - column out of range, positive off-diagonal entry
 - flat row with d != 0, non-flat row with d <= 0
-- nonzero padding, merkle mismatch, row sum != 0, symmetry identity failing
-- arithmetic overflow, d length != 8n, no non-flat rows, pin mismatch, missing or unreadable d file
+- merkle mismatch, row sum != 0, symmetry identity failing
+- arithmetic overflow, d length != 8n, no non-flat rows, pin mismatch, missing or unreadable d file,
+  a read error on standard input
+
+Bytes after `payload_bytes` never cause a failure, whatever they contain.
 
 `fail()` takes the output lock and never releases it. The result rows are written once, under
 the same lock, as the very last action.
@@ -162,6 +214,29 @@ real run with two d files is about 1.5 to 2 GB.
   variant showing that only the merkle caught a mag-byte flip and a consistent four-value z
   change; and d files with a 0, -1 or MinInt64 non-flat entry
 - one control for each other FAIL condition
+- section E, the layout decision:
+  - zero tails inside `payload_bytes` pass, and their count is reported. This includes the real
+    store's 742,160-byte tail, a 1-byte tail, a tail that crosses a 16 MiB leaf boundary, and a
+    tail that is a leaf of its own. Each is also checked against the big-int reference and
+    coreutils.
+  - one nonzero byte in the zero tail fails, both with the merkle recomputed (so only the new
+    check can catch it) and with the original merkle.
+  - random nonzero bytes after `payload_bytes` pass with the same rows as zero bytes of the same
+    length, and their count is reported.
+  - a store with no zero tail and no trailing bytes passes.
+  - pipes: `cat` of the real shape (zero tail plus 349,114,368 room-stub bytes) exits `0 0` in
+    `PIPESTATUS`, and a sanity control shows the same test does report SIGPIPE (141).
+
+The decision changed these earlier controls, and each is marked in `CONTROLS.hbp`:
+
+- D03.1 and D08 (nonzero bytes after the payload) now pass. They used to fail with
+  `nonzero_padding`.
+- D03.2 (`payload_bytes` 8 larger than the rows) now fails on the merkle, because 8 zero bytes
+  are an allowed zero tail. It used to fail with `payload_has_bytes_after_row_n`. The new
+  D03.2.remerkled shows that it passes once the merkle covers those bytes.
+- D04.1 keeps its expectation, but its reason is now `payload_zero_tail_nonzero`.
+- B05 now reads `after_payload_bytes` instead of `padding_bytes`.
+- The B12 fuzz now also draws zero tails, room-file bytes, and nonzero bytes poked into the tail.
 
 ## Specification used (verbatim from the owner)
 
@@ -186,9 +261,19 @@ CHECK, with JE=1000, JB=9000
 - Controls: a flipped payload byte and a d with one nonpositive non-flat entry must each exit nonzero with no value.
 ```
 
+The owner's later layout decision (verbatim) supersedes the FORMAT line "then zero padding":
+
+```
+Payload-only: The store is the 4096-byte header plus payload_bytes. Rows come first; every byte after the last row up to
+payload_bytes must be zero (inside the merkle). Bytes after payload_bytes belong to the room file, are not read as store,
+and stay pinned by the sector SHA-256.
+```
+
 Interpretation choices:
 
 - A row sum other than 0, or a failed symmetry identity, is treated as a failed condition (exit 2).
   When they hold, they are reported as `row_sums_zero=PASS` and `w_symmetry=PASS`.
-- Zero padding of any length after the payload is accepted, and its length is reported.
+- "Not read as store" means the bytes after `payload_bytes` are read only so that the input pipe
+  drains, and only their count is reported. Their content never affects the result.
+- A zero tail of any length, including 0 and lengths that are not a multiple of 8, is accepted.
 - Entries are not required to have distinct columns. Duplicates are summed, as the formula implies.

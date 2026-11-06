@@ -20,6 +20,9 @@ NMISS=0
 	echo "# Every command runs in work/ (relative to this file) with ../checker = ymcheck and ../ymgen = generator/reference."
 	echo "# 'fail' means: exit status 2 and stdout exactly one line FAIL|reason=<prefix>...|json=0, with no CERT and no STORE row."
 	echo "# 'pass' means: exit status 0, CERT row(s) and one STORE row with merkle=PASS, row_sums_zero=PASS, w_symmetry=PASS."
+	echo "# Layout (owner's payload-only decision): header 4096 bytes + payload_bytes; rows first, then zero bytes up to"
+	echo "# payload_bytes (inside the merkle); bytes after payload_bytes are room-file bytes, read and counted, never interpreted."
+	echo "# Controls marked [CHANGED ...], [EXTENDED ...], [renamed ...] or [NEW] are the ones that decision changed; section E is new."
 } >"$OUT"
 
 record() { # id name command expected actual ok stdout
@@ -133,8 +136,8 @@ expect_pass B04 "header line padded with spaces to byte 4095 instead of NULs aft
 	'[ "$(certs <<<"$STDOUT")" = "$BASECERT" ]' "same CERT row as B01"
 for pad in 0 1 1000000; do
 	$GEN300 -pad $pad -out s300pad$pad.bin 2>/dev/null
-	expect_pass B05.$pad "zero padding of $pad bytes after the payload" "../checker dp.bin < s300pad$pad.bin" \
-		'[ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(field padding_bytes <<<"$STDOUT")" = '"$pad"' ]' "same CERT row as B01, padding_bytes=$pad"
+	expect_pass B05.$pad "[STORE field renamed by the payload-only decision: padding_bytes -> after_payload_bytes] $pad zero bytes after header+payload_bytes (room-file bytes, not store)" "../checker dp.bin < s300pad$pad.bin" \
+		'[ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(field after_payload_bytes <<<"$STDOUT")" = '"$pad"' ]' "same CERT row as B01, after_payload_bytes=$pad"
 done
 
 # B06: multi-leaf stores (rows straddle 16 MiB leaf boundaries).
@@ -162,6 +165,7 @@ done
 split -n 34 -d -a 2 m3.bin sector-
 expect_pass B08 "store split into 34 sector files and concatenated through a pipe (CI form)" "cat sector-* | ../checker m3-dp.bin m3-db.bin" \
 	'[ "$(strip <<<"$STDOUT")" = "$REF3" ]' "identical to reading the single file"
+rm -f sector-*
 
 # B09: two d files in one pass versus two separate runs.
 run "../checker dp.bin db.bin < s300.bin"
@@ -193,7 +197,10 @@ printf '1 1 : 0:2147483647*30000 1:-2147483647*30000\n1 1 : 1:2147483647*30000 0
 compare_ref B11 "numerator just under 2^127 (d = 1, 2^61; 30000 duplicate diagonal entries): exact, equals reference" ovf.bin ovf-d61.bin
 
 # B12: differential fuzz against the big-int reference, including defects.
-fz_total=0 fz_pass=0 fz_fail=0 fz_bad=0 fz_list=""
+# Extended for the payload-only decision: random zero tails inside payload_bytes,
+# random room-file bytes after payload_bytes (zero, nonzero or room-stub words),
+# and a nonzero byte poked into the zero tail (with or without re-merkling).
+fz_total=0 fz_pass=0 fz_fail=0 fz_bad=0 fz_list="" fz_ztail=0 fz_after=0 fz_poke=0
 for i in $(seq 1 "$FUZZ"); do
 	rows=$((1 + RANDOM % 400))
 	flat=$((RANDOM % (rows / 3 + 1)))
@@ -207,7 +214,22 @@ for i in $(seq 1 "$FUZZ"); do
 	[ $((RANDOM % 4)) = 0 ] && opts="$opts -hdr-spaces"
 	defect=""
 	case $((RANDOM % 8)) in 0) defect=posoff ;; 1) defect=rowsum ;; 2) defect=asym ;; 3) defect=colrange ;; esac
-	../ymgen random -rows $rows -flat $flat -deg $deg -wmax $wmax -cmax $cmax -magmax $mm -seed $((1000 + i)) $opts ${defect:+-defect $defect} -out fz.bin 2>/dev/null || continue
+	ztail=0
+	[ $((RANDOM % 3)) = 0 ] && ztail=$((1 + RANDOM % 3000))
+	after=0
+	[ $((RANDOM % 3)) != 0 ] && after=$((RANDOM % 5000))
+	fills=(zero nonzero rooms)
+	pfill=${fills[$((RANDOM % 3))]}
+	../ymgen random -rows $rows -flat $flat -deg $deg -wmax $wmax -cmax $cmax -magmax $mm -seed $((1000 + i)) $opts ${defect:+-defect $defect} \
+		-ztail $ztail -pad $after -pad-fill $pfill -pad-seed $i -out fz.bin 2>/dev/null || continue
+	[ $ztail -gt 0 ] && fz_ztail=$((fz_ztail + 1))
+	[ $after -gt 0 ] && [ $pfill != zero ] && fz_after=$((fz_after + 1))
+	if [ $ztail -gt 0 ] && [ $((RANDOM % 4)) = 0 ]; then
+		fpb=$(head -c 4096 fz.bin | tr -d '\000' | head -n1 | field payload_bytes)
+		../ymgen flip -in fz.bin -out fz.bin -offset $((4096 + fpb - 1 - RANDOM % ztail)) -xor $((1 + RANDOM % 255))
+		[ $((RANDOM % 2)) = 0 ] && ../ymgen remerkle -in fz.bin -out fz.bin
+		fz_poke=$((fz_poke + 1))
+	fi
 	case $((RANDOM % 5)) in
 	0) ../ymgen dvec -store fz.bin -mode perron -iters 200 -out fzd.bin 2>/dev/null || ../ymgen dvec -store fz.bin -mode random -seed $i -out fzd.bin ;;
 	1) ../ymgen dvec -store fz.bin -mode big -seed $i -out fzd.bin ;;
@@ -239,10 +261,10 @@ for i in $(seq 1 "$FUZZ"); do
 		cp fz.bin "fuzz-mismatch-$i.bin"
 	fi
 done
-record B12 "differential fuzz: $fz_total random stores (1..400 rows, weights and couplings up to 2000, mag up to 65535, d up to 2^63-1, random defects and bad d entries) vs the big-int reference" \
+record B12 "[EXTENDED for the payload-only decision] differential fuzz: $fz_total random stores (1..400 rows, weights and couplings up to 2000, mag up to 65535, d up to 2^63-1, random defects and bad d entries; random zero tails inside payload_bytes, random room-file bytes after it, nonzero bytes poked into the zero tail) vs the big-int reference" \
 	"controls.sh section B12 (../checker fzd.bin fzd2.bin < fz.bin  VERSUS  ../ymgen ref -store fz.bin fzd.bin fzd2.bin)" \
 	"every case: both pass with identical rows, or both fail (exit 2, one FAIL line)" \
-	"total=$fz_total both_pass_identical=$fz_pass both_fail=$fz_fail disagreements=$fz_bad$fz_list" $([ $fz_bad = 0 ] && echo 1 || echo 0) ""
+	"total=$fz_total both_pass_identical=$fz_pass both_fail=$fz_fail disagreements=$fz_bad with_zero_tail=$fz_ztail with_nonzero_after_payload=$fz_after zero_tail_pokes=$fz_poke$fz_list" $([ $fz_bad = 0 ] && echo 1 || echo 0) ""
 
 # ---------------------------------------------------------------------------
 # C. The owner's two controls.
@@ -319,15 +341,21 @@ expect_fail D02.3 "short stream: empty input" "../checker dp.bin < /dev/null" "s
 } >long1.bin
 $GEN300 -hdr-pb $((PB + 8)) -out long2.bin 2>/dev/null
 $GEN300 -hdr-pb $((PB - 8)) -out short3.bin 2>/dev/null
-expect_fail D03.1 "long stream: a nonzero byte appended after the zero padding" "../checker dp.bin < long1.bin" "nonzero_padding"
-expect_fail D03.2 "long stream: header payload_bytes 8 larger than the rows (8 extra payload bytes after row n-1)" "../checker dp.bin < long2.bin" "payload_has_bytes_after_row_n"
+expect_pass D03.1 "[CHANGED by the payload-only decision; was: fail nonzero_padding] a nonzero byte appended after the 4096 zero bytes that follow payload_bytes: room-file bytes, not store" "../checker dp.bin < long1.bin" \
+	'[ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(field after_payload_bytes <<<"$STDOUT")" = 4097 ] && [ "$(field payload_zero_tail_bytes <<<"$STDOUT")" = 0 ]' \
+	"same CERT row as B01, after_payload_bytes=4097, payload_zero_tail_bytes=0"
+expect_fail D03.2 "[CHANGED by the payload-only decision; was: fail payload_has_bytes_after_row_n] header payload_bytes 8 larger than the rows: the 8 payload bytes after row n-1 are zero (an allowed zero tail), but the header merkle covers only the rows" "../checker dp.bin < long2.bin" "merkle_mismatch"
+../ymgen remerkle -in long2.bin -out long2-remerkled.bin
+expect_pass D03.2.remerkled "[NEW] the D03.2 store with the header merkle recomputed over all payload_bytes: passes with an 8-byte zero tail" "../checker dp.bin < long2-remerkled.bin" \
+	'[ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(field rows_end_payload_offset <<<"$STDOUT")" = '"$PB"' ] && [ "$(field payload_zero_tail_bytes <<<"$STDOUT")" = 8 ] && [ "$(field after_payload_bytes <<<"$STDOUT")" = 4088 ]' \
+	"same CERT row as B01, rows_end_payload_offset=$PB, payload_zero_tail_bytes=8, after_payload_bytes=4088"
 expect_fail D03.3 "header payload_bytes 8 smaller than the rows (last row runs past the payload)" "../checker dp.bin < short3.bin" "payload_ends_inside_row"
 
 $GEN300 -hdr-n 299 -out cnt1.bin 2>/dev/null
 $GEN300 -hdr-n 301 -out cnt2.bin 2>/dev/null
 ../ymgen dresize -in dp.bin -out dp299.bin -delta -8
 ../ymgen dresize -in dp.bin -out dp301.bin -delta 8
-expect_fail D04.1 "count mismatch: header n=299 but the payload holds 300 rows" "../checker dp299.bin < cnt1.bin" "payload_has_bytes_after_row_n|column_out_of_range"
+expect_fail D04.1 "[reason renamed by the payload-only decision: payload_has_bytes_after_row_n -> payload_zero_tail_nonzero] count mismatch: header n=299 but the payload holds 300 rows (row 299 lies where the zero tail must be)" "../checker dp299.bin < cnt1.bin" "payload_zero_tail_nonzero|column_out_of_range"
 expect_fail D04.2 "count mismatch: header n=301 but the payload holds 300 rows" "../checker dp301.bin < cnt2.bin" "payload_ends_before_row_n"
 
 $GEN300 -defect colrange -out colr.bin 2>/dev/null
@@ -342,7 +370,9 @@ $GEN300 -defect posoff -out posoff.bin 2>/dev/null
 expect_fail D07 "positive off-diagonal entry (coupling -1 on one edge; rows still sum to 0, W*Z still symmetric, merkle consistent)" "../checker dp.bin < posoff.bin" "positive_offdiagonal"
 
 ../ymgen flip -in s300.bin -out pad1.bin -offset $((4096 + PB + 10)) -xor 1
-expect_fail D08 "nonzero padding byte" "../checker dp.bin < pad1.bin" "nonzero_padding"
+expect_pass D08 "[CHANGED by the payload-only decision; was: fail nonzero_padding] one nonzero byte 10 bytes after payload_bytes: room-file bytes, not store" "../checker dp.bin < pad1.bin" \
+	'[ "$(strip <<<"$STDOUT")" = "$(../checker dp.bin <s300.bin | strip)" ] && [ "$(field after_payload_bytes <<<"$STDOUT")" = 4096 ]' \
+	"output identical to the unflipped store B01 (same CERT and STORE rows), after_payload_bytes=4096"
 
 $GEN300 -hdr-merkle 0000000000000000000000000000000000000000000000000000000000000000 -out mk1.bin 2>/dev/null
 expect_fail D09.1 "merkle mismatch: header payload_merkle replaced" "../checker dp.bin < mk1.bin" "merkle_mismatch"
@@ -371,6 +401,107 @@ printf '1 0 : 0:0\n2 0 : 1:0\n' >allflat.txt
 ../ymgen text -in allflat.txt -out allflat.bin
 ../ymgen dlist -vals 0,0 -out allflat-d.bin
 expect_fail D15 "no non-flat rows (no ratio exists)" "../checker allflat-d.bin < allflat.bin" "no_nonflat_rows"
+
+# ---------------------------------------------------------------------------
+# E. The owner's payload-only layout decision. The store is the 4096-byte header
+#    plus payload_bytes: rows first, then zero bytes up to payload_bytes (inside
+#    the merkle). Bytes after payload_bytes belong to the room file: read to end
+#    of input and counted, never interpreted, never required to be zero.
+ZT=742160       # zero-tail length of the real store (rows end 742,160 bytes before payload_bytes)
+AFTER=349114368 # room-file bytes after payload_bytes in the real sector-374
+ZPB=$((PB + ZT))
+$GEN300 -ztail $ZT -pad 0 -out z.bin 2>/dev/null
+$GEN300 -ztail 1 -pad 0 -out z1.bin 2>/dev/null
+ZMK=$(head -c 4096 z.bin | tr -d '\000' | head -n1 | field payload_merkle)
+zfields() { # rows_end_payload_offset payload_zero_tail_bytes after_payload_bytes payload_bytes
+	[ "$(field rows_end_payload_offset <<<"$STDOUT")" = "$1" ] && [ "$(field payload_zero_tail_bytes <<<"$STDOUT")" = "$2" ] &&
+		[ "$(field after_payload_bytes <<<"$STDOUT")" = "$3" ] && [ "$(grep '^STORE|' <<<"$STDOUT" | field payload_bytes)" = "$4" ]
+}
+
+# E01: rows followed by zero bytes inside payload_bytes pass, and the count is reported.
+expect_pass E01.1 "rows followed by $ZT zero bytes inside payload_bytes (the real store's zero-tail length), nothing after" "../checker dp.bin < z.bin" \
+	'[ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && zfields '"$PB $ZT 0 $ZPB" \
+	"same CERT row as B01; rows_end_payload_offset=$PB payload_zero_tail_bytes=$ZT after_payload_bytes=0 payload_bytes=$ZPB"
+expect_pass E01.2 "rows followed by a 1-byte zero tail inside payload_bytes" "../checker dp.bin < z1.bin" \
+	'[ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && zfields '"$PB 1 0 $((PB + 1))" \
+	"same CERT row as B01; rows_end_payload_offset=$PB payload_zero_tail_bytes=1 after_payload_bytes=0"
+compare_ref E01.3 "zero tail of $ZT bytes: fast checker equals the big-int reference (Perron, random and near-2^62 d)" z.bin dp.bin dr.bin db.bin
+cu=$(tail -c +4097 z.bin | head -c $ZPB | split -b 16777216 --filter='sha256sum' | cut -c1-64 | tr -d '\n' | sha256sum | cut -c1-64)
+cr=$(tail -c +4097 z.bin | head -c $PB | split -b 16777216 --filter='sha256sum' | cut -c1-64 | tr -d '\n' | sha256sum | cut -c1-64)
+record E01.4 "the zero tail is inside the merkle: coreutils merkle over all payload_bytes equals the header; the merkle over the rows only does not" \
+	"tail -c +4097 z.bin | head -c $ZPB | split -b 16777216 --filter=sha256sum | cut -c1-64 | tr -d '\\n' | sha256sum   (and the same with head -c $PB)" \
+	"$ZMK; rows-only merkle different" "payload_bytes merkle=$cu rows-only merkle=$cr" $([ "$cu" = "$ZMK" ] && [ "$cr" != "$ZMK" ] && echo 1 || echo 0) ""
+../ymgen random -rows 50000 -flat 500 -deg 30 -seed 12 -dup -target-payload 33554440 -ztail 16777216 -out m2z.bin 2>/dev/null
+expect_pass E01.5 "multi-leaf: rows end 8 bytes into leaf 2, the 16 MiB zero tail runs over the leaf boundary into an 8-byte leaf 3" "../checker m2-dp.bin m2-db.bin < m2z.bin" \
+	'zfields 33554440 16777216 4096 50331656' "rows_end_payload_offset=33554440 payload_zero_tail_bytes=16777216 after_payload_bytes=4096 payload_bytes=50331656"
+compare_ref E01.5.ref "the same multi-leaf zero-tail store, fast vs big-int reference" m2z.bin m2-dp.bin m2-db.bin
+../ymgen random -rows 90000 -flat 900 -deg 30 -seed 11 -target-payload 50331648 -ztail 5 -out m3z.bin
+expect_pass E01.6 "multi-leaf: rows end exactly at the end of leaf 2, the zero tail is a 5-byte leaf 3 of its own" "../checker m3-dp.bin m3-db.bin < m3z.bin" \
+	'zfields 50331648 5 4096 50331653' "rows_end_payload_offset=50331648 payload_zero_tail_bytes=5 after_payload_bytes=4096"
+compare_ref E01.6.ref "the same leaf-aligned zero-tail store, fast vs big-int reference" m3z.bin m3-dp.bin m3-db.bin
+rm -f m3z.bin
+
+# E02/E03: one nonzero byte in the zero tail fails, with the merkle recomputed
+# (only the zero-tail check can catch it) and with the original merkle.
+for spec in "first:$((4096 + PB)):1" "mid:$((4096 + PB + ZT / 2)):128" "last:$((4096 + ZPB - 1)):255"; do
+	IFS=: read -r nm off x <<<"$spec"
+	../ymgen flip -in z.bin -out zf-$nm.bin -offset $off -xor $x
+	../ymgen remerkle -in zf-$nm.bin -out zfr-$nm.bin
+	expect_fail E02.$nm "one nonzero byte in the zero tail ($nm tail byte, stream offset $off, xor $x), header merkle recomputed to match" \
+		"../checker dp.bin < zfr-$nm.bin" "payload_zero_tail_nonzero"
+	expect_fail E03.$nm "the same nonzero zero-tail byte with the original header merkle" "../checker dp.bin < zf-$nm.bin" "payload_zero_tail_nonzero"
+done
+rmk=$(head -c 4096 zfr-mid.bin | tr -d '\000' | head -n1 | field payload_merkle)
+cu=$(tail -c +4097 zfr-mid.bin | head -c $ZPB | split -b 16777216 --filter='sha256sum' | cut -c1-64 | tr -d '\n' | sha256sum | cut -c1-64)
+record E02.merkle "the re-merkled E02.mid store really has a matching merkle (coreutils), different from the original, so in E02 only the zero-tail check caught the byte" \
+	"tail -c +4097 zfr-mid.bin | head -c $ZPB | split -b 16777216 --filter=sha256sum | cut -c1-64 | tr -d '\\n' | sha256sum" \
+	"$rmk (and not $ZMK)" "$cu" $([ "$cu" = "$rmk" ] && [ "$rmk" != "$ZMK" ] && echo 1 || echo 0) ""
+off=$((4096 + 50331648))
+../ymgen flip -in m2z.bin -out m2zf.bin -offset $off -xor 1
+expect_fail E03.leaf3 "multi-leaf: a nonzero byte in leaf 3 (zero tail, a later leaf than the end of the rows), original merkle" "../checker m2-dp.bin < m2zf.bin" "payload_zero_tail_nonzero"
+../ymgen remerkle -in m2zf.bin -out m2zf.bin
+expect_fail E02.leaf3 "multi-leaf: the same leaf-3 byte with the merkle recomputed" "../checker m2-dp.bin < m2zf.bin" "payload_zero_tail_nonzero"
+rm -f m2z.bin m2zf.bin
+
+# E04: random nonzero bytes after payload_bytes (the room-file tail) pass with
+# the same rows as without them, and their count is reported.
+for spec in "nonzero:1:s300pad1.bin" "nonzero:4096:s300.bin" "nonzero:1000000:s300pad1000000.bin" "rooms:1000000:s300pad1000000.bin"; do
+	IFS=: read -r pf pn zstore <<<"$spec"
+	$GEN300 -pad $pn -pad-fill $pf -pad-seed 9 -out sa-$pf-$pn.bin 2>/dev/null
+	ZREF=$(../checker dp.bin <$zstore | strip)
+	nz=$(tail -c $pn sa-$pf-$pn.bin | tr -d '\000' | wc -c)
+	expect_pass E04.$pf.$pn "$pn $pf bytes after payload_bytes ($nz of them nonzero): room-file bytes, not store" "../checker dp.bin < sa-$pf-$pn.bin" \
+		'[ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(strip <<<"$STDOUT")" = "$ZREF" ] && zfields '"$PB 0 $pn $PB"' && [ $((100 * '"$nz"')) -ge $((99 * '"$pn"')) ]' \
+		"same CERT row as B01 and the same STORE row as $zstore (the same length of zero bytes); after_payload_bytes=$pn; at least 99% of those bytes nonzero"
+done
+$GEN300 -ztail $ZT -pad 1000000 -pad-fill rooms -pad-seed 5 -out zr.bin 2>/dev/null
+expect_pass E04.z "the real layout in small: rows, a $ZT-byte zero tail, then 1000000 room-stub bytes after payload_bytes" "../checker dp.bin < zr.bin" \
+	'[ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && zfields '"$PB $ZT 1000000 $ZPB" \
+	"same CERT row as B01; rows_end_payload_offset=$PB payload_zero_tail_bytes=$ZT after_payload_bytes=1000000"
+compare_ref E04.z.ref "the same store, fast vs big-int reference (the reference also ignores the room-file bytes)" zr.bin dp.bin dr.bin db.bin
+
+# E05: no zero tail and no trailing bytes.
+expect_pass E05 "a store with no zero tail and no bytes after payload_bytes" "../checker dp.bin < s300pad0.bin" \
+	'[ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && zfields '"$PB 0 0 $PB" "same CERT row as B01; rows_end_payload_offset=payload_bytes=$PB, payload_zero_tail_bytes=0, after_payload_bytes=0"
+
+# E06: pipes. The checker reads to end of input, so the writer never gets SIGPIPE.
+run 'cat z.bin <(../ymgen fill -bytes '"$AFTER"' -mode rooms -seed 7) | head -c 4096 >/dev/null; echo "pipestatus=${PIPESTATUS[*]}"'
+record E06.0 "sanity for E06.1: the pipestatus test can see SIGPIPE: the same writer into a reader that stops after 4096 bytes" \
+	'cat z.bin <(../ymgen fill -bytes '"$AFTER"' -mode rooms -seed 7) | head -c 4096 >/dev/null; echo "pipestatus=${PIPESTATUS[*]}"' \
+	"pipestatus=141 0 (cat killed by SIGPIPE)" "$STDOUT" $([ "$STDOUT" = "pipestatus=141 0" ] && echo 1 || echo 0) "$STDOUT"
+expect_pass E06.1 "cat pipe with the real store's shape: rows, the $ZT-byte zero tail, then $AFTER room-stub bytes after payload_bytes, with the header pins; the writer (cat) must exit 0, not 141 (SIGPIPE)" \
+	'cat z.bin <(../ymgen fill -bytes '"$AFTER"' -mode rooms -seed 7) | ../checker -expect-n 300 -expect-payload-bytes '"$ZPB"' -expect-merkle '"$ZMK"' dp.bin; ps="${PIPESTATUS[*]}"; echo "pipestatus=$ps"; [ "$ps" = "0 0" ]' \
+	'[ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && zfields '"$PB $ZT $AFTER $ZPB"' && grep -qx "pipestatus=0 0" <<<"$STDOUT"' \
+	"pipestatus=0 0 (cat, checker); same CERT row as B01; payload_zero_tail_bytes=$ZT after_payload_bytes=$AFTER"
+expect_pass E06.2 "the same, with a Go writer streaming the $AFTER bytes itself (writer exit status must be 0)" \
+	'{ cat z.bin; ../ymgen fill -bytes '"$AFTER"' -mode rooms -seed 8; } | ../checker dp.bin; ps="${PIPESTATUS[*]}"; echo "pipestatus=$ps"; [ "$ps" = "0 0" ]' \
+	'[ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && zfields '"$PB $ZT $AFTER $ZPB"' && grep -qx "pipestatus=0 0" <<<"$STDOUT"' \
+	"pipestatus=0 0; same CERT row as B01; after_payload_bytes=$AFTER"
+split -n 34 -d -a 2 zr.bin zsector-
+expect_pass E06.3 "zero-tail store with room-file bytes, split into 34 sector files and concatenated through a pipe" "cat zsector-* | ../checker dp.bin" \
+	'[ "$(strip <<<"$STDOUT")" = "$(../checker dp.bin <zr.bin | strip)" ]' "identical to reading the single file"
+expect_fail E06.4 "pipe form still fails closed: E02.mid store (nonzero zero-tail byte, merkle recomputed) followed by $AFTER room-stub bytes" \
+	'cat zfr-mid.bin <(../ymgen fill -bytes '"$AFTER"' -mode rooms -seed 7) | ../checker dp.bin' "payload_zero_tail_nonzero"
 
 # Large intermediate files are removed to save disk; CONTROLS.hbp is the record.
 find "$W" -type f -size +1M -delete

@@ -6,16 +6,18 @@
 //	       on an exact positive-semidefiniteness test (all principal minors)
 //
 // Subcommands: random, text, dvec, dlist, dset, dresize, flip, remerkle, zpair,
-// dump, ref, eigen, bench. Integer arithmetic only.
+// dump, fill, ref, eigen, bench. Integer arithmetic only.
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"sort"
 	"strconv"
@@ -83,7 +85,10 @@ type hdrOpts struct {
 	merkle         string
 	spaces         bool // pad the line with spaces up to byte 4095 instead of NULs after '\n'
 	nulnl          bool // pad the line with NULs and put '\n' at byte 4095
+	ztail          int64
 	pad            int64
+	padFill        string
+	padSeed        uint64
 	raw            string // if set, use this header line verbatim (no '\n')
 	targetPayload  int64
 	fillerColumnOf func(h int) uint32
@@ -95,9 +100,79 @@ func (o *hdrOpts) register(fs *flag.FlagSet) {
 	fs.StringVar(&o.merkle, "hdr-merkle", "", "override header payload_merkle")
 	fs.BoolVar(&o.spaces, "hdr-spaces", false, "pad header line with spaces")
 	fs.BoolVar(&o.nulnl, "hdr-nulnl", false, "pad header line with NULs, newline at byte 4095")
-	fs.Int64Var(&o.pad, "pad", 4096, "zero padding bytes after the payload")
+	fs.Int64Var(&o.ztail, "ztail", 0, "zero bytes after the last row INSIDE the payload (counted in payload_bytes, covered by the merkle)")
+	fs.Int64Var(&o.pad, "pad", 4096, "bytes AFTER header+payload_bytes (the room-file tail, not store)")
+	fs.StringVar(&o.padFill, "pad-fill", "zero", "content of the -pad bytes: "+fillModes)
+	fs.Uint64Var(&o.padSeed, "pad-seed", 1, "seed for -pad-fill nonzero|rooms")
 	fs.StringVar(&o.raw, "hdr-raw", "", "verbatim header line")
-	fs.Int64Var(&o.targetPayload, "target-payload", 0, "append z=0 off-diagonal entries until the payload has exactly this many bytes")
+	fs.Int64Var(&o.targetPayload, "target-payload", 0, "append z=0 off-diagonal entries until the rows have exactly this many bytes (before -ztail)")
+}
+
+const fillModes = "zero | nonzero (SplitMix64 bytes, every byte in 1..255) | rooms (consecutive little-endian words mix64(seed+i), the shape of Host8 room stubs)"
+
+// mix64 is the SplitMix64 finalizer.
+func mix64(z uint64) uint64 {
+	z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9
+	z = (z ^ (z >> 27)) * 0x94D049BB133111EB
+	return z ^ (z >> 31)
+}
+
+// writeFill writes n bytes of the given fill mode to w.
+func writeFill(w io.Writer, mode string, seed uint64, n int64) error {
+	buf := make([]byte, 1<<20)
+	r := &rng{seed}
+	var word uint64 // index of the next rooms word
+	for n > 0 {
+		k := int(min(n, int64(len(buf))))
+		b := buf[:k]
+		switch mode {
+		case "zero":
+			clear(b)
+		case "nonzero":
+			for i := range b {
+				b[i] = byte(1 + r.next()%255)
+			}
+		case "rooms":
+			for i := 0; i < k; i += 8 {
+				var tmp [8]byte
+				binary.LittleEndian.PutUint64(tmp[:], mix64(seed+word))
+				word++
+				copy(b[i:], tmp[:])
+			}
+		default:
+			die("unknown fill mode %q (want %s)", mode, fillModes)
+		}
+		if _, err := w.Write(b); err != nil {
+			return err
+		}
+		n -= int64(k)
+	}
+	return nil
+}
+
+// fillCmd streams n fill bytes to stdout (or -out), for the pipe controls.
+func fillCmd(args []string) {
+	fs := flag.NewFlagSet("fill", flag.ExitOnError)
+	n := fs.Int64("bytes", 0, "number of bytes")
+	mode := fs.String("mode", "rooms", fillModes)
+	seed := fs.Uint64("seed", 1, "seed")
+	out := fs.String("out", "", "output file (default stdout)")
+	fs.Parse(args)
+	f := os.Stdout
+	if *out != "" {
+		var err error
+		if f, err = os.Create(*out); err != nil {
+			die("%v", err)
+		}
+		defer f.Close()
+	}
+	bw := bufio.NewWriterSize(f, 4<<20)
+	if err := writeFill(bw, *mode, *seed, *n); err != nil {
+		die("write: %v", err)
+	}
+	if err := bw.Flush(); err != nil {
+		die("write: %v", err)
+	}
 }
 
 func fillTo(rows []row, target int64) {
@@ -121,6 +196,10 @@ func fillTo(rows []row, target int64) {
 func writeStore(path string, rows []row, o hdrOpts) {
 	fillTo(rows, o.targetPayload)
 	payload := serializeRows(rows)
+	if o.ztail < 0 {
+		die("negative -ztail")
+	}
+	payload = append(payload, make([]byte, o.ztail)...)
 	n, pb, mk := int64(len(rows)), int64(len(payload)), merkleHex(payload)
 	if o.n >= 0 {
 		n = o.n
@@ -155,9 +234,15 @@ func writeStore(path string, rows []row, o hdrOpts) {
 		die("%v", err)
 	}
 	defer f.Close()
-	f.Write(hdr)
-	f.Write(payload)
-	f.Write(make([]byte, o.pad))
+	bw := bufio.NewWriterSize(f, 4<<20)
+	bw.Write(hdr)
+	bw.Write(payload)
+	if err := writeFill(bw, o.padFill, o.padSeed, o.pad); err != nil {
+		die("write: %v", err)
+	}
+	if err := bw.Flush(); err != nil {
+		die("write: %v", err)
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -703,12 +788,12 @@ func dump(args []string) {
 
 func main() {
 	if len(os.Args) < 2 {
-		die("usage: ymgen <random|text|dvec|dlist|dset|dresize|flip|remerkle|zpair|dump|ref|eigen|bench> [flags]")
+		die("usage: ymgen <random|text|dvec|dlist|dset|dresize|flip|remerkle|zpair|dump|fill|ref|eigen|bench> [flags]")
 	}
 	cmds := map[string]func([]string){
 		"random": randomStore, "text": textStore, "dvec": dvec, "dlist": dlist, "dset": dset,
 		"dresize": dresize, "flip": flip, "remerkle": remerkle, "zpair": zpair, "dump": dump,
-		"ref": refCheck, "eigen": eigen, "bench": bench,
+		"fill": fillCmd, "ref": refCheck, "eigen": eigen, "bench": bench,
 	}
 	f, ok := cmds[os.Args[1]]
 	if !ok {

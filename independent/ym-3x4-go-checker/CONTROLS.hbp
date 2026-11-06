@@ -1,21 +1,24 @@
-CONTROLS|tool=ymcheck|source=cmd/ymcheck/main.go|source_sha256=7d40a3866da67164f8ee277280f374161c0ab891f9441934a3039adccb8d7256|go=go1.24.7|json=0
+CONTROLS|tool=ymcheck|source=cmd/ymcheck/main.go|source_sha256=d899f019d23e966d0457ed3e6596fe4d633ad7b2a58142f78afd52f3408c7373|go=go1.24.7|json=0
 # Every command runs in work/ (relative to this file) with ../checker = ymcheck and ../ymgen = generator/reference.
 # 'fail' means: exit status 2 and stdout exactly one line FAIL|reason=<prefix>...|json=0, with no CERT and no STORE row.
 # 'pass' means: exit status 0, CERT row(s) and one STORE row with merkle=PASS, row_sums_zero=PASS, w_symmetry=PASS.
+# Layout (owner's payload-only decision): header 4096 bytes + payload_bytes; rows first, then zero bytes up to
+# payload_bytes (inside the merkle); bytes after payload_bytes are room-file bytes, read and counted, never interpreted.
+# Controls marked [CHANGED ...], [EXTENDED ...], [renamed ...] or [NEW] are the ones that decision changed; section E is new.
 
 CONTROL|id=A01|verdict=MATCH|json=0
   name:     go vet
-  command:  /usr/local/go/bin/go vet ./...
+  command:  go vet ./...
   expected: exit 0
   actual:   exit=0
   stdout:   
 
 CONTROL|id=A02|verdict=MATCH|json=0
   name:     unit tests: int128/int256/floor-division/compare vs math/big, splitter under random chunking
-  command:  /usr/local/go/bin/go test -count=1 ./cmd/ymcheck
+  command:  go test -count=1 ./cmd/ymcheck
   expected: exit 0
   actual:   exit=0
-  stdout:   ok  	ymgocheck/cmd/ymcheck	2.770s
+  stdout:   ok  	ymgocheck/cmd/ymcheck	2.337s
 
 CONTROL|id=A03|verdict=MATCH|json=0
   name:     no floating point anywhere in the Go sources
@@ -30,7 +33,7 @@ CONTROL|id=B01|verdict=MATCH|json=0
   expected: pass
   actual:   exit=0
   stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|secs=0|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|
 
 CONTROL|id=B02|verdict=MATCH|json=0
   name:     fast checker equals big-int reference: Perron d, random d, d near 2^62 (128-bit products)
@@ -40,7 +43,7 @@ CONTROL|id=B02|verdict=MATCH|json=0
   stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
   stdout:   CERT|d=dr.bin|d_sha256=309976ff230cb52c47397a232b53979cf00423c520dd2b579e150c5028177551|t_cert=-3754550715|row=230|mag=6|rows_at_min=1|json=0
   stdout:   CERT|d=db.bin|d_sha256=ece2cdb82d7128dc5891736108724ea964e2a0fa7a3461e7f156881eb7b62414|t_cert=8999987|row=57|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|secs=0|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|
 
 CONTROL|id=B03.1|verdict=MATCH|json=0
   name:     tiny store seed 1 (6 rows, 1 flat, 5 non-flat, weights 1..7): certified value <= exact floor(1e6*lambda_min(H'))
@@ -49,7 +52,7 @@ CONTROL|id=B03.1|verdict=MATCH|json=0
   actual:   t_cert(Perron d)=22346283 t_cert(random d)=20132812 t_floor=22346283
   stdout:   CERT|d=tp1.bin|d_sha256=98fe4e996e2c3d1cefa8cd64201a1c3100bfa779ef7036bc163c4386d7294166|t_cert=22346283|row=0|mag=2|rows_at_min=2|json=0
   stdout:   CERT|d=tr1.bin|d_sha256=10f9ed17684a99644d071eaea8de9b0d0259b100a46cc0dda11bfc10070c211f|t_cert=20132812|row=0|mag=2|rows_at_min=1|json=0
-  stdout:   STORE|n=6|payload_bytes=208|merkle=PASS|flat_rows=1|min_nonzero_mag=2|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=20|nonflat_rows=5|diag_not_once_rows=0|min_w=1|max_w=6|padding_bytes=4096|payload_merkle=038a503e20629e92dd4727459dcfa71295a36b13ca9eb606ab6234812c539e54|w_symmetry_lhs=-4009060065802394962|secs=0|json=0
+  stdout:   STORE|n=6|payload_bytes=208|merkle=PASS|flat_rows=1|min_nonzero_mag=2|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=20|nonflat_rows=5|diag_not_once_rows=0|min_w=1|max_w=6|rows_end_payload_offset=208|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=038a503e20629e92dd4727459dcfa71295a36b13ca9eb606ab6234812c539e54|w_symmetry_lhs=-4009060065802394962|secs=0|json=0
   stdout:   EIGEN|nonflat=5|t_floor=22346283|psd_at_t_floor=true|psd_at_t_floor_plus_1=false|json=0
 
 CONTROL|id=B03.2|verdict=MATCH|json=0
@@ -59,7 +62,7 @@ CONTROL|id=B03.2|verdict=MATCH|json=0
   actual:   t_cert(Perron d)=24729503 t_cert(random d)=4504950 t_floor=24729503
   stdout:   CERT|d=tp2.bin|d_sha256=e230259dcc8258d72fe29dbc38e3edf3f4ebbb8a9acc0219397c8922eda09d80|t_cert=24729503|row=0|mag=3|rows_at_min=5|json=0
   stdout:   CERT|d=tr2.bin|d_sha256=87e1518aaff3524862b27770990a920c29f72a70d157dfc8a7f976ff48db2e0b|t_cert=4504950|row=0|mag=3|rows_at_min=1|json=0
-  stdout:   STORE|n=6|payload_bytes=224|merkle=PASS|flat_rows=1|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=22|nonflat_rows=5|diag_not_once_rows=0|min_w=1|max_w=5|padding_bytes=4096|payload_merkle=28bebdf5458b531f5cd8b85cfa041fbbc51fa2ea7ad8c854b116a8a381b6aff0|w_symmetry_lhs=-20876794764414956258|secs=0|json=0
+  stdout:   STORE|n=6|payload_bytes=224|merkle=PASS|flat_rows=1|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=22|nonflat_rows=5|diag_not_once_rows=0|min_w=1|max_w=5|rows_end_payload_offset=224|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=28bebdf5458b531f5cd8b85cfa041fbbc51fa2ea7ad8c854b116a8a381b6aff0|w_symmetry_lhs=-20876794764414956258|secs=0|json=
   stdout:   EIGEN|nonflat=5|t_floor=24729503|psd_at_t_floor=true|psd_at_t_floor_plus_1=false|json=0
 
 CONTROL|id=B03.3|verdict=MATCH|json=0
@@ -69,7 +72,7 @@ CONTROL|id=B03.3|verdict=MATCH|json=0
   actual:   t_cert(Perron d)=20127280 t_cert(random d)=-72074767 t_floor=20127280
   stdout:   CERT|d=tp3.bin|d_sha256=dd7ca8071508807b43a4351cfa0d87262b56d0668ae273899a808e55bf7171a5|t_cert=20127280|row=2|mag=2|rows_at_min=3|json=0
   stdout:   CERT|d=tr3.bin|d_sha256=98a5527bb15ec28b22e6ea4037baac800ba02f29e2bf1b7cb5b5e9832daf4af0|t_cert=-72074767|row=4|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=6|payload_bytes=208|merkle=PASS|flat_rows=1|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=20|nonflat_rows=5|diag_not_once_rows=0|min_w=2|max_w=7|padding_bytes=4096|payload_merkle=935271be6bc24ae90478ca2a2cbbd7a4c8d8086910b5e98b8e41b12d79561a56|w_symmetry_lhs=-183215730477913637552|secs=0|json=0
+  stdout:   STORE|n=6|payload_bytes=208|merkle=PASS|flat_rows=1|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=20|nonflat_rows=5|diag_not_once_rows=0|min_w=2|max_w=7|rows_end_payload_offset=208|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=935271be6bc24ae90478ca2a2cbbd7a4c8d8086910b5e98b8e41b12d79561a56|w_symmetry_lhs=-183215730477913637552|secs=0|json
   stdout:   EIGEN|nonflat=5|t_floor=20127280|psd_at_t_floor=true|psd_at_t_floor_plus_1=false|json=0
 
 CONTROL|id=B03.4|verdict=MATCH|json=0
@@ -79,7 +82,7 @@ CONTROL|id=B03.4|verdict=MATCH|json=0
   actual:   t_cert(Perron d)=23689301 t_cert(random d)=-91882592 t_floor=23689301
   stdout:   CERT|d=tp4.bin|d_sha256=4a2edcca13336bac47a4c2b6d813087a008a1a438522a4282b37e25a06aecdbb|t_cert=23689301|row=1|mag=1|rows_at_min=5|json=0
   stdout:   CERT|d=tr4.bin|d_sha256=4cf0dcbc30586442bb47962dedccd799e504933de69ddb9168eef479acdd5af9|t_cert=-91882592|row=1|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=6|payload_bytes=256|merkle=PASS|flat_rows=1|min_nonzero_mag=1|max_mag=4|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=26|nonflat_rows=5|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=e12c64b27ee2133b298a4a8d90ca31f354ce33dd01f3308f2628cdfdaeb263de|w_symmetry_lhs=11090020585659616134|secs=0|json=0
+  stdout:   STORE|n=6|payload_bytes=256|merkle=PASS|flat_rows=1|min_nonzero_mag=1|max_mag=4|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=26|nonflat_rows=5|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=256|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=e12c64b27ee2133b298a4a8d90ca31f354ce33dd01f3308f2628cdfdaeb263de|w_symmetry_lhs=11090020585659616134|secs=0|json=0
   stdout:   EIGEN|nonflat=5|t_floor=23689301|psd_at_t_floor=true|psd_at_t_floor_plus_1=false|json=0
 
 CONTROL|id=B03.5|verdict=MATCH|json=0
@@ -89,7 +92,7 @@ CONTROL|id=B03.5|verdict=MATCH|json=0
   actual:   t_cert(Perron d)=54315345 t_cert(random d)=-87486112 t_floor=54315345
   stdout:   CERT|d=tp5.bin|d_sha256=fd42ab3e11fe1887811ad8f539696b8551ca1e6adb21bac1d0306b16f6960cc1|t_cert=54315345|row=1|mag=6|rows_at_min=5|json=0
   stdout:   CERT|d=tr5.bin|d_sha256=8dd4d4668939914027d4d0252dbe3e01d933fb9770a85b215184bf4769538e8d|t_cert=-87486112|row=5|mag=5|rows_at_min=1|json=0
-  stdout:   STORE|n=6|payload_bytes=240|merkle=PASS|flat_rows=1|min_nonzero_mag=4|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=24|nonflat_rows=5|diag_not_once_rows=0|min_w=2|max_w=7|padding_bytes=4096|payload_merkle=0e0e836564a6bfbe9ca0b9cc6f4a638692ffc97b8f1957b64310dd73c25d3aab|w_symmetry_lhs=-87812875407982690376|secs=0|json=0
+  stdout:   STORE|n=6|payload_bytes=240|merkle=PASS|flat_rows=1|min_nonzero_mag=4|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=24|nonflat_rows=5|diag_not_once_rows=0|min_w=2|max_w=7|rows_end_payload_offset=240|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=0e0e836564a6bfbe9ca0b9cc6f4a638692ffc97b8f1957b64310dd73c25d3aab|w_symmetry_lhs=-87812875407982690376|secs=0|json=
   stdout:   EIGEN|nonflat=5|t_floor=54315345|psd_at_t_floor=true|psd_at_t_floor_plus_1=false|json=0
 
 CONTROL|id=B03.6|verdict=MATCH|json=0
@@ -99,7 +102,7 @@ CONTROL|id=B03.6|verdict=MATCH|json=0
   actual:   t_cert(Perron d)=19227665 t_cert(random d)=-96983740 t_floor=19227665
   stdout:   CERT|d=tp6.bin|d_sha256=ea48969ef2fb34bf25c8e0319d63df822e7e6b9497c3c748763e1da2cc498d60|t_cert=19227665|row=0|mag=6|rows_at_min=5|json=0
   stdout:   CERT|d=tr6.bin|d_sha256=b74592c316ce77c6c866682f91c136d5ccd23626a0d511dd3cf291a89768c65d|t_cert=-96983740|row=2|mag=3|rows_at_min=1|json=0
-  stdout:   STORE|n=6|payload_bytes=224|merkle=PASS|flat_rows=1|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=22|nonflat_rows=5|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=fdeb49c2586af85c29543db597820a293d28244818af7416827259b7b18d41a2|w_symmetry_lhs=4638248935777087198|secs=0|json=0
+  stdout:   STORE|n=6|payload_bytes=224|merkle=PASS|flat_rows=1|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=22|nonflat_rows=5|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=224|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=fdeb49c2586af85c29543db597820a293d28244818af7416827259b7b18d41a2|w_symmetry_lhs=4638248935777087198|secs=0|json=0
   stdout:   EIGEN|nonflat=5|t_floor=19227665|psd_at_t_floor=true|psd_at_t_floor_plus_1=false|json=0
 
 CONTROL|id=B03.7|verdict=MATCH|json=0
@@ -109,7 +112,7 @@ CONTROL|id=B03.7|verdict=MATCH|json=0
   actual:   t_cert(Perron d)=36808546 t_cert(random d)=-116444445 t_floor=36808546
   stdout:   CERT|d=tp7.bin|d_sha256=eb2e1b5b97236fc1761a205fc24a677ed2b0c80655a4219beaab443f0033cb83|t_cert=36808546|row=0|mag=1|rows_at_min=5|json=0
   stdout:   CERT|d=tr7.bin|d_sha256=f5a9895abc8425940d04707a2ae2a064b9aa996965cc72a0b5f17243a7178f8d|t_cert=-116444445|row=1|mag=4|rows_at_min=1|json=0
-  stdout:   STORE|n=6|payload_bytes=208|merkle=PASS|flat_rows=1|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=20|nonflat_rows=5|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=c32f339f1b1af01882e8e5ef6b155821050696d61aafade1faa26a163d2246ca|w_symmetry_lhs=-108563621434316365900|secs=0|json=0
+  stdout:   STORE|n=6|payload_bytes=208|merkle=PASS|flat_rows=1|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=20|nonflat_rows=5|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=208|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=c32f339f1b1af01882e8e5ef6b155821050696d61aafade1faa26a163d2246ca|w_symmetry_lhs=-108563621434316365900|secs=0|json
   stdout:   EIGEN|nonflat=5|t_floor=36808546|psd_at_t_floor=true|psd_at_t_floor_plus_1=false|json=0
 
 CONTROL|id=B03.8|verdict=MATCH|json=0
@@ -119,7 +122,7 @@ CONTROL|id=B03.8|verdict=MATCH|json=0
   actual:   t_cert(Perron d)=17741650 t_cert(random d)=-734727273 t_floor=17741650
   stdout:   CERT|d=tp8.bin|d_sha256=cb19eb90c830f36b987a42f8df66f614590837ec9a2e87eb609f805caa760d49|t_cert=17741650|row=1|mag=5|rows_at_min=4|json=0
   stdout:   CERT|d=tr8.bin|d_sha256=54d5764e26b35d3625e8ceba3927d3d3b7769a83879e001cdfc8c377d3dd9411|t_cert=-734727273|row=1|mag=5|rows_at_min=1|json=0
-  stdout:   STORE|n=6|payload_bytes=192|merkle=PASS|flat_rows=1|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=18|nonflat_rows=5|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=3195e194d88beaa965e6cf9a374063ea2911c3915fb8e37356ed6b5bdaf993a8|w_symmetry_lhs=-153428526064170296011|secs=0|json=0
+  stdout:   STORE|n=6|payload_bytes=192|merkle=PASS|flat_rows=1|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=18|nonflat_rows=5|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=192|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=3195e194d88beaa965e6cf9a374063ea2911c3915fb8e37356ed6b5bdaf993a8|w_symmetry_lhs=-153428526064170296011|secs=0|json
   stdout:   EIGEN|nonflat=5|t_floor=17741650|psd_at_t_floor=true|psd_at_t_floor_plus_1=false|json=0
 
 CONTROL|id=B04|verdict=MATCH|json=0
@@ -128,31 +131,31 @@ CONTROL|id=B04|verdict=MATCH|json=0
   expected: pass; same CERT row as B01
   actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] -> true
   stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|secs=0|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|
 
 CONTROL|id=B05.0|verdict=MATCH|json=0
-  name:     zero padding of 0 bytes after the payload
+  name:     [STORE field renamed by the payload-only decision: padding_bytes -> after_payload_bytes] 0 zero bytes after header+payload_bytes (room-file bytes, not store)
   command:  ../checker dp.bin < s300pad0.bin
-  expected: pass; same CERT row as B01, padding_bytes=0
-  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(field padding_bytes <<<"$STDOUT")" = 0 ] -> true
+  expected: pass; same CERT row as B01, after_payload_bytes=0
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(field after_payload_bytes <<<"$STDOUT")" = 0 ] -> true
   stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=0|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|secs=0|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=0|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|sec
 
 CONTROL|id=B05.1|verdict=MATCH|json=0
-  name:     zero padding of 1 bytes after the payload
+  name:     [STORE field renamed by the payload-only decision: padding_bytes -> after_payload_bytes] 1 zero bytes after header+payload_bytes (room-file bytes, not store)
   command:  ../checker dp.bin < s300pad1.bin
-  expected: pass; same CERT row as B01, padding_bytes=1
-  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(field padding_bytes <<<"$STDOUT")" = 1 ] -> true
+  expected: pass; same CERT row as B01, after_payload_bytes=1
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(field after_payload_bytes <<<"$STDOUT")" = 1 ] -> true
   stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=1|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|secs=0|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=1|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|sec
 
 CONTROL|id=B05.1000000|verdict=MATCH|json=0
-  name:     zero padding of 1000000 bytes after the payload
+  name:     [STORE field renamed by the payload-only decision: padding_bytes -> after_payload_bytes] 1000000 zero bytes after header+payload_bytes (room-file bytes, not store)
   command:  ../checker dp.bin < s300pad1000000.bin
-  expected: pass; same CERT row as B01, padding_bytes=1000000
-  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(field padding_bytes <<<"$STDOUT")" = 1000000 ] -> true
+  expected: pass; same CERT row as B01, after_payload_bytes=1000000
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(field after_payload_bytes <<<"$STDOUT")" = 1000000 ] -> true
   stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=1000000|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|secs=0|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=1000000|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-3890531173382674167
 
 CONTROL|id=B06.1|verdict=MATCH|json=0
   name:     3 full leaves (payload exactly 3*16 MiB), fast vs big-int reference
@@ -161,7 +164,7 @@ CONTROL|id=B06.1|verdict=MATCH|json=0
   actual:   exit=0/0 identical=yes; reference max_num_bits=89
   stdout:   CERT|d=m3-dp.bin|d_sha256=995bc40d1cfbb3a22784a5e8a15c37a00de1a2495adc5dc2fc3c610a79e108be|t_cert=36794052|row=43053|mag=1|rows_at_min=1|json=0
   stdout:   CERT|d=m3-db.bin|d_sha256=2f86117a2f7d1b72bd7df8823d88820b598fa0eb729b8d8fffd0fdb9b4e82216|t_cert=8999902|row=44716|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=90000|payload_bytes=50331648|merkle=PASS|flat_rows=900|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=6201456|nonflat_rows=89100|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=47e3b8fa1bed6f31c5ab3095bcf00ac6228b81dd9ad28d7f30dce7c01d0fed29|w_symmetry_lhs=30064054585251965809630|secs=0|json=0
+  stdout:   STORE|n=90000|payload_bytes=50331648|merkle=PASS|flat_rows=900|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=6201456|nonflat_rows=89100|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=50331648|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=47e3b8fa1bed6f31c5ab3095bcf00ac6228b81dd9ad28d7f30dce7c01d0fed29|w_symmetry_lhs=300640545
 
 CONTROL|id=B06.2|verdict=MATCH|json=0
   name:     payload 2*16 MiB + 8 bytes (last leaf is 8 bytes, last row straddles), fast vs reference
@@ -170,7 +173,7 @@ CONTROL|id=B06.2|verdict=MATCH|json=0
   actual:   exit=0/0 identical=yes; reference max_num_bits=90
   stdout:   CERT|d=m2-dp.bin|d_sha256=8817b2d067ee9d5429f988dc6337b8a5e9224e6366ce3c90316c9cd5a7b0b99a|t_cert=36548359|row=23078|mag=1|rows_at_min=1|json=0
   stdout:   CERT|d=m2-db.bin|d_sha256=0775477833e812999b8fed1f906878643fd0e80cf2d2f03e96e96a989f475cb6|t_cert=8999891|row=33585|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=50000|payload_bytes=33554440|merkle=PASS|flat_rows=500|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=4144305|nonflat_rows=49500|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=0225be1452a342f6db12de07423eae02e3744ccbffba6520eac885a7c367fd6d|w_symmetry_lhs=152993197528188146684|secs=0|json=0
+  stdout:   STORE|n=50000|payload_bytes=33554440|merkle=PASS|flat_rows=500|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=4144305|nonflat_rows=49500|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=33554440|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=0225be1452a342f6db12de07423eae02e3744ccbffba6520eac885a7c367fd6d|w_symmetry_lhs=152993197
 
 CONTROL|id=B06.m3.merkle|verdict=MATCH|json=0
   name:     merkle recomputed with coreutils (split -b 16777216 | sha256sum) equals header and checker
@@ -193,7 +196,7 @@ CONTROL|id=B07.1|verdict=MATCH|json=0
   actual:   exit=0; extra test: [ "$(strip <<<"$STDOUT")" = "$REF3" ] -> true
   stdout:   CERT|d=m3-dp.bin|d_sha256=995bc40d1cfbb3a22784a5e8a15c37a00de1a2495adc5dc2fc3c610a79e108be|t_cert=36794052|row=43053|mag=1|rows_at_min=1|json=0
   stdout:   CERT|d=m3-db.bin|d_sha256=2f86117a2f7d1b72bd7df8823d88820b598fa0eb729b8d8fffd0fdb9b4e82216|t_cert=8999902|row=44716|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=90000|payload_bytes=50331648|merkle=PASS|flat_rows=900|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=6201456|nonflat_rows=89100|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=47e3b8fa1bed6f31c5ab3095bcf00ac6228b81dd9ad28d7f30dce7c01d0fed29|w_symmetry_lhs=30064054585251965809630|secs=0|json=0
+  stdout:   STORE|n=90000|payload_bytes=50331648|merkle=PASS|flat_rows=900|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=6201456|nonflat_rows=89100|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=50331648|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=47e3b8fa1bed6f31c5ab3095bcf00ac6228b81dd9ad28d7f30dce7c01d0fed29|w_symmetry_lhs=300640545
 
 CONTROL|id=B07.2|verdict=MATCH|json=0
   name:     worker count 2 gives identical output
@@ -202,7 +205,7 @@ CONTROL|id=B07.2|verdict=MATCH|json=0
   actual:   exit=0; extra test: [ "$(strip <<<"$STDOUT")" = "$REF3" ] -> true
   stdout:   CERT|d=m3-dp.bin|d_sha256=995bc40d1cfbb3a22784a5e8a15c37a00de1a2495adc5dc2fc3c610a79e108be|t_cert=36794052|row=43053|mag=1|rows_at_min=1|json=0
   stdout:   CERT|d=m3-db.bin|d_sha256=2f86117a2f7d1b72bd7df8823d88820b598fa0eb729b8d8fffd0fdb9b4e82216|t_cert=8999902|row=44716|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=90000|payload_bytes=50331648|merkle=PASS|flat_rows=900|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=6201456|nonflat_rows=89100|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=47e3b8fa1bed6f31c5ab3095bcf00ac6228b81dd9ad28d7f30dce7c01d0fed29|w_symmetry_lhs=30064054585251965809630|secs=0|json=0
+  stdout:   STORE|n=90000|payload_bytes=50331648|merkle=PASS|flat_rows=900|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=6201456|nonflat_rows=89100|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=50331648|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=47e3b8fa1bed6f31c5ab3095bcf00ac6228b81dd9ad28d7f30dce7c01d0fed29|w_symmetry_lhs=300640545
 
 CONTROL|id=B07.7|verdict=MATCH|json=0
   name:     worker count 7 gives identical output
@@ -211,7 +214,7 @@ CONTROL|id=B07.7|verdict=MATCH|json=0
   actual:   exit=0; extra test: [ "$(strip <<<"$STDOUT")" = "$REF3" ] -> true
   stdout:   CERT|d=m3-dp.bin|d_sha256=995bc40d1cfbb3a22784a5e8a15c37a00de1a2495adc5dc2fc3c610a79e108be|t_cert=36794052|row=43053|mag=1|rows_at_min=1|json=0
   stdout:   CERT|d=m3-db.bin|d_sha256=2f86117a2f7d1b72bd7df8823d88820b598fa0eb729b8d8fffd0fdb9b4e82216|t_cert=8999902|row=44716|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=90000|payload_bytes=50331648|merkle=PASS|flat_rows=900|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=6201456|nonflat_rows=89100|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=47e3b8fa1bed6f31c5ab3095bcf00ac6228b81dd9ad28d7f30dce7c01d0fed29|w_symmetry_lhs=30064054585251965809630|secs=0|json=0
+  stdout:   STORE|n=90000|payload_bytes=50331648|merkle=PASS|flat_rows=900|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=6201456|nonflat_rows=89100|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=50331648|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=47e3b8fa1bed6f31c5ab3095bcf00ac6228b81dd9ad28d7f30dce7c01d0fed29|w_symmetry_lhs=300640545
 
 CONTROL|id=B08|verdict=MATCH|json=0
   name:     store split into 34 sector files and concatenated through a pipe (CI form)
@@ -220,7 +223,7 @@ CONTROL|id=B08|verdict=MATCH|json=0
   actual:   exit=0; extra test: [ "$(strip <<<"$STDOUT")" = "$REF3" ] -> true
   stdout:   CERT|d=m3-dp.bin|d_sha256=995bc40d1cfbb3a22784a5e8a15c37a00de1a2495adc5dc2fc3c610a79e108be|t_cert=36794052|row=43053|mag=1|rows_at_min=1|json=0
   stdout:   CERT|d=m3-db.bin|d_sha256=2f86117a2f7d1b72bd7df8823d88820b598fa0eb729b8d8fffd0fdb9b4e82216|t_cert=8999902|row=44716|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=90000|payload_bytes=50331648|merkle=PASS|flat_rows=900|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=6201456|nonflat_rows=89100|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=47e3b8fa1bed6f31c5ab3095bcf00ac6228b81dd9ad28d7f30dce7c01d0fed29|w_symmetry_lhs=30064054585251965809630|secs=0|json=0
+  stdout:   STORE|n=90000|payload_bytes=50331648|merkle=PASS|flat_rows=900|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=6201456|nonflat_rows=89100|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=50331648|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=47e3b8fa1bed6f31c5ab3095bcf00ac6228b81dd9ad28d7f30dce7c01d0fed29|w_symmetry_lhs=300640545
 
 CONTROL|id=B09|verdict=MATCH|json=0
   name:     two d files in one pass give the same CERT rows as two separate runs
@@ -229,7 +232,7 @@ CONTROL|id=B09|verdict=MATCH|json=0
   actual:   identical=yes
   stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
   stdout:   CERT|d=db.bin|d_sha256=ece2cdb82d7128dc5891736108724ea964e2a0fa7a3461e7f156881eb7b62414|t_cert=8999987|row=57|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|secs=0|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|
 
 CONTROL|id=B10|verdict=MATCH|json=0
   name:     negative numerator: row 0 numerator = 9e6*1*3 + 1e6*(3-50) = -20000000, d=3 -> floor = -6666667 (truncation would give -6666666)
@@ -237,7 +240,7 @@ CONTROL|id=B10|verdict=MATCH|json=0
   expected: pass; t_cert=-6666667 row=0 mag=1
   actual:   exit=0; extra test: [ "$(grep ^CERT <<<"$STDOUT" | field t_cert)" = -6666667 ] && [ "$(grep ^CERT <<<"$STDOUT" | field row)" = 0 ] -> true
   stdout:   CERT|d=neg-d.bin|d_sha256=196efad4e2e21c0bcad23fc0da0d1f7a9e1274251dd10e171d4272c06f50d818|t_cert=-6666667|row=0|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=2|payload_bytes=48|merkle=PASS|flat_rows=0|min_nonzero_mag=1|max_mag=1|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=4|nonflat_rows=2|diag_not_once_rows=0|min_w=1|max_w=1|padding_bytes=4096|payload_merkle=2576ce0f278b8b69f5bdcd617b491d923e307038e2c28d3ca3951c2482ab564f|w_symmetry_lhs=65202441992879660|secs=0|json=0
+  stdout:   STORE|n=2|payload_bytes=48|merkle=PASS|flat_rows=0|min_nonzero_mag=1|max_mag=1|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=4|nonflat_rows=2|diag_not_once_rows=0|min_w=1|max_w=1|rows_end_payload_offset=48|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=2576ce0f278b8b69f5bdcd617b491d923e307038e2c28d3ca3951c2482ab564f|w_symmetry_lhs=65202441992879660|secs=0|json=0
 
 CONTROL|id=B10.ref|verdict=MATCH|json=0
   name:     negative numerator, big-int reference agrees
@@ -245,7 +248,7 @@ CONTROL|id=B10.ref|verdict=MATCH|json=0
   expected: both pass; identical CERT and STORE rows (ignoring secs and the reference's max_num_bits)
   actual:   exit=0/0 identical=yes; reference max_num_bits=29
   stdout:   CERT|d=neg-d.bin|d_sha256=196efad4e2e21c0bcad23fc0da0d1f7a9e1274251dd10e171d4272c06f50d818|t_cert=-6666667|row=0|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=2|payload_bytes=48|merkle=PASS|flat_rows=0|min_nonzero_mag=1|max_mag=1|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=4|nonflat_rows=2|diag_not_once_rows=0|min_w=1|max_w=1|padding_bytes=4096|payload_merkle=2576ce0f278b8b69f5bdcd617b491d923e307038e2c28d3ca3951c2482ab564f|w_symmetry_lhs=65202441992879660|secs=0|json=0
+  stdout:   STORE|n=2|payload_bytes=48|merkle=PASS|flat_rows=0|min_nonzero_mag=1|max_mag=1|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=4|nonflat_rows=2|diag_not_once_rows=0|min_w=1|max_w=1|rows_end_payload_offset=48|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=2576ce0f278b8b69f5bdcd617b491d923e307038e2c28d3ca3951c2482ab564f|w_symmetry_lhs=65202441992879660|secs=0|json=0
 
 CONTROL|id=B10.eig|verdict=MATCH|json=0
   name:     same 2x2 store with d=(1,1): H' = 9I + [[1,-1],[-1,1]], eigenvalues 9 and 11
@@ -253,7 +256,7 @@ CONTROL|id=B10.eig|verdict=MATCH|json=0
   expected: t_cert = t_floor = 9000000
   actual:   t_cert=9000000 t_floor=9000000
   stdout:   CERT|d=neg-d1.bin|d_sha256=814dd7b9784d57c15b9c2972e9b4fd6cf7e164f8162a934bdb2452a413dab1f7|t_cert=9000000|row=0|mag=1|rows_at_min=2|json=0
-  stdout:   STORE|n=2|payload_bytes=48|merkle=PASS|flat_rows=0|min_nonzero_mag=1|max_mag=1|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=4|nonflat_rows=2|diag_not_once_rows=0|min_w=1|max_w=1|padding_bytes=4096|payload_merkle=2576ce0f278b8b69f5bdcd617b491d923e307038e2c28d3ca3951c2482ab564f|w_symmetry_lhs=65202441992879660|secs=0|json=0
+  stdout:   STORE|n=2|payload_bytes=48|merkle=PASS|flat_rows=0|min_nonzero_mag=1|max_mag=1|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=4|nonflat_rows=2|diag_not_once_rows=0|min_w=1|max_w=1|rows_end_payload_offset=48|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=2576ce0f278b8b69f5bdcd617b491d923e307038e2c28d3ca3951c2482ab564f|w_symmetry_lhs=65202441992879660|secs=0|json=0
   stdout:   EIGEN|nonflat=2|t_floor=9000000|psd_at_t_floor=true|psd_at_t_floor_plus_1=false|json=0
 
 CONTROL|id=B11|verdict=MATCH|json=0
@@ -262,13 +265,13 @@ CONTROL|id=B11|verdict=MATCH|json=0
   expected: both pass; identical CERT and STORE rows (ignoring secs and the reference's max_num_bits)
   actual:   exit=0/0 identical=yes; reference max_num_bits=127
   stdout:   CERT|d=ovf-d61.bin|d_sha256=a14588a688bdcd984d3e7536a5b5f14e07cb1c3561ce6b23edea88ca61882f59|t_cert=-148552804645070342647059578909991000000|row=0|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=2|payload_bytes=960016|merkle=PASS|flat_rows=0|min_nonzero_mag=1|max_mag=1|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=120000|nonflat_rows=2|diag_not_once_rows=2|min_w=1|max_w=1|padding_bytes=4096|payload_merkle=5992f68853253d189feff4117596724f466e0b066588b58f254ae5b1be995a4c|w_symmetry_lhs=4200635337725254808667600600000|secs=0|json=0
+  stdout:   STORE|n=2|payload_bytes=960016|merkle=PASS|flat_rows=0|min_nonzero_mag=1|max_mag=1|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=120000|nonflat_rows=2|diag_not_once_rows=2|min_w=1|max_w=1|rows_end_payload_offset=960016|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=5992f68853253d189feff4117596724f466e0b066588b58f254ae5b1be995a4c|w_symmetry_lhs=420063533772525480866760
 
 CONTROL|id=B12|verdict=MATCH|json=0
-  name:     differential fuzz: 200 random stores (1..400 rows, weights and couplings up to 2000, mag up to 65535, d up to 2^63-1, random defects and bad d entries) vs the big-int reference
+  name:     [EXTENDED for the payload-only decision] differential fuzz: 200 random stores (1..400 rows, weights and couplings up to 2000, mag up to 65535, d up to 2^63-1, random defects and bad d entries; random zero tails inside payload_bytes, random room-file bytes after it, nonzero bytes poked into the zero tail) vs the big-int reference
   command:  controls.sh section B12 (../checker fzd.bin fzd2.bin < fz.bin  VERSUS  ../ymgen ref -store fz.bin fzd.bin fzd2.bin)
   expected: every case: both pass with identical rows, or both fail (exit 2, one FAIL line)
-  actual:   total=200 both_pass_identical=92 both_fail=108 disagreements=0
+  actual:   total=200 both_pass_identical=79 both_fail=121 disagreements=0 with_zero_tail=60 with_nonzero_after_payload=83 zero_tail_pokes=16
   stdout:   
 
 CONTROL|id=C01.first|verdict=MATCH|json=0
@@ -340,7 +343,7 @@ CONTROL|id=C01.mag.remerkled|verdict=MATCH|json=0
   expected: pass; same CERT row as B01 (the flipped row is not the minimum)
   actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] -> true
   stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=21|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=110fb6631bf7ee5bd76d0fc3d1c144baa611c8dd91494fdb0b92f98d8fdce9d7|w_symmetry_lhs=-389053117338267416761|secs=0|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=21|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=110fb6631bf7ee5bd76d0fc3d1c144baa611c8dd91494fdb0b92f98d8fdce9d7|w_symmetry_lhs=-389053117338267416761
 
 CONTROL|id=C01.mag.reason|verdict=MATCH|json=0
   name:     the mag-byte flip with the original header fails on the merkle
@@ -362,7 +365,7 @@ CONTROL|id=C01.zpair.remerkled|verdict=MATCH|json=0
   expected: pass
   actual:   exit=0
   stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=24623809|row=3|mag=4|rows_at_min=1|json=0
-  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=1e6b00a558b24694c5d3eb8aa3baad24742e345da67b6cfc5768fcc069789ff2|w_symmetry_lhs=-390194290906100777902|secs=0|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=1e6b00a558b24694c5d3eb8aa3baad24742e345da67b6cfc5768fcc069789ff2|w_symmetry_lhs=-390194290906100777902|
 
 CONTROL|id=C02.0|verdict=MATCH|json=0
   name:     owner control: d with one nonpositive non-flat entry (row 101 set to 0)
@@ -440,7 +443,7 @@ CONTROL|id=D01.7|verdict=MATCH|json=0
   expected: pass; same CERT row as B01
   actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] -> true
   stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|secs=0|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|
 
 CONTROL|id=D01.8|verdict=MATCH|json=0
   name:     parse error: no newline in the first 4096 bytes
@@ -462,7 +465,7 @@ CONTROL|id=D01.10|verdict=MATCH|json=0
   expected: pass; same CERT row as B01
   actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] -> true
   stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|secs=0|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|
 
 CONTROL|id=D01.11|verdict=MATCH|json=0
   name:     header text padded with NULs and the newline at byte 4095 still passes
@@ -470,7 +473,7 @@ CONTROL|id=D01.11|verdict=MATCH|json=0
   expected: pass; same CERT row as B01
   actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] -> true
   stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|secs=0|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|
 
 CONTROL|id=D01.12|verdict=MATCH|json=0
   name:     parse error: NUL byte inside the header text
@@ -501,18 +504,27 @@ CONTROL|id=D02.3|verdict=MATCH|json=0
   stdout:   FAIL|reason=short_stream:header|json=0
 
 CONTROL|id=D03.1|verdict=MATCH|json=0
-  name:     long stream: a nonzero byte appended after the zero padding
+  name:     [CHANGED by the payload-only decision; was: fail nonzero_padding] a nonzero byte appended after the 4096 zero bytes that follow payload_bytes: room-file bytes, not store
   command:  ../checker dp.bin < long1.bin
-  expected: fail, reason matching ^(nonzero_padding)
-  actual:   exit=2 lines=1 cert_or_store_rows=0
-  stdout:   FAIL|reason=nonzero_padding:stream_offset=32816|json=0
+  expected: pass; same CERT row as B01, after_payload_bytes=4097, payload_zero_tail_bytes=0
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(field after_payload_bytes <<<"$STDOUT")" = 4097 ] && [ "$(field payload_zero_tail_bytes <<<"$STDOUT")" = 0 ] -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=4097|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|
 
 CONTROL|id=D03.2|verdict=MATCH|json=0
-  name:     long stream: header payload_bytes 8 larger than the rows (8 extra payload bytes after row n-1)
+  name:     [CHANGED by the payload-only decision; was: fail payload_has_bytes_after_row_n] header payload_bytes 8 larger than the rows: the 8 payload bytes after row n-1 are zero (an allowed zero tail), but the header merkle covers only the rows
   command:  ../checker dp.bin < long2.bin
-  expected: fail, reason matching ^(payload_has_bytes_after_row_n)
+  expected: fail, reason matching ^(merkle_mismatch)
   actual:   exit=2 lines=1 cert_or_store_rows=0
-  stdout:   FAIL|reason=payload_has_bytes_after_row_n:payload_offset=24624,n=300|json=0
+  stdout:   FAIL|reason=merkle_mismatch:computed=b4754409f8c782813a7b4bbcbcb910df1a01df14490140ca9c9f2f40954fccc6|json=0
+
+CONTROL|id=D03.2.remerkled|verdict=MATCH|json=0
+  name:     [NEW] the D03.2 store with the header merkle recomputed over all payload_bytes: passes with an 8-byte zero tail
+  command:  ../checker dp.bin < long2-remerkled.bin
+  expected: pass; same CERT row as B01, rows_end_payload_offset=24624, payload_zero_tail_bytes=8, after_payload_bytes=4088
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(field rows_end_payload_offset <<<"$STDOUT")" = 24624 ] && [ "$(field payload_zero_tail_bytes <<<"$STDOUT")" = 8 ] && [ "$(field after_payload_bytes <<<"$STDOUT")" = 4088 ] -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=24632|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=8|after_payload_bytes=4088|payload_merkle=b4754409f8c782813a7b4bbcbcb910df1a01df14490140ca9c9f2f40954fccc6|w_symmetry_lhs=-389053117338267416761|
 
 CONTROL|id=D03.3|verdict=MATCH|json=0
   name:     header payload_bytes 8 smaller than the rows (last row runs past the payload)
@@ -522,11 +534,11 @@ CONTROL|id=D03.3|verdict=MATCH|json=0
   stdout:   FAIL|reason=payload_ends_inside_row:h=299|json=0
 
 CONTROL|id=D04.1|verdict=MATCH|json=0
-  name:     count mismatch: header n=299 but the payload holds 300 rows
+  name:     [reason renamed by the payload-only decision: payload_has_bytes_after_row_n -> payload_zero_tail_nonzero] count mismatch: header n=299 but the payload holds 300 rows (row 299 lies where the zero tail must be)
   command:  ../checker dp299.bin < cnt1.bin
-  expected: fail, reason matching ^(payload_has_bytes_after_row_n|column_out_of_range)
+  expected: fail, reason matching ^(payload_zero_tail_nonzero|column_out_of_range)
   actual:   exit=2 lines=1 cert_or_store_rows=0
-  stdout:   FAIL|reason=payload_has_bytes_after_row_n:payload_offset=24528,n=299|json=0
+  stdout:   FAIL|reason=payload_zero_tail_nonzero:payload_offset=24528,byte=5,rows_end_payload_offset=24528,n=299|json=0
 
 CONTROL|id=D04.2|verdict=MATCH|json=0
   name:     count mismatch: header n=301 but the payload holds 300 rows
@@ -564,11 +576,12 @@ CONTROL|id=D07|verdict=MATCH|json=0
   stdout:   FAIL|reason=positive_offdiagonal:h=0,j=103,z=7|json=0
 
 CONTROL|id=D08|verdict=MATCH|json=0
-  name:     nonzero padding byte
+  name:     [CHANGED by the payload-only decision; was: fail nonzero_padding] one nonzero byte 10 bytes after payload_bytes: room-file bytes, not store
   command:  ../checker dp.bin < pad1.bin
-  expected: fail, reason matching ^(nonzero_padding)
-  actual:   exit=2 lines=1 cert_or_store_rows=0
-  stdout:   FAIL|reason=nonzero_padding:stream_offset=28730|json=0
+  expected: pass; output identical to the unflipped store B01 (same CERT and STORE rows), after_payload_bytes=4096
+  actual:   exit=0; extra test: [ "$(strip <<<"$STDOUT")" = "$(../checker dp.bin <s300.bin | strip)" ] && [ "$(field after_payload_bytes <<<"$STDOUT")" = 4096 ] -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|
 
 CONTROL|id=D09.1|verdict=MATCH|json=0
   name:     merkle mismatch: header payload_merkle replaced
@@ -597,7 +610,7 @@ CONTROL|id=D09.4|verdict=MATCH|json=0
   expected: pass
   actual:   exit=0
   stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
-  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|padding_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|secs=0|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|
 
 CONTROL|id=D10|verdict=MATCH|json=0
   name:     row sum not 0 (one diagonal +1; W*Z still symmetric, merkle consistent)
@@ -669,4 +682,234 @@ CONTROL|id=D15|verdict=MATCH|json=0
   actual:   exit=2 lines=1 cert_or_store_rows=0
   stdout:   FAIL|reason=no_nonflat_rows|json=0
 
-SUMMARY|controls=87|match=87|mismatch=0|json=0
+CONTROL|id=E01.1|verdict=MATCH|json=0
+  name:     rows followed by 742160 zero bytes inside payload_bytes (the real store's zero-tail length), nothing after
+  command:  ../checker dp.bin < z.bin
+  expected: pass; same CERT row as B01; rows_end_payload_offset=24624 payload_zero_tail_bytes=742160 after_payload_bytes=0 payload_bytes=766784
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && zfields 24624 742160 0 766784 -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=766784|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=742160|after_payload_bytes=0|payload_merkle=903fa894d2490d3378b59483a7e2c1e10cd7b21ea25ac47ef104db680b83063e|w_symmetry_lhs=-3890531173382674167
+
+CONTROL|id=E01.2|verdict=MATCH|json=0
+  name:     rows followed by a 1-byte zero tail inside payload_bytes
+  command:  ../checker dp.bin < z1.bin
+  expected: pass; same CERT row as B01; rows_end_payload_offset=24624 payload_zero_tail_bytes=1 after_payload_bytes=0
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && zfields 24624 1 0 24625 -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=24625|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=1|after_payload_bytes=0|payload_merkle=ad4c8928eed0fc181af402c9821d4b3d1cc9f708e3a3c58e09a5bd6c57a41ccf|w_symmetry_lhs=-389053117338267416761|sec
+
+CONTROL|id=E01.3|verdict=MATCH|json=0
+  name:     zero tail of 742160 bytes: fast checker equals the big-int reference (Perron, random and near-2^62 d)
+  command:  ../checker dp.bin dr.bin db.bin < z.bin   VERSUS   ../ymgen ref -store z.bin dp.bin dr.bin db.bin
+  expected: both pass; identical CERT and STORE rows (ignoring secs and the reference's max_num_bits)
+  actual:   exit=0/0 identical=yes; reference max_num_bits=89
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   CERT|d=dr.bin|d_sha256=309976ff230cb52c47397a232b53979cf00423c520dd2b579e150c5028177551|t_cert=-3754550715|row=230|mag=6|rows_at_min=1|json=0
+  stdout:   CERT|d=db.bin|d_sha256=ece2cdb82d7128dc5891736108724ea964e2a0fa7a3461e7f156881eb7b62414|t_cert=8999987|row=57|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=766784|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=742160|after_payload_bytes=0|payload_merkle=903fa894d2490d3378b59483a7e2c1e10cd7b21ea25ac47ef104db680b83063e|w_symmetry_lhs=-3890531173382674167
+
+CONTROL|id=E01.4|verdict=MATCH|json=0
+  name:     the zero tail is inside the merkle: coreutils merkle over all payload_bytes equals the header; the merkle over the rows only does not
+  command:  tail -c +4097 z.bin | head -c 766784 | split -b 16777216 --filter=sha256sum | cut -c1-64 | tr -d '\n' | sha256sum   (and the same with head -c 24624)
+  expected: 903fa894d2490d3378b59483a7e2c1e10cd7b21ea25ac47ef104db680b83063e; rows-only merkle different
+  actual:   payload_bytes merkle=903fa894d2490d3378b59483a7e2c1e10cd7b21ea25ac47ef104db680b83063e rows-only merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1
+  stdout:   
+
+CONTROL|id=E01.5|verdict=MATCH|json=0
+  name:     multi-leaf: rows end 8 bytes into leaf 2, the 16 MiB zero tail runs over the leaf boundary into an 8-byte leaf 3
+  command:  ../checker m2-dp.bin m2-db.bin < m2z.bin
+  expected: pass; rows_end_payload_offset=33554440 payload_zero_tail_bytes=16777216 after_payload_bytes=4096 payload_bytes=50331656
+  actual:   exit=0; extra test: zfields 33554440 16777216 4096 50331656 -> true
+  stdout:   CERT|d=m2-dp.bin|d_sha256=8817b2d067ee9d5429f988dc6337b8a5e9224e6366ce3c90316c9cd5a7b0b99a|t_cert=36548359|row=23078|mag=1|rows_at_min=1|json=0
+  stdout:   CERT|d=m2-db.bin|d_sha256=0775477833e812999b8fed1f906878643fd0e80cf2d2f03e96e96a989f475cb6|t_cert=8999891|row=33585|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=50000|payload_bytes=50331656|merkle=PASS|flat_rows=500|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=4144305|nonflat_rows=49500|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=33554440|payload_zero_tail_bytes=16777216|after_payload_bytes=4096|payload_merkle=f78cc0686e0efe7445e35bbb2f5ebef3940e90102ae99effc5072a7e9a6524a0|w_symmetry_lhs=15
+
+CONTROL|id=E01.5.ref|verdict=MATCH|json=0
+  name:     the same multi-leaf zero-tail store, fast vs big-int reference
+  command:  ../checker m2-dp.bin m2-db.bin < m2z.bin   VERSUS   ../ymgen ref -store m2z.bin m2-dp.bin m2-db.bin
+  expected: both pass; identical CERT and STORE rows (ignoring secs and the reference's max_num_bits)
+  actual:   exit=0/0 identical=yes; reference max_num_bits=90
+  stdout:   CERT|d=m2-dp.bin|d_sha256=8817b2d067ee9d5429f988dc6337b8a5e9224e6366ce3c90316c9cd5a7b0b99a|t_cert=36548359|row=23078|mag=1|rows_at_min=1|json=0
+  stdout:   CERT|d=m2-db.bin|d_sha256=0775477833e812999b8fed1f906878643fd0e80cf2d2f03e96e96a989f475cb6|t_cert=8999891|row=33585|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=50000|payload_bytes=50331656|merkle=PASS|flat_rows=500|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=4144305|nonflat_rows=49500|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=33554440|payload_zero_tail_bytes=16777216|after_payload_bytes=4096|payload_merkle=f78cc0686e0efe7445e35bbb2f5ebef3940e90102ae99effc5072a7e9a6524a0|w_symmetry_lhs=15
+
+CONTROL|id=E01.6|verdict=MATCH|json=0
+  name:     multi-leaf: rows end exactly at the end of leaf 2, the zero tail is a 5-byte leaf 3 of its own
+  command:  ../checker m3-dp.bin m3-db.bin < m3z.bin
+  expected: pass; rows_end_payload_offset=50331648 payload_zero_tail_bytes=5 after_payload_bytes=4096
+  actual:   exit=0; extra test: zfields 50331648 5 4096 50331653 -> true
+  stdout:   CERT|d=m3-dp.bin|d_sha256=995bc40d1cfbb3a22784a5e8a15c37a00de1a2495adc5dc2fc3c610a79e108be|t_cert=36794052|row=43053|mag=1|rows_at_min=1|json=0
+  stdout:   CERT|d=m3-db.bin|d_sha256=2f86117a2f7d1b72bd7df8823d88820b598fa0eb729b8d8fffd0fdb9b4e82216|t_cert=8999902|row=44716|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=90000|payload_bytes=50331653|merkle=PASS|flat_rows=900|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=6201456|nonflat_rows=89100|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=50331648|payload_zero_tail_bytes=5|after_payload_bytes=4096|payload_merkle=665c58a52b38fb16baef34bd57cf2d26d663e04144dc1305579a601f592d7272|w_symmetry_lhs=300640545
+
+CONTROL|id=E01.6.ref|verdict=MATCH|json=0
+  name:     the same leaf-aligned zero-tail store, fast vs big-int reference
+  command:  ../checker m3-dp.bin m3-db.bin < m3z.bin   VERSUS   ../ymgen ref -store m3z.bin m3-dp.bin m3-db.bin
+  expected: both pass; identical CERT and STORE rows (ignoring secs and the reference's max_num_bits)
+  actual:   exit=0/0 identical=yes; reference max_num_bits=89
+  stdout:   CERT|d=m3-dp.bin|d_sha256=995bc40d1cfbb3a22784a5e8a15c37a00de1a2495adc5dc2fc3c610a79e108be|t_cert=36794052|row=43053|mag=1|rows_at_min=1|json=0
+  stdout:   CERT|d=m3-db.bin|d_sha256=2f86117a2f7d1b72bd7df8823d88820b598fa0eb729b8d8fffd0fdb9b4e82216|t_cert=8999902|row=44716|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=90000|payload_bytes=50331653|merkle=PASS|flat_rows=900|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=6201456|nonflat_rows=89100|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=50331648|payload_zero_tail_bytes=5|after_payload_bytes=4096|payload_merkle=665c58a52b38fb16baef34bd57cf2d26d663e04144dc1305579a601f592d7272|w_symmetry_lhs=300640545
+
+CONTROL|id=E02.first|verdict=MATCH|json=0
+  name:     one nonzero byte in the zero tail (first tail byte, stream offset 28720, xor 1), header merkle recomputed to match
+  command:  ../checker dp.bin < zfr-first.bin
+  expected: fail, reason matching ^(payload_zero_tail_nonzero)
+  actual:   exit=2 lines=1 cert_or_store_rows=0
+  stdout:   FAIL|reason=payload_zero_tail_nonzero:payload_offset=24624,byte=1,rows_end_payload_offset=24624,n=300|json=0
+
+CONTROL|id=E03.first|verdict=MATCH|json=0
+  name:     the same nonzero zero-tail byte with the original header merkle
+  command:  ../checker dp.bin < zf-first.bin
+  expected: fail, reason matching ^(payload_zero_tail_nonzero)
+  actual:   exit=2 lines=1 cert_or_store_rows=0
+  stdout:   FAIL|reason=payload_zero_tail_nonzero:payload_offset=24624,byte=1,rows_end_payload_offset=24624,n=300|json=0
+
+CONTROL|id=E02.mid|verdict=MATCH|json=0
+  name:     one nonzero byte in the zero tail (mid tail byte, stream offset 399800, xor 128), header merkle recomputed to match
+  command:  ../checker dp.bin < zfr-mid.bin
+  expected: fail, reason matching ^(payload_zero_tail_nonzero)
+  actual:   exit=2 lines=1 cert_or_store_rows=0
+  stdout:   FAIL|reason=payload_zero_tail_nonzero:payload_offset=395704,byte=128,rows_end_payload_offset=24624,n=300|json=0
+
+CONTROL|id=E03.mid|verdict=MATCH|json=0
+  name:     the same nonzero zero-tail byte with the original header merkle
+  command:  ../checker dp.bin < zf-mid.bin
+  expected: fail, reason matching ^(payload_zero_tail_nonzero)
+  actual:   exit=2 lines=1 cert_or_store_rows=0
+  stdout:   FAIL|reason=payload_zero_tail_nonzero:payload_offset=395704,byte=128,rows_end_payload_offset=24624,n=300|json=0
+
+CONTROL|id=E02.last|verdict=MATCH|json=0
+  name:     one nonzero byte in the zero tail (last tail byte, stream offset 770879, xor 255), header merkle recomputed to match
+  command:  ../checker dp.bin < zfr-last.bin
+  expected: fail, reason matching ^(payload_zero_tail_nonzero)
+  actual:   exit=2 lines=1 cert_or_store_rows=0
+  stdout:   FAIL|reason=payload_zero_tail_nonzero:payload_offset=766783,byte=255,rows_end_payload_offset=24624,n=300|json=0
+
+CONTROL|id=E03.last|verdict=MATCH|json=0
+  name:     the same nonzero zero-tail byte with the original header merkle
+  command:  ../checker dp.bin < zf-last.bin
+  expected: fail, reason matching ^(payload_zero_tail_nonzero)
+  actual:   exit=2 lines=1 cert_or_store_rows=0
+  stdout:   FAIL|reason=payload_zero_tail_nonzero:payload_offset=766783,byte=255,rows_end_payload_offset=24624,n=300|json=0
+
+CONTROL|id=E02.merkle|verdict=MATCH|json=0
+  name:     the re-merkled E02.mid store really has a matching merkle (coreutils), different from the original, so in E02 only the zero-tail check caught the byte
+  command:  tail -c +4097 zfr-mid.bin | head -c 766784 | split -b 16777216 --filter=sha256sum | cut -c1-64 | tr -d '\n' | sha256sum
+  expected: eabc7d5c05dbe73fcaf420f41f9fc3ce5ff3a87d8e565668aecd0db60224c4aa (and not 903fa894d2490d3378b59483a7e2c1e10cd7b21ea25ac47ef104db680b83063e)
+  actual:   eabc7d5c05dbe73fcaf420f41f9fc3ce5ff3a87d8e565668aecd0db60224c4aa
+  stdout:   
+
+CONTROL|id=E03.leaf3|verdict=MATCH|json=0
+  name:     multi-leaf: a nonzero byte in leaf 3 (zero tail, a later leaf than the end of the rows), original merkle
+  command:  ../checker m2-dp.bin < m2zf.bin
+  expected: fail, reason matching ^(payload_zero_tail_nonzero)
+  actual:   exit=2 lines=1 cert_or_store_rows=0
+  stdout:   FAIL|reason=payload_zero_tail_nonzero:payload_offset=50331648,byte=1,rows_end_payload_offset=33554440,n=50000|json=0
+
+CONTROL|id=E02.leaf3|verdict=MATCH|json=0
+  name:     multi-leaf: the same leaf-3 byte with the merkle recomputed
+  command:  ../checker m2-dp.bin < m2zf.bin
+  expected: fail, reason matching ^(payload_zero_tail_nonzero)
+  actual:   exit=2 lines=1 cert_or_store_rows=0
+  stdout:   FAIL|reason=payload_zero_tail_nonzero:payload_offset=50331648,byte=1,rows_end_payload_offset=33554440,n=50000|json=0
+
+CONTROL|id=E04.nonzero.1|verdict=MATCH|json=0
+  name:     1 nonzero bytes after payload_bytes (1 of them nonzero): room-file bytes, not store
+  command:  ../checker dp.bin < sa-nonzero-1.bin
+  expected: pass; same CERT row as B01 and the same STORE row as s300pad1.bin (the same length of zero bytes); after_payload_bytes=1; at least 99% of those bytes nonzero
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(strip <<<"$STDOUT")" = "$ZREF" ] && zfields 24624 0 1 24624 && [ $((100 * 1)) -ge $((99 * 1)) ] -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=1|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|sec
+
+CONTROL|id=E04.nonzero.4096|verdict=MATCH|json=0
+  name:     4096 nonzero bytes after payload_bytes (4096 of them nonzero): room-file bytes, not store
+  command:  ../checker dp.bin < sa-nonzero-4096.bin
+  expected: pass; same CERT row as B01 and the same STORE row as s300.bin (the same length of zero bytes); after_payload_bytes=4096; at least 99% of those bytes nonzero
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(strip <<<"$STDOUT")" = "$ZREF" ] && zfields 24624 0 4096 24624 && [ $((100 * 4096)) -ge $((99 * 4096)) ] -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=4096|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|
+
+CONTROL|id=E04.nonzero.1000000|verdict=MATCH|json=0
+  name:     1000000 nonzero bytes after payload_bytes (1000000 of them nonzero): room-file bytes, not store
+  command:  ../checker dp.bin < sa-nonzero-1000000.bin
+  expected: pass; same CERT row as B01 and the same STORE row as s300pad1000000.bin (the same length of zero bytes); after_payload_bytes=1000000; at least 99% of those bytes nonzero
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(strip <<<"$STDOUT")" = "$ZREF" ] && zfields 24624 0 1000000 24624 && [ $((100 * 1000000)) -ge $((99 * 1000000)) ] -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=1000000|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-3890531173382674167
+
+CONTROL|id=E04.rooms.1000000|verdict=MATCH|json=0
+  name:     1000000 rooms bytes after payload_bytes (995990 of them nonzero): room-file bytes, not store
+  command:  ../checker dp.bin < sa-rooms-1000000.bin
+  expected: pass; same CERT row as B01 and the same STORE row as s300pad1000000.bin (the same length of zero bytes); after_payload_bytes=1000000; at least 99% of those bytes nonzero
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && [ "$(strip <<<"$STDOUT")" = "$ZREF" ] && zfields 24624 0 1000000 24624 && [ $((100 * 995990)) -ge $((99 * 1000000)) ] -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=1000000|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-3890531173382674167
+
+CONTROL|id=E04.z|verdict=MATCH|json=0
+  name:     the real layout in small: rows, a 742160-byte zero tail, then 1000000 room-stub bytes after payload_bytes
+  command:  ../checker dp.bin < zr.bin
+  expected: pass; same CERT row as B01; rows_end_payload_offset=24624 payload_zero_tail_bytes=742160 after_payload_bytes=1000000
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && zfields 24624 742160 1000000 766784 -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=766784|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=742160|after_payload_bytes=1000000|payload_merkle=903fa894d2490d3378b59483a7e2c1e10cd7b21ea25ac47ef104db680b83063e|w_symmetry_lhs=-3890531173382
+
+CONTROL|id=E04.z.ref|verdict=MATCH|json=0
+  name:     the same store, fast vs big-int reference (the reference also ignores the room-file bytes)
+  command:  ../checker dp.bin dr.bin db.bin < zr.bin   VERSUS   ../ymgen ref -store zr.bin dp.bin dr.bin db.bin
+  expected: both pass; identical CERT and STORE rows (ignoring secs and the reference's max_num_bits)
+  actual:   exit=0/0 identical=yes; reference max_num_bits=89
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   CERT|d=dr.bin|d_sha256=309976ff230cb52c47397a232b53979cf00423c520dd2b579e150c5028177551|t_cert=-3754550715|row=230|mag=6|rows_at_min=1|json=0
+  stdout:   CERT|d=db.bin|d_sha256=ece2cdb82d7128dc5891736108724ea964e2a0fa7a3461e7f156881eb7b62414|t_cert=8999987|row=57|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=766784|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=742160|after_payload_bytes=1000000|payload_merkle=903fa894d2490d3378b59483a7e2c1e10cd7b21ea25ac47ef104db680b83063e|w_symmetry_lhs=-3890531173382
+
+CONTROL|id=E05|verdict=MATCH|json=0
+  name:     a store with no zero tail and no bytes after payload_bytes
+  command:  ../checker dp.bin < s300pad0.bin
+  expected: pass; same CERT row as B01; rows_end_payload_offset=payload_bytes=24624, payload_zero_tail_bytes=0, after_payload_bytes=0
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && zfields 24624 0 0 24624 -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=24624|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=0|after_payload_bytes=0|payload_merkle=0169f5f52d99f50d3ee4c40bbca6928e0d5cc7e6d5c467bfcf02f57d86d2fdd1|w_symmetry_lhs=-389053117338267416761|sec
+
+CONTROL|id=E06.0|verdict=MATCH|json=0
+  name:     sanity for E06.1: the pipestatus test can see SIGPIPE: the same writer into a reader that stops after 4096 bytes
+  command:  cat z.bin <(../ymgen fill -bytes 349114368 -mode rooms -seed 7) | head -c 4096 >/dev/null; echo "pipestatus=${PIPESTATUS[*]}"
+  expected: pipestatus=141 0 (cat killed by SIGPIPE)
+  actual:   pipestatus=141 0
+  stdout:   pipestatus=141 0
+
+CONTROL|id=E06.1|verdict=MATCH|json=0
+  name:     cat pipe with the real store's shape: rows, the 742160-byte zero tail, then 349114368 room-stub bytes after payload_bytes, with the header pins; the writer (cat) must exit 0, not 141 (SIGPIPE)
+  command:  cat z.bin <(../ymgen fill -bytes 349114368 -mode rooms -seed 7) | ../checker -expect-n 300 -expect-payload-bytes 766784 -expect-merkle 903fa894d2490d3378b59483a7e2c1e10cd7b21ea25ac47ef104db680b83063e dp.bin; ps="${PIPESTATUS[*]}"; echo "pipestatus=$ps"; [ "$ps" = "0 0" ]
+  expected: pass; pipestatus=0 0 (cat, checker); same CERT row as B01; payload_zero_tail_bytes=742160 after_payload_bytes=349114368
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && zfields 24624 742160 349114368 766784 && grep -qx "pipestatus=0 0" <<<"$STDOUT" -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=766784|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=742160|after_payload_bytes=349114368|payload_merkle=903fa894d2490d3378b59483a7e2c1e10cd7b21ea25ac47ef104db680b83063e|w_symmetry_lhs=-38905311733
+  stdout:   pipestatus=0 0
+
+CONTROL|id=E06.2|verdict=MATCH|json=0
+  name:     the same, with a Go writer streaming the 349114368 bytes itself (writer exit status must be 0)
+  command:  { cat z.bin; ../ymgen fill -bytes 349114368 -mode rooms -seed 8; } | ../checker dp.bin; ps="${PIPESTATUS[*]}"; echo "pipestatus=$ps"; [ "$ps" = "0 0" ]
+  expected: pass; pipestatus=0 0; same CERT row as B01; after_payload_bytes=349114368
+  actual:   exit=0; extra test: [ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && zfields 24624 742160 349114368 766784 && grep -qx "pipestatus=0 0" <<<"$STDOUT" -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=766784|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=742160|after_payload_bytes=349114368|payload_merkle=903fa894d2490d3378b59483a7e2c1e10cd7b21ea25ac47ef104db680b83063e|w_symmetry_lhs=-38905311733
+  stdout:   pipestatus=0 0
+
+CONTROL|id=E06.3|verdict=MATCH|json=0
+  name:     zero-tail store with room-file bytes, split into 34 sector files and concatenated through a pipe
+  command:  cat zsector-* | ../checker dp.bin
+  expected: pass; identical to reading the single file
+  actual:   exit=0; extra test: [ "$(strip <<<"$STDOUT")" = "$(../checker dp.bin <zr.bin | strip)" ] -> true
+  stdout:   CERT|d=dp.bin|d_sha256=de52559128971af1ba3a3717c861afcbf67f1d586002a40ea3f755fe83d2e8d5|t_cert=26234969|row=69|mag=1|rows_at_min=1|json=0
+  stdout:   STORE|n=300|payload_bytes=766784|merkle=PASS|flat_rows=20|min_nonzero_mag=1|max_mag=6|row_sums_zero=PASS|w_symmetry=PASS|seed=20261102|entries=2778|nonflat_rows=280|diag_not_once_rows=0|min_w=1|max_w=7|rows_end_payload_offset=24624|payload_zero_tail_bytes=742160|after_payload_bytes=1000000|payload_merkle=903fa894d2490d3378b59483a7e2c1e10cd7b21ea25ac47ef104db680b83063e|w_symmetry_lhs=-3890531173382
+
+CONTROL|id=E06.4|verdict=MATCH|json=0
+  name:     pipe form still fails closed: E02.mid store (nonzero zero-tail byte, merkle recomputed) followed by 349114368 room-stub bytes
+  command:  cat zfr-mid.bin <(../ymgen fill -bytes 349114368 -mode rooms -seed 7) | ../checker dp.bin
+  expected: fail, reason matching ^(payload_zero_tail_nonzero)
+  actual:   exit=2 lines=1 cert_or_store_rows=0
+  stdout:   FAIL|reason=payload_zero_tail_nonzero:payload_offset=395704,byte=128,rows_end_payload_offset=24624,n=300|json=0
+
+SUMMARY|controls=117|match=117|mismatch=0|json=0

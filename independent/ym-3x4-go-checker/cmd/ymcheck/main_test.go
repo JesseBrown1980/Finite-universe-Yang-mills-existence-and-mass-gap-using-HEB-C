@@ -223,10 +223,12 @@ func TestXYRange(t *testing.T) {
 
 // TestSplitChunking feeds a random valid payload to the splitter in random
 // chunk sizes (including 1..7 bytes, which split row headers) and checks that
-// the batches reproduce every row, in order, with the right row index.
+// the batches reproduce every row, in order, with the right row index. In
+// some trials the rows are followed by a zero tail inside the payload, and the
+// recorded end of the rows must be the end of row n-1.
 func TestSplitChunking(t *testing.T) {
 	r := rand.New(rand.NewPCG(17, 18))
-	for trial := 0; trial < 200; trial++ {
+	for trial := 0; trial < 300; trial++ {
 		n := 1 + r.IntN(200)
 		var payload bytes.Buffer
 		var rows [][]byte
@@ -245,6 +247,10 @@ func TestSplitChunking(t *testing.T) {
 			}
 			rows = append(rows, row)
 			payload.Write(row)
+		}
+		rowsEnd := uint64(payload.Len())
+		if trial%3 != 0 {
+			payload.Write(make([]byte, []int{1, 7, 8, 9, 1000, 70000}[r.IntN(6)]))
 		}
 		data := payload.Bytes()
 		chunks := make(chan []byte, 16)
@@ -286,6 +292,9 @@ func TestSplitChunking(t *testing.T) {
 		}
 		if next != uint64(n) {
 			t.Fatalf("trial %d: rows %d want %d", trial, next, n)
+		}
+		if !c.rowsEnded || c.rowsEnd != rowsEnd {
+			t.Fatalf("trial %d: rows end %d (recorded=%v) want %d", trial, c.rowsEnd, c.rowsEnded, rowsEnd)
 		}
 	}
 }

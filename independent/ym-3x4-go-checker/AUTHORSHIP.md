@@ -23,3 +23,14 @@ specification is quoted at the end of `README.md`.
 
 Language: Go, standard library only (`crypto/sha256`, `math/bits`; `math/big` only for printing and the reference).
 There is no floating-point type anywhere in the sources.
+
+## The layout change (2026-11-06)
+
+The first run (Actions run 41490822394, checker sha256 `7d40a386…`) failed closed with
+`FAIL|reason=payload_has_bytes_after_row_n:payload_offset=26850139376,n=45508080` and printed no value. The rows end
+742,160 bytes before `payload_bytes`, and those bytes are zero. The bytes after `payload_bytes` in `sector-374.rooms` are
+Host8 room stubs, not the "zero padding" the specification describes. The operator then decided the layout: *"The store
+is the 4096-byte header plus payload_bytes. Rows come first; every byte after the last row up to payload_bytes must be zero
+(inside the merkle). Bytes after payload_bytes belong to the room file, are not read as store, and stay pinned by the
+sector SHA-256."* A fresh agent, under the same restrictions, changed only that (now `cmd/ymcheck/main.go` sha256
+`d899f019…`; 117 of 117 controls match), and a second fresh agent re-reviewed it with no blocking finding.

@@ -51,12 +51,9 @@ func refCheck(args []string) {
 	if int64(len(raw)) < headerBytes+pb {
 		bad("short_stream")
 	}
+	// Payload-only layout: bytes after header+payload_bytes are room-file
+	// bytes, not store, so they are counted and otherwise ignored.
 	payload := raw[headerBytes : headerBytes+pb]
-	for _, c := range raw[headerBytes+pb:] {
-		if c != 0 {
-			bad("nonzero_padding")
-		}
-	}
 	if merkleHex(payload) != vals["payload_merkle"][0] {
 		bad("merkle_mismatch")
 	}
@@ -177,8 +174,11 @@ func refCheck(args []string) {
 			}
 		}
 	}
-	if pos != pb {
-		bad("payload_has_bytes_after_row_n")
+	rowsEnd := pos
+	for ; pos < pb; pos++ {
+		if payload[pos] != 0 {
+			bad("payload_zero_tail_nonzero")
+		}
 	}
 	if lhs.Cmp(rhs) != 0 {
 		bad("w_symmetry_mismatch")
@@ -192,9 +192,10 @@ func refCheck(args []string) {
 	}
 	fmt.Printf("STORE|n=%d|payload_bytes=%d|merkle=PASS|flat_rows=%d|min_nonzero_mag=%d|max_mag=%d|"+
 		"row_sums_zero=PASS|w_symmetry=PASS|seed=%d|entries=%d|nonflat_rows=%d|diag_not_once_rows=%d|"+
-		"min_w=%d|max_w=%d|padding_bytes=%d|payload_merkle=%s|w_symmetry_lhs=%s|max_num_bits=%d|json=0\n",
+		"min_w=%d|max_w=%d|rows_end_payload_offset=%d|payload_zero_tail_bytes=%d|after_payload_bytes=%d|"+
+		"payload_merkle=%s|w_symmetry_lhs=%s|max_num_bits=%d|json=0\n",
 		n, pb, flat, minNZ, maxMag, *seed, entries, nonflat, diagNotOnce, minW, maxW,
-		int64(len(raw))-headerBytes-pb, vals["payload_merkle"][0], lhs, maxBits)
+		rowsEnd, pb-rowsEnd, int64(len(raw))-headerBytes-pb, vals["payload_merkle"][0], lhs, maxBits)
 }
 
 // xyRef is the same SplitMix64 vector definition as ymcheck's xyAt.

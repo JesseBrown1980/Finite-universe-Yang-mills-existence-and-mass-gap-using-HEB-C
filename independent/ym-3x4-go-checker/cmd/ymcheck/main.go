@@ -12,6 +12,13 @@
 // On any failed condition the program prints exactly one line
 // FAIL|reason=<reason>|json=0 and exits with status 2, printing no value.
 //
+// Layout (the owner's payload-only decision): the store is the 4096-byte
+// header plus payload_bytes. Inside the payload the n rows come first and
+// every byte after the last row, up to payload_bytes, must be zero; those
+// bytes are inside the merkle. Bytes after header+payload_bytes belong to the
+// room file: they are read to end of input and counted, never interpreted
+// and never required to be zero (the sector SHA-256 pins them).
+//
 // Arithmetic is integer only (no non-integer types anywhere): row products and
 // sums use an exact signed 128-bit path built on math/bits, the W-symmetry
 // accumulators use an exact signed 256-bit path, and every step whose result
@@ -470,9 +477,9 @@ type checker struct {
 	seed         uint64
 	ds           []dfile
 	digests      [][32]byte
-	padBytes     uint64
-	padNonzero   bool   // a nonzero byte was seen after the payload
-	padFirstBad  uint64 // stream offset of the first such byte
+	rowsEnd      uint64 // payload offset just after row n-1 (set by split)
+	rowsEnded    bool
+	afterBytes   uint64 // bytes on stdin after header+payload_bytes (not store)
 	progress     bool
 	start        time.Time
 }
@@ -507,24 +514,18 @@ func (c *checker) read(in io.Reader, hashJobs chan<- leafJob, chunks chan<- []by
 	}
 	close(hashJobs)
 	close(chunks)
-	pad := make([]byte, 1<<20)
+	// Bytes after header+payload_bytes are room-file bytes, not store: they are
+	// drained to end of input (so the writer of a pipe never gets SIGPIPE) and
+	// counted, but neither interpreted nor required to be zero.
+	buf := make([]byte, 1<<20)
 	for {
-		k, err := in.Read(pad)
-		if !c.padNonzero {
-			for i, b := range pad[:k] {
-				if b != 0 {
-					c.padNonzero = true
-					c.padFirstBad = headerBytes + c.payloadBytes + c.padBytes + uint64(i)
-					break
-				}
-			}
-		}
-		c.padBytes += uint64(k)
+		k, err := in.Read(buf)
+		c.afterBytes += uint64(k)
 		if err == io.EOF {
 			return
 		}
 		if err != nil {
-			fail("read_error:padding")
+			fail("read_error:after_payload")
 		}
 	}
 }
@@ -535,8 +536,20 @@ func (c *checker) hash(jobs <-chan leafJob) {
 	}
 }
 
+// checkZeroTail fails closed on the first nonzero byte of tail, which starts
+// at payload offset off and lies after row n-1 inside payload_bytes.
+func (c *checker) checkZeroTail(tail []byte, off uint64) {
+	for i, b := range tail {
+		if b != 0 {
+			fail("payload_zero_tail_nonzero:payload_offset=%d,byte=%d,rows_end_payload_offset=%d,n=%d",
+				off+uint64(i), b, c.rowsEnd, c.n)
+		}
+	}
+}
+
 // split walks row boundaries (reading only cnt) in payload order, hands
-// batches of whole rows to the workers, and enforces the exact row count.
+// batches of whole rows to the workers, enforces the exact row count, records
+// where row n-1 ends, and requires every later payload byte to be zero.
 func (c *checker) split(chunks <-chan []byte, jobs chan<- batch) {
 	var h uint64
 	var carry []byte
@@ -585,10 +598,12 @@ func (c *checker) split(chunks <-chan []byte, jobs chan<- batch) {
 		if rows > 0 {
 			jobs <- batch{h0, rows, chunk[start:pos]}
 		}
-		if pos < len(chunk) {
-			if h == c.n {
-				fail("payload_has_bytes_after_row_n:payload_offset=%d,n=%d", off+uint64(pos), c.n)
+		if h == c.n {
+			if !c.rowsEnded {
+				c.rowsEnd, c.rowsEnded = off+uint64(pos), true
 			}
+			c.checkZeroTail(chunk[pos:], off+uint64(pos))
+		} else if pos < len(chunk) {
 			carry = append([]byte(nil), chunk[pos:]...)
 		}
 		off += uint64(len(chunk))
@@ -598,6 +613,9 @@ func (c *checker) split(chunks <-chan []byte, jobs chan<- batch) {
 	}
 	if h != c.n {
 		fail("payload_ends_before_row_n:rows=%d,n=%d", h, c.n)
+	}
+	if !c.rowsEnded {
+		fail("internal:rows_end_not_recorded")
 	}
 	close(jobs)
 }
@@ -777,11 +795,9 @@ func main() {
 	workWG.Wait()
 	hashWG.Wait()
 
-	// Checked here, after every goroutine has finished, so that a structural
-	// error found by the splitter or a worker is always the reported reason.
-	if c.padNonzero {
-		fail("nonzero_padding:stream_offset=%d", c.padFirstBad)
-	}
+	// The merkle is checked here, after every goroutine has finished, so that a
+	// structural error found by the splitter or a worker (including a nonzero
+	// byte in the payload's zero tail) is always the reported reason.
 	root := merkleRoot(c.digests)
 	if root != hdr.merkle {
 		fail("merkle_mismatch:computed=%s", root)
@@ -813,10 +829,11 @@ func main() {
 	}
 	fmt.Fprintf(&b, "STORE|n=%d|payload_bytes=%d|merkle=PASS|flat_rows=%d|min_nonzero_mag=%d|max_mag=%d|"+
 		"row_sums_zero=PASS|w_symmetry=PASS|seed=%d|entries=%d|nonflat_rows=%d|diag_not_once_rows=%d|"+
-		"min_w=%d|max_w=%d|padding_bytes=%d|payload_merkle=%s|w_symmetry_lhs=%s|secs=%d|json=0\n",
+		"min_w=%d|max_w=%d|rows_end_payload_offset=%d|payload_zero_tail_bytes=%d|after_payload_bytes=%d|"+
+		"payload_merkle=%s|w_symmetry_lhs=%s|secs=%d|json=0\n",
 		hdr.n, hdr.payloadBytes, total.flat, total.minNZMag, total.maxMag, c.seed, total.entries,
-		total.nonflat, total.diagNotOnce, total.minW, total.maxW, c.padBytes, root,
-		total.lhs.big().String(), int64(time.Since(start)/time.Second))
+		total.nonflat, total.diagNotOnce, total.minW, total.maxW, c.rowsEnd, hdr.payloadBytes-c.rowsEnd,
+		c.afterBytes, root, total.lhs.big().String(), int64(time.Since(start)/time.Second))
 	outMu.Lock()
 	if _, err := os.Stdout.WriteString(b.String()); err != nil {
 		os.Exit(2)
