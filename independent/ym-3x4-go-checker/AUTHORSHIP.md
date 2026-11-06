@@ -34,3 +34,8 @@ is the 4096-byte header plus payload_bytes. Rows come first; every byte after th
 (inside the merkle). Bytes after payload_bytes belong to the room file, are not read as store, and stay pinned by the
 sector SHA-256."* A fresh agent, under the same restrictions, changed only that (now `cmd/ymcheck/main.go` sha256
 `d899f019…`; 117 of 117 controls match), and a second fresh agent re-reviewed it with no blocking finding.
+
+One harness control, not the checker, was changed by the pushing session after the second run (42256496781):
+E06.0, a sanity check of the shell, expected a writer to die of SIGPIPE (exit 141). GitHub runners ignore SIGPIPE, so
+the writer exits 1 with a write error instead. E06.0 now accepts any nonzero writer exit. `main.go` is unchanged
+(`d899f019…`), and the 117 controls match with SIGPIPE both delivered and ignored.

@@ -18,7 +18,7 @@ CONTROL|id=A02|verdict=MATCH|json=0
   command:  go test -count=1 ./cmd/ymcheck
   expected: exit 0
   actual:   exit=0
-  stdout:   ok  	ymgocheck/cmd/ymcheck	2.337s
+  stdout:   ok  	ymgocheck/cmd/ymcheck	2.250s
 
 CONTROL|id=A03|verdict=MATCH|json=0
   name:     no floating point anywhere in the Go sources
@@ -271,7 +271,7 @@ CONTROL|id=B12|verdict=MATCH|json=0
   name:     [EXTENDED for the payload-only decision] differential fuzz: 200 random stores (1..400 rows, weights and couplings up to 2000, mag up to 65535, d up to 2^63-1, random defects and bad d entries; random zero tails inside payload_bytes, random room-file bytes after it, nonzero bytes poked into the zero tail) vs the big-int reference
   command:  controls.sh section B12 (../checker fzd.bin fzd2.bin < fz.bin  VERSUS  ../ymgen ref -store fz.bin fzd.bin fzd2.bin)
   expected: every case: both pass with identical rows, or both fail (exit 2, one FAIL line)
-  actual:   total=200 both_pass_identical=79 both_fail=121 disagreements=0 with_zero_tail=60 with_nonzero_after_payload=83 zero_tail_pokes=16
+  actual:   total=200 both_pass_identical=81 both_fail=119 disagreements=0 with_zero_tail=78 with_nonzero_after_payload=81 zero_tail_pokes=16
   stdout:   
 
 CONTROL|id=C01.first|verdict=MATCH|json=0
@@ -286,7 +286,7 @@ CONTROL|id=C01.cnt|verdict=MATCH|json=0
   command:  ../checker dp.bin < flip-cnt.bin
   expected: fail, reason matching ^(<any>)
   actual:   exit=2 lines=1 cert_or_store_rows=0
-  stdout:   FAIL|reason=payload_ends_inside_row:h=11|json=0
+  stdout:   FAIL|reason=positive_offdiagonal:h=10,j=5,z=524291|json=0
 
 CONTROL|id=C01.w|verdict=MATCH|json=0
   name:     owner control: one flipped payload byte (w field, stream offset 4536, xor 1), original header
@@ -875,7 +875,7 @@ CONTROL|id=E05|verdict=MATCH|json=0
 CONTROL|id=E06.0|verdict=MATCH|json=0
   name:     sanity for E06.1: the pipestatus test can see SIGPIPE: the same writer into a reader that stops after 4096 bytes
   command:  cat z.bin <(../ymgen fill -bytes 349114368 -mode rooms -seed 7) | head -c 4096 >/dev/null; echo "pipestatus=${PIPESTATUS[*]}"
-  expected: pipestatus=141 0 (cat killed by SIGPIPE)
+  expected: pipestatus=<nonzero> 0 (cat fails: 141 if killed by SIGPIPE, or a write error where SIGPIPE is ignored, as on GitHub runners)
   actual:   pipestatus=141 0
   stdout:   pipestatus=141 0
 

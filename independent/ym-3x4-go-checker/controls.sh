@@ -488,7 +488,7 @@ expect_pass E05 "a store with no zero tail and no bytes after payload_bytes" "..
 run 'cat z.bin <(../ymgen fill -bytes '"$AFTER"' -mode rooms -seed 7) | head -c 4096 >/dev/null; echo "pipestatus=${PIPESTATUS[*]}"'
 record E06.0 "sanity for E06.1: the pipestatus test can see SIGPIPE: the same writer into a reader that stops after 4096 bytes" \
 	'cat z.bin <(../ymgen fill -bytes '"$AFTER"' -mode rooms -seed 7) | head -c 4096 >/dev/null; echo "pipestatus=${PIPESTATUS[*]}"' \
-	"pipestatus=141 0 (cat killed by SIGPIPE)" "$STDOUT" $([ "$STDOUT" = "pipestatus=141 0" ] && echo 1 || echo 0) "$STDOUT"
+	"pipestatus=<nonzero> 0 (cat fails: 141 if killed by SIGPIPE, or a write error where SIGPIPE is ignored, as on GitHub runners)" "$STDOUT" $([[ "$STDOUT" =~ ^pipestatus=[1-9][0-9]*\ 0$ ]] && echo 1 || echo 0) "$STDOUT"
 expect_pass E06.1 "cat pipe with the real store's shape: rows, the $ZT-byte zero tail, then $AFTER room-stub bytes after payload_bytes, with the header pins; the writer (cat) must exit 0, not 141 (SIGPIPE)" \
 	'cat z.bin <(../ymgen fill -bytes '"$AFTER"' -mode rooms -seed 7) | ../checker -expect-n 300 -expect-payload-bytes '"$ZPB"' -expect-merkle '"$ZMK"' dp.bin; ps="${PIPESTATUS[*]}"; echo "pipestatus=$ps"; [ "$ps" = "0 0" ]' \
 	'[ "$(certs <<<"$STDOUT")" = "$BASECERT" ] && zfields '"$PB $ZT $AFTER $ZPB"' && grep -qx "pipestatus=0 0" <<<"$STDOUT"' \
