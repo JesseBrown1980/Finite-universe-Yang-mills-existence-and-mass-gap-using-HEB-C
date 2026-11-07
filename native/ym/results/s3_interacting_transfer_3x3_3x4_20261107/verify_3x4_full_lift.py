@@ -119,6 +119,14 @@ def gate_perron(root):
           and any("lattice=2x2|" in x for x in small)
           and any("lattice=2x3|" in x for x in small),
           "original_small_volume_lift_crosschecks")
+    # The quotient keys must cover every gauge-fixed raw link assignment:
+    # 6^13=13,060,694,016.  This is essential to promote a positive
+    # sector-orbit vector into a *whole-space* entrywise positive vector.
+    keys=one(lines,"RESULT_KEY_TABLE|")
+    check(field(keys,"sum_w")=="6^13=13060694016"
+          and field(keys,"min_nonflat_M")=="3"
+          and field(keys,"sum_flat_w")=="18=commuting_pairs_in_S3",
+          "positive_vector_lift_complete_gauge_orbit_coverage")
     gap=one(lines,"RESULT_GAP_ARITHMETIC_TOP|")
     check(field(gap,"verdict")=="OPEN"
           and field(gap,"all_r_ge_9")==
