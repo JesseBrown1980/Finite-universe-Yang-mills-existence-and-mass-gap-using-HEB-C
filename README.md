@@ -4,6 +4,21 @@
 
 **Data on Hugging Face:** [Jessedbrown/ym-3x4-room-store](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store) holds the 3×4 store, the certificate vectors and an evidence archive, the files too large for git. Its card maps every folder, and the status of each result is read here.
 
+## November 7, 2026: finite 3×4 Perron high-cluster verdict accepted (PR #131)
+
+**The original 3×4 Perron computational result is now accepted within its actual finite scope**, under a new separately registered [finite Perron rule](native/ym/results/3x4_stream/perron/PERRON-FINITE-HIGH-CLUSTER-RULE-20261107.md), with the [full scoped verdict](native/ym/results/3x4_stream/perron/FINITE-HIGH-CLUSTER-VERDICT-20261107.md) and [hosted exact HBP evidence](native/ym/results/3x4_stream/perron/MEASURED-FINITE-HIGH-CLUSTER-VERDICT-20261107.hbp). This resolves the former *administrative HOLD on accepting the published finite high-cluster bound*. The older `PERRON-RESULT.hbp` still says `gap_verdict=OPEN` **as an unchanged historical record**; it has not been rewritten to imply approval happened earlier.
+
+For the complete 3×4 periodic `S₃` gauge-invariant space, one-based energy indices and `r=J_B/J_E`:
+
+```text
+at r = 9:    E9_full − E8_full ≥ 24.039673 J_E
+for r ≥ 9:   E9_full − E8_full ≥ [22.070673 + 3(r−9)] J_E
+```
+
+These inequalities follow from the original pinned 45,508,080-row positive Perron comparison certificate, its orbit-symmetry pointwise lift to the full 2,177,317,873 gauge-orbit space, the eight-flat-state min–max bound, and a separate whole-space ball upper bound. Independent Go validation, all-row rebuild and all-pairs evidence already exist; the new verifier checks their exact archived source hashes and registered results, and **seven negative controls fail as required**. The full-store rebuild/all-pairs were not independently repeated on another machine in this step, so the accepted verdict is expressly **conditional on the original computational evidence and lift hypotheses**.
+
+**Not settled:** the interacting first-excitation gap `E2−E1` (inside the eight-state flat cluster), proof of nonzero overlap with a winding-sum observable, uniform physical gap as volume/spatial spacing vary, or four-dimensional continuum `SU(2)` Yang–Mills existence. **The existing 60M ShellSchur production rule is unchanged; this acceptance does not approve new production runs.** [PR #131](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/131) holds the explicit acceptance and CI.
+
 ## New cross-repository evidence: Shadow Cats, triadic jumps and the continuum gate (November 6–7, 2026)
 
 The **Shadow Cat** is the retained ternary `C0/C1/C2` residual from the project's torus/slice model, **not** an ordinary integration-error remainder. The current exact test represents its class by `(C0+C1+C2) mod 3`; residue 2 has equivalent modular representatives `2/3` and `-1/3`. The 27 → 9 → 3 → 1 trit blocking and cyclic `C1` rotations preserve this value, as do exact permutation jumps through **`3^16 = 43,046,721`** abstract steps. These are algebraic, finite-state results; they do not assert a physical faster-than-light signal.
