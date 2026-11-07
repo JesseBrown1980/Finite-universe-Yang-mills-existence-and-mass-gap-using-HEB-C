@@ -21,7 +21,7 @@ DEC=1000000000000000000
 SHIFT=1096113506743925734
 R=192
 VAC_ITERS=729
-RED=("uniform_vacuum","wrong_observable","false_E1_visible","wrong_cube")
+RED=("uniform_vacuum","wrong_observable","false_E1_visible","wrong_cube","winding_dark","winding_untraced")
 sabotage=""
 if len(sys.argv)>2 or (len(sys.argv)==2 and
      (not sys.argv[1].startswith("sabotage=") or sys.argv[1][9:] not in RED)):
@@ -474,6 +474,192 @@ def record_correlation(kind,t,N,c):
          state="ACTUAL_INTERACTING_VACUUM")
 
 
+
+def winding_contrast(H,w):
+    """Gauge-invariant difference of two noncontractible S3 Wilson loops."""
+    group=tuple(permutations(range(3)))
+    raw=[(a,b) for a in group for b in group]
+    ordinal={state:i for i,state in enumerate(raw)}
+    orbitset={frozenset((perm_conj(t,a),perm_conj(t,b))
+                        for t in group) for a,b in raw}
+    orbits=sorted(orbitset,key=lambda o:min(ordinal[z] for z in o))
+    where={state:i for i,o in enumerate(orbits) for state in o}
+    check(len(orbits)==11,"winding_orbit_count")
+    D=[]
+    swap=[]
+    for i,o in enumerate(orbits):
+        a,b=min(o,key=lambda z:ordinal[z])
+        difference=chi(a)-chi(b)
+        for aa,bb in o:
+            check(chi(aa)-chi(bb)==difference,
+                  "winding_characters_gauge_invariant")
+        D.append(difference)
+        swap.append(where[(b,a)])
+    check(all(D[swap[i]]==-D[i] and w[swap[i]]==w[i]
+              for i in range(11)),"winding_axis_odd")
+    check(all(H[swap[i]][swap[j]]==H[i][j]
+              for i in range(11) for j in range(11)),
+          "Hamiltonian_axis_swap")
+    a=(1,2,0)
+    t=(1,0,2)
+    check(sabotage!="winding_untraced" or perm_conj(t,a)==a,
+          "RED_winding_untraced")
+    emit("WINDING_GAUGE",orbital_states=11,
+         trace_each_loop_gauge_invariant="YES",
+         difference_odd_under_swap="YES",
+         signed_untraced_holonomy_invariant="NO")
+    return D
+
+
+def winding_sector_and_weights(H,w,v,norm,D):
+    P3=p3(H)
+    K=mmul(madd(H,ident(11),-6),P3)
+    DK=[[D[i]*K[i][j] for j in range(11)] for i in range(11)]
+    check(rank_q(DK)==3,"winding_maps_quintic_onto_cubic")
+    check(all(z==0 for row in mmul(P3,DK) for z in row),
+          "winding_cubic_annihilator_exact")
+    check(sabotage!="winding_dark","RED_winding_dark")
+    check(all(z==0 for z in mv(P3,[D[i]*v[i] for i in range(11)])),
+          "Perron_winding_vector_in_cubic")
+    mean_num=weighted_dot(v,[D[i]*v[i] for i in range(11)],w)
+    check(mean_num==0,"winding_mean_zero_exactly")
+    emit("WINDING_EXACT_SECTOR",quintic_to_cubic_rank=3,
+         P3_H_times_D_times_K="ZERO_EXACT",
+         winding_vacuum_mean="ZERO_EXACT",
+         E1_overlap_possible="YES")
+    cubic_windows=(
+         (3274551264,3274551265,1),
+         (7601465555,7601465556,6),
+         (10123983179,10123983180,9))
+    centers=(3274551264699,7601465555795,10123983179506)
+    Df=[D[i]*v[i] for i in range(11)]
+    for lower,upper,index in cubic_windows:
+        check(count_below(H,w,lower,1000000000)==index,
+              "winding_inertia_lower_"+str(index))
+        check(count_below(H,w,upper,1000000000)==index+1,
+              "winding_inertia_upper_"+str(index))
+    for target in range(3):
+        den=1
+        vnum=Df[:]
+        for i,c in enumerate(centers):
+            if i==target:
+                continue
+            den*=centers[target]-c
+            vnum=[1000000000000*x-c*y
+                  for x,y in zip(mv(H,vnum),vnum)]
+        estimation=q(weighted_dot(Df,vnum,w),norm*den)
+        for j,window in enumerate(cubic_windows):
+            lo=q(window[0],1000000000)
+            hi=q(window[1],1000000000)
+            interval=(q(1),q(1))
+            denominator=q(1)
+            for i,c in enumerate(centers):
+                if i==target:
+                    continue
+                center=q(c,1000000000000)
+                interval=ir_mul(interval,(minus(lo,center),
+                                          minus(hi,center)))
+                denominator=multiply(denominator,
+                      q(centers[target]-c,1000000000000))
+            min_val,max_val=ir_div(interval,denominator)
+            expect=q(1) if j==target else q(0)
+            precision=q(1,1000000)
+            check(atmost(minus(expect,precision),min_val)
+                  and atmost(max_val,plus(expect,precision)),
+                  "winding_spectral_filter_bound_"+str(target)+"_"+str(j))
+        # ||D||<=3; projector error <1e-6, ground error <2e-24.
+        # Total exact weight deviation <9e-6 +1e-20 < 1e-5.
+        error=q(1,100000)
+        weight_low=minus(estimation,error)
+        weight_high=plus(estimation,error)
+        check(less(q(0),weight_low),"winding_spectral_weight_positive")
+        if target==0:
+            check(less(q(301,100),weight_low)
+                  and less(weight_high,q(304,100)),
+                  "winding_first_excitation_weight_registered")
+        emit("WINDING_SPECTRAL_WEIGHT",
+             full_spectrum_index=cubic_windows[target][2],
+             root_lower=fmt(q(cubic_windows[target][0],1000000000),9),
+             root_upper=fmt(q(cubic_windows[target][1],1000000000),9),
+             spectral_weight_lower=fmt(weight_low,9),
+             spectral_weight_upper=fmt(weight_high,9,ceil=True),
+             certified_filter_error_lt="1e-6",
+             certified_weight_error_lt="1e-5")
+    emit("WINDING_SELECTION",first_excitation="E1",
+         true_first_gap_interval="[2.178437,2.178439]",
+         E1_Wilson_winding_weight_gt="3.01",
+         plaquette_E1_weight="ZERO_EXACT",
+         probe="NONCONTRACTIBLE_TRACE_DIFFERENCE")
+
+
+def winding_correlations(H,w,D,v,norm):
+    moments,n,mean=shifted_moments(H,w,D,v)
+    check(n==norm and mean==q(0),"winding_zero_mean_again")
+    variance=q(weighted_dot([D[i]*v[i] for i in range(11)],
+                            [D[i]*v[i] for i in range(11)],w),norm)
+    check(less(q(302219,100000),variance)
+          and less(variance,q(302222,100000)),
+          "winding_C0_prediction")
+    record_winding("CONTINUOUS",0,None,variance)
+    vals={}
+    for t,bounds in ((1,(34210854,34210857,100000000)),
+                     (2,(3873285,3873288,100000000)),
+                     (3,(438525,438529,100000000))):
+        x=expand_corr(moments,norm,mean,t)
+        check(less(q(bounds[0],bounds[2]),x)
+              and less(x,q(bounds[1],bounds[2])),
+              "winding_C"+str(t)+"_prediction")
+        vals[t]=x
+        record_winding("CONTINUOUS",t,None,x)
+    prev=None
+    for k in (3,4,5,6,9,12,16):
+        count=ipow(3,k)
+        x=expand_corr(moments,norm,mean,1,count)
+        difference=minus(vals[1],x)
+        check(less(q(0),difference),"winding_forward_convergence_"+str(k))
+        if prev is not None:
+            check(less(prev,x),"winding_monotone_"+str(k))
+        prev=x
+        record_winding("TERNARY_JUMP",1,count,x)
+        emit("WINDING_SLICE_ERROR",steps=count,
+             error_lower=fmt(minus(difference,q(1,ipow(10,13))),12),
+             error_upper=fmt(plus(difference,q(1,ipow(10,13))),12,ceil=True),
+             comparison="TRUE_VACUUM_E1_VISIBLE")
+        if k==16:
+            check(less(q(18,ipow(10,9)),difference)
+                  and less(difference,q(21,ipow(10,9))),
+                  "winding_43M_error_registered")
+
+
+def record_winding(kind,t,N,x):
+    uncertainty=q(1,ipow(10,14))
+    emit("WINDING_CONNECTED",kind=kind,euclidean_time=t,
+         steps=N if N is not None else "CONTINUOUS_TIME",
+         lower=fmt(minus(x,uncertainty),12),
+         upper=fmt(plus(x,uncertainty),12,ceil=True),
+         absolute_certified_error_lt="1e-14",
+         physical_finite_vacuum="ACTUAL_INTERACTING")
+
+
+def winding_test(root,H,w,v,norm):
+    data=root.joinpath("native","ym","results","s3_1x1_continuous_jump",
+        "PREDICT-WINDING-VACUUM-20261107.hbp").read_bytes()
+    check(sum(int(line.startswith(b"PREDICT|id="))
+              for line in data.splitlines())==14,
+          "winding_predictions_frozen")
+    emit("WINDING_BEGIN",prediction_rows=14,
+         frozen_prediction_sha256=sha256(data).hexdigest(),
+         same_H="YES",same_vacuum="YES")
+    D=winding_contrast(H,w)
+    winding_sector_and_weights(H,w,v,norm,D)
+    winding_correlations(H,w,D,v,norm)
+    emit("WINDING_VERIFY",status="PASS",prediction_rows=14,
+         winding_probe="GAUGE_INVARIANT_TRACE_DIFFERENCE",
+         true_E1_visible="YES",plaquette_E1_dark="YES",
+         time_slices_max=43046721,spatial_continuum="NOT_TESTED",
+         physical_experiment="NOT_MATCHED",Clay_YM4="OPEN")
+
+
 def modular_jump(H,v,obs):
     n=11
     for p in (P1,P2):
@@ -583,6 +769,7 @@ def main():
             check(less(error,q(1,ipow(10,7))),
                   "registered_long_jump_accuracy")
     modular_jump(H,v,O)
+    winding_test(root,H,w,v,norm)
     tail=q(8*ipow(45,R+1),ipowfactorial(R+1))
     check(less(tail,q(1,ipow(10,30))),"exp_and_Euler_tail_control")
     emit("VACUUM_VERIFY",status="PASS",predictions=15,
