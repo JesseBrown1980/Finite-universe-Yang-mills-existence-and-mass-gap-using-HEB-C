@@ -1,0 +1,9 @@
+WINDING_GROUP|raw=36|gauge_orbits=11|odd_sector=3|symmetry=AXIS_SWAP|gauge_invariant=PASS|odd_operator=PASS|json=0
+VACUUM_PERRON_CERT|iterations=729|Collatz_E0_lower=1.096113506743925734|Collatz_E0_upper=1.096113506743925735|Rayleigh=1.096113506743925734|E0_bracket_width_lt=1e-24|normalized_excited_amplitude_lt=1e-24|numerical_shift=1096113506743925734/10^18|vacuum_vector_sha256=62ebe1ca2fdbcf31fdae6cda503b71c2743e892f19bebc1b0e3cbabd6c1a9dbf|json=0
+WINDING_E1_PERRON|lower=3.021666777298|upper=3.021666777300|odd_angle_lt=1e-19|first_spectral_weight=NONZERO|json=0
+WINDING_E1_PROJECTOR|lower=3.021666777298|upper=3.021666777299|independent_of_odd_Perron=YES|roots_error_lt=1e-18|matches_Perron=PASS|json=0
+WINDING_CONNECTED|t=0|lower=3.022205243662|upper=3.022205243663|vacuum=INTERACTING|continuous_time=FINITE_H|certified_error_lt=1e-13|json=0
+WINDING_CONNECTED|t=1|lower=0.342108549199|upper=0.342108549201|vacuum=INTERACTING|continuous_time=FINITE_H|certified_error_lt=1e-13|json=0
+WINDING_CONNECTED|t=2|lower=0.038732861760|upper=0.038732861761|vacuum=INTERACTING|continuous_time=FINITE_H|certified_error_lt=1e-13|json=0
+WINDING_CONNECTED|t=3|lower=0.004385267369|upper=0.004385267370|vacuum=INTERACTING|continuous_time=FINITE_H|certified_error_lt=1e-13|json=0
+WINDING_GATE|result=PASS|spectral_weights=TWO_EXACT_ROUTES|true_first_excitation=VISIBLE|first_gap=2.178437..2.178439|spatial_continuum=OPEN|Clay=OPEN|json=0
