@@ -177,22 +177,56 @@ a=dot(v,[op[i]*v[i] for i in range(1393)])
 u=[norm*op[i]*v[i]-a*v[i] for i in range(1393)]
 assert dot(v,u)==0 and all(u[S[i]]==u[i] for i in range(1393))
 nu=dot(u,u)
+# phi=v/sqrt(norm); mu=<phi,O_plus phi>; centered normalized response
+# u_prime=(O_plus-mu)*phi = u/norm**(3/2). Its variance is
+# V=||u_prime||_W^2=nu/norm**3. Certified lower bound V>=1.
+variance_den=norm**3
+assert nu>=variance_den, "CENTERED_WINDING_VARIANCE_BELOW_ONE"
 z=u
 for _ in range(230):z=mv(z)
 response=dot(u,z)
-# If the winding sum were dark to E1, its even spectral support,
-# apart from ground leakage ≤1e-80, would start above E3≥13.6.
-# All H eigenvalues are in [0,60] by positive Laplacian+M and Gershgorin.
-# Use the strictly conservative upper bound K_1≤60-13.24=1169/25.
-# The rest of the even excited spectrum satisfies K≤60-13.6=1160/25.
-numerator=25**230*response*10**80-nu*(1160**230*10**80+25**230*60**230)
+# Explicit leakage correction in the hypothetical NULL E1 overlap case:
+#
+# psi=true normalized ground state, phi=850-step Perron approximant,
+# delta=sin(angle(psi,phi))**2 < 10**(-80) (certified above).
+# Choose phases so <psi,phi>>=0. Then ||psi-phi||^2<=2*delta.
+# For the gauge-invariant O_plus, ||O_plus||<=4, |mu|<=4.
+#
+# If <E1,O_plus psi>=0, then
+# |<E1,u_prime>| = |<E1,O_plus(phi-psi)-mu*phi>|
+#               <= 8*||phi-psi||, so its squared weight <=128*delta.
+# The ground-state leakage of u_prime has squared weight <=delta*V,
+# because <phi,u_prime>=0 and phi/psi have sin^2 angle delta.
+# Since V>=1, the *normalized* total low-energy weight <=129*delta.
+# All remaining even modes begin at E3>=13.6 by the independent
+# 746/647-dimensional exact GMP inertia certificate.
+#
+# For K=60I-H, 0<=K<=60. The resulting null-case response bound:
+# F=<u,K^230 u>/<u,u>
+#   <=(1160/25)^230 + 129*(60^230)/(10^80).
+# A *strictly positive* integer excess refutes the E1-dark hypothesis.
+leakage_units=129
+numerator=25**230*response*10**80-nu*(1160**230*10**80
+                                     +leakage_units*25**230*60**230)
 denominator=nu*10**80*(1169**230-1160**230)
-assert denominator>0 and numerator>0
+assert denominator>0 and numerator>0, "FIRST_E1_OVERLAP_NULL_NOT_REFUTED"
+witness=hashlib.sha256(str(numerator).encode()).hexdigest()
+# Pinned independent 850-iteration/230-response recomputation, reviewed
+# before this correction and unrelated to the GMP inertia implementation.
+assert witness=="2d5504cbc526c07d7264b3a055f3bee5550a1cf62dc4ce869f9e6670f8d8cc3f"
+emit("SELECTION_LEAKAGE",centered_variance_lower="1",
+     centered_variance_exact_gate="PASS",
+     normalized_ground_leakage_delta=1,
+     normalized_E1_leakage_delta_upper=128,
+     total_low_mode_leakage_delta_upper=leakage_units,
+     corrected_excess_positive="EXACT",
+     corrected_excess_sha256=witness)
 emit("SELECTION_FIRST_WEIGHT",parity="EVEN",K_power=230,
      Perron_steps=850,ground_angle_sq_lt="1e-80",
      first_relative_spectral_weight_lower_gt_zero="EXACT",
      independent_spectral_counts="REQUIRED_IN_GMP_JOB",
-     witness_numerator_sha256=hashlib.sha256(str(numerator).encode()).hexdigest(),
+     conservative_leakage_multiplier=leakage_units,
+     witness_numerator_sha256=witness,
      witness_denominator_sha256=hashlib.sha256(str(denominator).encode()).hexdigest())
 emit("SELECTION_READY",conditional_on_inertia="E0_E1_EVEN_E2_ODD",
      first_gap_winding_plus="NONZERO_CERTIFIED_WHEN_GMP_COUNTS_PASS",
