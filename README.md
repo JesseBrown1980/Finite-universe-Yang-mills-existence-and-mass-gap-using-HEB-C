@@ -6,6 +6,9 @@
 
 ## Where we stand, November 6, 2026
 
+**New finite 3+1D existence and gap theorem (DERIVED; Opus review OPEN):** [exact finite 4D slice-transfer proof](proofs/finite-4d-slice-gap-20261106/PROOF.md), [frozen predictions](proofs/finite-4d-slice-gap-20261106/PREDICTION.hbp), and [independent integer audit](proofs/finite-4d-slice-gap-20261106/AUDIT.hbp). On each periodic 2×2×2 spatial lattice with any finite time extent ≥2, the strictly positive isotropic Z₃ and non-Abelian S₃ class-weight gauge models have a finite positive partition function, unique Perron vacuum, and explicit **positive** transfer gap `am ≥ log(N/(N−1))`: `N=4^24` for Z₃ or `N=5^24` for S₃. This derives a full-physical-space theorem without diagonalizing the enormous matrix. It **does not** compute the actual interacting mass, prove a bounded-width fast jump, or establish a continuous SU(3) or continuum Clay result. The separate 2×2 S₃ Hamiltonian has a positive gap only for `J_E>0`; its `J_E=0, J_B>0` eightfold magnetic endpoint has zero gap. The mathematical proof is filed for independent non-author review.
+
+
 All of it is on GitHub, and this table is kept current. The full register, with the open list and the decisions waiting on the operator, is [`docs/RESEARCH-STATUS-2026-11-03.md`](docs/RESEARCH-STATUS-2026-11-03.md).
 
 | Track | Where it stands | Next |

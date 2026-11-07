@@ -1,0 +1,41 @@
+name: Finite 4D exact existence and mass-gap theorem audit
+on:
+  pull_request:
+    paths:
+      - 'proofs/finite-4d-slice-gap-20261106/**'
+      - '.github/workflows/finite-4d-slice-gap-proof.yml'
+  push:
+    paths:
+      - 'proofs/finite-4d-slice-gap-20261106/**'
+      - '.github/workflows/finite-4d-slice-gap-proof.yml'
+
+jobs:
+  exact-finite-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require prediction committed before code
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor ac7e88dc0c45410f40bd65a6da143520d976ac69 HEAD
+          git show ac7e88dc0c45410f40bd65a6da143520d976ac69:proofs/finite-4d-slice-gap-20261106/PREDICTION.hbp > /tmp/prediction-before-code.hbp
+          cmp /tmp/prediction-before-code.hbp proofs/finite-4d-slice-gap-20261106/PREDICTION.hbp
+      - name: Recompute from group axioms and integers only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 proofs/finite-4d-slice-gap-20261106/audit.py > /tmp/finite-4d-gap-audit.hbp
+          cmp /tmp/finite-4d-gap-audit.hbp proofs/finite-4d-slice-gap-20261106/AUDIT.hbp
+          grep -F 'group=S3|order=6|link_spectrum=12;6;3;3;3;3' /tmp/finite-4d-gap-audit.hbp
+          grep -F 'mutated_link_kernel=REJECTED_SYMMETRY' /tmp/finite-4d-gap-audit.hbp
+          grep -F 'continuum_clay_proof=NO' /tmp/finite-4d-gap-audit.hbp
+      - name: Check finite proof scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F 'J_E=0_and_J_B_positive=gap_zero' proofs/finite-4d-slice-gap-20261106/AUDIT.hbp
+          grep -F 'full_mass_eigenvalue_computed=NO' proofs/finite-4d-slice-gap-20261106/AUDIT.hbp

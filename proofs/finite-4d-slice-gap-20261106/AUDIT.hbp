@@ -1,0 +1,6 @@
+FINITE4D_FAULT|group=Z3|mutated_link_kernel=REJECTED_SYMMETRY|zero_weight=REJECTED_POSITIVITY|missing_temporal_face=REJECTED_COUNT|json=0
+FINITE4D|group=Z3|order=3|link_spectrum=6;3;3|leading_principal_minors=4;15;54|orbits=129140163|raw_configs=282429536481|N=281474976710656|minorization=1/281474976710656|ratio_bound=281474976710655/281474976710656|status=PASS|json=0
+FINITE4D_FAULT|group=S3|mutated_link_kernel=REJECTED_SYMMETRY|zero_weight=REJECTED_POSITIVITY|missing_temporal_face=REJECTED_COUNT|json=0
+FINITE4D|group=S3|order=6|link_spectrum=12;6;3;3;3;3|leading_principal_minors=5;24;99;405;1539;5832|orbits=2821153019713|raw_configs=4738381338321616896|N=59604644775390625|minorization=1/59604644775390625|ratio_bound=59604644775390624/59604644775390625|status=PASS|json=0
+FINITE2D|group=S3|weighted_vertices=7776|graph_diameter=8|unconditional_electric_gap_lower=1/31104|J_E=0_and_J_B_positive=gap_zero|status=PRIOR_GRAPH_ANTECEDENTS|json=0
+FINITE4D_SCOPE|complete_physical_transfer_matrix_constructed=NO|gauge_invariant_slice_transfer_defined=YES|full_mass_eigenvalue_computed=NO|continuum_clay_proof=NO|json=0
