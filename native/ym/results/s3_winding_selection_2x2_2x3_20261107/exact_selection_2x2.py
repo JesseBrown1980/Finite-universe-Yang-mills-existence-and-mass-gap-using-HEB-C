@@ -10,6 +10,7 @@ from io import StringIO
 from pathlib import Path
 import runpy
 import sys
+sys.set_int_max_str_digits(0)  # arbitrary-size exact integer certificate SHA payload
 
 HERE=Path(__file__).resolve()
 ROOT=HERE.parents[4]
