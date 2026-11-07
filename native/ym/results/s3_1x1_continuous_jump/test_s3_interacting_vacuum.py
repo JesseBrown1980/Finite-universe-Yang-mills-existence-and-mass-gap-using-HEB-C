@@ -528,7 +528,7 @@ def main():
           less(mean,q(127257,100000)),
           "interacting_vacuum_Wilson_mean")
     if sabotage=="uniform_vacuum":
-        check(less(q(1,2),q(127255,100000)),"RED_uniform_vacuum")
+        check(less(q(127255,100000),q(1,2)),"RED_uniform_vacuum")
     variance=minus(q(weighted_dot([O[i]*v[i] for i in range(11)],
                                    [O[i]*v[i] for i in range(11)],w),norm),
                    mulq(mean,mean))
