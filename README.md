@@ -6,6 +6,9 @@
 
 ## Where we stand, November 6, 2026
 
+**Finite-slice viewer metrology, November 6:** [Exact power-of-three jump and continuum-observable calibration](proofs/finite-slice-viewer-20261106/README.md) evaluates a divergence-free 3D Navier–Stokes shear benchmark at spatial sizes 3, 9 and 27 with 1, 9 and 81 exact integer updates. A separate power-jump algorithm gives byte-identical kernels, and rational enclosures show the sampled continuous-physics error decreasing from 0.0186121 to 0.00000192. This is **not** a continuous Yang–Mills result, does not assign Planck time to a slice, and does not modify the status of the mass-gap reviews.
+
+
 All of it is on GitHub, and this table is kept current. The full register, with the open list and the decisions waiting on the operator, is [`docs/RESEARCH-STATUS-2026-11-03.md`](docs/RESEARCH-STATUS-2026-11-03.md).
 
 | Track | Where it stands | Next |
