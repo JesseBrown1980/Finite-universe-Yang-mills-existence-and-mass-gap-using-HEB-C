@@ -5,36 +5,86 @@ from independent/gpt6_2x2_from_permutations.py and its fixed SHA256.
 The C++ verifier counts parity-resolved eigenvalues separately.
 """
 from collections import Counter
-from contextlib import redirect_stdout
-from io import StringIO
+from itertools import permutations, product
 from pathlib import Path
-import runpy
+import hashlib
 import sys
-sys.set_int_max_str_digits(0)  # arbitrary-size exact integer certificate SHA payload
-
-HERE=Path(__file__).resolve()
-ROOT=HERE.parents[4]
-source=ROOT.joinpath("independent/gpt6_2x2_from_permutations.py")
+sys.set_int_max_str_digits(0)
 if len(sys.argv)!=2:raise SystemExit("usage: exact_selection_2x2.py MATRIX_OUTPUT_DIR")
 args=sys.argv
-try:
-    sys.argv=[str(source)]
-    with redirect_stdout(StringIO()):
-        model=runpy.run_path(str(source))
-finally:
-    sys.argv=args
+P=tuple(permutations(range(3)))
+IX={p:i for i,p in enumerate(P)}
+C=tuple(tuple(IX[tuple(P[a][P[b][k]] for k in range(3))]
+              for b in range(6)) for a in range(6))
+INV=tuple(next(b for b in range(6) if C[a][b]==C[b][a]==0) for a in range(6))
+TRANS=tuple(i for i in range(6) if C[i][i]==0 and i)
+EDGE=((0,2),(1,3),(2,0),(3,1),(0,1),(1,0),(2,3),(3,2))
+TREE=(0,1,4);FREE=(2,3,5,6,7)
+def mul(*values):
+    z=0
+    for value in values:z=C[z][value]
+    return z
+def number(q):return sum(x*6**i for i,x in enumerate(q))
+def decode(code):return tuple(code//6**i%6 for i in range(5))
+def canonical(q):
+    return min(number(tuple(mul(c,x,INV[c]) for x in q)) for c in range(6))
+def expand(q):
+    u=[0]*8
+    for i,x in zip(FREE,q):u[i]=x
+    return u
+def fixed(u):
+    f=[None]*4;f[0]=0
+    for _ in range(3):
+        for e in TREE:
+            a,b=EDGE[e]
+            if f[a] is not None and f[b] is None:f[b]=C[f[a]][u[e]]
+            if f[b] is not None and f[a] is None:f[a]=C[f[b]][INV[u[e]]]
+    assert all(x is not None for x in f)
+    return canonical(tuple(mul(f[EDGE[i][0]],u[i],INV[f[EDGE[i][1]]]) for i in FREE))
+def chi(x):return 2 if x==0 else 0 if x in TRANS else -1
+def plaquette_energy(u):
+    total=0
+    for x,y in product(range(2),repeat=2):
+        at=2*x+y;right=2*((x+1)%2)+y;up=2*x+(y+1)%2
+        g=mul(u[at],u[4+right],INV[u[up]],INV[u[4+at]])
+        total+=2-chi(g)
+    return total
 
-keys=model["keys"]; electric=model["rows"]; W=model["W"]
-magnetic=model["mag"]; pos=model["pos"];fixed=model["fixed"]
-expand=model["expand"];decode=model["decode"];number=model["number"]
-mul=model["multiply"];chi=model["chi"]
+counts=Counter(canonical(q) for q in product(range(6),repeat=5))
+keys=sorted(counts)
+assert len(keys)==1393 and sum(counts.values())==7776
+pos={key:i for i,key in enumerate(keys)}
+W=[counts[k] for k in keys]
+magnetic=[];electric=[];H=[]
+for i,key in enumerate(keys):
+    u=expand(decode(key))
+    magnetic.append(plaquette_energy(u))
+    row=Counter({i:24})
+    for e in range(8):
+        for t in TRANS:
+            v=u.copy();v[e]=C[t][u[e]]
+            row[pos[fixed(v)]]-=1
+    r={j:z for j,z in row.items() if z}
+    electric.append(r)
+    total=r.copy()
+    total[i]=total.get(i,0)+magnetic[i]
+    H.append({j:z for j,z in total.items() if z})
+assert sum(len(row) for row in electric)==32385
+assert all(sum(row.values())==0 for row in electric)
 
-assert len(keys)==1393 and len(W)==1393 and sum(W)==7776
-H=[]
-for i,row in enumerate(electric):
-    r=row.copy()
-    r[i]=r.get(i,0)+magnetic[i]
-    H.append({j:v for j,v in r.items() if v})
+# Independent SHA anchor for the canonical 1393-state native operator.
+payload=bytearray(b"HEBC-S3-TORUS2-1393-V1")
+for i,key in enumerate(keys):
+    payload.extend(key.to_bytes(8,"little"))
+    payload.extend(W[i].to_bytes(8,"little"))
+    payload.extend(bytes(decode(key)))
+    payload.extend(magnetic[i].to_bytes(8,"little",signed=True))
+    payload.extend(len(electric[i]).to_bytes(8,"little"))
+    for j,value in sorted(electric[i].items()):
+        payload.extend(j.to_bytes(8,"little"))
+        payload.extend(value.to_bytes(8,"little",signed=True))
+operator_sha=hashlib.sha256(payload).hexdigest()
+assert operator_sha=="b6c608f50f81f3bf48fb0203b48e0e3bfc867037dc1d0a96633aa80b962137f3"
 
 def swap(u):
     v=[0]*8
@@ -101,7 +151,7 @@ for odd in (False,True):
     dims.append(len(w))
 assert dims==[746,647]
 emit("SELECTION_GEOMETRY",full_dim=1393,even_dim=746,odd_dim=647,
-     swap_commutes_with_H="EXACT",winding_plus_even="EXACT",
+     swap_commutes_with_H="EXACT",operator_sha256=operator_sha,winding_plus_even="EXACT",
      winding_minus_odd="EXACT",winding_minus_E1="ZERO_IF_E1_EVEN")
 
 # Certify positive first-gap overlap using an exact integer response bound:
