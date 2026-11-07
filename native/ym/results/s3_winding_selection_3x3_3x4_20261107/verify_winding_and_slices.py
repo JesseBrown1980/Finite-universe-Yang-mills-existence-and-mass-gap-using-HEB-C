@@ -54,6 +54,21 @@ assert_true(sum(chi(g)*chi(g) for g in range(6))==6,"S3_character_second_moment"
 assert_true(all(sum(chi(mul(t,g)) for t in TRANS)==0
                 for g in range(6)),"S3_character_transposition_annihilation")
 
+def ipow(base,exponent):
+    # This explicitly excludes negative powers, which could create float
+    # values even when the base is a Python integer. The repo-level source
+    # gate does not accept variable exponents on the built-in ** operator.
+    assert_true(type(base) is int and type(exponent) is int
+                and exponent>=0,"integer_power_exponent_nonnegative")
+    result=1
+    while exponent:
+        if exponent&1:
+            result*=base
+        exponent//=2
+        if exponent:
+            base*=base
+    return result
+
 def rational(n,d=1):
     assert_true(isinstance(n,int) and isinstance(d,int) and d!=0,
                 "integer_rational_only")
@@ -73,7 +88,7 @@ def qdiv(a,b):
 def qlt(a,b):
     return a[0]*b[1]<b[0]*a[1]
 def qfmt(a,digits=12,ceil=False):
-    scale=10**digits
+    scale=ipow(10,digits)
     num=a[0]*scale
     z=-((-num)//a[1]) if ceil else num//a[1]
     string=str(abs(z)).zfill(digits+1)
@@ -103,8 +118,8 @@ def discrete_euler_interval(N):
     delta=rational(0)
     K=28
     for k in range(2,K+1):
-        delta=qplus(delta,rational(9**k,k*N**(k-1)))
-    remainder=qdiv(rational(9**(K+1),(K+1)*N**K),
+        delta=qplus(delta,rational(ipow(9,k),k*ipow(N,k-1)))
+    remainder=qdiv(rational(ipow(9,K+1),(K+1)*ipow(N,K)),
                    qminus(rational(1),rational(9,N)))
     low,_=exp_negative_interval(qplus(rational(9),qplus(delta,remainder)))
     _,high=exp_negative_interval(qplus(rational(9),delta))
@@ -113,7 +128,7 @@ def discrete_euler_interval(N):
 def raw_dimension(Lx,Ly):
     V=Lx*Ly
     k=V+1
-    return (6**k+3*2**k+2*3**k)//6
+    return (ipow(6,k)+3*ipow(2,k)+2*ipow(3,k))//6
 
 def site(Lx,Ly,x,y):
     return (x%Lx)*Ly+(y%Ly)
@@ -190,7 +205,7 @@ def random_sample(Lx,Ly,seed):
     V=Lx*Ly
     label=str(Lx)+"x"+str(Ly)+":"+str(seed)
     n=int.from_bytes(sha256(label.encode("ascii")).digest(),"big")
-    return [n//6**i%6 for i in range(2*V)]
+    return [n//ipow(6,i)%6 for i in range(2*V)]
 
 def local_identity(length):
     # Exhaustively test every sequence of length 3 or 4, and all
@@ -326,7 +341,7 @@ def time_slices():
     ref_lo,ref_hi=exp_negative_interval(rational(9))
     prev=None
     for k in (3,4,5,6,9,12,16):
-        N=3**k
+        N=ipow(3,k)
         lo,hi=discrete_euler_interval(N)
         assert_true(qlt(lo,hi) and qlt(hi,ref_lo),
                     "discrete_time_under_continuous")
