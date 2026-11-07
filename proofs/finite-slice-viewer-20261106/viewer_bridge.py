@@ -7,6 +7,16 @@ BASE = 10**70
 ONE = (BASE, BASE)
 ZERO = (0, 0)
 
+def checked_power(base, exponent):
+    assert exponent >= 0
+    value = 1
+    while exponent:
+        if exponent & 1:
+            value *= base
+        base *= base
+        exponent >>= 1
+    return value
+
 def plus(a, b):
     return a[0] + b[0], a[1] + b[1]
 
@@ -33,7 +43,7 @@ def inverse_integer(k):
 def atan_reciprocal(q):
     acc = ZERO
     for k in range(24):
-        den = (2*k+1)*(q**(2*k+1))
+        den = (2*k+1)*(checked_power(q, 2*k+1))
         term = inverse_integer(den)
         acc = plus(acc, term) if k % 2 == 0 else minus(acc, term)
     remainder = inverse_integer(49*q**49)
@@ -114,7 +124,7 @@ def result():
         for _ in range(steps):
             kernel = step_kernel(kernel)
         assert kernel == jump_kernel(n, steps)
-        assert sum(kernel) == 6**steps
+        assert sum(kernel) == checked_power(6, steps)
         if n == 3:
             decay = (BASE//2,BASE//2) # exact cos(2pi/3)=-1/2
         else:
