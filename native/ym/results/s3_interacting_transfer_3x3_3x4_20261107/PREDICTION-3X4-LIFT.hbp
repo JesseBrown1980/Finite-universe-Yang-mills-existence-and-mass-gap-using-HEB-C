@@ -1,0 +1,15 @@
+# November 7, 2026. ANOTHER PREDICTION FREEZE BEFORE 3x4 full Perron sector-lift verifier.
+# Existing PERRON-BOUND section 2 derives positive G-invariant vector lift
+# from 45,508,080-row Sx+Sy+ quotient to all 2,177,317,873 gauge states.
+# Original PERRON-RESULT.hbp gap_verdict=OPEN is preserved, not silently cleared.
+PREDICT|id=01|check=ORIGINAL_SECTOR|L=3x4|store=Sx+Sy+|rows=45508080|flat_rows=7|whole_flat_orbits=8|whole_dim=2177317873|status=EXISTING|json=0
+PREDICT|id=02|check=TOP_POSITIVE_VECTOR|t_cert_milli=94070673|min_row=45507968|min_M=3|perroncert_check=94070673|strict_check=94070673|outside_go=94070673|status=EXISTING|json=0
+PREDICT|id=03|check=ORIGINAL_FULL_REBUILD|rows=45508080|canonical_key_mismatches=0|weight_mismatches=0|M_mismatches=0|entry_mismatches=0|merkle=PASS|status=EXISTING|json=0
+PREDICT|id=04|check=WHOLE_LIFT|positive_sector_vector_lift_G_orbit_constant=YES|Hprime_full_row_ratio_equal_sector=EXACT_BY_ORBIT_LUMPING|E9_full_at_r9_ge=94.070673|status=DERIVED_CONDITIONAL|json=0
+PREDICT|id=05|check=FLAT_T_SECTOR|E8_zero_momentum_upper=72|all_8_flat_translation_zero=YES|status=DERIVED|json=0
+PREDICT|id=06|check=LOW_EIGHT_3X4|r_ge=9|E9_full_lower=94.070673|E8_T_upper=72|low_eight_in_T=YES|status=DERIVED_CONDITIONAL|json=0
+PREDICT|id=07|check=WINDING_ALT|translation_y_eigenvalue=-1|O_alt_first_E1_overlap=ZERO_EXACT_IF_LIFT_VALID|label_patterns=81|status=DERIVED_CONDITIONAL|json=0
+PREDICT|id=08|check=ZERO_MOMENTUM_SUM|O_xsum_T_eigenvalue=+1|flat_rank=6|strict_E1_overlap=NOT_CERTIFIED|status=OPEN|json=0
+PREDICT|id=09|check=SOURCE_VERDICT|original_gap_verdict=OPEN|new_independent_full_2_17B_inertia=NOT_RUN|4D_SU2=OPEN|status=LIMIT|json=0
+PREDICT|id=10|check=CONTROLS|wrong_tcert=REJECT|fake_gap_verdict=REJECT|wrong_flat_bound=REJECT|wrong_alt_parity=REJECT|wrong_full_rebuild=REJECT|status=RED|json=0
+PREDICTION_SUMMARY|rows=10|frozen_before_verifier_code=YES|status=PREDICTION_ONLY|json=0
