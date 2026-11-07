@@ -385,7 +385,7 @@ def spectral_wilson_weights(H,w,obs,v,norm):
             if i==target:
                 continue
             den*=centers[target]-c
-            z=[DEC*x-c*y for x,y in zip(mv(H,z),z)]
+            z=[1000000000*x-c*y for x,y in zip(mv(H,z),z)]
         estimate=q(weighted_dot(u,z,w),norm*den)
         for j,window in enumerate(eig_windows):
             il=(q(window[0],1000000),q(window[1],1000000))
