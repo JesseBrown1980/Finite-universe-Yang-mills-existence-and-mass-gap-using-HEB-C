@@ -1,0 +1,46 @@
+name: finite-S3-first-gap-triadic
+on:
+  pull_request:
+    paths:
+      - 'docs/FINITE_S3_FIRST_GAP_AND_TERNARY_SCHUR.md'
+      - 'independent/finite_s3_first_gap_20261106.py'
+      - 'independent/schur_ternary_demo_20261106.py'
+      - '.github/workflows/finite-first-gap-20261106.yml'
+  push:
+    branches: [main, gpt6-finite-first-gap-ternary-schur-20261106]
+    paths:
+      - 'docs/FINITE_S3_FIRST_GAP_AND_TERNARY_SCHUR.md'
+      - 'independent/finite_s3_first_gap_20261106.py'
+      - 'independent/schur_ternary_demo_20261106.py'
+      - '.github/workflows/finite-first-gap-20261106.yml'
+
+jobs:
+  finite-first-gap:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: No float syntax and exact test execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+          files = [Path('independent/finite_s3_first_gap_20261106.py'),
+                   Path('independent/schur_ternary_demo_20261106.py')]
+          for f in files:
+              tree = ast.parse(f.read_text(encoding='utf-8'))
+              assert not any(isinstance(n, ast.Constant) and isinstance(n.value, float)
+                             for n in ast.walk(tree)), f
+              assert not any(isinstance(n, ast.BinOp) and isinstance(n.op, ast.Div)
+                             for n in ast.walk(tree)), f
+          print('NO_FLOAT|scripts=2|float_literals=0|true_divisions=0|json=0')
+          PY
+          python3 independent/finite_s3_first_gap_20261106.py > first_gap.hbp
+          grep -F '|raw_numerator=9|raw_base=396|raw_exponent=52|' first_gap.hbp
+          python3 independent/schur_ternary_demo_20261106.py > schur.hbp
+          test "$(grep -c '^TRIADIC_IDENTITY' schur.hbp)" -eq 4
+          test "$(grep -c '^SCHUR_TOY|' schur.hbp)" -eq 5
+          test "$(grep -c '^SCHUR_RED|' schur.hbp)" -eq 3
+          grep -F 'SCHUR_TOY_GAP|first_gap_gt=6/1000|count_at_906=1|count_at_912=1|' schur.hbp
+          sha256sum first_gap.hbp schur.hbp
