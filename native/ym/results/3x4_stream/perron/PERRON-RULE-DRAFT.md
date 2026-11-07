@@ -1,5 +1,8 @@
 # 3×4 gap rule by the Perron bound (draft)
 
+**November 7, 2026 addendum (without rewriting this historical draft):** The old `HOLD` applied to adopting a Perron-specific final verdict rule. That *finite* administrative decision has now been superseded by the [separately accepted finite high-cluster rule](PERRON-FINITE-HIGH-CLUSTER-RULE-20261107.md) and [verdict](FINITE-HIGH-CLUSTER-VERDICT-20261107.md). This file is retained as the **original draft and its historical HOLD**; the original source receipt remains `gap_verdict=OPEN`. The accepted new result is **finite (E_9-E_8) only**, not first (E_2-E_1), a production authorization, or a continuum statement.
+
+
 The registered rule, [`GAP-VERDICT-RULE-3X4.md`](../GAP-VERDICT-RULE-3X4.md), stays in force. If this draft is approved, the
 operator's word adds it as a separate rule with its own sidecar. The derivation it relies on is in
 [`PERRON-BOUND.md`](PERRON-BOUND.md).
