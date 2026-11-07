@@ -1,0 +1,51 @@
+name: S3 finite Yang-Mills Wilson continuous-time 43M jump
+on:
+  push:
+    branches:
+      - gpt6-finite-s3-wilson-continuous-time-43m-20261106
+      - main
+    paths:
+      - 'native/ym/results/s3_1x1_continuous_jump/**'
+      - '.github/workflows/s3-wilson-continuous-jump.yml'
+  pull_request:
+    paths:
+      - 'native/ym/results/s3_1x1_continuous_jump/**'
+      - '.github/workflows/s3-wilson-continuous-jump.yml'
+permissions:
+  contents: read
+jobs:
+  finite-s3-euclidean-time:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prediction first, integer-only exact arithmetic
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/s3_1x1_continuous_jump
+          test "$(grep -c '^PREDICT|id=' "$dir/PREDICT-20261106.hbp")" -eq 15
+          python3 -I -X utf8 native/scripts/integer_only_audit.py "$dir/test_s3_1x1_continuous_jump.py"
+      - name: Actual finite S3 Hamiltonian, certified gap and jump replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/s3_1x1_continuous_jump
+          mkdir -p build/s3_wilson
+          python3 -I -X utf8 "$dir/test_s3_1x1_continuous_jump.py" | tee build/s3_wilson/REPLAY.hbp
+          grep -F 'YM_FINITE_GAP|JE=1|JB=1|E0_interval=[1.096113,1.096114]|E1_interval=[3.274551,3.274552]|first_gap_interval=[2.178437,2.178439]|' build/s3_wilson/REPLAY.hbp
+          grep -F 'YM_FINITE_VERIFY|status=PASS_WITH_REGISTERED_MISS|predictions=15|registered_numeric_misses=1|exact_S3_orbits=11|' build/s3_wilson/REPLAY.hbp
+          grep -F 'YM_FINITE_PREDICTION_MISS|id=10|' build/s3_wilson/REPLAY.hbp
+          test "$(grep -c '^YM_FINITE_SLICE|' build/s3_wilson/REPLAY.hbp)" -eq 7
+          test "$(grep -c '^YM_FINITE_CRT|' build/s3_wilson/REPLAY.hbp)" -eq 4
+          test "$(grep -c '^YM_FINITE_JUMP|' build/s3_wilson/REPLAY.hbp)" -eq 6
+          if test -f "$dir/MEASURED-20261106.hbp"; then
+            tail -n +4 "$dir/MEASURED-20261106.hbp" | cmp - build/s3_wilson/REPLAY.hbp
+          fi
+          (cd build/s3_wilson && sha256sum REPLAY.hbp > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exact-s3-finite-ym-43m-continuous-time
+          path: build/s3_wilson/
+          if-no-files-found: warn
