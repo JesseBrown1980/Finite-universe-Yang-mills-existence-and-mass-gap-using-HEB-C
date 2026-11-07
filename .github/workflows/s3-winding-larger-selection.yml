@@ -125,11 +125,11 @@ jobs:
                       lines[index]=f'{i} {j} -1000000'
                       touched.add(i)
           assert touched=={0,1}
-          out.write_text('\\n'.join(lines)+'\\n')
+          out.write_text('\n'.join(lines)+'\n')
           PY
           mutated_row="$(/tmp/s3-inertia /tmp/mutated-valid-even.matrix 13240000)"
           echo "$mutated_row"
-          if [[ "$mutated_row" =~ \\|negative=([0-9]+)\\| ]]; then
+          if [[ "$mutated_row" =~ \|negative=([0-9]+)\| ]]; then
             mutated_negative="${BASH_REMATCH[1]}"
           else
             echo 'SELECTION_RED|valid_matrix_no_inertia_row=FAIL|json=0'
