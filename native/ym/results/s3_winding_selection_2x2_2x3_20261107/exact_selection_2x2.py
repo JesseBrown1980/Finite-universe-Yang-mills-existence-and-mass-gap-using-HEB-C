@@ -23,13 +23,12 @@ try:
 finally:
     sys.argv=args
 
-keys=model["keys"]; electric=model["rows"]; weights=model["W"]
+keys=model["keys"]; electric=model["rows"]; W=model["W"]
 magnetic=model["mag"]; pos=model["pos"];fixed=model["fixed"]
 expand=model["expand"];decode=model["decode"];number=model["number"]
 mul=model["multiply"];chi=model["chi"]
 
-assert len(keys)==1393 and sum(weights.values())==7776
-W=[weights[k] for k in keys]
+assert len(keys)==1393 and len(W)==1393 and sum(W)==7776
 H=[]
 for i,row in enumerate(electric):
     r=row.copy()
