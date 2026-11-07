@@ -1,0 +1,8 @@
+VIEWER_PREDICTION|date=2026-11-06|status=FROZEN_BEFORE_CODE|suite=exact_discrete_slice_to_viewer_scaling|model=3D_incompressible_NS_shear_reduced_exactly_to_periodic_1D_heat|scope=calibration_analogue_not_YM_spectrum|float_used=0|json=0
+VIEWER_UNITS|physical_period=1_meter|viscosity=1_meter_squared_per_second|physical_t=1/54_second|spatial_resolution=3,9,27|periodic_boundary=1|dt=a_squared/6|json=0
+VIEWER_MATH|single_time_step_kernel=(4I+Splus+Sminus)/6|jump_n=(4I+Splus+Sminus)^n/6^n|cosine_mode_decay=(4+2*cos(2*pi/L))^n/6^n|continuum_cosine_decay=exp(-4*pi*pi/54)|integers_and_exact_rational_enclosures=1|json=0
+VIEWER_PREDICT|L=3|steps=1|amp_floor_1e12=500000000000|continuum_floor_1e12=481387939225|error_floor_1e12=18612060774|json=0
+VIEWER_PREDICT|L=9|steps=9|amp_floor_1e12=481549672464|continuum_floor_1e12=481387939225|error_floor_1e12=161733239|json=0
+VIEWER_PREDICT|L=27|steps=81|amp_floor_1e12=481389859807|continuum_floor_1e12=481387939225|error_floor_1e12=1920581|json=0
+VIEWER_GATES|direct_exact_step_matches_binary_kernel_power=REQUIRED|zero_divergence_shear=DERIVED|nonlinear_advection_zero_shear=DERIVED|identical_physical_time=REQUIRED|strict_error_improvement=REQUIRED|exact_sha_state_receipt=REQUIRED|json=0
+VIEWER_METROLOGY|Planck_time_per_slice=NOT_ASSUMED|physical_units_require_calibration=1|hashes_are_identifiers_not_physics=1|all_YM_observables_match_continuum=NOT_ESTABLISHED|continuum_clay_prize=NOT_PROVEN|json=0
