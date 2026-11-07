@@ -97,7 +97,7 @@ def swap(u):
 S=[];op=[];om=[]
 for code in keys:
     u=expand(decode(code))
-    S.append(pos[number(fixed(swap(u)))])
+    S.append(pos[fixed(swap(u))])
     a=chi(mul(u[0],u[2]))
     b=chi(mul(u[4],u[5]))
     op.append(a+b)
