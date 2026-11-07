@@ -1,0 +1,3 @@
+LARGER_SELECTION|lattice=2x2|symmetry=swap|configs=96|gauge_transforms=576|nonzero_operator_cases=49|gauge_invariance=PASS|electric_covariance=PASS|magnetic_covariance=PASS|operator_parity=ODD|open_link_control=REJECT|even_channel_control=REJECT|first_excitation_overlap=NOT_MEASURED|json=0
+LARGER_SELECTION|lattice=2x3|symmetry=tx|configs=96|gauge_transforms=576|nonzero_operator_cases=58|gauge_invariance=PASS|electric_covariance=PASS|magnetic_covariance=PASS|operator_parity=ODD|open_link_control=REJECT|even_channel_control=REJECT|first_excitation_overlap=NOT_MEASURED|json=0
+LARGER_SELECTION_VERIFY|result=PASS|lattices=2|spectral_gap=OPEN|json=0
