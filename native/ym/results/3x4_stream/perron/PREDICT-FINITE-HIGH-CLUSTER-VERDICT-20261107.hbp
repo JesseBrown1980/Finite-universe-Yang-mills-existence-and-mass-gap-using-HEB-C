@@ -1,0 +1,17 @@
+# 2026-11-07 FINITE 3x4 PERRON HIGH-CLUSTER VERDICT: PREDICTION FIRST
+# Historical HBP gaps remain OPEN and immutable; this is a separate final
+# status of the exact finite E9-E8 computational bound, not E2-E1.
+# 60M fan-out rule remains distinct, unrevised and production not triggered.
+PREDICT|id=01|check=SOURCE_SEALS|PERRON_RESULT_git_blob=cbd428014a4d440732a5c0a541ed57a9041becee|PERRON_BOUND_git_blob=53378d4ee68dc88766873713285e3a34465a9d90|status=FROZEN|json=0
+PREDICT|id=02|check=ORIGINAL_STATUS|historical_gap_verdict=OPEN|original_rule_60M=UNCHANGED|existing_history_mutated=NO|status=DERIVED|json=0
+PREDICT|id=03|check=FULL_STORE|sector=Sx+Sy+|rows=45508080|whole_space_orbits=2177317873|weighted_key_sum=13060694016|status=RECORDED|json=0
+PREDICT|id=04|check=TOP_VECTOR|t_cert_micro=94070673|min_row=45507968|M=3|sha256=f5c5428db1fc5d91d2ab891689f0dac7263dc26c8f9b60a2db82728f6ea0dcd1|status=RECORDED|json=0
+PREDICT|id=05|check=INDEPENDENCE|outside_Go=94070673|perroncert=94070673|strict=94070673|all_rebuild_mismatches=0|all_pairs_mismatches=0|status=RECORDED|json=0
+PREDICT|id=06|check=WHOLE_SPACE_LIFT|bound_E9_full_micro=94070673|from_positive_symmetry_orbit_vector=YES|status=THEOREM_FROM_EXISTING|json=0
+PREDICT|id=07|check=UPPER_BOUND|E8_r9_ball_micro=70031000|E8_all_r_flat_micro=72000000|status=THEOREM_FROM_EXISTING|json=0
+PREDICT|id=08|check=FINITE_GAP_R9|E9_minus_E8_lower_micro=24039673|status=DERIVED|json=0
+PREDICT|id=09|check=FINITE_GAP_R_GE_9|lower_micro=22070673_plus_3000000_times_r_minus_9|status=DERIVED|json=0
+PREDICT|id=10|check=VERDICT|finite_high_cluster_bound=ACCEPTED_WITH_PINNED_COMPUTATIONAL_ASSUMPTIONS|first_excitation_gap=OPEN|continuum_SU2_Clay=OPEN|status=LIMIT|json=0
+PREDICT|id=11|check=NEGATIVE_CONTROLS|false_top_bound=REJECT|fake_original_PASS=REJECT|wrong_ball_upper=REJECT|false_full_rebuild=REJECT|false_pairs_PASS=REJECT|false_lift=REJECT|wrong_gap_arithmetic=REJECT|status=RED|json=0
+PREDICT|id=12|check=SOURCE_CAVEATS|independent_other_machine_all_pairs=OPEN|original_operator_word=HOLD|no_new_2B_eigenanalysis=YES|status=DISCLOSED|json=0
+PREDICTION_SUMMARY|rows=12|freeze_before_code=YES|new_verdict_no_history_rewrite=YES|json=0
