@@ -23,7 +23,7 @@ The gauge transformation at each winding basepoint conjugates the holonomy, so X
 | 13.242650 | 2 | 0 |
 | 13.600000 | 2 | 1 |
 
-The six counts use outward-rounded 90-digit GMP Schur-complement intervals and fail closed on ambiguous pivots. If all six pass, the global E0 and E1 are even and E2 is odd, while the next even excitation E3 is at least 13.6. This guarantees **exactly zero** overlap of O_minus with E1 (by parity), reversing the successful 1x1 operator choice.
+The six counts use outward-rounded 90-digit GMP Schur-complement intervals and fail closed on ambiguous pivots. These are **six thresholds/blocks in one GMP implementation**, not six independently written eigensolvers. If all six pass, the global E0 and E1 are even and E2 is odd, while the next even excitation E3 is at least 13.6. This guarantees **exactly zero** overlap of O_minus with E1 (by parity), reversing the successful 1x1 operator choice.
 
 ## A strict **positive** E1 overlap for O_plus, without floating point
 
@@ -33,11 +33,15 @@ Take the exactly centered integer vector u=(norm_W(v)^2) O_plus v - <v,O_plus v>
 
     F = <u,K^230 u>_W / <u,u>_W.
 
-Positivity of H and the conservative spectral bound H<=60 imply 0<=K<=60. If O_plus had zero spectral weight on E1, all its even excited spectral support would have energy at least 13.6. The most adverse possible ground leakage (using the Perron-angle certificate) would yield
+Positivity of H and the conservative spectral bound H<=60 imply 0<=K<=60. If O_plus had zero spectral weight on E1, all its even excited spectral support, *apart from rigorously bounded approximate-vacuum leakage*, would have energy at least 13.6.
 
-    F <= (60-13.6)^230 + 60^230 / 10^80.
+**Correction from independent mathematical review (2026-11-07): both low modes need a leakage allowance.** Let phi=v/||v||_W, psi be the exact normalized vacuum, delta=sin²(angle(phi,psi))<10^-80, mu=<phi,O_plus phi>, and u_prime=(O_plus-mu)phi. The exact integer program now separately checks **V=||u_prime||_W²>=1** through `dot(u,u)>=norm**3`. For O_plus the operator norm is at most 4 and |mu|<=4. If the *true* E1 overlap vanished, then |<E1,u_prime>|<=8||phi-psi|| and its squared weight is <=128 delta (using ||phi-psi||²<=2 delta). Since u_prime is orthogonal to phi, its ground-component fraction is <=delta. Dividing by V>=1 gives a **combined normalized low-energy fraction <=129 delta**. Thus the **corrected** null-overlap implication is
 
-The exact integer witness verifies a *strict violation* of that inequality. This proves nonzero spectral overlap with the actual global E1 once the GMP inertia counts establish the energy ordering. The verifier also forms a conservative rational lower bound on the fraction of u's spectral weight on E1 using E1>13.24 and E3>=13.6. No unverified decimal eigenvector is needed.
+    F <= (60-13.6)^230 + 129 * 60^230 / 10^80.
+
+The new checker explicitly computes the exact *positive integer excess* of its 230-step response over this strengthened threshold. Its SHA-256 is pinned to the independently calculated witness `2d5504cbc526c07d7264b3a055f3bee5550a1cf62dc4ce869f9e6670f8d8cc3f`; this input was provided in the independent review **before** implementation of the correction. The integer proof rejects the old assumption that ground-state leakage alone suffices.
+
+The corrected exact integer witness still strictly violates the null-case bound, establishing nonzero overlap with the global E1 **conditional on the separately certified GMP inertia counts**. No unverified decimal eigenvector is required. This is a strict sign certificate, not yet a tight enclosure of the first spectral weight magnitude.
 
 The previously measured exploratory eigenvalues are approximately E0=7.634198412937, E1=13.242627514800, E2=13.242702738054. These decimals are *not* substituted for the integer Sturm certificates. The true first gap is E1-E0 about 5.608429, and the much smaller separation E2-E1 about 0.000075 is exactly why parity control matters.
 
@@ -59,6 +63,6 @@ This establishes an exact **selection sector**, not whether the *global first ex
     /tmp/s3-inertia /tmp/s3-parity/odd.matrix 13242650
     python3 -I native/ym/results/s3_winding_selection_2x2_2x3_20261107/verify_2x3_symmetry.py
 
-The exact integer input freeze is PREDICTION.hbp at commit 9858660f3254c4c03092deade18363c4cc2dc06d. The full independent row regeneration is anchored by the pre-existing exact 2x2 operator SHA in independent/gpt6_2x2_from_permutations.py. The paired output matrices carry SHA-256 digests, and the new workflow runs six independent Sturm counts plus explicit negative controls.
+The exact integer input freeze is PREDICTION.hbp at commit 9858660f3254c4c03092deade18363c4cc2dc06d. The full independent row regeneration is anchored by the pre-existing exact 2x2 operator SHA in independent/gpt6_2x2_from_permutations.py. The paired output matrices carry SHA-256 digests, and the workflow runs six parity-resolved Sturm counts, four structural/symmetry controls, and an additional **validly formatted but deliberately altered symmetric even-sector matrix**: two diagonal entries are changed to -1,000,000, and the same GMP inertia checker must detect at least two negative eigenvalues at threshold 13.24, unlike the source matrix's one. This detects wrong-operator acceptance, not merely malformed input.
 
 **Scope:** finite two-dimensional spatial tori with Euclidean time, finite group S3, fixed JE=JB=1. These are not continuous SU(3), four-dimensional R4, a real laboratory mass, or a Clay Millennium solution.
