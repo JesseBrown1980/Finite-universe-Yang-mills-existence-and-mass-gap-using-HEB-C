@@ -365,7 +365,7 @@ def compute_modular_jumps(H,w,u):
 
 def main():
     root=Path(__file__).resolve().parents[4]
-    pred=(root/"native/ym/results/s3_1x1_continuous_jump/PREDICT-20261106.hbp").read_bytes()
+    pred=root.joinpath("native","ym","results","s3_1x1_continuous_jump","PREDICT-20261106.hbp").read_bytes()
     rows=[line for line in pred.splitlines() if line.startswith(b"PREDICT|id=")]
     check(len(rows)==15 and b"measurements=NOT_YET_RUN" in pred,"predictions_first")
     group,w,E,M,O,H=build_orbits()
