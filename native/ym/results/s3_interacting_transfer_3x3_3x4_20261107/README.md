@@ -100,9 +100,43 @@ O_xsum|flat = 4χ_std(a)    (nonzero diagonal rank 6)
 O_ysum|flat = 3χ_std(b)    (nonzero diagonal rank 6).
 ```
 
-**Practical consequence:** the earlier 3×4 translation-`π` alternating observable has **no direct flat-to-flat transition amplitude**; the zero-momentum winding sums are more natural starting probes for the low flat-dominated cluster. That is an exact operator-selection statement for `P_flat`, **not** a proof that the alternating operator is dark to the interacting `E₁`, because an interacting eigenvector generally has nonflat components. Before declaring that, we need an independent full-space 3×4 low-state symmetry count.
+**Practical consequence of the flat calculation alone:** the earlier 3×4 translation-`π` alternating observable has **no direct flat-to-flat transition amplitude**; the zero-momentum winding sums are more natural low-cluster probes. This statement by itself would **not** prove the alternating operator is dark to the interacting `E₁`, because an interacting eigenvector generally has nonflat components. **However, the separate conditional full-space Perron-lift theorem below *does* imply exact interacting E₁ darkness for all `r>=9`, provided the original 3×4 global lift is valid.**
 
-## 3. Fail-closed verification and limits
+## 3. Stronger 3×4 theorem from the original Perron positive-vector lift (conditional)
+
+A further reading of the older [3×4 Perron bound](../3x4_stream/perron/PERRON-BOUND.md), especially its **section 2, "From the sector to the whole space"**, establishes a key distinction. The 45,508,080-row `Sx+Sy+` room store is a symmetry quotient, **not the complete 2,177,317,873-state Hilbert space**, but the positive eigenvalue comparison vector can be **lifted pointwise to the full state space**: assign each nonflat full orbit the value of its symmetry-sector representative. Because the Hamiltonian has the same orbit-lumped row operator, the minimum ratio `(H' d)(x)/d(x)` is unchanged by this lift. Applying the Barta/Collatz–Wielandt bound to the *full* nonflat compression and Cauchy interlacing yields
+
+```text
+E9_full(r=9) >= 94.070673 J_E     (conditional on the original 3×4 Perron certificate and row-lift assumptions).
+```
+
+The old [PERRON-RESULT.hbp](../3x4_stream/perron/PERRON-RESULT.hbp) records the 94.070673 bound at row 45,507,968, M=3, checked by `perroncert`, `check_d_strict` and the independently authored Go checker. It also records a full rebuild of all 45,508,080 stored sector rows with zero mismatches and a passing merkle, and the small-volume 2×2/2×3 lift controls. **Its overall field is explicitly `gap_verdict=OPEN`. We do not overwrite or silently promote that original verdict.** The new 3×4 verifier checks the original text and exact Git blob hashes, rather than running a new two-billion-state inertia calculation.
+
+Our new independent group enumeration already establishes **eight translation-invariant magnetic-flat configurations** with exact compression `P_flat H(r) P_flat=72 I_8`, giving `E8_T(r)<=72 J_E` by min–max. Since the magnetic term is nonnegative, `E9_full(r)` cannot decrease when `r>=9`. Combining them gives
+
+```text
+E8_T(r) <= 72 < 94.070673 <= E9_full(r),  for all r >= 9.
+```
+
+**Conditional theorem:** Assuming the original full-space lift and the pinned sector Perron certificate hold, **all eight lowest global 3×4 eigenlevels are in the zero-momentum sector `T` for every `r>=9`**. This is stronger than knowing only that the exact magnetic-flat eight are zero momentum.
+
+Now the horizontal winding-trace list `(χ(Wx0),χ(Wx1),χ(Wx2),χ(Wx3))` transforms by cyclic rotation under unit translation along y. An exhaustive check of all **81 character-value patterns** proves
+
+```text
+Ty O_alt = -O_alt;          Ty O_sum = +O_sum.
+```
+
+Because both interacting `|Ω>` and the global first eigenexcitation `|E1>` have momentum zero **under the conditional low-eight theorem**, translation invariance forces
+
+```text
+<E1 | O_alt | Ω> = 0   EXACTLY, for all r>=9, conditional on the Perron lift.
+```
+
+**Nonflat mixing does not invalidate this selection rule**: it is a whole-space symmetry identity. By contrast, the momentum-zero summed winding observable is **not symmetry-forbidden** to couple to `E1`, but its **strictly positive overlap is still OPEN**. Nor does the current 3×4 Perron evidence provide a numerical first splitting `E2−E1` inside the eight-state low-energy cluster.
+
+The separate 10-row prediction freeze was written before the code at `5c3daf5f832c6494dffd16927e018314abc7d8b9`. [Hosted run 42384899521](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/42384899521) **passed** the source-hash/positivity/row-evidence check, 81 pattern symmetry gate and **five intentionally false controls**. Its [complete six-row HBP receipt](MEASURED-3X4-LIFT-20261107.hbp) prints `status=PASS_CONDITIONAL` and retains the original `OPEN` status. This is a valid mathematical implication of explicit source hypotheses, **not** a newly certified full interacting 3×4 spectrum.
+
+## 4. Fail-closed verification and limits
 
 ```bash
 python3 -I -X utf8 native/ym/results/s3_interacting_transfer_3x3_3x4_20261107/verify_flat_transfer.py
@@ -110,7 +144,7 @@ python3 -I -X utf8 native/ym/results/s3_interacting_transfer_3x3_3x4_20261107/ve
 
 The dedicated [GitHub workflow](../../../../.github/workflows/s3-interacting-3x3-gap-transfer.yml) checks the full-space certificate's original 340-node count, T/full threshold equality, the 8 flat orbit construction, both lattice magnetic potentials, every one-link flat-to-nonflat move, and the r=27 exact bracket subtraction. It also requires **six red controls** to exit unsuccessfully: corrupt the zero-momentum count, falsely report the r=27 interval, invent an r=243 interval, falsely assert nonzero alternating winding on a flat state, alter the flat electric 54, or assert a bare open link character is gauge invariant. The original HBP certificates and all earlier prediction files remain **unchanged**.
 
-**Unresolved:** 3×3 true first-state axis-exchange parity, positive `O_+` or `O_-` interacting spectral weight; 3×4 *global* first gap, first-state momentum, and interaction-vacuum overlap; any uniform-in-volume physical-unit mass-gap bound as spatial spacing goes to zero; nontrivial 4D `SU(2)` continuum existence. These statements are **not** proved by the present certificate composition, and the Clay Millennium Yang–Mills problem remains **OPEN**.
+**Unresolved:** 3×3 true first-state axis-exchange parity, positive `O_+` or `O_-` interacting spectral weight; 3×4 *numeric* first gap inside the low octet, independent closure of the original 3×4 whole-space lift's `OPEN` verdict, and strictly positive summed-winding interaction-vacuum overlap; any uniform-in-volume physical-unit mass-gap bound as spatial spacing goes to zero; nontrivial 4D `SU(2)` continuum existence. These statements are **not** proved by the present certificate composition, and the Clay Millennium Yang–Mills problem remains **OPEN**.
 
 ## Hosted proof-composition receipt — November 7, 2026
 
