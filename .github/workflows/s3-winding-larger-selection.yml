@@ -49,6 +49,8 @@ jobs:
           python3 -I native/ym/results/s3_winding_selection_2x2_2x3_20261107/exact_selection_2x2.py /tmp/s3-parity | tee /tmp/SELECTION-2X2.hbp
           grep -F 'SELECTION_GEOMETRY|full_dim=1393|even_dim=746|odd_dim=647|' /tmp/SELECTION-2X2.hbp
           grep -F 'first_relative_spectral_weight_lower_gt_zero=EXACT' /tmp/SELECTION-2X2.hbp
+          grep -F 'SELECTION_LEAKAGE|centered_variance_lower=1|centered_variance_exact_gate=PASS|normalized_ground_leakage_delta=1|normalized_E1_leakage_delta_upper=128|total_low_mode_leakage_delta_upper=129|corrected_excess_positive=EXACT|corrected_excess_sha256=2d5504cbc526c07d7264b3a055f3bee5550a1cf62dc4ce869f9e6670f8d8cc3f|' /tmp/SELECTION-2X2.hbp
+          grep -F 'conservative_leakage_multiplier=129|' /tmp/SELECTION-2X2.hbp
           grep -F 'winding_minus_first_gap=ZERO_EXACT' /tmp/SELECTION-2X2.hbp
       - name: Independently prove first eigenvalue parity by GMP interval inertia
         shell: bash
@@ -103,6 +105,38 @@ jobs:
             echo 'SELECTION_RED|false_first_sector=UNEXPECTED_PASS|json=0'
             exit 1
           fi
+          # Also mutate a *structurally valid* self-adjoint even block:
+          # change two diagonal energies, preserving dimensions, weights,
+          # sparse layout, and symmetry. The 2D coordinate subspace becomes
+          # negative definite at 13.24, forcing at least TWO eigenvalues
+          # below the threshold, versus ONE for the original source matrix.
+          python3 - <<'PY'
+          from pathlib import Path
+          original=Path('/tmp/s3-parity/even.matrix')
+          out=Path('/tmp/mutated-valid-even.matrix')
+          lines=original.read_text().splitlines()
+          assert int(lines[0])==746
+          touched=set()
+          for index in range(3,len(lines)):
+              words=lines[index].split()
+              if len(words)==3:
+                  i,j,value=map(int,words)
+                  if i==j and i in (0,1):
+                      lines[index]=f'{i} {j} -1000000'
+                      touched.add(i)
+          assert touched=={0,1}
+          out.write_text('\\n'.join(lines)+'\\n')
+          PY
+          mutated_row="$(/tmp/s3-inertia /tmp/mutated-valid-even.matrix 13240000)"
+          echo "$mutated_row"
+          if [[ "$mutated_row" =~ \\|negative=([0-9]+)\\| ]]; then
+            mutated_negative="${BASH_REMATCH[1]}"
+          else
+            echo 'SELECTION_RED|valid_matrix_no_inertia_row=FAIL|json=0'
+            exit 1
+          fi
+          test "$mutated_negative" -ge 2
+          echo 'SELECTION_RED|valid_symmetric_wrong_operator=REJECTED_BY_INERTIA|original_negative=1|mutated_negative='"${mutated_negative}"'|json=0'
           echo 'SELECTION_RED|tampered_dimension=REJECTED|false_first_sector=REJECTED|json=0'
       - name: Upload exact certificates and selected matrices
         if: always()
