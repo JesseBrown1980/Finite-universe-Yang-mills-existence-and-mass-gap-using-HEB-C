@@ -204,7 +204,7 @@ def certify(root):
          lower_micro_at_r9=gap_high,
          lower_micro_slope_per_unit_r=3000000,
          statement="E9_minus_E8_GE_22.070673_plus_3_times_r_minus_9",
-         from="MAGNETIC_MIN_NONFLAT_M_EQUALS_3")
+         source="MAGNETIC_MIN_NONFLAT_M_EQUALS_3")
     emit("FINITE_PER3X4_LIMITS",
          accepts_historical_computational_evidence="YES",
          independent_entire_store_replay_another_machine="OPEN",
