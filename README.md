@@ -4,6 +4,22 @@
 
 **Data on Hugging Face:** [Jessedbrown/ym-3x4-room-store](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store) holds the 3×4 store, the certificate vectors and an evidence archive, the files too large for git. Its card maps every folder, and the status of each result is read here.
 
+## November 7, 2026: interacting 3×3 full first-gap transfer and 3×4 flat Wilson selection (PR #130)
+
+The [new independent **draft PR #130**](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/130) contains [13 frozen predictions, exact (S_3) verification code, 11-row hosted HBP evidence and the complete proof/scope notes](native/ym/results/s3_interacting_transfer_3x3_3x4_20261107/README.md). It builds on **already existing** 3×3 full-space and zero-momentum integer-inertia certificates; the new work checks their composition rather than recomputing the full 10-million-state eigenproblem.
+
+**New finite 3×3 full-space consequence, at `J_E=1,r=J_B/J_E=27`:**
+
+```text
+0.001967 <= E2_full(r=27) − E1_full(r=27) <= 0.002059    (J_E)
+```
+
+The indexing `E1,E2` here is **one-based**: it denotes the lowest and next-lowest eigenvalues, i.e. the *true first* gap (`E1−E0` in a zero-based convention). Why this transfers to the full space: the original [certified full-space r=9 result](native/ym/results/3x3_full_space/CERTIFY-RESULT.md) proves `E9_full(9)>=71.9 J_E`, and positive magnetic potential makes `E9_full(r)>=71.9` for every `r>=9`. Independently rebuilding all eight flat gauge orbits proves their zero-momentum compression `P_flat H(r) P_flat=54 I_8`; min–max therefore gives `E8_T(r)<=54<71.9<=E9_full(r)`. **All lowest eight eigenlevels at any r>=9 belong to the zero-momentum sector.** The [pinned original r=27 zero-momentum reference](native/ym/reference/ym3x3_frozen_8fd12e6.hbp) bounds `E1_T` and `E2_T` and hence supplies the full first-gap bracket above. The conclusion **depends on both original certificates** remaining valid. At `r=243` the numerical first splitting remains **INCONCLUSIVE**; neither the true 3×3 axis-exchange parity of `E1` nor positive (O_±) spectral weights are certified.
+
+**3×4 exact operator gate:** all eight magnetic-flat (S_3) torus gauge classes are invariant under lattice translations. The alternating horizontal winding trace `O_alt=χ(Wx0)−χ(Wx1)+χ(Wx2)−χ(Wx3)` **vanishes on that entire flat subspace**, while the horizontal and vertical winding **sums** each have nonzero flat rank six. This identifies better low-cluster probes but **does not** certify the interacting 3×4 first excitation or its overlap: states outside the flat subspace can contribute. The 3×4 full physical orbit count is 2,177,317,873; the 45,508,080 stored rows are not a replacement for the whole global spectrum.
+
+This is a finite-`S₃` coupling-specific result and a certificate-composition theorem; it **does not** establish a continuum 4D `SU(2)` Yang–Mills mass gap, a physical glueball mass, or a discrete physical universe. The related pure-electric (J_B=0) winding-sector and 43-million-time-slice tests are in [draft PR #129](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/129), with their different scope preserved.
+
 ## New cross-repository evidence: Shadow Cats, triadic jumps and the continuum gate (November 6–7, 2026)
 
 The **Shadow Cat** is the retained ternary `C0/C1/C2` residual from the project's torus/slice model, **not** an ordinary integration-error remainder. The current exact test represents its class by `(C0+C1+C2) mod 3`; residue 2 has equivalent modular representatives `2/3` and `-1/3`. The 27 → 9 → 3 → 1 trit blocking and cyclic `C1` rotations preserve this value, as do exact permutation jumps through **`3^16 = 43,046,721`** abstract steps. These are algebraic, finite-state results; they do not assert a physical faster-than-light signal.
