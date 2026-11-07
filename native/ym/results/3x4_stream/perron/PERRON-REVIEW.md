@@ -1,5 +1,8 @@
 # Independent review of the 3×4 Perron bound
 
+**November 7, 2026 acceptance addendum:** the former administrative HOLD on registering the already-computed **finite high-cluster (E_9-E_8)** bound is now resolved by a [new, narrower finite-scope verdict](FINITE-HIGH-CLUSTER-VERDICT-20261107.md), its [separate fail-closed rule](PERRON-FINITE-HIGH-CLUSTER-RULE-20261107.md), and a [new source-pinned hosted HBP receipt](MEASURED-FINITE-HIGH-CLUSTER-VERDICT-20261107.hbp). **Accepted:** (E_9-E_8≥24.039673J_E) at `r=9`, conditional on the original computational certificates and whole-space symmetry-orbit lift. **Still OPEN:** (E_2-E_1), further whole-store reproduction on a second machine, volume uniformity and continuum SU(2). Historical review decisions and the original `gap_verdict=OPEN` receipt have not been altered. The 60M production rule remains distinct.
+
+
 This page is for someone who wants to check this work or break it. A counterexample or a failed step is as useful as a
 confirmation. Please post either on
 [PR #79](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/79).

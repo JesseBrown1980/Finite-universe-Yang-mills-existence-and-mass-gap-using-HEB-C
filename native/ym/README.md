@@ -1,5 +1,8 @@
 # HEB-C HTTP-0 backend for the finite S₃ Yang–Mills sector tools
 
+**Finite 3×4 high-cluster Perron status (November 7, 2026):** [The accepted finite (E_9-E_8) verdict](results/3x4_stream/perron/FINITE-HIGH-CLUSTER-VERDICT-20261107.md) was separately registered after the original checker, all-rows rebuild, and weighted all-pairs receipts were reviewed. At `r=9`, `E9−E8≥24.039673 J_E`; for `r≥9`, `E9−E8≥22.070673+3(r−9)` in `J_E` units. **This is not the first excitation gap (E_2-E_1), and it is not a continuum Yang–Mills solution.** The earlier `gap_verdict=OPEN` receipt remains unmodified as a historical record; the registered 60M production rule is independent and unchanged.
+
+
 **Current results and next milestones (2026-11-03):** see the [finite Yang–Mills research and verification register](../../docs/RESEARCH-STATUS-2026-11-03.md) for the certified lattice results, the 3×4 Perron route, the bound with no store on larger lattices, and what is open.
 
 Execution and verification layer for the finite-lattice spectral certificates.
