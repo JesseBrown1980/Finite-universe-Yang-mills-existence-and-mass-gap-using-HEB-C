@@ -61,7 +61,7 @@ For **each lattice** the hosted test checks 96 reproducible configurations, 576 
 
 ## Reproduction
 
-    python3 -I -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_winding_vacuum.py
+    python3 -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_winding_vacuum.py
     python3 -I -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_larger_operator_selection.py
 
 GitHub workflow .github/workflows/s3-winding-selection.yml checks the frozen 15 predictions, compiles both scripts, forbids float literals and true division, runs the independent projector and Perron weight methods, verifies the larger-lattice selection controls, and compares results against both committed HBP receipts **byte for byte**.
