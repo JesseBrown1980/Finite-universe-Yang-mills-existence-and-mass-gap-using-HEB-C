@@ -75,3 +75,30 @@ python3 -I -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_1x1_continuo
 ```
 
 Workflow `.github/workflows/s3-wilson-continuous-jump.yml` runs the hosted checker with negative controls and publishes a SHA-256-sealed HBP receipt. Once the result is committed the workflow must replay it byte-for-byte. **Do not infer a real-world physical mass from the dimensionless `J_E=J_B=1` example.**
+
+## Hosted measured results — 2026-11-07 UTC
+
+[Dedicated GitHub Actions run 42332389073](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/42332389073) **PASS**. It ran the project's strict integer audit on the added script, reconstructed all 11 orbit states and their weighted Hamiltonian, verified interacting/electric characteristic polynomials, counted both lowest interacting levels by exact integer symmetric inertia, and recomputed the 43-million-step Wilson trial correlation using 144-term exact rational enclosures. The full 29-row hosted HBP output is pinned in [MEASURED-20261106.hbp](MEASURED-20261106.hbp), preserving the preregistered numerical miss.
+
+**First interacting finite gap**: `1.096113 < E0 < 1.096114`, `3.274551 < E1 < 3.274552`, hence `2.178437 < E1−E0 < 2.178439` at `J_E=J_B=1`. This is a separate finite 1×1 system, not the 3×4 Perron certificate.
+
+**Gauge-invariant Wilson trial correlation at dimensionless Euclidean time t = 1**:
+
+| Number of finite time steps N | Certified correlation interval | Certified absolute error to continuous-time semigroup |
+|---:|---|---|
+| `27` | [0.053826033701524255, 0.053826033701524256] | [0.002990598483824288, 0.002990598483824289] |
+| `81` | [0.055776224779961874, 0.055776224779961875] | [0.001040407405386669, 0.001040407405386670] |
+| `243` | [0.056464430804065222, 0.056464430804065223] | [0.000352201381283321, 0.000352201381283322] |
+| `729` | [0.056698611679000604, 0.056698611679000605] | [0.000118020506347939, 0.000118020506347940] |
+| `19,683` | [0.056812249867264573, 0.056812249867264574] | [0.000004382318083970, 0.000004382318083971] |
+| `531,441` | [0.056816469861863712, 0.056816469861863713] | [0.000000162323484831, 0.000000162323484832] |
+| **`43,046,721 = 3^16`** | **[0.056816630181347677, 0.056816630181347678]** | **[0.000000002004000866, 0.000000002004000867]** |
+| **Continuous-time `e^{-H}` reference** | **[0.056816632185348543, 0.056816632185348544]** | 0 by definition |
+
+The continuous-time value is a **mathematical limit of the same finite spatial Hamiltonian**, not a measurement from nature or a physical spacing limit. There is **no claim of convergence of 4D SU(2) lattice theories as their spatial spacing approaches zero** here.
+
+**CRT and jumps:** Chinese-remainder reconstruction independently matched the first **eight exact integer moment numerators** under a rigorous bound below half the two-prime modulus product, with source values `p1=1000081` and `p2=1000003`. Separate modular power cubing and binary powering matched for all seven specified powers of three at each of those primes; direct stepping checked short runs. The residues of a high power do **not** reconstruct the huge real or rational state vector. The rational Taylor/binomial arithmetic, not the modular residue alone, establishes the reported physical-time correlation interval.
+
+**Falsifier preserved:** prediction 10's `0.0568166301459` point expectation **MISSED**; the measured exact-rational bracket is `0.056816630181347677..678`. Its preregistered broad error interval of 1–3×10⁻⁹ held. This is an observed prediction miss, not a failed source-code checker.
+
+**Relevant other repo results:** [Matrix Law Essentials PR #7](https://github.com/JesseBrown1980/The-matrix-law-essentials/pull/7) established an efficient `3^16` phase jump for a *reduced* nanoparticle grating model, not raw experimental replay; [CO ensemble PR #6](https://github.com/JesseBrown1980/The-matrix-law-essentials/pull/6) showed mean-error phase cancellation but persistent individual RMS errors in classical molecular models; [YM4 PR #34](https://github.com/JesseBrown1980/yang-mills-4-dimensional-continum-proof/pull/34) checked the exact retained Shadow Cat trit residual and showed an `S3` bare signed holonomy is not a gauge-invariant observable. These results are compatible methodological tests, not evidence that one experiment validates the others' physics. Their common lesson is that an efficient finite representation and a controlled observation map are possible; physical model validation and uniform continuum limit are **distinct proof obligations**.
