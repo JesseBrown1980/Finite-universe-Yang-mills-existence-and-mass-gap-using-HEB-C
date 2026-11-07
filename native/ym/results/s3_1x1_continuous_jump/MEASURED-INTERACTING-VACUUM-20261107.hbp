@@ -1,0 +1,36 @@
+# Certified actual interacting S3 gauge vacuum, not trial state; hosted GitHub Actions run 42374612872, job 128409541013
+# 15 frozen predictions: commit f24a0a890efeb1d058bb300b1e629ac52f44020f before code; implementation corrections retained in CI history.
+# Exact Perron error, spectral selection and interval correlators; finite 1x1 S3, NOT continuum SU2 or experiment.
+VACUUM_BEGIN|gauge_group=S3|spatial_torus=1x1_PERIODIC|gauge_states=11|electric_coupling=1|magnetic_coupling=1|frozen_prediction_sha256=63e15b41c1df687ef65e60c929c8a4c4c3db3da68f0fb74db937de5a477c0129|json=0
+VACUUM_EXACT_SECTOR|rank=5|characteristic_blocks=P5,P3,(x-6)^3|Wilson_preserves_P5=EXACT|first_excited_E1_block=P3|ground_state_E0_block=P5|E1_Wilson_overlap=ZERO_EXACT|json=0
+VACUUM_EXCITATION|state=first_dark|energy_lower=3.274551|energy_upper=3.274552|Wilson_visible=NO|json=0
+VACUUM_EXCITATION|state=visible_E2|energy_lower=3.565389|energy_upper=3.565390|Wilson_visible=YES|json=0
+VACUUM_PERRON_CERT|iterations=729|Collatz_E0_lower=1.096113506743925734|Collatz_E0_upper=1.096113506743925735|Rayleigh=1.096113506743925734|E0_bracket_width_lt=1e-24|normalized_excited_amplitude_lt=1e-24|numerical_shift=1096113506743925734/10^18|vacuum_vector_sha256=62ebe1ca2fdbcf31fdae6cda503b71c2743e892f19bebc1b0e3cbabd6c1a9dbf|json=0
+VACUUM_STATISTICS|Wilson_mean_lower=1.272557036497|Wilson_mean_upper=1.272557036498|connected_variance_lower=1.653155625358|connected_variance_upper=1.653155625359|json=0
+VACUUM_SPECTRAL_WEIGHT|root_index=0|weight_lower=1.618401411|weight_upper=1.620401412|exact_root_isolation=1e-6|Lagrange_projector_error_lt=1e-4|vacuum_norm_error_lt=1e-24|json=0
+VACUUM_SPECTRAL_WEIGHT|root_index=2|weight_lower=0.352632039|weight_upper=0.354632040|exact_root_isolation=1e-6|Lagrange_projector_error_lt=1e-4|vacuum_norm_error_lt=1e-24|json=0
+VACUUM_SPECTRAL_WEIGHT|root_index=7|weight_lower=0.677360378|weight_upper=0.679360379|exact_root_isolation=1e-6|Lagrange_projector_error_lt=1e-4|vacuum_norm_error_lt=1e-24|json=0
+VACUUM_SPECTRAL_WEIGHT|root_index=8|weight_lower=0.469141665|weight_upper=0.471141666|exact_root_isolation=1e-6|Lagrange_projector_error_lt=1e-4|vacuum_norm_error_lt=1e-24|json=0
+VACUUM_SPECTRAL_WEIGHT|root_index=10|weight_lower=0.150021542|weight_upper=0.152021543|exact_root_isolation=1e-6|Lagrange_projector_error_lt=1e-4|vacuum_norm_error_lt=1e-24|json=0
+VACUUM_SPECTRAL_SELECTION|true_first_excitation=E1|true_first_gap_interval=[2.178437,2.178439]|E1_Wilson_spectral_weight=ZERO_EXACT|lowest_visible_excitation=E2|Wilson_gap_interval=[2.469275,2.469277]|visible_weight_interval=0.34,0.37|proof=EXACT_P5_SECTOR_AND_INTERVAL_PROJECTORS|json=0
+VACUUM_CONNECTED|kind=EXACT_VARIANCE|time=0|steps=CONTINUOUS_TIME|lower=1.653155625358|upper=1.653155625359|error_certified_lt=1e-14|gauge_invariant_operator=chi_std_commutator|state=ACTUAL_INTERACTING_VACUUM|json=0
+VACUUM_CONNECTED|kind=CONTINUOUS|time=1|steps=CONTINUOUS_TIME|lower=0.030740631048|upper=0.030740631049|error_certified_lt=1e-14|gauge_invariant_operator=chi_std_commutator|state=ACTUAL_INTERACTING_VACUUM|json=0
+VACUUM_CONNECTED|kind=CONTINUOUS|time=2|steps=CONTINUOUS_TIME|lower=0.002534511906|upper=0.002534511907|error_certified_lt=1e-14|gauge_invariant_operator=chi_std_commutator|state=ACTUAL_INTERACTING_VACUUM|json=0
+VACUUM_CONNECTED|kind=CONTINUOUS|time=3|steps=CONTINUOUS_TIME|lower=0.000214474028|upper=0.000214474029|error_certified_lt=1e-14|gauge_invariant_operator=chi_std_commutator|state=ACTUAL_INTERACTING_VACUUM|json=0
+VACUUM_CONNECTED|kind=TERNARY_JUMP|time=1|steps=27|lower=0.026803649194|upper=0.026803649195|error_certified_lt=1e-14|gauge_invariant_operator=chi_std_commutator|state=ACTUAL_INTERACTING_VACUUM|json=0
+VACUUM_SLICE_ERROR|steps=27|error_lower=0.003936981853|error_upper=0.003936981854|comparison=SAME_FINITE_H_CONTINUOUS_TIME|json=0
+VACUUM_CONNECTED|kind=TERNARY_JUMP|time=1|steps=81|lower=0.029386100449|upper=0.029386100450|error_certified_lt=1e-14|gauge_invariant_operator=chi_std_commutator|state=ACTUAL_INTERACTING_VACUUM|json=0
+VACUUM_SLICE_ERROR|steps=81|error_lower=0.001354530598|error_upper=0.001354530599|comparison=SAME_FINITE_H_CONTINUOUS_TIME|json=0
+VACUUM_CONNECTED|kind=TERNARY_JUMP|time=1|steps=243|lower=0.030284050454|upper=0.030284050455|error_certified_lt=1e-14|gauge_invariant_operator=chi_std_commutator|state=ACTUAL_INTERACTING_VACUUM|json=0
+VACUUM_SLICE_ERROR|steps=243|error_lower=0.000456580593|error_upper=0.000456580594|comparison=SAME_FINITE_H_CONTINUOUS_TIME|json=0
+VACUUM_CONNECTED|kind=TERNARY_JUMP|time=1|steps=729|lower=0.030587861541|upper=0.030587861542|error_certified_lt=1e-14|gauge_invariant_operator=chi_std_commutator|state=ACTUAL_INTERACTING_VACUUM|json=0
+VACUUM_SLICE_ERROR|steps=729|error_lower=0.000152769506|error_upper=0.000152769508|comparison=SAME_FINITE_H_CONTINUOUS_TIME|json=0
+VACUUM_CONNECTED|kind=TERNARY_JUMP|time=1|steps=19683|lower=0.030734962567|upper=0.030734962568|error_certified_lt=1e-14|gauge_invariant_operator=chi_std_commutator|state=ACTUAL_INTERACTING_VACUUM|json=0
+VACUUM_SLICE_ERROR|steps=19683|error_lower=0.000005668480|error_upper=0.000005668481|comparison=SAME_FINITE_H_CONTINUOUS_TIME|json=0
+VACUUM_CONNECTED|kind=TERNARY_JUMP|time=1|steps=531441|lower=0.030740421090|upper=0.030740421091|error_certified_lt=1e-14|gauge_invariant_operator=chi_std_commutator|state=ACTUAL_INTERACTING_VACUUM|json=0
+VACUUM_SLICE_ERROR|steps=531441|error_lower=0.000000209957|error_upper=0.000000209959|comparison=SAME_FINITE_H_CONTINUOUS_TIME|json=0
+VACUUM_CONNECTED|kind=TERNARY_JUMP|time=1|steps=43046721|lower=0.030740628456|upper=0.030740628457|error_certified_lt=1e-14|gauge_invariant_operator=chi_std_commutator|state=ACTUAL_INTERACTING_VACUUM|json=0
+VACUUM_SLICE_ERROR|steps=43046721|error_lower=0.000000002591|error_upper=0.000000002593|comparison=SAME_FINITE_H_CONTINUOUS_TIME|json=0
+VACUUM_43M_JUMP|prime=1000081|steps=43046721|cubings=16|binary_vs_cube=PASS|state_digest=0a10cae1e1231497740d20ec331fec0c643092d6c5b3afb164e44df9f7c63d78|scope=EXACT_MODULAR_ONLY|json=0
+VACUUM_43M_JUMP|prime=1000003|steps=43046721|cubings=16|binary_vs_cube=PASS|state_digest=e53246104667885568565cbfd350fa34eddb36a2885ea7fd589e89929f24c48e|scope=EXACT_MODULAR_ONLY|json=0
+VACUUM_VERIFY|status=PASS|predictions=15|true_vacuum=PERRON_CERTIFIED|ground_certified_angular_error_lt=1e-24|E1_Wilson_overlap=EXACT_ZERO|first_visible_state=E2|connected_correlation_rows=11|ternary_max=43046721|native_CRT_full_physical_state=NOT_CLAIMED|spatial_continuum=NOT_TESTED|experiment=NOT_MATCHED|Clay_YM4=OPEN|json=0

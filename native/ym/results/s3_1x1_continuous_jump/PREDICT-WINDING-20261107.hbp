@@ -1,0 +1,17 @@
+WINDING_PREDICTION|date=2026-11-07|status=FROZEN_BEFORE_WINDING_CODE|model=S3_1x1_periodic_11_orbits|JE=1|JB=1|operator=chi_std(a)_minus_chi_std(b)|name=gauge_invariant_winding_difference|json=0
+WINDING_PREDICTION|id=1|condition=single_site_gauge_conjugation_invariance|expected=PASS|json=0
+WINDING_PREDICTION|id=2|condition=link_exchange_oddness|expected=O_minus(b,a)_equals_minus_O_minus(a,b)|json=0
+WINDING_PREDICTION|id=3|condition=ground_mean|expected=exact_zero_by_exchange_symmetry|json=0
+WINDING_PREDICTION|id=4|condition=first_excitation|gap_lower=2.178437|gap_upper=2.178439|P3_sector=YES|json=0
+WINDING_PREDICTION|id=5|condition=first_excitation_winding_overlap|expected=STRICT_POSITIVE|weight_lower=3.02165|weight_upper=3.02169|json=0
+WINDING_PREDICTION|id=6|condition=vacuum_connected_t0|lower=3.022205243660|upper=3.022205243665|json=0
+WINDING_PREDICTION|id=7|condition=vacuum_connected_t1|lower=0.342108549190|upper=0.342108549210|json=0
+WINDING_PREDICTION|id=8|condition=vacuum_connected_t2|lower=0.038732861750|upper=0.038732861775|json=0
+WINDING_PREDICTION|id=9|condition=vacuum_connected_t3|lower=0.004385267360|upper=0.004385267380|json=0
+WINDING_PREDICTION|id=10|condition=selection|E1_winding_visible=YES|E1_plaquette_visible=NO|E2_winding_visible=NO|json=0
+WINDING_PREDICTION|id=11|condition=odd_sector_charpoly|P3=x^3-21*x^2+135*x-252|odd_sector_dimension=3|json=0
+WINDING_PREDICTION|id=12|condition=independent_spectral_weight|compare=rational_projector_and_odd_sector_inverse_iteration|expected=OVERLAP_INTERVALS|json=0
+WINDING_PREDICTION|id=13|condition=large_lattice_2x2|operator=winding_x_minus_winding_y|symmetry=axis_exchange|expected=EXACT_ODD_GAUGE_INVARIANT|spectral_weight=OPEN|json=0
+WINDING_PREDICTION|id=14|condition=large_lattice_2x3|operator=plaquette_0_0_minus_plaquette_1_0|symmetry=x_translation_order2|expected=EXACT_ODD_GAUGE_INVARIANT|spectral_weight=OPEN|json=0
+WINDING_PREDICTION|id=15|condition=controls|nonclass_observable=FAIL|wrong_symmetry_sign=FAIL|wrong_vacuum=FAIL|false_E1_dark=FAIL|json=0
+WINDING_SCOPE|no_float=1|json=0|ground_state=INTERACTING_PERRON|correlator_time=Euclidean_same_fixed_finite_H|larger_lattice_first_gap_certification=OPEN|continuum_4D_mass_gap=OPEN
