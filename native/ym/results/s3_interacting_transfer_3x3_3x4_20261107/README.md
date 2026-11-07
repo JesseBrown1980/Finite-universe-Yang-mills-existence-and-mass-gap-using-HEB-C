@@ -111,3 +111,24 @@ python3 -I -X utf8 native/ym/results/s3_interacting_transfer_3x3_3x4_20261107/ve
 The dedicated [GitHub workflow](../../../../.github/workflows/s3-interacting-3x3-gap-transfer.yml) checks the full-space certificate's original 340-node count, T/full threshold equality, the 8 flat orbit construction, both lattice magnetic potentials, every one-link flat-to-nonflat move, and the r=27 exact bracket subtraction. It also requires **six red controls** to exit unsuccessfully: corrupt the zero-momentum count, falsely report the r=27 interval, invent an r=243 interval, falsely assert nonzero alternating winding on a flat state, alter the flat electric 54, or assert a bare open link character is gauge invariant. The original HBP certificates and all earlier prediction files remain **unchanged**.
 
 **Unresolved:** 3×3 true first-state axis-exchange parity, positive `O_+` or `O_-` interacting spectral weight; 3×4 *global* first gap, first-state momentum, and interaction-vacuum overlap; any uniform-in-volume physical-unit mass-gap bound as spatial spacing goes to zero; nontrivial 4D `SU(2)` continuum existence. These statements are **not** proved by the present certificate composition, and the Clay Millennium Yang–Mills problem remains **OPEN**.
+
+## Hosted proof-composition receipt — November 7, 2026
+
+**[Run 42384169880](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/42384169880): PASS.** The source passed the strict integer-only checker; the standalone gauge and spectral-composition test passed, and **all six intentionally wrong statements failed as predicted**. The original r=9 full-space certificate was verified as 340 green nested nodes, including `N_full(t1)=N_T(t1)=8` and `N_full(tF)=N_T(tF)=8`. The r=27 pinned zero-momentum reference was checked for its original first-level and second-level intervals.
+
+The exact **[11-row hosted receipt](MEASURED-20261107.hbp)** records a SHA-256 of the original full-space HBP `79beb0f4d8ebfed355f8b685c51e0135c18edf0592aaee0c755c6980a3e387c9`, and separately pins the 13-row prediction freeze. These source hashes make changes to the original evidence visible on replay.
+
+| Independently reconstructed property | 3×3 | 3×4 |
+|---|---:|---:|
+| Magnetic-flat gauge classes | 8 | 8 |
+| Flat-subspace diagonal electric energy | 54 `J_E` | 72 `J_E` |
+| Single-link transpositions checked to leave flat subspace | 432 | 576 |
+| One-step translation equivalences solved with explicit local gauge frames | 16 | 16 |
+| Axis-swap flat-state split | **6 even, 2 odd** | Not an axis symmetry |
+| Alternating horizontal winding action on flat states | Not applicable | **Exactly zero** |
+
+For 3×3, the certificate-composition theorem applies across the **entire coupling range `r>=9`**, rather than only at the originally certified `r=9`. It transfers the pinned **`r=27` first-gap bracket `[0.001967,0.002059] J_E`** from the zero-momentum Hamiltonian to all 10,097,891 gauge-invariant states. The `r=243` first-gap numerical value is still **INCONCLUSIVE**, and this checker retains the hold.
+
+For 3×4, the exact magnetic-flat vanishing of `O_alt` does **not** show that its interacting first-state overlap vanishes; identifying the 3×4 first global excitation remains OPEN.
+
+**Proof status:** this is rigorous *logical reuse* of existing, pinned integer spectral certificates plus new independent finite-group identities, **not a second full-space spectral computation**, a 4D continuum existence proof or a glueball mass measurement.
