@@ -1,0 +1,20 @@
+# WINDING-WILSON VACUUM CHANNEL: FROZEN BEFORE EXTENDING THE EXECUTABLE
+# 2026-11-07, exact 1x1 periodic finite S3 H=E+M at JE=JB=1.
+# D(a,b)=chi_std(a)-chi_std(b) is gauge invariant under simultaneous
+# conjugation; it is odd under exchanging the spatial torus axes.
+# Same ground state as PREDICT-INTERACTING-VACUUM, distinct observable.
+PREDICT|id=01|check=GAUGE_INVARIANT_WINDING|D=chi_std(a)-chi_std(b)|simultaneous_conjugacy_invariant=YES|link_swap_odd=YES|status=DERIVED|json=0
+PREDICT|id=02|check=EXACT_SECTOR_SWITCH|source_sector=ker_P5|target_sector=ker_P3|P3(H)*D*(H-6I)*P3(H)=ZERO|target_rank=3|status=DERIVED|json=0
+PREDICT|id=03|check=GROUND_ONEPOINT|mean_D=0_exact|vacuum_swap_even=YES|status=DERIVED|json=0
+PREDICT|id=04|check=FIRST_TRUE_EXCITATION_VISIBLE|E1_in=3.274551,3.274552|E1-E0_in=2.178437,2.178439|spectral_weight_E1_in=3.01,3.04|status=DERIVED|json=0
+PREDICT|id=05|check=CUBIC_SPECTRUM|E6_in=7.601465555,7.601465556|E9_in=10.123983179,10.123983180|three_visible_modes=YES|status=DERIVED|json=0
+PREDICT|id=06|check=VACUUM_CONNECTED_C0|variance_D_in=3.02219,3.02222|status=DERIVED|json=0
+PREDICT|id=07|check=VACUUM_CONNECTED_C1|t=1|C1_in=0.34210854,0.34210857|status=DERIVED|json=0
+PREDICT|id=08|check=VACUUM_CONNECTED_C2|t=2|C2_in=0.03873285,0.03873288|status=DERIVED|json=0
+PREDICT|id=09|check=VACUUM_CONNECTED_C3|t=3|C3_in=0.00438525,0.00438529|status=DERIVED|json=0
+PREDICT|id=10|check=LONG_JUMP_WINDING|N=43046721|C_N_approx=0.34210852998|error_continuous_minus_discrete=1.8e-8_to_2.1e-8|status=DERIVED|json=0
+PREDICT|id=11|check=NONLOCAL_OBSERVABLE|winding_Wilson_loops=GAUGE_INVARIANT|plaquette_Wilson_first_E1=EXACT_ZERO|winding_difference_E1=NONZERO|status=DERIVED|json=0
+PREDICT|id=12|check=REPRODUCE|same_Perron_vacuum_vector=YES|same_S3_Hamiltonian=YES|same_integer_audit=YES|status=DERIVED|json=0
+PREDICT|id=13|check=FALSE_CONTROL|claim_winding_E1_invisible=REJECT|claim_signed_untraced_holonomy_invariant=REJECT|status=RED|json=0
+PREDICT|id=14|check=SCOPE|physical_first_gap_in_FINITE_1x1_S3=MEASURED|SU2_four_dimensional_spatial_continuum=NOT_PROVED|experiment=NOT_CALIBRATED|status=LIMIT|json=0
+PREDICTION_SUMMARY|rows=14|freeze_before_source_change=TRUE|results=NOT_RUN|json=0
