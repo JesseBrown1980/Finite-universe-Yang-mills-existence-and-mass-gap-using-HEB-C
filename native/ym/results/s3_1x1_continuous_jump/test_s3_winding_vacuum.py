@@ -6,14 +6,7 @@ No floats, Decimal, Fraction or JSON. The full-space 3x4 first gap is not tested
 """
 from itertools import permutations
 from math import gcd
-from pathlib import Path
-import importlib.util
-
-_source=Path(__file__).with_name("test_s3_interacting_vacuum.py")
-_spec=importlib.util.spec_from_file_location("interacting_finite_s3_source",_source)
-assert _spec is not None and _spec.loader is not None
-base=importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(base)
+import test_s3_interacting_vacuum as base
 
 q=base.q
 add=base.plus
