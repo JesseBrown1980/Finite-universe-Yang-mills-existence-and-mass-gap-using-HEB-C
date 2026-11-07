@@ -11,6 +11,16 @@ import argparse
 from math import gcd
 
 
+def integer_power(base: int, exp: int) -> int:
+    """Fail closed for negative exponents; multiplication cannot create floats."""
+    if not isinstance(exp, int) or exp < 0:
+        raise ValueError('NEGATIVE_EXPONENT_UNCERTIFIED')
+    value = 1
+    for _ in range(exp):
+        value *= base
+    return value
+
+
 def bound(lx: int, ly: int, je: int, jb: int) -> dict[str, int]:
     if min(lx, ly, je) < 1 or jb < 0:
         raise ValueError('require Lx,Ly,JE >= 1 and JB >= 0')
@@ -25,7 +35,7 @@ def bound(lx: int, ly: int, je: int, jb: int) -> dict[str, int]:
     harnack = degree_upper + (magnetic_upper * jb + je - 1) // je
     # Ground-state comparison: gap(H)>=JE gap(E) (min psi/max psi)^2.
     numer = 3 * girth * je
-    denom = pow(harnack, 2 * diameter_upper)
+    denom = integer_power(harnack, 2 * diameter_upper)
     common = gcd(numer, denom)
     return dict(lx=lx, ly=ly, je=je, jb=jb, loops=loops,
                 girth=girth, orbit_diameter_upper=diameter_upper,
