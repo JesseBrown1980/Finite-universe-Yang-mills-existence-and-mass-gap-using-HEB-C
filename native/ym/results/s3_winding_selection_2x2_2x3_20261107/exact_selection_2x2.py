@@ -13,7 +13,7 @@ import sys
 
 HERE=Path(__file__).resolve()
 ROOT=HERE.parents[4]
-source=ROOT/"independent/gpt6_2x2_from_permutations.py"
+source=ROOT.joinpath("independent/gpt6_2x2_from_permutations.py")
 if len(sys.argv)!=2:raise SystemExit("usage: exact_selection_2x2.py MATRIX_OUTPUT_DIR")
 args=sys.argv
 try:
@@ -86,7 +86,7 @@ out=Path(args[1]);out.mkdir(parents=True,exist_ok=True)
 dims=[]
 for odd in (False,True):
     w,rows=project(odd)
-    path=out/("odd.matrix" if odd else "even.matrix")
+    path=out.joinpath("odd.matrix" if odd else "even.matrix")
     with path.open("w") as f:
         f.write(str(len(w))+"\n")
         f.write(" ".join(map(str,w))+"\n")
