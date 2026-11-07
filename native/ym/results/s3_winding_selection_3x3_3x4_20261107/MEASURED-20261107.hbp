@@ -1,0 +1,38 @@
+# Hosted exact S3 3x3+3x4 winding selection, Euclidean electric time, run 42382934640, job 128434196501.
+# Prediction freeze: commit 3acdca0825fbf6a548686ccf1aae3838fd7b5a8e, BEFORE new source.
+# All tests finite-group, JB=0 observable E=9. The JB>0 first E1 and 4D SU2 continuum remain OPEN.
+S3_BEGIN|group=S3|lattices=3x3,3x4|prediction_sha256=9c7c74884aa44ad419a96cf7c72087d9984bdf60ed55574f1c062fbcb7f6b8ad|frozen_rows=17|model=FINITELY_PERIODIC_SPATIAL_TORI|exact_arithmetic=INTEGER_PAIRS|json=0
+S3_ELECTRIC_IDENTITY|loop_length=3|group_words=216|elementary_move_checks=1944|exact_eigenvalue=9|character_identity=PASS|json=0
+S3_ELECTRIC_IDENTITY|loop_length=4|group_words=1296|elementary_move_checks=15552|exact_eigenvalue=12|character_identity=PASS|json=0
+S3_GEOMETRY|shape=3x3|sites=9|oriented_links=18|free_links=10|full_physical_gauge_orbits=10097891|existing_3x4_stored_rows=N/A|stored_rows_equal_full_space=NO|json=0
+S3_SYMMETRY|shape=3x3|raw_samples=48|local_gauge_transformations=2592|electric_move_covariance_checks=2592|magnetic_covariance=PASS|gauge_invariant_observable=PASS|even_operator=WX_plus_WY|odd_operator=WX_minus_WY|symmetry=AXIS_EXCHANGE|json=0
+S3_ELECTRIC_OBSERVABLE|shape=3x3|interaction_JB=0|eigenvalue=9|uniform_vacuum_mean=0|connected_variance=6|group_character_factorization=EXACT|fully_interacting_JB1_first_overlap=OPEN|tested_global_E1_parity=OPEN|json=0
+S3_GEOMETRY|shape=3x4|sites=12|oriented_links=24|free_links=13|full_physical_gauge_orbits=2177317873|existing_3x4_stored_rows=45508080|stored_rows_equal_full_space=NO|json=0
+S3_SYMMETRY|shape=3x4|raw_samples=48|local_gauge_transformations=3456|electric_move_covariance_checks=3456|magnetic_covariance=PASS|gauge_invariant_observable=PASS|even_operator=WX_Y_MOMENTUM_ZERO|odd_operator=WX_Y_MOMENTUM_PI|symmetry=UNIT_TRANSLATION_Y|json=0
+S3_RED_REFERENCE|bare_open_link_character=GAUGE_VARIANT|traced_closed_winding_character=GAUGE_INVARIANT|json=0
+S3_ELECTRIC_OBSERVABLE|shape=3x4|interaction_JB=0|eigenvalue=9|uniform_vacuum_mean=0|connected_variance=4|group_character_factorization=EXACT|fully_interacting_JB1_first_overlap=OPEN|tested_global_E1_parity=OPEN|json=0
+S3_ELECTRIC_CROSSCHECK|shape=3x4|x_winding_length=3|x_winding_energy=9|y_winding_length=4|y_winding_energy=12|non_square_exchange_symmetry=ABSENT|json=0
+S3_HAAR_SINGLE_LOOP|uniform_character_mean=0|uniform_character_variance=1|disjoint_link_loops_independent=BY_PRODUCT_MEASURE|json=0
+S3_TIME_SLICE|shape=3x3|JB=0|Euclidean_time=1|steps=27|ternary_cubings=3|connected_lower=0.000105605674|connected_upper=0.000105605675|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_TIME_SLICE|shape=3x4|JB=0|Euclidean_time=1|steps=27|ternary_cubings=3|connected_lower=0.000070403783|connected_upper=0.000070403784|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_MODULAR_JUMP|prime=1000081|exponent=3|time_steps=27|scalar_eigenmode_residue=596392|cubings=3|binary_modular_power=MATCH|json=0
+S3_MODULAR_JUMP|prime=1000003|exponent=3|time_steps=27|scalar_eigenmode_residue=331860|cubings=3|binary_modular_power=MATCH|json=0
+S3_TIME_SLICE|shape=3x3|JB=0|Euclidean_time=1|steps=81|ternary_cubings=4|connected_lower=0.000431317353|connected_upper=0.000431317354|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_TIME_SLICE|shape=3x4|JB=0|Euclidean_time=1|steps=81|ternary_cubings=4|connected_lower=0.000287544902|connected_upper=0.000287544903|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_TIME_SLICE|shape=3x3|JB=0|Euclidean_time=1|steps=243|ternary_cubings=5|connected_lower=0.000624137269|connected_upper=0.000624137270|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_TIME_SLICE|shape=3x4|JB=0|Euclidean_time=1|steps=243|ternary_cubings=5|connected_lower=0.000416091513|connected_upper=0.000416091514|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_TIME_SLICE|shape=3x3|JB=0|Euclidean_time=1|steps=729|ternary_cubings=6|connected_lower=0.000700120839|connected_upper=0.000700120840|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_TIME_SLICE|shape=3x4|JB=0|Euclidean_time=1|steps=729|ternary_cubings=6|connected_lower=0.000466747226|connected_upper=0.000466747227|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_TIME_SLICE|shape=3x3|JB=0|Euclidean_time=1|steps=19683|ternary_cubings=9|connected_lower=0.000738936349|connected_upper=0.000738936350|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_TIME_SLICE|shape=3x4|JB=0|Euclidean_time=1|steps=19683|ternary_cubings=9|connected_lower=0.000492624232|connected_upper=0.000492624233|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_MODULAR_JUMP|prime=1000081|exponent=9|time_steps=19683|scalar_eigenmode_residue=206292|cubings=9|binary_modular_power=MATCH|json=0
+S3_MODULAR_JUMP|prime=1000003|exponent=9|time_steps=19683|scalar_eigenmode_residue=294726|cubings=9|binary_modular_power=MATCH|json=0
+S3_TIME_SLICE|shape=3x3|JB=0|Euclidean_time=1|steps=531441|ternary_cubings=12|connected_lower=0.000740402397|connected_upper=0.000740402398|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_TIME_SLICE|shape=3x4|JB=0|Euclidean_time=1|steps=531441|ternary_cubings=12|connected_lower=0.000493601598|connected_upper=0.000493601599|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_TIME_SLICE|shape=3x3|JB=0|Euclidean_time=1|steps=43046721|ternary_cubings=16|connected_lower=0.000740458127|connected_upper=0.000740458128|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_TIME_SLICE|shape=3x4|JB=0|Euclidean_time=1|steps=43046721|ternary_cubings=16|connected_lower=0.000493638751|connected_upper=0.000493638752|reference=m*exp(-9)|interval_proof=LOG_TAYLOR_RATIONAL|json=0
+S3_MODULAR_JUMP|prime=1000081|exponent=16|time_steps=43046721|scalar_eigenmode_residue=909853|cubings=16|binary_modular_power=MATCH|json=0
+S3_MODULAR_JUMP|prime=1000003|exponent=16|time_steps=43046721|scalar_eigenmode_residue=552018|cubings=16|binary_modular_power=MATCH|json=0
+S3_CONTINUOUS_ELECTRIC|shape=3x3|JB=0|Euclidean_time=1|connected_lower=0.000740458824|connected_upper=0.000740458825|exact_formula=6*exp(-9)|spatial_continuum=NOT_TESTED|json=0
+S3_CONTINUOUS_ELECTRIC|shape=3x4|JB=0|Euclidean_time=1|connected_lower=0.000493639216|connected_upper=0.000493639217|exact_formula=4*exp(-9)|spatial_continuum=NOT_TESTED|json=0
+S3_VERIFY|status=PASS|lattices=3x3,3x4|exact_pure_electric_eigenmode=E9|hosted_time_steps_max=43046721|interacting_E1_sector=OPEN|interacting_vacuum_overlap=OPEN|full_spectral_inertia=NOT_RUN|spatial_continuum=NOT_TESTED|fourD_SU2_Clay=OPEN|json=0
