@@ -30,7 +30,7 @@ jobs:
           PY
       - name: Independently rebuild interacting winding vacuum and projector
         run: |
-          python3 -I -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_winding_vacuum.py > /tmp/WINDING.hbp
+          python3 -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_winding_vacuum.py > /tmp/WINDING.hbp
           cat /tmp/WINDING.hbp
           grep -F 'WINDING_E1_PROJECTOR|' /tmp/WINDING.hbp
           grep -F 'WINDING_E1_PERRON|' /tmp/WINDING.hbp
@@ -42,7 +42,7 @@ jobs:
           grep -F 'LARGER_SELECTION_VERIFY|result=PASS|' /tmp/LARGER.hbp
       - name: Assert registered prediction intervals and deterministic replay
         run: |
-          python3 -I -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_winding_vacuum.py > /tmp/WINDING2.hbp
+          python3 -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_winding_vacuum.py > /tmp/WINDING2.hbp
           python3 -I -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_larger_operator_selection.py > /tmp/LARGER2.hbp
           cmp /tmp/WINDING.hbp /tmp/WINDING2.hbp
           cmp /tmp/LARGER.hbp /tmp/LARGER2.hbp
