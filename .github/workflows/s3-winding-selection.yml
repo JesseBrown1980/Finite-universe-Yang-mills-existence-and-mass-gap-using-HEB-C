@@ -46,6 +46,8 @@ jobs:
           python3 -I -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_larger_operator_selection.py > /tmp/LARGER2.hbp
           cmp /tmp/WINDING.hbp /tmp/WINDING2.hbp
           cmp /tmp/LARGER.hbp /tmp/LARGER2.hbp
+          cmp /tmp/WINDING.hbp native/ym/results/s3_1x1_continuous_jump/MEASURED-WINDING-20261107.hbp
+          cmp /tmp/LARGER.hbp native/ym/results/s3_1x1_continuous_jump/MEASURED-LARGER-SELECTION-20261107.hbp
           python3 - <<'PY'
           from pathlib import Path
           root=Path("native/ym/results/s3_1x1_continuous_jump")
