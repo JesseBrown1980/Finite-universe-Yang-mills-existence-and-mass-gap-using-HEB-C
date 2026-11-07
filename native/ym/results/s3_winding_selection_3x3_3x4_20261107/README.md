@@ -103,4 +103,22 @@ This is evidence that finite-group lattice systems admit exactly gauge-invariant
 python3 -I -X utf8 native/ym/results/s3_winding_selection_3x3_3x4_20261107/verify_winding_and_slices.py
 ```
 
-[Hosted workflow](../../../.github/workflows/s3-winding-selection-3x3-3x4.yml) tests prediction-first exact source, independent modular jump, HBP replay, and six falsifiers. The successful output is archived at `MEASURED-20261107.hbp` after the hosted run. No original spectral receipt is altered.
+[Hosted workflow](../../../../.github/workflows/s3-winding-selection-3x3-3x4.yml) tests prediction-first exact source, independent modular jump, HBP replay, and six falsifiers. The successful output is archived at `MEASURED-20261107.hbp` after the hosted run. No original spectral receipt is altered.
+
+## Hosted measured checkpoint (November 7, 2026)
+
+[Dedicated GitHub Actions run 42382934640](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/42382934640) **PASS**: exhaustive 216/1,296 local Wilson-word checks, 2,592/3,456 local vertex gauge transformations, 2,592/3,456 elementary electric-move symmetry checks, two-prime modular scalar-jump replays, and **all six deliberately false claims rejected**. All newly added Python passes the strict repository integer-only AST audit. The frozen 17 rows remain unchanged. [Complete 35-row measured receipt](MEASURED-20261107.hbp).
+
+**At fixed dimensionless Euclidean time (t=1), pure electric (J_E=1,J_B=0):**
+
+| Number of time slices | Certified 3×3 (O_±) connected correlation | Certified 3×4 (O_{mathrm{alt}}) connected correlation |
+|---:|---:|---:|
+| 27 | [0.000105605674, 0.000105605675] | [0.000070403783, 0.000070403784] |
+| 729 | [0.000700120839, 0.000700120840] | [0.000466747226, 0.000466747227] |
+| 531,441 | [0.000740402397, 0.000740402398] | [0.000493601598, 0.000493601599] |
+| **43,046,721** | **[0.000740458127, 0.000740458128]** | **[0.000493638751, 0.000493638752]** |
+| **Continuous time of the *same finite electric Hamiltonian*** | **[0.000740458824, 0.000740458825]** | **[0.000493639216, 0.000493639217]** |
+
+The certified errors shrink as (N) grows. These values are **analytic pure-electric finite-model correlations**, not a simulation of an interacting (J_B=1) vacuum, an empirical Yang–Mills particle, or a zero-spatial-spacing continuum.
+
+**Hard next gate:** Determine which of these symmetry channels has strictly positive overlap with the full interacting (E_1) at 3×3 and 3×4 using independent full-space bounds. Existing 3×3 compressed Ritz gaps and 3×4 high-cluster certificates are **not** substitutes.
