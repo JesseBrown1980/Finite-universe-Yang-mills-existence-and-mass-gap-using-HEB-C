@@ -206,3 +206,65 @@ python3 -I -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_interacting_
 ```
 
 The GitHub workflow checks the exact sector, five spectral projectors, four rigorous connected-time values, seven ternary slices, two independent 43M modular jumps, and **four deliberately false statements** (uniform vector is true vacuum, wrong signed observable, E1 visible, wrong cubing). The predictions are fixed in [PREDICT-INTERACTING-VACUUM-20261107.hbp](PREDICT-INTERACTING-VACUUM-20261107.hbp), and the complete certified output is in [MEASURED-INTERACTING-VACUUM-20261107.hbp](MEASURED-INTERACTING-VACUUM-20261107.hbp). Do not rewrite the earlier trial-state HBP receipt or its numerical prediction miss. The mathematical root and overlap certificates refer only to the **finite (S_3) 1×1 torus at (J_E=J_B=1)**.
+
+### 5. A second gauge-invariant channel actually detects the **true first excitation**
+
+A single plaquette Wilson character does not detect the first eigenexcitation `E1` of the full finite gauge-invariant Hamiltonian. That is a **selection rule of that operator**, not an absence of the state. We tested a second, explicitly gauge-invariant but **nonlocal** observable on the same one-site periodic torus:
+
+```text
+D(a,b) = χ_std(a) − χ_std(b)
+```
+
+Here `a` and `b` are the two **noncontractible spatial holonomies** of the periodic torus, and each trace is invariant under `(a,b)→(gag⁻¹,gbg⁻¹)`. Their difference is **odd under interchanging the two spatial axes**, while `H` and its nondegenerate ground state are even. Consequently `<Ω|D|Ω>=0` **exactly**. This is **not the signed, untraced Shadow Cat 3-cycle**, whose bare orientation is not invariant under all `S₃` gauge conjugations.
+
+The operator algebra supplies the complementary selection rule. With `K=(H−6I)P3(H)` spanning the five-dimensional ground/plaquette sector, the exact integer identities
+
+```text
+rank(D K) = 3
+P3(H) D K = 0
+```
+
+prove that **the winding-difference operator maps the five-dimensional quintic sector into the three-dimensional cubic sector**, which contains **the actual first excited level E1**. All three cubic levels were independently isolated by exact rational inertia. Within this cubic sector the degree-two Lagrange spectral filters have exact verified root errors smaller than `10⁻⁶`, giving spectral weight bounds with total uncertainty `<10⁻⁵` and certified positive overlap:
+
+| Actual finite-gauge excitation | Energy at `J_E=J_B=1` | Winding-difference spectral weight `|<n|D|Ω>|²` |
+|---|---|---|
+| **`E1`: true first excitation** | [3.274551264, 3.274551265] | **[3.021656777, 3.021676778]** |
+| `E6` | [7.601465555, 7.601465556] | [0.000432732, 0.000452733] |
+| `E9` | [10.123983179, 10.123983180] | [0.000085733, 0.000105734] |
+
+**The `E1−E0` mass gap is a genuine observable spectral gap in this finite model** when probed using `D`. With the same rigorously certified interacting vacuum, the *connected* correlation becomes
+
+```text
+C_D(t) = <Ω|D exp[-t(H−E0)] D|Ω>
+       = Σ_{n∈{1,6,9}} |<n|D|Ω>|² exp[-t(En−E0)].
+```
+
+| Euclidean time `t` | Certified winding connected correlation |
+|---:|---|
+| 0 | [3.022205243662, 3.022205243663] |
+| 1 | **[0.342108549199, 0.342108549201]** |
+| 2 | [0.038732861760, 0.038732861761] |
+| 3 | [0.004385267369, 0.004385267370] |
+
+The first visible `E1` contribution dominates the winding channel because its certified spectral weight is over `3.01`, while the sum of the other two weights is less than `0.00056`. For the **same exact finite Hamiltonian and same interacting vacuum**, the plaquette and winding observables therefore measure **different** spectral channels:
+
+| Probe | Lowest state it sees | Corresponding excitation gap in `J_E` units |
+|---|---|---|
+| Contractible plaquette character `χ_std([a,b])` | `E2` | **2.469275–2.469277** |
+| Noncontractible winding-trace difference `χ_std(a)−χ_std(b)` | **`E1`** | **2.178437–2.178439** |
+
+The full gauge-theory gap is the *smaller* number, and a single choice of observable must not silently substitute its own lowest visible mass for the physical first excitation.
+
+**The winding channel also passes the 43-million time-slice test:**
+
+| Discrete time steps `N` at fixed `t=1` | Certified `C_{D,N}(1)` |
+|---:|---|
+| 27 | [0.311753491310, 0.311753491311] |
+| 729 | [0.340994609203, 0.340994609204] |
+| 531,441 | [0.342107021717, 0.342107021718] |
+| **43,046,721** | **[0.342108530342, 0.342108530343]** |
+| Continuous time, same finite `H` | **[0.342108549199, 0.342108549201]** |
+
+At the largest power of three the certified absolute difference is **between `1.8857×10⁻⁸` and `1.8858×10⁻⁸`**. This is a limit in **Euclidean time discretization on a fixed finite spatial torus**. It does not establish an `SU(2)` zero-spatial-spacing continuum, an infinite-volume spectral bound or an experimentally calibrated physical particle mass.
+
+**Prediction-first provenance:** 14 new predictions were frozen at Git commit `d161bd8d70e70d9a755c47c315060ace7697d0ea` **before the winding-channel code was added**. [Hosted PASS 42375510548](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/42375510548) checked exact sector covariance, independent root isolation, all three positive spectral weights and 43-million-slice convergence. The 26 exact HBP lines are in [MEASURED-WINDING-VACUUM-20261107.hbp](MEASURED-WINDING-VACUUM-20261107.hbp), and the combined workflow runs **six negative controls**. The original trial-state receipt and the frozen point-prediction miss remain untouched. No claim of a four-dimensional Clay solution is made.
