@@ -43,6 +43,42 @@ jobs:
             tail -n +4 "$dir/MEASURED-20261106.hbp" | cmp - build/s3_wilson/REPLAY.hbp
           fi
           (cd build/s3_wilson && sha256sum REPLAY.hbp > SHA256SUMS)
+      - name: Interacting vacuum, gauge-invariant spectral weights and 43M step correlation
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/s3_1x1_continuous_jump
+          test "$(grep -c '^PREDICT|id=' "$dir/PREDICT-INTERACTING-VACUUM-20261107.hbp")" -eq 15
+          python3 -I -X utf8 native/scripts/integer_only_audit.py "$dir/test_s3_interacting_vacuum.py"
+          python3 -I -X utf8 "$dir/test_s3_interacting_vacuum.py" | tee build/s3_wilson/REPLAY-VACUUM.hbp
+          grep -F 'VACUUM_EXACT_SECTOR|rank=5|characteristic_blocks=P5,P3,(x-6)^3|Wilson_preserves_P5=EXACT|first_excited_E1_block=P3|ground_state_E0_block=P5|E1_Wilson_overlap=ZERO_EXACT|' build/s3_wilson/REPLAY-VACUUM.hbp
+          grep -F 'VACUUM_SPECTRAL_SELECTION|true_first_excitation=E1|true_first_gap_interval=[2.178437,2.178439]|E1_Wilson_spectral_weight=ZERO_EXACT|lowest_visible_excitation=E2|Wilson_gap_interval=[2.469275,2.469277]|' build/s3_wilson/REPLAY-VACUUM.hbp
+          grep -F 'VACUUM_VERIFY|status=PASS|predictions=15|true_vacuum=PERRON_CERTIFIED|ground_certified_angular_error_lt=1e-24|E1_Wilson_overlap=EXACT_ZERO|first_visible_state=E2|' build/s3_wilson/REPLAY-VACUUM.hbp
+          test "$(grep -c '^VACUUM_SPECTRAL_WEIGHT|' build/s3_wilson/REPLAY-VACUUM.hbp)" -eq 5
+          test "$(grep -c '^VACUUM_CONNECTED|' build/s3_wilson/REPLAY-VACUUM.hbp)" -eq 11
+          test "$(grep -c '^VACUUM_43M_JUMP|' build/s3_wilson/REPLAY-VACUUM.hbp)" -eq 2
+          if test -f "$dir/MEASURED-INTERACTING-VACUUM-20261107.hbp"; then
+            tail -n +4 "$dir/MEASURED-INTERACTING-VACUUM-20261107.hbp" | cmp - build/s3_wilson/REPLAY-VACUUM.hbp
+          fi
+      - name: Four invalid vacuum/observable statements must fail with the named check
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd build/s3_wilson
+          script=../../native/ym/results/s3_1x1_continuous_jump/test_s3_interacting_vacuum.py
+          for case in uniform_vacuum wrong_observable false_E1_visible wrong_cube; do
+            rc=0
+            python3 -I -X utf8 "$script" "sabotage=$case" > "RED-$case.hbp" || rc=$?
+            test "$rc" -eq 1
+            case "$case" in
+              uniform_vacuum) expected=RED_uniform_vacuum ;;
+              wrong_observable) expected=RED_wrong_observable ;;
+              false_E1_visible) expected=RED_false_E1_visible ;;
+              wrong_cube) expected=RED_wrong_cube ;;
+            esac
+            grep -F "FAILED|check=$expected|json=0" "RED-$case.hbp"
+          done
+          sha256sum *.hbp > SHA256SUMS
       - uses: actions/upload-artifact@v4
         if: always()
         with:
