@@ -11,6 +11,16 @@ from __future__ import annotations
 from math import gcd
 
 
+def integer_power(base: int, exp: int) -> int:
+    """Fail closed for negative exponents; multiplication cannot create floats."""
+    if not isinstance(exp, int) or exp < 0:
+        raise ValueError('NEGATIVE_EXPONENT_UNCERTIFIED')
+    value = 1
+    for _ in range(exp):
+        value *= base
+    return value
+
+
 def mm(a, b):
     return [[sum(x*y for x,y in zip(row,col)) for col in zip(*b)] for row in a]
 
@@ -81,7 +91,7 @@ def triadic_sum(cnum, a, k):
     t=1
     for _ in range(k):
         vv=mm(v,v)
-        factor=[[pow(a,2*t)*int(i==j)+pow(a,t)*v[i][j]+vv[i][j]
+        factor=[[integer_power(a,2*t)*int(i==j)+integer_power(a,t)*v[i][j]+vv[i][j]
                  for j in range(n)] for i in range(n)]
         s=mm(s,factor)
         v=mm(vv,v)
@@ -126,7 +136,7 @@ def schur_cert(h, p, znum, zden, d, k):
         raise ValueError('CONTRACTION_UNCERTIFIED')
     sn,T=triadic_sum(cn,a,k)
     bb=mm(mm(B,sn),[list(row) for row in zip(*B)])
-    apow=pow(a,T)
+    apow=integer_power(a,T)
     Z=[[apow*K[i][j]-bb[i][j] for j in range(p)] for i in range(p)]
     determinant=det(Z)
     if determinant==0:
@@ -135,8 +145,8 @@ def schur_cert(h, p, znum, zden, d, k):
     left=max(sum(abs(bij)*di for bij,di in zip(row,d)) for row in B)
     right=sum(sum(abs(x) for x in row) for row in B)
     # Integer rearrangement of ||S_T^-1||_inf ||S-S_T||_inf < 1:
-    lhs=adj*left*right*pow(alnum,T)*dd
-    rhs=abs(determinant)*pow(dd,T)*dn
+    lhs=adj*left*right*integer_power(alnum,T)*dd
+    rhs=abs(determinant)*integer_power(dd,T)*dn
     if not lhs<rhs:
         raise ValueError('REMAINDER_TOO_LARGE_UNCERTIFIED')
     return dict(count=inertia(Z), steps=T, denom_power=T,
@@ -170,7 +180,7 @@ def main():
         summ=[[0,0],[0,0]]
         power=eye(2)
         for step in range(T):
-            scale=pow(a0,T-1-step)
+            scale=integer_power(a0,T-1-step)
             for i in range(2):
                 for j in range(2):
                     summ[i][j]+=power[i][j]*scale
