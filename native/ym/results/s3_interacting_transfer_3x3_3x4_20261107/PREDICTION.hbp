@@ -1,0 +1,18 @@
+# 2026-11-07 frozen before verifier executable, independent of unmerged PRs.
+# Composition of preexisting full-space 3x3 r=9 integer inertia receipt
+# and existing frozen 3x3 zero-momentum r=27 shell-cluster receipt.
+# No new full 10,097,891 dimensional inertia performed by this small verifier.
+PREDICT|id=01|check=FULLSPACE_SOURCE|lattice=3x3|N_full_at_t1=8|N_full_at_tF=8|t1_micro=52533422|tF_micro=71900000|nodes_converged=340|status=EXISTING_CERTIFICATE|json=0
+PREDICT|id=02|check=TRANSLATION_T|zero_momentum_dimension=1122211|full_dimension=10097891|N_T_t1=8|N_T_tF=8|status=EXISTING_CERTIFICATE|json=0
+PREDICT|id=03|check=FLAT_COMMUTING_PAIRS|gauge_orbits=8|raw_commuting_pairs=18|orbit_weights_sum=18|status=DERIVED|json=0
+PREDICT|id=04|check=FLAT_TRIAL_COMPRESS|3x3_flat_electric_diagonal=54|3x4_flat_electric_diagonal=72|single_link_flat_to_flat_coupling=ZERO|status=DERIVED|json=0
+PREDICT|id=05|check=FLAT_TRANSLATION|3x3_translation_x_y=IDENTITY_ON_GAUGE_ORBITS|3x4_translation_x_y=IDENTITY_ON_GAUGE_ORBITS|status=DERIVED|json=0
+PREDICT|id=06|check=FULLSPACE_TRANSFER|3x3_r_min=9|E9_lower_all_r_ge_9=71.9|E8_upper_T=54|first_eight_global_in_T=YES|status=THEOREM_FROM_CERTIFICATES|json=0
+PREDICT|id=07|check=R27_FROZEN_T_GAP|E1_bracket_micro=53493345,53493390|E2_bracket_micro=53495357,53495404|gap_bracket_micro=1967,2059|status=EXISTING_CERTIFICATE|json=0
+PREDICT|id=08|check=R27_GLOBAL_FIRST_GAP|finite_3x3|r=27|JE=1|gap_lower_micro=1967|gap_upper_micro=2059|status=DERIVED_TRANSFER|json=0
+PREDICT|id=09|check=R243_FROZEN|first_gap=INCONCLUSIVE|zero_momentum_global_first_eight=YES|status=HOLD|json=0
+PREDICT|id=10|check=FLAT_3X3_EXCHANGE|swap_fixed_orbits=4|even_flat_dim=6|odd_flat_dim=2|O_plus_flat_rank=7|O_minus_flat_rank=4|status=DERIVED|json=0
+PREDICT|id=11|check=FLAT_3X4_SELECTOR|O_alt_y_momentum_pi=ZERO_ON_ALL_EIGHT_FLAT_STATES|O_xsum_flat_rank=6|O_ysum_flat_rank=6|status=DERIVED|json=0
+PREDICT|id=12|check=NO_OVERCLAIM|3x3_E1_axis_exchange_parity=OPEN|3x3_first_gap_r27=BRACKET_VIA_COMPOSITION|3x4_full_global_E1=OPEN|3x4_Oalt_interacting_overlap=OPEN|status=LIMIT|json=0
+PREDICT|id=13|check=FALSIFIERS|wrong_T_count=REJECT|wrong_r27_gap=REJECT|incorrect_r243_gap=REJECT|nonzero_flat_Oalt=REJECT|wrong_flat_54=REJECT|untraced_gauge_claim=REJECT|status=RED|json=0
+PREDICTION_SUMMARY|rows=13|predictions_frozen_before_source=YES|new_fullspace_spectrum_run=NO|json=0
