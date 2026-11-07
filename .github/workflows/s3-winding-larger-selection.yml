@@ -1,0 +1,150 @@
+name: S3 winding selection 2x2 exact first overlap and 2x3 gauge test
+
+on:
+  push:
+    paths:
+      - 'native/ym/results/s3_winding_selection_2x2_2x3_20261107/**'
+      - '.github/workflows/s3-winding-larger-selection.yml'
+  pull_request:
+    paths:
+      - 'native/ym/results/s3_winding_selection_2x2_2x3_20261107/**'
+      - '.github/workflows/s3-winding-larger-selection.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  exact-first-gap-sector:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify source uses exact arithmetic
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+          base=Path('native/ym/results/s3_winding_selection_2x2_2x3_20261107')
+          for path in base.glob('*.py'):
+              tree=ast.parse(path.read_text())
+              for node in ast.walk(tree):
+                  if isinstance(node,ast.Constant):
+                      assert not isinstance(node.value,(float,complex)),path
+                  if isinstance(node,ast.BinOp):
+                      assert not isinstance(node.op,ast.Div),path
+                  if isinstance(node,ast.Import):
+                      assert all(n.name.split('.')[0] not in
+                                 {'numpy','scipy','decimal','fractions','json'} for n in node.names),path
+          for path in base.glob('*.cpp'):
+              source=path.read_text()
+              assert 'double ' not in source and 'float ' not in source
+          print('SELECTION_SOURCE|integer_only=PASS|json=0')
+          PY
+      - name: Build complete 2x2 Hamiltonian and independent parity projection
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I native/ym/results/s3_winding_selection_2x2_2x3_20261107/exact_selection_2x2.py /tmp/s3-parity | tee /tmp/SELECTION-2X2.hbp
+          grep -F 'SELECTION_GEOMETRY|full_dim=1393|even_dim=746|odd_dim=647|' /tmp/SELECTION-2X2.hbp
+          grep -F 'first_relative_spectral_weight_lower_gt_zero=EXACT' /tmp/SELECTION-2X2.hbp
+          grep -F 'SELECTION_LEAKAGE|centered_variance_lower=1|centered_variance_exact_gate=PASS|normalized_ground_leakage_delta=1|normalized_E1_leakage_delta_upper=128|total_low_mode_leakage_delta_upper=129|corrected_excess_positive=EXACT|corrected_excess_sha256=2d5504cbc526c07d7264b3a055f3bee5550a1cf62dc4ce869f9e6670f8d8cc3f|' /tmp/SELECTION-2X2.hbp
+          grep -F 'conservative_leakage_multiplier=129|' /tmp/SELECTION-2X2.hbp
+          grep -F 'winding_minus_first_gap=ZERO_EXACT' /tmp/SELECTION-2X2.hbp
+      - name: Independently prove first eigenvalue parity by GMP interval inertia
+        shell: bash
+        run: |
+          set -euo pipefail
+          g++ -O3 -std=c++17 -Wall -Wextra -Werror native/ym/results/s3_winding_selection_2x2_2x3_20261107/inertia_gmp.cpp -lgmpxx -lgmp -o /tmp/s3-inertia
+          : > /tmp/SELECTION-INERTIA.hbp
+          test_case() {
+            local parity="$1" threshold="$2" expected="$3"
+            local row
+            row="$(/tmp/s3-inertia "/tmp/s3-parity/$parity.matrix" "$threshold")"
+            printf '%s\n' "$row" | tee -a /tmp/SELECTION-INERTIA.hbp
+            echo "$row" | grep -F "|negative=$expected|pivots="
+          }
+          test_case even 13240000 1
+          test_case odd 13240000 0
+          test_case even 13242650 2
+          test_case odd 13242650 0
+          test_case even 13600000 2
+          test_case odd 13600000 1
+          echo 'SELECTION_FULL|E0=EVEN|E1=EVEN|E2=ODD|E3_lower=13.6|gap_first_visible_in_even_winding_sum=EXACT_NONZERO|json=0' | tee -a /tmp/SELECTION-INERTIA.hbp
+      - name: Recheck 2x3 gauge/translation symmetry and nonclass red controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I native/ym/results/s3_winding_selection_2x2_2x3_20261107/verify_2x3_symmetry.py | tee /tmp/SELECTION-2X3.hbp
+          grep -F '|local_gauge_checks=576|' /tmp/SELECTION-2X3.hbp
+          grep -F 'first_excitation_overlap=OPEN|json=0' /tmp/SELECTION-2X3.hbp
+          python3 - <<'PY'
+          from pathlib import Path
+          r=Path('/tmp/SELECTION-2X3.hbp').read_text()
+          n=int(r.split('negative_raw_link_witnesses=')[1].split('|')[0])
+          assert n>0
+          PY
+      - name: Reject source mutation and false inertia count
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp /tmp/s3-parity/even.matrix /tmp/mutated.matrix
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/mutated.matrix')
+          rows=p.read_text().splitlines()
+          rows[0]='999'
+          p.write_text('\n'.join(rows)+'\n')
+          PY
+          if /tmp/s3-inertia /tmp/mutated.matrix 13242650; then
+            echo 'SELECTION_RED|bad_dimension=UNEXPECTED_PASS|json=0'
+            exit 1
+          fi
+          if grep -F 'negative=3|' /tmp/SELECTION-INERTIA.hbp; then
+            echo 'SELECTION_RED|false_first_sector=UNEXPECTED_PASS|json=0'
+            exit 1
+          fi
+          # Also mutate a *structurally valid* self-adjoint even block:
+          # change two diagonal energies, preserving dimensions, weights,
+          # sparse layout, and symmetry. The 2D coordinate subspace becomes
+          # negative definite at 13.24, forcing at least TWO eigenvalues
+          # below the threshold, versus ONE for the original source matrix.
+          python3 - <<'PY'
+          from pathlib import Path
+          original=Path('/tmp/s3-parity/even.matrix')
+          out=Path('/tmp/mutated-valid-even.matrix')
+          lines=original.read_text().splitlines()
+          assert int(lines[0])==746
+          touched=set()
+          for index in range(3,len(lines)):
+              words=lines[index].split()
+              if len(words)==3:
+                  i,j,value=map(int,words)
+                  if i==j and i in (0,1):
+                      lines[index]=f'{i} {j} -1000000'
+                      touched.add(i)
+          assert touched=={0,1}
+          out.write_text('\n'.join(lines)+'\n')
+          PY
+          mutated_row="$(/tmp/s3-inertia /tmp/mutated-valid-even.matrix 13240000)"
+          echo "$mutated_row"
+          if [[ "$mutated_row" =~ \|negative=([0-9]+)\| ]]; then
+            mutated_negative="${BASH_REMATCH[1]}"
+          else
+            echo 'SELECTION_RED|valid_matrix_no_inertia_row=FAIL|json=0'
+            exit 1
+          fi
+          test "$mutated_negative" -ge 2
+          echo 'SELECTION_RED|valid_symmetric_wrong_operator=REJECTED_BY_INERTIA|original_negative=1|mutated_negative='"${mutated_negative}"'|json=0'
+          echo 'SELECTION_RED|tampered_dimension=REJECTED|false_first_sector=REJECTED|json=0'
+      - name: Upload exact certificates and selected matrices
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s3-winding-parity-integer-certificates
+          path: |
+            /tmp/SELECTION-2X2.hbp
+            /tmp/SELECTION-INERTIA.hbp
+            /tmp/SELECTION-2X3.hbp
+            /tmp/s3-parity/*.matrix
