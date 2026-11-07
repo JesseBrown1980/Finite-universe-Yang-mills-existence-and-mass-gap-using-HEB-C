@@ -1,0 +1,32 @@
+# Host-run receipt 42332389073; job 128281604365; prediction freeze 031d11923fd877166b2baf72c4e7eb745c4e362e
+# Actual finite S3 11-state Yang-Mills; exact integer-rational continuum-time comparison; NOT a spatial continuum limit.
+# Preregistered numeric miss ID 10 is preserved. 29 HBP evidence records follow.
+YM_FINITE_SETUP|gauge_group=S3|torus=1x1_PERIODIC|gauge_orbits=11|raw_link_pairs=36|weights_total=36|JE=1|JB=1|predictions_sha256=ad0322c6f65340718d1159ecd1441471d7ea440ef1140d2832e7f515729bee7d|json=0
+YM_FINITE_POLYNOMIAL|electric=x*(x-3)^2*(x-6)^5*(x-9)^2*(x-12)|interacting=(x-6)^3*P3*P5|P3=x3-21x2+135x-252|P5=x5-36x4+468x3-2655x2+6138x-4104|independent_integer_algorithm=FADDEEV_LEVERRIER|json=0
+YM_FINITE_INERTIA|threshold=E0_low|rational=1096113/1000000|eigenvalues_below=0|json=0
+YM_FINITE_INERTIA|threshold=E0_high|rational=1096114/1000000|eigenvalues_below=1|json=0
+YM_FINITE_INERTIA|threshold=E1_low|rational=3274551/1000000|eigenvalues_below=1|json=0
+YM_FINITE_INERTIA|threshold=E1_high|rational=3274552/1000000|eigenvalues_below=2|json=0
+YM_FINITE_GAP|JE=1|JB=1|E0_interval=[1.096113,1.096114]|E1_interval=[3.274551,3.274552]|first_gap_interval=[2.178437,2.178439]|method=EXACT_WEIGHTED_INTEGER_INERTIA|json=0
+YM_FINITE_WILSON|observable=chi_std(commutator)|gauge_invariant=YES|uniform_state_mean=1/2|centered_norm=9/4|electric_correlation=1/2*e(-3t)+e(-6t)+1/2*e(-9t)+1/4*e(-12t)|interacting_trial_vector=NOT_THE_TRUE_GROUND_STATE|json=0
+YM_FINITE_CRT|moment_order=0|reconstructed_integer=324|certified_magnitude_upper=324|unique_within_modulus=YES|moduli_product=1000084000243|json=0
+YM_FINITE_CRT|moment_order=1|reconstructed_integer=2646|certified_magnitude_upper=4860|unique_within_modulus=YES|moduli_product=1000084000243|json=0
+YM_FINITE_CRT|moment_order=4|reconstructed_integer=2689038|certified_magnitude_upper=16402500|unique_within_modulus=YES|moduli_product=1000084000243|json=0
+YM_FINITE_CRT|moment_order=7|reconstructed_integer=4544502894|certified_magnitude_upper=55358437500|unique_within_modulus=YES|moduli_product=1000084000243|json=0
+YM_FINITE_CONTINUOUS_TIME|physical_time=1|correlation_lower=0.056816632185348543|correlation_upper=0.056816632185348544|Taylor_order=144|rigorous_tail_bound=421732519428020259312951406742218749071688306106281085204855517388703302177066500888713562744669616222381591796875/220940835028540488408220397799190071156997802882452085317379842682437803289205160787259363546701964964269802562366298830751513738678592587690833238492100480354683857556111503391333855177996238848|statement=EXP_MINUS_H_FOR_FINITE_S3|json=0
+YM_FINITE_SLICE|time=1|steps=27|three_power=YES|correlation_lower=0.053826033701524255|correlation_upper=0.053826033701524256|error_lower=0.002990598483824288|error_upper=0.002990598483824289|outward_error=RIGOROUS_TAYLOR_BINOMIAL|json=0
+YM_FINITE_SLICE|time=1|steps=81|three_power=YES|correlation_lower=0.055776224779961874|correlation_upper=0.055776224779961875|error_lower=0.001040407405386669|error_upper=0.001040407405386670|outward_error=RIGOROUS_TAYLOR_BINOMIAL|json=0
+YM_FINITE_SLICE|time=1|steps=243|three_power=YES|correlation_lower=0.056464430804065222|correlation_upper=0.056464430804065223|error_lower=0.000352201381283321|error_upper=0.000352201381283322|outward_error=RIGOROUS_TAYLOR_BINOMIAL|json=0
+YM_FINITE_SLICE|time=1|steps=729|three_power=YES|correlation_lower=0.056698611679000604|correlation_upper=0.056698611679000605|error_lower=0.000118020506347939|error_upper=0.000118020506347940|outward_error=RIGOROUS_TAYLOR_BINOMIAL|json=0
+YM_FINITE_SLICE|time=1|steps=19683|three_power=YES|correlation_lower=0.056812249867264573|correlation_upper=0.056812249867264574|error_lower=0.000004382318083970|error_upper=0.000004382318083971|outward_error=RIGOROUS_TAYLOR_BINOMIAL|json=0
+YM_FINITE_SLICE|time=1|steps=531441|three_power=YES|correlation_lower=0.056816469861863712|correlation_upper=0.056816469861863713|error_lower=0.000000162323484831|error_upper=0.000000162323484832|outward_error=RIGOROUS_TAYLOR_BINOMIAL|json=0
+YM_FINITE_SLICE|time=1|steps=43046721|three_power=YES|correlation_lower=0.056816630181347677|correlation_upper=0.056816630181347678|error_lower=0.000000002004000866|error_upper=0.000000002004000867|outward_error=RIGOROUS_TAYLOR_BINOMIAL|json=0
+YM_FINITE_PREDICTION_MISS|id=10|frozen_approx=0.0568166301459|observed_interval=0.056816630181347677,0.056816630181347678|status=MISS_RETAINED|json=0
+YM_FINITE_JUMP|prime=1000081|exponent=3|steps=27|cubings=3|modular_binary_match=PASS|physical_unnormalized_state_sha256=a66b2240fc62bf9cc72be1c31b0907084109923a92a1fe90ac4e51c33673e2f8|Wilson_correlator_mod_prime=998079|json=0
+YM_FINITE_JUMP|prime=1000081|exponent=9|steps=19683|cubings=9|modular_binary_match=PASS|physical_unnormalized_state_sha256=980848e84520f70b41769485189316020b2a592f5e95f240513b49ceaad85e0b|Wilson_correlator_mod_prime=78659|json=0
+YM_FINITE_JUMP|prime=1000081|exponent=16|steps=43046721|cubings=16|modular_binary_match=PASS|physical_unnormalized_state_sha256=0ba27840b1de79e1f9e9b85d1dca71d98b0408a3b63d385c14707cd6f3f0cfe8|Wilson_correlator_mod_prime=232273|json=0
+YM_FINITE_JUMP|prime=1000003|exponent=3|steps=27|cubings=3|modular_binary_match=PASS|physical_unnormalized_state_sha256=ea1b0250089ead0b8fe15eae22baf0013dd6fe443087aaf515cf4121e3780536|Wilson_correlator_mod_prime=402261|json=0
+YM_FINITE_JUMP|prime=1000003|exponent=9|steps=19683|cubings=9|modular_binary_match=PASS|physical_unnormalized_state_sha256=3151a9282746904e60a9fcce3571d28ee1e2206a7509c4d9168b5cc7e2e07612|Wilson_correlator_mod_prime=76389|json=0
+YM_FINITE_JUMP|prime=1000003|exponent=16|steps=43046721|cubings=16|modular_binary_match=PASS|physical_unnormalized_state_sha256=aa3369b57e149d5bfbd82fa2bfa61b11cb61f3f07bfa49e87ca287d7154fd165|Wilson_correlator_mod_prime=841726|json=0
+YM_FINITE_MODULAR|primes=1000081,1000003|exponents=3,4,5,6,9,12,16|result=BINARY_EQUALS_CUBED|physical_real_correlator=NOT_DEFINED_MOD_P|json=0
+YM_FINITE_VERIFY|status=PASS_WITH_REGISTERED_MISS|predictions=15|registered_numeric_misses=1|exact_S3_orbits=11|interacting_first_gap=CERTIFIED_FINITE|time_jump_max=43046721|CRT_moments=8|continuous_reference=SAME_FINITE_HAMILTONIAN|spatial_continuum=NOT_TESTED|physical_experiment=NOT_MATCHED|Yang_Mills_4D_Clay=OPEN|json_zero=1|json=0
