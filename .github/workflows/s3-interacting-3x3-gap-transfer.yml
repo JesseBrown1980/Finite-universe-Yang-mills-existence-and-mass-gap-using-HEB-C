@@ -1,0 +1,64 @@
+name: S3 interacting 3x3 full-gap composition and 3x4 flat winding selector
+
+on:
+  push:
+    paths:
+      - 'native/ym/results/s3_interacting_transfer_3x3_3x4_20261107/**'
+      - '.github/workflows/s3-interacting-3x3-gap-transfer.yml'
+  pull_request:
+    paths:
+      - 'native/ym/results/s3_interacting_transfer_3x3_3x4_20261107/**'
+      - '.github/workflows/s3-interacting-3x3-gap-transfer.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  exact-certificate-composition:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Strict integer source audit and frozen predictions
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/s3_interacting_transfer_3x3_3x4_20261107
+          test "$(grep -c '^PREDICT|id=' "$dir/PREDICTION.hbp")" -eq 13
+          python3 -I -X utf8 native/scripts/integer_only_audit.py "$dir/verify_flat_transfer.py"
+      - name: Independently rebuild flat gauge orbits and compose original spectral certificates
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/s3_interacting_transfer_3x3_3x4_20261107
+          mkdir -p build/s3_interacting_transfer
+          python3 -I -X utf8 "$dir/verify_flat_transfer.py" | tee build/s3_interacting_transfer/REPLAY.hbp
+          grep -F 'TRANSFER_FLAT_ORBITS|classes=8|raw_commuting_pairs=18|total_residual_weights=18|axis_swap_fixed=4|square_even_dim=6|square_odd_dim=2|square_Oplus_flat_rank=7|square_Ominus_flat_rank=4|' build/s3_interacting_transfer/REPLAY.hbp
+          grep -F 'TRANSFER_SOURCE_FULL|at_r=9|t1=52.533422|tF=71.900000|N_full_t1=8|N_T_t1=8|N_full_tF=8|N_T_tF=8|certificate_nodes_green=340|' build/s3_interacting_transfer/REPLAY.hbp
+          grep -F 'TRANSFER_GLOBAL_THEOREM|lattice=3x3|r_range=r_ge_9|E9_full_lower=71.900000|E8_T_upper=54.000000|transfer_proof=MINMAX_PLUS_MONOTONE_MAGNETIC|low_eight_all_zero_momentum=CERTIFICATE_COMPOSITION_PASS|' build/s3_interacting_transfer/REPLAY.hbp
+          grep -F 'TRANSFER_GLOBAL_R27_GAP|lattice=3x3|r=27|JE=1|E1_global_interval=[53.493345,53.493390]|E2_global_interval=[53.495357,53.495404]|first_gap_global_interval=[0.001967,0.002059]|status=CERTIFICATE_COMPOSITION_PASS|' build/s3_interacting_transfer/REPLAY.hbp
+          grep -F 'TRANSFER_RECT_SELECTION|shape=3x4|alternating_winding_flat_compression=IDENTICALLY_ZERO|horizontal_winding_sum_flat_rank=6|vertical_winding_sum_flat_rank=6|' build/s3_interacting_transfer/REPLAY.hbp
+          grep -F 'TRANSFER_R243_HOLD|lattice=3x3|r=243|full_first_eight_zero_momentum=YES|first_gap_interval=INCONCLUSIVE|' build/s3_interacting_transfer/REPLAY.hbp
+          grep -F 'TRANSFER_VERIFY|status=PASS|composed_global_3x3_first_gap_r27=YES|actual_E1_axis_exchange_parity=OPEN|actual_E1_winding_overlap=OPEN|global_3x4_E1=OPEN|' build/s3_interacting_transfer/REPLAY.hbp
+          test "$(grep -c '^TRANSFER_FLAT_MATRIX|' build/s3_interacting_transfer/REPLAY.hbp)" -eq 2
+          if test -f "$dir/MEASURED-20261107.hbp"; then
+            tail -n +4 "$dir/MEASURED-20261107.hbp" | cmp - build/s3_interacting_transfer/REPLAY.hbp
+          fi
+      - name: Six false certificate or observable statements must be rejected
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/s3_interacting_transfer_3x3_3x4_20261107
+          for case in wrong_T_count wrong_r27_gap incorrect_r243_gap nonzero_flat_Oalt wrong_flat_54 untraced_gauge_claim; do
+            rc=0
+            python3 -I -X utf8 "$dir/verify_flat_transfer.py" "sabotage=$case" > "build/s3_interacting_transfer/RED-$case.hbp" || rc=$?
+            test "$rc" -eq 1
+            grep -F "FAILED|check=RED_$case|json=0" "build/s3_interacting_transfer/RED-$case.hbp"
+          done
+          (cd build/s3_interacting_transfer && sha256sum *.hbp > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s3-global-3x3-gap-r27-transfer-flat-3x4
+          path: build/s3_interacting_transfer/
+          if-no-files-found: warn
