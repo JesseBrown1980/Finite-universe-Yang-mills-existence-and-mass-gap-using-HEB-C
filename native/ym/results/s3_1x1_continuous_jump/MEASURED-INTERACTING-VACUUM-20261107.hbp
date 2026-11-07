@@ -31,4 +31,6 @@ VACUUM_CONNECTED|kind=TERNARY_JUMP|time=1|steps=531441|lower=0.030740421090|uppe
 VACUUM_SLICE_ERROR|steps=531441|error_lower=0.000000209957|error_upper=0.000000209959|comparison=SAME_FINITE_H_CONTINUOUS_TIME|json=0
 VACUUM_CONNECTED|kind=TERNARY_JUMP|time=1|steps=43046721|lower=0.030740628456|upper=0.030740628457|error_certified_lt=1e-14|gauge_invariant_operator=chi_std_commutator|state=ACTUAL_INTERACTING_VACUUM|json=0
 VACUUM_SLICE_ERROR|steps=43046721|error_lower=0.000000002591|error_upper=0.000000002593|comparison=SAME_FINITE_H_CONTINUOUS_TIME|json=0
+VACUUM_43M_JUMP|prime=1000081|steps=43046721|cubings=16|binary_vs_cube=PASS|state_digest=0a10cae1e1231497740d20ec331fec0c643092d6c5b3afb164e44df9f7c63d78|scope=EXACT_MODULAR_ONLY|json=0
+VACUUM_43M_JUMP|prime=1000003|steps=43046721|cubings=16|binary_vs_cube=PASS|state_digest=e53246104667885568565cbfd350fa34eddb36a2885ea7fd589e89929f24c48e|scope=EXACT_MODULAR_ONLY|json=0
 VACUUM_VERIFY|status=PASS|predictions=15|true_vacuum=PERRON_CERTIFIED|ground_certified_angular_error_lt=1e-24|E1_Wilson_overlap=EXACT_ZERO|first_visible_state=E2|connected_correlation_rows=11|ternary_max=43046721|native_CRT_full_physical_state=NOT_CLAIMED|spatial_continuum=NOT_TESTED|experiment=NOT_MATCHED|Clay_YM4=OPEN|json=0
