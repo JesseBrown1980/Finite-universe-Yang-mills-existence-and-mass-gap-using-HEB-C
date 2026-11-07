@@ -305,7 +305,7 @@ def vacuum(H,w,P5):
     check(all(x==0 for x in mv(P5,v)),"vacuum_approximant_in_quintic")
     Hv=mv(H,v)
     ratios=[q(Hv[i],v[i]) for i in range(11)]
-    e_lower=min(ratios,key=lambda x: x[0]*1.0/x[1]) if False else ratios[0]
+    e_lower=ratios[0]
     e_upper=ratios[0]
     for p in ratios:
         if less(p,e_lower):
