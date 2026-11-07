@@ -7,7 +7,7 @@ checker DOES NOT recompute the full 10M/2.17B spectral inertia.
 The global first gap at r=27 follows *conditionally* on the existing
 published full-space r=9 and zero-momentum r=27 receipts being valid.
 """
-from hashlib import sha256
+from hashlib import sha1,sha256
 from itertools import permutations
 from pathlib import Path
 import sys
@@ -264,6 +264,15 @@ def examine_flat(classes,swaps):
               "RED_untraced_gauge_claim")
 
 
+
+def verify_original_git_blob(raw,expected,name):
+    # The pinned source SHA identifies the exact content used in the
+    # original spectral certificates, not merely a forged PASS row.
+    blob=b"blob "+str(len(raw)).encode("ascii")+bytes((0,))+raw
+    actual=sha1(blob).hexdigest()
+    check(actual==expected,"pinned_original_blob_"+name)
+
+
 def read_lines(root,*parts):
     raw=root.joinpath(*parts).read_bytes()
     return raw,[x.decode("utf-8") for x in raw.splitlines()]
@@ -290,9 +299,16 @@ def require_same(test,gate):
 def cert_transfer(root):
     folder=("native","ym","results","3x3_full_space")
     cert_bytes,cert=read_lines(root,*folder,"CERTIFY-3X3-FULLSPACE.hbp")
-    _,dims=read_lines(root,*folder,"DIMENSION-RECONCILIATION.hbp")
-    _,frozen=read_lines(root,"native","ym","reference",
+    dim_bytes,dims=read_lines(root,*folder,"DIMENSION-RECONCILIATION.hbp")
+    frozen_bytes,frozen=read_lines(root,"native","ym","reference",
                         "ym3x3_frozen_8fd12e6.hbp")
+    verify_original_git_blob(
+        cert_bytes,"4da4a753639c18d4c63313951be40198f4305c89","fullspace_r9")
+    verify_original_git_blob(
+        dim_bytes,"fe52a9541f4e1bd74f95989767d80752310a6cfd","dimension")
+    verify_original_git_blob(
+        frozen_bytes,"bdb52c0e6be7eb39c0b6a44548f30e2c2f0f5e43",
+        "T_r27_reference")
     head=require_one(cert,"CERTIFY|root=root|")
     check("t1_milli=52533422|" in head and
           "tF_milli=71900000|" in head,
