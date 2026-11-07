@@ -1,0 +1,21 @@
+# FROZEN BEFORE test code and hosted execution. 2026-11-06.
+# Actual finite S3 periodic 1x1 gauge-invariant Hamiltonian H=JE*E+JB*M.
+# Two oriented torus links a,b; one plaquette [a,b]=aba^-1 b^-1.
+# E=sum over 3 transposition moves on both links, M=2-chi_std([a,b]).
+# Distinct from finite 3x4 Perron E9-E8 and from continuous SU(2) 4D.
+PREDICT|id=01|check=GAUGE_ORBITS|raw_states=36|simultaneous_conjugacy_orbits=11|weighted_total=36|status=DERIVED|json=0
+PREDICT|id=02|check=HAMILTONIAN|JE=1|JB=1|E_integer=1|M_diagonal_values=0,3|W_self_adjoint=YES|status=DERIVED|json=0
+PREDICT|id=03|check=ELECTRIC_SPECTRUM|eig_0=1|eig_3=2|eig_6=5|eig_9=2|eig_12=1|status=DERIVED|json=0
+PREDICT|id=04|check=INTERACTING_CHARPOLY|factor1=(x-6)^3|factor2=x^3-21x^2+135x-252|factor3=x^5-36x^4+468x^3-2655x^2+6138x-4104|status=DERIVED|json=0
+PREDICT|id=05|check=INTERACTING_FIRST_GAP|E0_bracket=1.096113,1.096114|E1_bracket=3.274551,3.274552|gap_bracket=2.178437,2.178439|units=JE|status=DERIVED|json=0
+PREDICT|id=06|check=WILSON_OBSERVABLE|O=chi_std(commutator)|mean_at_JB0=1/2|centered_initial_norm=9/4|gauge_invariant=YES|status=DERIVED|json=0
+PREDICT|id=07|check=ELECTRIC_TWOPOINT|C(t)=1/2*exp(-3t)+exp(-6t)+1/2*exp(-9t)+1/4*exp(-12t)|overlap_first_gap3=1/2|status=DERIVED|json=0
+PREDICT|id=08|check=MAGNETIC_COUPLING|r=1|fixed_t_continuous_heat_amplitude=0.05681663218_to_0.05681663219|trial_state_not_true_vacuum=YES|status=DERIVED|json=0
+PREDICT|id=09|check=THREE_POWER_FIXED_TIME|k=3,4,5,6,9,12,16|N=3^k|T_N=I-H/N|t=N*(1/N)=1|C_N_increases_to_C_continuous=YES|status=DERIVED|json=0
+PREDICT|id=10|check=MAX_JUMP|N=43046721|k=16|fixed_t=1|C_N_approx=0.0568166301459|error_gt=0.000000001|error_lt=0.000000003|status=DERIVED|json=0
+PREDICT|id=11|check=INDEPENDENT_MODULAR|prime=1000081|T_N_power_by_16_cubings=independent_binary_power|electrical_character_spectral_formula=YES|status=DERIVED|json=0
+PREDICT|id=12|check=INTERVAL_COMPUTATION|rounding=OUTWARD_INTEGER_ONLY|Taylor_remainder_bound=(9/4)*15^(R+1)/(R+1)!|R=144|status=DERIVED|json=0
+PREDICT|id=13|check=SHADOW_CAT_CANDIDATE|signed_A3_holonomy_gauge_invariant=NO|standard_Wilson_character_gauge_invariant=YES|status=DERIVED|json=0
+PREDICT|id=14|check=NEGATIVE_CONTROLS|corrupted_orbit_weight=REJECT|corrupted_magnetic_diagonal=REJECT|wrong_cube_jump=REJECT|signed_shadow_claim=REJECT|status=RED|json=0
+PREDICT|id=15|check=SCOPE|actual_periodic_S3_Hamiltonian=YES|physical_continuous_TIME_semigroup=MATHEMATICAL_LIMIT|continuum_SPACE_a_to_zero=NOT_TESTED|real_experiment_comparison=NOT_PERFORMED|4D_SU2_Clay=OPEN|status=LIMIT|json=0
+PREDICTION_SUMMARY|rows=15|frozen_before_test=1|measurements=NOT_YET_RUN|json=0
