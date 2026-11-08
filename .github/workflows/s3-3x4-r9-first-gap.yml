@@ -23,6 +23,13 @@ jobs:
           grep '^S3_3X4_' independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.hbp > /tmp/full-expected.hbp
           diff -u /tmp/full-expected.hbp /tmp/full-3x4.hbp
           cat /tmp/full-3x4.hbp
+      - name: Audit reviewer-requested label-only receipt correction
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.pre-review-label.hbp)" = "3ebe0a5c80568a6965b786dd97be85befb5366d2"
+          sed 's/accepted_source_assumption=E9_Nonflat_GE_94070673\/1000000/accepted_source_assumption=lambda_min_QHQ_whole_GE_94070673\/1000000/' independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.pre-review-label.hbp > /tmp/review-labelled.hbp
+          diff -u /tmp/review-labelled.hbp independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.hbp
       - name: Reject six false finite certificates
         shell: bash
         run: |
