@@ -58,6 +58,52 @@ From the six source-stated nonzero entries of 16C₁ in the published 8×8 flat-
 
 Thus the first two source-stated coefficients have eigenvalue difference 3. The script also verifies the exact rational large-r remainder and outward enclosures at r=10000 and 100000, including the published interval [271961,328039]/10¹⁵ for r=100000. These checks are independent **spectral algebra** on the stated matrix; they are *not* a new independent re-enumeration of the 264 gauge orbits in the first shell. The prior horizontal-first checker already supplied that separate gauge-theoretic reconstruction.
 
+## Stronger independent unconditional bound — ground-state transform and exact electric Poincaré inequality
+
+After the original fourteen predictions and the discriminant proof were frozen, [eight supplemental predictions](PREDICT-GROUND-TRANSFORM-3X4-S3-FIRST-GAP-20261108.hbp) were **separately frozen before implementation** of a second, independently written [ground-transform checker](verify_ground_transform_3x4_s3.py). The original predictions, verifier and ten-row historical receipt remain unaltered.
+
+**First: exact unperturbed electric spectral gap.** On one raw link the S₃ electric Laplacian is L=3I−Σ_t L_t, where t ranges over the three transpositions. The second checker reconstructs all six permutations, forms its exact 6×6 integer Cayley Laplacian and evaluates all principal minors. It obtains
+\[
+\det(zI-L)=z(z-3)^4(z-6),
+\]
+so the unweighted product electric operator on 24 links has **spectral gap exactly 3** (nontrivial eigenvalues are sums of the 24 independent-link eigenvalues).
+
+**Second: a constant-size upper bound on raw graph distance.** Every S₃ group element has transposition word length at most two, as the checker proves by breadth-first enumeration of the six-element Cayley graph. Any two raw 24-link fields can therefore be connected by at most \(24\cdot2=48\) electric moves.
+
+**Third: bound the positive ground state's condition number without calculating it.** Let \(g_x>0\) be the unique raw-field ground eigenvector of \(H(9)/J_E\), normalized arbitrarily. The matrix eigenvalue equation at each *raw field* x is
+\[
+(72+9M_x-\lambda_0)g_x
+=\sum_{y\sim x}g_y,\qquad 0\le M_x\le36,\quad\lambda_0\ge0.
+\]
+Every neighbor contribution is positive, so for every electric edge \(x\sim y\),
+\[
+g_y\le396\,g_x,\qquad
+396=72+9(36).
+\]
+Applying this inequality along a path of at most 48 electric moves gives
+\[
+\boxed{g_{\max}/g_{\min}\le396^{48}.}
+\]
+No value of \(g_x\) or full configuration-space eigenvector is required.
+
+**Fourth: compare Poincaré Rayleigh quotients exactly.** For a real function f on the raw field space, the ground-state transform of the stoquastic operator gives the exact Dirichlet identity
+\[
+\langle gf,(H/J_E-\lambda_0)gf\rangle
+=\tfrac12\sum_{x\sim y}g_xg_y(f_x-f_y)^2,
+\]
+where the sum is over directed electric edges and their multiplicity. Its numerator is at least \(g_{\min}^2\langle f,E f\rangle\); the squared distance of \(gf\) from the ground line is at most \(g_{\max}^2\min_c\sum_x(f_x-c)^2\). The exact electric spectral gap 3 therefore yields
+\[
+\Delta_{\rm raw}(H/J_E)
+\ge3\left(\frac{g_{\min}}{g_{\max}}\right)^2
+\ge\frac{3}{396^{96}}.
+\]
+Since H commutes with all local gauge transformations and its raw ground state is unique and positive, the raw ground state is gauge invariant. Restricting to gauge-invariant excitations cannot produce a lower first excited level than the unrestricted raw spectral gap. Thus for the **full 2,177,317,873-orbit finite physical Hilbert space**
+\[
+\boxed{\frac{E_2(9)-E_1(9)}{J_E}\ge\frac{3}{396^{96}}>0.}
+\]
+
+This bound is **much stronger** than the earlier discriminant-only \(468^{-2\,370\,356\,558\,953\,963\,127}\), but remains vastly smaller than the source-conditional measured \(0.01\). It also depends on the fixed finite number of links, and is **not uniform across increasing spatial volume or vanishing spacing**. Six independent false statements, including claiming a 0.01 unconditional floor, are required to fail closed. The checker certifies the integer denominator, not any numerical eigenvalue or first-excitation observable overlap.
+
 ## Verification gates still OPEN
 
 - The sharper numerical 3×4 r=9 enclosure 0.01<(E₂−E₁)/J_E<0.07 still requires the accepted whole-nonflat compression floor 94.070673 J_E; an independent complete **second-machine full-row/full-pair** replay has not been run by this checker.
