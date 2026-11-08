@@ -1,0 +1,38 @@
+name: Finite S3 3x4 first gap at large r
+on:
+  push:
+    branches:
+      - gpt6-finite-3x4-firstgap-highr-20261108
+  pull_request:
+    paths:
+      - 'independent/finite_3x4_s3_highr_check.py'
+      - 'independent/FINITE_3X4_S3_FIRST_GAP_LARGE_R_20261108*'
+      - '.github/workflows/finite-3x4-firstgap-highr.yml'
+jobs:
+  exact-integer-first-gap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Byte-exact post-exploration certificate
+        shell: bash
+        run: |
+          python3 -I independent/finite_3x4_s3_highr_check.py > /tmp/gap-measured.hbp
+          grep '^FINITE34_' independent/FINITE_3X4_S3_FIRST_GAP_LARGE_R_20261108.hbp > /tmp/gap-expected.hbp
+          diff -u /tmp/gap-expected.hbp /tmp/gap-measured.hbp
+          cat /tmp/gap-measured.hbp
+      - name: Independently rebuild the complete first-shell interactions
+        shell: bash
+        run: |
+          python3 -I independent/finite_3x4_s3_shell_verify.py
+      - name: Ten false mathematical controls must fail closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          for bad in missing_transposition wrong_orbit_census wrong_pair_amplitude wrong_cross_class wrong_eigenvalues wrong_flat_norm wrong_magnetic_min omit_remainder claim_r9 wrong_gap_rounding; do
+            if python3 -I independent/finite_3x4_s3_highr_check.py "sabotage=$bad" > /tmp/gap-bad.hbp 2>&1; then
+              echo "FAIL: sabotage escaped $bad"
+              exit 1
+            fi
+            echo "RED_REJECTED|$bad"
+          done
