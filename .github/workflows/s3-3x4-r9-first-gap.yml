@@ -1,0 +1,50 @@
+name: Exact finite S3 3x4 r9 first-gap conditional certificate
+on:
+  push:
+    branches:
+      - gpt6-s3-3x4-r9-first-gap-inertia-20261108
+  pull_request:
+    paths:
+      - 'independent/finite_s3_3x4_r9_first_gap.py'
+      - 'independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.hbp'
+      - 'independent/FINITE_S3_3X4_R9_FIRST_GAP_20261108.md'
+      - '.github/workflows/s3-3x4-r9-first-gap.yml'
+jobs:
+  full-finite-first-gap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exact integer 3x4 8x8 Schur inertia and complete residual
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I independent/finite_s3_3x4_r9_first_gap.py > /tmp/full-3x4.hbp
+          grep '^S3_3X4_' independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.hbp > /tmp/full-expected.hbp
+          diff -u /tmp/full-expected.hbp /tmp/full-3x4.hbp
+          cat /tmp/full-3x4.hbp
+      - name: Audit reviewer-requested label-only receipt correction
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.pre-review-label.hbp)" = "3ebe0a5c80568a6965b786dd97be85befb5366d2"
+          sed 's/accepted_source_assumption=E9_Nonflat_GE_94070673\/1000000/accepted_source_assumption=lambda_min_QHQ_whole_GE_94070673\/1000000/' independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.pre-review-label.hbp > /tmp/review-labelled.hbp
+          test "$(git hash-object independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.pre-review-holds.hbp)" = "c868fe127c5686aa7bd6fe8d9efe7ecff71a9256"
+          diff -u /tmp/review-labelled.hbp independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.pre-review-holds.hbp
+      - name: Reject eleven physical and numerical perturbations
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep '^S3_3X4_' independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.hbp > /tmp/expected.hbp
+          for fault in wrong_flat_census wrong_first_shell omit_exterior wrong_source_floor wrong_inertia wrong_gram_weight ritz_floor_94121950 ritz_floor_96756025 drop_exterior_edge omit_residual_coupling schur_sign_flip; do
+            if python3 -I independent/finite_s3_3x4_r9_first_gap.py "sabotage=$fault" > /tmp/fault.hbp 2>&1; then
+              if cmp -s /tmp/expected.hbp /tmp/fault.hbp; then
+                echo "FAIL silently accepted perturbation $fault"
+                exit 1
+              fi
+              echo "RED_HASH_OR_RECEIPT_MISMATCH|name=$fault"
+            else
+              grep '^FAILED|check=' /tmp/fault.hbp
+              echo "RED_INVARIANT_REFUSED|name=$fault"
+            fi
+          done

@@ -1,0 +1,33 @@
+name: Finite S3 r9 1x1 Feshbach exact inertia control
+on:
+  push:
+    branches:
+      - gpt6-s3-r9-feshbach-inertia-control-20261108
+  pull_request:
+    paths:
+      - 'independent/test_s3_feshbach_inertia_1x1_r9.py'
+      - 'independent/MEASURED-S3-1X1-R9-FESHBACH.hbp'
+      - '.github/workflows/s3-r9-feshbach-inertia-control.yml'
+jobs:
+  feshbach-exact:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recompute exact weighted full and Schur inertia
+        shell: bash
+        run: |
+          python3 -I independent/test_s3_feshbach_inertia_1x1_r9.py > /tmp/s3-feshbach.hbp
+          diff -u independent/MEASURED-S3-1X1-R9-FESHBACH.hbp /tmp/s3-feshbach.hbp
+          cat /tmp/s3-feshbach.hbp
+      - name: Reject six deliberate defects
+        shell: bash
+        run: |
+          set -euo pipefail
+          for fault in incorrect_orbits wrong_magnetic unweighted_schur omit_nonflat false_gap wrong_count; do
+            if python3 -I independent/test_s3_feshbach_inertia_1x1_r9.py "sabotage=$fault" > /tmp/s3-bad.log 2>&1; then
+              echo "FAIL accepted $fault"
+              exit 1
+            fi
+            echo "FAULT_REJECTED|name=$fault"
+          done
