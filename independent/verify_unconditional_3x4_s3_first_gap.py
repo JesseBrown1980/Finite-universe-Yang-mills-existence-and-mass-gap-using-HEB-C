@@ -7,7 +7,6 @@ Proof uses Burnside, generated electric graph, Perron-Frobenius for
 irreducible stoquastic integer matrices, and monic polynomial
 discriminant root separation. Source has no float, division op or JSON.
 """
-from fractions import Fraction
 from hashlib import sha256
 from itertools import combinations, permutations
 from pathlib import Path
@@ -183,6 +182,35 @@ def independent_separation(n, width):
     return exponent
 
 
+def integer_gcd(a,b):
+    a=abs(a);b=abs(b)
+    while b:
+        a,b=b,a%b
+    return a
+
+def ratio(a,b=1):
+    check(type(a) is int and type(b) is int and b != 0,
+          "exact_integer_rational_inputs")
+    if b<0:
+        a,b=-a,-b
+    g=integer_gcd(a,b)
+    return (a//g,b//g)
+
+def radd(x,y):
+    return ratio(x[0]*y[1]+y[0]*x[1],x[1]*y[1])
+
+def rsub(x,y):
+    return ratio(x[0]*y[1]-y[0]*x[1],x[1]*y[1])
+
+def rmul(x,y):
+    return ratio(x[0]*y[0],x[1]*y[1])
+
+def rle(x,y):
+    return x[0]*y[1]<=y[0]*x[1]
+
+def rlt(x,y):
+    return x[0]*y[1]<y[0]*x[1]
+
 def matrix_product(a,b):
     return [[sum(a[i][k]*b[k][j] for k in range(len(a)))
              for j in range(len(a))] for i in range(len(a))]
@@ -250,20 +278,24 @@ def highr_arithmetic():
          raw_first_shell_reenumeration="NOT_PERFORMED_BY_THIS_CHECK")
     for r in (10000,100000):
         d=3*r
-        eta = Fraction(5184,(d-72)**3) + Fraction(373248,d*d*(d-72))
-        low = Fraction(3,r*r)-2*eta
-        high = Fraction(3,r*r)+2*eta
-        check(low>0 and high>low,"positive_rhigh_gap_enclosure")
+        eta = radd(ratio(5184,(d-72)**3),
+                   ratio(373248,d*d*(d-72)))
+        estimate=ratio(3,r*r)
+        margin=rmul(ratio(2),eta)
+        low = rsub(estimate,margin)
+        high = radd(estimate,margin)
+        check(low[0]>0 and rlt(low,high),
+              "positive_rhigh_gap_enclosure")
         if r==100000:
-            check(Fraction(271961,10**15) <= low
-                  and high <= Fraction(328039,10**15),
+            check(rle(ratio(271961,10**15),low)
+                  and rle(high,ratio(328039,10**15)),
                   "r100000_outward_endpoints")
         emit("INDEPENDENT_S3_HIGHR",
-             r=r,eta_numerator=eta.numerator,eta_denominator=eta.denominator,
-             gap_lower_numerator=low.numerator,
-             gap_lower_denominator=low.denominator,
-             gap_upper_numerator=high.numerator,
-             gap_upper_denominator=high.denominator,
+             r=r,eta_numerator=eta[0],eta_denominator=eta[1],
+             gap_lower_numerator=low[0],
+             gap_lower_denominator=low[1],
+             gap_upper_numerator=high[0],
+             gap_upper_denominator=high[1],
              strict_positive="YES",
              original_Perron_source_used="NO")
     # Under r>24, r² eta(r) is decreasing:
