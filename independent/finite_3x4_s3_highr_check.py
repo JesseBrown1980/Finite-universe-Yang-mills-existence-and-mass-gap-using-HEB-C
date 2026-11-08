@@ -4,7 +4,57 @@
 Analytic commuting-pair path count; no sector store and no floating point.
 Post-exploration result: no claim that predictions preceded computation.
 """
-from fractions import Fraction as F
+# Pure integer rational pairs; the repository forbids the fractions module.
+def _gcd(a,b):
+    a=abs(a)
+    b=abs(b)
+    while b:
+        a,b=b,a%b
+    return a
+
+class F:
+    __slots__=("numerator","denominator")
+    def __init__(self,n,d=1):
+        if isinstance(n,F):
+            assert d==1
+            n,d=n.numerator,n.denominator
+        assert isinstance(n,int) and isinstance(d,int) and d>0
+        g=_gcd(n,d)
+        self.numerator=n//g
+        self.denominator=d//g
+    def __add__(self,other):
+        b=F(other)
+        return F(self.numerator*b.denominator+b.numerator*self.denominator,
+                 self.denominator*b.denominator)
+    __radd__=__add__
+    def __neg__(self):
+        return F(-self.numerator,self.denominator)
+    def __sub__(self,other):
+        return self+(-F(other))
+    def __rsub__(self,other):
+        return F(other)+(-self)
+    def __mul__(self,other):
+        b=F(other)
+        return F(self.numerator*b.numerator,self.denominator*b.denominator)
+    __rmul__=__mul__
+    def __eq__(self,other):
+        if not isinstance(other,(int,F)):
+            return False
+        b=F(other)
+        return self.numerator==b.numerator and self.denominator==b.denominator
+    def __lt__(self,other):
+        b=F(other)
+        return self.numerator*b.denominator < b.numerator*self.denominator
+    def __gt__(self,other):
+        b=F(other)
+        return self.numerator*b.denominator > b.numerator*self.denominator
+    def __le__(self,other):
+        return self<other or self==other
+    def __ge__(self,other):
+        return self>other or self==other
+    def __repr__(self):
+        return str(self.numerator)+"/"+str(self.denominator)
+
 from itertools import permutations
 from sys import argv
 
@@ -121,8 +171,8 @@ if fault=="omit_remainder":
     eta=F(0)
 check(eta>0 and eta==F(72**2,(d-72)**3)+F(72**3,d*d*(d-72)),
       "nonzero_schur_remainder")
-tau1=F(72)-F(18,r)-mu1/F(r*r)
-tau2=F(72)-F(18,r)-mu2/F(r*r)
+tau1=F(72)-F(18,r)-mu1*F(1,r*r)
+tau2=F(72)-F(18,r)-mu2*F(1,r*r)
 lower=tau2-tau1-2*eta
 upper=tau2-tau1+2*eta
 if fault=="claim_r9":
