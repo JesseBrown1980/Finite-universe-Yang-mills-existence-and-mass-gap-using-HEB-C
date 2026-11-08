@@ -1,0 +1,54 @@
+name: Finite S3 3x4 first gap at large r
+on:
+  push:
+    branches:
+      - gpt6-reviewed-3x4-s3-strong-r-first-gap-20261108
+  pull_request:
+    paths:
+      - 'independent/finite_3x4_s3_highr_check.py'
+      - 'independent/finite_3x4_s3_shell_verify.py'
+      - 'independent/alternative_tree_3x4_s3_highr_verify.py'
+      - 'independent/FINITE_3X4_S3_FIRST_GAP_LARGE_R_20261108*'
+      - '.github/workflows/finite-3x4-firstgap-highr.yml'
+jobs:
+  exact-integer-first-gap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Byte-exact post-exploration certificate
+        shell: bash
+        run: |
+          python3 -I independent/finite_3x4_s3_highr_check.py > /tmp/gap-measured.hbp
+          grep '^FINITE34_' independent/FINITE_3X4_S3_FIRST_GAP_LARGE_R_20261108.hbp > /tmp/gap-expected.hbp
+          diff -u /tmp/gap-expected.hbp /tmp/gap-measured.hbp
+          cat /tmp/gap-measured.hbp
+      - name: Independently rebuild the complete first-shell interactions
+        shell: bash
+        run: |
+          python3 -I independent/finite_3x4_s3_shell_verify.py
+      - name: Independent horizontal-first gauge and characteristic-polynomial rebuild
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I independent/alternative_tree_3x4_s3_highr_verify.py | tee /tmp/highr-alttree.hbp
+          grep -F '|tree=HORIZONTAL_FIRST|C0=18I8|weighted_adjoint=PASS|' /tmp/highr-alttree.hbp
+          for bad in drop_electric_move modify_bridge_edge change_magnetic_cost; do
+            if python3 -I independent/alternative_tree_3x4_s3_highr_verify.py "sabotage=$bad" > /tmp/alttree-red.log 2>&1; then
+              echo "FAIL: independent geometry sabotage escaped $bad"
+              exit 1
+            fi
+            grep -F 'ALTTREE_FAIL|gate=' /tmp/alttree-red.log
+            echo "ALTTREE_RED_REJECTED|$bad"
+          done
+      - name: Ten false mathematical controls must fail closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          for bad in missing_transposition wrong_orbit_census wrong_pair_amplitude wrong_cross_class wrong_eigenvalues wrong_flat_norm wrong_magnetic_min omit_remainder claim_r9 wrong_gap_rounding; do
+            if python3 -I independent/finite_3x4_s3_highr_check.py "sabotage=$bad" > /tmp/gap-bad.hbp 2>&1; then
+              echo "FAIL: sabotage escaped $bad"
+              exit 1
+            fi
+            echo "RED_REJECTED|$bad"
+          done
