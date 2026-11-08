@@ -6,7 +6,57 @@ in finite_3x4_s3_highr_check.py; it reconstructs exact gauged configurations,
 24-link transposition moves and weighted reverse counts. Integer/rational only.
 """
 from collections import Counter
-from fractions import Fraction as F
+# Pure integer rational pairs; the repository forbids the fractions module.
+def _gcd(a,b):
+    a=abs(a)
+    b=abs(b)
+    while b:
+        a,b=b,a%b
+    return a
+
+class F:
+    __slots__=("numerator","denominator")
+    def __init__(self,n,d=1):
+        if isinstance(n,F):
+            assert d==1
+            n,d=n.numerator,n.denominator
+        assert isinstance(n,int) and isinstance(d,int) and d>0
+        g=_gcd(n,d)
+        self.numerator=n//g
+        self.denominator=d//g
+    def __add__(self,other):
+        b=F(other)
+        return F(self.numerator*b.denominator+b.numerator*self.denominator,
+                 self.denominator*b.denominator)
+    __radd__=__add__
+    def __neg__(self):
+        return F(-self.numerator,self.denominator)
+    def __sub__(self,other):
+        return self+(-F(other))
+    def __rsub__(self,other):
+        return F(other)+(-self)
+    def __mul__(self,other):
+        b=F(other)
+        return F(self.numerator*b.numerator,self.denominator*b.denominator)
+    __rmul__=__mul__
+    def __eq__(self,other):
+        if not isinstance(other,(int,F)):
+            return False
+        b=F(other)
+        return self.numerator==b.numerator and self.denominator==b.denominator
+    def __lt__(self,other):
+        b=F(other)
+        return self.numerator*b.denominator < b.numerator*self.denominator
+    def __gt__(self,other):
+        b=F(other)
+        return self.numerator*b.denominator > b.numerator*self.denominator
+    def __le__(self,other):
+        return self<other or self==other
+    def __ge__(self,other):
+        return self>other or self==other
+    def __repr__(self):
+        return str(self.numerator)+"/"+str(self.denominator)
+
 from itertools import permutations
 
 LX,LY=3,4
