@@ -4,15 +4,21 @@ on:
     paths:
       - 'independent/PREDICT-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.hbp'
       - 'independent/verify_unconditional_3x4_s3_first_gap.py'
+      - 'independent/PREDICT-GROUND-TRANSFORM-3X4-S3-FIRST-GAP-20261108.hbp'
+      - 'independent/verify_ground_transform_3x4_s3.py'
       - 'independent/NOTE-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.md'
       - 'independent/MEASURED-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.hbp'
+      - 'independent/MEASURED-GROUND-TRANSFORM-3X4-S3-FIRST-GAP-20261108.hbp'
       - '.github/workflows/independent-unconditional-3x4-s3-first-gap.yml'
   push:
     paths:
       - 'independent/PREDICT-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.hbp'
       - 'independent/verify_unconditional_3x4_s3_first_gap.py'
+      - 'independent/PREDICT-GROUND-TRANSFORM-3X4-S3-FIRST-GAP-20261108.hbp'
+      - 'independent/verify_ground_transform_3x4_s3.py'
       - 'independent/NOTE-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.md'
       - 'independent/MEASURED-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.hbp'
+      - 'independent/MEASURED-GROUND-TRANSFORM-3X4-S3-FIRST-GAP-20261108.hbp'
       - '.github/workflows/independent-unconditional-3x4-s3-first-gap.yml'
 permissions:
   contents: read
@@ -37,6 +43,28 @@ jobs:
           if test -f independent/MEASURED-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.hbp; then
             cmp independent/MEASURED-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.hbp build/independent3x4/REPLAY.hbp
           fi
+      - name: Independent stronger exact free-electric Poincare and ground-transform gap
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(grep -c '^PREDICT|supp=' independent/PREDICT-GROUND-TRANSFORM-3X4-S3-FIRST-GAP-20261108.hbp)" -eq 8
+          python3 -I -X utf8 independent/verify_ground_transform_3x4_s3.py | tee build/independent3x4/GROUND-REPLAY.hbp
+          grep -F 'GROUND_S3_ELECTRIC|matrix=S3_CAYLEY_TRANSPOSITION_LAPLACIAN|charpoly=z*(z-3)^4*(z-6)|one_link_eigenvalues=0,3,3,3,3,6|product_24link_spectral_gap=3|' build/independent3x4/GROUND-REPLAY.hbp
+          grep -F 'GROUND_S3_RAW_GAUGE_FIRST_GAP|raw_graph=S3_POWER_24|model=PERIODIC_3x4_FULL_GAUGE_INVARIANT|r=9|upper_neighbor_ratio=396|diameter_bound=48|gmax_over_gmin_le=396^48|free_electric_gap=3|' build/independent3x4/GROUND-REPLAY.hbp
+          grep -F 'GROUND_S3_DONE|status=PASS_INDEPENDENT_UNCONDITIONAL_GAP_3_OVER_396_POW_96|Perron_source=NOT_USED|strong_numeric_r9_bracket=CONDITIONAL_ONLY|spectral_overlap=OPEN|Clay_continuum=OPEN|' build/independent3x4/GROUND-REPLAY.hbp
+          if test -f independent/MEASURED-GROUND-TRANSFORM-3X4-S3-FIRST-GAP-20261108.hbp; then
+            cmp independent/MEASURED-GROUND-TRANSFORM-3X4-S3-FIRST-GAP-20261108.hbp build/independent3x4/GROUND-REPLAY.hbp
+          fi
+      - name: Six false ground-transform claims must each reject by named RED
+        shell: bash
+        run: |
+          set -euo pipefail
+          for fault in wrong_electric_gap wrong_word_length wrong_hdiag wrong_ground_ratio wrong_gap_inequality wrong_0p01_unconditional; do
+            rc=0
+            python3 -I -X utf8 independent/verify_ground_transform_3x4_s3.py "sabotage=$fault" >"build/independent3x4/RED-ground-$fault.hbp" || rc=$?
+            test "$rc" -eq 1
+            grep -F "FAILED|check=RED_$fault|json=0" "build/independent3x4/RED-ground-$fault.hbp"
+          done
       - name: Eight false assertions must independently exit RED by name
         shell: bash
         run: |
