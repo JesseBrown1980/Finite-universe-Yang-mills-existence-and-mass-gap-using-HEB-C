@@ -1,0 +1,60 @@
+name: Independent finite S3 3x4 unconditional first-gap proof without Perron store
+on:
+  pull_request:
+    paths:
+      - 'independent/PREDICT-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.hbp'
+      - 'independent/verify_unconditional_3x4_s3_first_gap.py'
+      - 'independent/NOTE-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.md'
+      - 'independent/MEASURED-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.hbp'
+      - '.github/workflows/independent-unconditional-3x4-s3-first-gap.yml'
+  push:
+    paths:
+      - 'independent/PREDICT-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.hbp'
+      - 'independent/verify_unconditional_3x4_s3_first_gap.py'
+      - 'independent/NOTE-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.md'
+      - 'independent/MEASURED-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.hbp'
+      - '.github/workflows/independent-unconditional-3x4-s3-first-gap.yml'
+permissions:
+  contents: read
+jobs:
+  no-perron-finite-first-gap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Predictions-first and standalone integer exact proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(grep -c '^PREDICT|id=' independent/PREDICT-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.hbp)" -eq 14
+          mkdir -p build/independent3x4
+          python3 -I -X utf8 independent/verify_unconditional_3x4_s3_first_gap.py | tee build/independent3x4/REPLAY.hbp
+          grep -F 'INDEPENDENT_S3_BURNSIDE|lattice=3x4_periodic|vertices=12|positive_links=24|tree_links=11|unfixed_cycle_links=13|centralizer_formula=(6^13+3*2^13+2*3^13)/6|full_orbits=2177317873|' build/independent3x4/REPLAY.hbp
+          grep -F 'INDEPENDENT_S3_NORM|E_lower=0|E_upper=144|number_of_plaquettes=12|M_upper=36|r=9|full_spectrum_lower=0|full_spectrum_upper=468|' build/independent3x4/REPLAY.hbp
+          grep -F 'INDEPENDENT_S3_FIRST_GAP|coupling_r=9|levels=FIRST_TWO_OF_FULL_SPACE|lower_bound=468^(-2370356558953963127)*JE|upper_bound=468*JE|strictly_positive=PROVED_UNCONDITIONALLY|' build/independent3x4/REPLAY.hbp
+          grep -F 'INDEPENDENT_S3_HIGHR_C1|input=SOURCE_STATED_SIX_NONZERO_16C1_ENTRIES|charpoly=z^4*(z^2-72^2)*(z^2-24^2)|checker1=PRINCIPAL_MINOR_LEIBNIZ|checker2=INTEGER_NEWTON_TRACES|' build/independent3x4/REPLAY.hbp
+          grep -F 'INDEPENDENT_S3_DONE|status=PASS_UNCONDITIONAL_FINITE_GAP_EXISTENCE|r9_sharp_numeric_gap=CONDITIONAL_PER_PERRON|full_second_machine_store=NOT_REPLAYED|observable_first_weight=OPEN|physical_continuum_mass_gap=OPEN|' build/independent3x4/REPLAY.hbp
+          if test -f independent/MEASURED-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.hbp; then
+            cmp independent/MEASURED-UNCONDITIONAL-3X4-S3-FIRST-GAP-20261108.hbp build/independent3x4/REPLAY.hbp
+          fi
+      - name: Eight false assertions must independently exit RED by name
+        shell: bash
+        run: |
+          set -euo pipefail
+          for fault in wrong_burnside wrong_cycle_rank wrong_link_generators wrong_magnetic_cap wrong_spectral_ceiling wrong_discriminant claim_0p01_unconditional claim_first_overlap; do
+            rc=0
+            python3 -I -X utf8 independent/verify_unconditional_3x4_s3_first_gap.py "sabotage=$fault" >"build/independent3x4/RED-$fault.hbp" || rc=$?
+            test "$rc" -eq 1
+            grep -F "FAILED|check=RED_$fault|json=0" "build/independent3x4/RED-$fault.hbp"
+          done
+      - name: File hashes and technical evidence artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd build/independent3x4 && sha256sum *.hbp > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: independent-finite-s3-3x4-unconditional-gap-source-free
+          path: build/independent3x4/
+          if-no-files-found: warn
