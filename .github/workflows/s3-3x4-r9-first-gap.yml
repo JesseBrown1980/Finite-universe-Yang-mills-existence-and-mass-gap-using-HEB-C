@@ -1,0 +1,37 @@
+name: Exact finite S3 3x4 r9 first-gap conditional certificate
+on:
+  push:
+    branches:
+      - gpt6-s3-3x4-r9-first-gap-inertia-20261108
+  pull_request:
+    paths:
+      - 'independent/finite_s3_3x4_r9_first_gap.py'
+      - 'independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.hbp'
+      - 'independent/FINITE_S3_3X4_R9_FIRST_GAP_20261108.md'
+      - '.github/workflows/s3-3x4-r9-first-gap.yml'
+jobs:
+  full-finite-first-gap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exact integer 3x4 8x8 Schur inertia and complete residual
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I independent/finite_s3_3x4_r9_first_gap.py > /tmp/full-3x4.hbp
+          grep '^S3_3X4_' independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.hbp > /tmp/full-expected.hbp
+          diff -u /tmp/full-expected.hbp /tmp/full-3x4.hbp
+          cat /tmp/full-3x4.hbp
+      - name: Reject six false finite certificates
+        shell: bash
+        run: |
+          set -euo pipefail
+          for fault in wrong_flat_census wrong_first_shell omit_exterior wrong_source_floor wrong_inertia false_continuum; do
+            if python3 -I independent/finite_s3_3x4_r9_first_gap.py "sabotage=$fault" > /tmp/fault.hbp 2>&1; then
+              echo "FAIL accepted $fault"
+              exit 1
+            fi
+            grep 'FAILED|check=' /tmp/fault.hbp
+            echo "REJECTED|name=$fault"
+          done
