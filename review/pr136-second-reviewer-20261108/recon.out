@@ -1,0 +1,8 @@
+RECON_SELFTEST|pass=1|json=0
+RECON_CENSUS|flat=8|commuting_pairs=18|flat_weight_sum=18|shell1=264|shell2=7770|exterior_shell3=147344|json=0
+RECON_BALANCE|edges_checked=all_touching_K2|flat_flat=0|json=0
+RECON_THRESHOLD|z=6989/100|n_neg_lower=0|n_neg_upper=0|gs_sweeps=40|scale=10^12|json=0
+RECON_THRESHOLD|z=6992/100|n_neg_lower=1|n_neg_upper=1|gs_sweeps=40|scale=10^12|json=0
+RECON_THRESHOLD|z=6993/100|n_neg_lower=1|n_neg_upper=1|gs_sweeps=40|scale=10^12|json=0
+RECON_THRESHOLD|z=6996/100|n_neg_lower=6|n_neg_upper=2|gs_sweeps=40|scale=10^12|json=0
+RECON_VERDICT|E1_gt_6989=1|E1_lt_6992=1|E2_gt_6993=1|E2_lt_6996=1|first_gap_in=(1/100,7/100)=1|conditional_on=lambda_min_nonflat_GE_94070673e-6|json=0
