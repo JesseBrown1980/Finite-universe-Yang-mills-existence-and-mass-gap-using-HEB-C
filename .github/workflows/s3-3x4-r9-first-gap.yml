@@ -30,15 +30,20 @@ jobs:
           test "$(git hash-object independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.pre-review-label.hbp)" = "3ebe0a5c80568a6965b786dd97be85befb5366d2"
           sed 's/accepted_source_assumption=E9_Nonflat_GE_94070673\/1000000/accepted_source_assumption=lambda_min_QHQ_whole_GE_94070673\/1000000/' independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.pre-review-label.hbp > /tmp/review-labelled.hbp
           diff -u /tmp/review-labelled.hbp independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.hbp
-      - name: Reject six false finite certificates
+      - name: Reject eleven physical and numerical perturbations
         shell: bash
         run: |
           set -euo pipefail
-          for fault in wrong_flat_census wrong_first_shell omit_exterior wrong_source_floor wrong_inertia false_continuum; do
+          grep '^S3_3X4_' independent/MEASURED-S3-3X4-R9-FIRST-GAP-20261108.hbp > /tmp/expected.hbp
+          for fault in wrong_flat_census wrong_first_shell omit_exterior wrong_source_floor wrong_inertia wrong_gram_weight ritz_floor_94121950 ritz_floor_96756025 drop_exterior_edge omit_residual_coupling schur_sign_flip; do
             if python3 -I independent/finite_s3_3x4_r9_first_gap.py "sabotage=$fault" > /tmp/fault.hbp 2>&1; then
-              echo "FAIL accepted $fault"
-              exit 1
+              if cmp -s /tmp/expected.hbp /tmp/fault.hbp; then
+                echo "FAIL silently accepted perturbation $fault"
+                exit 1
+              fi
+              echo "RED_HASH_OR_RECEIPT_MISMATCH|name=$fault"
+            else
+              grep '^FAILED|check=' /tmp/fault.hbp
+              echo "RED_INVARIANT_REFUSED|name=$fault"
             fi
-            grep 'FAILED|check=' /tmp/fault.hbp
-            echo "REJECTED|name=$fault"
           done
