@@ -1,0 +1,20 @@
+# 2026-11-08. INDEPENDENT UNCONDITIONAL finite 3x4 S3 r9 first-gap EXISTENCE.
+# Prediction FROZEN BEFORE standalone graph and arithmetic certificate.
+# No claim to independently reproduce numerical 0.01 gap lower bound,
+# 94.070673 nonflat compression floor, first excited Wilson overlap,
+# all-pairs 1.63B store or any continuum mass gap.
+PREDICT|id=01|links=24|sites=12|cycles=13|group=S3|one_group_root_gauge|status=DERIVED|json=0
+PREDICT|id=02|S3_Centralizers|identity_size=6|transpositions_size=2|threecycles_size=3|class_sizes=1,3,2|status=DERIVED|json=0
+PREDICT|id=03|Burnside_orbit_formula=(6^13+3*2^13+2*3^13)/6|N=2177317873|status=DERIVED|json=0
+PREDICT|id=04|24_links_times_3_involutions=72|S3_left_transpositions_generate_each_S3_link=YES|raw_electric_graph_connected=YES|status=DERIVED|json=0
+PREDICT|id=05|quotient_gauge_orbit_graph_connected=YES|stoquastic_H_offdiag_nonpositive|PF_ground_simple_for_all_finite_r_ge_0=YES|status=DERIVED|json=0
+PREDICT|id=06|twelve_S3_plaquettes|per_plaquette_costs=0,2,3|M_range=0_to_36|r9_magnetic_upper=324|status=DERIVED|json=0
+PREDICT|id=07|E=72I_minus_A|spectrum_E_in_0_to_144|H_r9_spectrum_in_0_to_468|all_real|status=DERIVED|json=0
+PREDICT|id=08|gauge_orbit_matrix_H_integer_non_symmetric_but_weight_symmetrizable|characteristic_polynomial_monic_Z|status=DERIVED|json=0
+PREDICT|id=09|squarefree_charpolynomial_integer_monic|discriminant_positive_integer_ge_1|distinct_eigenvalue_count_m_le_N|status=DERIVED|json=0
+PREDICT|id=10|positive_first_gap_r9_GE=468^(-(N*(N-1)/2-1))_JE|unconditional=YES|not_numerical_0.01|status=DERIVED|json=0
+PREDICT|id=11|r_ge_10000|C1_matrix_16x_from_source_rows|charpoly=z^4*(z^2-72^2)*(z^2-24^2)|coeff_z6=-5760|coeff_z4=2985984|status=ARITHMETIC_CHECK_ONLY|json=0
+PREDICT|id=12|large_r_eta=5184/(3r-72)^3+373248/((3r)^2*(3r-72))|at_r10000_gap_lower_positive|at_r100000_scaled_rational_bounds_271961_to_328039_over_1e15|status=DERIVED_CHECK|json=0
+PREDICT|id=13|r9_interval_0.01_to_0.07_SOURCE_CONDITIONAL|Perron_whole_nonflat_second_machine_fullstore=OPEN|first_state_observable_overlap=OPEN|status=SCOPE|json=0
+PREDICT|id=14|negative_controls=wrong_burnside,wrong_cycle_rank,wrong_link_generators,wrong_magnetic_cap,wrong_spectral_ceiling,wrong_discriminant,claim_0p01_unconditional,claim_first_overlap|all_RED|status=FALSIFIABLE|json=0
+PREDICTION_SUMMARY|rows=14|freeze_before_source=YES|independent_of_original_27GB_store=YES|integer_only=YES|json=0
