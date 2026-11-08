@@ -69,6 +69,19 @@ def group_generated_by(generators):
     return seen
 
 
+def integer_power(base, exponent):
+    check(type(base) is int and type(exponent) is int
+          and exponent >= 0, "nonnegative_integer_power")
+    result=1
+    while exponent:
+        if exponent & 1:
+            result*=base
+        exponent//=2
+        if exponent:
+            base*=base
+    return result
+
+
 def burnside():
     V = 3 * 4
     E = 2 * V
@@ -84,7 +97,7 @@ def burnside():
     counts = {v: cent.count(v) for v in set(cent)}
     check(counts == {2: 3, 3: 2, 6: 1},
           "centralizer_class_multiplicities")
-    fix_sum = sum(size ** rank for size in cent)
+    fix_sum = sum(integer_power(size,rank) for size in cent)
     q, rem = divmod(fix_sum, 6)
     check(rem == 0 and q == 2177317873,
           "full_orbit_Burnside")
