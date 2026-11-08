@@ -330,7 +330,7 @@ def main():
          bound_basis="FULL_EIGHT_FLAT_SCHUR_AND_ONE_SIDED_INERTIA",
          status="PASS_EXACT_MATH_CONDITIONAL_SOURCE")
     emit("S3_3X4_SCOPE",original_Perron_store_rerun="NO",
-         accepted_source_assumption="E9_Nonflat_GE_94070673/1000000",
+         accepted_source_assumption="lambda_min_QHQ_whole_GE_94070673/1000000",
          first_state_winding_overlap="OPEN",
          spatial_SU2_continuum="NOT_PROVED")
 
