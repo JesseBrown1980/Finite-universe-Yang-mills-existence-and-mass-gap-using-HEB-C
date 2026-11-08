@@ -21,6 +21,10 @@ jobs:
           grep '^FINITE34_' independent/FINITE_3X4_S3_FIRST_GAP_LARGE_R_20261108.hbp > /tmp/gap-expected.hbp
           diff -u /tmp/gap-expected.hbp /tmp/gap-measured.hbp
           cat /tmp/gap-measured.hbp
+      - name: Independently rebuild the complete first-shell interactions
+        shell: bash
+        run: |
+          python3 -I independent/finite_3x4_s3_shell_verify.py
       - name: Ten false mathematical controls must fail closed
         shell: bash
         run: |
