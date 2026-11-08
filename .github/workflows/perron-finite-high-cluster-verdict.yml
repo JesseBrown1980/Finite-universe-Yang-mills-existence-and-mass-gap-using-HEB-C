@@ -1,0 +1,62 @@
+name: Finite 3x4 Perron high-cluster E9-E8 verdict
+
+on:
+  push:
+    paths:
+      - 'native/ym/results/3x4_stream/perron/*FINITE-HIGH-CLUSTER*'
+      - 'native/ym/results/3x4_stream/perron/verify_finite_high_cluster_verdict.py'
+      - '.github/workflows/perron-finite-high-cluster-verdict.yml'
+  pull_request:
+    paths:
+      - 'native/ym/results/3x4_stream/perron/*FINITE-HIGH-CLUSTER*'
+      - 'native/ym/results/3x4_stream/perron/verify_finite_high_cluster_verdict.py'
+      - '.github/workflows/perron-finite-high-cluster-verdict.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  exact-historical-certificate-gates:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require frozen predictions, checked integer-only Python
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/3x4_stream/perron
+          test "$(grep -c '^PREDICT|id=' "$dir/PREDICT-FINITE-HIGH-CLUSTER-VERDICT-20261107.hbp")" -eq 12
+          python3 -I -X utf8 native/scripts/integer_only_audit.py "$dir/verify_finite_high_cluster_verdict.py"
+      - name: Check original pinned certificates and strict finite verdict
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/3x4_stream/perron
+          mkdir -p build/finite_perron_3x4
+          python3 -I -X utf8 "$dir/verify_finite_high_cluster_verdict.py" | tee build/finite_perron_3x4/REPLAY.hbp
+          grep -F 'FINITE_PER3X4_VERDICT|status=ACCEPTED_FINITE_HIGH_CLUSTER_BOUND_FROM_PINNED_EVIDENCE|lattice=3x4|group=S3|JE=1|r=9|E9_full_lower_micro=94070673|E8_full_upper_micro=70031000|E9_minus_E8_lower_micro=24039673|first_excitation_E2_minus_E1=NOT_CERTIFIED|source_original_verdict=OPEN|' build/finite_perron_3x4/REPLAY.hbp
+          grep -F 'FINITE_PER3X4_COUPLINGS|range=r_GE_9|lower_micro_at_r9=22070673|lower_micro_slope_per_unit_r=3000000|' build/finite_perron_3x4/REPLAY.hbp
+          grep -F 'FINITE_PER3X4_LIMITS|accepts_historical_computational_evidence=YES|independent_entire_store_replay_another_machine=OPEN|external_go_exact_all_pairs=NOT_DONE|old_record_retained=YES|original_rule_60M=REMAINS_REGISTERED|numerical_first_gap=OPEN|uniform_volume=OPEN|fourD_SU2_Clay=OPEN|' build/finite_perron_3x4/REPLAY.hbp
+          grep -F 'FINITE_PER3X4_VERIFY|status=PASS|new_rule_scope=FINITE_HIGH_CLUSTER_ONLY|original_receipt_immutable=YES|original_60M_rule_unmodified=YES|continuum_claim=NOT_CERTIFIED|' build/finite_perron_3x4/REPLAY.hbp
+          if test -f "$dir/MEASURED-FINITE-HIGH-CLUSTER-VERDICT-20261107.hbp"; then
+            tail -n +4 "$dir/MEASURED-FINITE-HIGH-CLUSTER-VERDICT-20261107.hbp" | cmp - build/finite_perron_3x4/REPLAY.hbp
+          fi
+      - name: Seven intentionally false inputs or conclusions must fail closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/3x4_stream/perron
+          for case in false_top_bound fake_original_PASS wrong_ball_upper false_full_rebuild false_pairs_PASS false_lift wrong_gap_arithmetic; do
+            rc=0
+            python3 -I -X utf8 "$dir/verify_finite_high_cluster_verdict.py" "sabotage=$case" > "build/finite_perron_3x4/RED-$case.hbp" || rc=$?
+            test "$rc" -eq 1
+            grep -F "FAILED|check=RED_$case|json=0" "build/finite_perron_3x4/RED-$case.hbp"
+          done
+          (cd build/finite_perron_3x4 && sha256sum *.hbp > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: finite-perron-3x4-high-cluster-verdict
+          path: build/finite_perron_3x4/
+          if-no-files-found: warn
