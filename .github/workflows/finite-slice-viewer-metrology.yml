@@ -1,0 +1,29 @@
+name: Finite-slice viewer metrology exact jump
+on:
+  pull_request:
+    paths:
+      - 'proofs/finite-slice-viewer-20261106/**'
+      - '.github/workflows/finite-slice-viewer-metrology.yml'
+  push:
+    paths:
+      - 'proofs/finite-slice-viewer-20261106/**'
+      - '.github/workflows/finite-slice-viewer-metrology.yml'
+jobs:
+  exact-viewer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exact rational physics and power-of-three jump audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 proofs/finite-slice-viewer-20261106/viewer_bridge.py > /tmp/VIEWER.hbp
+          cmp proofs/finite-slice-viewer-20261106/RESULT.hbp /tmp/VIEWER.hbp
+          test "$(grep -c '^VIEWER_SHEAR|' /tmp/VIEWER.hbp)" -eq 3
+          grep -F 'L=27|steps=81' /tmp/VIEWER.hbp
+      - name: No floating point operations in exact script
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -nE '\bfloat\(|\bcmath\b|\bnumpy\b|\bmath\.sin\b|\bmath\.exp\b' proofs/finite-slice-viewer-20261106/viewer_bridge.py
