@@ -74,19 +74,19 @@ Rows as frozen in `PREDICTION-ISSUE3.hbp`; each MET or MISS stays as it read.
 
 | # | Predicted | Measured | Status |
 |---|---|---|---|
-| 1 | fixed=2, cycles3=2, 0 fixed tuples, 3 bijections per cycle; BOUND_FLAT_ONLY | 2, 2, 0, (3,3); BOUND on flat 8 | MET |
+| 1 | fixed=2, cycles3=2, 0 fixed tuples, 3 bijections per cycle; BOUND_FLAT_ONLY | 2, 2, 0, (3,3); row label `BOUND` with `scope=FLAT_8_ONLY` | MET on content; the label's scope is written in the row's scope field |
 | 2 | 2-power automorphism order, 0 order-3; gap 408; equivariant, R³=id on 36; pair class non-injective; UNBOUND | 32, 0; 408; 1, 1; 11 classes, max fiber 216; UNBOUND | MET |
 | 3 | equal views, WAS–WILL absent, 3 levels distinct, earlier unchanged, forged rejected; BOUND_IN_KERNEL_ONLY | all as predicted, plus missing-view and unarrived-input rejection | MET |
 | 4 | z 2 values, χ² 3 values, z-sum fails to determine H_B; UNBOUND | 2, 3, alias (0,1) at sum 4; UNBOUND | MET |
 | 5 | 0 hits in pinned sources, recall count 0; verdict UNDEFINED_IN_SOURCE | 0, 0; row label `UNBOUND` with `reason=UNDEFINED_IN_SOURCE` | MET on content; the label is written in the row's reason field |
-| 6 | 6/6 trace match, residual invariant, 1,393/1,393 magnetic, 1 residual value, witness passes | 6/6, 744/744, 1,393/1,393, 1, pass | MET |
+| 6 | 6/6 trace match, residual invariant, 1,393/1,393 magnetic, 1 residual value, witness passes; BOUND_PLANE_IS_WILSON_RESIDUAL_IS_TRIVIAL_REP | 6/6, 744/744, 1,393/1,393, 1, pass; row label `BOUND` with `residual_rep=TRIVIAL` | MET on content; the arm-plane trace reproduces the Wilson character H_B, the residual is the trivial invariant, `spectral_gap_inference=NONE`, physical `instant=UNVERIFIED_PHYSICS` |
 
 Disclosure: rows 4 and 5 were written after reading the sources. The z rule (row 4) and the first Z-instant searches over HBU and SIM (row 5) were seen before the prediction was frozen. Rows 1, 2, 3 and 6 predicted computations that had not been run.
 
 ## Issue #3 acceptance criteria
 
 1. **Sources and blobs:** `SOURCE-PINS.hbp`, with original notation kept.
-2. **Rust 1.81 adapter calling the original functions:** `issue3_bindings.rs`. Clippy `-D warnings` is clean; the code is Rust only, json=0. The source trianti R lives in the simulator crate, which this stage reads as data. Its one-line rule runs over the vendored Clasy `Trit` (row 1).
+2. **Rust 1.81 adapter:** `issue3_bindings.rs` calls this repository's own functions (`rime_gear`, `shadow_residual`, `torus2`) and the vendored Clasy `Trit`, and re-expresses R from its pinned rule (see the scope section below). Clippy `-D warnings` is clean; the code is Rust only, json=0. The source trianti R lives in the simulator crate, which this stage reads as data. Its one-line rule runs over the vendored Clasy `Trit` (row 1).
 3. **Three connected tori / nine branches:** a residual rule for three tori is open in the sources, so this test is held. `rime_gear`'s WAS/IS/WILL roles are the three-role topology present, tested in row 3. The 1/6 observer and 5/6 complement remain Law 70 NO-CALL quantities, tested in Stage 2E.
 4. **Negative controls:** missing view, forged view (disagreement), unarrived input, gauge transformations on all 1,393 states, the plaquette-misread control and receipt tampering.
 5. **Yang–Mills map:** row 6 is an explicit gauge-invariant map that reproduces H_B exactly and carries the E = 6 electric witness, computed on the operator itself.
