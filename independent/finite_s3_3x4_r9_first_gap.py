@@ -20,9 +20,12 @@ import sys
 
 SCALE=1000000000
 STEPS=4
+PERRON_SCALE=1000000
 LEVELS=((6989,0,0),(6992,1,1),(6993,1,1),(6996,6,2))
 FAULTS=("wrong_flat_census","wrong_first_shell","omit_exterior",
-        "wrong_source_floor","wrong_inertia","false_continuum")
+        "wrong_source_floor","wrong_inertia","wrong_gram_weight",
+        "ritz_floor_94121950","ritz_floor_96756025",
+        "drop_exterior_edge","omit_residual_coupling","schur_sign_flip")
 fault=""
 if len(sys.argv)>2 or (len(sys.argv)==2 and
     (not sys.argv[1].startswith("sabotage=") or sys.argv[1][9:] not in FAULTS)):
@@ -121,10 +124,14 @@ def source_floor():
     check(any("gap_verdict=OPEN|" in s for s in lines)
           and any(s.startswith("RESULT_KEY_TABLE|") for s in lines),
           "historical_verdict_and_whole_census_retained")
-    if fault=="wrong_source_floor":
-        check("t_cert_milli=94070674|" in tops[0],
-              "RED_wrong_source_floor")
-    return "PINNED_CONDITIONAL_WHOLE_ORBIT_LIFT"
+    entries=dict(item.split("=",1) for item in tops[0].split("|")[1:] if "=" in item)
+    source_num=int(entries["t_cert_milli"])
+    check(source_num==int(entries["perroncert_check"])
+          ==int(entries["check_d_strict"])
+          ==int(entries["outside_go_checker"])==94070673,
+          "pinned_matching_numerical_compression_floor")
+    # PERRON-BOUND.md section 2 bounds lambda_min(QHQ), NOT merely E9.
+    return "PINNED_CONDITIONAL_WHOLE_ORBIT_LIFT",source_num
 
 def graph():
     flat={}
@@ -137,7 +144,7 @@ def graph():
             check(magnetic(U)==0,"flat_commuting_torus")
             flat[canonical(U)]=(a,b)
     if fault=="wrong_flat_census":
-        check(len(flat)==9,"RED_wrong_flat_census")
+        flat.pop(next(iter(flat)))
     check(len(flat)==8 and sum(weight(k) for k in flat)==18,
           "all_eight_flat_orbits")
     layers=[sorted(flat)]
@@ -150,7 +157,7 @@ def graph():
         seen.update(new)
         layers.append(sorted(new))
     if fault=="wrong_first_shell":
-        check(len(layers[1])==263,"RED_wrong_first_shell")
+        layers[1].pop()
     check(len(layers[1])==264 and len(layers[2])==7770,
           "complete_two_move_gauge_orbits")
     states=[key for layer in layers for key in layer]
@@ -196,9 +203,20 @@ def graph():
                   "weighted_P_Q_electric_adjoint")
     outer=[(weight(k),edges) for k,edges in outside.items()]
     check(all(W in (1,2,3,6) for W,_ in outer),"outer_orbit_weights")
-    emit("S3_3X4_CENSUS",flat=8,shell1=264,shell2=7770,
-         total_K2=8042,exterior_residual_states=147344,
-         flat_raw_commuting=18,orbit_dimension_full=2177317873)
+    # Mutate an actual exterior electric coefficient without changing census.
+    if fault=="drop_exterior_edge":
+        W,edges=outer[0]
+        outer[0]=(W,edges[1:])
+    # Burnside count of simultaneous conjugacy classes of S3^13.
+    full_dim=(6**13+3*2**13+2*3**13)//6
+    nflat=len(layers[0]); nfirst=len(layers[1]); nsecond=len(layers[2])
+    census_count=len(states); nouter=len(outer)
+    flat_weight=sum(weight(k) for k in flat)
+    check(full_dim==2177317873 and census_count==nflat+nfirst+nsecond
+          and flat_weight==18,"computed_full_and_flat_census")
+    emit("S3_3X4_CENSUS",flat=nflat,shell1=nfirst,shell2=nsecond,
+         total_K2=census_count,exterior_residual_states=nouter,
+         flat_raw_commuting=flat_weight,orbit_dimension_full=full_dim)
     return w,m,adj,q_flat,outer
 
 def det(A):
@@ -238,12 +256,14 @@ def inertia(A):
 def add_gram(G,R,w):
     check(w in (1,2,3,6),"weight_divides_six")
     fac=6//w
+    if fault=="wrong_gram_weight" and w!=1:
+        fac=6
     for i in range(8):
         s=fac*R[i]
         if s:
             for j in range(i,8):G[i][j]+=s*R[j]
 
-def threshold(a,w,m,adj,q_flat,outer):
+def threshold(a,w,m,adj,q_flat,outer,source_floor_num):
     b=100
     n=len(adj)
     # Deterministic integer-only trial inverse with 4 parallel Jacobi
@@ -269,6 +289,8 @@ def threshold(a,w,m,adj,q_flat,outer):
             y=X[j]
             for k in range(8):s[k]+=b*c*y[k]
         Ri.append([w[8+i]*v for v in s])
+    if fault=="omit_residual_coupling":
+        Ri[0][0]=0
     G=[[0]*8 for _ in range(8)]
     for i,R in enumerate(Ri):add_gram(G,R,w[8+i])
     # Because X is identically zero outside K2, this is the COMPLETE
@@ -291,38 +313,48 @@ def threshold(a,w,m,adj,q_flat,outer):
             xk=x[k]
             for j in range(8):
                 U[k][j]-=fk*x[j]+xk*r[j]
+    if fault=="schur_sign_flip":
+        U[0][0]=-U[0][0]
     check(all(U[i][j]==U[j][i] for i in range(8) for j in range(8)),
           "exact_symmetric_trial")
-    gamma_num=b*94070673-a*1000000
+    floor_num=source_floor_num
+    if fault=="wrong_source_floor":
+        floor_num+=1
+    if fault=="ritz_floor_94121950":
+        floor_num=94121950
+    if fault=="ritz_floor_96756025":
+        floor_num=96756025
+    gamma_num=b*floor_num-a*PERRON_SCALE
     check(gamma_num>0,"nonflat_Perron_resolvent_floor")
-    L=[[6*gamma_num*U[i][j]-1000000*G[i][j]
+    L=[[6*gamma_num*U[i][j]-PERRON_SCALE*G[i][j]
          for j in range(8)] for i in range(8)]
+    if fault=="wrong_inertia" and a==6993:
+        L[0][0]+=SCALE*SCALE*SCALE
     nlo=inertia(L)
     nhi=inertia(U)
     hu=sha256("|".join(str(z) for row in U for z in row).encode()).hexdigest()
     hg=sha256("|".join(str(z) for row in G for z in row).encode()).hexdigest()
+    hl=sha256("|".join(str(z) for row in L for z in row).encode()).hexdigest()
     emit("S3_3X4_THRESHOLD",threshold=str(a)+"/100",
          lower_inertia=nlo,upper_inertia=nhi,
+         perron_floor_num=floor_num,lower_witness_sha256=hl,
          schur_trial_sha256=hu,residual_gram_sha256=hg)
-    return nlo,nhi,hu,hg
+    return nlo,nhi,hu,hg,hl
 
 def main():
     check(len(sys.argv)==1 or fault in FAULTS,"recognized_cli_only")
-    src=source_floor()
+    src,floor_num=source_floor()
     emit("S3_3X4_BEGIN",status="SOURCE_CONDITIONAL",gauge_group="S3",r=9,
          operator="FULL_GAUGE_ORBIT_HAMILTONIAN",
-         source_floor=src,jacobi_integer_steps=STEPS)
+         source_floor=src,compression_floor_num=floor_num,
+         jacobi_integer_steps=STEPS)
     w,m,adj,qflat,outer=graph()
     got=[]
     for a,lo,hi in LEVELS:
-        outcome=threshold(a,w,m,adj,qflat,outer)
-        if fault=="wrong_inertia" and a==6993:
-            check(outcome[:2]==(2,1),"RED_wrong_inertia")
+        outcome=threshold(a,w,m,adj,qflat,outer,floor_num)
         check(outcome[:2]==(lo,hi),"frozen_full_space_one_sided_counts")
         got.append(outcome[:2])
     check(got==[(0,0),(1,1),(1,1),(6,2)],"four_threshold_composition")
-    if fault=="false_continuum":
-        check(False,"RED_false_continuum")
     emit("S3_3X4_FIRST_GAP",
          E1_interval="(6989/100,6992/100)",
          E2_interval="(6993/100,6996/100)",
