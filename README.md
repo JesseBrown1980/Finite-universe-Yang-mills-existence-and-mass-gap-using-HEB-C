@@ -4,6 +4,24 @@
 
 **Data on Hugging Face:** [Jessedbrown/ym-3x4-room-store](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store) holds the 3×4 store, the certificate vectors and an evidence archive, the files too large for git. Its card maps every folder, and the status of each result is read here.
 
+## November 8, 2026: finite 3×4 **first-excitation** interval, independently reviewed (PR #136)
+
+At the fixed periodic spatial **3×4 finite `S₃` gauge Hamiltonian** with `r=J_B/J_E=9`, [merged PR #136](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/136) provides the actual one-based first two full-gauge-space spectral levels:
+
+```text
+69.89 J_E < E1 < 69.92 J_E
+69.93 J_E < E2 < 69.96 J_E
+ 0.01 J_E < E2 - E1 < 0.07 J_E
+```
+
+**Status: conditional finite numerical certificate.** The exact 8-flat Schur-inertia argument includes all **2,177,317,873** gauge-invariant orbits by bounding the complete nonflat resolvent residual; it directly constructs only 8,042 nearby orbit states and 147,344 exterior residual targets. A second seat independently reconstructed the neighborhood using a different spanning tree and independently checked the one-sided inertia counts. After its PASS_WITH_HOLDS review, the code was corrected to parse the *nonflat principal-compression* floor from the pinned original Perron receipt, hash both Schur bounds, compute census labels, and reject 11 physical/numerical faults on hosted GitHub CI.
+
+The essential dependency is **`lambda_min(QHQ) >= 94.070673 J_E`**, with Q removing exactly the eight magnetic-flat orbit states. This is derived by the positive-vector **whole-space lift** in [PERRON-BOUND.md §§1–2](native/ym/results/3x4_stream/perron/PERRON-BOUND.md), not merely inferred from the `E9` interlacing corollary. The original massive 45,508,080-sector-row Perron comparison was **not freshly replayed on another machine** for #136; its existing accepted evidence is the condition of the new result. Historical `PERRON-RESULT.hbp` and earlier evidence remain unchanged.
+
+**Still open:** [first-state summed-winding spectral overlap, issue #137](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/137); independent second-machine full-store and all-pairs replay; uniformity in volume/lattice spacing; and continuum four-dimensional compact simple-group Yang–Mills existence/mass gap. A finite positive energy gap by itself is not a confinement-order-parameter determination; the model's coupling must be matched to external convention before calling `r=9` confined or deconfined.
+
+Older dated sections below remain historical snapshots of the state of the program at the date shown; their open/hold statuses are not retroactively rewritten.
+
 ## November 7, 2026: finite 3×4 Perron high-cluster verdict accepted (PR #131)
 
 **The original 3×4 Perron computational result is now accepted within its actual finite scope**, under a new separately registered [finite Perron rule](native/ym/results/3x4_stream/perron/PERRON-FINITE-HIGH-CLUSTER-RULE-20261107.md), with the [full scoped verdict](native/ym/results/3x4_stream/perron/FINITE-HIGH-CLUSTER-VERDICT-20261107.md) and [hosted exact HBP evidence](native/ym/results/3x4_stream/perron/MEASURED-FINITE-HIGH-CLUSTER-VERDICT-20261107.hbp). This resolves the former *administrative HOLD on accepting the published finite high-cluster bound*. The older `PERRON-RESULT.hbp` still says `gap_verdict=OPEN` **as an unchanged historical record**; it has not been rewritten to imply approval happened earlier.
@@ -17,7 +35,7 @@ for r ≥ 9:   E9_full − E8_full ≥ [22.070673 + 3(r−9)] J_E
 
 These inequalities follow from the original pinned 45,508,080-row positive Perron comparison certificate, its orbit-symmetry pointwise lift to the full 2,177,317,873 gauge-orbit space, the eight-flat-state min–max bound, and a separate whole-space ball upper bound. Independent Go validation, all-row rebuild and all-pairs evidence already exist; the new verifier checks their exact archived source hashes and registered results, and **seven negative controls fail as required**. The full-store rebuild/all-pairs were not independently repeated on another machine in this step, so the accepted verdict is expressly **conditional on the original computational evidence and lift hypotheses**.
 
-**Not settled:** the interacting first-excitation gap `E2−E1` (inside the eight-state flat cluster), proof of nonzero overlap with a winding-sum observable, uniform physical gap as volume/spatial spacing vary, or four-dimensional continuum `SU(2)` Yang–Mills existence. **The existing 60M ShellSchur production rule is unchanged; this acceptance does not approve new production runs.** [PR #131](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/131) holds the explicit acceptance and CI.
+**As of this November 7 verdict:** the interacting first-excitation gap `E2−E1` (inside the eight-state flat cluster) had not been numerically certified; the **subsequent November 8 PR #136** supplies a source-conditional interval. Nonzero summed-winding spectral weight, uniform physical gap under volume/spacing changes, and four-dimensional continuum `SU(2)` Yang–Mills existence remain open. **The existing 60M ShellSchur production rule is unchanged; this acceptance does not approve new production runs.** [PR #131](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/131) holds the explicit acceptance and CI.
 
 ## New cross-repository evidence: Shadow Cats, triadic jumps and the continuum gate (November 6–7, 2026)
 
