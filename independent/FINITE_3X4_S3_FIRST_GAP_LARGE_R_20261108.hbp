@@ -1,0 +1,7 @@
+# Local mathematically derived candidate receipt; GitHub job must reproduce this byte-for-byte.
+# Post-exploration, not preregistered. Any mismatch is a FAIL.
+FINITE34_CLASSES|gauge_group=S3|spatial_lattice=3x4|flat_orbits=8|commuting_pairs=18|positive_links=24|json=0
+FINITE34_SCHUR|flat_energy=72|BBstar=72|C0=18I8|C1_spectrum=9/2,3/2,0,0,0,0,-3/2,-9/2|json=0
+FINITE34_GAP|r=100000|J_E=units|lower=271961/1000000000000000|upper=328039/1000000000000000|all_r_ge_10000=POSITIVE|json=0
+FINITE34_REMAINDER|numerator=4275318993|denominator=304956107417656250000|min_nonflat_M=3|large_store=NOT_USED|json=0
+FINITE34_SCOPE|first_gap=FINITE_S3_ONLY|first_gap_r9=OPEN|E1_winding_overlap=OPEN|continuum_SU2_4D=OPEN|json=0
