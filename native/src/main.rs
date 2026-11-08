@@ -496,6 +496,22 @@ fn rime_hamiltonian_verify(args:&[String])->Result<(),String>{
     Ok(())
 }
 
+fn issue3_audit(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::issue3_bindings::{generate,verify,write};
+    let dir=args.get(2).map(String::as_str).unwrap_or("issue3-evidence");
+    let a=generate()?;
+    verify(&a)?;
+    write(Path::new(dir),&a)?;
+    print!("{}",a.measure);
+    Ok(())
+}
+fn issue3_verify(args:&[String])->Result<(),String>{
+    use hebc_finite_yang_mills::issue3_bindings::verify_dir;
+    let dir=args.get(2).map(String::as_str).unwrap_or("issue3-evidence");
+    verify_dir(Path::new(dir))?;
+    println!("ISSUE3VERIFY|result=PASS|dir={dir}|json=0");
+    Ok(())
+}
 fn rime_gear_audit(args:&[String])->Result<(),String>{
     use hebc_finite_yang_mills::rime_gear::{generate,verify,write};
     let dir=args.get(2).map(String::as_str).unwrap_or("rime-gear-evidence");
@@ -592,6 +608,8 @@ fn main() {
         Some("shadow-residual-verify") => shadow_residual_verify(&args),
         Some("rime-hamiltonian-audit") => rime_hamiltonian_audit(&args),
         Some("rime-hamiltonian-verify") => rime_hamiltonian_verify(&args),
+        Some("issue3-audit") => issue3_audit(&args),
+        Some("issue3-verify") => issue3_verify(&args),
         Some("rime-gear-audit") => rime_gear_audit(&args),
         Some("rime-gear-verify") => rime_gear_verify(&args),
         Some("rime-sphere-bridge") => rime_sphere_bridge(&args),
