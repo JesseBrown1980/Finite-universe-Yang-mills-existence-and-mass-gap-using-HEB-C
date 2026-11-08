@@ -1,0 +1,14 @@
+# 2026-11-07 hosted run 42384169880, job 128437953228, S3 3x3 full-first-gap compositional transfer and 3x4 flat selector.
+# New predictions frozen before code: 550926527cda3ed7024d6bc91e638ce12ab4dc9d. Full 10M/2.17B spectral computations NOT rerun.
+# Source full-space and zero-momentum HBP are existing certificates. E1-axis parity and 3x4 interacting E1 remain OPEN.
+TRANSFER_BEGIN|gauge_group=S3|lattices=3x3,3x4|frozen_sha256=ece6e588fb855b1bc2454165f0c99fc6c52316541b62be9c92a190cd25225af2|arithmetic=INTEGER_ONLY|new_full_spectrum=NO|json=0
+TRANSFER_FLAT_ORBITS|classes=8|raw_commuting_pairs=18|total_residual_weights=18|axis_swap_fixed=4|square_even_dim=6|square_odd_dim=2|square_Oplus_flat_rank=7|square_Ominus_flat_rank=4|json=0
+TRANSFER_FLAT_MATRIX|shape=3x3|flat_orbits=8|magnetic_potential=0|flat_compressed_H_diagonal=54|flat_off_diagonal=ZERO_EXACT|single_link_changed_nonflat=432|translation_gauge_equivalences=16|flat_low_state_translation=MOMENTUM_ZERO|json=0
+TRANSFER_FLAT_MATRIX|shape=3x4|flat_orbits=8|magnetic_potential=0|flat_compressed_H_diagonal=72|flat_off_diagonal=ZERO_EXACT|single_link_changed_nonflat=576|translation_gauge_equivalences=16|flat_low_state_translation=MOMENTUM_ZERO|json=0
+TRANSFER_RECT_SELECTION|shape=3x4|alternating_winding_flat_compression=IDENTICALLY_ZERO|horizontal_winding_sum_flat_rank=6|vertical_winding_sum_flat_rank=6|nonzero_momentum_E1_overlap=NOT_INFERRED_FROM_FLAT|first_excitation_sector=OPEN|json=0
+TRANSFER_SOURCE_FULL|at_r=9|t1=52.533422|tF=71.900000|N_full_t1=8|N_T_t1=8|N_full_tF=8|N_T_tF=8|certificate_nodes_green=340|full_dimension=10097891|T_dimension=1122211|receipt_sha256=79beb0f4d8ebfed355f8b685c51e0135c18edf0592aaee0c755c6980a3e387c9|source=PINNED_ORIGINAL_CERTIFICATE|json=0
+TRANSFER_R27_T|r=27|JE=1|T_E1_lower_micro=53493345|T_E1_upper_micro=53493390|T_E2_lower_micro=53495357|T_E2_upper_micro=53495404|T_first_gap_lower_micro=1967|T_first_gap_upper_micro=2059|first_state_sector_in_original_reference=1,1|exchange_parity_of_global_E1=NOT_IDENTIFIED|json=0
+TRANSFER_GLOBAL_THEOREM|lattice=3x3|r_range=r_ge_9|E9_full_lower=71.900000|E8_T_upper=54.000000|transfer_proof=MINMAX_PLUS_MONOTONE_MAGNETIC|low_eight_all_zero_momentum=CERTIFICATE_COMPOSITION_PASS|independent_full_space_inertia=NOT_RERUN|json=0
+TRANSFER_GLOBAL_R27_GAP|lattice=3x3|r=27|JE=1|E1_global_interval=[53.493345,53.493390]|E2_global_interval=[53.495357,53.495404]|first_gap_global_interval=[0.001967,0.002059]|status=CERTIFICATE_COMPOSITION_PASS|new_full_space_eigenanalysis=NOT_RUN|underlying_HBP_source=EXISTING_CERTIFICATES|json=0
+TRANSFER_R243_HOLD|lattice=3x3|r=243|full_first_eight_zero_momentum=YES|first_gap_interval=INCONCLUSIVE|new_claim=NONE|json=0
+TRANSFER_VERIFY|status=PASS|composed_global_3x3_first_gap_r27=YES|actual_E1_axis_exchange_parity=OPEN|actual_E1_winding_overlap=OPEN|global_3x4_E1=OPEN|electric_JB0_3x3_3x4=SEPARATE_PR129|spatial_SU2_continuum=NOT_PROVED|Clay_YM4=OPEN|json=0
