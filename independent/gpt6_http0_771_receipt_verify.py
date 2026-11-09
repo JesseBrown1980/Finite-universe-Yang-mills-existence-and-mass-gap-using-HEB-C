@@ -25,10 +25,10 @@ def parse(line, tag):
     return result
 
 def audit(root, sabotage=''):
-    archive = root / 'aggregate'
-    receipts = {name: (archive / name).read_bytes()
+    archive = root.joinpath('aggregate')
+    receipts = {name: archive.joinpath(name).read_bytes()
                 for name in ('ALL-LEAVES.hbp', 'LEAVES.hbi', 'SHA256SUMS')}
-    summary = (root / 'whole-store-verdict.hbp').read_bytes()
+    summary = root.joinpath('whole-store-verdict.hbp').read_bytes()
     if sabotage == 'leaf':
         receipts['ALL-LEAVES.hbp'] = receipts['ALL-LEAVES.hbp'].replace(b'rows=59049', b'rows=59048', 1)
     if sabotage == 'index':
