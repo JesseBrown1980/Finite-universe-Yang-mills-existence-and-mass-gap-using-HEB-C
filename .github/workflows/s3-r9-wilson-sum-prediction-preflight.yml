@@ -1,0 +1,39 @@
+name: Finite S3 3x4 r9 Wilson sum predictions and small-group preflight
+on:
+  pull_request:
+    paths:
+      - 'independent/PREDICT-S3-3X4-R9-WILSON-SUM-FIRST-WEIGHT-20261108.hbp'
+      - 'independent/R9-WILSON-SUM-FIRST-WEIGHT-PLAN-20261108.md'
+      - 'independent/r9_wilson_sum_preflight.py'
+      - '.github/workflows/s3-r9-wilson-sum-prediction-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Prediction is unchanged, pre-dates the engine and contains all twelve falsifiers
+        run: |
+          set -euo pipefail
+          test "$(git hash-object independent/PREDICT-S3-3X4-R9-WILSON-SUM-FIRST-WEIGHT-20261108.hbp)" = "4764015294cbb20975d1576c5923768075ef20b7"
+          test "$(grep -c '^PREDICT|id=' independent/PREDICT-S3-3X4-R9-WILSON-SUM-FIRST-WEIGHT-20261108.hbp)" = 34
+          test "$(grep -Ec '^PREDICT[|]id=[0-9]+[|]F[0-9]+=.*[|]tag=FALSIFIER[|]json=0$' independent/PREDICT-S3-3X4-R9-WILSON-SUM-FIRST-WEIGHT-20261108.hbp)" = 12
+          grep -Fq 'candidate_r9_weight=UNDETERMINED' independent/PREDICT-S3-3X4-R9-WILSON-SUM-FIRST-WEIGHT-20261108.hbp
+      - name: Exact six-element group, 3x4 Wilson operator, and genuine symmetry falsifiers
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/r9_wilson_sum_preflight.py | tee /tmp/r9-preflight.hbp
+          grep -Fq 'R9_PREFLIGHT_DONE|status=PASS_DEFINITIONS_ONLY|full_spectrum=NOT_COMPUTED|json=0' /tmp/r9-preflight.hbp
+          for item in 'F1_character character_census' 'F2_missing_winding translation_cyclic_invariance' 'F3_wrong_dimension Burnside_complete_space' 'F4_unit_flat_weights flat_orbit_weights' 'F6_dual_operator operator_identity'; do
+            set -- $item
+            fault="$1"; reason="$2"
+            rc=0
+            python3 -I -B independent/r9_wilson_sum_preflight.py "sabotage=$fault" > "/tmp/$fault.hbp" || rc=$?
+            test "$rc" = 1
+            grep -Fq "R9_PREFLIGHT_FAIL|reason=$reason|json=0" "/tmp/$fault.hbp"
+            echo "R9_PREFLIGHT_CONTROL|fault=$fault|caught=$reason|json=0"
+          done
+          echo 'R9_PREFLIGHT_GATE|clean=PASS|physical_faults=5_of_5_REJECTED|full_overlap=STILL_OPEN|json=0'
