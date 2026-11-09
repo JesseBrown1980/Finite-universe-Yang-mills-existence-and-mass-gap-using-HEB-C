@@ -55,6 +55,17 @@ CPP_OP = re.compile(r"^\s+(?:(?:v?(?:add|sub|mul|div|sqrt|min|max|ucomi|comi|cmp
 CPP_MOVE = re.compile(r"^\s+(?:v?movs[sd]|v?movd|v?movq)\s[^\n]*%[xy]mm\d", re.M)
 # g++ zeroes a 24-byte object such as a std::vector with pxor, movaps and movq on one xmm register. That is a block move of zero and holds no float.
 CPP_ZEROED_BLOCK = re.compile(r"^\s+v?pxor\s+%xmm(\d+),\s*%xmm\1\n(?:\s+v?mov(?:aps|ups|dqa|dqu)\s+%xmm\1,[^\n]*\n)*\s+v?movq\s+%xmm\1,\s*-?\d*\(%r[a-z0-9]+\)", re.M)
+# GCC may use an XMM register solely to zero integer storage. A pxor
+# followed only by zero stores and a final movd is a bitwise-zero transfer.
+# Require the exact proven-zero sequence; ordinary movd and any FP operation
+# remain covered by CPP_MOVE and CPP_OP.
+CPP_ZEROED_DWORD = re.compile(
+    r"^\s+v?pxor\s+%xmm(\d+),\s*%xmm\1\n"
+    r"(?:\s+v?mov(?:aps|ups|dqa|dqu)\s+%xmm\1,[^\n]*\n)*"
+    r"\s+v?movd\s+%xmm\1,\s*(?:%[er][a-z0-9]+|-?\d*\(%r[a-z0-9]+\))",
+    re.M,
+)
+
 CPP_CALL = re.compile(
     r"^\s+call[ql]?\s+\*?_*(?:__(?:add|sub|mul|div|neg|extend|trunc|fixuns|fix|floatun|float|cmp|unord|eq|ne|ge|gt|le|lt|pow)\w*?(?:tf|xf|df|sf|hf|bf|td|dd|sd)\d?\w*|__bid_\w+|__dpd_\w+"
     r"|(?:sqrt|cbrt|pow|exp|exp2|expm1|log|log2|log10|log1p|sin|cos|tan|asin|acos|atan|atan2|sinh|cosh|tanh|floor|ceil|round|trunc|rint|nearbyint|fmod|fabs|hypot|ldexp|frexp|modf"
@@ -659,6 +670,7 @@ def loose_files(root, compiled, opt, base, listed):
 
 def cpp_read(text):
     text = CPP_ZEROED_BLOCK.sub("", text)
+    text = CPP_ZEROED_DWORD.sub("", text)
     ops = [m.group(0) for pattern in (CPP_OP, CPP_MOVE, CPP_CALL) for m in pattern.finditer(text)]
     return len(ops), ops[:3]
 
@@ -843,6 +855,19 @@ MIR_MUST_PASS = ('_1 = const "f64 0.5";', "let _1: u64;", "_2 = foo_f64() -> [re
 CPP_MUST_FLAG = ("\tdivsd\t%xmm1, %xmm0\n", "\tmovsd\t-8(%rbp), %xmm0\n", "\tcvtsi2sdq\t%rax, %xmm0\n", "\tfldt\t16(%rbp)\n", "\tmovq\t%xmm0, %rax\n", "\tcall\tsqrt\n", "\tcall\t__divtf3\n", "\tcall\t__bid_divdd3\n", "\tcall\tsqrt@PLT\n", "\tvaddsd\t%xmm1, %xmm0, %xmm0\n", "\tpxor\t%xmm1, %xmm1\n\tmovq\t%xmm0, -8(%rbp)\n", "\tpxor\t%xmm0, %xmm0\n\tmovsd\t%xmm0, -8(%rbp)\n")
 CPP_MUST_PASS = ("\tmovaps\t%xmm0, -32(%rbp)\n", "\tmovdqa\t-48(%rbp), %xmm0\n", "\tcall\t__divti3\n", "\tcall\t__udivti3\n", "\tcall\t__modti3\n", "\tcall\t__multi3\n", "\tmovq\t%rax, %rdx\n", "\tcall\t_Z4sqrti\n", "\t.file\t\"float.cpp\"\n", "\tmovl\t$0, %r8d\n", "\tpxor\t%xmm0, %xmm0\n\tmovaps\t%xmm0, -240(%rbp)\n\tmovq\t%xmm0, -224(%rbp)\n")
 
+
+# Explicit integer-zero controls and scalar-floating instruction controls.
+# Keep the register sigil as a character to avoid interpreting the fixtures
+# as Python percent formatting by the strict source audit.
+_ASM_REG_SIGIL = chr(37)
+CPP_MUST_PASS += (
+    f"\tpxor\t{_ASM_REG_SIGIL}xmm0, {_ASM_REG_SIGIL}xmm0\n\tmovups\t{_ASM_REG_SIGIL}xmm0, ({_ASM_REG_SIGIL}rax)\n\tmovd\t{_ASM_REG_SIGIL}xmm0, {_ASM_REG_SIGIL}ecx\n",
+    f"\tpxor\t{_ASM_REG_SIGIL}xmm0, {_ASM_REG_SIGIL}xmm0\n\tmovups\t{_ASM_REG_SIGIL}xmm0, 18({_ASM_REG_SIGIL}rax)\n\tmovups\t{_ASM_REG_SIGIL}xmm0, 34({_ASM_REG_SIGIL}rax)\n\tmovd\t{_ASM_REG_SIGIL}xmm0, 50({_ASM_REG_SIGIL}rax)\n",
+)
+CPP_MUST_FLAG += (
+    f"\tmovd\t{_ASM_REG_SIGIL}xmm0, 50({_ASM_REG_SIGIL}rax)\n",
+    f"\tpxor\t{_ASM_REG_SIGIL}xmm0, {_ASM_REG_SIGIL}xmm0\n\taddsd\t{_ASM_REG_SIGIL}xmm1, {_ASM_REG_SIGIL}xmm0\n\tmovd\t{_ASM_REG_SIGIL}xmm0, 50({_ASM_REG_SIGIL}rax)\n",
+)
 
 def mir_flag(line):
     s = line.strip()

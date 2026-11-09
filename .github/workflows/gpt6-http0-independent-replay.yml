@@ -1,0 +1,68 @@
+name: GPT6 independent S3 reconstruction and HTTP0 Pascal freeze/play controls
+on:
+  pull_request:
+    paths:
+      - 'independent/gpt6_http0_independent_s3.cpp'
+      - 'independent/gpt6_http0_pascal_freeze.py'
+      - 'independent/GPT6_HTTP0_INDEPENDENT_POSTEXPLORATION.hbp'
+      - 'independent/GPT6_HTTP0_REPLAY_SCOPE.md'
+      - '.github/workflows/gpt6-http0-independent-replay.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-small-and-neighborhood:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Compile independent C++ implementation without original operator library
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/gpt6-replay
+          g++ -O3 -std=c++17 -Wall -Wextra -Werror -pedantic independent/gpt6_http0_independent_s3.cpp -o /tmp/gpt6-replay/replay
+      - name: Recompute complete 2x2 and 2x3 orbit spaces and the 3x4 K2/exterior
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            /tmp/gpt6-replay/replay 2 2
+            /tmp/gpt6-replay/replay 2 3
+            /tmp/gpt6-replay/replay 3 4
+            python3 -I -X utf8 independent/gpt6_http0_pascal_freeze.py
+          } | sed -E 's/\|elapsed_ms=[0-9]+//' > /tmp/gpt6-replay/MEASURED.hbp
+          cmp independent/GPT6_HTTP0_INDEPENDENT_POSTEXPLORATION.hbp /tmp/gpt6-replay/MEASURED.hbp
+          echo 'INDEPENDENT_REPLAY|measured_bytes=EXACT_MATCH|scope=FULL_SMALL_AND_3X4_K2_ONLY|status=PASS|json=0'
+      - name: Read frozen post-exploration anchor
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' a16786379ac7df10182d2703151fc7ddc327cd730dc444aa839d089f8c48a906 independent/GPT6_HTTP0_INDEPENDENT_POSTEXPLORATION.hbp | sha256sum -c -
+      - name: Deliberate weighted balance and frozen-leaf corruption must fail
+        shell: bash
+        run: |
+          set -euo pipefail
+          for size in '2 2' '3 4'; do
+            if /tmp/gpt6-replay/replay $size sabotage > /tmp/gpt6-replay/red-weight.hbp; then
+              echo 'FAILED: corrupted orbit weights accepted'; exit 1
+            fi
+            grep -F 'weighted_' /tmp/gpt6-replay/red-weight.hbp
+            grep -F '|status=FAIL' /tmp/gpt6-replay/red-weight.hbp
+          done
+          if python3 -I independent/gpt6_http0_pascal_freeze.py sabotage >/tmp/gpt6-replay/red-leaf.hbp; then
+            echo 'FAILED: corrupted frozen leaf accepted'; exit 1
+          fi
+          grep -F 'FAILED|check=outside_anchor_leaf_9|json=0' /tmp/gpt6-replay/red-leaf.hbp
+          echo 'INDEPENDENT_REPLAY_RED_CONTROLS|weights=2/2|leaf=1/1|status=PASS|json=0'
+      - name: 'Scope gate - no claim of a complete 45.5M-row replay'
+        run: |
+          set -euo pipefail
+          grep -Fx 'SCOPE|physical_ym_jump=NOT_PROVED|row_rebuild=SEPARATE|full_store_replay=NOT_RUN|json=0' /tmp/gpt6-replay/MEASURED.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-http0-independent-finite-s3
+          path: /tmp/gpt6-replay/*.hbp
+          if-no-files-found: warn

@@ -1,0 +1,93 @@
+name: GPT6 HTTP-0 3x4 streamed input freeze and replay
+
+on:
+  pull_request:
+    paths:
+      - 'independent/gpt6_http0_stream_inputs.py'
+      - 'independent/gpt6_http0_symmetry_rows.cpp'
+      - 'independent/HTTP0_3X4_STREAM_EXECUTION_20261109.md'
+      - '.github/workflows/gpt6-http0-3x4-input-freeze.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'independent/gpt6_http0_stream_inputs.py'
+      - 'independent/gpt6_http0_symmetry_rows.cpp'
+      - 'independent/HTTP0_3X4_STREAM_EXECUTION_20261109.md'
+      - '.github/workflows/gpt6-http0-3x4-input-freeze.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  independent-stream-inputs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Independent freeze/play, SHA and seven negative controls
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 independent/gpt6_http0_stream_inputs.py --selftest > selftest.hbp
+          grep -F 'HTTP0_YM_INPUT_CONTROLS|attacks=7|rejected=7|short_final_leaf=PASS|seal_chain=PASS|status=PASS|json=0' selftest.hbp
+      - name: Retrieve two pinned public inputs via HTTPS
+        run: |
+          set -euo pipefail
+          mkdir -p original
+          curl --fail --location --retry 3 --retry-delay 3 --connect-timeout 30 --max-time 1800 --silent --show-error \
+            'https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve/main/perron/passA.bin?download=true' \
+            --output original/passA.bin
+          curl --fail --location --retry 3 --retry-delay 3 --connect-timeout 30 --max-time 1800 --silent --show-error \
+            'https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve/main/perron/top/x3-c.bin?download=true' \
+            --output original/x3-c.bin
+          test "$(wc -c <original/passA.bin)" -eq 728129280
+          test "$(wc -c <original/x3-c.bin)" -eq 364064640
+          printf '%s\n' \
+            'eefd7752031cf6e1cbfd53dd47128805d1a98bb41de0a9e269222d0e2c6e3cbc  original/passA.bin' \
+            'f5c5428db1fc5d91d2ab891689f0dac7263dc26c8f9b60a2db82728f6ea0dcd1  original/x3-c.bin' \
+            | sha256sum --check --strict
+      - name: Recheck every key and vector entry; emit 771 3^10 freeze leaves
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 independent/gpt6_http0_stream_inputs.py original/passA.bin original/x3-c.bin > 3x4-input-freeze.hbp
+          test "$(grep -c '^HTTP0_YM_FREEZE|' 3x4-input-freeze.hbp)" -eq 771
+          grep '^HTTP0_YM_INPUTS|rows=45508080|leaves=771|.*|status=PASS|json=0$' 3x4-input-freeze.hbp
+          sha256sum independent/gpt6_http0_stream_inputs.py selftest.hbp 3x4-input-freeze.hbp > SHA256SUMS
+      - name: Independently rebuild complete 2x2 and 2x3 S3 symmetry-sector operators
+        run: |
+          set -euo pipefail
+          g++ -std=c++17 -O3 -Wall -Wextra -Werror independent/gpt6_http0_symmetry_rows.cpp -o /tmp/gpt6_ym_rows
+          /tmp/gpt6_ym_rows --small 2 2 | tee 3x4-row-pilot.hbp
+          /tmp/gpt6_ym_rows --small 2 3 | tee -a 3x4-row-pilot.hbp
+          grep '^HTTP0_YM_SECTOR_REBUILD|lattice=2x2|.*|weighted_mismatches=0|status=PASS|json=0$' 3x4-row-pilot.hbp
+          grep '^HTTP0_YM_SECTOR_REBUILD|lattice=2x3|.*|weighted_mismatches=0|status=PASS|json=0$' 3x4-row-pilot.hbp
+      - name: Reconstruct 3x4 electric transitions and exact Perron ratios at independent positions
+        run: |
+          set -euo pipefail
+          /tmp/gpt6_ym_rows --pilot original/passA.bin original/x3-c.bin 0 10 | tee -a 3x4-row-pilot.hbp
+          /tmp/gpt6_ym_rows --pilot original/passA.bin original/x3-c.bin 1000000 16 | tee -a 3x4-row-pilot.hbp
+          /tmp/gpt6_ym_rows --pilot original/passA.bin original/x3-c.bin 45507968 1 | tee -a 3x4-row-pilot.hbp
+          /tmp/gpt6_ym_rows --pilot original/passA.bin original/x3-c.bin 45508070 10 | tee -a 3x4-row-pilot.hbp
+          test "$(grep -c '^HTTP0_YM_ROW_PILOT|.*|status=PASS|json=0$' 3x4-row-pilot.hbp)" -eq 4
+          for kind in tamper-weight tamper-vector; do
+            if /tmp/gpt6_ym_rows --pilot original/passA.bin original/x3-c.bin 45507968 1 "$kind" > /tmp/fault.out 2>&1; then
+              echo "ERROR: deliberate corruption accepted: $kind" >&2
+              exit 2
+            fi
+            grep -F 'HTTP0_YM_ROW_FAIL|' /tmp/fault.out
+          done
+          echo 'HTTP0_YM_ROW_CONTROLS|weight_tamper=REJECTED|vector_tamper=REJECTED|status=PASS|json=0' >> 3x4-row-pilot.hbp
+          sha256sum independent/gpt6_http0_symmetry_rows.cpp 3x4-row-pilot.hbp >> SHA256SUMS
+      - name: Upload sealed HBP leaves and check receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpt6-http0-3x4-input-leaves-and-controls
+          path: |
+            selftest.hbp
+            3x4-input-freeze.hbp
+            3x4-row-pilot.hbp
+            SHA256SUMS
+          if-no-files-found: warn

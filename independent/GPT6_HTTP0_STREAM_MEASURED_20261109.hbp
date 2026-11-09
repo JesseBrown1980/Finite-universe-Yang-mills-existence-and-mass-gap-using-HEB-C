@@ -1,0 +1,11 @@
+HTTP0_YM_SOURCE|stage=INPUTS_AND_INDEPENDENT_ROW_PILOT|head=5d9993618fbde6066f5faacafde0630ee6e9e6f3|run=42617600347|job=129161261570|source=GITHUB_HOSTED_ACTIONS|json=0
+HTTP0_YM_INPUTS|rows=45508080|leaves=771|key_sha256=eefd7752031cf6e1cbfd53dd47128805d1a98bb41de0a9e269222d0e2c6e3cbc|vector_sha256=f5c5428db1fc5d91d2ab891689f0dac7263dc26c8f9b60a2db82728f6ea0dcd1|orbit_weight_sum=13060694016|flats=7|flat_weight_sum=18|nonflat_M_min=3|nonflat_M_max=36|d_min=9610602|d_max=13054544824728578|frozen_root_sha256=36395532ac0e94a8864cd2a44d1ffe741a8a6456f1f10e34cba52b6183712c13|status=PASS|json=0
+HTTP0_YM_SECTOR_REBUILD|lattice=2x2|physical_orbits=1393|sector_rows=211|orbit_weight_sum=7776|flat_rows=7|flat_weight_sum=18|checked_edges=2396|weighted_mismatches=0|status=PASS|json=0
+HTTP0_YM_SECTOR_REBUILD|lattice=2x3|physical_orbits=47449|sector_rows=2646|orbit_weight_sum=279936|flat_rows=7|flat_weight_sum=18|checked_edges=72310|weighted_mismatches=0|status=PASS|json=0
+HTTP0_YM_ROW_PILOT|first=0|rows=10|verified_reverse_pairs=8|min_sample_ratio_microJE=94073479|bound_microJE=94070673|status=PASS|json=0
+HTTP0_YM_ROW_PILOT|first=1000000|rows=16|verified_reverse_pairs=8|min_sample_ratio_microJE=100400316|bound_microJE=94070673|status=PASS|json=0
+HTTP0_YM_ROW_PILOT|first=45507968|rows=1|verified_reverse_pairs=8|min_sample_ratio_microJE=94070673|bound_microJE=94070673|status=PASS|json=0
+HTTP0_YM_ROW_PILOT|first=45508070|rows=10|verified_reverse_pairs=8|min_sample_ratio_microJE=100145727|bound_microJE=94070673|status=PASS|json=0
+HTTP0_YM_ROW_CONTROLS|weight_tamper=REJECTED|vector_tamper=REJECTED|status=PASS|json=0
+HTTP0_YM_INPUT_CONTROLS|attacks=7|rejected=7|short_final_leaf=PASS|seal_chain=PASS|status=PASS|json=0
+HTTP0_YM_RECEIPT|kind=POST_EXPLORATION|artifact_id=13672638525|artifact_url=https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/42617600347/artifacts/13672638525|input_bytes=1092193920|status=PASS|json=0

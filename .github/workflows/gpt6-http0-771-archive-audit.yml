@@ -1,0 +1,52 @@
+name: GPT6 independent archive replay of 771 HTTP0 3x4 leaves
+on:
+  pull_request:
+    paths:
+      - 'independent/gpt6_http0_771_receipt_verify.py'
+      - 'independent/GPT6_HTTP0_FULL_STORE_MEASURED_20261109.hbp'
+      - '.github/workflows/gpt6-http0-771-archive-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'independent/gpt6_http0_771_receipt_verify.py'
+      - 'independent/GPT6_HTTP0_FULL_STORE_MEASURED_20261109.hbp'
+      - '.github/workflows/gpt6-http0-771-archive-audit.yml'
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  independent-archive-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Fetch published independent full-row 771-leaf HBI HBP artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: gpt6-ym3x4-full-771-leaf-independent-certificate
+          run-id: 42619252533
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: replay
+      - name: Authenticate original archive SHA256 values
+        run: |
+          set -euo pipefail
+          cd replay
+          sha256sum --check --strict aggregate/SHA256SUMS
+      - name: Independently reassemble and audit 771 leaves with three negative controls
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 independent/gpt6_http0_771_receipt_verify.py replay --selftest | tee third-replay.hbp
+          grep -Fx 'HTTP0_YM_THIRD_REPLAY|rows=45508080|leaves=771|electric_moves=3276581760|flats=7|weight_sum=13060694016|min_row=45507968|min_ratio_microJE=94070673|root_sha256=7c3c636e873b3e3000f532ea982bb0661711b0a15862cbf92e2beb97a8413c1f|status=PASS|json=0' third-replay.hbp
+          test "$(grep -c '^HTTP0_YM_THIRD_RED|fault=.*|status=REJECTED|json=0$' third-replay.hbp)" -eq 3
+          grep -F 'HTTP0_YM_FULL_ROW_REBUILD|rows=45508080|leaves=771|electric_moves=3276581760|' independent/GPT6_HTTP0_FULL_STORE_MEASURED_20261109.hbp
+      - name: Publish independent receipt recheck
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpt6-http0-771-independent-archive-audit
+          path: third-replay.hbp
+          if-no-files-found: warn
