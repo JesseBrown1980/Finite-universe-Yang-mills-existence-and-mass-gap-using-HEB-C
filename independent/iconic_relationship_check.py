@@ -298,11 +298,126 @@ for n in range(0, 13):
 row("DIC3_MOMENTS", ("rows", "n:M_n(Dic3):M_n(SU2_Haar)"), ("values", ",".join(moments)))
 check("Dic3_first_break_degree_4_moment_3_against_2", first_break == (4, 3, 2),
       ("first_break_degree", first_break[0]), ("M_Dic3", first_break[1]), ("M_SU2", first_break[2]))
-row("ICONIC_FROZEN_PREDICTION", ("repo", "JesseBrown1980/Iconic-3-space"), ("commit", "eb18a5a"),
-    ("file", "predictions/su2-ladder/PREDICTION.hbp"),
-    ("sha256", "c2601cf08d7c662422e7284cc123250c27cf4943766d4d41baa43b63e3b8c865"),
-    ("Dic_3", "t_pred=3,first_break_degree=4,M_4=3,Mh_4=2"),
-    ("agree_with_this_measurement", int(first_break == (4, 3, 2))))
+# the frozen prediction, read from the pinned copy beside this script and compared value by value
+FROZEN = os.path.join(HERE, "iconic-frozen-eb18a5a", "PREDICTION.hbp")
+FROZEN_SHA = "c2601cf08d7c662422e7284cc123250c27cf4943766d4d41baa43b63e3b8c865"
+fb = open(FROZEN, "rb").read()
+check("frozen_prediction_sha256_pinned", hashlib.sha256(fb).hexdigest() == FROZEN_SHA,
+      ("file", "independent/iconic-frozen-eb18a5a/PREDICTION.hbp"), ("source", "JesseBrown1980/Iconic-3-space@eb18a5a:predictions/su2-ladder/PREDICTION.hbp"),
+      ("sha256", hashlib.sha256(fb).hexdigest()))
+frows = fb.decode("utf-8").split("\n")
+
+
+def frozen_fields(prefix):
+    hit = [r for r in frows if r.startswith(prefix)]
+    assert len(hit) == 1, prefix
+    return dict(f.split("=", 1) for f in hit[0].split("|")[1:] if "=" in f)
+
+
+fm = frozen_fields("MOMENT|group=Dic_3|")
+fd = frozen_fields("DESIGN|group=Dic_3|")
+frozen_M = [int(v) for v in fm["M"].split(",")]
+measured_M = [int(v.split(":")[1]) for v in moments]
+check("frozen_Dic3_moments_equal_measured_through_order_12", frozen_M[:13] == measured_M,
+      ("compared", 13), ("frozen", ",".join(str(v) for v in frozen_M[:13])), ("measured", ",".join(str(v) for v in measured_M)))
+check("frozen_Dic3_design_row_equals_measured", int(fd["t_pred"]) == first_break[0] - 1 and int(fd["first_break_degree"]) == first_break[0],
+      ("frozen_t_pred", fd["t_pred"]), ("frozen_first_break_degree", fd["first_break_degree"]), ("measured_first_break_degree", first_break[0]))
+
+# 4b. The two bases of the D(S3) torus ground space, and the explicit change of basis between them.
+# Holonomy basis: the 8 flat orbit states (indicator functions of the conjugation orbits of commuting pairs).
+# Charge-flux basis: one vector per irrep (C, rho) of D(S3): psi(a, b) = [a in C] * chi_rho(h^-1 b h), where h g_C h^-1 = a.
+W3 = (0, 1)
+
+
+def wpow(m):
+    r = Z1
+    for _ in range(m % 3):
+        r = zm(r, W3)
+    return r
+
+
+orbit_list = sorted(orbits, key=lambda o: min(o))
+orbit_of = {}
+for i, o in enumerate(orbit_list):
+    for pr in o:
+        orbit_of[pr] = i
+labels = []
+for cl in sorted(conj_classes(S3), key=lambda c: len(centralizer(S3, c[0])), reverse=True):
+    g = cl[0]
+    Zg = centralizer(S3, g)
+    typ = LABEL[cycle_type(g)]
+    if typ == "e":
+        chars = {"triv": lambda z: Z1, "sign": lambda z: Z1 if cycle_type(z) != (2, 1) else NEG1,
+                 "std": lambda z: (2, 0) if cycle_type(z) == (1, 1, 1) else ((0, 0) if cycle_type(z) == (2, 1) else NEG1)}
+    elif typ == "t":
+        chars = {"chi0": lambda z: Z1, "chi1": lambda z, g=g: Z1 if z == tuple(range(3)) else NEG1}
+    else:
+        pw = {}
+        cur = tuple(range(3))
+        for m in range(3):
+            pw[cur] = m
+            cur = compose(cur, g)
+        chars = {("w%d" % k): (lambda z, k=k, pw=pw: wpow(k * pw[z])) for k in range(3)}
+    for name, chi in chars.items():
+        labels.append((typ, name, g, Zg, chi))
+check("charge_flux_labels_are_8", len(labels) == 8, ("labels", ";".join("%s:%s" % (t, n) for t, n, _, _, _ in labels)))
+basis_rows = []
+for typ, name, g, Zg, chi in labels:
+    vec = {}
+    for (a, b) in pairs:
+        val = Z0
+        if a in [compose(compose(h, g), inverse(h)) for h in S3]:
+            h = [h for h in S3 if compose(compose(h, g), inverse(h)) == a][0]
+            val = chi(compose(compose(inverse(h), b), h))
+        vec[(a, b)] = val
+    # invariance under simultaneous conjugation: constant on every orbit
+    const = all(len({vec[pr] for pr in o}) == 1 for o in orbit_list)
+    check("charge_flux_vector_is_gauge_invariant", const, ("label", "%s:%s" % (typ, name)))
+    basis_rows.append([vec[min(o)] for o in orbit_list])
+
+
+def zdet(M):
+    n = len(M)
+    def sign_perm(p):
+        s, seen = 1, [False] * n
+        for i in range(n):
+            if not seen[i]:
+                j, L = i, 0
+                while not seen[j]:
+                    seen[j] = True
+                    j = p[j]
+                    L += 1
+                if L % 2 == 0:
+                    s = -s
+        return s
+    tot = Z0
+    for p in perms(n):
+        term = (sign_perm(p), 0)
+        for i in range(n):
+            term = zm(term, M[i][p[i]])
+            if term == Z0:
+                break
+        tot = za(tot, term)
+    return tot
+
+
+def orbit_label(pr):
+    a, b = pr
+    la, lb = LABEL[cycle_type(a)], LABEL[cycle_type(b)]
+    if la == "c" and lb == "c" and b != a:
+        lb = "c^-1"
+    return (la, lb)
+
+
+D = zdet(basis_rows)
+row("BASIS_CHANGE", ("from", "holonomy_orbit_basis(the_8_flat_states)"), ("to", "charge_flux_basis(the_8_irreps_of_D(S3))"),
+    ("orbits_in_order", ";".join("(%s,%s)" % orbit_label(min(o)) for o in orbit_list)),
+    ("matrix_rows_a+bw", "/".join(",".join("%d%+dw" % e for e in r) for r in basis_rows).replace("/", " ; ")))
+check("basis_change_is_invertible", D != Z0, ("determinant_in_Z[w]", "%d%+dw" % D))
+# the torus rotation (a, b) -> (b, a^-1) acts on the holonomy basis by a permutation of the 8 orbits; it mixes the charge-flux labels
+rot = [orbit_of[(min(o)[1], inverse(min(o)[0]))] for o in orbit_list]
+check("torus_rotation_permutes_the_flat_orbits", sorted(rot) == list(range(8)) and rot != list(range(8)),
+      ("permutation", ",".join(str(v) for v in rot)))
 
 # 5. Controls that must fail
 bad_pairs, bad_orbits = commuting_pair_orbits(S3, lambda h, pr: (compose(h, pr[0]), compose(h, pr[1])))

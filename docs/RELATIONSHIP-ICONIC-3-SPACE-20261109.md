@@ -1,8 +1,8 @@
 # This repository and Iconic 3-space: the relationship, November 9, 2026
 
-[Iconic 3-space](https://github.com/JesseBrown1980/Iconic-3-space) tests the owner's statement "I'm trying to prove the illusion of continuous arises from the finite world" with exact finite mathematics. It asks how far a finite set of symmetries stands in for a continuous one before an observer can tell them apart. This note records how its results meet this repository's finite S₃ theory. Every number below is reproduced by [`independent/iconic_relationship_check.py`](../independent/iconic_relationship_check.py), receipt [`ICONIC-RELATIONSHIP-20261109.hbp`](../independent/ICONIC-RELATIONSHIP-20261109.hbp) (sha256 `2a8daa58…`, 20 checks, 2 controls that must fail, 0 failures).
+[Iconic 3-space](https://github.com/JesseBrown1980/Iconic-3-space) tests the owner's statement "I'm trying to prove the illusion of continuous arises from the finite world" with exact finite mathematics. It asks how far a finite set of symmetries stands in for a continuous one before an observer can tell them apart. This note records how its results meet this repository's finite S₃ theory. Every number below is reproduced by [`independent/iconic_relationship_check.py`](../independent/iconic_relationship_check.py), receipt [`ICONIC-RELATIONSHIP-20261109.hbp`](../independent/ICONIC-RELATIONSHIP-20261109.hbp) (sha256 `9ded0b66…`, 34 checks, 2 controls that must fail, 0 failures).
 
-## 1. The eight flat sectors are the eight irreducible representations of the quantum double D(S₃)
+## 1. The eight flat states and the eight irreducible representations of D(S₃): two bases of one ground space
 
 The eight flat states here are the commuting holonomy pairs (a, b) modulo simultaneous conjugation:
 - there are 18 commuting pairs, that is |S₃| × 3 classes;
@@ -10,6 +10,13 @@ The eight flat states here are the commuting holonomy pairs (a, b) modulo simult
 - the orbit sizes are 1, 3, 2, 3, 3, 2, 2, 2, the flat weights this repository uses.
 
 The quantum double D(S₃) has one irreducible representation per pair of a conjugacy class and an irreducible representation of that class's centralizer. That gives 3 + 2 + 3 = **8**, of dimensions 1, 1, 2, 3, 3, 2, 2, 2, with squares summing to 36 = |S₃|². The same count on S₄ gives 21 = 21.
+
+**The two bases.** The eight gauge-invariant flat orbit states are the **holonomy basis** of the D(S₃) ground space on the torus. The eight irreducible representations (C, ρ) label a second, **charge–flux basis** of the same space: ψ_(C,ρ)(a, b) = [a ∈ C] · χ_ρ(h⁻¹ b h), where h g_C h⁻¹ = a. The checker builds all eight ψ_(C,ρ) exactly over Z[ω] and verifies three things:
+- each ψ_(C,ρ) is constant on every conjugation orbit, so it lies in the span of the eight flat states;
+- the 8 × 8 matrix expressing them in the holonomy basis has determinant 36 + 72ω = 36·i√3, nonzero, so the change of basis is invertible;
+- the torus rotation (a, b) ↦ (b, a⁻¹) permutes the eight flat orbits as (0, 3, 5, 1, 4, 2, 7, 6) and mixes the charge–flux labels.
+
+The identification is this explicit Fourier-type change of basis between the two labellings. The two counts being equal is a consequence of it.
 
 This identity is the foundation of the owner's proof plan in [`docs/YM_TOPOLOGICAL_STABILITY_PROOF.md`](YM_TOPOLOGICAL_STABILITY_PROOF.md), which identifies the eight flat states with the ground space of Kitaev's quantum double. `flatcomp` confirms it on the 2×2, 2×3, 2×4, 2×5 and 3×3 lattices. The second seat of Iconic 3-space reached the same count independently in its G₂/S⁶ refutation ([`proofs/g2-s6/`](https://github.com/JesseBrown1980/Iconic-3-space/tree/main/proofs/g2-s6)).
 
@@ -21,9 +28,11 @@ On the Cartan plane of the G₂ root system, the Weyl group W(G₂) has 12 eleme
 
 Through χ_std, S₃ acts as the symmetry group D₃ of a triangle. Its double cover in SU(2) is the binary dihedral group Dic₃ of order 12, measured here: Dic₃ lies in SU(2), its centre is {±1}, and the quotient is S₃.
 
-In the language of Iconic 3-space, Dic₃ looks exactly like continuous SU(2) up to degree 3 and first shows its finiteness at degree 4. There its fourth moment is 3, against SU(2)'s 2. The measured moments 1, 0, 1, 0, 3, 0, 11, 0, 43, 0, 171, 0, 683 equal Iconic's frozen prediction row for Dic₃ (commit `eb18a5a`, `PREDICTION.hbp` sha256 `c2601cf0…`) at every order through 12.
+In the language of Iconic 3-space, Dic₃ looks exactly like continuous SU(2) up to degree 3 and first shows its finiteness at degree 4. There its fourth moment is 3, against SU(2)'s 2. The measured moments are 1, 0, 1, 0, 3, 0, 11, 0, 43, 0, 171, 0, 683. For k ≥ 1 the even moments are (4ᵏ + 2)/6, the closed form GPT-6's review derived independently.
 
-The binary dihedral family stays at degree 3 at every size. A finite group can climb higher only through the exceptional groups, up to 2I at degree 11. By Jordan's theorem (Turing 1938), no tower of finite groups converges to a continuous non-abelian group.
+**The comparison with the frozen prediction is script-verified.** A pinned copy of Iconic's frozen file sits at [`independent/iconic-frozen-eb18a5a/PREDICTION.hbp`](../independent/iconic-frozen-eb18a5a/PREDICTION.hbp), taken from commit `eb18a5a`. The checker verifies its sha256 `c2601cf0…`, parses its Dic₃ MOMENT and DESIGN rows, and compares them value by value: 13 of 13 moments agree, with t = 3 and first break at degree 4.
+
+Among exact finite subgroups of SU(2) in its defining representation, the binary dihedral family stays at design degree 3 at every size. The highest achievable degree is 11, reached only by 2I. Finite point sets that are not subgroups, such as spherical designs and other discretizations, can reach any degree, so this ceiling concerns exact subgroups and the degrees they can achieve.
 
 ## 4. The transfers, and their status
 
