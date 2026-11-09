@@ -1,0 +1,38 @@
+# 2026-11-08 Cloud C. PRE-ENGINE freeze for issue #137. Integer/rational only, HBP; no JSON.
+# The true r=9 O_sum first-excitation overlap is UNKNOWN. Never mark MET from leading flat-sector arithmetic.
+# No code, numerical eigensolve, large-orbit enumeration, or receipt was written on this branch before these rows.
+PREDICT|id=01|scope=periodic_3x4_spatial_S3_gauge_theory|H_over_JE=E_plus_9M|full_gauge_orbits=2177317873|rank_of_free_cycle_links=13|tag=DERIVED|json=0
+PREDICT|id=02|physical_basis=complete_gauge_orbits|inner_product=W_orbit_weights|forbid=replace_W_by_identity_or_45_508_080_sector_states|tag=DERIVED|json=0
+PREDICT|id=03|Wilson_character=chi_standard_S3|chi_identity=2|chi_transposition=0|chi_threecycle=-1|test=all_six_elements|tag=DERIVED|json=0
+PREDICT|id=04|winding_lengths=x_3_links,y_4_links|horizontal_x_windings=4|vertical_y_windings=3|each_loop=closed_ordered_product|tag=DERIVED|json=0
+PREDICT|id=05|observable=O_sum|definition=sum_y0_to3_chi_standard(Wx_y)_plus_sum_x0_to2_chi_standard(Wy_x)|translation_momentum=0|gauge_invariant=YES|tag=DERIVED|json=0
+PREDICT|id=06|O_sum_pointwise_integer_range=[-7,14]|W_operator_selfadjoint=YES|O_sum_norm_upper=14|test=all_integer_values_from_character|tag=DERIVED|json=0
+PREDICT|id=07|operator_matrix=diagonal_in_full_gauge_orbit_configuration_basis|not_equal_to=flat_projected_dual_electric_shift_in_PR144|tag=DERIVED|json=0
+PREDICT|id=08|origin=PR136_source_conditional|E1_over_JE=(69.89,69.92)|E2_over_JE=(69.93,69.96)|E2_minus_E1_over_JE=(0.01,0.07)|full_store_second_machine_replayed=NO|tag=SOURCE_CONDITIONAL|json=0
+PREDICT|id=09|independent_ground_uniqueness=merged_PR146|minimum_r9_first_gap_over_JE=3_over_396_pow_96|numerical_E2_window_from_PR146=NOT_CLAIMED|tag=DERIVED|json=0
+PREDICT|id=10|target=first_DISTINCT_excitation_eigenspace_projector_Pfirst|if_E2_degenerate_use_whole_eigenspace|psi0=unique_W_normalized_ground|tag=DEFINITION|json=0
+PREDICT|id=11|target_weight=norm_W_squared(Pfirst_O_sum_psi0)|equivalent=norm_W_squared(Pfirst_(O_sum_minus_vacuum_mean)_psi0)|require=strict_positive_rational_lower_bound|tag=OPEN|json=0
+PREDICT|id=12|ground_leakage=v_is_W_orthogonal_to_psi0|v=(O_sum_minus_vacuum_mean)psi0|vacuum_mean_is_real|tag=DERIVED|json=0
+PREDICT|id=13|spectral_isolation=certify_E2_window_and_E3_boundary_before_projector|do_not_assume_from_only_E9_minus_E8|multiplicity_must_be_explicit|tag=REQUIRED|json=0
+PREDICT|id=14|contamination=rigorously_bound_every_other_excited_spectral_subspace_including_E3_through_E8|Ritz_overlap_is_not_a_weight_certificate|tag=REQUIRED|json=0
+PREDICT|id=15|leading_8_flat_C1_modes_ground=(1,1,1,0,0,0,0,0)|first=(0,0,0,1,1,0,0,0)|weights=(1,3,2,3,3,2,2,2)|tag=DERIVED|json=0
+PREDICT|id=16|leading_8_flat_O_sum=diagonal_character_multiplies_flat_holonomies|cross_C1_ground_first=0|does_not_imply_full_r9_overlap_zero=YES|tag=DERIVED|json=0
+PREDICT|id=17|certificate_method=exact_integer_Feshbach_or_rational_spectral_filter|numerator_and_error_bounds=independently_derived|no_float_core=YES|tag=REQUIRED|json=0
+PREDICT|id=18|certificate_output=explicit_positive_lower_rational_A_over_B|A_positive_integer=REQUIRED|B_positive_integer=REQUIRED|r9_weight_sign=UNKNOWN_before_execution|tag=OPEN|json=0
+PREDICT|id=19|if_witness_cannot_isolate_first_space=HOLD|if_exact_symmetry_forbids_overlap=publish_dark_result_and_choose_new_observable|never_forge_positive_row=YES|tag=REQUIRED|json=0
+PREDICT|id=20|source_pins=PR136_finite_3x4_conditional_HBP_git_blob_ec430d73aafe4b07acfd28cea753aac2758748bf|PR146_ground_transform_HBP_git_blob_719c0e7899a2253f981613a7ae8ecc1b4574032f|historical_files=UNMODIFIED|tag=DERIVED|json=0
+PREDICT|id=21|independence=separate_checker_and_separate_spectral_method|exact_W_replay=REQUIRED|fault_controls=REQUIRED|engine_not_yet_written=YES|tag=REQUIRED|json=0
+PREDICT|id=22|F1=replace_character_value_for_transposition|expected=FAIL_named_character_census|tag=FALSIFIER|json=0
+PREDICT|id=23|F2=remove_one_horizontal_winding_from_O_sum|expected=FAIL_named_translation_cyclic_invariance|tag=FALSIFIER|json=0
+PREDICT|id=24|F3=replace_full_hilbert_orbit_count_by_45508080|expected=FAIL_named_Burnside_complete_space|tag=FALSIFIER|json=0
+PREDICT|id=25|F4=replace_nonuniform_orbit_weights_by_unit_weights|expected=FAIL_named_detailed_balance_or_W_inner_product|tag=FALSIFIER|json=0
+PREDICT|id=26|F5=use_nonzero_variance_as_positive_E2_weight|expected=FAIL_named_spectral_contamination|tag=FALSIFIER|json=0
+PREDICT|id=27|F6=replace_Wilson_multiplication_by_PR144_dual_shift|expected=FAIL_named_operator_identity|tag=FALSIFIER|json=0
+PREDICT|id=28|F7=drop_E3_to_E8_tail_from_spectral_weight_inequality|expected=FAIL_named_tail_enclosure|tag=FALSIFIER|json=0
+PREDICT|id=29|F8=claim_E2_is_simple_without_multiplicity_check|expected=FAIL_named_first_projector_rank|tag=FALSIFIER|json=0
+PREDICT|id=30|F9=upgrade_PR136_source_conditional_0p01_to_unconditional|expected=FAIL_named_Perron_source_scope|tag=FALSIFIER|json=0
+PREDICT|id=31|F10=reverse_spectral_filter_leakage_inequality|expected=FAIL_named_projector_lower_bound|tag=FALSIFIER|json=0
+PREDICT|id=32|F11=change_one_full_W_orbit_size_in_a_nonflat_state|expected=FAIL_named_orbit_weight_balance|tag=FALSIFIER|json=0
+PREDICT|id=33|F12=claim_4D_continuum_from_finite_r9_weight|expected=FAIL_named_continuum_scope|tag=FALSIFIER|json=0
+PREDICT|id=34|release=only_after_two_independent_methods_and_all_12_named_falsifiers_fail_closed|issue137_status=OPEN|original_QNN_blind_jobs=UNTOUCHED|tag=GATE|json=0
+PREDICTION_END|rows=34|format=LF_UTF8_HBP|runtime_checks_at_freeze=NONE|candidate_r9_weight=UNDETERMINED|json=0
