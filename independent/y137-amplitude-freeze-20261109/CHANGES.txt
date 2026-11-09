@@ -1,0 +1,1101 @@
+CHANGES to the #137 Feshbach-amplitude freeze package (cloud seat)
+====================================================================
+One section per pass. Each item gives the finding, what changed and where, the reason, and any recomputation.
+Rules kept in every pass: prediction first; integers only; nothing r-dependent for the 3x4 model at r = 9; excluded
+r > 9 only for smoke; no repository writes.
+
+--------------------------------------------------------------------------------------------------------------------
+PASS 1: FIX seat, 2026-11-09 (applies the critic's 2 blocking and 11 minor findings)
+--------------------------------------------------------------------------------------------------------------------
+Inputs (sha256, first 16 hex), kept in ym137/fixpass_prefix/:
+  PREDICT-...hbp 994ad0d1b1ed04be   NOTE-...md ad5f175cf5fb2cce   ENGINE-PLAN.txt be34df4916f977d4
+Outputs (sha256):
+  PREDICT-...hbp  b121f51c86d5824fda3adebd6ec3700c2ebf47489ddda249a3b9dccf1ca4426b (43,927 bytes, 144 lines)
+  NOTE-...md      06510156c6ada2bb8acfc58449d6a01eea1f2b9ede7e5e30c14988239ebf4ec5
+  ENGINE-PLAN.txt b42f6214e5a972fceadc0dd7d9896c62ce4a70d59ded285759022860e7f459ae
+Row ids: 001-130 are unchanged in number and meaning. Three rows are appended: 131 (gate), 132 and 133
+(predict_iso). PREDICTION_END recounted: rows=133, DERIVED=16, CONJECTURE=20 (was 18), OPEN=4, REQUIRED=93 (was 92),
+checks=36, faults=17, map148=12, accept=4, refuter=6. One check is renamed: REPLAY_GO -> REPLAY_CPP (item 7).
+synth/check_hbp.py (5555a3ec0262bad7, unchanged) on the new HBP: ERRORS 0, no unreferenced check (output kept as
+ym137/fixpass_prefix/check_hbp_final.txt).
+
+New scripts run in this pass (all excluded r or no r; fingerprints are disclosed in NOTE section 12.D):
+  synth/kappa7_path.py 4390e53c64387a3a -> synth/out/kappa7_path_r10p5_r12.txt a6b312d4e2ff233e (r = 10.5, 12;
+    depths 2 and 5; reads the existing main_d5.txt hats; no engine run; about 2 s).
+  synth/lo_identity_toy.py 2b0b6512807a8cef -> synth/out/lo_identity_toy.txt 6711bd4dbd83b011 (random rational
+    matrices; no model data, no r).
+Integer recomputations of rule constants (Python ints, python3 -I -B):
+  72*81 - 18*9 - 3 = 5667, so z0(9) = 5667/81; gcd(5667, 81) = 3, lowest terms 1889/27 (the engine's zstar()
+    reduces to this form). These are the formula's inputs, not quantities of the model.
+  v0_k = 1 + (7k^2 + 3k) mod 11 for k = 0..6 = (1, 11, 2, 7, 4, 4, 7).
+
+1. [BLOCKING] z0 literal 5669/81 contradicted its own formula.
+   Changed: HBP row 017 (z0_at_r9=5667/81, plus z0_at_r9_lowest_terms=1889/27); NOTE section 9, Pass 1;
+   ENGINE-PLAN D2. synth/check_hbp.py re-run (ERRORS 0). The new HBP sha256 is now cited in NOTE section 12.D (the
+   NOTE did not cite one before) and in this pass's summary.
+   Reason: 72 - 18/9 - 3/81 = (5832 - 162 - 3)/81 = 5667/81 exactly. A frozen REQUIRED literal that disagrees with
+   its own formula would force the r = 9 run to break one half of the rule.
+
+2. [BLOCKING] "Any REFUSE stops the run" ended the single r = 9 run at depth 2.
+   Changed:
+   - HBP new row 131 (sec=gate, REQUIRED): the per-depth verdict rule. The verdict depth is the run's deepest depth
+     (5 for the r = 9 run and the r = 9 fault runs; 4 for the r = 12 CI fault runs). Two kinds of checks:
+     run-integrity checks (18 named: pins, census, balance, identities, square-root directions, replay, scope), which
+     refuse the whole run at any depth; and route certificate checks (18 named: I0-I3, windows, PD certificates,
+     neighbours, F_GAP, ADJ_CONSISTENCY, A_POS), which at ladder depths are only reported (PASS, FAIL or
+     NOT_EVALUATED), never stop the run, never set a verdict and never report a bound. At the verdict depth a route is
+     REFUSE if an on_fail=REFUSE check fails or any route check is missing or NOT_EVALUATED, else HOLD if an
+     on_fail=HOLD check fails, else PASS. The depth-6 fallback is a new run with verdict depth 6.
+   - ENGINE-PLAN section 8 rewritten as "Stop rules and the per-depth verdict rule", with the same lists.
+   - HBP header: one comment line naming row 131. Row 016: verdict_depth=5_by_row_131. Rows 066, 067, 068: their
+     verdicts now say "by row 131 at the verdict depth 5". Row 063 (A_FROM_THEOREM) gains a scope field: it judges
+     whatever is reported as a bound and FAILS if a bound comes from a ladder depth or from a route whose verdict is
+     not PASS (so a HOLD is not turned into a REFUSE).
+   - Row 076: the depth-2 verdict is now "not_PASS", moved into its own row 133 (item 4).
+   - ENGINE-PLAN step 7, ground rules, section 5 (fault runs: verdict depth and the PASS control at r = 12, depth 4).
+   - NOTE section 0 (new "Verdict rule" bullet), section 9 (Depth), section 11 (new first bullet).
+   Reason: the smoke shows F2's Lemma-7 sine at depth 2 is 3.49 (r = 10.5) and 1.10 (r = 12), so F_GAP (on_fail
+   REFUSE) is certain to fail at r = 9, depth 2. Read literally, the old stop rule ended the run before depths 3-5.
+   Recomputation: none.
+
+3. [minor] A_POS did not say which a_lo it tests.
+   Changed: HBP row 062 (A_POS tests the min-form a_lo, fesh row A_centred_lower_bound_positive(Lemma7prime), whose
+   sbar_c = min(sbar, s_c); the Lemma-7-only row A_lower_bound_positive is informative and never decides a verdict);
+   row 026 (verdict_form, Lemma7_only_a_lo fields); row 085 (A_POS_tests=the_min_form); row 088 (falsifier names the
+   min-form a_lo); row 022 (fesh_combined_ok_flag=never_used_for_a_verdict); ENGINE-PLAN D5 (a frozen table mapping
+   each fesh TEST row to its HBP check, and the statement that the combined ok flag is not used); NOTE section 7 (new
+   paragraph).
+   Reason: row 026 defines s_i = min(Lemma 7, Lemma 7'), but fesh.certify's ok also demands the Lemma-7-only a_lo be
+   positive; at r = 16, depth 3 the two are -0.0062 and +0.003676. F_GAP itself was kept strict (both sine forms
+   below 1, both centres strictly inside the gap): stricter than the theorem needs, which is the safe direction.
+
+4. [minor] Row 076's depth-2 clause gave a wrong mechanism and was bundled with the depth-5 claim.
+   Changed: row 076 now claims depth 5 only (falsified_if=Theorem_I_fails_at_depth_5). New row 132 (CONJECTURE):
+   Theorem I passes at depths 3 and 4, falsified if it fails at either. New row 133 (CONJECTURE): the depth-2 ladder
+   entry is not PASS, because F_GAP fails for E2 (mu_2 outside (l2-, l2+) or the Lemma-7 sine >= 1); a_lo at depth 2
+   NOT_EVALUATED; the depth-2 isolation outcome is NOT predicted; I3_ODD named as the tightest depth-2 isolation test;
+   falsified_if=F_GAP_passes_at_depth_2. The withdrawn mechanism ("I2_LO fails as eps ~0.024 exceeds the margin
+   ~0.010") is recorded as withdrawn in row 133 and in NOTE section 11. Row 074 now covers rows 132-133. NOTE section
+   10 (table row "isolation margins" now says the eps margin is sufficient, not necessary; the smoke paragraph gives
+   the depth-2 I3 values), section 11, section 12.F, section 13.4; ENGINE-PLAN D7 and R3 list rows 132-133.
+   Reason and data (MEASURED, excluded r, from synth/out/smoke_noadj_ground.txt afe72c516847a655): at r = 10.5,
+   depth 2, I2_LO passed with eps2 = 1.109e-2 > (kappa3 - kappa2)/2 = 0.014178/2 = 0.00709; I3_ODD was 3.54e-3 at
+   r = 10.5 and 1.32e-3 at r = 12 at depth 2, against 2.90e-2 (depth 3), 3.07e-2 (depth 4) and 3.08e-2 (depth 5) at
+   r = 10.5. The depth-2 I3 values are not monotone in r (r = 12 below r = 10.5), so their sign at r = 9 is not
+   predicted. Splitting stops a depth-2 surprise from falsifying the depth-5 isolation claim.
+
+5. [minor] Rows 077-079 had sub-claims without a measurement path or falsifier.
+   Changed: row 022 adds pencil_report (90-bit UP-inertia brackets of kappa1..kappa7 by
+   fesh.pencil_eigs(U0,T,7,lo,gamma0,bits=90), floor-free, at every depth) and odd_report; ENGINE-PLAN D7 adds KAPPA,
+   WINDOW and ODD output rows. Rows 077, 078: measured_at=depth_5, width measured as upsilon_i - sigma_i, and the
+   falsifier now also fires if the width exceeds 1/10000. Row 079: each of gap21 (certified interval
+   (sigma2 - upsilon1, upsilon2 - sigma1)), kappa3 (its UP bracket), gap32 (kappa3 - kappa2 midpoints) and the E3
+   cluster (kappa5 - kappa3 midpoints, pencil values, floor-free upper bounds, not certified levels) has a stated
+   measurement and is in the falsifier. Predicted windows unchanged.
+   Consequential, same defect class: row 080's odd bracket also had no measurement path (fesh only evaluates
+   LO_odd(tau2)). It now has one (odd Ritz value U0_odd/T_odd, and the largest of 60 bisection points z in
+   [72 - 18/r - 1, U0_odd/T_odd] with LO_odd(z) > 0), and its falsifier now covers all three sub-claims. Windows
+   unchanged.
+   Measurement-path test (MEASURED, excluded r only, synth/kappa7_path.py): pencil_eigs with k = 7 and hi = gamma0
+   runs (UP count 7 at gamma0); every bracket is narrower than 3e-26. Depth 5: kappa5 - kappa3 = 9.8866e-5 at
+   r = 10.5 and 4.8320e-5 at r = 12; kappa3 - kappa2 = 1.4558e-2 and 1.0970e-2; kappa6 sits 1.459e-2 and 1.099e-2
+   above kappa5, so kappa3..kappa5 do form a 3-mode cluster. Depth 2: kappa5 - kappa3 = 3.4405e-4 and 1.8059e-4.
+   Observation only (CONJECTURE, not used): the depth-5 cluster widths scale like r^-5.4 between 10.5 and 12, which
+   extrapolates to about 2.3e-4 at r = 9, inside the frozen [0.00015, 0.00030]. No prediction was changed.
+
+6. [minor] Pass-1 rules were not fully deterministic.
+   Changed: row 017 freezes the bisection as fesh.pencil_eigs(U0,T,2,lo,hi,bits=40) on the pass-1 hats with
+   lo = 72 - 18/r - 1 and hi = gamma0 = 94070673/1000000, mid_i = (a_i + b_i)/2, and notes that the floors are exact
+   integer floors of exact rationals. Row 018 freezes fesh.inverse_iter(U0,T,mid1,v0,its=3) with round_vec 160 bits,
+   v0 = (1, 11, 2, 7, 4, 4, 7), R_O = phi^T M_O phi / phi^T T phi, c = fesh.short(R_O, 1000). Same text in
+   ENGINE-PLAN D2 and NOTE section 9.
+   Reason: these are the values smoke_cert.py (9c033df34e816d17) used at excluded r (hi = gamma0, the same v0).
+   [Corrected in PASS 2, item 1: smoke_cert.py (line 160) used hi = gamma0(r) = 94070673/10^6 + 3(r - 9), the
+   row-010 floor, not 94070673/10^6. Row 017 now says hi = the run's gamma0: 94070673/10^6 at r = 9 and the row-010
+   floor at excluded r, which is what smoke_cert.py and kappa7_path.py used.]
+
+7. [minor] The independent checker was Go math/big.Int, which CONTEXT.md does not allow.
+   Changed: the checker is now C++17 with integer types (g++ -std=c++17, standard library only, its own bignum on
+   std::vector<uint32_t> limbs, no floating type, a CI grep that fails on float/double/long double, unit tests
+   against Python ints). Check REPLAY_GO renamed REPLAY_CPP everywhere (rows 064, 069, 073, 101, 102, 105, 129,
+   131); "executes=..._Go_checker" -> "..._C++_checker" in rows 041, 043, 052, 053, 060, 061, 062, 064; row 023 names
+   the C++17 checker and the toolchains CONTEXT.md allows. ENGINE-PLAN: ground rules, steps 3 and 7, section 3
+   rewritten (K0-K5 in place of G1-G5), X3, section 5 table, CI (setup-go removed; g++ build, K0 tests), R3 (C++
+   source, binary and g++ version in place of go.sum). NOTE: section 0, section 9, section 13.8, section 14.
+   Reason: CONTEXT.md allows only Python ints, Rust 1.81 std or C++17 integers. Owner approval of Go was not sought:
+   this seat cannot obtain it, and the C++17 alternative removes the need.
+
+8. [minor] PF02 was named as refused by MOVES72, which cannot see it.
+   Changed: row 098 refused_by=C0_EXTERIOR_COMPLETE, with a why field; the 'also' field is removed (no other check
+   is sure to fire). Row 037 redefines C0_EXTERIOR_COMPLETE over the aggregated moves: at every depth n, for every
+   shell-n class, the moves into shells n-1 and n (self moves included) plus the moves consumed by the exterior
+   aggregation must total 72, the tally being incremented in the same statement that adds into the exterior
+   accumulator, in every aggregation call (R and D). ENGINE-PLAN E6 and the section 5 table say the same. Row 068
+   (owner item 3) now also lists C0_EXTERIOR_COMPLETE, H1_TWO_SIDED_EXTERIOR and MOVES72, with the reason (the
+   exterior residual is aggregated through W_e c(e->i) = W_i c(i->e)); this keeps every check referenced.
+   Reason: in engine/rs/src/main.rs (a8fd4a9b4097b528) the MOVES72 assertion counts the enumerated move lists
+   (line 566) and the shell-6 probe compares stored edges (probe(), line 1118), while the exterior aggregation is the
+   loop in residual() (lines 848-860, accumulation at line 856). A move dropped only from that loop leaves both
+   earlier checks passing.
+
+9. [minor] X6 demanded exact reproduction at ndig = 40 of references written at ndig = 30.
+   Changed: X6 fixes ndig = 30 for the replay (row 022 field x6_replay_sqrt_digits=30; ENGINE-PLAN steps 3 and D5,
+   X6, CI regress-r; NOTE section 9). The r = 9 run keeps ndig = 40. X6 also states the one required difference:
+   where F_GAP fails (depth 1 at every r; depth 2 at r = 10.5 and 12) the new driver prints NOT_EVALUATED for e_ang,
+   a_lo, a_lo_c and the three A_* TEST rows (item 12).
+   Reason: smoke_cert.py calls fesh.certify(..., ndig=30). The alternative (regenerating the references at
+   ndig = 40) was not taken; it would change no rule and would only add new fingerprints.
+
+10. [minor] The primary (adjoint) route was never smoke-tested before the freeze.
+   Changed: row 094 now freezes the route rule: the reported route is the primary unless X7 finds the adjoint
+   DEFECTIVE (on the code that passed X6, frozen rules unchanged, at r = 10.5 or 12, depth 5: a FAIL in H_WINDOW,
+   Y_PD or ADJ_CONSISTENCY, a run that does not complete, or a min-form a_lo below the secondary's). Then the
+   secondary route (Y = 0) is reported, the primary is printed as informative, and owner item 3 is HOLD. The switch
+   is decided at X7 before any r = 9 run and recorded with every X7 run. ENGINE-PLAN ground rules, step 4 and X7;
+   NOTE section 10 (budget row marked as an estimate) and section 11 (new "Reported route" bullet).
+   Reason: the fix's first option (run X7 before the freeze) is not possible now: the frozen m = n dual solve (E3)
+   is post-freeze work, and the prototype's n+1 adjoint needs the shell-7 exterior (9,398,188 classes, about
+   6.5 GB). The second option was applied.
+
+11. [minor] synth/check_hbp.py had no fingerprint in the disclosure.
+   Changed: NOTE section 12.D now lists check_hbp.py 5555a3ec0262bad7, what it audits, and its result on the new
+   HBP (full sha256 cited), plus this pass's two new scripts and outputs. HBP row 128 lists the fix-seat smoke.
+
+12. [minor] LO_LE_UP's identity named no scale; fesh computes a_lo even when the sine hypotheses fail.
+   Changed (a), cleared-denominator form: row 043, NOTE section 9 and ENGINE-PLAN D5 now state
+     K b (g b - a d0) LO(a/b) = (g b - a d0)(b Uhat - a That) - d0 Ghat(a,b),
+   with tau = a/b, gamma0 = g/d0, Uhat = K U0, That = K T, Ghat = K b^2 G(a/b), and K the least positive integer that
+   makes all three integer, computed from the rationals and never from a typed scale; plus g b - a d0 > 0. NOTE 13.7
+   points to it. Algebra check: synth/lo_identity_toy.py holds on 4,500 random entries, and a flipped sign breaks it
+   unless Ghat = 0.
+   Changed (b), F_GAP gate: row 059 lists the six fesh rows F_GAP needs (both centres strictly inside the gap with
+   delta > 0, both sine forms below 1) and says that on F_GAP FAIL the driver withholds a_lo in both forms, a_hi and
+   the angular term for that depth and route and prints NOT_EVALUATED; row 062 (A_POS NOT_EVALUATED); row 088 (depth-2
+   a_lo NOT_EVALUATED); ENGINE-PLAN D5 (gate) and D6 (a_hi only where F_GAP passes and taubar_i < 1); NOTE sections 7
+   and 10.
+   Reason: with mu outside the gap, delta <= 0 and the printed "sine" is negative and meaningless (sbar = -1.138 at
+   depth 1, r = 10.5, while the fesh row F1_sine_below_1 still PASSES); fesh.certify cannot be changed (its
+   fingerprint is frozen), so the driver withholds instead.
+
+Other consequential edits in this pass (no finding of their own):
+- ENGINE-PLAN D5: Y_PD and NUBAR_PD have no fesh TEST row (fesh asserts them inside lam_max_cert), so the driver
+  re-tests and prints them; in the secondary route Y_PD is PASS with y = 0. Without this, row 131's "missing check
+  gives REFUSE" would refuse every secondary route.
+- NOTE section 12.F: rows 132-133 rest on the excluded-r smoke only.
+
+Not changed: every predicted window and value; every theorem and proof; check on_fail tags; row ids 001-130;
+PR #148 rows 01-34. No r = 9 quantity of the 3x4 model was computed in this pass.
+
+The output fingerprints at the top of this section are final for this pass. The NOTE cites the HBP's full sha256;
+the HBP cites the NOTE by name only, so the two do not depend on each other's hash.
+
+--------------------------------------------------------------------------------------------------------------------
+PASS 2: FIX seat, 2026-11-09 (applies the critic's 3 blocking and 8 minor findings; the two FLOOR_PIN findings are
+one item, and so are the two X6-count findings)
+--------------------------------------------------------------------------------------------------------------------
+Inputs (sha256, first 16 hex), kept in ym137/fixpass2_prefix/:
+  PREDICT-...hbp b121f51c86d5824f   NOTE-...md 06510156c6ada2bb   ENGINE-PLAN.txt b42f6214e5a972fc
+  CHANGES.txt 1d3d7c6495e002c0
+Outputs (sha256):
+  PREDICT-...hbp  40d3255e6cfd068551bd0a90bc239ceec2a251d054b281e6c615c7fcaccf4030 (52,348 bytes, 147 lines)
+  NOTE-...md      1d45d62c883fb5f666261a834f7fd90709345f150f8e3d62b425269d7e632eaf
+  ENGINE-PLAN.txt baa997d281b9fbe4f1a722ea2cdf95e670f070f4e4a8dce9794bba4975b4051b
+Row ids: 001-133 unchanged in number and in subject. No row added or removed. Three comment lines added to the HBP
+header (the run's gamma0; the BOUND/LADDER/INFORMATIVE labels; the NOT_EVALUATED rule). One field renamed: row 010
+excluded_r_smoke_floor -> excluded_r_floor (it is no longer used by the smoke alone). PREDICTION_END recounted:
+rows=133, DERIVED=16, CONJECTURE=20, OPEN=4, REQUIRED=93, checks=36, faults=17, map148=12, accept=4, refuter=6, all
+unchanged, so the END row is unchanged. synth/check_hbp.py (5555a3ec0262bad7, unchanged) on the new HBP: ERRORS 0,
+no unreferenced check (output ym137/fixpass2_prefix/check_hbp_pass2.txt ab70ea1512ef1173). verify2/audit_hbp.py (a
+verifier's text audit, read only) on the new HBP: 36 unique checks, row 131 splits them 18 + 18 with no overlap, and
+every accept and fault reference resolves.
+
+New script run in this pass (no r, no engine, no certificate; it parses existing excluded-r outputs only; disclosed
+in NOTE section 12.D):
+  synth/fixpass2_check.py bcc65f7d9ad1bc5d -> synth/out/fixpass2_check.txt 2131bfa21fa5e3df (python3 -I -B, ints and
+  str only). It reads smoke_noadj_ground.txt afe72c516847a655, smoke_noadj_zmid_r10p5.txt f34e83656d3478bb and
+  smoke_noadj_zmid_r12.txt 416f875b010309a1.
+Integer recomputations (Python ints; rule constants and text counts, not quantities of the model):
+  row-010 floor at r = rn/rd: (94070673 rd + 3 (rn - 9 rd) 10^6) / (rd 10^6). r = 21/2: 197141346/2000000 =
+  98570673/10^6; r = 12: 103070673/10^6; r = 14, 16, 20, 40: 109070673, 115070673, 127070673, 187070673 over 10^6;
+  r = 9: 94070673/10^6 exactly. All 34 SMOKE rows of the three reference files print these values (34 of 34 match).
+  295^2 = 87025 and 333^2 = 110889, so row 085's weight window [0.00087025, 0.00110889] is its a_lo window squared.
+Nothing r-dependent was computed at r = 9 in this pass.
+
+1. [BLOCKING; critic findings 1 and 7] FLOOR_PIN fixed gamma0 = 94070673/10^6 at every r, but every excluded-r
+   reference used the row-010 floor 94070673/10^6 + 3(r - 9).
+   Option A was applied: the run's gamma0 is exactly 94070673/10^6 at r = 9 and exactly 94070673/10^6 + 3(r - 9) at
+   excluded r > 9, by integer equality; no floor is defined at any other r.
+   Changed:
+   - HBP: header line (the run's gamma0); row 010 (used_by, reference_values, conditional_on, used_at_r9 fields);
+     row 017 (hi = the run's gamma0; hi_at_r9 and hi_at_excluded_r fields); row 022 (pencil_report hi); row 041
+     (statement scoped by r, named and users fields); row 042 (COND_TAG at excluded r also names the row-010 Weyl
+     step); row 094 (X7 runs with the row-010 gamma0); row 100 (PF04 = any value other than the run's gamma0, so
+     94070673/10^6 itself is PF04 at r = 12); row 131 (fault_runs field).
+   - ENGINE-PLAN: ground rules (new bullet), steps 3, 4 and 5, D2, D5 (FLOOR_PIN and COND_TAG), D7 (KAPPA hi and the
+     k = 7 test sentence), K4, X6, X7, section 5 (r = 12 gamma0, PF04 at r = 12, the control), section 6.
+   - NOTE: section 0 (verdict bullet), section 9 (Pass 1), section 10 (smoke header), section 11 (reported route).
+   - CHANGES PASS 1 item 6: its Reason line is corrected in place (smoke_cert.py used hi = gamma0(r), the row-010
+     floor).
+   The r = 12 control: section 5 now says the control PASS at r = 12, depth 4 is MEASURED for the secondary route
+   (Y = 0) only, at gamma0 = 103.070673: all 27 fesh TEST rows PASS in smoke_noadj_ground.txt (default z*) and in
+   smoke_noadj_zmid_r12.txt (midpoint z*) (fixpass2_check.txt, R12_DEPTH4_CONTROL rows). The primary route's control
+   is measured at X7, which now records both routes' verdicts at r = 12, depth 4. The control is part of faults-r12,
+   the receipt records its verdict in both routes, and a refusal is called informative only where the control ends
+   PASS in the reported route.
+   Reason: read literally, (1) X6 could not pass, (2) the r = 12 control was itself PF04, (3) every X7 adjoint run
+   stopped at FLOOR_PIN and counted as DEFECTIVE, (4) every r = 12 fault run stopped at its start, so each fault was
+   "refused" without its own check running, and (5) row 017 contradicted the smoke it cited. Option A was chosen over
+   option B because the formula equals 94070673/10^6 at r = 9 (the r = 9 run is unchanged), the existing references
+   and the MEASURED control stay valid, and no new smoke run is needed.
+   Recomputation: the floor values above (fixpass2_check.py).
+
+2. [BLOCKING; critic finding 2, and the A_FROM_THEOREM part of finding 10] A_FROM_THEOREM still required every check
+   row present and PASS, at every depth and in every route, so a depth-5 PASS ended REFUSE through the ladder rows.
+   Changed:
+   - HBP row 063 rewritten. It judges only rows labelled BOUND. At most one row is BOUND, and only when the reported
+     route is PASS at the verdict depth; that row is the min-form a_lo^2 of that route at that depth, with every
+     run-integrity check scheduled for the run present and PASS, every route certificate check of that route at that
+     depth present and PASS, a_lo <= nu0, and nu0 <= a_hi where a_hi is evaluated. Ladder-depth rows (LADDER) and
+     rows of the non-reported route (INFORMATIVE) are excluded whatever their outcomes. With the reported route HOLD
+     or REFUSE, the check passes iff no row is BOUND.
+   - Labels: HBP header line; row 131 (labels field); row 062 (the Lemma-7-only a_lo is INFORMATIVE); rows 029, 086
+     (INFORMATIVE unless X7 makes the secondary the reported route), 087 and 088 (LADDER). ENGINE-PLAN D5, D6, D7,
+     R3, section 8 (integrity bullet). NOTE section 0 and section 11 (verdict bullet).
+   - Consequential: "scheduled" and the final evaluation. REPLAY_CPP, XCHECK_LIFT and BURNSIDE_TOTAL run in CI jobs
+     after the driver, so "present and PASS" can only be judged at the end of the run: the driver evaluates
+     A_FROM_THEOREM on its own rows, and the last job (the receipt job at r = 9; the same CI job after its C++ replay
+     at r = 12) evaluates it again, and only that evaluation is final. XCHECK_LIFT is scheduled at r = 9 only (row
+     040); without "scheduled" the r = 12 control could never pass.
+   - Consequential: "a_lo <= nu0 <= a_hi" became "a_lo <= nu0, and nu0 <= a_hi where a_hi is evaluated", because a_hi
+     is withheld where taubar_i >= 1 (D6).
+   Reason: the old statement put the stop-rule defect of PASS 1 item 2 back at the output gate (row 133 itself
+   predicts that the depth-2 rows are not PASS), and it also refused the run when the informative route was HOLD.
+   Recomputation: none.
+
+3. [minor; critic findings 3 and 10] No frozen table of the reported verdict and bound per (primary, secondary)
+   verdict pair; row 068 had no HOLD branch; "report_both" was ambiguous.
+   Changed:
+   - HBP row 131: verdict_table (with R the reported route of row 094: R PASS gives PASS and one BOUND row, a_lo^2
+     of R; R HOLD gives HOLD and no BOUND row; R REFUSE gives REFUSE and no BOUND row; the other route's verdict never
+     changes this, so all nine pairs are covered for either choice of R), other_route, owner_items, route_rule.
+   - HBP row 094: reported_bound; verdict_table pointer; the cases "primary HOLD and secondary PASS" (HOLD, no BOUND
+     row, the secondary a_lo printed INFORMATIVE with its route verdict for the owner to rule on; this replaces
+     report_both) and "primary REFUSE and secondary PASS" (REFUSE, no BOUND row); route_decided now says no r = 9
+     outcome changes the route; rules_status.
+   - HBP row 066 (evaluated in the reported route; its checks use X and G only, so both routes agree), row 067
+     (PASS iff the reported route is PASS and its BOUND row is reported, else REFUSE or HOLD), row 068 (HOLD branch:
+     REFUSE if a listed check fails, else HOLD if the reported route is the secondary, else PASS; with the reason).
+   - ENGINE-PLAN section 8 (the table), D6, X7. NOTE section 11.
+   Decision and reason: the second option of finding 10 was taken (the non-reported route's a_lo is informative
+   only). The reported route is fixed at X7, before any r = 9 data; letting an r = 9 verdict pick the bound's route
+   would be a post-data switch that X7 did not freeze. One rule (a bound only from R) then covers every pair, and
+   the secondary's proven inequality is still printed with its route verdict for the owner. In the case primary HOLD
+   and secondary PASS, owner item 3 now follows row 068 (PASS when the primary's listed checks pass) instead of
+   being marked HOLD: no secondary bound is reported there, and the primary's residual control is what item 3 asks
+   for. Owner item 3 is HOLD whenever R is the secondary.
+   Consequential: row 094 is a CONJECTURE row, and header line 9 says a FALSIFIED CONJECTURE affects its prediction
+   only. Its route fields are rules, so row 131 (route_rule) and row 094 (rules_status) now say they are REQUIRED
+   whatever the outcome of row 094's prediction.
+   Recomputation: none.
+
+4. [minor; critic finding 4] Y_PD with Y = 0 read PD(0 T - 0), which is false.
+   Changed: HBP row 054 (if YY is the zero matrix, y = ybar = 0 and Y_PD is PASS; otherwise PD(y T - YY) and
+   ybar >= sqrt(y); executes now names the C++ checker, which K4 already made replay rows 041-062); ENGINE-PLAN D5
+   and K4; NOTE section 9.
+   Reason: this is what fesh.certify does (math/fesh.py line 395 sets y = 0 when YY is zero). Before, a C++ checker
+   that followed the HBP row would print FAIL and the secondary route would end REFUSE.
+   Recomputation: none.
+
+5. [minor; critic findings 5 and 9] X6's "exactly one difference" ignored the ok, tests and fail fields.
+   Changed: HBP row 022 (result_row_counts: ok, tests and fail are fesh.certify's raw values, counted from its own
+   27 TEST rows before the F_GAP gate, as smoke_cert.py counts them, and never decide a verdict); ENGINE-PLAN D5
+   ("RESULT row counts") and X6 (the counts are reproduced unchanged everywhere; the one required difference names
+   the RESULT values e_ang, a_lo and a_lo_c and the PASS/FAIL of the three A_* TEST rows by name); NOTE section 9.
+   Reason and data (fixpass2_check.txt): raw fail = 10 at depth 1 at all six r, 3 at depth 2 at r = 10.5 and 12, and
+   2 at depth 2 at r = 14, 16, 20 and 40, where F_GAP passes. F_GAP fails exactly at depth 1 for every r and at depth
+   2 for r = 10.5 and 12, as X6 says. Without the A_* rows the counts would have been 10 -> 8 and 3 -> 1
+   (fail_excluding_A_rows column), which is the mismatch the critic found. Keeping the raw counts was chosen over
+   excluding the fields or freezing a count convention, because it leaves the reference files and X6 literal.
+   Consequential, same gate: X6 also fixes its inputs. The references compute c per tag from that tag's own hats
+   (smoke_cert.py lines 163-179) and use the engine's z per tag, while the frozen pass-1 rules compute one z* and one
+   c from the pass-1 hats. X6 now takes z* from each tag's SOLVE row, c from its SMOKE row (exact, a multiple of
+   1/1000), and the row-010 gamma0 (item 1). HBP row 022 (x6_replay_inputs); ENGINE-PLAN step 3 and X6; NOTE
+   section 9. X7 keeps the frozen pass-1 rules.
+
+6. [minor; critic finding 6] Rows 084, 085, 089 and 091 had sub-claims with no measurement path or no falsifier.
+   Changed:
+   - Row 084: depth1_nu0 is now a DERIVED remark (row 007), not measured and not part of the prediction, because the
+     r = 9 run builds depths 2-5 only; nu0 is measured as the primary route's nu0 lower bound at depth 5.
+   - Row 085: the falsifier adds a_lo/nu0 < 0.90; the ratio is measured by a new RATIO row; the weight window is
+     stated to be the a_lo window squared.
+   - Row 089: measured_at depth 5 for i = 1, 2; g_i from G_WINDOW, eps_i from the RESULT row, the inner part from a
+     new INNER row lam_max_cert(G(sigma_i) - GEX, T), as smoke_cert.py prints inner_part_g1; the falsifier covers all
+     three.
+   - Row 091: n12, n21 and nubar are the SPREADS upper bounds of the primary route at depth 5; O_mean_ground and
+     O_mean_first are the pass-1 Rayleigh quotients R_O (mid1) and R_O2 (mid2), printed in a new OMEAN row and called
+     Rayleigh quotients, not certified values; the falsifier names each.
+   - Row 018: R_O2 by fesh.inverse_iter(U0, T, mid2, v0, its=3) on the pass-1 hats, the O_first computation of
+     smoke_cert.py; measurement only, used by no rule.
+   - ENGINE-PLAN D2 (R_O2) and D7 (INNER, RATIO, OMEAN). NOTE section 9.
+   No predicted window was changed.
+
+7. [minor; critic finding 8] No rule said how a CONJECTURE row reads when its measured quantity is NOT_EVALUATED,
+   or whether a NOT_EVALUATED sub-row of an integrity check is a FAIL.
+   Changed: HBP header line; row 131 (conjecture_rule, integrity_not_evaluated); row 060 (SQ_BOUNDS: its
+   A_a_lo_le_raw sub-row is NOT_EVALUATED where the F_GAP gate withholds a_lo, is reported, and is not a FAIL); row
+   088 (falsifier names NOT_EVALUATED at depth 3); ENGINE-PLAN D5, D7, section 8; NOTE section 11.
+   Rule: a CONJECTURE row whose measured quantity is NOT_EVALUATED or missing is FALSIFIED, except where the row
+   itself predicts NOT_EVALUATED (row 088's depth-2 clause and row 133).
+   Recomputation: none.
+
+8. [minor; critic finding 11] PF02 planted a shell-5 to shell-6 omission that a depth-4 r = 12 run never consumes,
+   and its tally was not always 71.
+   Changed: HBP row 098 (one shell-n to shell-(n+1) class edge, move count c >= 1, omitted at the run's verdict
+   depth n: shell 5 to 6 at r = 9, shell 4 to 5 in the r = 12 CI runs; the tally falls below 72, to 72 - c);
+   ENGINE-PLAN E7 and section 6.
+   Recomputation: none.
+
+Other consequential edits (no finding of their own):
+- NOTE section 12.D: the HBP sha256 (40d3255e...), the check_hbp output fingerprint, and fixpass2_check.py with its
+  output. Section 12.E: CONTEXT.md is now a27f8b707918ab31 (it changed after PASS 1, which cited 723bd5eeaa481617).
+  Section 13.8: one sentence listing this pass.
+- HBP row 128: the disclosure list names this pass's text audit.
+
+Not changed: every predicted window and value; every theorem and proof; every check's on_fail tag; row ids and the
+END counts; PR #148 rows 01-34. No r = 9 quantity of the 3x4 model was computed in this pass.
+
+Observation for the orchestrator (outside this pass's findings, not applied): CONTEXT.md's section "Added
+2026-11-09 ~18:30Z" asks the frozen package to carry six items of GPT-6's design audit (issue #137 comment
+6747959074) as REQUIRED rows that cite the comment. None of the three package files cites that comment or GPT-6
+(grep finds 0 matches). Adding six REQUIRED rows needs its own design and critic pass.
+
+The output fingerprints at the top of this section are final for this pass. The NOTE cites the HBP's full sha256;
+the HBP cites the NOTE by name only.
+
+--------------------------------------------------------------------------------------------------------------------
+PASS 3: FIX seat, 2026-11-09 (GPT-6's design audit, issue #137 comment 6747959074, carried as REQUIRED rows; the
+round-2 verifiers' blocking finding, which is the same audit, and their 11 minor findings)
+--------------------------------------------------------------------------------------------------------------------
+Inputs (sha256, first 16 hex), kept in ym137/fixpass3_prefix/:
+  PREDICT-...hbp 40d3255e6cfd0685   NOTE-...md 1d45d62c883fb5f6   ENGINE-PLAN.txt baa997d281b9fbe4
+  CHANGES.txt 34df35b37de60a76
+Outputs (sha256):
+  PREDICT-...hbp  7e66d03f7324bef0466e034bdf31a8c8d1dac44af42bb252e0e4f1d949df7d2d (83,694 bytes, 166 lines)
+  NOTE-...md      e9328a7ae29592dfa2923d1fe0a90ead90227d7786e2c714b7e5be022e527161
+  ENGINE-PLAN.txt 729042ba295e4ee5b9c84eae525e4cb2f8f5c75f3e7f0aeeb21c7d4faeda6baa
+Row ids: 001-133 are kept, with the field edits listed below; no row was removed. 18 rows were appended: 134-135
+(checks EXT_REGEN, SIGN_POLAR), 136 (floor source), 137 (Lemma 11, DERIVED), 138 (second floor), 139 (the regenerator
+plan), 140 (E3 - E2 cross-check), 141-142 (sec=negctl), 143-145 (PF18-PF20), 146-151 (sec=audit, GPT-6 items 1-6).
+One HBP header line was added (the audit and the floor source) and two were rewritten (line 10, the fault verdict
+rule; line 13, the NOT_EVALUATED qualifier).
+PREDICTION_END recounted: rows=151, DERIVED=17 (was 16), CONJECTURE=20, OPEN=4, REQUIRED=110 (was 93), checks=38 (was
+36), faults=20 (was 17), map148=12, accept=4, refuter=6, and two new counts audit=6, negctl=2.
+Record checker: synth/check_hbp.py (5555a3ec0262bad7, unchanged) predates the two new sections and reports exactly
+their 8 rows as "bad sec" (output synth/out/check_hbp_orig_on_pass3.txt 3b12ca817d388a3b). Its successor
+synth/check_hbp_v3.py (5de113afe7cac7d7) keeps every audit of check_hbp.py and adds the audit and negctl sections,
+the one-row-per-GPT-6-item map with every cited row and check resolving, the comment citation, the row-131
+partition (20 run-integrity + 18 route certificate = 38 checks, no overlap, every run-integrity check on_fail
+REFUSE), the header-line-10 fault verdict rule, and the receipt pins checked against the files on disk. On the new
+HBP: ERRORS 0, no unreferenced check (synth/out/check_hbp_v3_pass3.txt bbcd6aa2b81ad761). As a control, on the
+pass-2 file it reports 21 errors (synth/out/check_hbp_v3_on_pass2_file.txt 7c024615d4179070). verify2/audit_hbp.py
+(read only) on the new HBP: 151 rows, ids in order, 38 unique checks, row 131 splits them 20 + 18 with no overlap,
+every accept and fault reference resolves.
+
+New scripts and tools in this pass (no r, no engine, no certificate, no model data; disclosed in NOTE section 12.D):
+  synth/negctl_gpt6.py 548f71564ee73803 -> synth/out/negctl_gpt6.txt 3c10e20a2c1f01e9 (python3 -I -B, Python ints
+    only; GPT-6's two toy matrices; byte-identical on a second run).
+  synth/check_hbp_v3.py 5de113afe7cac7d7 (text audit).
+  synth/pass3_hbp_edit.py 9dba0e46149d1926 with synth/pass3_new_rows.txt 2e9abb47b5cd1777, and
+    synth/pass3_plan_edit.py 620dc86993bf3548 (string edits of the HBP and the plan; no arithmetic).
+Read-only reads: git rev-parse, log, ls-tree and cat-file in the finite repo (no fetch, no working-tree change);
+GitHub reads of issue #137's comments and PR #131's metadata. Nothing r-dependent was computed at r = 9 in this pass.
+scratchpad/refute155/ was not read.
+
+1. [REQUIRED; GPT-6's six items; round-2 blocking finding of both verifiers] No file cited the comment.
+   Changed: HBP rows 146-151 (sec=audit, REQUIRED), one per item, each with cites=issue137_comment_6747959074 (and the
+   section of the comment), the requirement, the statement of how the package answers it, answered_by_rows and
+   answered_by_checks:
+   - 146, item 1 (quotient weights, balance with multiplicities, O invariance): rows 013, 032, 034, 035, 036, 038,
+     099, 134, 135, 139. Row 099 (PF03) gains a third variant, every class weight set to 48 w_rep.
+   - 147, item 2 (the conditional lemma that E2 is in the trivial 48-element representation): lemma_tag=REPORTED,
+     with its four hypotheses, its conclusion, its consistency with H3 (each single reflection has chi_odd = -1 and
+     swaps classes 6 and 7, the action GPT-6 computed), and use_in_this_package=none (Theorem I gives Vtriv by this
+     package's own inertia).
+   - 148, item 3 (E3 - E2): row 140 (item 6 below).
+   - 149, item 4 (three gates and the negative controls): items 2-5 below.
+   - 150, item 5 (the goal-oriented identity): Lemma 8; primal g_i (G_WINDOW) and adjoint h_i (H_WINDOW) bounded
+     separately at both window ends; normalisation (Lemma 9); window errors (Lemma 10); isolation (Theorem I, N1P,
+     N2P, N2M, F_GAP); and g defined by norm (operator norm of the residual map from (R^7, T) to (range Q, W)), scale
+     (an exact rational in J_E^2) and role (only through eps_i, the sines, e_a and taubar_i). The second-order
+     cancellation is Lemma 2 and Lemma 8, proved, not assumed: no raw vector residual is divided by E3 - E2.
+   - 151, item 6 (frozen status): the extrapolation and [0.0325, 0.0337] are CONJECTURE (row 083); the amplitude
+     and weight are OPEN; no excluded-r run is an r = 9 test (rows 063, 126).
+   NOTE section 0 (new bullet), section 8 (a pointer after Lemma 8), new section 15 (15.1 item map, 15.6 item 5).
+   ENGINE-PLAN ground rules (new bullet).
+   Recomputation: none.
+
+2. [floor gate] FLOOR_PIN pinned the value and the name of #131's floor, not its source.
+   Found (read-only git object reads): #131 merged at d1385b345703ff1dc35e7dd2ae3eba77a9ee568b (2026-11-07T15:34:28Z,
+   parents 7cb1d6f and a936834; PR #131 metadata confirms the base and head). At that commit:
+   PERRON-BOUND.md sha256 41b9602fe03b6d9b7650cd7fbebd105127f95f5cef6f62f982c6e0fa512103d0, git blob
+   53378d4ee68dc88766873713285e3a34465a9d90, 17,241 bytes; PERRON-RESULT.hbp sha256
+   de19b354127c59ba3c2328fd310b5ff6a1103829c8d1d86c58b433aeec115a18, git blob
+   cbd428014a4d440732a5c0a541ed57a9041becee, 44,107 bytes, which is the blob #136's checker pins
+   (independent/finite_s3_3x4_r9_first_gap.py, source_floor, line 116). Both blobs are byte-identical on origin/main
+   6a7fc74; the last commit touching either file is 4f8605b (2026-11-03). Its RESULT_PERRON_3x4_TOP row carries
+   t_cert_milli, perroncert_check, check_d_strict and outside_go_checker = 94070673, min_row 45507968 and min_mag 3.
+   Changed:
+   - HBP row 041 (FLOOR_PIN): source_sub_row (both files read from the object store at d1385b3, sha256, git blobs and
+     the value row checked before any LO form is built, at every r), source_gate_independence, lift.
+   - HBP row 136 (new, sec=floor): the pins, lift_audited_by_this_package=NO with the plain statement (the lift of
+     PERRON-BOUND.md section 2 is accepted in #131 and measured only on 2x2 and 2x3; this package neither audits nor
+     re-derives it), #152's row rebuild (REPORTED) and the unreplayed all-pairs census, strict A(z) > 0, the weights.
+   - HBP row 008: source_pinned_by and lift_audited_by_this_package fields.
+   - HBP rows 137 (Lemma 11, DERIVED) and 138 (second floor, REQUIRED): a second, separately frozen floor (the floor
+     lane's Umeno-style core plus analytic tail) is a read-and-report evaluation beside the verdict on #131's floor.
+     Lemma 11 states validity (H4 at gamma' implies H4 at every gamma <= gamma', so results certified on #131's floor
+     hold conditional on any floor gamma2 >= gamma0) and the a_lo monotonicity in gamma (with every printed rational
+     fixed, a_lo(gamma') >= a_lo(gamma) whenever a_lo(gamma) > 0, a_hi nonincreasing; the re-run integer tests can
+     fail only where a leading minor vanishes exactly at the new point). Every such row is INFORMATIVE, never BOUND;
+     no CONJECTURE row is measured on it, so no frozen prediction changes. One falsifier: a certified upper bound on
+     lambda_min(QHQ_whole) below 94.070673 from any method falsifies H4 and blocks release.
+   - ENGINE-PLAN: ground rules (the pins), D5 (FLOOR_PIN source sub-row), D8 (PF18), new D9 (second floor), K1 (the
+     C++ checker hashes the sources with its own SHA-256 and SHA-1). NOTE section 2 (H4 row), sections 14, 15.2, 15.4,
+     15.5.
+   Recomputation: sha256 and git blob ids of the two files (git cat-file | sha256sum; git rev-parse).
+
+3. [independent exterior at the verdict depth] At depth 5 the shell-6 exterior was checked only by the engine.
+   Changed:
+   - HBP row 134 (new check EXT_REGEN, run-integrity, on_fail REFUSE): separate code rebuilds the sector from the flats,
+     matches the published shell 1..n rows one to one with equal W_i and m_i, regenerates all 72 moves of every
+     representative of shells 0..n+1, accumulates the outside-target multiset with multiplicities and a sha256,
+     checks every division by W_e exact, rebuilds GEX and DEX from the published X and Y twice (by class through
+     W_i c(i->e)/W_e, and without division from the shell-(n+1) back moves, with W_e c(e->i) = W_i c(i->e) on every
+     exterior edge), and the odd exterior scalar; exact equality with the engine's hats is required; the engine's
+     exterior list is never read; a run that does not finish within budget is a FAIL.
+   - HBP row 139 (new, sec=method): xext in C++17 integers (no engine or driver code), its own parts, inputs, the
+     census targets, the cost and the memory plan below, the budget, and the over-budget rule.
+   - Cost (from the MEASURED census, engine/out/census_listed6_probe7.txt b03974959a67e275): 441,946 x 72 =
+     31,820,112 moves from shells 0..5 (shell 5 alone 28,362,024); 2,465,466 x 72 = 177,513,552 moves from the shell-6
+     representatives, where the engine's probe counted 22,702,638 back, 29,171,690 within and 124,259,339 forward
+     distinct edges (the "about 1.2e8 forward edges" are these shell-6 to shell-7 edges; they are only classified and
+     discarded, and GEX at depth 5 does not need them); 111,762 x 72 = 8,046,864 odd moves. The outside multiset has
+     22,702,638 distinct (shell-5, shell-6) pairs into 2,465,466 targets. The engine did the same enumeration in 47 s
+     plus 195 s on 3 threads at 1.0 GB.
+   - Memory plan: u64 key tables for 441,946 inner and 2,465,466 exterior classes (under 0.1 GB), the inner X and Y
+     rows (about 50 MB), 7 + 7 accumulators of 192 bits per exterior class (about 0.83 GB; |acc_e| < 2^85), the sorted
+     multiset of 22,702,638 entries of 12 bytes (about 0.27 GB), Gram sums in K0: under 1.5 GB. Budget 4 GB and 2 h on
+     the 4-vCPU runner.
+   - Feasibility: frozen as feasible within the limits, an estimate (under 30 min) from the engine's timing, not a
+     measurement; xext is post-freeze code and was not written or run in this pass. If X6 measures it over budget, the
+     check FAILs (never a skip) and the r = 9 run does not start until GPT-6 rules on the recorded measurement
+     (row 139, over_budget).
+   - ENGINE-PLAN: new E9 (INNER-X.bin 37.6 MB, INNER-Y.bin 24.7 MB, ODD-X.bin 4.1 MB, each under 50 MB, and a SCHEMA
+     row), new X8 (the steps, the cost, the memory plan), step 1, step 3, step 7, step 8, section 6 (r9-ext job; xext
+     in regress-r, faults-r12 and r9-faults), section 7 (R3), section 8 (20 run-integrity checks). HBP rows 016, 066,
+     067, 068, 069, 071, 129, 131 (the new checks added to their lists). NOTE section 9 (pointer), sections 11, 15.3.
+   Recomputation: the move and memory counts above (Python ints, from the census file's integers).
+
+4. [negative-control receipts] GPT-6's two exact counterexamples had no dedicated receipt.
+   Written and run now (toy matrices only, not r-dependent): synth/negctl_gpt6.py 548f71564ee73803, output
+   synth/out/negctl_gpt6.txt 3c10e20a2c1f01e9 (11 lines; byte-identical on a re-run; exit 0).
+   - Wrong floor, [[1,-2],[-2,1]] at z = 0: truth one level below z (S = -3); U = T = 1, R = 2, G = 4. With gamma
+     asserted 100: LO = 24/25, neg UP = neg LO = 0 (false positive produced on purpose) and the LO_LE_UP identity
+     PASSES. Refused by the floor-source gate: case 1a, honest source (sha256 2615832b42239071 = pin), value 100/1 vs
+     the pinned 1/1; case 1b, a source edited to 100/1 (sha256 8fa8ca207c4ffeb0), hash mismatch. Control 1c (gamma =
+     1): gate PASS, LO = -3, neg LO = 1, the crossing is read.
+   - Dropped exterior, C = 9/10, F = (-1,0)^T, A = [[2,-1],[-1,1]], X_gpt6 = (-1/2,0)^T: truth S = -1/10 and
+     PD(A - 1/4); U = 2/5, T = 5/4, R = (0, 1/2). With the exterior row dropped: writer's G = 0, UP = LO = 2/5 (false
+     positive) and the identity PASSES. Refused by the exterior-regeneration gate (multiset Q1>Q2:1, sha256
+     d05f68029cd3c6be, G = 1/4 regenerated from the matrix). Control 2c: G = 1/4 both ways, LO = -3/5, neg LO = 1.
+   Changed: HBP rows 141-142 (sec=negctl, REQUIRED) freeze the expected output; rows 143-145 (PF18 forged floor
+   source refused by FLOOR_PIN; PF19 exterior row dropped after the engine refused by EXT_REGEN; PF20 cross-term sign
+   flipped refused by SIGN_POLAR), the run-scale counterparts; row 098 (PF02 also EXT_REGEN); map148 rows 120 (F7 adds
+   EXT_REGEN, SIGN_POLAR, PF19, PF20) and 122 (F9 adds PF18); row 129 (PF01-PF20). ENGINE-PLAN E7 (PF19, PF20), D8
+   (PF18), X9, step 5, section 5 table, section 6 (build-selftest runs the script byte-identically). NOTE 15.8.
+   Recomputation: the script's output (above).
+
+5. [sign and polarisation gate] The full bilinear forms on every e_i + e_j were not stated.
+   Changed: HBP row 135 (new check SIGN_POLAR, run-integrity, on_fail REFUSE): every comparison of a symmetric form
+   with an independent recomputation compares q(v) on all e_i and all e_i + e_j (28 vectors for p = 7), which fixes
+   every entry by polarisation, in XCHECK_LIFT, EXT_REGEN, REPLAY_CPP and xext's rebuild of every other hat at the
+   verdict depth from its own edges; sign sub-rows B = -H_QP >= 0, W_i c(i->j) = W_j c(j->i) on every regenerated
+   inner edge, q(v) >= 0 on each Gram hat, and LO_LE_UP for the sign of the Feshbach correction. ENGINE-PLAN K4 and
+   X8 step (7). NOTE 15.3.
+   Recomputation: none.
+
+6. [E3 - E2 cross-check] No row compared the package's gap with 0.0086993 J_E.
+   Changed: HBP row 140 (new, sec=gate, REQUIRED). The package quantities at depth 5: sigma2, upsilon2,
+   E3_lo_pkg = max(tau2, min(sigma3_even, odd_lo, gamma0)) with sigma3_even from the row-022 window rule at i = 3
+   (conditional), and E3_hi_pkg = min(kappa3_hi, max(tau2, U0_odd/T_odd)) (floor-free). A contradiction is: (1)
+   Theorem I passes but E3_lo_pkg - upsilon2 <= 0 (internal; falsifies this package); (2) E3_hi_pkg <= 699686993/10^7;
+   (3) sigma2 >= 699567503/10^7 or >= 69.96; (4) upsilon2 <= 69.93; (5) a floor-free E3 upper bound in #155's receipt
+   at or below E3_lo_pkg. A contradiction falsifies at least one of this package, #155, #136 or #131's floor and blocks
+   release until the owner rules; otherwise the line is read and report beside 0.0086993. No check uses a #155 or
+   #136 value. ENGINE-PLAN D7 (E3LO row), K4. NOTE 15.7.
+   Interpretation note: the task text's "a package bound below 0 or above the #155 upper information" is read as
+   tests (1) and (3)/(5): a package gap lower bound <= 0 is internally impossible when Theorem I passes, and a package
+   lower bound at or above a floor-free upper bound of #155 (or #136) is a contradiction. #155's upper information
+   used here is its agreeing UP count at 699567503/10^7 (E2 < 69.9567503), as reported in CONTEXT.md; GPT-6 notes
+   that #155's odd value is not a measured E3 energy, so test (5) applies only if #155's receipt has such a bound.
+   Recomputation: none (0.0086993 = 69.9686993 - 69.96 was checked by the verifier of pass 2).
+
+7. [round-2 minor findings] All eleven were applied; one detail differs from a verifier's suggestion (below).
+   a. (verifier 1, finding 2) "scheduled ... that the run executes" was circular; BURNSIDE_TOTAL ran in no CI job;
+      route verdicts were not placed after REPLAY_CPP; the r = 9 fault runs had no final evaluation; "or missing"
+      made refusals vacuous. Applied: HBP row 131 schedule field by name (the r = 9 run and every r = 9 fault run:
+      all 20 run-integrity checks; every other run: all except XCHECK_LIFT) and assembly field; row 063 scheduled
+      and final_evaluation; header line 10 and the verdict field of rows 097-113 (executed and FAIL; reported
+      missing only for PF07, PF14 and PF08's skip variant); ENGINE-PLAN D5, section 5, section 6 (BURNSIDE_TOTAL in
+      build-selftest and r9-run; r9-faults does its own final evaluation), section 8.
+      Not applied as suggested: the verifier listed PF17 with the absence faults. PF17's FREEZE_PIN does execute (at
+      engine and driver start) and fails, so row 113 now reads "must abort before any arithmetic with FREEZE_PIN
+      executed and FAIL".
+   b. (verifier 1, finding 3) PF06 in the non-reported route could never change the verdict. Applied: HBP row 102
+      planted_route (with R the secondary, h := the primary's adjoint h with Y = 0 and N_c = M, refused by
+      ADJ_CONSISTENCY's Y = 0 clause); row 131 fault_runs; ENGINE-PLAN D8 and section 5.
+   c. (verifier 1, finding 4; verifier 2, finding 6) CI never exercised the F_GAP gate; the glob; X7's "code that
+      passed X6"; X6's whole-line comparison. Applied: regress-r runs the full X6 (all 34 tags, depths 1-5);
+      ENGINE-PLAN step 3 names the three files; step 4 and X7 say the full X6; X6 compares field by field over the
+      reference row's fields, and the fields the new driver adds are not differences.
+   d. (verifier 1, finding 5) XCHECK_LIFT's Python half had no frozen tolerance. Applied: HBP row 040 (the exact lift
+      equalities of X1 are the integrity test; the Python solve X2 is an INFORMATIVE row that never stops the run);
+      ENGINE-PLAN X2.
+   e. (verifier 1, finding 6; verifier 2, finding 3) rows 081-084, 090, 092 lacked depths, routes or measurement
+      paths. Applied: measured_at fields (081, 082, 083, 090, 092), route for 083, the four measured_as fields and the
+      falsifier of 092, row 084 reads nu0 from the RESULT or SPREADS row (not withheld by the F_GAP gate), row 090
+      reads the new KC row (ENGINE-PLAN D7).
+   f. (verifier 2, finding 2) ADJ_CONSISTENCY runs only in the C++ checker, after the driver. Applied with (a): route
+      verdicts, the BOUND label and the owner items are assigned in the last job; driver labels are provisional.
+   g. (verifier 2, finding 4) header line 13 was broader than row 131. Applied: header line 13, row 060 and row 131
+      name A_a_lo_le_raw of SQ_BOUNDS as the only sub-row that may be NOT_EVALUATED, and SQ_BOUNDS needs at least one
+      evaluated sub-row; ENGINE-PLAN D5 and section 8.
+   h. (verifier 2, finding 5) fault runs could precede X7; X7's depth-4 verdicts. Applied: ENGINE-PLAN step 5 and
+      section 5 ("after step 4"); faults-r12 reads the route from the X7 record, and a run without it is a development
+      run, not a receipt run; X7 makes a separate run at r = 12 with deepest depth 4 for the control.
+   i. (verifier 2, finding 7) NOTE 12.D omitted the verifier tools. Applied: NOTE 12.D lists verify2/, verify3/ and
+      verify3b/ with fingerprints.
+   Recomputation: none.
+
+Other consequential edits: HBP header (one new line); row 128 (the disclosure names this pass's toys and reads, and
+GPT-6's comment as REPORTED cross-seat r = 9 information: its reading of #155's counts only). NOTE section 12.D (the
+HBP sha256 7e66d03f..., the checkers, the tools), 12.F item 5 (GPT-6's comment), 13.8, 14 (the unaudited lift; the
+second floor as OPEN), new section 15.
+
+Not changed: every predicted window and value (rows 076-096 and 132-133); every theorem and proof of rows 001-133;
+every on_fail tag of the 36 existing checks; PR #148 rows 01-34. No r = 9 quantity of the 3x4 model was computed in
+this pass.
+
+Observations for the orchestrator (not applied; outside this pass):
+- xext (X8) is the largest new piece of post-freeze code. Its cost is an estimate from the engine's timing; X6 at
+  excluded r measures it before any r = 9 run.
+- Test (5) of row 140 depends on what #155's receipt contains; this seat did not read #155's receipt or
+  scratchpad/refute155/, and used only CONTEXT.md and GPT-6's comment for #155's numbers.
+- This pass changed the frozen file substantially (18 rows); it should have its own critic pass before the freeze.
+
+The output fingerprints at the top of this section are final for this pass. The NOTE cites the HBP's full sha256;
+the HBP cites the NOTE by name only.
+
+--------------------------------------------------------------------------------------------------------------------
+PASS 4: FIX seat, 2026-11-09 (applies the 15 minor findings of the pass-3 critic and verifiers,
+pass3review/FINDINGS.md 64dee19c42ba343d, with the orchestrator's decisions)
+--------------------------------------------------------------------------------------------------------------------
+Inputs (sha256, first 16 hex), kept unchanged in ym137/fixpass4_prefix/:
+  PREDICT-...hbp 7e66d03f7324bef0   NOTE-...md e9328a7ae29592df   ENGINE-PLAN.txt 729042ba295e4ee5
+  CHANGES.txt dd69495136645a46
+Outputs (sha256):
+  PREDICT-...hbp  50e741782979a13308ede5121bc2076bdec4a45f406e4f8d9037d3295ce62255 (91,318 bytes, 166 lines)
+  NOTE-...md      bd9778be87f8c8ef756eb1323277fd48bb3efb2d36a871176cf3264bc9c2020c
+  ENGINE-PLAN.txt ae9785c7c4500b57539f88cbfe69c423820dab7dec5d4a1578fec5215a92935d
+Row ids: 001-151 are kept, and no row was added or removed. HBP header line 10 and 12 rows changed: 015, 063, 128,
+131, 134, 136, 138, 139, 140, 143, 144 and 149. Every changed row keeps its tag, and every check keeps its on_fail.
+PREDICTION_END recounted, unchanged: rows=151, DERIVED=17, CONJECTURE=20, OPEN=4, REQUIRED=110, checks=38, faults=20,
+map148=12, accept=4, refuter=6, audit=6, negctl=2.
+Record checker: synth/check_hbp_v3.py 5de113afe7cac7d7, unchanged (no new field type needed an extension): ERRORS 0,
+row 131 partitions the 38 checks into 20 + 18, both negctl receipt pins verified, no unreferenced check (output
+fixpass4/out/check_hbp_v3_pass4.txt fbd3a571cd40234e, identical to synth/out/check_hbp_v3_pass3.txt apart from its
+FILE row). synth/check_hbp.py 5555a3ec0262bad7 reports only the 8 rows of the two pass-3 sections as "bad sec"
+(fixpass4/out/check_hbp_orig_pass4.txt 730abdb907ade929). verify2/audit_hbp.py: 151 rows, 38 unique checks, 20 + 18
+with no overlap (fixpass4/out/audit_hbp_pass4.txt 577eda231d0eb7aa).
+
+New scripts in this pass (python3 -I -B, Python ints only; no r, no engine, no certificate; disclosed in NOTE 12.D):
+  fixpass4/ints_pass4.py 18340c08ee028e85 -> fixpass4/out/ints_pass4.txt c48c45c27b8f0ca1 (census integers only).
+  fixpass4/receipt155_counts.py f564d00deeaf4857 -> fixpass4/out/receipt155_counts.txt 1ca9a2f21a7f7e94 (thresholds and
+    inertia counts of #155's receipt, read on stdin).
+Read-only reads: git cat-file, rev-parse and show in the finite repo. The #155 head 30a08260 was present locally, so
+nothing was fetched. Also the engine's main.rs (a8fd4a9b4097b528). No repository working tree, commit or GitHub write.
+Nothing r-dependent was computed at r = 9. scratchpad/refute155/ was not read. Nothing under
+independent/y137-evidence-20261109/ was opened.
+
+1. [critic 1; verifier_last 6] BURNSIDE_TOTAL was awaited "at r = 9" only, and a run-integrity FAIL could stop a
+   fault run before its named check ran.
+   Changed:
+   - HBP header line 10: a run-integrity FAIL takes effect at the end of the program step in which it occurs, after
+     every check of that step has printed its CHECK row (no abort before the rows are printed), and a fault run
+     always reaches the step that runs its named check.
+   - HBP row 131: schedule (BURNSIDE_TOTAL runs inside every run, against that run's own declared full gauge orbits
+     field of row 039; only XCHECK_LIFT is limited to r = 9); integrity_rule (the same clause, and an earlier FAIL in a
+     fault run is recorded and takes effect after the named check's step); assembly (after REPLAY_CPP, EXT_REGEN,
+     SIGN_POLAR and BURNSIDE_TOTAL in every run, and at r = 9 also XCHECK_LIFT).
+   - HBP row 063 final_evaluation: the same list; each r = 9 fault run and each r = 12 CI run ends after its own C++
+     replay, xext and BURNSIDE_TOTAL, and each r = 9 fault run also after its own xcheck.
+   - ENGINE-PLAN E6 (no check aborts before every CHECK row of its step is printed; the selftest's assert! and
+     assert_eq! calls, main.rs lines 1571-1630, become CHECK rows, so PF10 prints both O_GAMMA_INVARIANT and
+     CHI_TABLE), D5 A_FROM_THEOREM, section 5 (the clause; PF06, PF10, PF19 and PF20 fail a second check in the same
+     step, PF13's CENSUS in an earlier step), section 8 (the clause, the schedule and the assembly).
+   - ENGINE-PLAN section 6: regress-r lists BURNSIDE_TOTAL on each run's own declared field (the C++ replay was
+     already listed); faults-r12 lists BURNSIDE_TOTAL on its own declared field, the C++ replay, xext at depth 4
+     (EXT_REGEN, SIGN_POLAR) and its own final evaluation as its last step; its time and memory are re-estimated as
+     ~15 min each and under 1 GB, frozen as an estimate, with the derivation in a new paragraph.
+   - NOTE section 11 (the clause).
+   Recomputation (fixpass4/ints_pass4.py, r-independent census counts only): xext at depth 4 enumerates
+   48,029 x 72 = 3,458,088 moves (shells 0-4), 393,917 x 72 = 28,362,024 (exterior shell 5) and 11,073 x 72 = 797,256
+   (odd shells 0-4): 32,617,368 in all, against 217,380,528 at depth 5 (ratio 0.150). With the engine's census time
+   (47 s + 195 s) and the tenfold allowance of row 139: 364 s. Memory: accumulators 393,917 x 14 x 24 = 132,356,112
+   bytes; outside multiset at most 2,985,395 x 12 = 35,824,740 bytes (the distinct edges out of shell 4, row 015, bound
+   the distinct (shell 4, shell 5) pairs); X and Y rows 48,022 x 141 = 6,771,102 bytes; key tables 441,946 x 32 =
+   14,142,272 bytes; 189,094,226 bytes in all. The engine's census build through shell 5 peaked at 117,644 kB.
+
+2. [critic 2; verifier_last 2; verifier_last 10] The E3 - E2 cross-check printed a gap bound that is valid only under
+   Theorem I, left sigma3_even undefined, had a test (1) that could fire only spuriously, and had an unsourced test (5).
+   Read (the orchestrator allowed this one file only): PR #155's receipt independent/Y137-K3-SECTOR-ISOLATION.hbp at
+   head 30a08260d9827d61b37d8fbb4817513f9e487369 by git show (git blob f4e08a31e7abc0fe13c044d02952b36bf3b2f6df, 9,535
+   bytes, sha256 cf91b9e4d842698d4972ac8df6ff6210bd3f439f561a354bca2954aac36716ef, equal to the pin). Its row types and
+   field names were listed first: 31 rows, counts, thresholds, witness hashes, controls and the census, and no
+   eigenvector or level field; one field, amplitude_lane in the SCOPE row, names the amplitude lane (corrected in
+   PASS 4 round 2, item R2-6: the round-1 text said "no eigenvector, level or amplitude field", which contradicted
+   the Observations below). Then the values of its HEAD, SECTOR, COMPARE, ROUNDING_VARIANT, RESULT and END rows were
+   read. The value of the amplitude_lane field of its SCOPE row was not printed or read; only its length (47
+   characters) and that it contains digits were seen.
+   Found: Y137_K3_SECTOR rows (lower, upper) total / even / odd: K2 at 69956/1000: (5,1) / (4,1) / (1,0); K3 at
+   699567503/10^7: (2,2) / (2,2) / (0,0); K3 at 699686993/10^7: (2,2) / (2,2) / (0,0); K3 at 699689591/10^7:
+   (3,2) / (3,2) / (0,0). The three Y137_K3_ROUNDING_VARIANT rows give even upper 2. Y137_K3_RESULT: z0 = 699567503/10^7,
+   E3_even_GE = 699686993/10^7, E_odd_GE = 699689591/10^7, lower side CONDITIONAL on #131's floor, upper side
+   UNCONDITIONAL_min_max. The largest upper count is 2, in the even sector and in total.
+   Decision on test (5): NOT_APPLICABLE. The receipt prints no floor-free upper bound on E3: no upper count of 3 or
+   more in the even sector or in total at any threshold. NOT_APPLICABLE is a frozen outcome, not a missing output.
+   Changed:
+   - HBP row 140: reported_pin (head, receipt path, sha256, git blob, size; REPORTED); tie_699567503_over_10^7 and
+     tie_699686993_over_10^7 (each constant tied to its Y137_K3_SECTOR row, with the COMPARE, ROUNDING_VARIANT and RESULT
+     rows); evaluated_when (the E3LO row is printed only when Theorem I passes at depth 5, otherwise every quantity is
+     NOT_EVALUATED and no contradiction test is evaluated); package_quantities (sigma3_even NOT_EVALUATED when no
+     bisection point qualifies; m3 = min(sigma3_even, odd_lo, gamma0), NOT_EVALUATED when sigma3_even or odd_lo is;
+     E3_lo_pkg = max(tau2, m3), and tau2 when m3 is NOT_EVALUATED, valid only when Theorem I passes at depth 5);
+     internal_value (m3 - upsilon2, read and report only, no contradiction effect; it replaces test (1));
+     contradiction_if (tests (2)-(5); test (1) withdrawn; test (3)'s second clause noted as implied by its first);
+     test_5 (NOT_APPLICABLE, with the counts above); otherwise (validity); missing_output (the frozen NOT_EVALUATED
+     entries and test 5's NOT_APPLICABLE are not missing outputs).
+   - ENGINE-PLAN D7 (E3LO). NOTE section 15.7 (the pin, the ties, the gate, the quantities, the withdrawn test 1,
+     test 5).
+   One consequence of the decisions, stated explicitly: with sigma3_even NOT_EVALUATED, E3_lo_pkg is tau2, which is
+   a valid lower bound on E3 whenever Theorem I passes (no other level at or below tau2).
+   Recomputation (ints_pass4.txt): 6996/100 > 699567503/10^7 (so test (3)'s second clause is implied);
+   699686993/10^7 - 6996/100 = 86993/10^7; 699689591/10^7 > 699686993/10^7. receipt155_counts.txt: MAX_UPPER_COUNT
+   even=2, total=2.
+
+3. [critic 3; verifier_last 4; verifier_last 7] GPT-6's section 3.1 lift audit was declined but routed to no ruling.
+   Changed:
+   - HBP row 149: new field gpt6_section_3.1_lift_audit=OPEN_not_met_by_this_package;_release_of_a_BOUND_row_
+     conditional_on_the_unaudited_lift_needs_GPT-6's_and_the_owner's_ruling (verbatim, one line in the file), and
+     gate_1_floor_source points to the REPORTED reading audit of row 136.
+   - HBP row 136: new field lift_reading_audit. Two pass-3 verifiers audited the lift argument of PERRON-BOUND.md
+     section 2 by reading and found it sound. This is a REPORTED verifier audit, not a package derivation. Its two
+     premises, d > 0 on every nonflat sector row and the sector rows equal H's class rows, are inputs from #131 and
+     #152. lift_audited_by_this_package stays NO (rows 008, 136).
+   - HBP row 138: new field lift. The second floor is designed to be lift-free if its core is done in the full orbit
+     space. If it is frozen that way, its read-and-report evaluation is this package's answer to the lift dependency;
+     otherwise it is not.
+   - NOTE section 15.2 (the reading audit, with the argument and the two premises; the OPEN gate item), section 15.5
+     (the lift paragraph).
+   Recomputation: none.
+
+4. [critic 4; verifier_last 9] PF18's 95/1 understated the floor at r = 12, and no text said where the forged bytes
+   enter a read that goes by commit and path; a shallow checkout lacks d1385b3.
+   Changed: HBP row 143 how and why (a fault switch in the driver and the C++ checker replaces the bytes after their
+   object-store read at d1385b3, so the source sub-row's own hashing refuses them; gamma0 is set by header line 11's
+   rule from the forged value, 95/1 + 3(r - 9): 95/1 at r = 9 and 104/1 at r = 12, an overstatement at both r);
+   ENGINE-PLAN D8 PF18; ENGINE-PLAN section 6, new Checkout paragraph (every job checks out with full history,
+   fetch-depth: 0, or fetches d1385b345703ff1dc35e7dd2ae3eba77a9ee568b explicitly, before FLOOR_PIN runs).
+   Recomputation (ints_pass4.txt): 104 x 10^6 > 103070673 and 95 x 10^6 > 94070673.
+
+5. [critic 5] Row 139's basis cited only the census file, which has no odd sector.
+   Changed: HBP row 139 basis now also cites odd_d5 2f50432ecd070079 for the odd classes. Verified on disk:
+   engine/out/odd_d5.txt sha256 2f50432ecd070079 (41,686 bytes), whose SHELL rows give the odd classes 1, 2, 55, 733,
+   10282, 100689, 718755. The faults-r12 estimate is refreshed in item 1.
+
+6. [verifier_last 1] The odd-census definition was not frozen.
+   Read: engine/rs/src/main.rs a8fd4a9b4097b528, Sector::new (inadmissible flat keys are marked BAD) and
+   Sector::list_next (lines 554-619). Candidates for the next shell are keys with a nonzero signed count that are not
+   yet in the index. Inadmissible keys are marked BAD. A key reached only through zero signed counts stays unindexed.
+   The 72-move assertion runs only for sectors other than odd (line 564).
+   Changed: HBP row 015 (new fields odd_shell_definition and not_the_odd_census: the electric-distance admissible
+   counts 1, 2, 159, 2881 of verify4_math/recount_n3.txt 4d0d32629c3d135e are not the census, against the signed-BFS
+   recount 1, 2, 55, 733 of recount_odd_n3.txt 0cf058d991b9987d); HBP row 139 (new field odd_shell_definition); HBP
+   row 134 (new field sub_row_c_scope: the 72-move tally of (c) applies to the symmetric sector only); ENGINE-PLAN X8
+   steps (3) and (6); NOTE section 11. Row 019 was not edited: row 015 now says that every row and plan step naming
+   odd shells means these shells.
+   Recomputation: none.
+
+7. [verifier_last 3] PF19 did not say which class it removes.
+   Changed: HBP row 144 how and ENGINE-PLAN E7 PF19. The removed class is the shell-(n+1) class e with the largest
+   exterior Gram contribution acc_e^T acc_e / W_e, compared as exact rationals, with the lowest engine class index on
+   ties. The switch asserts that this contribution is nonzero before planting.
+   Recomputation: none.
+
+8. [verifier_last 5; verifier_last 8] NOTE 12.D did not list the round-3 critic and verifier work.
+   Changed: NOTE 12.D, one entry for ym137/critic3/, ym137/verify4_math/ and ym137/verify4r/ with the fingerprints
+   the findings give. This seat re-hashed every file in the three folders, and none differs. One file has no stated
+   fingerprint: verify4_math/recount_n2.time 3e737f6a9117cec1 (60 bytes, the error line of a missing timing wrapper).
+   HBP row 128 listed_computations names the three folders and this pass. On the NOTE sha256: the new NOTE sha256 is
+   recorded at the top of this section. The PASS 3 section keeps its own output fingerprints as the record of that
+   pass (verifier_last 5 asked for the sha256 "in CHANGES pass 3 (and in any later pass)"; it is given here).
+   Recomputation: sha256 of the 28 files of the three folders.
+
+9. [CONTEXT.md, not a FINDINGS item; flagged for the orchestrator] CONTEXT.md changed after pass 3 (now
+   ec1f0dd730696ee9; pass 3 cited a27f8b707918ab31). Its new section "Added 2026-11-09 ~20:50Z" makes a disclosure
+   REQUIRED in the frozen package: the r = 9 amplitude-lane output in #155's evidence folder (finding R1 of the cloud
+   seat's #155 refutation).
+   Changed: HBP row 128, new field r9_amplitude_exposure. It says where the material is and that it is reachable. It
+   says that no cloud-seat agent has read its values (REPORTED) and that no read of it by this package is recorded. It
+   says that the amplitude rows 083-092 came only from the series and the excluded-r extrapolation (the isolation rows
+   077-082 also from the REPORTED inputs of NOTE 12.F), that no window of rows 076-096 changed since the pass-1 input,
+   and that the local seat, as the refuter, had its own r = 9 estimate before this freeze. NOTE 12.F item 7, and 12.E
+   (the CONTEXT.md fingerprint).
+   The #155 receipt read of item 2 is disclosed in HBP row 128 (cross_seat_r9) and NOTE 12.F item 6. No prediction
+   changed.
+
+Other consequential edits: NOTE 12.D (the pass-3 HBP line relabelled as the pass-3 file; a pass-4 entry with the new
+HBP sha256, this pass's scripts and the checker outputs), 12.F (the closing paragraph), 13.8 (fix pass 4).
+
+Not changed: every predicted window and value (rows 076-096 and 132-133 are byte-identical to the input); every
+theorem and proof; every tag and every on_fail; PR #148 rows 01-34; the PREDICTION_END row. No r = 9 quantity of the
+3x4 model was computed in this pass.
+
+Observations for the orchestrator (not applied; outside this pass's findings):
+- HBP row 139 and ENGINE-PLAN X8 give xext's estimate as "under 30 min: the engine's 242 s for the same enumeration
+  with a tenfold allowance". Ten times 242 s is 2,420 s, about 40 min, so "under 30 min" does not follow. The 2 h
+  budget is not affected.
+- The SCOPE row of #155's receipt has an amplitude_lane field (47 characters, with digits) that this seat did not
+  print. A reader of that receipt should treat it like the evidence folder of item 9.
+- #155 is a draft. Row 140 pins head 30a08260 and receipt cf91b9e4. If the head moves, the pin still names that
+  commit.
+
+The output fingerprints at the top of this section are final for this pass. The NOTE cites the HBP's full sha256;
+the HBP cites the NOTE by name only.
+
+--------------------------------------------------------------------------------------------------------------------
+PASS 4, ROUND 2: REFIX seat, 2026-11-09 (applies the round-4 critic's and verifiers' 10 findings, 1 blocking and 9
+minor, as given in the orchestrator's task; two pairs are duplicates, so they are grouped into 7 items below)
+--------------------------------------------------------------------------------------------------------------------
+Inputs (sha256, first 16 hex), the round-1 outputs, kept unchanged in ym137/fixpass4r2_prefix/:
+  PREDICT-...hbp 50e741782979a133   NOTE-...md bd9778be87f8c8ef   ENGINE-PLAN.txt ae9785c7c4500b57
+  CHANGES.txt 40e2bae804746224
+(The task text named the pass-3 HBP sha256 7e66d03f...; the file in final/ at the start of this round was the
+pass-4 round-1 output 50e74178..., and that is the input edited here.)
+Outputs (sha256):
+  PREDICT-...hbp  e840b92370315284e3bdfc48133b1d70008db24695796713d0737bb423b50bd7 (94,239 bytes, 166 lines)
+  NOTE-...md      3832eb4206ab45cff607cdf8b86ca61fec3ccc8e01062487c095f4ee684eb34a
+                  (after the CLOSE seat added the four verifier disclosure lines to 12.D; round 2 wrote c716482af46cc306)
+  ENGINE-PLAN.txt 1620c0bb1137fdd66354e914a229ae9ecfa78acf0d4ea0990779547a579a0101
+Row ids: 001-151 are kept, and no row was added or removed. HBP header line 10 and 5 rows changed: 128, 131, 139, 140
+and 148. No field was added or removed; every changed row keeps its tag, and every check keeps its on_fail
+(fixpass4r2/out/fielddiff_r2.txt 76d1d57a22b8ce2a). PREDICTION_END unchanged: rows=151, DERIVED=17, CONJECTURE=20,
+OPEN=4, REQUIRED=110, checks=38, faults=20, map148=12, accept=4, refuter=6, audit=6, negctl=2.
+Record checker: synth/check_hbp_v3.py 5de113afe7cac7d7, unchanged: ERRORS 0, row 131 partitions the 38 checks into
+20 + 18, both negctl receipt pins verified, no unreferenced check (fixpass4r2/out/check_hbp_v3_pass4r2.txt
+e538dc02cd527716, identical to the round-1 output fixpass4/out/check_hbp_v3_pass4.txt apart from its FILE row).
+synth/check_hbp.py 5555a3ec0262bad7 reports only the 8 rows of the two pass-3 sections as "bad sec"
+(fixpass4r2/out/check_hbp_orig_pass4r2.txt 16155f27ff3ff862, identical to round 1 apart from its FILE row).
+verify2/audit_hbp.py: 151 rows, 38 unique checks (fixpass4r2/out/audit_hbp_pass4r2.txt 3a25898056eaaf2e, identical
+to round 1 apart from its sha256 line).
+
+New script in this round (python3 -I -B, str only; disclosed in NOTE 12.D): fixpass4r2/fielddiff_r2.py
+f4f199df4edc0418 -> fixpass4r2/out/fielddiff_r2.txt 76d1d57a22b8ce2a (field-level diff against the round-1 HBP).
+Every other edit was a string edit of the four files. Nothing was computed at r = 9 or at any r; no engine or
+certificate was run. No git or GitHub read or write, no repository working tree touched. scratchpad/refute155/ was
+not read; nothing under independent/y137-evidence-20261109/ and no file of the #155 tree was opened (the #155 facts
+used here are those recorded in round 1). The round-4 verifier folders verify5_0_r1/ and verify5_1_r1/ were hashed,
+and their two integer outputs (ints_v5.txt, v5_ints.txt) and their odd recount output were read.
+
+R2-1. [findings 1 and 7, minor] The step-end clause of header line 10 and row 131 exempted nothing, so FREEZE_PIN,
+   a run-integrity check, could read as deferred to the end of a larger program step, or, in an r = 9 fault run
+   started without the pin, as recorded and carried to the named check's step (xext for PF19 and PF20). That
+   conflicts with rows 030 and 113 and E1 ("aborts before building anything").
+   Changed: HBP header line 10 and row 131 integrity_rule, ENGINE-PLAN E6, section 5 and section 8, NOTE section 11.
+   Each now says: FREEZE_PIN is a program step of its own, the first step of the engine and of the driver; its FAIL,
+   once its own CHECK row is printed, stops the program at once, before any other step or any arithmetic, in every
+   run, fault runs included; neither the step-end clause nor the fault-run clause ever delays it; PF17 is refused by
+   that FAIL. ("Once its own CHECK row is printed" keeps row 113's "FREEZE_PIN executed and FAIL" reportable.)
+   Not changed: "program step" is still not defined in general. With FREEZE_PIN first and immediate, a deferred FAIL
+   of any other run-integrity check can only occur in a program that has passed the pin (at r <= 9) or runs at
+   excluded r, so it cannot produce a pre-freeze r = 9 number.
+   Recomputation: none.
+
+R2-2. [finding 6, BLOCKING] Row 140's contradiction tests (2)-(5) compare against r = 9 constants but had no run
+   scope. The E3LO row prints in every run that reaches depth 5 with Theorem I passing, so every X6 and X7 depth-5
+   run would print CROSS_CONTRADICTION (test 3: sigma2 is 70.2523... at r = 10.5 and 70.4765... at r = 12, depths 4
+   and 5, all >= 699567503/10^7; MEASURED by the round-4 verifier from the X6 reference smoke files,
+   verify5_1_r1/v5_ints.txt 14359b8c1660bf75, excluded r only; this seat re-read the four TEST|W2_LO_count_sigma_le_1
+   rows and their SMOKE tags n=4 and n=5 in synth/out/smoke_noadj_zmid_r10p5.txt and smoke_noadj_zmid_r12.txt).
+   A planted fault that moves sigma2, upsilon2 or E3_hi_pkg (PF04, PF05, PF09, PF18) could fire a test too.
+   Changed:
+   - HBP row 140 evaluated_when: tests (2) to (5) are evaluated only in the single no-fault r = 9 run (work-order step
+     7, ENGINE-PLAN section 0; row 129), at depth 5, when Theorem I passes there. In every other run (every excluded-r
+     run: the smoke, X6, X7 and the r = 12 CI runs; every fault run at r = 12 and at r = 9; and the depth-6 fallback
+     run of row 094) the E3LO quantities may be printed as read and report (NOT_EVALUATED where Theorem I does not
+     pass at depth 5) and each of tests (2) to (5) is printed NOT_EVALUATED: a frozen outcome, not a missing output,
+     with no release effect.
+   - Row 140 contradiction_if (prefixed "in the no-fault r9 run of evaluated_when only"), test_5 (NOT_APPLICABLE in
+     that run, NOT_EVALUATED in every other run), on_contradiction (only in that run; no other run prints
+     CROSS_CONTRADICTION), missing_output (the new NOT_EVALUATED entries are frozen outcomes with no release effect).
+   - HBP row 148 statement (the comparison is made in the single no-fault r = 9 run only).
+   - ENGINE-PLAN D7 E3LO (the scope sentence). NOTE section 15.7 (new paragraph "In which run the tests count", the
+     contradiction list and the closing paragraph scoped to the no-fault r = 9 run).
+   The depth-6 fallback is listed among the other runs: the work-order step-7 run is the only one whose depth-5
+   tests count.
+   Recomputation: none (the sigma2 values are the verifier's; this seat checked only that the four rows exist with
+   those tags).
+
+R2-3. [finding 9, minor] Row 140's tie said #155's lower counts "give E3 GT 69.9686993", while the receipt's field is
+   E3_even_GE (round 1, item 2), so test (2) "E3_hi_pkg LE 699686993/10^7" would fire on equality, which is
+   consistent with both certificates.
+   Changed: HBP row 140 tie_699686993_over_10^7 (GE, citing the receipt's own field E3_even_GE) and contradiction_if
+   test (2) (strict: E3_hi_pkg LT 699686993/10^7; equality is consistent with both); NOTE 15.7 (E3 >= 69.9686993 in
+   the pin bullet; test 2 strict); ENGINE-PLAN D7 E3LO (test 2 strict). Tests (3) and (4) are unchanged: sigma2 is a
+   strict lower bound (E2 > sigma2, from neg LO(sigma2) + null LO(sigma2) <= 1) and #155's upper count gives
+   E2 < 699567503/10^7 strictly, so (3)'s GE is right; upsilon2 is a strict upper bound and #136's conditional
+   E2 > 69.93 makes (4)'s LE right.
+   Recomputation: none.
+
+R2-4. [findings 3 and 10, minor] Row 139 and ENGINE-PLAN X8 gave xext's estimate as "under 30 min" from 242 s with a
+   tenfold allowance; 10 x 242 s = 2,420 s, about 40 min (verify5_0_r1/ints_v5.txt ddbf0f5ea13e4bb4 and
+   verify5_1_r1/v5_ints.txt ROW139_BUDGET).
+   Changed: HBP row 139 budget ("estimate about 40 min (2420 s)"); ENGINE-PLAN X8 ("estimate about 40 min, 2,420 s:
+   the engine's 242 s for the same enumeration with a tenfold allowance"). The binding budget, 4 GB and 2 h wall, and
+   row 134's incomplete_run rule are unchanged; the r9-ext estimate of section 6 (~0.5-2 h) already covers 40 min.
+   Recomputation: none (10 x 242 = 2,420 is the verifiers').
+
+R2-5. [finding 4, minor] ENGINE-PLAN X8 step (1) listed the odd classes 1, 2, 55, ... among the targets of the step
+   that enumerates the 72 moves from the flats, which read alone suggests the electric-distance build (1, 2, 159,
+   2881, 40973 by the round-4 recount, verify5_0_r1/odd_text_recount_n4.txt 108cc626e75fa786).
+   Changed: ENGINE-PLAN X8 step (1): "where the odd classes are those of the signed-BFS shells of step (6) and HBP
+   row 015". Rows 015, 134 and 139 already define the odd shells; no HBP change.
+   Recomputation: none.
+
+R2-6. [findings 2 and 8, minor] The round-1 read of #155's receipt was disclosed without saying it was an exception
+   to CONTEXT.md's rule (line 131: agents of this package must not open the #155 tree); the receipt's SCOPE row has
+   an amplitude_lane field of unknown content, and row 140 pins the receipt for every refuter to open; CHANGES
+   round 1 item 2 said "no ... amplitude field" against its own Observations; row 128 cited "the REPORTED inputs of
+   NOTE section 12.F", which now includes items 5-7.
+   Changed:
+   - HBP row 128 cross_seat_r9: the read was an exception the orchestrator granted to CONTEXT.md's rule, for this
+     one file only; the SCOPE row's amplitude_lane field was not read (only its length, 47, and that it contains
+     digits were seen, REPORTED by the round-1 seat); it may carry r = 9 amplitude-lane material, and a reader
+     should treat it like the evidence folder of r9_amplitude_exposure.
+   - HBP row 128 r9_amplitude_exposure: the same warning for the pinned receipt's amplitude_lane field, next to the
+     evidence folder; "its values" became "the folder's values"; "the REPORTED inputs of items 2 to 4 of NOTE
+     section 12.F".
+   - NOTE 12.F item 6 (the exception and the amplitude_lane field) and item 7 (the receipt pinned by row 140 carries
+     that field; treat it like the folder).
+   - CHANGES PASS 4 item 2 corrected in place ("no eigenvector or level field; one field, amplitude_lane in the SCOPE
+     row, names the amplitude lane", with a pointer to this item; the field's value was not printed or read, only
+     its length and that it contains digits were seen). This is the only edit to an earlier CHANGES section.
+   This seat did not open the receipt; the length and digit facts are the round-1 seat's.
+   Recomputation: none.
+
+R2-7. [finding 5, minor] NOTE 12.D did not list the round-4 verification.
+   Changed: NOTE 12.D, one entry for ym137/verify5_0_r1/ and ym137/verify5_1_r1/ with the sha256 (first 16 hex) of
+   every file in both folders, hashed by this seat (25 files; the two folders share 6 identical files by hash), and a
+   pass-4 round-2 entry (this round's tool, the prefix folder, the new HBP sha256 and the checker outputs); the
+   round-1 HBP line is relabelled "the pass-4 round-1 HBP file". HBP row 128 listed_computations names the round-4
+   verifier folders and this round. NOTE 13.8 has one sentence on this round.
+   Recomputation: sha256 of the 25 files.
+
+Not changed: every predicted window and value (rows 076-096 and 132-133 byte-identical to the input); every theorem
+and proof; every tag and on_fail; PR #148 rows 01-34; the PREDICTION_END row. No r = 9 quantity of the 3x4 model was
+computed in this round.
+
+Observations for the orchestrator (not applied; outside this round's findings):
+- With row 140 scoped to the single no-fault r = 9 run, the E3 - E2 cross-check has no pre-r9 exercise of its
+  CROSS_CONTRADICTION path. X6 and X7 still exercise the E3LO quantities, and test outcomes there print NOT_EVALUATED.
+- "Program step" is defined only through the FREEZE_PIN exception and the examples of ENGINE-PLAN section 5. If a
+  critic wants a general definition (for example, one invocation of one program, with the driver's engine calls as
+  separate steps), it would be a new frozen rule.
+- The NOTE cites the HBP's full sha256; the HBP cites the NOTE by name only. The output fingerprints at the top of
+  this section are final for this round.
+
+--------------------------------------------------------------------------------------------------------------------
+PASS 5: FIX seat, 2026-11-09 (applies the pass-4 round-2 verification, pass3review/FINDINGS-PASS4R2.md: finding 4
+blocking, findings 2, 3, 5 and 6 minor; finding 1 asks for no package edit, only that the freeze pins the final HBP)
+--------------------------------------------------------------------------------------------------------------------
+Inputs (sha256, first 16 hex), kept unchanged in ym137/fixpass5_prefix/ (they match the task's fingerprints):
+  PREDICT-...hbp e840b92370315284   NOTE-...md 3832eb4206ab45cf   ENGINE-PLAN.txt 1620c0bb1137fdd6
+  CHANGES.txt 2f1126740dbe971a
+Outputs (sha256):
+  PREDICT-...hbp  0b97fa83c02e94e78605f64f3086cd0a75d6af61f4e420b2f92cf3b8d454a55e (98,234 bytes, 166 lines)
+  NOTE-...md      ce07b37851f5f8910f01841c2ef9e94ab168d902abba63cef5ad209eded07dea
+  ENGINE-PLAN.txt ad44841a80892fe602b231c766f2cc8a8a2198ae1cb9f3a45739dd7908ac958b
+Row ids: 001-151 are kept, and no row was added or removed. Nine rows changed: 035, 036, 037, 038, 068, 098, 128, 140
+and 148. No header line changed. Fields were added to rows 035 (sector_scope), 036 (counted_as, sector_scope), 037
+(sector_scope), 038 (sector_scope) and 098 (planted_sector); no field was removed, every old field keeps its place,
+and no id, sec, tag, check, on_fail, fault or refused_by changed (fixpass5/out/fielddiff_p5.txt 1fa2e34d12024140).
+Rows 076-096 and 132-133 are byte-identical to the input, so no prediction window, value or tag changed.
+PREDICTION_END recounted and unchanged: rows=151, DERIVED=17, CONJECTURE=20, OPEN=4, REQUIRED=110, checks=38,
+faults=20, map148=12, accept=4, refuter=6, audit=6, negctl=2.
+Record checker: synth/check_hbp_v3.py 5de113afe7cac7d7, unchanged, run as `python3 -I -B synth/check_hbp_v3.py
+final/<HBP> .` from ym137/: ERRORS 0, row 131 partitions the 38 checks into 20 + 18, both negctl receipt pins
+verified, no unreferenced check (fixpass5/out/check_hbp_v3_pass5.txt 9c19f2a4072dd5dd, identical to the round-2
+output fixpass4r2/out/check_hbp_v3_pass4r2.txt apart from its FILE row). synth/check_hbp.py 5555a3ec0262bad7 reports
+only the 8 rows of the two pass-3 sections as "bad sec" (fixpass5/out/check_hbp_orig_pass5.txt 37cabbc8d448e764,
+identical to round 2 apart from its FILE row). verify2/audit_hbp.py: 151 rows, 38 unique checks, 20 + 18
+(fixpass5/out/audit_hbp_pass5.txt 9dffb3f5e60f78dc, identical to round 2 apart from its sha256 line).
+
+New scripts in this pass (python3 -I -B, str only; disclosed in NOTE 12.D): fixpass5/pass5_edit.py 4d90c5212166ae8e
+(the 18 HBP and 8 ENGINE-PLAN string edits below, each asserted to occur exactly once; its output
+fixpass5/out/pass5_edit.txt fae17a745fbe65f4) and fixpass5/fielddiff_p5.py bb5c0557ac5e8ed3 -> fielddiff_p5.txt
+1fa2e34d12024140. The NOTE edits and this section were written by hand. Nothing was computed at r = 9 or at any r;
+no engine or certificate was run. No
+git or GitHub read or write, no repository working tree touched. scratchpad/refute155/ was not read; nothing under
+independent/y137-evidence-20261109/ and no file of the #155 tree was opened. Read: engine main.rs a8fd4a9b4097b528
+(text, lines 340-960 and 1100-1420), the BUILD, DETAILED_BALANCE and SHELL rows of engine/out/odd_d5.txt
+2f50432ecd070079 (r-independent rows of an excluded-r file), and the files of ym137/close/; every file of
+verify5_0_r1 (14), verify5_1_r1 (11), verify5_0_r2 (16), verify5_1_r2 (18) and close (7) was hashed.
+
+P5-1. [finding 4, BLOCKING] C0_EXTERIOR_COMPLETE (row 037) had no sector scope. Its 72-move tally and "every move out
+   of shell n lands in shells n-1 to n+1" hold in the symmetric sector only, but E6 runs it in every aggregation call,
+   and the odd solve (E4, row 019 X_odd, row 134 (h)) goes through the same aggregation. With correct code it would
+   FAIL in the odd solve of every run that evaluates I3_ODD (X6, the faults-r12 control, the r = 9 run): a REFUSE
+   that the no-retuning rule could not undo after the freeze.
+   Engine read (main.rs a8fd4a9b4097b528), confirming the finding: Tab::moves (lines 398-420) enumerates the 72 raw
+   moves (24 links x 3 transpositions), signs each by chi of its canonicalising symmetry (chi = 1 in the symmetric
+   sector, chi_odd in the odd sector) and sums the signs per target key. Sector::list_next (lines 554-619) asserts
+   that sum is 72 only when the sector is not "odd" (line 564), indexes a new key only from a nonzero count, marks
+   inadmissible keys BAD, and stores (target, count as i8) only for a nonzero count and a target that is not BAD.
+   run() builds the sector named by --sector, and solve_depth (line 1225) calls the same residual() (lines 832-870)
+   for either sector: over the shell-n classes it takes every stored edge with target index at or beyond sys.end,
+   asserts the target lies in shell n+1 ("edge beyond shell n+1"), adds W_i c x_i with c the stored signed count, and
+   divides by W_e with exactness asserted. So the odd aggregation stores what the finding says, and the odd form of
+   C0 the finding proposes is the one that matches it.
+   Changed:
+   - HBP row 037: new field sector_scope. The statement and tally are the symmetric sector's. In the odd sector the
+     signed counts can cancel and inadmissible (BAD) or zero-signed-count targets are not stored, so no 72-move tally
+     applies; there C0 requires, at every depth n and in every aggregation call of the odd sector, that every stored
+     edge out of odd shell n carries a nonzero signed count and an admissible target and lands in odd shells n-1 to
+     n+1, and that every odd shell-(n+1) class (718,755 at n = 5; row 015) enters the odd exterior scalar (at least one
+     stored edge from odd shell n is aggregated into its accumulator). It names residual() as the code it matches and
+     says that PF02 is planted in the symmetric sector.
+   - ENGINE-PLAN E6, C0 paragraph: the same scope as a "Sector scope" paragraph, with the main.rs lines.
+   - NOTE section 11: the old one-sentence scope of row 134 (c) became a paragraph "Sector scope of the move tallies"
+     (rows 035-038, 098 and 134 (c)), with the odd form of C0 and the scopes of P5-2 below; the overlong line there is
+     rewrapped.
+   Why the odd form passes on correct code: (i) list_next stores only nonzero signed counts to admissible targets;
+   (ii) when shell n is listed, every indexed key lies in shells 0 to n+1, and a stored edge from shell n to a shell
+   m <= n-2 would, by the signed detailed balance W_K c(K->L) = W_L c(L->K) that H1_DETAILED_BALANCE asserts (the
+   engine's detailed_balance() checks every stored edge whose target is listed; odd_d5: DETAILED_BALANCE sector=odd,
+   1,429,452 two-sided edges, ok=1), give a nonzero edge from L back to K, and K would then have been indexed by shell
+   m+1 <= n-1; (iii) every odd shell-(n+1) class was indexed because some shell-n class reaches it with a nonzero
+   signed count and it is admissible, so that edge is stored and aggregated (odd_d5: 718,755 classes in odd shell 6,
+   7,190,892 stored edges out of odd shell 5).
+   Recomputation: none (the counts quoted are the SHELL, BUILD and DETAILED_BALANCE rows of odd_d5 2f50432ecd070079).
+
+P5-2. [finding 4, the related clauses; and the task's search of the HBP and ENGINE-PLAN for "72", "tally" and "every
+   move"] Each check row that uses a move tally or a move count was given the same scope.
+   Changed:
+   - HBP row 036 MOVES72: new fields counted_as (the 72 raw enumerated moves of every class whose moves are enumerated,
+     before signing and before aggregation by target class, in both sectors) and sector_scope (in the symmetric sector
+     every sign is +1 and every class is admissible, so the stored counts also sum to 72; in the odd sector they need
+     not, and MOVES72 does not test their sum). ENGINE-PLAN E6 list: the same, in short.
+   - HBP row 038 CENSUS: new field sector_scope (the orbit-count and orbit-sum clauses are the symmetric sector's; the
+     odd sector compares its class counts per odd shell with row 015; odd shell 0 is one class of 2 orbits against 8
+     flats, odd_d5 SHELL s=0). ENGINE-PLAN E6 list: the same, in short.
+   - HBP row 035 H1_TWO_SIDED_EXTERIOR: new field sector_scope (symmetric sector only). The engine's probe() (lines
+     1118-1179) asserts that every enumerated list sums to 72 (line 1133) whatever the sector, so run on the odd
+     sector it would abort; the probe is not run there, the signed balance of the stored odd edges is
+     H1_DETAILED_BALANCE (row 034), and the odd exterior scalar is rebuilt by separate code in EXT_REGEN (h).
+     ENGINE-PLAN E6 list ("--probe 1, in the symmetric sector only") and X5.
+   - HBP row 098 PF02: new field planted_sector (the symmetric sector, where C0's 72-move tally applies; PF02 is not
+     planted in the odd sector). Its "c >= 1" and its shell-6 exterior were already the symmetric sector's; planted in
+     the odd sector, C0's odd form need not FAIL, and a refusal by EXT_REGEN alone is not a refusal by header line 10.
+     ENGINE-PLAN E7 PF02: the same.
+   - HBP row 068 (owner item 3) exterior_checks_reason: "a complete move tally" now reads "(in the symmetric sector;
+     the sector_scope fields of rows 035 to 038 give the odd sector's forms)".
+   Checked and not changed: row 014 (moves_per_class=72 is the raw count, true in both sectors, in the symmetric
+   census row); rows 011, 013 and 015 (definitions of move counts, the odd one already signed); row 034 (already
+   "signed in the odd sector"); row 134 (sub_row_c_scope already limits (c) to the symmetric sector; its 72 moves in
+   the statement and (g) are raw enumerations); row 139 (cost estimates from raw moves, the odd ones included); rows
+   142 (toy tally), 144 and 145 (GEX hats); rows 146 and 149 (raw 72 moves regenerated); rows 120 and 131 (check
+   lists only). ENGINE-PLAN X8 (3) was already scoped; X8 (1), (5), its cost lines and section 6's estimate count raw
+   moves. NOTE 15.3's "MOVES72, H1_TWO_SIDED_EXTERIOR and C0_EXTERIOR_COMPLETE can all pass" is about a merged
+   symmetric exterior and stays.
+   Recomputation: none.
+
+P5-3. [finding 3, minor] The depth-6 fallback run of row 094 printed tests (2)-(5) NOT_EVALUATED by scope, so on the
+   path "Theorem I fails at depth 5, both routes HOLD, the fallback passes with Theorem I at depth 6" a BOUND row
+   could be released without the E3 - E2 cross-check.
+   Changed:
+   - HBP row 140: evaluated_when defines the run's E3LO depth d (6, its verdict depth, in the fallback run; 5 in every
+     other run) and evaluates tests (2)-(5) in the no-fault r = 9 runs: the step-7 run at depth 5 and the fallback run,
+     if it runs, at depth 6, each only when Theorem I passes there, with the same NOT_EVALUATED and NOT_APPLICABLE
+     semantics; the fallback run is removed from the list of other runs. package_quantities ("at depth d"; odd_lo by
+     its rule at depth d), E3_lo_pkg and the otherwise line ("valid only when Theorem I passes at depth d"),
+     contradiction_if, test_5, on_contradiction ("the step-7 run and the depth-6 fallback run") and missing_output
+     follow.
+   - HBP row 148 statement (depth 5 in the step-7 run and depth 6 in the fallback run, each only when Theorem I passes
+     at that depth).
+   - ENGINE-PLAN D7 E3LO (depth d, validity, scope) and section 8 (the fallback's cross-check at depth 6).
+   - NOTE 15.7 (when the row is printed, in which run the tests count, E3_lo_pkg, the contradiction list, the closing
+     paragraph) and the Fallback bullet of section 11.
+   Direction: a BOUND row needs the reported route PASS at the verdict depth, hence Theorem I there, so a BOUND row
+   from the fallback now always has the cross-check. The new evaluation can only add a CROSS_CONTRADICTION, which
+   blocks release and changes no verdict or prediction; it compares r = 9 values of a no-fault r = 9 run, so the
+   reason for R2-2's scope (excluded-r values firing test 3) does not apply.
+   Recomputation: none.
+
+P5-4. [finding 5, minor] Row 128 and NOTE 12.F did not give the source of rows 076 and 094 or of the END row's
+   candidate_r9_a_lo.
+   Changed: HBP row 128 r9_amplitude_exposure: rows 076 (Theorem I passes at depth 5) and 094 (the primary verdict
+   PASS) rest only on the excluded-r smoke and the series; the depth-ladder rows 132 and 133 rest on the excluded-r
+   smoke only; the END row's candidate_r9_a_lo (CONJECTURE [0.0295,0.0333]) repeats row 085's primary a_lo window;
+   rows 093, 095 and 096 are OPEN and predict no r = 9 value. NOTE 12.F item 7 (the same, and "the pass-4 and pass-5
+   fix seats did not open" the evidence folder) and its closing paragraph.
+   Recomputation: none (row 085's window and the END field compared as text).
+
+P5-5. [findings 2 and 6, minor] NOTE 12.D did not list the pass-4 round-2 verifier folders or the close seat.
+   Found: the close seat had added the four entries for verify5_0_r1, verify5_1_r1, verify5_0_r2 and verify5_1_r2,
+   and every one of the 59 files in those folders hashes to a fingerprint named in the NOTE. close/ was not listed.
+   Changed:
+   - NOTE 12.D: a close-seat entry with the fingerprints of its 7 files (lines_raw.txt 787b7d8c25139faf, wrap.py
+     5b1d3ed9699b0f48, lines_wrapped.txt 7c0803a299c64188, splice.py cef48c6dc7933d73, NOTE.before c716482af46cc306,
+     CHANGES.before 622bc481096fb985, check_hbp_v3_close.txt e538dc02cd527716). close/wrap.py, re-run on
+     close/lines_raw.txt to stdout, reproduces close/lines_wrapped.txt, and that block is in 12.D. A pass-5 entry with
+     this pass's tools, outputs and the new HBP sha256; the round-2 HBP line is relabelled "the pass-4 round-2 HBP
+     file", and "the HBP file frozen with this NOTE" is now
+     0b97fa83c02e94e78605f64f3086cd0a75d6af61f4e420b2f92cf3b8d454a55e.
+   - HBP row 128 listed_computations names the pass-4 round-2 verifiers (ym137/verify5_0_r2 and verify5_1_r2), the
+     close seat (ym137/close) and this pass.
+   - NOTE 13.8: one sentence on this pass.
+   Recomputation: sha256 of the 66 files.
+
+Not changed: every predicted window, value and tag (rows 076-096 and 132-133 byte-identical to the input); every
+theorem and proof; every on_fail; the 14 header lines; PR #148 rows 01-34; the PREDICTION_END row. No r = 9 quantity of
+the 3x4 model was computed in this pass.
+
+Observations for the orchestrator (not applied; outside this pass's findings):
+- Finding 1 still stands with the new file: the freeze commit and FREEZE-PIN.txt must pin HBP
+  0b97fa83c02e94e78605f64f3086cd0a75d6af61f4e420b2f92cf3b8d454a55e, and the record should cite this pass's outputs.
+- The odd exterior has no engine-side two-sided check (the probe is the symmetric sector's) and no planted fault of
+  its own. Its independent gate is EXT_REGEN (h); whether (h)'s "recomputed the same way" includes (g)'s back-move
+  balance check is not stated. Making it explicit would be a new frozen rule.
+- The odd form of C0 checks that each odd shell-(n+1) class receives a stored edge, not the value it receives; a
+  wrong signed count on a stored odd edge is seen by H1_DETAILED_BALANCE only on edges whose ends are both listed,
+  and on the exterior edges only by EXT_REGEN (h).
+- The NOTE cites the HBP's full sha256; the HBP cites the NOTE by name only. The output fingerprints at the top of
+  this section are final for this pass.
+
+AT THE FREEZE (2026-11-09, cloud seat main session; recorded, not applied)
+- Pass 5 verifier (round 1): the row-094 depth-6 fallback builds odd shell 7, but row 015 freezes odd class counts for odd shells 0-6 only, so CENSUS
+  (row 038) compares the odd shell-7 count with nothing on that path. Not a spurious REFUSE (the clause enumerates its shells). On the fallback path the
+  odd shell-7 count is read and reported, and its only gate is EXT_REGEN (h). Stated here so the refuter knows.
+- Pass 5 fix seat: the odd exterior has no engine-side two-sided check and no planted fault of its own; its independent gate is EXT_REGEN (h).
+- Disclosure: the round-6 verifier folders ym137/verify6_0_r1/ and ym137/verify6_1_r1/ (text diffs, checker reruns, fingerprint checks; nothing r-dependent)
+  are listed in NOTE 12.D by the close seat; this section is the only edit after that, and it changes no other file.

@@ -1,0 +1,3 @@
+#137 Wilson-sum Feshbach amplitude package: FROZEN by the cloud seat, 2026-11-09. Prediction first: nothing r-dependent was computed at r = 9.
+The freeze time is the server-side push time of the commit that adds this file. Frozen files are never edited; later changes are appended rows or addenda.
+Check: sha256sum -c FREEZE-PIN.sha256 (run in this folder).

@@ -1,0 +1,655 @@
+ENGINE-PLAN: issue #137, r = 9 Wilson-sum Feshbach amplitude (cloud seat), 2026-11-09
+=====================================================================================
+
+What this is. The work order for the code to be written AFTER the freeze, and for the r = 9 run. Its companions are
+PREDICT-S3-3X4-R9-WILSON-FESHBACH-AMPLITUDE-20261109.hbp (the frozen rows) and
+NOTE-R9-WILSON-FESHBACH-AMPLITUDE-20261109.md (the theorem, proofs, budget and disclosure).
+
+Ground rules, carried from CONTEXT.md:
+- Integers only, in the three toolchains CONTEXT.md allows: Rust 1.81 std only, Python ints run with python3 -I -B,
+  or C++17 with integer types (standard library only). No float, double, decimal, fractions or math module in any
+  number the result depends on.
+- Nothing at r = 9 runs before the freeze commit exists and its sha256 is pinned (check FREEZE_PIN).
+- Every result row carries accepted_source_assumption=lambda_min_QHQ_whole_GE_94070673/1000000 (check COND_TAG).
+- The run's gamma0 (check FLOOR_PIN, HBP row 041) is exactly 94070673/1000000 at r = 9, and exactly
+  94070673/1000000 + 3(r - 9) at excluded r > 9 (HBP row 010: #131's floor plus the Weyl step with M >= 3 off the
+  flats). That is 98570673/1000000 at r = 10.5 and 103070673/1000000 at r = 12, the values smoke_cert.py and
+  kappa7_path.py used. The smoke, X6, X7 and the r = 12 CI runs all use the row-010 value. Every rule below that
+  names gamma0 means the run's gamma0.
+- The floor source is pinned (check FLOOR_PIN, its source sub-row; HBP rows 041 and 136). At every r the driver and
+  the C++ checker read native/ym/results/3x4_stream/perron/PERRON-BOUND.md and PERRON-RESULT.hbp from the finite
+  repo's object store at #131's merge commit d1385b345703ff1dc35e7dd2ae3eba77a9ee568b and require
+  PERRON-BOUND.md: sha256 41b9602fe03b6d9b7650cd7fbebd105127f95f5cef6f62f982c6e0fa512103d0, git blob
+  53378d4ee68dc88766873713285e3a34465a9d90 (17,241 bytes);
+  PERRON-RESULT.hbp: sha256 de19b354127c59ba3c2328fd310b5ff6a1103829c8d1d86c58b433aeec115a18, git blob
+  cbd428014a4d440732a5c0a541ed57a9041becee (44,107 bytes; the blob #136's checker pins in source_floor);
+  and exactly one RESULT_PERRON_3x4_TOP row with t_cert_milli=94070673, perroncert_check=94070673,
+  check_d_strict=94070673, outside_go_checker=94070673, min_row=45507968 and min_mag=3. Both blobs are the same on
+  origin/main 6a7fc74. This is checked before any LO form is built and reads no certificate quantity. The
+  sector-to-whole lift (PERRON-BOUND.md section 2) is NOT audited by this package: it is an argument accepted in
+  #131 and measured only on 2x2 and 2x3.
+- GPT-6's design audit (issue #137 comment 6747959074) is answered by HBP rows 146-151. Its code parts are the
+  regenerator xext (X8; checks EXT_REGEN and SIGN_POLAR), the negative-control receipts (X9), the floor source pin,
+  the second-floor evaluation (D9), the E3-E2 cross-check (D7, E3LO) and the planted faults PF18-PF20.
+- One process stays under 8 GB. No file over 50 MB. No retuning after the freeze, other than the two pre-declared
+  switches of HBP row 094: the X7 route switch and the depth-6 fallback.
+- Verdicts come from the verdict depth only (HBP row 131; section 8). Shallower depths are ladder entries.
+
+-------------------------------------------------------------------------------------------------------------------
+0. ORDER OF WORK
+-------------------------------------------------------------------------------------------------------------------
+ 0. Freeze. Commit the HBP file and the NOTE to the finite repo (suggested path independent/), on a branch reviewed
+    by the local Opus 5.5 seat. Record the commit sha, the git blob shas and the sha256 of the HBP file in
+    FREEZE-PIN.txt. No r = 9 computation of any kind by this lane before this step.
+ 1. Engine changes E1-E9 (section 1) and the regenerator xext (X8). Unit tests at excluded r only. The
+    negative-control receipts (X9) are re-run byte-identically.
+ 2. Regression at excluded r (X6): the unchanged matrices must be byte-identical to engine/out/main_d5.txt.
+ 3. Driver cert9.py (section 2) and C++17 checker (section 3). Excluded-r replay (X6, with ndig = 30, the row-010
+    gamma0, and each reference tag's z* and c): they must reproduce the three reference files
+    synth/out/smoke_noadj_ground.txt, smoke_noadj_zmid_r10p5.txt and smoke_noadj_zmid_r12.txt exactly (Y = 0; all 34
+    tags), except the NOT_EVALUATED entries that X6 requires where F_GAP fails, and agree with each other on every
+    rational. The regenerator xext must PASS EXT_REGEN and SIGN_POLAR at depth 5 in every X6 run.
+ 4. Adjoint smoke at excluded r = 10.5 and 12, depths 4 and 5, with the row-010 gamma0 (X7), on the code that passed
+    the full X6 of step 3. It sets one
+    pre-declared switch only: the reported route of HBP row 094 (primary, or secondary if X7 finds the adjoint
+    DEFECTIVE). The switch is recorded in the receipt before any r = 9 run. Nothing else in X7 may change a rule.
+ 5. After step 4: planted faults PF01-PF16 and PF18-PF20 at r = 12 (section 5), with the row-010 gamma0 and the
+    route set at X7, plus the no-fault control. Every fault run must end without PASS, with its named check executed
+    and FAIL (reported missing only for PF07, PF14 and PF08's skip variant, whose fault is that check's absence).
+ 6. CI green on GitHub Actions for steps 1-5 (section 6).
+ 7. The r = 9 run, once, through workflow_dispatch with the freeze sha as input: depths 2-5, symmetric and odd
+    sectors, X and Y, driver, C++ replay, the regenerator xext (EXT_REGEN and SIGN_POLAR at depth 5) and
+    BURNSIDE_TOTAL. Every output hashed. Depths 2-4 are ladder entries; depth 5 is the verdict
+    depth (section 8).
+ 8. r = 9 cross-checks X1-X5 and X8, and the r = 9 planted faults PF01-PF20. Then the second-floor evaluation
+    (D9), if a second floor certificate has been frozen and run.
+ 9. Receipts (section 7). Compare every CONJECTURE row: MATCH or FALSIFIED.
+10. Refutation by the local Opus 5.5 seat (pid 8467a937cba309f7). #137 stays OPEN until the owner accepts.
+
+-------------------------------------------------------------------------------------------------------------------
+1. ENGINE CHANGES (rs/src/main.rs, Rust 1.81, std only, overflow-checks = true)
+-------------------------------------------------------------------------------------------------------------------
+E1 FREEZE_PIN. Add a std-only SHA-256 (FIPS 180-4, about 100 lines, tested against the standard "abc" and
+empty-string
+   vectors in selftest). Any r <= 9 requires --freeze-hbp <path> --freeze-sha256 <hex>. The engine hashes the file
+   and aborts before building anything unless the hashes match. The existing refusal of r <= 9 stays the default.
+E2 Absolute z. Add --z ZN/ZD, which replaces the default z*. Keep --zshift for the excluded-r regression.
+E3 Dual solve on m <= n shells. Add --ydepth m, defaulting to n. Y solves A(z*) Y = (O - c) X on inner shells 1..m.
+   The exact dual residual cSD = (cd O - cn) X_int - cd (D A) Y_int is computed on shells 1..max(n, m+1) <= n+1, and
+   its exterior part is accumulated by class exactly like R. New hats, each with scale and sha256:
+     DEX, DIN  exterior and inner Grams of the dual residual at z*
+     YWD       Y^T W D_inner(z*)          (for Dgram(z) = Dgram(z*) + (z-z*)(YWD + YWD^T) + (z-z*)^2 YY)
+     YY        Y^T W Y
+     YWR       Y^T W R_inner(z*)          (Y^T W R_ext = 0 exactly when m <= n, which is asserted)
+     YX        Y^T W X
+   The prototype's n_Y = n+1 adjoint stays behind a flag, for comparison only.
+E4 Odd sector at the same z* and c (--sector odd --z ...), with the same new hats as scalars.
+E5 Hat hashes. Print sha256 of the decimal text of every MAT row, and of the whole output.
+E6 Explicit check rows. Each check prints CHECK|name=...|PASS/FAIL, so a missing row is visible:
+   H1_DETAILED_BALANCE, MOVES72 (every class has exactly 72 enumerated moves, counted raw, before signing and before
+   aggregation by target class, in both sectors; HBP row 036), C0_EXTERIOR_COMPLETE, CENSUS (shell counts equal HBP
+   rows 014/015; the orbit clauses are the symmetric sector's, and the odd sector compares its class counts with row
+   015; HBP row 038), O_GAMMA_INVARIANT and CHI_TABLE (selftest), O_DIAGONAL, and H1_TWO_SIDED_EXTERIOR (--probe 1,
+   in the symmetric sector only; HBP row 035).
+   No check aborts the program before every check of its program step has printed its CHECK row (HBP header line 10
+   and row 131, integrity_rule): the selftest's assert! and assert_eq! calls (main.rs a8fd4a9b4097b528, lines
+   1571-1630) become CHECK rows, so PF10 prints both O_GAMMA_INVARIANT and CHI_TABLE. A FAIL takes effect at the end
+   of its step, and a fault run always reaches the step that runs its named check.
+   The one exception is FREEZE_PIN (E1, D1; HBP rows 030 and 113). It is a program step of its own, the first step
+   of the engine and of the driver, and its FAIL, once its own CHECK row is printed, stops the program at once,
+   before any other step or any arithmetic, in every run, fault runs included. Neither the step-end clause nor the
+   fault-run clause ever delays it, and PF17 is refused by that FAIL.
+   C0_EXTERIOR_COMPLETE (HBP row 037) counts the moves the exterior aggregation actually consumes. In the residual
+   loop over the shell-n classes, a per-class tally is incremented by the move count c in the same statement that
+   adds w_i c x into the exterior accumulator, and also for every move into shells n-1 and n (self moves included).
+   The check passes only if every shell-n class tallies exactly 72, every move lands in shells n-1..n+1, and every
+   shell-(n+1) class enters GEX and DEX (2,465,466 at n = 5). It runs in every aggregation call, for R and for D, at
+   every depth. MOVES72 alone cannot see PF02: it counts the enumerated move lists, which PF02 leaves intact.
+   Sector scope (HBP row 037, sector_scope): the 72-move tally and the statement above are the symmetric sector's.
+   In the odd sector the chi_odd-signed counts can cancel, and inadmissible (BAD) or zero-signed-count targets are
+   not stored (main.rs a8fd4a9b4097b528, Sector::list_next, which skips its own 72-move assertion for the odd
+   sector), so no 72-move tally applies. There the check requires, at every depth n and in every aggregation call
+   of the odd sector, that every stored edge out of odd shell n carries a nonzero signed count and an admissible
+   target and lands in odd shells n-1..n+1, and that every odd shell-(n+1) class of HBP row 015 (718,755 at n = 5)
+   enters the odd exterior scalar (at least one stored edge from odd shell n is aggregated into its accumulator).
+   This is what residual() (main.rs lines 832-870, called by solve_depth for either sector) aggregates in the odd
+   sector: the stored signed counts of the odd shell-n lists, into the odd shell-(n+1) accumulators, with the
+   division by W_e checked exact and no edge beyond shell n+1. The odd shells are the signed-BFS shells of HBP
+   row 015. PF02 is planted in the symmetric sector (HBP row 098).
+E7 Engine-level fault switches. --fault takes one of:
+     PF01  chi(transposition) := 1
+     PF02  omit one shell-n to shell-(n+1) class edge (move count c >= 1) from the exterior aggregation at the run's
+           verdict depth n (shell 5 to 6 at r = 9, shell 4 to 5 in the r = 12 CI runs); C0_EXTERIOR_COMPLETE then
+           tallies 72 - c < 72 for the affected class; planted in the symmetric sector only, where that tally
+           applies (HBP rows 037 and 098)
+     PF03  change one nonflat W_K by one orbit size; also all weights := 1
+     PF10  drop one horizontal winding from O_sum
+     PF11  replace O by the PR #144 flat-projected dual shift
+     PF13  declare full_gauge_orbits = 45508080 and give each compressed-store row weight 1, in place of the
+           orbit space
+     PF19  at the output stage, replace the GEX and DEX hats (and their sha256 rows) by the Grams of the exterior
+           with one shell-(n+1) class removed: the class e with the largest exterior Gram contribution
+           acc_e^T acc_e / W_e (exact rationals; the lowest engine class index on ties), and the switch asserts that
+           this contribution is nonzero before planting; every engine tally and REPLAY_CPP can PASS (GPT-6's
+           counterexample 2 at run scale; refused by EXT_REGEN)
+     PF20  at the output stage, negate the off-diagonal pair (i, j) of largest absolute value of the GEX hat, keep
+           its diagonal and update its sha256 row (refused by SIGN_POLAR)
+   Faults are off by default. Each one prints FAULT|code=... on the first output line.
+E9 Published tables for the independent regenerator (HBP rows 134, 135, 139). At every depth that is a run's
+   verdict depth, the engine writes binary tables, each with its sha256 in the output, uploaded as run artifacts:
+     INNER-X.bin  one record per inner class of shells 1..n, in the engine's order: the representative
+                  configuration (24 link letters, one byte each, in the link order of the SCHEMA row), W_i (u32),
+                  m_i (u8) and the 7 entries of X_int (i64): 85 bytes, 37.6 MB at n = 5
+     INNER-Y.bin  the 7 entries of Y_int (i64) in the same order: 56 bytes, 24.7 MB at n = 5 (|Y_int| < 2^62 is
+                  asserted like X)
+     ODD-X.bin    the same for the odd classes of shells 1..n, with the one entry of X_odd: 4.1 MB at n = 5
+   and one SCHEMA row: the engine's S3 multiplication table on the labels 0..5, its link order (horizontal links
+   pos(x, y), vertical links V + pos(x, y)) and the scales S and D. No file exceeds 50 MB. The engine's class keys,
+   edge lists and exterior list are not published to the regenerator.
+E8 Depth-6 fallback, used only under HBP row 094: chunked listing (CSR per block of 200k classes, deduplicated
+through
+   the index) and column-pair forms, with a target peak of 3-4 GB. Not needed for the primary run.
+
+Resources at r = 9 (DERIVED from the MEASURED excluded-r timings):
+- depth 5: build 45-90 s, solves and forms about 10 s, Y about 5 s, about 1.1 GB;
+- odd sector: under 1 min, about 0.3 GB;
+- xcheck at depths 2 and 3: under 5 min;
+- outputs under 2 MB in total.
+
+-------------------------------------------------------------------------------------------------------------------
+2. CERTIFICATE DRIVER cert9.py (Python ints, python3 -I -B)
+-------------------------------------------------------------------------------------------------------------------
+Start from synth/smoke_cert.py (9c033df34e816d17) and math/fesh.py (d39b5d0438e6948b, unchanged), and add:
+D1 FREEZE_PIN with hashlib.sha256 of the committed HBP file. Refuse r <= 9 otherwise.
+D2 Pass 1: run the engine at z0 = 72 - 18/r - 3/r^2 (5667/81 = 1889/27 at r = 9; the engine's zstar() returns the
+   reduced form). Bracket kappa1 and kappa2 with fesh.pencil_eigs(U0, T, 2, lo, hi, bits=40) on the pass-1 hats,
+   from lo = 72 - 18/r - 1 to hi = the run's gamma0 (94070673/1000000 at r = 9; the row-010 floor at excluded r,
+   as smoke_cert.py used), in exact rationals. With mid_i = (a_i + b_i)/2:
+     z* = floor(10^6 (mid1 + mid2)/2) / 10^6;
+     c  = floor(1000 R_O)/1000 (fesh.short(R_O, 1000)), with R_O = phi^T M_O phi / phi^T T phi,
+          M_O = W_P O_P + X0^T W O X0, and phi = fesh.inverse_iter(U0, T, mid1, v0, its=3) (round_vec, 160 bits),
+          v0 = (1 + (7k^2 + 3k) mod 11) for k = 0..6, that is (1, 11, 2, 7, 4, 4, 7).
+   Every step is exact rational arithmetic, so both floors are deterministic. Print both rules' inputs and outputs.
+   Measurement only (HBP rows 018 and 091; never used by a rule): R_O2 = phi2^T M_O phi2 / phi2^T T phi2 with
+   phi2 = fesh.inverse_iter(U0, T, mid2, v0, its=3), the O_first value smoke_cert.py prints. R_O and R_O2 are
+   printed in an OMEAN row as Rayleigh quotients, not certified values.
+D3 Pass 2: run the engine with --z z* --c c --ydepth n at depths 2-5, for both sectors.
+D4 The adapter class reads every hat. G(z) comes from NOTE (4.1), Dgram(z) from E3, and
+   N(z1,z2) = M + YWR' + (z1-z*) YX + YWR'^T + (z2-z*) YX^T, where YWR' = Y^T W R(z*). YY feeds ybar.
+D5 Run fesh.certify unchanged, with ndig = 40 at r = 9 (HBP row 022) and ndig = 30 for the X6 replay (the setting
+   that produced the reference files). The driver never uses fesh.certify's combined ok flag, which also demands
+   that the Lemma-7-only a_lo be positive. It maps fesh's TEST rows onto the HBP checks by this frozen table:
+     I0 <- I0_tau2_below_floor            I1_UP <- I1_UP_count_tau1_eq_1     I1_LO <- I1_LO_count_tau1_eq_1
+     I2_UP <- I2_UP_count_tau2_eq_2       I2_LO <- I2_LO_count_tau2_eq_2
+     I3_ODD <- I3_ODD_lower_form_positive WINDOWS <- pencil_lo_count0 and the four W1_*, W2_* rows
+     G_WINDOW <- both D_g_PD_both_ends    H_WINDOW <- both D_h_PD_both_ends
+     N1P <- E_l1plus_count_le_1           N2P <- E_l2plus_count_le_2        N2M <- E_l2minus_count_ge_1
+     F_GAP <- F1_mu_inside_gap, F1_sine_below_1, F1_centred_sine, F2_mu_inside_gap, F2_sine_below_1,
+              F2_centred_sine (all six must PASS: both centres strictly inside the gap with delta > 0, and both
+              sine forms below 1)
+     A_POS <- A_centred_lower_bound_positive(Lemma7prime), whose sbar_c is min(Lemma 7, Lemma 7'): the min-form
+              a_lo of HBP row 026
+     informative only: A_lower_bound_positive (the Lemma-7-only a_lo); its FAIL never decides a verdict, and its
+     a_lo is printed labelled INFORMATIVE, never as a bound
+     SQ_BOUNDS also covers A_a_lo_le_raw. Where the F_GAP gate withholds a_lo, that sub-row is NOT_EVALUATED: it is
+     reported, it is not a FAIL, and SQ_BOUNDS passes iff every evaluated sub-row passes and at least one sub-row is
+     evaluated (HBP rows 060, 131). It is the only sub-row of any run-integrity check that may be NOT_EVALUATED.
+     Y_PD and NUBAR_PD have no fesh TEST row (fesh asserts them inside lam_max_cert), so the driver re-tests them
+     itself after clearing denominators and prints the rows. Y_PD follows HBP row 054: if YY = Y^T W Y is the zero
+     matrix (Y = 0, as in the secondary route), then y = ybar = 0 and Y_PD is PASS, which is what fesh.certify
+     itself sets; otherwise PD(y T - YY) and ybar >= sqrt(y). NUBAR_PD is PD(nubar^2 T - N_c^T T^-1 N_c). The C++
+     checker applies the same case split (K4).
+   RESULT row counts. The driver's RESULT row keeps fesh.certify's raw ok, tests and fail, counted from fesh's own
+   27 TEST rows before the F_GAP gate, exactly as smoke_cert.py counts them (ok = fesh's combined flag, tests = 27,
+   fail = the number of fesh FAIL rows). They are labelled raw and never decide a verdict; the gated outcomes are
+   the CHECK rows.
+   F_GAP gate. When F_GAP fails at a depth and route, the formulas of Lemmas 7 and 7' have no valid hypothesis
+   there: delta can be <= 0, and the printed "sine" is then meaningless (sbar = -1.138 at depth 1 in the smoke).
+   fesh.certify computes a_lo internally regardless, so the driver withholds every quantity downstream of the sines
+   before any output: a_lo in both forms, a_hi, the angular term and the BUDGET row. It prints them as
+   NOT_EVALUATED, and A_POS reads NOT_EVALUATED (not PASS). Add these checks around it:
+     TAU2_ABOVE_UPSILON2  tau2 > upsilon2
+     LO_LE_UP             the cleared-denominator identity of NOTE section 9 at every tested tau = a/b:
+                          K b (g b - a d0) LO(a/b) = (g b - a d0)(b Uhat - a That) - d0 Ghat(a,b), with K the least
+                          positive integer making K U0, K T and K b^2 G(a/b) integer (computed from the rationals,
+                          never from a typed scale); g b - a d0 > 0; diag(Ghat) >= 0; neg LO >= neg UP
+     FLOOR_PIN            the run's gamma0, by integer equality of the reduced numerator and denominator:
+                          94070673/1000000 at r = 9; 94070673/1000000 + 3(r - 9) (HBP row 010) at excluded r > 9,
+                          that is 98570673/1000000 at r = 10.5 and 103070673/1000000 at r = 12; no floor is defined
+                          at any other r. X6, X7 and the r = 12 CI and fault runs use the row-010 value.
+                          Source sub-row (HBP rows 041, 136), at every r and before any LO form is built: the two
+                          source files are read from the finite repo's object store at d1385b3 (git cat-file of the
+                          pinned blobs), their sha256 and git blobs must equal the ground-rule pins, and the
+                          RESULT_PERRON_3x4_TOP row must carry the pinned fields. It reads no certificate quantity.
+     F_GAP                the six fesh rows above
+     A_FROM_THEOREM       (HBP row 063) judges only rows labelled BOUND. At most one row is labelled BOUND, and only
+                          when the reported route (HBP row 094) is PASS at the verdict depth. That row must be the
+                          weight a_lo^2 of the min-form a_lo of that route at that depth, with every run-integrity
+                          check scheduled for the run present and PASS, every route certificate check of that route
+                          at that depth present and PASS, a_lo <= nu0, and nu0 <= a_hi where a_hi is evaluated. No
+                          Ritz value, variance, fit, LADDER row or INFORMATIVE row may be labelled BOUND.
+                          Ladder-depth rows and every row of the non-reported route are excluded, whatever their
+                          check outcomes. If the reported route is HOLD or REFUSE, the check passes iff no row is
+                          labelled BOUND. The checks it requires are those scheduled by name for the run type (HBP
+                          row 131, schedule field: all 20 run-integrity checks at r = 9 and in every r = 9 fault
+                          run; all except XCHECK_LIFT in every other run, so BURNSIDE_TOTAL runs in every run, on
+                          that run's own declared orbit field). Route verdicts, the reported verdict, the owner
+                          items and the BOUND label are assigned only in the last job of the run, after REPLAY_CPP,
+                          EXT_REGEN, SIGN_POLAR and BURNSIDE_TOTAL in every run (and, at r = 9, also XCHECK_LIFT):
+                          the receipt job at r = 9, and the last step of its own job for each r = 9 fault run and
+                          each r = 12 CI run. Any label the driver prints before that is provisional; only that evaluation
+                          is final.
+     COND_TAG             every output row carries the condition; at excluded r it also carries a field naming the
+                          row-010 Weyl step
+     SCOPE_GUARD          the output names only the finite periodic 3x4 S3 lattice at r = 9
+D6 Corollary A' (a_hi), and the secondary route Y = 0 (h := o, the certified lambda_max of X^T(O-c)W(O-c)X against
+T),
+   both printed in the same run. a_hi is evaluated only where F_GAP passes and taubar_i < 1. Every a_lo, a_hi and
+   nu0 row of the route that is not the reported route (HBP row 094) is labelled INFORMATIVE and printed with that
+   route's verdict; it is never a bound, whatever that verdict is.
+D7 Output MEASURED rows in HBP form, one per check and per quantity, each labelled with its depth and route, and
+   ladder depths labelled LADDER. Rows of the non-reported route are labelled INFORMATIVE (D6). The one reportable
+   bound, if any, is labelled BOUND (D5, A_FROM_THEOREM). Every rational is printed as an exact A/B and also as a
+   decimal for reading. At every depth the driver also prints:
+     KAPPA the 90-bit UP-inertia brackets of kappa1..kappa7, from fesh.pencil_eigs(U0, T, 7, lo, gamma0, bits=90)
+               with gamma0 the run's gamma0 (floor-free: hi only bounds the search), with their midpoints,
+               kappa3 - kappa2 and kappa5 - kappa3 (HBP row 079);
+     INNER     the inner part of g_i for i = 1, 2: lam_max_cert(G(sigma_i) - GEX, T), as smoke_cert.py prints
+               inner_part_g1 (HBP row 089), next to g_i and eps_i;
+     RATIO     a_lo / nu0 per route, as exact rationals, wherever a_lo is evaluated (HBP row 085);
+     WINDOW    upsilon_i - sigma_i for i = 1, 2 (rows 077, 078) and the certified gap21 interval
+               (sigma2 - upsilon1, upsilon2 - sigma1) (row 079);
+     ODD       the odd Ritz value U0_odd/T_odd (floor-free upper bound) and the largest of 60 bisection points z in
+               [72 - 18/r - 1, U0_odd/T_odd] with LO_odd(z) > 0 (any such z is a lower bound on the lowest odd
+               level, conditional on H4): the odd bracket of row 080.
+     KC        lambda_max_cert(GEX, T), max_k GEX_kk / T_kk and their ratio k_c, as exact rationals (HBP row 090);
+     E3LO      route-independent (X and G only), for the cross-check of HBP row 140, at the run's E3LO depth d
+               only (d = 6, its verdict depth, in the depth-6 fallback run of HBP row 094; d = 5 in every other
+               run) and only when Theorem I passes at depth d (I0, I1_UP, I1_LO, I2_UP, I2_LO and I3_ODD all
+               PASS); otherwise every E3LO quantity is printed NOT_EVALUATED and no contradiction test is
+               evaluated. Quantities, all at depth d: sigma3_even,
+               the largest of the 60 bisection points z in [tau2, kappa3_hi] with neg LO(z) + null LO(z) <= 2 (the
+               window rule of row 022 with i = 3), NOT_EVALUATED when no bisection point qualifies;
+               m3 = min(sigma3_even, odd_lo, gamma0), NOT_EVALUATED when sigma3_even or odd_lo is;
+               E3_lo_pkg = max(tau2, m3), and tau2 when m3 is NOT_EVALUATED (conditional on H4, and valid only when
+               Theorem I passes at depth d); E3_hi_pkg = min(kappa3_hi, max(tau2, U0_odd/T_odd)) (floor-free); the
+               gap interval (E3_lo_pkg - upsilon2, E3_hi_pkg - sigma2); the internal value m3 - upsilon2, read and
+               report only, with no contradiction effect (it replaces the former test 1); tests (2) to (4) of row
+               140 against #155's 699686993/10^7 and 699567503/10^7 (rows of #155's receipt, pinned in row 140:
+               head 30a08260, sha256 cf91b9e4) and #136's 6996/100 and 6993/100, each PASS or CROSS_CONTRADICTION;
+               test (5) printed NOT_APPLICABLE (the pinned receipt prints no floor-free upper bound on E3;
+               NOT_APPLICABLE is not a missing output); and the read-and-report line E3_lo_pkg - upsilon2 beside
+               0.0086993. Test (2) is strict: E3_hi_pkg < 699686993/10^7 (#155's receipt gives E3_even >=
+               69.9686993). Scope (HBP row 140, evaluated_when): tests (2) to (5) are evaluated only in the no-fault
+               r = 9 runs: the single run of step 7 of section 0, at depth 5, and the depth-6 fallback run of HBP
+               row 094, if it runs, at its verdict depth 6; in each only when Theorem I passes at that depth, and
+               with the same NOT_EVALUATED and NOT_APPLICABLE semantics. In every other run (the smoke, X6, X7 and
+               the r = 12 CI runs, and every fault run at r = 12 and at r = 9) the E3LO quantities may be printed as
+               read and report, and each of tests (2) to (5) is printed NOT_EVALUATED: a frozen outcome, not a
+               missing output, with no release effect. No check uses these values; a CROSS_CONTRADICTION, possible
+               only in those no-fault r = 9 runs, blocks release until the owner rules.
+   Once per run, from pass 1: OMEAN, the Rayleigh quotients R_O (ground, at mid1) and R_O2 (first, at mid2) of D2
+   (HBP rows 018 and 091).
+   The k = 7 path was tested at excluded r = 10.5 and 12, depths 2 and 5 (synth/kappa7_path.py 4390e53c64387a3a,
+   output a6b312d4e2ff233e), with hi = the row-010 gamma0 of those r: the assertion of pencil_eigs at hi holds (UP
+   count 7 there) and every bracket is narrower than 3e-26.
+   The CONJECTURE comparison table lists rows 076-092 and 132-133 with MATCH or FALSIFIED. A row whose measured
+   quantity is NOT_EVALUATED or missing is FALSIFIED, except where the row itself predicts NOT_EVALUATED (row 088's
+   depth-2 clause and row 133). LADDER and INFORMATIVE values enter this table as measurements; they are never
+   bounds.
+D8 Driver-level fault switches, run inside the same code:
+     PF04  gamma0 := Ritz value of QHQ on span(X)
+     PF05  LO with +G
+     PF06  N_c := M with the adjoint h kept
+     PF07  skip I3
+     PF08  skip I2_LO, or put tau2 above kappa3
+     PF09  G(z) := G(z*)
+     PF12  report spread^2 or nu0^2 as the weight
+     PF14  skip N2P, with delta2 from kappa2 - kappa1
+     PF15  drop the condition field
+     PF16  add a continuum claim row
+     PF17  start at r = 9 without the pin
+     PF18  a fault switch in the driver and in the C++ checker that, after each one's object-store read of
+           PERRON-RESULT.hbp at d1385b3, replaces the bytes by a copy whose RESULT_PERRON_3x4_TOP row states
+           t_cert_milli=95000000, and sets the run's gamma0 by the rule of HBP header line 11 from that value:
+           95/1 + 3(r - 9) (95/1 at r = 9 and 104/1 at r = 12, an overstatement of the pinned floor at both r).
+           FLOOR_PIN's source sub-row hashes the replaced bytes itself and refuses them (sha256 and git blob
+           against HBP row 136) before any LO form is built
+   Every driver-level fault is planted in the reported route R set at X7 (HBP row 131). For PF06 with R the
+   secondary (Y = 0): h := the primary's adjoint h, with Y = 0 and N_c = M; ADJ_CONSISTENCY's Y = 0 clause (h must
+   bound X^T(O-c)W(O-c)X) refuses it (HBP row 102).
+D9 Second floor, read and report only (HBP rows 137, 138). If the cloud seat's floor lane freezes its own prediction
+   file and its r = 9 run certifies lambda_min(QHQ_whole) >= gamma2, then after the final evaluation of the r = 9
+   run on #131's floor the driver re-evaluates every floor-dependent test of HBP rows 043-062 and the closed
+   formulas of rows 026 and 028 with gamma2 in place of gamma0, at the same printed rationals (no bisection is
+   re-run, no rule is retuned), and the C++ checker replays it. Every such row is INFORMATIVE, carries
+   accepted_source_assumption_2=lambda_min_QHQ_whole_GE_<gamma2> with that file's sha256, and is never labelled
+   BOUND. By Lemma 11 (NOTE section 15.4), with gamma2 >= gamma0 every result certified on #131's floor holds
+   conditional on the second floor alone, and the re-evaluation gives a_lo(gamma2) >= a_lo(gamma0) when a_lo(gamma0)
+   > 0 (a re-run integer test can fail only where it meets an exactly vanishing leading minor, and is then reported
+   as it falls); with gamma2 < gamma0 nothing carries over and each test is reported as it falls. No frozen
+   prediction is measured on it.
+
+
+-------------------------------------------------------------------------------------------------------------------
+3. INDEPENDENT C++17 CHECKER (g++ -std=c++17, standard library only, integer types only)
+-------------------------------------------------------------------------------------------------------------------
+CONTEXT.md allows Python ints, Rust 1.81 std or C++17 integers for code that produces plan numbers. The checker is
+therefore C++17, a third language beside the Rust engine and the Python driver. (An earlier draft named Go
+math/big.Int, which CONTEXT.md does not allow; no owner approval for Go was sought.)
+K0 Integers. Its own arbitrary-precision signed integer on std::vector<uint32_t> limbs with uint64_t intermediates:
+   add, sub, mul, exact division (remainder asserted 0), divmod, gcd, isqrt, comparison, decimal parse and print. No
+   float, double or long double anywhere: the CI step greps the source and fails on any of them. Unit-tested against
+   Python ints on 10^5 random cases and on every excluded-r hat file.
+K1 Parse every MAT row and its scale, and check each hat's sha256 against the engine's output (its own SHA-256,
+   tested on the FIPS 180-4 "abc" and empty-string vectors). For FLOOR_PIN's source sub-row it hashes the two #131
+   source files itself, with its own SHA-256 and its own SHA-1 for the git blob ids (both tested on "abc").
+K2 Rebuild U0, T, G(z), Dgram(z), M, N_c, YY and the odd scalars as integer numerator/denominator pairs.
+K3 Write its own Bareiss leading minors (exact division checked), PD, inertia, isqrt and cross-multiplied
+comparisons.
+   It shares no code with Python or Rust.
+K4 Replay every check of HBP rows 041-062 at the driver's printed rationals (tau_i, sigma_i, upsilon_i, g_i, h_i, y,
+   eps_i, l's, mu_i, rho_i, beta_i, s_i, n21, n12, nubar, ybar, e_a, taubar_i, a_lo, a_hi). Reduced fractions must
+   agree exactly. ADJ_CONSISTENCY: N_c is rebuilt from M, YWR and YX, and h must be certified for the same Y.
+   LO_LE_UP: the cleared-denominator identity is recomputed from the hats. SIGN_POLAR: every rebuilt symmetric
+   matrix is compared with the driver's as a full bilinear form (all e_i and all e_i + e_j). It also replays the
+   E3LO row and, when it exists, the second-floor evaluation of D9. Y_PD: the case split of HBP row 054 (a
+   zero YY gives y = ybar = 0 and PASS). FLOOR_PIN: the run's gamma0 of HBP row 041 at the run's r. NOT_EVALUATED
+   entries must match.
+K5 Output REPLAY|check=...|PASS/FAIL rows and a final verdict. Any mismatch ends in REFUSE (check REPLAY_CPP).
+   The C++ checker replays the arithmetic of this one method. It is not the second method that PR #148 row 34
+   requires.
+
+-------------------------------------------------------------------------------------------------------------------
+4. INDEPENDENT CROSS-CHECKS
+-------------------------------------------------------------------------------------------------------------------
+X1 Full space against sector (exact). engine xcheck --r 9 --depth 2 and --depth 3, after the freeze. Each gauge
+orbit
+   of shells 0..n+1 is mapped to its class, and X is lifted. The exterior comes from direct full-space moves.
+   Required integer equalities: P^T G_full P = G_sector, and the same for T, U0 and X^T W O X; shell, weight, O and
+   M per orbit; orbits per class. MEASURED PASS at r = 20 before the freeze (155,386 and 2,140,604 orbits).
+X2 A second implementation (Python). engine/py/scout_fullgram.py solves on the full orbit space at r = 9 for 2 and
+   3 shells (S = 10^18), independently of the sector code. Classes 0..5 must agree exactly. The merged (c,c) class
+   is compared too, but the two solves have different X, so no counted tolerance exists: the relative differences
+   (1e-12 for GEX and 1e-17 for T at r = 20) are printed as an INFORMATIVE row that never stops the run and never
+   fails XCHECK_LIFT (HBP row 040). The exact lift equalities of X1 are the integrity test.
+X3 Two implementations of the 7x7 arithmetic: Python (fesh/zq) and C++17 (section 3).
+X4 Census recount. symshells.py (Python) against Rust for shells 1-4 (MEASURED match). An independent Burnside total
+   of 2,177,317,873 (check BURNSIDE_TOTAL). The local seat recounts shells 5-7 by its own code (refuter test 2).
+X5 Two-sided detailed balance on the exterior of the symmetric sector (HBP row 035; the probe is not run in the odd
+   sector). The shell-6 probe matches all 22,702,638 back edges (check H1_TWO_SIDED_EXTERIOR). With depth 6, a
+   shell-7 probe is needed (about 13 min, 1.5 GB).
+X6 Regression. At r = 10.5, 12, 14, 16, 20 and 40, the new engine reproduces engine/out/main_d5.txt for every
+   unchanged matrix, byte for byte. The new driver with Y = 0 and ndig = 30 (the setting of smoke_cert.py,
+   9c033df34e816d17, that wrote the references) uses the run's gamma0 at excluded r, the row-010 floor
+   94070673/10^6 + 3(r - 9) that FLOOR_PIN requires (smoke_cert.py line 160; every SMOKE row of the three files
+   prints it, synth/out/fixpass2_check.txt). In place of the pass-1 rules it takes z* = the z of each tag's engine
+   SOLVE row and c = the c printed in that tag's SMOKE row (exact, because c is a multiple of 1/1000; the references
+   compute it per tag). It then reproduces every field of every RESULT row of
+   synth/out/smoke_noadj_ground.txt, smoke_noadj_zmid_r10p5.txt and smoke_noadj_zmid_r12.txt exactly (all 34 tags:
+   six r at depths 1-5, and the two midpoint files at depths 4 and 5), and every TEST row's PASS/FAIL. The
+   comparison is field by field over the fields of the reference row: the fields the new driver adds (the condition
+   and Weyl-step fields of COND_TAG, the labels, depth and route) are not differences. The RESULT fields ok, tests
+   and fail are fesh's raw values, counted before the F_GAP gate (D5), so they are reproduced unchanged everywhere,
+   including where F_GAP fails (for example fail=10 at depth 1 and fail=3 at depth 2, r = 10.5 and 12). There is
+   exactly one difference, and it is required: where F_GAP fails (depth 1 at every r, and depth 2 at r = 10.5 and
+   12), the new driver prints NOT_EVALUATED in place of the values e_ang, a_lo and a_lo_c of the RESULT row and in
+   place of the PASS/FAIL of the three A_* TEST rows (A_centred_lower_bound_positive(Lemma7prime),
+   A_lower_bound_positive, A_a_lo_le_raw) (section 2, D5). In every X6 run the regenerator xext (X8) must PASS
+   EXT_REGEN and SIGN_POLAR at depth 5 (with Y = 0, DEX = 0).
+X7 Adjoint smoke at excluded r, after X6 and before any r = 9 run, with the row-010 gamma0 (FLOOR_PIN at excluded r)
+   and the frozen pass-1 rules for z* and c. Record h_i, e_a(adjoint) and a_lo(adjoint), and compare with the Y = 0
+   values. X7 sets the reported route of HBP row 094 and nothing else. The adjoint is DEFECTIVE if, on the code that
+   passed the full X6 (all 34 tags) and with every frozen rule unchanged, at r = 10.5 or 12, depth 5, the adjoint
+   route has a FAIL in H_WINDOW, Y_PD or ADJ_CONSISTENCY, does not complete, or gives a min-form a_lo below the
+   secondary route's at the same r and depth. Then the secondary route (Y = 0) is the reported route at r = 9, the
+   primary is still run and printed INFORMATIVE, and owner item 3 is HOLD (the HOLD branch of HBP row 068). X7 also
+   makes a separate run at r = 12 whose deepest depth is 4 (verdict depth 4) and records both routes' verdicts
+   there: that is the primary's control result for the r = 12 fault runs (section 5). Code defects may be fixed
+   before the recorded X7 run only if no frozen rule changes, and every X7 run is listed in the receipt.
+
+X8 Independent exterior and hat regenerator xext (checks EXT_REGEN and SIGN_POLAR; HBP rows 134, 135, 139).
+   Language: C++17, integer types and the standard library only, no floating type (the K0 grep applies). It shares
+   no code with the Rust engine or the Python driver and reads none of the engine's class keys, edge lists or
+   exterior list; it may link the C++ checker's K0 big-integer type for the final Gram sums. Its own parts: an S3
+   table (permutations of {0,1,2}), a link order, a spanning tree different from the engine's, gauge fixing, the 48
+   symmetry actions, the class key (the least base-6 code of the 13 non-tree letters over the 288 pairs (g, h) of a
+   symmetry and a global conjugation), the weight W = 288 / #{(g, h) attaining the key}, the magnetic cost, O_sum
+   and the chi_odd signs. Inputs: the engine's SCHEMA row, INNER-X.bin, INNER-Y.bin and ODD-X.bin (E9) with their
+   sha256, and the printed hats.
+   Steps at the run's verdict depth n:
+   (1) Build shells 0..n+1 from the flats by enumerating the 72 moves of every representative of shells 0..n. The
+       class, orbit and weight counts per shell must equal HBP rows 014 and 139 (at n = 5: classes 7, 20, 316, 3615,
+       44071, 393917, 2465466; weights 18, 1296, 43128, 873744, 11883396, 111584136, 704413500; odd classes 1, 2,
+       55, 733, 10282, 100689, 718755, where the odd classes are those of the signed-BFS shells of step (6) and HBP
+       row 015).
+   (2) Translate each published representative into its own labels (after checking that the SCHEMA table is a
+       group isomorphic to S3) and canonicalise it: the published rows and its own shell 1..n classes must match one
+       to one, with equal W_i and m_i.
+   (3) For every shell-n representative of the symmetric sector (this tally, HBP row 134 (c), does not apply to the
+       odd sector): moves into shells n-1 and n (self moves included) plus moves into shell n+1 must number 72. The
+       outside-target multiset {(i, e, c(i->e))} is sorted in its own keys and printed with its
+       sha256, its number of distinct pairs (22,702,638 at n = 5), its number of distinct targets (2,465,466) and
+       its total multiplicity.
+   (4) acc_e = sum_i W_i c(i->e) X_i and the same with Y must be divisible by W_e exactly; R_e = acc_e / W_e. GEX
+   and
+       DEX are rebuilt at the engine's printed scales and must equal the hats exactly, as full bilinear forms.
+   (5) The 72 moves of every shell-(n+1) representative are regenerated too: W_e c(e->i) = W_i c(i->e) must hold on
+       every exterior edge, and GEX rebuilt without division, as sum_e W_e (sum_i c(e->i) X_i)(...)^T, must equal
+       (4).
+   (6) The odd sector: its own odd shells must reproduce the odd census. They are the signed-BFS shells of HBP row
+       015: BFS from the odd flat class, where an edge K -> L exists iff the count of moves from s_K into L, each
+       signed by chi_odd of its canonicalising symmetry, is nonzero; inadmissible classes (stabiliser not in
+       ker chi_odd) are excluded, and a class reached only through zero signed counts is not indexed (the engine's
+       main.rs Sector::list_next). The electric-distance shells restricted to admissible classes (1, 2, 159, 2881,
+       ... at shells 0-3) are not the census. The exterior part of G_odd rebuilt from ODD-X.bin must equal the
+       engine's.
+   (7) SIGN_POLAR part (4): every other hat of HBP row 021 (U0, T, GIN, XWR, M0, M1, M2, DIN, YWD, YY, YWR, YX) and
+       the odd scalars are rebuilt from INNER-X, INNER-Y and ODD-X with its own inner edges, magnetic costs and O
+       values, and the run's r, z*, c, D and S, and compared as full bilinear forms (all e_i and all e_i + e_j).
+       Sign sub-rows: B = -H_QP >= 0 on every regenerated shell-1-to-flat move, W_i c(i->j) = W_j c(j->i) on every
+       regenerated inner edge, and q(v) >= 0 on all 28 vectors for each Gram hat (GEX, GIN, DEX, DIN, YY, M0).
+   Cost at n = 5 (from the MEASURED census, HBP row 139): 441,946 x 72 = 31,820,112 moves from shells 0..5 (shell 5
+   alone 28,362,024), 2,465,466 x 72 = 177,513,552 moves from shell 6 (the engine's probe counted 22,702,638 back,
+   29,171,690 within and 124,259,339 forward distinct edges there), and 111,762 x 72 = 8,046,864 odd moves. The
+   engine did the same enumeration in 47 s (listing) and 195 s (probe) on 3 threads at 1.0 GB.
+   Memory plan: open-addressing u64 key tables for 441,946 inner and 2,465,466 exterior classes (under 0.1 GB); the
+   inner X and Y rows (about 50 MB); per exterior class, 7 X and 7 Y accumulators of 192 bits (about 0.83 GB; each
+   |acc_e| < 2^62 x 2^9 x 2^7 x 2^7 = 2^85); the sorted outside multiset, 22,702,638 entries of 12 bytes (about 0.27
+   GB); Gram sums in K0. Under 1.5 GB in all. Budget: 4 GB and 2 h wall on the 4-vCPU runner (estimate about 40
+   min, 2,420 s: the engine's 242 s for the same enumeration with a tenfold allowance). A run over budget or one that
+   does not finish is EXT_REGEN FAIL, never a skip, and the r = 9 run does not start until GPT-6 rules on the
+   recorded measurement.
+   Validation before any r = 9 run: EXT_REGEN and SIGN_POLAR PASS with exact equality in every X6 run at depth 5 and
+   in the faults-r12 control at r = 12, depth 4; PF02, PF19 and PF20 are refused at r = 12.
+X9 Negative-control receipts (HBP rows 141, 142): synth/negctl_gpt6.py (548f71564ee73803), python3 -I -B, toy
+   matrices only, must print synth/out/negctl_gpt6.txt (3c10e20a2c1f01e9) byte for byte in build-selftest. It
+   reproduces GPT-6's two counterexamples: each false positive is produced on purpose (both forms read no
+   crossing, and the LO_LE_UP identity passes), and each is refused by its independent gate (floor source;
+   exterior regeneration), not by the certificate's algebra; each control passes and reads the crossing.
+
+-------------------------------------------------------------------------------------------------------------------
+5. PLANTED-FAULT RUNS
+-------------------------------------------------------------------------------------------------------------------
+Every fault is run at r = 12 (excluded r, after step 4, so that the reported route of X7 exists) and at r = 9 (after
+the freeze, step 8). A fault run is refused only when it does not end in PASS and its named check is executed and
+reported FAIL; only for PF07, PF14 and the skip variant of PF08, whose fault is the named check's absence, is
+"reported missing" the refusal (HBP header line 10). A run-integrity FAIL takes effect at the end of the program step
+in which it occurs, after every check of that step has printed its CHECK row, and a fault run always reaches the step
+that runs its named check (HBP row 131, integrity_rule). So a fault that also makes another check fail (PF06, PF10,
+PF19 and PF20 within the same step; PF13's CENSUS in an earlier step) still has its named check executed and printed.
+The one exception is FREEZE_PIN (E1, D1; HBP rows 030 and 113): it is a program step of its own, the first step of the
+engine and of the driver, and its FAIL, once its own CHECK row is printed, stops the program at once, before any other
+step or any arithmetic, in every run, fault runs included. Neither clause above ever delays it, and PF17 is refused by
+that FAIL.
+Every driver-level fault is planted in the reported route. A
+fault run that ends in PASS falsifies the package. A fault run's verdict depth is its deepest depth (HBP row 131): 4
+for the r = 12 CI runs and 5 at r = 9. Every r = 12 run uses the run's gamma0 at r = 12, the row-010 value
+103070673/1000000 (FLOOR_PIN, HBP row 041), and the reported route set at X7; PF04 at r = 12 means any other value,
+94070673/1000000 included. The control (the same run without a fault) is part of faults-r12, and the receipt records
+its verdict in both routes. For the secondary route (Y = 0) the control PASS at r = 12, depth 4 is MEASURED before
+the freeze, at gamma0 = 103.070673: all 27 fesh TEST rows PASS at the default z* (smoke_noadj_ground.txt) and at the
+midpoint z* (smoke_noadj_zmid_r12.txt) (synth/out/fixpass2_check.txt). For the primary route it is measured at X7,
+after the freeze. A refusal is informative where the control ends PASS in the reported route.
+
+  code  planted where       refused by                      also                                     PR #148
+  PF01  engine  E7          CHI_TABLE                       O_GAMMA_INVARIANT                        F1
+  PF02  engine  E7          C0_EXTERIOR_COMPLETE            EXT_REGEN (MOVES72, H1_TWO_SIDED_EXTERIOR can pass)  F7
+  PF03  engine  E7          H1_DETAILED_BALANCE             CENSUS                                   F4, F11
+  PF04  driver  D8          FLOOR_PIN                       COND_TAG                                 F9
+  PF05  driver  D8          LO_LE_UP                        REPLAY_CPP                               F10
+  PF06  driver  D8          ADJ_CONSISTENCY                 REPLAY_CPP                               F7
+  PF07  driver  D8          I3_ODD (missing)                A_FROM_THEOREM                           F7, F8
+  PF08  driver  D8          I2_LO (missing or count >= 3)   I2_UP, A_FROM_THEOREM                    F8
+  PF09  driver  D8          G_WINDOW                        REPLAY_CPP                               F7
+  PF10  engine  E7          O_GAMMA_INVARIANT               CHI_TABLE                                F2
+  PF11  engine  E7          O_DIAGONAL                      XCHECK_LIFT                              F6
+  PF12  driver  D8          A_FROM_THEOREM                  A_POS                                    F5
+  PF13  engine  E7          BURNSIDE_TOTAL                  XCHECK_LIFT, CENSUS                      F3
+  PF14  driver  D8          N2P (missing)                   F_GAP                                    F7
+  PF15  driver  D8          COND_TAG                        FLOOR_PIN                                F9
+  PF16  driver  D8          SCOPE_GUARD                     -                                        F12
+  PF17  engine and driver   FREEZE_PIN                      - (must abort before any arithmetic)     row 21
+  PF18  driver  D8          FLOOR_PIN (source sub-row)      -                                        F9
+  PF19  engine  E7          EXT_REGEN                       SIGN_POLAR                               F7
+  PF20  engine  E7          SIGN_POLAR                      EXT_REGEN                                F7
+
+
+The math lane's lesson from the toys: in every planted run the certificate's own inequalities still printed PASS.
+That is why each fault above has a named check outside the inequality chain (pins, identities, replay, census),
+and why the toy truth runs are not enough on their own.
+
+-------------------------------------------------------------------------------------------------------------------
+6. CI ON GITHUB ACTIONS (free hosted runners)
+-------------------------------------------------------------------------------------------------------------------
+Runner budget: ubuntu-latest (4 vCPU, 16 GB RAM, 14 GB SSD for public repositories), 6 h per job, no secrets needed.
+Proposed workflow: .github/workflows/s3-3x4-r9-feshbach-amplitude.yml. Toolchains: rustup toolchain install 1.81.0;
+the runner's g++ with -std=c++17 -O2 -Wall -Werror (its version is printed and recorded; the no-float grep of K0
+runs first); the runner's python3 with -I -B. Every job uploads its outputs and their sha256 as artifacts.
+
+  job              trigger            content                                                         time / memory
+  build-selftest   push, PR           cargo +1.81.0 build --release; selftest; census --listed 6 --probe 1;  ~10 min / 1.1 GB
+                                      g++ build and K0 unit tests of the C++ checker and of xext;
+                                      BURNSIDE_TOTAL; negctl_gpt6.py byte-identical (X9)
+  regress-r        push, PR           full X6: all 34 tags (six r, depths 1-5; the midpoint files at     ~1-3 h / 1.5 GB
+                                      depths 4-5); driver (Y = 0, ndig 30); C++ replay; BURNSIDE_TOTAL
+                                      on each run's own declared field; xext at depth 5
+  faults-r12       push, PR, matrix   PF01-PF16 and PF18-PF20 at r = 12, depth 4, plus the control; each    ~15 min each / under 1 GB
+                                      run executes BURNSIDE_TOTAL on its own declared field, the C++        (estimate, below)
+                                      replay and xext at depth 4 (EXT_REGEN, SIGN_POLAR), with its own
+                                      final evaluation as its last step; each reads the reported route
+                                      from the X7 record and asserts its named refusal; a run without
+                                      that record is a development run, not a receipt run
+  freeze-gate      dispatch           sha256 of the committed HBP equals FREEZE-PIN.txt, or stop             seconds
+  r9-run           dispatch, needs    pass 1, pass 2, depths 2-5, both sectors, X and Y; driver; C++ replay;  ~15 min / 1.2 GB
+                   freeze-gate        BURNSIDE_TOTAL
+  r9-ext           dispatch, needs    xext at depth 5 on the r9-run tables and hats (EXT_REGEN, SIGN_POLAR)  ~0.5-2 h / 1.5 GB
+                   r9-run
+  r9-xcheck        dispatch, needs    X1 (engine xcheck, n = 2, 3) and X2 (scout_fullgram.py, 2 and 3 shells) ~15 min / 3.5 GB
+                   r9-run
+  r9-faults        dispatch, matrix   PF01-PF20 at r = 9, depth 5, each with all 20 run-integrity checks    ~1-2 h each / 3.5 GB
+                                      (xcheck and xext included) and its own final evaluation as its last
+                                      step after its own C++ replay; each asserts its named refusal
+  receipt          dispatch, needs    collects the hashes, CONJECTURE comparison and verdict table          seconds
+                   all r9 jobs
+
+The faults job runs at depth 4 at r = 12 to save time, because the refusals do not depend on depth (PF02, PF19 and
+PF20 plant their faults at the run's verdict depth, shell 4 to 5 there; xext then runs at depth 4). Every faults-r12
+run, the no-fault control included, uses the row-010 gamma0 103070673/1000000 and the reported route set at X7
+(section 5). The r = 9 fault runs use depth 5, the primary depth. Concurrency stays within the free-tier limit of 20
+jobs. A failed job never writes a PASS row.
+
+Checkout. Every job checks out the finite repository with full history (actions/checkout with fetch-depth: 0), or
+fetches d1385b345703ff1dc35e7dd2ae3eba77a9ee568b explicitly, before FLOOR_PIN runs. A shallow checkout (the default
+fetch-depth of 1) does not contain #131's merge commit, and FLOOR_PIN's source sub-row would then FAIL in every run
+(the safe direction; regress-r and faults-r12 would show it before any r = 9 run).
+
+faults-r12 time and memory, frozen as an estimate (from r-independent census counts only: HBP rows 014, 015 and 139
+and engine/out/census_listed6_probe7.txt; fixpass4/ints_pass4.py). xext at depth 4 enumerates 48,029 x 72 =
+3,458,088 moves from shells 0-4, 393,917 x 72 = 28,362,024 moves from the exterior shell 5 and 11,073 x 72 = 797,256
+odd moves: 32,617,368 in all, 15.0% of the 217,380,528 at depth 5. At the engine's census rate (242 s for the depth-5
+enumeration on 3 threads) with the tenfold allowance of HBP row 139, that is about 6 min (364 s). Its memory: 7 + 7
+accumulators of 192 bits for 393,917 exterior classes (0.13 GB), at most 2,985,395 outside-multiset entries of 12
+bytes (the distinct edges out of shell 4, HBP row 015; 36 MB), the inner X and Y rows of 48,022 classes (7 MB) and the
+key tables (14 MB): under 0.2 GB. The engine's census build through shell 5 peaked at 0.12 GB (vmhwm 117,644 kB).
+With the engine, driver, C++ replay and BURNSIDE_TOTAL steps, a faults-r12 job is estimated at about 15 min and under
+1 GB. The earlier estimate (~5 min, 0.3 GB) predates xext.
+
+-------------------------------------------------------------------------------------------------------------------
+7. RECEIPTS
+-------------------------------------------------------------------------------------------------------------------
+R1 FREEZE-PIN.txt: the freeze commit sha, the git blob shas of the HBP and the NOTE, and the HBP sha256.
+R2 MEASURED-S3-3X4-R9-WILSON-FESHBACH-AMPLITUDE-<date>.hbp: one row per check and quantity, each carrying the
+   condition, the frozen row it answers, and MATCH, FALSIFIED, PASS, HOLD or REFUSE.
+R3 RECEIPT-...md: the workflow run ids; the sha256 of main.rs, Cargo.lock, the binary, cert9.py, fesh.py, zq.py, the
+   C++ checker source, its binary, the xext source and binary, negctl_gpt6.py and its output, the g++ version
+   string, every hat file, INNER-X.bin, INNER-Y.bin, ODD-X.bin and every output; the floor source pins as read;
+   xext's outside-multiset sha256 and totals; the E3LO cross-check lines; the second-floor evaluation if any; the
+   fault verdict table (PF01-PF20 at r = 12 and r = 9, PF17 at r = 9 only) with the r = 12 control's verdict in both
+   routes; the X1-X9 results, with every X7 run and the route switch it set; the depth ladder, labelled LADDER; the
+   primary and secondary a_lo, a_hi and nu0 as exact A/B, each with its label (BOUND, LADDER or INFORMATIVE); and
+   the CONJECTURE comparison for rows 076-092 and 132-133.
+R4 The local Opus 5.5 seat's refutation record and the owner's ruling. Until both exist, #137 stays OPEN, and the
+   amplitude result stays conditional on accepted_source_assumption=lambda_min_QHQ_whole_GE_94070673/1000000.
+
+-------------------------------------------------------------------------------------------------------------------
+8. STOP RULES AND THE PER-DEPTH VERDICT RULE (HBP row 131)
+-------------------------------------------------------------------------------------------------------------------
+The r = 9 run builds depths 2-5 at once. Its verdict depth is 5, its deepest depth. Depths 2, 3 and 4 are ladder
+entries. (A fault run's verdict depth is its own deepest depth: 4 for the r = 12 CI runs, 5 at r = 9.) The checks
+fall into two kinds.
+- Run-integrity checks: FREEZE_PIN, CHI_TABLE, O_GAMMA_INVARIANT, O_DIAGONAL, H1_DETAILED_BALANCE,
+  H1_TWO_SIDED_EXTERIOR, MOVES72, C0_EXTERIOR_COMPLETE, CENSUS, BURNSIDE_TOTAL, XCHECK_LIFT, FLOOR_PIN, COND_TAG,
+  LO_LE_UP, SQ_BOUNDS, A_FROM_THEOREM, REPLAY_CPP, SCOPE_GUARD, EXT_REGEN and SIGN_POLAR (20). They are evaluated
+  at every depth and in every route where they apply (EXT_REGEN and SIGN_POLAR at the verdict depth). Any FAIL
+  refuses the whole run (REFUSE) and stops it. The FAIL takes effect at the end of the program step in which it
+  occurs, after every check of that step has printed its CHECK row (no abort before the rows are printed), and a
+  fault run always reaches the step that runs its named check (HBP header line 10, row 131). The one exception is
+  FREEZE_PIN (E1, D1; HBP rows 030 and 113): it is a program step of its own, the first step of the engine and of the
+  driver, and its FAIL, once its own CHECK row is printed, stops the program at once, before any other step or any
+  arithmetic, in every run, fault runs included; neither clause ever delays it, and PF17 is refused by that FAIL. The
+  only sub-row of any of them that may be NOT_EVALUATED is A_a_lo_le_raw under SQ_BOUNDS, where the F_GAP gate
+  withheld its input; it is reported and is not a FAIL, and SQ_BOUNDS passes iff every evaluated sub-row passes and
+  at least one is evaluated. A_FROM_THEOREM judges only rows labelled BOUND (section 2, D5), so a ladder-depth or
+  INFORMATIVE row never fails it. Schedule by name (HBP row
+  131): the r = 9 run and every r = 9 fault run execute all 20; every other run executes all except XCHECK_LIFT, so
+  BURNSIDE_TOTAL runs in every run, on that run's own declared orbit field. Assembly: route verdicts, the reported
+  verdict, the owner items and the BOUND label are assigned in the last job of the run, after REPLAY_CPP, EXT_REGEN,
+  SIGN_POLAR and BURNSIDE_TOTAL, and (at r = 9) also XCHECK_LIFT.
+- Route certificate checks: I0, I1_UP, I1_LO, I2_UP, I2_LO, I3_ODD, TAU2_ABOVE_UPSILON2, WINDOWS, G_WINDOW,
+  H_WINDOW, Y_PD, NUBAR_PD, N1P, N2P, N2M, F_GAP, ADJ_CONSISTENCY and A_POS. They are evaluated at every depth, per
+  route.
+  * At a ladder depth, each outcome is reported as PASS, FAIL or NOT_EVALUATED. It never stops the run, never sets
+    a verdict, and never reports a bound. The smoke already shows F_GAP failing at depth 2 (F2's Lemma-7 sine is
+    3.49 at r = 10.5 and 1.10 at r = 12), so a literal "any REFUSE stops the run" would end the r = 9 run at depth 2
+    and never reach depth 5. This rule exists to prevent that.
+  * At the verdict depth, each route gets one verdict. It is REFUSE if a check with on_fail = REFUSE fails, or if
+  any
+    route certificate check is missing or NOT_EVALUATED. Otherwise it is HOLD if a check with on_fail = HOLD fails.
+    Otherwise it is PASS.
+- The reported verdict is the verdict-depth verdict of the reported route R (HBP row 094: primary, unless X7 set the
+  secondary; R is fixed before any r = 9 run and never changed by an r = 9 outcome). Nothing is retuned. The frozen
+  table (HBP row 131, verdict_table), for every pair of (primary, secondary) verdicts at depth 5:
+
+    verdict of R    reported verdict   BOUND row               owner item 2   owner item 3 (HBP row 068)
+    PASS            PASS               a_lo^2 of R, min form   PASS           PASS if R is the primary; HOLD if R is
+                                                                              the secondary
+    HOLD            HOLD               none                    HOLD           PASS if R is the primary (a HOLD means
+                                                                              no listed check failed); HOLD if R is
+                                                                              the secondary
+    REFUSE          REFUSE             none                    REFUSE         REFUSE if one of its listed checks
+                                                                              fails, else as in the HOLD line
+
+  The other route's verdict (PASS, HOLD or REFUSE) never changes a column: its a_lo, a_hi and nu0 are printed
+  INFORMATIVE with its route verdict, for the CONJECTURE table and the owner, and are never a bound. So, with the
+  primary reported, primary HOLD and secondary PASS gives HOLD with no BOUND row, and primary REFUSE and secondary
+  PASS gives REFUSE with no BOUND row; in both cases the secondary a_lo is printed INFORMATIVE. Owner item 1 (HBP
+  row 066) uses checks that depend on X and G only, so both routes give it the same outcome.
+- HOLD at depth 5 in both routes: report HOLD. The depth-6 fallback runs only once E8 exists and has passed X6
+  (HBP row 094). It is a new run, and its verdict depth is 6. Its E3 - E2 cross-check (D7 E3LO, HBP row 140) is
+  evaluated at depth 6, when Theorem I passes there.
+- An exact selection rule that makes the amplitude 0 is reported as a dark result and HOLD (PR #148 row 19). It is
+  never forced positive.
+- A CONJECTURE row that fails is reported FALSIFIED. Theorems and verdicts are unchanged. A CONJECTURE row whose
+  measured quantity is NOT_EVALUATED or missing is FALSIFIED, except where the row itself predicts NOT_EVALUATED
+  (row 088's depth-2 clause and row 133).
