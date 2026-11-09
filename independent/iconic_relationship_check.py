@@ -305,6 +305,18 @@ fb = open(FROZEN, "rb").read()
 check("frozen_prediction_sha256_pinned", hashlib.sha256(fb).hexdigest() == FROZEN_SHA,
       ("file", "independent/iconic-frozen-eb18a5a/PREDICTION.hbp"), ("source", "JesseBrown1980/Iconic-3-space@eb18a5a:predictions/su2-ladder/PREDICTION.hbp"),
       ("sha256", hashlib.sha256(fb).hexdigest()))
+if hashlib.sha256(fb).hexdigest() != FROZEN_SHA:
+    # stop before parsing bytes that do not match the pin; the receipt records the stop
+    row("FROZEN_PARSE", ("status", "SKIPPED"), ("reason", "pinned_sha256_mismatch"))
+    ROWS.insert(0, "ICONIC_RELATIONSHIP|status=STOPPED_AT_FROZEN_HASH|json=0")
+    ROWS.append("END|checks_failed=%d|status=FAIL:%s|json=0" % (len(FAILED), ",".join(FAILED)))
+    stop_data = ("\n".join(ROWS) + "\n").encode("utf-8")
+    with open(OUT, "wb") as fh:
+        fh.write(stop_data)
+    with open(OUT + ".sha256", "wb") as fh:
+        fh.write(("%s  %s\n" % (hashlib.sha256(stop_data).hexdigest(), os.path.basename(OUT))).encode("utf-8"))
+    sys.stdout.write(ROWS[-1] + "\n")
+    sys.exit(1)
 frows = fb.decode("utf-8").split("\n")
 
 
@@ -429,6 +441,37 @@ for r_ in basis_rows:
     spread.append(len({flux_of_orbit[k] for k in range(8) if rotated[k] != Z0}))
 check("torus_rotation_mixes_the_charge_flux_labels", all(len({flux_of_orbit[k] for k in range(8) if r_[k] != Z0}) == 1 for r_ in basis_rows) and max(spread) >= 2,
       ("flux_classes_in_each_rotated_vector", ",".join(str(s) for s in spread)))
+
+# the charge-flux vectors are orthogonal (Gram matrix 6 I_8), and the rotation in that basis is 6 S, the modular matrix
+vecs = []
+for k_ in range(8):
+    vecs.append({pr: basis_rows[k_][orbit_of[pr]] for pr in pairs})
+
+
+def rot_inv(pr):
+    a, b = pr
+    return (inverse(b), a)
+
+
+def inner(u, w):
+    s = Z0
+    for pr in pairs:
+        s = za(s, zm(zconj(u[pr]), w[pr]))
+    return s
+
+
+gram = [[inner(vecs[x_], vecs[y_]) for y_ in range(8)] for x_ in range(8)]
+check("charge_flux_vectors_orthogonal_gram_6I", all(gram[x_][y_] == ((6, 0) if x_ == y_ else Z0) for x_ in range(8) for y_ in range(8)))
+S6 = [[inner(vecs[x_], {pr: vecs[y_][rot_inv(pr)] for pr in pairs}) for y_ in range(8)] for x_ in range(8)]
+s_real = all(S6[x_][y_][1] == 0 for x_ in range(8) for y_ in range(8))
+s_symm = all(S6[x_][y_] == S6[y_][x_] for x_ in range(8) for y_ in range(8))
+s_unit = s_real and all(sum(S6[x_][k_][0] * S6[y_][k_][0] for k_ in range(8)) == (36 if x_ == y_ else 0) for x_ in range(8) for y_ in range(8))
+s_first = [S6[0][y_][0] for y_ in range(8)]
+row("MODULAR_S", ("basis_order", ";".join("%s:%s" % (lab[0], lab[1]) for lab in labels)),
+    ("six_S_rows", " ; ".join(",".join("%d%+dw" % S6[x_][y_] for y_ in range(8)) for x_ in range(8))))
+check("six_S_real_symmetric_unitary", s_real and s_symm and s_unit, ("real", int(s_real)), ("symmetric", int(s_symm)),
+      ("six_S_times_its_transpose_is_36I", int(s_unit)))
+check("six_S_first_row_is_the_quantum_dimensions", s_first == [1, 1, 2, 2, 2, 2, 3, 3], ("first_row", ",".join(str(v) for v in s_first)))
 
 # 5. Controls that must fail
 bad_pairs, bad_orbits = commuting_pair_orbits(S3, lambda h, pr: (compose(h, pr[0]), compose(h, pr[1])))

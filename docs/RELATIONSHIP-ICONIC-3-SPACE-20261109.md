@@ -1,6 +1,6 @@
 # This repository and Iconic 3-space: the relationship, November 9, 2026
 
-[Iconic 3-space](https://github.com/JesseBrown1980/Iconic-3-space) tests the owner's statement "I'm trying to prove the illusion of continuous arises from the finite world" with exact finite mathematics. It asks how far a finite set of symmetries stands in for a continuous one before an observer can tell them apart. This note records how its results meet this repository's finite S₃ theory. Every number below is reproduced by [`independent/iconic_relationship_check.py`](../independent/iconic_relationship_check.py), receipt [`ICONIC-RELATIONSHIP-20261109.hbp`](../independent/ICONIC-RELATIONSHIP-20261109.hbp) (sha256 `05bbdeb6…`, 35 checks, 2 controls that must fail, 0 failures).
+[Iconic 3-space](https://github.com/JesseBrown1980/Iconic-3-space) tests the owner's statement "I'm trying to prove the illusion of continuous arises from the finite world" with exact finite mathematics. It asks how far a finite set of symmetries stands in for a continuous one before an observer can tell them apart. This note records how its results meet this repository's finite S₃ theory. The numbers in sections 1 and 2, and the Dic₃ numbers in section 3, are reproduced by [`independent/iconic_relationship_check.py`](../independent/iconic_relationship_check.py), receipt [`ICONIC-RELATIONSHIP-20261109.hbp`](../independent/ICONIC-RELATIONSHIP-20261109.hbp) (sha256 `5c51b189…`, 38 checks, 2 controls that must fail, 0 failures). The design degrees of the other finite subgroups of SU(2) in section 3 are the DESIGN rows of the pinned frozen prediction. The lattice list in section 1 is `flatcomp`'s, as recorded in [`docs/YM_TOPOLOGICAL_STABILITY_PROOF.md`](YM_TOPOLOGICAL_STABILITY_PROOF.md).
 
 ## 1. The eight flat states and the eight irreducible representations of D(S₃): two bases of one ground space
 
@@ -16,6 +16,8 @@ The quantum double D(S₃) has one irreducible representation per pair of a conj
 - the 8 × 8 matrix expressing them in the holonomy basis has determinant 36 + 72ω = 36·i√3, nonzero, so the change of basis is invertible;
 - the torus rotation (a, b) ↦ (b, a⁻¹) permutes the eight flat orbits as (0, 3, 5, 1, 4, 2, 7, 6). Each charge–flux vector is supported on a single flux class, while every rotated one spreads over 2 or 3 classes, so the rotation mixes the charge–flux labels.
 
+In the charge–flux basis the eight vectors are mutually orthogonal, with Gram matrix 6·I₈. The rotation acts there as the modular matrix S of D(S₃): the checker measures 6·S as real, symmetric and unitary ((6S)(6S)ᵀ = 36·I₈), with first row 1, 1, 2, 2, 2, 2, 3, 3, the quantum dimensions of D(S₃).
+
 The identification is this explicit Fourier-type change of basis between the two labellings. The two counts being equal is a consequence of it.
 
 This identity is the foundation of the owner's proof plan in [`docs/YM_TOPOLOGICAL_STABILITY_PROOF.md`](YM_TOPOLOGICAL_STABILITY_PROOF.md), which identifies the eight flat states with the ground space of Kitaev's quantum double. `flatcomp` confirms it on the 2×2, 2×3, 2×4, 2×5 and 3×3 lattices. The second seat of Iconic 3-space reached the same count independently in its G₂/S⁶ refutation ([`proofs/g2-s6/`](https://github.com/JesseBrown1980/Iconic-3-space/tree/main/proofs/g2-s6)).
@@ -28,11 +30,11 @@ On the Cartan plane of the G₂ root system, the Weyl group W(G₂) has 12 eleme
 
 Through χ_std, S₃ acts as the symmetry group D₃ of a triangle. Its double cover in SU(2) is the binary dihedral group Dic₃ of order 12, measured here: Dic₃ lies in SU(2), its centre is {±1}, and the quotient is S₃.
 
-In the language of Iconic 3-space, Dic₃ looks exactly like continuous SU(2) up to degree 3 and first shows its finiteness at degree 4. There its fourth moment is 3, against SU(2)'s 2. The measured moments are 1, 0, 1, 0, 3, 0, 11, 0, 43, 0, 171, 0, 683. For k ≥ 1 the even moments are (4ᵏ + 2)/6, the closed form GPT-6's review derived independently.
+In the language of Iconic 3-space, Dic₃ matches continuous SU(2) on every spin j ≤ 3/2: its trace moments agree through degree 3. It first shows its finiteness at degree 4. There its fourth moment is 3, against SU(2)'s 2. The measured moments are 1, 0, 1, 0, 3, 0, 11, 0, 43, 0, 171, 0, 683. For k ≥ 1 the even moments are (4ᵏ + 2)/6, the closed form GPT-6's review derived independently.
 
 **The comparison with the frozen prediction is script-verified.** A pinned copy of Iconic's frozen file sits at [`independent/iconic-frozen-eb18a5a/PREDICTION.hbp`](../independent/iconic-frozen-eb18a5a/PREDICTION.hbp), taken from commit `eb18a5a`. The checker verifies its sha256 `c2601cf0…`, parses its Dic₃ MOMENT and DESIGN rows, and compares them value by value: 13 of 13 moments agree, with t = 3 and first break at degree 4.
 
-Among exact finite subgroups of SU(2) in its defining representation, the binary dihedral family stays at design degree 3 at every size. The highest achievable degree is 11, reached only by 2I. Finite point sets that are not subgroups, such as spherical designs and other discretizations, can reach any degree, so this ceiling concerns exact subgroups and the degrees they can achieve.
+Among exact finite subgroups of SU(2) in its defining representation, the binary dihedral groups Dic_m of order 4m, m ≥ 2, stay at design degree 3 for every m. The cyclic groups of order 2 or more sit at 1, 2T at 5 and 2O at 7. The highest degree, 11, is reached only by 2I. Finite point sets on SU(2) ≅ S³ outside the subgroups reach every degree: spherical t-designs exist for every t (P. D. Seymour and T. Zaslavsky, *Averaging sets: a generalization of mean values and spherical designs*, Adv. Math. 52 (1984) 213–240). The ceiling of 11 belongs to exact subgroups.
 
 ## 4. The transfers, and their status
 

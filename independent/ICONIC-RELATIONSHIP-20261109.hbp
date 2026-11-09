@@ -1,4 +1,4 @@
-ICONIC_RELATIONSHIP|date=2026-11-09|by=the local Opus 5.5 seat, pid 8467a937cba309f7|script_sha256=b79f7962a20ef8437ef6a62972a2d3e70cea2d6fe3dcdaacffe9c60ad8892ac6|evidence_class=structural_identities_measured|scope=finite_groups_and_their_counts;a_statement_about_a_continuous_gauge_group_needs_a_proven_transfer(status_OPEN)|json=0
+ICONIC_RELATIONSHIP|date=2026-11-09|by=the local Opus 5.5 seat, pid 8467a937cba309f7|script_sha256=30247ef400ec1304d0bf53c95fcdaf69fa26c742871097db2607059200b64534|evidence_class=structural_identities_measured|scope=finite_groups_and_their_counts;a_statement_about_a_continuous_gauge_group_needs_a_proven_transfer(status_OPEN)|json=0
 CHECK|name=S3_commuting_pairs_equal_order_times_classes|status=PASS|commuting_pairs=18|order=6|classes=3|json=0
 CHECK|name=S3_flat_sectors_are_8|status=PASS|orbits=8|json=0
 FLAT_SECTORS|group=S3|sectors=(c,c):w2;(c,c^-1):w2;(c,e):w2;(e,c):w2;(e,e):w1;(e,t):w3;(t,e):w3;(t,t):w3|weight_sum=18|json=0
@@ -37,6 +37,10 @@ BASIS_CHANGE|from=holonomy_orbit_basis(the_8_flat_states)|to=charge_flux_basis(t
 CHECK|name=basis_change_is_invertible|status=PASS|determinant_in_Z[w]=36+72w|json=0
 CHECK|name=torus_rotation_permutes_the_flat_orbits|status=PASS|permutation=0,3,5,1,4,2,7,6|json=0
 CHECK|name=torus_rotation_mixes_the_charge_flux_labels|status=PASS|flux_classes_in_each_rotated_vector=3,3,2,2,2,2,2,2|json=0
+CHECK|name=charge_flux_vectors_orthogonal_gram_6I|status=PASS|json=0
+MODULAR_S|basis_order=e:triv;e:sign;e:std;c:w0;c:w1;c:w2;t:chi0;t:chi1|six_S_rows=1+0w,1+0w,2+0w,2+0w,2+0w,2+0w,3+0w,3+0w ; 1+0w,1+0w,2+0w,2+0w,2+0w,2+0w,-3+0w,-3+0w ; 2+0w,2+0w,4+0w,-2+0w,-2+0w,-2+0w,0+0w,0+0w ; 2+0w,2+0w,-2+0w,4+0w,-2+0w,-2+0w,0+0w,0+0w ; 2+0w,2+0w,-2+0w,-2+0w,-2+0w,4+0w,0+0w,0+0w ; 2+0w,2+0w,-2+0w,-2+0w,4+0w,-2+0w,0+0w,0+0w ; 3+0w,-3+0w,0+0w,0+0w,0+0w,0+0w,3+0w,-3+0w ; 3+0w,-3+0w,0+0w,0+0w,0+0w,0+0w,-3+0w,3+0w|json=0
+CHECK|name=six_S_real_symmetric_unitary|status=PASS|real=1|symmetric=1|six_S_times_its_transpose_is_36I=1|json=0
+CHECK|name=six_S_first_row_is_the_quantum_dimensions|status=PASS|first_row=1,1,2,2,2,2,3,3|json=0
 CONTROL|name=wrong_conjugation_breaks_the_sector_count|expected=FAIL|observed=FAIL|status=PASS|json=0
 CONTROL|name=wrong_dihedral_generator_leaves_SU2_or_changes_the_order|expected=FAIL|observed=FAIL|status=PASS|json=0
 END|checks_failed=0|status=ALL_PASS|json=0
