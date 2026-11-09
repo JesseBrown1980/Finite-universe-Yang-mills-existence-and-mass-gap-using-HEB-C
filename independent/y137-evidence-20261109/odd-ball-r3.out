@@ -1,0 +1,14 @@
+BALL_LAYER|d=1|states=48|json=0
+BALL_LAYER|d=2|states=1680|json=0
+BALL_LAYER|d=3|states=33588|json=0
+BUILD|i=0|of=35316|ext=0|json=0
+BUILD|i=20000|of=35316|ext=345495|json=0
+BALL|radius=3|Q_states=35316|exterior=478641|json=0
+ODD_BALL|radius=3|steps=16|z=69956/1000|U_sign=1|LOWER_sign=1|odd_levels_below_z=0|json=0
+ODD_BALL|radius=3|steps=16|z=69958/1000|U_sign=1|LOWER_sign=1|odd_levels_below_z=0|json=0
+ODD_BALL|radius=3|steps=16|z=69960/1000|U_sign=1|LOWER_sign=1|odd_levels_below_z=0|json=0
+ODD_BALL|radius=3|steps=16|z=69962/1000|U_sign=1|LOWER_sign=1|odd_levels_below_z=0|json=0
+ODD_BALL|radius=3|steps=16|z=69964/1000|U_sign=1|LOWER_sign=1|odd_levels_below_z=0|json=0
+ODD_BALL|radius=3|steps=16|z=69966/1000|U_sign=1|LOWER_sign=1|odd_levels_below_z=0|json=0
+ODD_BALL|radius=3|steps=16|z=69968/1000|U_sign=1|LOWER_sign=1|odd_levels_below_z=0|json=0
+ODD_BALL|radius=3|steps=16|z=69970/1000|U_sign=1|LOWER_sign=-1|odd_levels_below_z=UNRESOLVED|json=0

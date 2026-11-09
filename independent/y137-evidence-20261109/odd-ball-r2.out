@@ -1,0 +1,9 @@
+BALL_LAYER|d=1|states=48|json=0
+BALL_LAYER|d=2|states=1680|json=0
+BUILD|i=0|of=1728|ext=0|json=0
+BALL|radius=2|Q_states=1728|exterior=33588|json=0
+ODD_BALL|radius=2|steps=8|z=69950/1000|U_sign=1|LOWER_sign=1|odd_levels_below_z=0|json=0
+ODD_BALL|radius=2|steps=8|z=69954/1000|U_sign=1|LOWER_sign=1|odd_levels_below_z=0|json=0
+ODD_BALL|radius=2|steps=8|z=69956/1000|U_sign=1|LOWER_sign=-1|odd_levels_below_z=UNRESOLVED|json=0
+ODD_BALL|radius=2|steps=8|z=69976/1000|U_sign=1|LOWER_sign=-1|odd_levels_below_z=UNRESOLVED|json=0
+ODD_BALL|radius=2|steps=8|z=69978/1000|U_sign=-1|LOWER_sign=-1|odd_levels_below_z=>=1|json=0

@@ -1,0 +1,14 @@
+K3L_BEGIN|steps=12|SCALE=10^12|z_den=10^7|q_states=155378|shell4_targets=1985218|k3_cache_sha256=51ad16a90495821fa63a303ac5e0332fd212de59ab6c227a85e48df6800aa8f5|perron_floor_num=94070673|source=PINNED_CONDITIONAL_WHOLE_ORBIT_LIFT|tag=SANDWICH_AT_K3|json=0
+K3L_EVAL|z=699567503/10000000|z_dec=69.9567503|even_lower_count=2|even_upper_count=2|odd_lower_count=0|odd_upper_count=0|sec=57|json=0
+K3L_TEST|z=699567503/10000000|odd_level_below_z_possible=0|even_levels_below_z_at_most=2|even_levels_below_z_at_least=2|tag=CONDITIONAL_ON_PERRON_FLOOR_FOR_LOWER|json=0
+K3L_EVAL|z=699900000/10000000|z_dec=69.9900000|even_lower_count=6|even_upper_count=5|odd_lower_count=1|odd_upper_count=1|sec=105|json=0
+K3L_EVAL|z=699733751/10000000|z_dec=69.9733751|even_lower_count=5|even_upper_count=5|odd_lower_count=1|odd_upper_count=1|sec=155|json=0
+K3L_EVAL|z=699650627/10000000|z_dec=69.9650627|even_lower_count=2|even_upper_count=2|odd_lower_count=0|odd_upper_count=0|sec=201|json=0
+K3L_EVAL|z=699692189/10000000|z_dec=69.9692189|even_lower_count=5|even_upper_count=2|odd_lower_count=1|odd_upper_count=0|sec=254|json=0
+K3L_EVAL|z=699671408/10000000|z_dec=69.9671408|even_lower_count=2|even_upper_count=2|odd_lower_count=0|odd_upper_count=0|sec=304|json=0
+K3L_EVAL|z=699681798/10000000|z_dec=69.9681798|even_lower_count=2|even_upper_count=2|odd_lower_count=0|odd_upper_count=0|sec=355|json=0
+K3L_EVAL|z=699686993/10000000|z_dec=69.9686993|even_lower_count=2|even_upper_count=2|odd_lower_count=0|odd_upper_count=0|sec=410|json=0
+K3L_EVAL|z=699689591/10000000|z_dec=69.9689591|even_lower_count=3|even_upper_count=2|odd_lower_count=0|odd_upper_count=0|sec=465|json=0
+K3L_BOUND|level=E1_odd|lower_bound=699689591/10000000|lower_bound_dec=69.9689591|bracket_hi=699692189/10000000|meaning=certified_lower_bound_CONDITIONAL_on_Perron_floor|json=0
+K3L_BOUND|level=E3_even|lower_bound=699686993/10000000|lower_bound_dec=69.9686993|bracket_hi=699689591/10000000|meaning=certified_lower_bound_CONDITIONAL_on_Perron_floor|json=0
+K3L_END|evaluations=9|seconds=465|json=0
