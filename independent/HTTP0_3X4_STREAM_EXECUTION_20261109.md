@@ -33,15 +33,10 @@ The row-reconstruction stage consumes the ordered key table, positive vector and
 
 The Pascal-pyramid identity governs the ternary checkpoint addressing and integrity chain; any operator-level jump in the Hamiltonian remains subject to direct equivalence testing against the underlying 72 electric moves per row.
 
-## Independent electric-transition reconstitution
+## Measured first and final complete leaves
 
-The C++17 implementation `independent/gpt6_http0_symmetry_rows.cpp` independently constructs lattice translation/reflection orbit representatives and all electric moves from the original S₃ permutation group, then checks gauge canonicalization, magnetic plaquette cost, weighted-adjoint pairs and exact Perron ratios. Its first local acceptance checks are: **2×2: 211 sector rows, 2,396 electric coefficients; 2×3: 2,646 sector rows, 72,310 electric coefficients**, with zero weighted-pair mismatches in each.
+[Hosted run 42618356849](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/42618356849) independently reconstructed 59,049 rows in the first leaf and 40,350 in the final leaf, for **99,399 rows and 7,156,728 electric moves**, passing exact orbit keys, weights, magnetic costs, all 72 electric transitions per row, positive-vector ratios, and sampled weighted reverse-pairs. The first leaf's minimum is `94,070,896` micro-`J_E`; the final leaf finds the registered global minimum `94,070,673` at row `45,507,968`. Source and measured fields are pinned in [the leaf receipt](GPT6_HTTP0_TWO_FULL_LEAVES_MEASURED_20261109.hbp).
 
-The hosted 3×4 pilot reads the two frozen original inputs and checks rows at start 0, 1,000,000, 45,507,968 (the registered minimum-ratio row), and the end of the store. Each result includes a certified local lower bound `94,070,673` in micro-`J_E` units, backed by exact 128-bit integer arithmetic, 72 electric transitions, and sample reverse-pair checks. Deliberate corruption of one orbit weight and one vector entry must each fail. The complete stored row census is the next partitioned stage.
+## Whole 771-leaf execution
 
-```bash
-g++ -std=c++17 -O3 -Wall -Wextra -Werror independent/gpt6_http0_symmetry_rows.cpp -o /tmp/gpt6_ym_rows
-/tmp/gpt6_ym_rows --small 2 2
-/tmp/gpt6_ym_rows --small 2 3
-/tmp/gpt6_ym_rows --pilot /path/to/passA.bin /path/to/x3-c.bin 45507968 1
-```
+The [27-shard hosted workflow](../.github/workflows/gpt6-http0-3x4-full-replay.yml) partitions 771 ternary leaves into 27 contiguous sections of up to 29 leaves. Every shard reads and authenticates both original input files, constructs each complete electric row directly from the S₃ permutation rules, validates every magnetic cost and group-orbit weight, and checks its exact Perron ratio. The independent [HBI/HBP aggregator](gpt6_http0_aggregate_leaves.py) checks all 771 ordered partitions, total `45,508,080` rows, `3,276,581,760` electric moves, full orbit-weight census, the eight-vacuum first-excitation separation's Perron minimum, source pins, and produces one chained SHA-256 root.

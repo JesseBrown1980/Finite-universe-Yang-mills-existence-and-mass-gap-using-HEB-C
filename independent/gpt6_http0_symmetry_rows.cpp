@@ -198,9 +198,9 @@ static uint32_t u32(const uint8_t *p){return uint32_t(p[0])|(uint32_t(p[1])<<8)|
 static uint64_t u64(const uint8_t *p){uint64_t n=0;for(int b=7;b>=0;--b)n=n*256+p[b];return n;}
 static int64_t i64(const uint8_t *p){return static_cast<int64_t>(u64(p));}
 
-static int pilot(const string& keyfile,const string& vecfile,size_t first,size_t count,const string& sabotage,bool leaf){
+static int pilot(const string& keyfile,const string& vecfile,size_t first,size_t count,const string& sabotage,bool leaf,bool shard=false){
     constexpr size_t N=45508080;
-    require(first<N && count>0 && count<=(leaf?59049U:128U) && first+count<=N,"sample bounds");
+    require(first<N && count>0 && count<=(shard?29U*59049U:(leaf?59049U:128U)) && first+count<=N,"sample bounds");
     vector<uint8_t> kb(N*16),db(N*8);
     ifstream f(keyfile,ios::binary),g(vecfile,ios::binary);
     require(f.good() && g.good(),"original inputs");
@@ -217,6 +217,8 @@ static int pilot(const string& keyfile,const string& vecfile,size_t first,size_t
     int64_t minRatio=numeric_limits<int64_t>::max();
     size_t minRow=first;
     uint64_t weightSum=0,flats=0,electricMoves=0;
+    size_t leafStart=first;
+    uint64_t totalCount=0,completedLeaves=0;
     for(size_t h=first;h<first+count;++h){
         Links u{};m.unpack(getkey(h),u);
         require(m.canon(u)==getkey(h),"sector key");
@@ -253,8 +255,26 @@ static int pilot(const string& keyfile,const string& vecfile,size_t first,size_t
             if(h==45507968ULL)require(ratio==94070673,"tight Perron row");
         }
         ++checked;
+        ++totalCount;
+        if(shard && (((h+1)%59049U)==0 || (h+1)==first+count)){
+            cout<<"HTTP0_YM_REBUILT_LEAF|first="<<leafStart<<"|rows="<<checked
+                <<"|electric_moves="<<electricMoves<<"|orbit_weight_sum="<<weightSum
+                <<"|flats="<<flats<<"|min_row="<<minRow<<"|min_ratio_microJE="<<minRatio
+                <<"|reverse_pairs="<<adjChecked<<"|bound_microJE=94070673|status=PASS|json=0\n";
+            cout.flush();
+            leafStart=h+1;
+            checked=0;
+            ++completedLeaves;
+            adjChecked=weightSum=flats=electricMoves=0;
+            minRow=leafStart;
+            minRatio=numeric_limits<int64_t>::max();
+        }
     }
-    if(leaf){
+    if(shard){
+        cout<<"HTTP0_YM_SHARD|id="<<(first/(29U*59049U))<<"|first="<<first
+            <<"|rows="<<totalCount<<"|leaves="<<completedLeaves
+            <<"|status=PASS|json=0\n";
+    }else if(leaf){
         cout<<"HTTP0_YM_REBUILT_LEAF|first="<<first<<"|rows="<<checked
             <<"|electric_moves="<<electricMoves<<"|orbit_weight_sum="<<weightSum
             <<"|flats="<<flats<<"|min_row="<<minRow<<"|min_ratio_microJE="<<minRatio
@@ -268,11 +288,19 @@ static int pilot(const string& keyfile,const string& vecfile,size_t first,size_t
 }
 int main(int argc,char** argv){try{
     if(argc==4 && string(argv[1])=="--small")return small(stoi(argv[2]),stoi(argv[3]));
+    if(argc==5 && string(argv[1])=="--shard"){
+        constexpr size_t n=45508080;
+        size_t id=stoull(argv[4]);
+        require(id<27,"shard id");
+        size_t first=id*29U*59049U;
+        size_t count=min(size_t(29U*59049U),n-first);
+        return pilot(argv[2],argv[3],first,count,"",true,true);
+    }
     if((argc==6||argc==7) && (string(argv[1])=="--pilot" || string(argv[1])=="--leaf")){
         bool leaf=string(argv[1])=="--leaf";
         string sabotage=argc==7?string(argv[6]):string();
         require(sabotage.empty()||sabotage=="tamper-weight"||sabotage=="tamper-vector","sabotage argument");
         return pilot(argv[2],argv[3],stoull(argv[4]),stoull(argv[5]),sabotage,leaf);
     }
-    cerr<<"usage: --small LX LY | --pilot PASSA VECTOR FIRST COUNT | --leaf PASSA VECTOR FIRST COUNT\n";return 2;
+    cerr<<"usage: --small LX LY | --pilot PASSA VECTOR FIRST COUNT | --leaf PASSA VECTOR FIRST COUNT | --shard PASSA VECTOR ID\n";return 2;
 }catch(const exception& e){cerr<<"HTTP0_YM_ROW_FAIL|reason="<<e.what()<<"|json=0\n";return 2;}}

@@ -1,0 +1,92 @@
+name: GPT6 HTTP-0 3x4 full independent 771-leaf row reconstruction
+
+on:
+  push:
+    branches: [gpt6-independent-http0-store-replay-20261109]
+    paths:
+      - '.github/workflows/gpt6-http0-3x4-full-replay.yml'
+      - 'independent/gpt6_http0_aggregate_leaves.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-shard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      max-parallel: 9
+      matrix:
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Compile source-pinned S3 orbit/operator builder
+        run: |
+          set -euo pipefail
+          g++ -std=c++17 -O3 -Wall -Wextra -Werror independent/gpt6_http0_symmetry_rows.cpp -o /tmp/gpt6_ym_rows
+          /tmp/gpt6_ym_rows --small 2 2
+          /tmp/gpt6_ym_rows --small 2 3
+      - name: Download and authenticate full original table and vector
+        run: |
+          set -euo pipefail
+          mkdir -p original
+          curl --fail --location --retry 4 --retry-delay 5 --connect-timeout 30 --max-time 2100 --silent --show-error \
+            'https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve/main/perron/passA.bin?download=true' \
+            --output original/passA.bin
+          curl --fail --location --retry 4 --retry-delay 5 --connect-timeout 30 --max-time 2100 --silent --show-error \
+            'https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve/main/perron/top/x3-c.bin?download=true' \
+            --output original/x3-c.bin
+          printf '%s\n' \
+            'eefd7752031cf6e1cbfd53dd47128805d1a98bb41de0a9e269222d0e2c6e3cbc  original/passA.bin' \
+            'f5c5428db1fc5d91d2ab891689f0dac7263dc26c8f9b60a2db82728f6ea0dcd1  original/x3-c.bin' \
+            | sha256sum --check --strict
+      - name: Independently reconstruct all 72 electric transitions for each shard row
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: |
+          set -euo pipefail
+          /tmp/gpt6_ym_rows --shard original/passA.bin original/x3-c.bin "$SHARD" | tee leaves.hbp
+          test "$(grep -c '^HTTP0_YM_SHARD|.*|status=PASS|json=0$' leaves.hbp)" -eq 1
+          sha256sum independent/gpt6_http0_symmetry_rows.cpp leaves.hbp > SHA256SUMS
+      - name: Archive complete shard HBP and hashes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpt6-ym3x4-shard-${{ matrix.shard }}
+          path: |
+            leaves.hbp
+            SHA256SUMS
+          if-no-files-found: warn
+
+  aggregate:
+    needs: full-shard
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gpt6-ym3x4-shard-*
+          path: shards
+          merge-multiple: false
+      - name: Reconstruct the 771-leaf HBI chain and check exact global Perron minimum
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 independent/gpt6_http0_aggregate_leaves.py shards independent/gpt6_http0_symmetry_rows.cpp aggregate | tee whole-store-verdict.hbp
+          grep '^HTTP0_YM_FULL_ROW_REBUILD|rows=45508080|leaves=771|electric_moves=3276581760|orbit_weight_sum=13060694016|flats=7|min_row=45507968|min_ratio_microJE=94070673|.*|status=PASS|json=0$' whole-store-verdict.hbp
+          sha256sum aggregate/ALL-LEAVES.hbp aggregate/LEAVES.hbi whole-store-verdict.hbp > aggregate/SHA256SUMS
+      - name: Publish full HBI HBP SHA root and all leaf records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpt6-ym3x4-full-771-leaf-independent-certificate
+          path: |
+            whole-store-verdict.hbp
+            aggregate/
+          if-no-files-found: warn
