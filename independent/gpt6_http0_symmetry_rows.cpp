@@ -198,9 +198,9 @@ static uint32_t u32(const uint8_t *p){return uint32_t(p[0])|(uint32_t(p[1])<<8)|
 static uint64_t u64(const uint8_t *p){uint64_t n=0;for(int b=7;b>=0;--b)n=n*256+p[b];return n;}
 static int64_t i64(const uint8_t *p){return static_cast<int64_t>(u64(p));}
 
-static int pilot(const string& keyfile,const string& vecfile,size_t first,size_t count,const string& sabotage){
+static int pilot(const string& keyfile,const string& vecfile,size_t first,size_t count,const string& sabotage,bool leaf){
     constexpr size_t N=45508080;
-    require(first<N && count>0 && count<=128 && first+count<=N,"sample bounds");
+    require(first<N && count>0 && count<=(leaf?59049U:128U) && first+count<=N,"sample bounds");
     vector<uint8_t> kb(N*16),db(N*8);
     ifstream f(keyfile,ios::binary),g(vecfile,ios::binary);
     require(f.good() && g.good(),"original inputs");
@@ -215,12 +215,15 @@ static int pilot(const string& keyfile,const string& vecfile,size_t first,size_t
     Geometry m(3,4);
     uint64_t checked=0,adjChecked=0;
     int64_t minRatio=numeric_limits<int64_t>::max();
+    size_t minRow=first;
+    uint64_t weightSum=0,flats=0,electricMoves=0;
     for(size_t h=first;h<first+count;++h){
         Links u{};m.unpack(getkey(h),u);
         require(m.canon(u)==getkey(h),"sector key");
         require(uint32_t(m.mag(u))==getmag(h),"magnetic cost");
         set<uint64_t> images;uint64_t k;m.orbit(u,&k,&images);
         require(images.size()==getw(h),"orbit weight");
+        weightSum+=getw(h);
         auto row=m.moves(getkey(h));
         __int128 accumulator=(__int128(72)+__int128(9)*getmag(h))*getd(h);
         int countMoves=0;
@@ -239,27 +242,37 @@ static int pilot(const string& keyfile,const string& vecfile,size_t first,size_t
             }
         }
         require(countMoves==72,"move count");
-        if(getmag(h)==0){require(getd(h)==0,"flat vector");}
+        electricMoves+=uint64_t(countMoves);
+        if(leaf && (checked+1)%8192==0) cerr<<"HTTP0_YM_LEAF_PROGRESS|first="<<first<<"|done="<<checked+1<<"|of="<<count<<"|json=0\n";
+        if(getmag(h)==0){require(getd(h)==0,"flat vector");++flats;}
         else{
             require(getd(h)>0,"strict comparison vector");
             int64_t ratio=int64_t((accumulator*1000000)/getd(h));
-            minRatio=min(minRatio,ratio);
+            if(ratio<minRatio){minRatio=ratio;minRow=h;}
             require(ratio>=94070673,"Perron bound refutation");
             if(h==45507968ULL)require(ratio==94070673,"tight Perron row");
         }
         ++checked;
     }
-    cout<<"HTTP0_YM_ROW_PILOT|first="<<first<<"|rows="<<checked<<"|verified_reverse_pairs="<<adjChecked
-        <<"|min_sample_ratio_microJE="<<(minRatio==numeric_limits<int64_t>::max()?0:minRatio)
-        <<"|bound_microJE=94070673|status=PASS|json=0\n";
+    if(leaf){
+        cout<<"HTTP0_YM_REBUILT_LEAF|first="<<first<<"|rows="<<checked
+            <<"|electric_moves="<<electricMoves<<"|orbit_weight_sum="<<weightSum
+            <<"|flats="<<flats<<"|min_row="<<minRow<<"|min_ratio_microJE="<<minRatio
+            <<"|reverse_pairs="<<adjChecked<<"|bound_microJE=94070673|status=PASS|json=0\n";
+    }else{
+        cout<<"HTTP0_YM_ROW_PILOT|first="<<first<<"|rows="<<checked<<"|verified_reverse_pairs="<<adjChecked
+            <<"|min_sample_ratio_microJE="<<(minRatio==numeric_limits<int64_t>::max()?0:minRatio)
+            <<"|bound_microJE=94070673|status=PASS|json=0\n";
+    }
     return 0;
 }
 int main(int argc,char** argv){try{
     if(argc==4 && string(argv[1])=="--small")return small(stoi(argv[2]),stoi(argv[3]));
-    if((argc==6||argc==7) && string(argv[1])=="--pilot"){
+    if((argc==6||argc==7) && (string(argv[1])=="--pilot" || string(argv[1])=="--leaf")){
+        bool leaf=string(argv[1])=="--leaf";
         string sabotage=argc==7?string(argv[6]):string();
         require(sabotage.empty()||sabotage=="tamper-weight"||sabotage=="tamper-vector","sabotage argument");
-        return pilot(argv[2],argv[3],stoull(argv[4]),stoull(argv[5]),sabotage);
+        return pilot(argv[2],argv[3],stoull(argv[4]),stoull(argv[5]),sabotage,leaf);
     }
-    cerr<<"usage: --small LX LY | --pilot PASSA VECTOR FIRST COUNT\n";return 2;
+    cerr<<"usage: --small LX LY | --pilot PASSA VECTOR FIRST COUNT | --leaf PASSA VECTOR FIRST COUNT\n";return 2;
 }catch(const exception& e){cerr<<"HTTP0_YM_ROW_FAIL|reason="<<e.what()<<"|json=0\n";return 2;}}

@@ -1,0 +1,63 @@
+name: GPT6 HTTP-0 3x4 independent full ternary row leaves
+
+on:
+  push:
+    branches: [gpt6-independent-http0-store-replay-20261109]
+    paths:
+      - '.github/workflows/gpt6-http0-3x4-row-leaves.yml'
+      - 'independent/gpt6_http0_symmetry_rows.cpp'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  two-full-leaves:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Build independently reconstructed S3 orbit/operator kernel
+        run: |
+          set -euo pipefail
+          g++ -std=c++17 -O3 -Wall -Wextra -Werror independent/gpt6_http0_symmetry_rows.cpp -o /tmp/gpt6_ym_rows
+          /tmp/gpt6_ym_rows --small 2 2 | tee control-small.hbp
+          /tmp/gpt6_ym_rows --small 2 3 | tee -a control-small.hbp
+      - name: Fetch SHA-256 pinned key and Perron vector streams
+        run: |
+          set -euo pipefail
+          mkdir -p original
+          curl --fail --location --retry 3 --connect-timeout 30 --max-time 1800 --silent --show-error \
+            'https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve/main/perron/passA.bin?download=true' \
+            --output original/passA.bin
+          curl --fail --location --retry 3 --connect-timeout 30 --max-time 1800 --silent --show-error \
+            'https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store/resolve/main/perron/top/x3-c.bin?download=true' \
+            --output original/x3-c.bin
+          printf '%s\n' \
+            'eefd7752031cf6e1cbfd53dd47128805d1a98bb41de0a9e269222d0e2c6e3cbc  original/passA.bin' \
+            'f5c5428db1fc5d91d2ab891689f0dac7263dc26c8f9b60a2db82728f6ea0dcd1  original/x3-c.bin' \
+            | sha256sum --check --strict
+      - name: Rebuild every electric row in first 3^10 ternary leaf
+        run: |
+          set -euo pipefail
+          /tmp/gpt6_ym_rows --leaf original/passA.bin original/x3-c.bin 0 59049 | tee first-leaf.hbp
+          grep '^HTTP0_YM_REBUILT_LEAF|first=0|rows=59049|electric_moves=4251528|.*|status=PASS|json=0$' first-leaf.hbp
+      - name: Rebuild every electric row in last ternary leaf, including published tightest row
+        run: |
+          set -euo pipefail
+          /tmp/gpt6_ym_rows --leaf original/passA.bin original/x3-c.bin 45467730 40350 | tee final-leaf.hbp
+          grep '^HTTP0_YM_REBUILT_LEAF|first=45467730|rows=40350|electric_moves=2905200|.*|min_row=45507968|min_ratio_microJE=94070673|.*|status=PASS|json=0$' final-leaf.hbp
+          sha256sum independent/gpt6_http0_symmetry_rows.cpp first-leaf.hbp final-leaf.hbp control-small.hbp > SHA256SUMS
+      - name: Upload full-leaf receipts and source pins
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpt6-ym3x4-first-last-full-ternary-row-leaves
+          path: |
+            control-small.hbp
+            first-leaf.hbp
+            final-leaf.hbp
+            SHA256SUMS
+          if-no-files-found: warn
