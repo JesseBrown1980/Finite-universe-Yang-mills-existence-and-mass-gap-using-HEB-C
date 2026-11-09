@@ -2,6 +2,7 @@
 // POST-EXPLORATION reconstruction, not a 45,508,080-row store replay.
 // g++ -O3 -std=c++17 -Wall -Wextra -Werror -pedantic source.cpp -o replay
 // replay 2 2 ; replay 2 3 ; replay 3 4 ; replay 3 4 sabotage
+#pragma GCC target("no-sse,no-sse2")
 #include <algorithm>
 #include <array>
 #include <chrono>
