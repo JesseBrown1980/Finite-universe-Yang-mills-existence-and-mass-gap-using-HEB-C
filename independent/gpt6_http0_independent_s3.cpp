@@ -9,8 +9,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <set>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+
 #include <vector>
 using namespace std;
 struct Model {
@@ -103,7 +103,7 @@ int replayShell(Model &g,bool sabotage) {
  auto t0=chrono::steady_clock::now();
  vector<uint8_t>U(g.nlinks,0);
  vector<vector<uint64_t>>layers(4);
- unordered_set<uint64_t>visited;
+ set<uint64_t>visited;
  for(int a=0;a<6;++a)for(int b=0;b<6;++b)if(g.mult[a][b]==g.mult[b][a]){
   fill(U.begin(),U.end(),0);
   for(int y=0;y<g.ly;++y)U[g.ax(g.lx-1,y)]=uint8_t(a);
@@ -127,9 +127,9 @@ int replayShell(Model &g,bool sabotage) {
    }
   }
  }
- unordered_map<uint64_t,int>index;
+ map<uint64_t,int>index;
  size_t n=layers[0].size()+layers[1].size()+layers[2].size();
- index.reserve(n*2);
+
  for(int l=0;l<=2;++l)for(auto key:layers[l])index.emplace(key,int(index.size()));
  vector<vector<pair<int,int>>>adj(n);
  vector<int>weights(n);
