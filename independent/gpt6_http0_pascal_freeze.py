@@ -52,7 +52,9 @@ def main():
     check(cube_jump(plus, 3) == zero, 'plus_27_zero')
     check(cube_jump(minus, 3) == eye, 'minus_27_identity')
     for k in (0, 1, 2, 3, 5, 16):
-        e = 3 ** k
+        e = 1
+        for _ in range(k):
+            e *= 3
         check(cube_jump(minus, k) == power(minus, e), 'jump_minus_' + str(k))
         check(cube_jump(plus, k) == power(plus, e), 'jump_plus_' + str(k))
     state = [0] * N
