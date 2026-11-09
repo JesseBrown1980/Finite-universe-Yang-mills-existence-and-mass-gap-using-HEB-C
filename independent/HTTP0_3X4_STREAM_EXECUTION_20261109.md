@@ -32,3 +32,16 @@ python3 -I independent/gpt6_http0_stream_inputs.py /path/to/passA.bin /path/to/x
 The row-reconstruction stage consumes the ordered key table, positive vector and original `sector-341.rooms` through `sector-374.rooms` files. It rebuilds each electric transition using the S₃ permutation law and symmetry canonicalization, validates the weighted reverse transition, computes the exact Perron ratio over every nonflat row, and freezes the 771 rowwise receipts against the already verified input-leaf seal. The existing [full-rebuild source](../native/ym/results/3x4_stream/perron/second-seat/fullrebuild.rs) and original [all-pairs checks](../native/ym/results/3x4_stream/perron/allpairs/) supply separate reference implementations for cross-checking.
 
 The Pascal-pyramid identity governs the ternary checkpoint addressing and integrity chain; any operator-level jump in the Hamiltonian remains subject to direct equivalence testing against the underlying 72 electric moves per row.
+
+## Independent electric-transition reconstitution
+
+The C++17 implementation `independent/gpt6_http0_symmetry_rows.cpp` independently constructs lattice translation/reflection orbit representatives and all electric moves from the original S₃ permutation group, then checks gauge canonicalization, magnetic plaquette cost, weighted-adjoint pairs and exact Perron ratios. Its first local acceptance checks are: **2×2: 211 sector rows, 2,396 electric coefficients; 2×3: 2,646 sector rows, 72,310 electric coefficients**, with zero weighted-pair mismatches in each.
+
+The hosted 3×4 pilot reads the two frozen original inputs and checks rows at start 0, 1,000,000, 45,507,968 (the registered minimum-ratio row), and the end of the store. Each result includes a certified local lower bound `94,070,673` in micro-`J_E` units, backed by exact 128-bit integer arithmetic, 72 electric transitions, and sample reverse-pair checks. Deliberate corruption of one orbit weight and one vector entry must each fail. The complete stored row census is the next partitioned stage.
+
+```bash
+g++ -std=c++17 -O3 -Wall -Wextra -Werror independent/gpt6_http0_symmetry_rows.cpp -o /tmp/gpt6_ym_rows
+/tmp/gpt6_ym_rows --small 2 2
+/tmp/gpt6_ym_rows --small 2 3
+/tmp/gpt6_ym_rows --pilot /path/to/passA.bin /path/to/x3-c.bin 45507968 1
+```
