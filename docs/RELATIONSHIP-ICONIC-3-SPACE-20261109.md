@@ -1,6 +1,6 @@
 # This repository and Iconic 3-space: the relationship, November 9, 2026
 
-[Iconic 3-space](https://github.com/JesseBrown1980/Iconic-3-space) tests the owner's statement "I'm trying to prove the illusion of continuous arises from the finite world" with exact finite mathematics. It asks how far a finite set of symmetries stands in for a continuous one before an observer can tell them apart. This note records how its results meet this repository's finite S₃ theory. Every number below is reproduced by [`independent/iconic_relationship_check.py`](../independent/iconic_relationship_check.py), receipt [`ICONIC-RELATIONSHIP-20261109.hbp`](../independent/ICONIC-RELATIONSHIP-20261109.hbp) (sha256 `9ded0b66…`, 34 checks, 2 controls that must fail, 0 failures).
+[Iconic 3-space](https://github.com/JesseBrown1980/Iconic-3-space) tests the owner's statement "I'm trying to prove the illusion of continuous arises from the finite world" with exact finite mathematics. It asks how far a finite set of symmetries stands in for a continuous one before an observer can tell them apart. This note records how its results meet this repository's finite S₃ theory. Every number below is reproduced by [`independent/iconic_relationship_check.py`](../independent/iconic_relationship_check.py), receipt [`ICONIC-RELATIONSHIP-20261109.hbp`](../independent/ICONIC-RELATIONSHIP-20261109.hbp) (sha256 `05bbdeb6…`, 35 checks, 2 controls that must fail, 0 failures).
 
 ## 1. The eight flat states and the eight irreducible representations of D(S₃): two bases of one ground space
 
@@ -14,7 +14,7 @@ The quantum double D(S₃) has one irreducible representation per pair of a conj
 **The two bases.** The eight gauge-invariant flat orbit states are the **holonomy basis** of the D(S₃) ground space on the torus. The eight irreducible representations (C, ρ) label a second, **charge–flux basis** of the same space: ψ_(C,ρ)(a, b) = [a ∈ C] · χ_ρ(h⁻¹ b h), where h g_C h⁻¹ = a. The checker builds all eight ψ_(C,ρ) exactly over Z[ω] and verifies three things:
 - each ψ_(C,ρ) is constant on every conjugation orbit, so it lies in the span of the eight flat states;
 - the 8 × 8 matrix expressing them in the holonomy basis has determinant 36 + 72ω = 36·i√3, nonzero, so the change of basis is invertible;
-- the torus rotation (a, b) ↦ (b, a⁻¹) permutes the eight flat orbits as (0, 3, 5, 1, 4, 2, 7, 6) and mixes the charge–flux labels.
+- the torus rotation (a, b) ↦ (b, a⁻¹) permutes the eight flat orbits as (0, 3, 5, 1, 4, 2, 7, 6). Each charge–flux vector is supported on a single flux class, while every rotated one spreads over 2 or 3 classes, so the rotation mixes the charge–flux labels.
 
 The identification is this explicit Fourier-type change of basis between the two labellings. The two counts being equal is a consequence of it.
 

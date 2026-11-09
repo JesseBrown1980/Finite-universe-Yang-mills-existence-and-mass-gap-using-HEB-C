@@ -418,6 +418,17 @@ check("basis_change_is_invertible", D != Z0, ("determinant_in_Z[w]", "%d%+dw" % 
 rot = [orbit_of[(min(o)[1], inverse(min(o)[0]))] for o in orbit_list]
 check("torus_rotation_permutes_the_flat_orbits", sorted(rot) == list(range(8)) and rot != list(range(8)),
       ("permutation", ",".join(str(v) for v in rot)))
+# every charge-flux vector is supported on one flux class C; a rotated vector supported on two or more classes is
+# a combination of several charge-flux vectors, so the rotation mixes the labels
+flux_of_orbit = [LABEL[cycle_type(min(o)[0])] for o in orbit_list]
+spread = []
+for r_ in basis_rows:
+    rotated = [Z0] * 8
+    for i_, v_ in enumerate(r_):
+        rotated[rot[i_]] = v_
+    spread.append(len({flux_of_orbit[k] for k in range(8) if rotated[k] != Z0}))
+check("torus_rotation_mixes_the_charge_flux_labels", all(len({flux_of_orbit[k] for k in range(8) if r_[k] != Z0}) == 1 for r_ in basis_rows) and max(spread) >= 2,
+      ("flux_classes_in_each_rotated_vector", ",".join(str(s) for s in spread)))
 
 # 5. Controls that must fail
 bad_pairs, bad_orbits = commuting_pair_orbits(S3, lambda h, pr: (compose(h, pr[0]), compose(h, pr[1])))
