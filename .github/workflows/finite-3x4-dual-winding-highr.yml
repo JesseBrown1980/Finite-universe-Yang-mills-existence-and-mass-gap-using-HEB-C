@@ -1,0 +1,37 @@
+name: Finite S3 strong-r dual electric winding first-excitation weight
+on:
+  push:
+    branches:
+      - gpt6-dual-electric-winding-first-weight-20261108
+  pull_request:
+    paths:
+      - 'independent/dual_winding_strong_r.py'
+      - 'independent/DUAL_ELECTRIC_WINDING_FIRST_STATE_WEIGHT_20261108.md'
+      - 'independent/MEASURED-DUAL-ELECTRIC-WINDING-20261108.hbp'
+      - '.github/workflows/finite-3x4-dual-winding-highr.yml'
+jobs:
+  exact-dual-winding:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exact integer winding shift and all-state spectral weight
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I independent/dual_winding_strong_r.py > /tmp/actual-dual.hbp
+          grep '^DUALWIND_' independent/MEASURED-DUAL-ELECTRIC-WINDING-20261108.hbp > /tmp/expected-dual.hbp
+          diff -u /tmp/expected-dual.hbp /tmp/actual-dual.hbp
+          cat /tmp/actual-dual.hbp
+      - name: Four physically perturbed controls must reject
+        shell: bash
+        run: |
+          set -euo pipefail
+          for bad in drop_transposition change_orbit_weight drop_dual_edge wrong_first_mode; do
+            if python3 -I independent/dual_winding_strong_r.py "sabotage=$bad" > /tmp/red.log 2>&1; then
+              echo "FAIL: real mutation escaped $bad"
+              exit 1
+            fi
+            grep 'DUALWIND_FAIL|gate=' /tmp/red.log
+            echo "DUALWIND_RED_REJECTED|$bad"
+          done
