@@ -1,0 +1,12 @@
+# 2026-11-08 SUPPLEMENTAL PREDICTIONS frozen after first-discriminant checker.
+# FROZEN BEFORE adding the stronger independent ground-transform proof checker.
+# This is not an amendment to original fourteen-row prediction.
+PREDICT|supp=01|raw_model=24_product_S3_links|electric_link_laplacian_spectrum=0,3,3,3,3,6|raw_product_E_gap=3|status=DERIVED|json=0
+PREDICT|supp=02|each_S3_element_transposition_word_length_le=2|raw_graph_diameter_le=48|status=DERIVED|json=0
+PREDICT|supp=03|r=9|M_le_36|raw_H_diagonal_le=396|raw_ground_lambda_ge_zero=YES|status=DERIVED|json=0
+PREDICT|supp=04|positive_ground_g_neighbors_ratio_le=396|global_gmax_over_gmin_le=396^48|status=DERIVED|json=0
+PREDICT|supp=05|ground_transform_Dirichlet_Eg_ge_gmin^2_E_uniform|Var_pi_le_gmax^2_Var_uniform|status=DERIVED|json=0
+PREDICT|supp=06|full_raw_gap_GE=3/396^96|full_gauge_gap_GE=full_raw_gap|finite_r9_gap_strict_positive_unconditional=YES|status=DERIVED|json=0
+PREDICT|supp=07|second_method_discriminant=468^(-2370356558953963127)|ground_transform_bound_stronger=YES|status=DERIVED|json=0
+PREDICT|supp=08|wrong_electric_gap,wrong_word_length,wrong_hdiag,wrong_ground_ratio,wrong_gap_inequality,wrong_0p01_unconditional=ALL_REJECT|status=RED|json=0
+PREDICT_SUPPLEMENT_SUMMARY|rows=8|frozen_before_ground_transform_code=YES|original_predictions_unchanged=YES|json=0
