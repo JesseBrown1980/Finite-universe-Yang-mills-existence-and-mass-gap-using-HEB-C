@@ -1,0 +1,5 @@
+GK82_CHECK_HEAD|script=gk82_moment_check_int.py|arith=integer_pairs_only|float_used=0|json=0
+GK82_CHECK|group=SU(3)_Haar_named_inputs|plaq_b1=1/18|plaq_b2=1/216|plaq_b3=0|json=0
+GK82_CHECK|group=Delta(6*4*4)|order=96|E_abs_t_4=3|E_t_4=1|E_t_3=1|plaq_b1=1/18|plaq_b2=1/216|plaq_b3=1/972|Delta_E_f4=1/162|Delta_E_f4_over_3fact=1/972|E_series_b3=-1/972|json=0
+GK82_CHECK|group=Delta(6*6*6)|order=216|E_abs_t_4=3|E_t_4=0|E_t_3=1|plaq_b1=1/18|plaq_b2=1/216|plaq_b3=1/1296|Delta_E_f4=1/216|Delta_E_f4_over_3fact=1/1296|E_series_b3=-1/1296|json=0
+GK82_CHECK|group=Delta(6*8*8)|order=384|E_abs_t_4=3|E_t_4=0|E_t_3=1|plaq_b1=1/18|plaq_b2=1/216|plaq_b3=1/1296|Delta_E_f4=1/216|Delta_E_f4_over_3fact=1/1296|E_series_b3=-1/1296|json=0
