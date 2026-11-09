@@ -56,7 +56,7 @@ jobs:
           fi
           grep -F 'FAILED|check=outside_anchor_leaf_9|json=0' /tmp/gpt6-replay/red-leaf.hbp
           echo 'INDEPENDENT_REPLAY_RED_CONTROLS|weights=2/2|leaf=1/1|status=PASS|json=0'
-      - name: Scope gate: no claim of a complete 45.5M-row replay
+      - name: 'Scope gate - no claim of a complete 45.5M-row replay'
         run: |
           set -euo pipefail
           grep -Fx 'SCOPE|physical_ym_jump=NOT_PROVED|row_rebuild=SEPARATE|full_store_replay=NOT_RUN|json=0' /tmp/gpt6-replay/MEASURED.hbp
