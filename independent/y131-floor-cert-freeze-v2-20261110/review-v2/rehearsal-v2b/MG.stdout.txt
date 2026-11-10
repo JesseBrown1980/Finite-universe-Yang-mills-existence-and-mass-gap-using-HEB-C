@@ -1,0 +1,1 @@
+FLOOR_RUN|CERTIFICATE=FAIL|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE|certificate_reason=REQUIRED_OR_INTEGRITY_FAILURE_ROW_008|stage=prelude|reason=pinned_file_differs_gate_required.sh|r=12|steps_run=none|accepted_certificates=0|certificate_commands_run=0|HASHES=NONE|json=0

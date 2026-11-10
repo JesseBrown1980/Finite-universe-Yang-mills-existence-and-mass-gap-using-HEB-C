@@ -1,0 +1,2 @@
+ATTACK|file=work/design/gate_required.sh|how=replay|launcher_sha16=7de05245684805b8|changed_after_the_binary_line=1|sha256_after_change=0fb01849d2192682d8e7d70c7210dcdbd09d0a4eaaecd1535659d5716246ac47|json=0
+ATTACK_END|file=work/design/gate_required.sh|put_back=1|clone_tracked_files_changed=0|fake_gate_calls=2|json=0

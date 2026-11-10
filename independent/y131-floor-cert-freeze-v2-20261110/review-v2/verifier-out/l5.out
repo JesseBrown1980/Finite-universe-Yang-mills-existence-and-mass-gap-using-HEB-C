@@ -1,0 +1,9 @@
+bystander pid=4170 name=floorcert alive=1
+/mnt/c/tmp/opus55/floor-v2-verify/scripts/l5.sh: line 10:  4170 Killed                  /root/floor-v2-verify/bystander/floorcert 900
+launcher rc=2 ; bystander wait status=137 (137 = SIGKILL)
+INVOKE|seq=1|m0=7|kind=rowhash|attempt=1|rc=0|limit_s=21600|log=log/m7_rowhash_a1.txt|log_sha256=e4f298d53ef123676e4abb8d35a62639142537e5c7b9f55d46adfbf81532f9a1
+INJECTED|m0=7|kind=cert|what=sleep_20_under_a_2_second_limit_in_place_of_the_command|json=0
+INVOKE|seq=2|m0=7|kind=cert|attempt=1|rc=124|limit_s=2|log=log/m7_cert_a1.txt|log_sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+STEP|m0=7|status=OPFAIL|accepted=0|bad=cert_command_timeout|json=0
+DECISION|after_m0=7|state=NO_CERTIFICATE_OPERATIONAL|G_max=NONE|G_max_vs_g0=NONE|g0=100/1|U_all=NONE|U_all_vs_g0=NONE|U_all_verifier_only=NONE|inputs=verifier_accepted_certificates_only|next=STOP|rule
+FLOOR_RUN|result=UNRESOLVED|comparison=NO_CERTIFICATE_OPERATIONAL|accepted_certificates=0|stop=DECIDED

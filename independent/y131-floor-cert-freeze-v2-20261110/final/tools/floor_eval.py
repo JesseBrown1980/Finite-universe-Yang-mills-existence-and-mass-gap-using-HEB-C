@@ -1,7 +1,16 @@
 #!/usr/bin/env python3
-# floor_eval.py -- evaluator used by final/tools/run_floor.sh (version 2 freeze).
+# floor_eval.py -- evaluator used by final/tools/run_floor.sh (version 2 freeze, correction round).
 # Integer and exact-rational arithmetic only. Reads logs and certificates, never computes a spectrum.
 # Subcommands: rcheck, pins, prereq, step, decide, final.  Arguments are key=value words.
+# The final line separates three things: CERTIFICATE (PASS only when every REQUIRED gate, the verifier and the
+# closing pin check held and at least one certificate was accepted), DECISION (ABOVE, BELOW or UNRESOLVED, from
+# accepted bounds only) and PREDICTION (CONFIRMED for ABOVE, FALSIFIED for BELOW, UNRESOLVED otherwise).
+# The launcher runs this file from a private directory that also holds its copies of gate_required.sh, cert_gate.py,
+# indep_verify.py and peak_rss.py (argument tools=DIR); step and final hash those copies against rows 020 019 021
+# 103 115, and step accepts a certificate only with the launcher's INVOKE record of that verifier call (exit 0, log
+# hash, argv naming the private gate driver). A completed process at or over the memory limit of row 011 gives
+# status FAIL with RESOURCE_LIMIT_EXCEEDED; subcommand opfail applies that before a crash or a time limit may count
+# as an operational failure. limkb=N lowers the limit in test mode only.
 import sys
 import re
 import os
@@ -12,6 +21,9 @@ MIL = 1000000
 G0 = (94070673, 1000000)
 CAP = (94070936, 1000000)
 PRED_NAME = "PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp"
+# row 034 names a file of the #137 package outside this folder; a byte copy is carried here and is used when the
+# literal path is absent. Either source must hash to the value of row 034.
+CARRIED_034 = "final/link/PREDICT-S3-3X4-R9-WILSON-FESHBACH-AMPLITUDE-20261109.hbp"
 # census pins restated from rows 043 044 045 047 051 055 (checked against the row text by need()).
 CENSUS = {
     11: {"orbits": 1608786, "classes": 34920, "weight": 9635688, "edges": 725464,
@@ -25,6 +37,9 @@ NEED = [("043", ["1608786", "34920", "9635688"]), ("047", ["725464", "1610000"])
         ("073", ["94070673/1000000"]), ("065", ["94070936/1000000"]), ("007", ["89301"])]
 WGATES = ["s3_link_table", "local_delta_vs_full_M", "link_multiset_table", "symmetry_image_rows",
           "core_census_vs_closed_form", "class_detailed_balance"]
+TOOLS = [("020", "gate_required.sh"), ("019", "py/cert_gate.py"), ("021", "py/indep_verify.py"),
+         ("103", "peak_rss.py"), ("115", "floor_eval.py")]
+RLE = "RESOURCE_LIMIT_EXCEEDED"
 VGATES = ["r_policy", "class_bijection", "keys_hash", "positivity_f", "positivity_v", "tail_cap_claim",
           "t_below_tail_cap", "row_check", "row_hash"]
 
@@ -160,6 +175,36 @@ def args(av):
     return d
 
 
+def tools_check(R, tools):
+    """The private copies the launcher executes, hashed against the PIN rows; this file must be one of them."""
+    bad = []
+    for rid, rel in TOOLS:
+        p = os.path.join(tools, rel)
+        if rid not in R or not os.path.isfile(p) or sha(p) != R[rid][1].get("value"):
+            bad.append("row_%s:private_copy_%s_differs_from_pin" % (rid, rel.replace("/", "_")))
+    if os.path.realpath(sys.argv[0]) != os.path.realpath(os.path.join(tools, "floor_eval.py")):
+        bad.append("row_115:evaluator_runs_outside_the_private_directory")
+    return bad
+
+
+def invocation(lg, m, kind, lb, want_argv):
+    """True when the last INVOKE line of run.log for this log names exit 0, no time limit, a process group of its
+    own, the hash of the log as it is read here and an argv that starts with want_argv."""
+    hit = []
+    for x in pick(lines(lg + "/run.log"), "INVOKE|"):
+        f = fld(x)
+        if f.get("m0") == str(m) and f.get("kind") == kind and re.match(r"^log/%s_a[12]\.txt$" % re.escape(lb), f.get("log", "")):
+            hit.append((f, x))
+    final = lg + "/%s.txt" % lb
+    if not hit or not os.path.isfile(final):
+        return False
+    f, x = hit[-1]
+    am = re.search(r"\|argv=(.*)\|json=0$", x)
+    return (f.get("rc") == "0" and f.get("time_limit_hit") == "0" and f.get("own_process_group") == "1"
+            and f.get("log_sha256") == sha(final) and am is not None
+            and (am.group(1) == want_argv or am.group(1).startswith(want_argv + " ")))
+
+
 # ------------------------------------------------------------------ rcheck: test-mode r stays away from 9
 def cmd_rcheck(a):
     r = rat(a["r"])
@@ -169,10 +214,9 @@ def cmd_rcheck(a):
 
 
 # ------------------------------------------------------------------ pins: every PIN row that names a path
-def cmd_pins(a):
-    R = rows(a["pred"])
-    need(R)
-    root = a["root"]
+def pin_scan(R, root):
+    """Hash every PIN row that names a path. Returns the PINCHECK lines, the row count and the count that differ."""
+    o = []
     bad = 0
     n = 0
     for rid in sorted(R):
@@ -182,13 +226,21 @@ def cmd_pins(a):
         n += 1
         p = os.path.join(root, f["path"])
         src = "tree"
-        if not os.path.isfile(p) and rid == "034" and a.get("alt034") and os.path.isfile(a["alt034"]):
-            p = a["alt034"]
-            src = "git_object"
+        if not os.path.isfile(p) and rid == "034":
+            p = os.path.join(root, CARRIED_034)
+            src = "carried_copy_final/link"
         got = sha(p) if os.path.isfile(p) else "ABSENT"
         ok = 1 if got == f["value"] else 0
         bad += 1 - ok
-        print("PINCHECK|id=%s|path=%s|source=%s|want=%s|got=%s|ok=%d" % (rid, f["path"], src, f["value"], got, ok))
+        o.append("PINCHECK|id=%s|path=%s|source=%s|want=%s|got=%s|ok=%d" % (rid, f["path"], src, f["value"], got, ok))
+    return o, n, bad
+
+
+def cmd_pins(a):
+    R = rows(a["pred"])
+    need(R)
+    o, n, bad = pin_scan(R, a["root"])
+    print("\n".join(o))
     print("PINCHECK_RESULT|tag=%s|prediction_sha256=%s|rows=%d|bad=%d" % (a.get("tag", "1"), sha(a["pred"]), n, bad))
     sys.exit(1 if bad else 0)
 
@@ -227,7 +279,7 @@ def cmd_prereq(a):
         for x in mem:
             mm = re.match(r"^MEM\|([0-9]+)kB", x)
             if not mm or int(mm.group(1)) >= LIM_KB:
-                bad.append("verifier_MEM_not_under_2GB")
+                bad.append("verifier_MEM_at_or_over_%dkB" % LIM_KB)
     print("PREREQ|m0=%d|keys_sha256=%s|keys_pin=%s|status=%s|bad=%s" % (m, ks, pin, "FAIL" if bad else "PASS", ",".join(bad) or "none"))
     sys.exit(1 if bad else 0)
 
@@ -241,9 +293,12 @@ def peak(ls, bad, what):
     f = fld(pk[0])
     if f.get("exit") != "0":
         bad.append("row_011:%s_exit_%s" % (what, f.get("exit")))
-    kb = int(f.get("kB", "0")) if f.get("kB", "").isdigit() else LIM_KB
+    if not f.get("kB", "").isdigit():
+        bad.append("row_011:%s_PEAK_RSS_unreadable" % what)
+        return 0
+    kb = int(f["kB"])
     if kb >= LIM_KB:
-        bad.append("row_011:%s_PEAK_RSS_not_under_2GB" % what)
+        bad.append("row_011:%s:%s_PEAK_RSS_%dkB_limit_%dkB" % (RLE, what, kb, LIM_KB))
     return kb
 
 
@@ -283,6 +338,20 @@ def cmd_step(a):
     need(R)
     C = CENSUS.get(m, {}) if mode == "r9" or a.get("census") == "1" else {}
     bad = []
+    # the evaluator hashes the verifier, the gate driver and the peak wrapper itself (rows 019 020 103); the
+    # verifier_sha256 printed by the gate driver is compared too, further down, and is not relied on alone
+    for rid in ("019", "020", "103"):
+        pf = os.path.join(a["root"], R[rid][1]["path"])
+        if not os.path.isfile(pf) or sha(pf) != R[rid][1]["value"]:
+            bad.append("row_%s:file_on_disk_differs_from_pin" % rid)
+    # the copies that were executed (private directory of the launcher), and the launcher's record of each command
+    tools = a["tools"]
+    bad.extend(tools_check(R, tools))
+    if not invocation(lg, m, "rowhash", "m%d_rowhash" % m, "python3 -I -B %s/peak_rss.py %s/floorcert rowhash --m0 %d" % (tools, tools, m)):
+        bad.append("row_008:no_valid_invocation_record_rowhash")
+    if not invocation(lg, m, "cert", "m%d_cert" % m, "python3 -I -B %s/peak_rss.py %s/floorcert cert --m0 %d" % (tools, tools, m)):
+        bad.append("row_008:no_valid_invocation_record_cert")
+    nrec = 0
     crows = []
     fwords = a["fspec"].split(";")
     rh = lines(lg + "/m%d_rowhash.txt" % m)
@@ -401,6 +470,12 @@ def cmd_step(a):
             else:
                 row["gate"] = "PASS"
                 gf = fld(gr[0])
+                # an actual verifier invocation: the launcher's INVOKE record with exit 0 for exactly this log
+                if invocation(lg, m, "gate", "m%d_gate_%s" % (m, base), "bash %s/gate_required.sh %s" % (tools, path)):
+                    nrec += 1
+                else:
+                    cb.append("row_053:no_valid_verification_record")
+                    row["gate"] = "NO_RECORD"
                 if gf.get("cert_sha256") != row["sha"] or gf.get("rowhash") != rowhash or gf.get("verifier_sha256") != vsha_pin:
                     cb.append("row_053:GATE_REQUIRED_fields")
                 vm = re.match(r"^VERDICT\|PASS\|lambda_min\(QHQ\) >= ([0-9]+)/([0-9]+) at r = ([0-9]+)/([0-9]+) \(m0 = ([0-9]+)\)\|", vd[0])
@@ -430,10 +505,13 @@ def cmd_step(a):
                     cb.append("row_011:verifier_MEM_absent")
                 for y in mems:
                     mm = re.match(r"^MEM\|([0-9]+)kB", y)
-                    kb = int(mm.group(1)) if mm else LIM_KB
+                    if not mm:
+                        cb.append("row_011:verifier_MEM_unreadable")
+                        continue
+                    kb = int(mm.group(1))
                     mem_max = max(mem_max, kb)
                     if kb >= LIM_KB:
-                        cb.append("row_011:verifier_MEM_not_under_2GB")
+                        cb.append("row_011:%s:verifier_MEM_%dkB_limit_%dkB" % (RLE, kb, LIM_KB))
                 for y in pick(g, "KEYSHASH|"):
                     if fld(y).get("sha256") != keyshash:
                         cb.append("row_056:verifier_keyshash")
@@ -455,8 +533,9 @@ def cmd_step(a):
     G = rmax([c["gamma"] for c in acc])
     U = rmin([add(rmin([c["rv"], c["rw"]]), (1, MIL)) for c in acc])
     Uv = rmin([add(c["rv"], (1, MIL)) for c in acc])
-    o = ["STEP|m0=%d|status=%s|accepted=%d|certificates=%d|G=%s|U=%s|U_verifier_only=%s|writer_peak_kB=%d|verifier_mem_max_kB=%d|rowhash=%s|keyshash=%s|rowhash_pin=%s|bad=%s|json=0"
-         % (m, "OK" if ok else "FAIL", len(acc), len(crows), rs(G), rs(U), rs(Uv), max(pk_r, pk_c), mem_max,
+    res = "EXCEEDED" if any(RLE in y for y in bad) else "HELD"
+    o = ["STEP|m0=%d|status=%s|accepted=%d|certificates=%d|G=%s|U=%s|U_verifier_only=%s|writer_peak_kB=%d|verifier_mem_max_kB=%d|resource_limit=%s|limit_kB=%d|verification_records=%d|rowhash=%s|keyshash=%s|rowhash_pin=%s|bad=%s|json=0"
+         % (m, "OK" if ok else "FAIL", len(acc), len(crows), rs(G), rs(U), rs(Uv), max(pk_r, pk_c), mem_max, res, LIM_KB, nrec,
             rowhash or "NONE", keyshash or "NONE", ("row_" + C["rh"]) if "rh" in C else "three_way_equality_only", ";".join(bad) or "none")]
     for c in crows:
         o.append("CERTROW|m0=%d|f=%s|file=%s|sha256=%s|accepted=%d|gate=%s|gamma=%s|ritz_writer=%s|ritz_verifier=%s|tail_cap=%s|next_t_refused=%s|bad=%s|json=0"
@@ -472,6 +551,37 @@ def cmd_step(a):
     sys.exit(0 if ok else 1)
 
 
+# ------------------------------------------------------------------ opfail: a crash or a time limit inside a step
+def cmd_opfail(a):
+    """A command of this step crashed or ran into the time limit. Fallback is open only while no REQUIRED gate has
+    failed: a process of this step that completed (exit 0, or a verifier that printed its verdict) at or over the
+    memory limit makes the step FAIL with RESOURCE_LIMIT_EXCEEDED, and the run stops."""
+    m = int(a["m0"])
+    lg = a["out"] + "/log"
+    bad = []
+    for nm in sorted(os.listdir(lg)):
+        if not re.match(r"^m%d_(rowhash|cert|rowsonly|gate_.*)\.txt$" % m, nm) or re.search(r"_a[12]\.txt$", nm):
+            continue
+        ls = lines(lg + "/" + nm)
+        what = nm[:-4].replace("|", "_")
+        for x in pick(ls, "PEAK_RSS|"):
+            f = fld(x)
+            if f.get("exit") == "0" and f.get("kB", "").isdigit() and int(f["kB"]) >= LIM_KB:
+                bad.append("row_011:%s:%s_PEAK_RSS_%skB_limit_%dkB" % (RLE, what, f["kB"], LIM_KB))
+        if pick(ls, "VERDICT|"):
+            for x in pick(ls, "MEM|"):
+                mm = re.match(r"^MEM\|([0-9]+)kB", x)
+                if mm and int(mm.group(1)) >= LIM_KB:
+                    bad.append("row_011:%s:%s_MEM_%skB_limit_%dkB" % (RLE, what, mm.group(1), LIM_KB))
+    if bad:
+        st = "STEP|m0=%d|status=FAIL|accepted=0|certificates=0|resource_limit=EXCEEDED|limit_kB=%d|operational_event=%s|fallback=PROHIBITED|bad=%s|json=0" % (m, LIM_KB, a["why"], ";".join(bad))
+    else:
+        st = "STEP|m0=%d|status=OPFAIL|accepted=0|certificates=0|resource_limit=HELD|limit_kB=%d|bad=%s|json=0" % (m, LIM_KB, a["why"])
+    with open(lg + "/m%d_step.hbp" % m, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(st + "\n")
+    print(st)
+
+
 # ------------------------------------------------------------------ decide / final
 def load_steps(out, steps):
     S = []
@@ -482,6 +592,7 @@ def load_steps(out, steps):
             die("step file of m0 %d unreadable" % m)
         f = fld(st[0])
         d = {"m": m, "status": f["status"], "G": None, "U": None, "Uv": None, "certs": [], "line": st[0],
+             "res": f.get("resource_limit", "HELD"),
              "pk": int(f.get("writer_peak_kB", "0")), "mem": int(f.get("verifier_mem_max_kB", "0"))}
         if f["status"] == "OK":
             d["G"] = rat(f["G"])
@@ -505,6 +616,18 @@ def state_of(G, U, g0):
     return "UNDECIDED"
 
 
+def decision_of(st):
+    """Row 012 state word to the three-way decision. G_max >= g0: ABOVE. U_min < g0: BELOW. Otherwise UNRESOLVED."""
+    if st == "ABOVE":
+        return "ABOVE"
+    if st == "BELOW_FALSIFIED_H4":
+        return "BELOW"
+    return "UNRESOLVED"
+
+
+PRED_OF = {"ABOVE": "CONFIRMED", "BELOW": "FALSIFIED", "UNRESOLVED": "UNRESOLVED"}
+
+
 def decide(S, g0, allowed):
     ok = [s for s in S if s["status"] == "OK"]
     G = rmax([s["G"] for s in ok])
@@ -514,6 +637,8 @@ def decide(S, g0, allowed):
     more = len(S) < allowed
     n = len(S)
     rule = "row_006" if n == 1 else ("row_007" if n == 2 else "row_007_after_13_stop")
+    if any(s["status"] == "FAIL" and s["res"] == "EXCEEDED" for s in S):
+        return ("FAIL", "STOP", "row_011_resource_limit_exceeded_fallback_prohibited_row_122", G, U, Uv)
     if any(s["status"] == "FAIL" for s in S):
         return ("FAIL", "STOP", "row_008", G, U, Uv)
     if not ok:
@@ -540,8 +665,8 @@ def cmd_decide(a):
     st, nxt, rule, G, U, Uv = decide(S, g0, int(a["allowed"]))
     cg = "NONE" if G is None else ("GE" if le(g0, G) else "LT")
     cu = "NONE" if U is None else ("LT" if lt(U, g0) else "GE")
-    print("DECISION|after_m0=%d|state=%s|G_max=%s|G_max_vs_g0=%s|g0=%s|U_all=%s|U_all_vs_g0=%s|U_all_verifier_only=%s|inputs=verifier_accepted_certificates_only|next=%s|rule=%s|json=0"
-          % (steps[-1], st, rs(G), cg, rs(g0), rs(U), cu, rs(Uv), nxt, rule))
+    print("DECISION|after_m0=%d|decision=%s|state=%s|G_max=%s|G_max_vs_g0=%s|g0=%s|U_all=%s|U_all_vs_g0=%s|U_all_verifier_only=%s|inputs=verifier_accepted_certificates_only|next=%s|rule=%s|json=0"
+          % (steps[-1], decision_of(st), st, rs(G), cg, rs(g0), rs(U), cu, rs(Uv), nxt, rule))
     print("NEXT|" + nxt)
 
 
@@ -602,19 +727,37 @@ def cmd_final(a):
     R = rows(a["pred"])
     S = load_steps(out, steps) if steps else []
     stop = a.get("stop", "DECIDED")
+    # closing pin check: every PIN row that names a path, hashed again before anything is printed
+    po, pn, pbad = pin_scan(R, a["root"])
+    po.append("PINCHECK_RESULT|tag=closing|prediction_sha256=%s|rows=%d|bad=%d" % (sha(a["pred"]), pn, pbad))
+    with open(out + "/log/pincheck_closing.txt", "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("\n".join(po) + "\n")
+    if pbad:
+        stop = "FAIL_closing_pin_check_%d_rows_differ_row_010" % pbad
+    tb = tools_check(R, a["tools"])
+    if tb:
+        stop = "FAIL_private_tool_copies_" + "_".join(sorted(set(y.split(":")[0] for y in tb)))
     if S:
         st, nxt, rule, G, U, Uv = decide(S, g0, int(a["allowed"]))
     else:
         st, nxt, rule, G, U, Uv = ("NO_STEP", "STOP", "prelude", None, None, None)
     failed = any(s["status"] == "FAIL" for s in S) or st == "CONTRADICTION" or stop.startswith("FAIL")
     opf = [str(s["m"]) for s in S if s["status"] == "OPFAIL"]
+    nacc = 0 if failed else sum(1 for s in S for c in s["certs"] if c.get("accepted") == "1" and s["status"] == "OK")
     if failed:
-        result, comp = "FAIL", "NONE_ROW_008"
+        # an integrity, REQUIRED-gate or verifier failure: no accepted bound is printed (row 008)
+        cert, why, dec = "FAIL", "REQUIRED_OR_INTEGRITY_FAILURE_ROW_008", "UNRESOLVED"
+        if any(s["status"] == "FAIL" and s["res"] == "EXCEEDED" for s in S):
+            why = RLE
         G = U = Uv = None
-    elif stop != "DECIDED" or st not in ("ABOVE", "BELOW_FALSIFIED_H4"):
-        result, comp = "UNRESOLVED", ("OPEN_" + stop if stop != "DECIDED" else st)
+    elif nacc == 0 or G is None or U is None:
+        cert, why, dec = "FAIL", "NO_ACCEPTED_CERTIFICATE_OPERATIONAL", "UNRESOLVED"
+        G = U = Uv = None
+    elif stop != "DECIDED":
+        cert, why, dec = "PASS", "ACCEPTED_CERTIFICATES_THEN_STOP_" + stop, "UNRESOLVED"
     else:
-        result, comp = "PASS", st
+        cert, why, dec = "PASS", "EVERY_REQUIRED_GATE_AND_THE_CLOSING_PIN_CHECK_HELD", decision_of(st)
+    pred = PRED_OF[dec]
     P = score([] if failed else S, g0, G, U) if (S and not failed) else {}
     if not P:
         for k in range(58, 74):
@@ -623,7 +766,7 @@ def cmd_final(a):
     for rid in P:
         if rid not in R or R[rid][0] != "PREDICT":
             die("row %s is not a PREDICT row" % rid)
-    acc = 0 if failed else sum(1 for s in S for c in s["certs"] if c.get("accepted") == "1" and s["status"] == "OK")
+    acc = nacc
     files = []
     for dp, dn, fn in os.walk(out):
         dn.sort()
@@ -642,9 +785,9 @@ def cmd_final(a):
     notmet = ",".join(k for k in sorted(P) if P[k] == "NOT_MET") or "none"
     other = ",".join("%s:%s" % (k, P[k]) for k in sorted(P) if P[k] not in ("MET", "NOT_MET")) or "none"
     key = ",".join("%s@%s" % (f[0], f[1]) for f in files)
-    fin = ("FLOOR_RUN|result=%s|comparison=%s|scope=%s|r=%s|g0=%s|gamma_cert=%s|U_all=%s|steps_run=%s|steps_ok=%s|operational_failures=%s|accepted_certificates=%d|stop=%s|rule=%s|predict_met=%s|predict_not_met=%s|predict_other=%s|freeze_commit=%s|prediction_sha256=%s|binary_sha256=%s|files=%s|json=0"
-           % (result, comp, scope, a["r"], rs(g0), rs(G), rs(U), ",".join(str(s["m"]) for s in S) or "none",
-              ",".join(str(s["m"]) for s in S if s["status"] == "OK") or "none", ",".join(opf) or "none", acc, stop, rule,
+    fin = ("FLOOR_RUN|CERTIFICATE=%s|PREDICTION=%s|DECISION=%s|GAMMA=%s|UPPER_BOUND=%s|certificate_reason=%s|prediction_tested=lambda_min(QHQ)_GE_g0|decision_rule=G_max_GE_g0_ABOVE;U_min_LT_g0_BELOW;G_max_LT_g0_LE_U_min_UNRESOLVED|state_row_012=%s|scope=%s|r=%s|g0=%s|steps_run=%s|steps_ok=%s|operational_failures=%s|accepted_certificates=%d|stop=%s|rule=%s|closing_pin_check=rows_%d_bad_%d|private_tools_check=files_%d_bad_%d|predict_met=%s|predict_not_met=%s|predict_other=%s|freeze_commit=%s|prediction_sha256=%s|binary_sha256=%s|HASHES=%s|json=0"
+           % (cert, pred, dec, rs(G), rs(U), why, st, scope, a["r"], rs(g0), ",".join(str(s["m"]) for s in S) or "none",
+              ",".join(str(s["m"]) for s in S if s["status"] == "OK") or "none", ",".join(opf) or "none", acc, stop, rule, pn, pbad, len(TOOLS), len(tb),
               met, notmet, other, a.get("commit", "NONE"), sha(a["pred"]), a.get("fbsha", "NONE"), key))
     o = ["# floor run receipt written by final/tools/floor_eval.py; pipe rows; json=0",
          "RECEIPT|scope=%s|r=%s|mode=%s|driver_sha256=%s|evaluator_sha256=%s|json=0" % (scope, a["r"], a["mode"], a.get("drvsha", "NONE"), sha(sys.argv[0]))]
@@ -652,7 +795,7 @@ def cmd_final(a):
         o.extend((re.sub(r"\|accepted=[0-9]+\|", "|accepted=0_ROW_008|", x) if failed else x) for x in s["raw"])
         o.append("ACCEPTED|m0=%d|count=%d|json=0" % (s["m"], 0 if failed or s["status"] != "OK" else sum(1 for c in s["certs"] if c.get("accepted") == "1")))
     for x in lines(out + "/log/run.log"):
-        if x.startswith("DECISION|") or x.startswith("INVOKE|") or x.startswith("INJECTED|") or x.startswith("NOTE|"):
+        if x.startswith("DECISION|") or x.startswith("INVOKE|") or x.startswith("INJECTED|") or x.startswith("NOTE|") or x.startswith("TOOL"):
             o.append(x if x.endswith("json=0") else x + "|json=0")
     for k in sorted(P):
         o.append("PREDICT_SCORE|row=%s|value=%s|outcome=%s|scope=%s|json=0" % (k, R[k][1].get("value", ""), P[k], scope))
@@ -664,10 +807,23 @@ def cmd_final(a):
     with open(a["receipt"] + ".sha256", "w", encoding="utf-8", newline="\n") as fh:
         fh.write("%s  %s\n" % (sha(a["receipt"]), os.path.basename(a["receipt"])))
     print(fin)
-    sys.exit(0 if result == "PASS" else (1 if result == "FAIL" else 2))
+    if failed:
+        sys.exit(1)
+    if cert == "PASS" and dec == "ABOVE":
+        sys.exit(0)
+    if cert == "PASS" and dec == "BELOW":
+        sys.exit(3)
+    sys.exit(2)
 
 
-CMDS = {"rcheck": cmd_rcheck, "pins": cmd_pins, "prereq": cmd_prereq, "step": cmd_step, "decide": cmd_decide, "final": cmd_final}
+CMDS = {"rcheck": cmd_rcheck, "pins": cmd_pins, "prereq": cmd_prereq, "step": cmd_step, "opfail": cmd_opfail,
+        "decide": cmd_decide, "final": cmd_final}
 if len(sys.argv) < 2 or sys.argv[1] not in CMDS:
-    die("usage: floor_eval.py rcheck|pins|prereq|step|decide|final key=value ...")
-CMDS[sys.argv[1]](args(sys.argv[2:]))
+    die("usage: floor_eval.py rcheck|pins|prereq|step|opfail|decide|final key=value ...")
+ARGS = args(sys.argv[2:])
+if "limkb" in ARGS:
+    # a lowered memory limit exists for rehearsals only; the frozen run has the limit of row 011 and no other
+    if ARGS.get("mode") != "test" or not ARGS["limkb"].isdigit() or not 1 <= int(ARGS["limkb"]) <= LIM_KB:
+        die("limkb is a test-mode argument between 1 and %d" % LIM_KB)
+    LIM_KB = int(ARGS["limkb"])
+CMDS[sys.argv[1]](ARGS)

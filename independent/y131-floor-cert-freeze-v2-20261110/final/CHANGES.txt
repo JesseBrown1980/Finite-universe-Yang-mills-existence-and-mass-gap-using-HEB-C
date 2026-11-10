@@ -273,10 +273,20 @@ VERSION 2 (2026-11-10, local build seat, Claude Opus 5.5; owner-relayed reviewer
 - Regression with the version 2 binary, at the excluded r 12 and 21/2 only: selftest, the m0 7 smoke certificate, the 14 m0 6 plant certificates and the
   m0 11 certificate with its key file and row hash are byte-identical to their FIX-1 pins; the required gate passes on the honest files and refuses the
   12 distinct plants. Receipts: review-v1/regression-v2/. Record row 112.
-- Launcher (added scope, owner-relayed): final/tools/run_floor.sh 7de05245684805b872b410f200e320ee7c373104818e372f8a3a60e268e5595f and final/tools/floor_eval.py
-  16303ec6dd277b19e4beefe61f4c9724490aa91f4c6b1e884c0feb75af96e644. One command for the r = 9 run: pin checks, frozen build, rowhash and cert under peak_rss.py,
+- Launcher (added scope, owner-relayed): final/tools/run_floor.sh 123aee3576084a06a259c188d7be423c387d71add70005d35526d18ece5f1286 and final/tools/floor_eval.py
+  7f135eeee03a6fd8fb0594070ac1c94c76f1448b04f59a199f0e21390536ef06. One command for the r = 9 run: pin checks, frozen build, rowhash and cert under peak_rss.py,
   gate_required.sh on every certificate, rows 006/007 decided in exact rational arithmetic from verifier-accepted certificates only, one FLOOR_RUN line,
-  a receipt. Rehearsed in test mode at excluded r only (record row 117, review-v1/rehearsal-v2/). The default mode was not run. Rows 001 006 007 008 name it.
-- Record: 3012db17c1feee49dc9b0a20da162b4272a11825ee1d7ec0631bd50d0108b9a6, 118 rows. ROWCMP_END|v1_rows=109|same_bytes=98|changed=11|changed_ids=001_003_006_007_008_009_010_013_016_020_070|new_rows=9|new_ids=110_111_112_113_114_115_116_117_118|predict_rows=16|predict_same_bytes=15|predict_value_met_if_not_met_if_falsifier_same=16|json=0
+  a receipt. Rehearsed in test mode at excluded r only (record row 117, review-v2/rehearsal-v2b/). The r = 9 mode was not run. Rows 001 006 007 008 name it.
+- CORRECTION ROUND (one commit on top of cfc57befadcb61fb36b992af841941adaecd3fd0; reviewer rulings and verifier findings, record rows 119-122):
+  final line FLOOR_RUN|CERTIFICATE=|PREDICTION=|DECISION=|GAMMA=|UPPER_BOUND=|...|HASHES= with exit codes 0 confirmed, 3 falsified, 2 undecided, 1 certificate failure;
+  every command in its own process group (setsid), a time limit ends that group only and gets no rerun; the launcher hashes every pinned program and itself
+  before every invocation, the evaluator hashes the verifier, the gate driver and the peak wrapper at every step and runs a closing pin check;
+  the launcher copies the gate driver, the verifier, the peak wrapper, the evaluator, the record and the binary into a fresh private directory, hashes the
+  copies against the frozen values and runs only the copies; a certificate needs the record of a verifier invocation with exit 0; a completed process at or
+  over 2097152 kB gives CERTIFICATE=FAIL, certificate_reason=RESOURCE_LIMIT_EXCEEDED, and no fallback (row 122);
+  the r = 9 mode needs the token --launch-r9 and an empty option value stops the launcher; a verifier process that ends with an exception or runs into the
+  time limit is an operational failure; a byte copy of the file of row 034 is carried under final/link/; review-v1/E3-PROVENANCE.hbp gains one E3_NOTE line (F8).
+  The first round's launcher rehearsals stay in review-v1/rehearsal-v2/ as history. main.rs, the binary hash, gate_required.sh and the 16 PREDICT rows are unchanged.
+- Record: adf784483eb89746c95ca17ea0589888da41d2bd2b7f221915d2b2332da23ec7, 122 rows. ROWCMP_END|v1_rows=109|same_bytes=98|changed=11|changed_ids=001_003_006_007_008_009_010_013_016_020_070|new_rows=13|new_ids=110_111_112_113_114_115_116_117_118_119_120_121_122|predict_rows=16|predict_same_bytes=15|predict_value_met_if_not_met_if_falsifier_same=16|json=0
 - final/tools/lint_result.txt holds the real lint result on the version 2 record, with the error count and the reason of each class.
 - Nothing was computed at r = 9 or at any r within 1 of 9. No push, no pull request. The r = 9 run waits for the review of this version 2 freeze.

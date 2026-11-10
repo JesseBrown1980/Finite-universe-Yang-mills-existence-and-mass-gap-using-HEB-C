@@ -1,0 +1,5 @@
+LIMCHECK|args=mode=r9,limkb=5000|exit=2|out=EVAL_ERROR:limkb_is_a_test-mode_argument_between_1_and_2097152|json=0
+LIMCHECK|args=limkb=5000|exit=2|out=EVAL_ERROR:limkb_is_a_test-mode_argument_between_1_and_2097152|json=0
+LIMCHECK|args=mode=test,limkb=0|exit=2|out=EVAL_ERROR:limkb_is_a_test-mode_argument_between_1_and_2097152|json=0
+LIMCHECK|args=mode=test,limkb=abc|exit=2|out=EVAL_ERROR:limkb_is_a_test-mode_argument_between_1_and_2097152|json=0
+LIMCHECK|args=mode=test,limkb=2097153|exit=2|out=EVAL_ERROR:limkb_is_a_test-mode_argument_between_1_and_2097152|json=0

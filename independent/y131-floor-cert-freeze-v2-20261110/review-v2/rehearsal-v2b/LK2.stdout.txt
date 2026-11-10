@@ -1,0 +1,11 @@
+RCHECK|r=12/1|within_1_of_9=0
+START|mode=test|r=12|m0_steps=7|f=4,3,2,1|g0=100/1|prediction_sha256=aaa9ac8f4f11a3f94270a003f2eba562814c196b451c7553115407ad768d4333|driver_sha256=123aee3576084a06a259c188d7be423c387d71add70005d35526d18ece5f1286|json=0
+TOOL|private_copy=gate_required.sh|source=work/design/gate_required.sh|sha256=0064ca4654aa8725f2040f8b50b01e95a521966eada0ac75ffdf2ee63b98849c|pin=020|want=0064ca4654aa8725f2040f8b50b01e95a521966eada0ac75ffdf2ee63b98849c|json=0
+TOOL|private_copy=py/cert_gate.py|source=work/design/py/cert_gate.py|sha256=6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889|pin=019|want=6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889|json=0
+TOOL|private_copy=py/indep_verify.py|source=work/design/py/indep_verify.py|sha256=497d2fbb64eb14e95522c1b39bd43b9b63103a0805b8d6b2b8caf75d898fdf24|pin=021|want=497d2fbb64eb14e95522c1b39bd43b9b63103a0805b8d6b2b8caf75d898fdf24|json=0
+TOOL|private_copy=peak_rss.py|source=work/design/peak_rss.py|sha256=9bc36642e5ae03bf1cf81c4b6cc535d8945d1e4509bc6c50bccd9aeac7b88103|pin=103|want=9bc36642e5ae03bf1cf81c4b6cc535d8945d1e4509bc6c50bccd9aeac7b88103|json=0
+TOOL|private_copy=floor_eval.py|source=final/tools/floor_eval.py|sha256=7f135eeee03a6fd8fb0594070ac1c94c76f1448b04f59a199f0e21390536ef06|pin=115|want=7f135eeee03a6fd8fb0594070ac1c94c76f1448b04f59a199f0e21390536ef06|json=0
+TOOL|private_copy=PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp|source=final/PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp|sha256=aaa9ac8f4f11a3f94270a003f2eba562814c196b451c7553115407ad768d4333|pin=record|want=aaa9ac8f4f11a3f94270a003f2eba562814c196b451c7553115407ad768d4333|json=0
+NOTE|rustc=rustc 1.81.0 (eeb90cda1 2024-09-04)|cargo=cargo 1.81.0 (2dbb1af80 2024-08-20)|json=0
+PINCHECK_RESULT|tag=1|prediction_sha256=aaa9ac8f4f11a3f94270a003f2eba562814c196b451c7553115407ad768d4333|rows=21|bad=1
+FLOOR_RUN|CERTIFICATE=FAIL|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE|certificate_reason=REQUIRED_OR_INTEGRITY_FAILURE_ROW_008|stage=prelude|reason=pin_check_1_mismatch_row_010|r=12|steps_run=none|accepted_certificates=0|certificate_commands_run=0|HASHES=NONE|json=0

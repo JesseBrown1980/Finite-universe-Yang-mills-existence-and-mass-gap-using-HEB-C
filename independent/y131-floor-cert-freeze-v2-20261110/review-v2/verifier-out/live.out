@@ -1,0 +1,79 @@
+L1 gate_required.sh during run sha16=836c437db4432e33 (row 020 0064ca4654aa8725)
+== L1 rc=0
+INVOKE|seq=1|m0=7|kind=rowhash|attempt=1|rc=0|limit_s=21600|log=log/m7_rowhash_a1.txt|log_sha256=6dcfed192218f58927f0f390b817a67489a8e2d8edaa21b13012c903a9c93b03
+INVOKE|seq=2|m0=7|kind=cert|attempt=1|rc=0|limit_s=21600|log=log/m7_cert_a1.txt|log_sha256=6248fd341391e53bb26029e7222c6e00055f30464ef19dedbbfe8d74a52cd79a
+INVOKE|seq=3|m0=7|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m7_gate_cert_m7_r12_1_f1.txt_a1.txt|log_sha256=231f4a40e6b23036b6c349a2aa882dce9b69398b0a9047dbc85d22fd02dd408f
+INVOKE|seq=4|m0=7|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m7_gate_cert_m7_r12_1_f4-3-2-1.txt_a1.txt|log_sha256=e55f7de7cd81fce1afa5b7a57e6fea6844b8a7a1e95ab582389cfce60550fc99
+STEP|m0=7|status=OK|accepted=2|certificates=2|G=1042273/10000|U=104854118000000/1000000000000|U_verifier_only=104854118000000/1000000000000|writer_peak_kB=7656|verifier_mem_max_kB=22180|rowhash=6cfcff
+DECISION|after_m0=7|state=ABOVE|G_max=1042273/10000|G_max_vs_g0=GE|g0=100/1|U_all=104854118000000/1000000000000|U_all_vs_g0=GE|U_all_verifier_only=104854118000000/1000000000000|inputs=verifier_accepte
+FLOOR_RUN|result=PASS|comparison=ABOVE|accepted_certificates=2|stop=DECIDED
+ACCEPTED|m0=7|count=2|json=0 
+MEM|22172kB
+MEM|22172kB
+== L1b rc=1
+INVOKE|seq=1|m0=7|kind=rowhash|attempt=1|rc=0|limit_s=21600|log=log/m7_rowhash_a1.txt|log_sha256=7bbcfe0273e3a043a1a07e41a0d9316c47a8c21a8c43e957dca6c8c1f5a4cd09
+INVOKE|seq=2|m0=7|kind=cert|attempt=1|rc=0|limit_s=21600|log=log/m7_cert_a1.txt|log_sha256=b0769c0557d787e29e5339e11779f54c3653205f5f2f58215aabe54b35ad476a
+INVOKE|seq=3|m0=7|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m7_gate_cert_m7_r12_1_f1.txt_a1.txt|log_sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+INVOKE|seq=4|m0=7|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m7_gate_cert_m7_r12_1_f4-3-2-1.txt_a1.txt|log_sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+STEP|m0=7|status=FAIL|accepted=0|certificates=2|G=NONE|U=NONE|U_verifier_only=NONE|writer_peak_kB=7652|verifier_mem_max_kB=0|rowhash=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|ke
+DECISION|after_m0=7|state=FAIL|G_max=NONE|G_max_vs_g0=NONE|g0=100/1|U_all=NONE|U_all_vs_g0=NONE|U_all_verifier_only=NONE|inputs=verifier_accepted_certificates_only|next=STOP|rule=row_008|json=0
+FLOOR_RUN|result=FAIL|comparison=NONE_ROW_008|accepted_certificates=0|stop=DECIDED
+ACCEPTED|m0=7|count=0|json=0 
+== L2 rc=1
+INVOKE|seq=1|m0=7|kind=rowhash|attempt=1|rc=0|limit_s=21600|log=log/m7_rowhash_a1.txt|log_sha256=7806db32f74c3fb6037c3ea83361a00091107a54915f2e845155f37225d3840b
+INVOKE|seq=2|m0=7|kind=cert|attempt=1|rc=0|limit_s=21600|log=log/m7_cert_a1.txt|log_sha256=7ec259e2a8d15c75cbc02fd5c79fbcb0a249b2636cefdf0edd5ec431f68ed20f
+INVOKE|seq=3|m0=7|kind=gate|attempt=1|rc=1|limit_s=21600|log=log/m7_gate_cert_m7_r12_1_f1.txt_a1.txt|log_sha256=2c0f3705cbd17359f623df8d3aa34429d491d50bc6dd6573d1d5d1317d53463a
+INVOKE|seq=4|m0=7|kind=gate|attempt=1|rc=1|limit_s=21600|log=log/m7_gate_cert_m7_r12_1_f4-3-2-1.txt_a1.txt|log_sha256=2c0f3705cbd17359f623df8d3aa34429d491d50bc6dd6573d1d5d1317d53463a
+STEP|m0=7|status=FAIL|accepted=0|certificates=2|G=NONE|U=NONE|U_verifier_only=NONE|writer_peak_kB=7696|verifier_mem_max_kB=0|rowhash=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|ke
+DECISION|after_m0=7|state=FAIL|G_max=NONE|G_max_vs_g0=NONE|g0=100/1|U_all=NONE|U_all_vs_g0=NONE|U_all_verifier_only=NONE|inputs=verifier_accepted_certificates_only|next=STOP|rule=row_008|json=0
+FLOOR_RUN|result=FAIL|comparison=NONE_ROW_008|accepted_certificates=0|stop=DECIDED
+ACCEPTED|m0=7|count=0|json=0 
+== L3 rc=1
+FLOOR_RUN|result=FAIL|stage=prelude|reason=pin_check_1_mismatch_row_010|r=12|steps_run=none|accepted_certificates=0|certificate_commands_run=0|json=0
+
+PINCHECK|id=024|path=work/design/NOTE.md|source=tree|want=ac7bb14d0c15e0b779d59d09f212da4a699c36ebf4cc2fa0b14d96bccf2929
+== L7 rc=1
+INVOKE|seq=1|m0=7|kind=rowhash|attempt=1|rc=0|limit_s=21600|log=log/m7_rowhash_a1.txt|log_sha256=832afe4ddbf272abc8dc491df3181c2d76cf525ddd59ba4cf7f5c0dcb35b4100
+INVOKE|seq=2|m0=7|kind=cert|attempt=1|rc=0|limit_s=21600|log=log/m7_cert_a1.txt|log_sha256=4d2eaf218940e870b9335741135a46f93b5537486a906e334f43c642d78cad54
+INVOKE|seq=3|m0=7|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m7_gate_cert_m7_r12_1_f1.txt_a1.txt|log_sha256=6e7c76e7f745ff9325f25e9b5ee013077a225c50fa4abdb682c2b1c9fa1dafb5
+INVOKE|seq=4|m0=7|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m7_gate_cert_m7_r12_1_f4-3-2-1.txt_a1.txt|log_sha256=69a09d20b91400327f7ab3f60f0a82ce11809d20278ebb2c10d92bdfb0a55dff
+STEP|m0=7|status=FAIL|accepted=0|certificates=2|G=NONE|U=NONE|U_verifier_only=NONE|writer_peak_kB=7636|verifier_mem_max_kB=22132|rowhash=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3
+DECISION|after_m0=7|state=FAIL|G_max=NONE|G_max_vs_g0=NONE|g0=100/1|U_all=NONE|U_all_vs_g0=NONE|U_all_verifier_only=NONE|inputs=verifier_accepted_certificates_only|next=STOP|rule=row_008|json=0
+FLOOR_RUN|result=FAIL|comparison=NONE_ROW_008|accepted_certificates=0|stop=DECIDED
+ACCEPTED|m0=7|count=0|json=0 
+GATE_REQUIRED|PASS|cert=/root/floor-v2-verify/reh/L7/RUN7/cert_m7_r12_1_f4-3-2-1
+== L4 rc=2
+INVOKE|seq=1|m0=7|kind=rowhash|attempt=1|rc=0|limit_s=21600|log=log/m7_rowhash_a1.txt|log_sha256=1615b3a142274ffff04443da493e656b3838f670fd14b8448f67318f9049113d
+INVOKE|seq=2|m0=7|kind=cert|attempt=1|rc=137|limit_s=21600|log=log/m7_cert_a1.txt|log_sha256=f5456470abf92d15fb9ce434cf1a4a63a2b896de890f10f1c54fb77fd7d088fa
+NOTE|rerun_once_with_identical_arguments=row_008|m0=7|kind=cert|first_rc=137|json=0
+INVOKE|seq=3|m0=7|kind=cert|attempt=2|rc=137|limit_s=21600|log=log/m7_cert_a2.txt|log_sha256=aa5c0348b3a97edd1014d468ca53ce5c1a5a8b225b8e66e8eba6f3b32493b1bd
+STEP|m0=7|status=OPFAIL|accepted=0|bad=cert_command_crash|json=0
+DECISION|after_m0=7|state=NO_CERTIFICATE_OPERATIONAL|G_max=NONE|G_max_vs_g0=NONE|g0=100/1|U_all=NONE|U_all_vs_g0=NONE|U_all_verifier_only=NONE|inputs=verifier_accepted_certificates_only|next=STOP|rule
+FLOOR_RUN|result=UNRESOLVED|comparison=NO_CERTIFICATE_OPERATIONAL|accepted_certificates=0|stop=DECIDED
+ACCEPTED|m0=7|count=0|json=0 
+== L6 rc=2
+INJECTED|m0=7|kind=rowhash|what=crash_by_signal_in_place_of_the_first_attempt|json=0
+INVOKE|seq=1|m0=7|kind=rowhash|attempt=1|rc=139|limit_s=21600|log=log/m7_rowhash_a1.txt|log_sha256=b639c106c52c7b6a8cf7c9b5a2be865ab51c4f10be317f48680c93ed8a62fdbf
+NOTE|rerun_once_with_identical_arguments=row_008|m0=7|kind=rowhash|first_rc=139|json=0
+INVOKE|seq=2|m0=7|kind=rowhash|attempt=2|rc=0|limit_s=21600|log=log/m7_rowhash_a2.txt|log_sha256=2650e8c77911befcbc5a5be4736e0b78221ef322670aba38a4340f5b1fe699a0
+INVOKE|seq=3|m0=7|kind=cert|attempt=1|rc=137|limit_s=21600|log=log/m7_cert_a1.txt|log_sha256=d72f59270c79c45054a5e6a52ced9cfdfa1dc09cec761ebf2fbf500d53b58825
+STEP|m0=7|status=OPFAIL|accepted=0|bad=cert_command_crash|json=0
+DECISION|after_m0=7|state=NO_CERTIFICATE_OPERATIONAL|G_max=NONE|G_max_vs_g0=NONE|g0=100/1|U_all=NONE|U_all_vs_g0=NONE|U_all_verifier_only=NONE|inputs=verifier_accepted_certificates_only|next=STOP|rule
+FLOOR_RUN|result=UNRESOLVED|comparison=NO_CERTIFICATE_OPERATIONAL|accepted_certificates=0|stop=DECIDED
+ACCEPTED|m0=7|count=0|json=0 
+== L8 rc=2
+INVOKE|seq=1|m0=7|kind=rowhash|attempt=1|rc=0|limit_s=21600|log=log/m7_rowhash_a1.txt|log_sha256=8a4e61d3f80ec0ab25ea43a13c85a8bd7c73df75f5c2f2f3cd28eee63bc9f95f
+INVOKE|seq=2|m0=7|kind=cert|attempt=1|rc=0|limit_s=21600|log=log/m7_cert_a1.txt|log_sha256=7736b1a7877e9cdb5d106d093e7a635682277c4a07b99f0596f8446e67c4c4d3
+INVOKE|seq=3|m0=7|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m7_gate_cert_m7_r12_1_f1.txt_a1.txt|log_sha256=06298742a7e74d8380767f12938196242cd2123a2860b12eba371dd2abc2cfe0
+INVOKE|seq=4|m0=7|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m7_gate_cert_m7_r12_1_f4-3-2-1.txt_a1.txt|log_sha256=8330f5168e6eb2837000eebfee564deaec367fb9fac22a5b534bb15ddfbadf55
+STEP|m0=7|status=OK|accepted=2|certificates=2|G=1042273/10000|U=104854118000000/1000000000000|U_verifier_only=104854118000000/1000000000000|writer_peak_kB=7664|verifier_mem_max_kB=22092|rowhash=6cfcff
+DECISION|after_m0=7|state=UNDECIDED|G_max=1042273/10000|G_max_vs_g0=LT|g0=1045/10|U_all=104854118000000/1000000000000|U_all_vs_g0=GE|U_all_verifier_only=104854118000000/1000000000000|inputs=verifier_a
+INVOKE|seq=5|m0=8|kind=rowhash|attempt=1|rc=0|limit_s=21600|log=log/m8_rowhash_a1.txt|log_sha256=feb01917eb5ab79ea878b06aa6adb6ebce99e78e20a536adf89717f5370ebc67
+INVOKE|seq=6|m0=8|kind=cert|attempt=1|rc=0|limit_s=21600|log=log/m8_cert_a1.txt|log_sha256=3aeafdab341084d833a8000f890091a93ea838dada50d3c9f55d30dd5eadee84
+INVOKE|seq=7|m0=8|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m8_gate_cert_m8_r12_1_f1.txt_a1.txt|log_sha256=10019eda60f3851687d51cf2fb52eb8b8c755c84a29caa9f9c6de17bdddb88cb
+INVOKE|seq=8|m0=8|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m8_gate_cert_m8_r12_1_f4-3-2-1.txt_a1.txt|log_sha256=a0b162907ae53d996933b588b3cbfa513ac94ad7018ff501f2ff71a068ea04f8
+STEP|m0=8|status=OK|accepted=2|certificates=2|G=1044197/10000|U=104509140000000/1000000000000|U_verifier_only=104509140000000/1000000000000|writer_peak_kB=23564|verifier_mem_max_kB=41692|rowhash=714b8
+DECISION|after_m0=8|state=UNDECIDED|G_max=1044197/10000|G_max_vs_g0=LT|g0=1045/10|U_all=104509140000000/1000000000000|U_all_vs_g0=GE|U_all_verifier_only=104509140000000/1000000000000|inputs=verifier_a
+FLOOR_RUN|result=UNRESOLVED|comparison=UNDECIDED|accepted_certificates=4|stop=DECIDED
+ACCEPTED|m0=7|count=2|json=0 ACCEPTED|m0=8|count=2|json=0 
+9533e7e902ff5656

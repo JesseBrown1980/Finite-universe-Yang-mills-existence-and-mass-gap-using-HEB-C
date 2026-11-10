@@ -1,0 +1,2 @@
+ATTACK|file=work/design/rs/target/release/floorcert|how=byte|launcher_sha16=123aee3576084a06|changed_after_the_binary_line=1|sha256_after_change=f06f6b2fffbf4a25d06d00ea90ba3600dc304adaa27b844f43ab2a93ce024c7f|json=0
+ATTACK_END|file=work/design/rs/target/release/floorcert|put_back=1|copy_equals_repository_file=1|fake_gate_calls=0|json=0

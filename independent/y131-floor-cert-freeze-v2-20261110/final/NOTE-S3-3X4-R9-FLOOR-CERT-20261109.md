@@ -8,7 +8,7 @@ an operational review of version 1 (verifier report under `review-v1/`, verdict 
 history of version 1, including the disclosed near-9 critic run of row 093. It claims no new blind history.
 
 The version 2 record is `PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp` with sha256
-`3012db17c1feee49dc9b0a20da162b4272a11825ee1d7ec0631bd50d0108b9a6`, 118 rows. Rows 110-118 disclose the review and everything run
+`adf784483eb89746c95ca17ea0589888da41d2bd2b7f221915d2b2332da23ec7`, 122 rows. Rows 110-122 disclose the review and everything run
 for version 2 and pin the launcher. Rows 001, 003, 006, 007, 008, 009, 010, 013, 016, 020 and 070 are revised (006, 007
 and 008 keep every version 1 byte and gain one field naming the launcher); the other 98 rows are byte-identical to
 version 1 (`review-v1/ROW-COMPARE-V1-V2.hbp`). Every PREDICT row keeps its value, met_if, not_met_if and falsifier.
@@ -18,13 +18,29 @@ New hashes: `main.rs` `f173b6833b194a0bab6cab6d0ef30b125993aa70f306050397247ed03
 `0064ca4654aa8725f2040f8b50b01e95a521966eada0ac75ffdf2ee63b98849c`, `r_scan.sh`
 `a666deb720747de4b6e56f104eb477930afde6f0fefcae7a14145a32b6a4b46f`.
 
-The r = 9 run is launched by one command, `bash final/tools/run_floor.sh` (sha256
-`7de05245684805b872b410f200e320ee7c373104818e372f8a3a60e268e5595f`, with the evaluator `final/tools/floor_eval.py`
-`16303ec6dd277b19e4beefe61f4c9724490aa91f4c6b1e884c0feb75af96e644`). It checks the pins, builds the frozen binary, runs rowhash and
+The r = 9 run is launched by one command, `bash final/tools/run_floor.sh --launch-r9` (sha256
+`123aee3576084a06a259c188d7be423c387d71add70005d35526d18ece5f1286`, with the evaluator `final/tools/floor_eval.py`
+`7f135eeee03a6fd8fb0594070ac1c94c76f1448b04f59a199f0e21390536ef06`). It checks the pins, builds the frozen binary, runs rowhash and
 cert at m0 = 11, runs the required gate on every certificate, decides rows 006 and 007 in exact rational arithmetic on
-verifier-accepted certificates, and ends with one `FLOOR_RUN|result=PASS|FAIL|UNRESOLVED` line and a hash-listed receipt.
-Record rows 114-117 define it and list its rehearsals at excluded r. The default mode has never been run; the r = 9
+verifier-accepted certificates, and ends with one line
+`FLOOR_RUN|CERTIFICATE=PASS or FAIL|PREDICTION=CONFIRMED or FALSIFIED or UNRESOLVED|DECISION=ABOVE or BELOW or UNRESOLVED|GAMMA=|UPPER_BOUND=|...|HASHES=`
+and a hash-listed receipt. CERTIFICATE says whether the gates and the integrity checks held; PREDICTION says whether
+lambda_min(QHQ) >= g0 was confirmed or falsified. A falsified prediction reads CERTIFICATE=PASS, PREDICTION=FALSIFIED,
+DECISION=BELOW, exit code 3. An integrity or gate failure reads CERTIFICATE=FAIL with GAMMA=NONE and UPPER_BOUND=NONE.
+Record rows 114-117 define it and list its rehearsals at excluded r. The r = 9 mode has never been run; the r = 9
 run is on HOLD until this freeze passes review.
+
+Correction round (same day, one commit on top of the first version 2 commit `cfc57befadcb61fb36b992af841941adaecd3fd0`):
+the reviewer's rulings and the findings of the separate verifier seat (`review-v2/`) are applied to the launcher and the
+evaluator. The Rust source, the binary hash and the 16 PREDICT rows are byte-identical to that commit
+(`review-v2/ROW-COMPARE-CFC57BEF.hbp`). Record row 119 lists each finding and its change, row 120 and
+`review-v2/MODIFIED-ROWS-V1-V2.hbp` account for the 11 modified rows field by field, row 121 puts the two readings of
+rows 006 and 011 at 2 GB before the reviewer, and row 122 records the reviewer's ruling on them: a process that completes
+at or over 2 GiB (2,097,152 KiB) gives CERTIFICATE=FAIL with reason RESOURCE_LIMIT_EXCEEDED and no fallback; a timeout or
+a crash may trigger fallback only when the applicable REQUIRED gates have not failed. The launcher runs private, hashed,
+read-only copies of the gate driver, the verifier, the peak wrapper and the evaluator, and a certificate is accepted only
+with the record of a verifier invocation that exited 0 (row 122). `review-v2/rehearsal-v2b/` holds the swap of the gate
+driver as found against the first version 2 commit (X1) and its rejection by this launcher (Y1, Y1b, P1).
 
 The text below this notice is the version 1 note, unchanged. Where it gives the version 1 record hash, the version 1
 hashes of `main.rs`, the binary, `gate_required.sh` or `r_scan.sh`, the absolute scratch paths, or the row count 109, the

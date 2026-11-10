@@ -1,12 +1,12 @@
-# Row-by-row comparison of the prediction record of version 1 (commit e74d8a46, sha256 d06ff237f55a762e7c50087d98a757ed366e749f6a736c9c1793f495efd84041) and version 2 (sha256 3012db17c1feee49dc9b0a20da162b4272a11825ee1d7ec0631bd50d0108b9a6). Made by compare.py from the two files. HBP, json=0.
-ROWCMP|id=001|type=FREEZE|tag=REQUIRED|same_bytes=0|sha16_v1=e12d892c97ccf57d|sha16_v2=63c3a41dc20329d2|changed_fields=+v2_launch,+v2_dir_sequence|value_met_if_not_met_if_falsifier_same=1|json=0
+# Row-by-row comparison of the prediction record of version 1 (commit e74d8a46, sha256 d06ff237f55a762e7c50087d98a757ed366e749f6a736c9c1793f495efd84041) and version 2 (sha256 adf784483eb89746c95ca17ea0589888da41d2bd2b7f221915d2b2332da23ec7). Made by compare.py from the two files. HBP, json=0.
+ROWCMP|id=001|type=FREEZE|tag=REQUIRED|same_bytes=0|sha16_v1=e12d892c97ccf57d|sha16_v2=170914bb4a5446cd|changed_fields=+v2_launch,+v2_dir_sequence|value_met_if_not_met_if_falsifier_same=1|json=0
 ROWCMP|id=002|type=FREEZE|tag=REQUIRED|same_bytes=1|sha16_v1=e36cffea125a26a5|sha16_v2=e36cffea125a26a5|json=0
 ROWCMP|id=003|type=FREEZE|tag=REQUIRED|same_bytes=0|sha16_v1=f095298c2dc679ad|sha16_v2=4a0bc569580b1a21|changed_fields=value,+v2|value_met_if_not_met_if_falsifier_same=0|json=0
 ROWCMP|id=004|type=FREEZE|tag=REQUIRED|same_bytes=1|sha16_v1=133c797e4fb08cfb|sha16_v2=133c797e4fb08cfb|json=0
 ROWCMP|id=005|type=FREEZE|tag=REQUIRED|same_bytes=1|sha16_v1=da1c213adc540747|sha16_v2=da1c213adc540747|json=0
 ROWCMP|id=006|type=FREEZE|tag=REQUIRED|same_bytes=0|sha16_v1=aeb5521b4b9c2f00|sha16_v2=c35ca655ee5e9e0c|changed_fields=+v2_launch|value_met_if_not_met_if_falsifier_same=1|json=0
 ROWCMP|id=007|type=FREEZE|tag=REQUIRED|same_bytes=0|sha16_v1=afe13b1179fb78dd|sha16_v2=57001229590afd82|changed_fields=+v2_launch|value_met_if_not_met_if_falsifier_same=1|json=0
-ROWCMP|id=008|type=FREEZE|tag=REQUIRED|same_bytes=0|sha16_v1=b0defa01bec749a7|sha16_v2=aa0a0445a6afe952|changed_fields=+v2_launch|value_met_if_not_met_if_falsifier_same=1|json=0
+ROWCMP|id=008|type=FREEZE|tag=REQUIRED|same_bytes=0|sha16_v1=b0defa01bec749a7|sha16_v2=87d8c3859c8141e8|changed_fields=+v2_launch|value_met_if_not_met_if_falsifier_same=1|json=0
 ROWCMP|id=009|type=FREEZE|tag=REQUIRED|same_bytes=0|sha16_v1=9c3a7729a06430d1|sha16_v2=03ba8d095c176693|changed_fields=rule|value_met_if_not_met_if_falsifier_same=1|json=0
 ROWCMP|id=010|type=FREEZE|tag=REQUIRED|same_bytes=0|sha16_v1=cf7861699fd9361e|sha16_v2=d419272e6c681ddb|changed_fields=value,rule|value_met_if_not_met_if_falsifier_same=0|json=0
 ROWCMP|id=011|type=FREEZE|tag=REQUIRED|same_bytes=1|sha16_v1=02644aa5e7c9f0bb|sha16_v2=02644aa5e7c9f0bb|json=0
@@ -111,10 +111,14 @@ ROWCMP|id=109|type=DISCLOSE|tag=REPORTED|same_bytes=1|sha16_v1=a4d70334c244b976|
 ROWNEW|id=110|type=DISCLOSE|tag=REPORTED|sha16_v2=fd850fcf82477891|json=0
 ROWNEW|id=111|type=DISCLOSE|tag=REPORTED|sha16_v2=c6f4c60ec8597ac0|json=0
 ROWNEW|id=112|type=DISCLOSE|tag=REPORTED|sha16_v2=cd5480029e431fb0|json=0
-ROWNEW|id=113|type=DISCLOSE|tag=REPORTED|sha16_v2=c065b5444b24ba61|json=0
-ROWNEW|id=114|type=PIN|tag=REQUIRED|sha16_v2=0a043f3839d1fd35|json=0
-ROWNEW|id=115|type=PIN|tag=REQUIRED|sha16_v2=bf3c354dcd85d5a2|json=0
-ROWNEW|id=116|type=DISCLOSE|tag=REPORTED|sha16_v2=826fc1a5e2889d0d|json=0
-ROWNEW|id=117|type=DISCLOSE|tag=REPORTED|sha16_v2=bfa99a0a75ce5ef3|json=0
-ROWNEW|id=118|type=DISCLOSE|tag=REPORTED|sha16_v2=de333dcfd624abca|json=0
-ROWCMP_END|v1_rows=109|same_bytes=98|changed=11|changed_ids=001_003_006_007_008_009_010_013_016_020_070|new_rows=9|new_ids=110_111_112_113_114_115_116_117_118|predict_rows=16|predict_same_bytes=15|predict_value_met_if_not_met_if_falsifier_same=16|json=0
+ROWNEW|id=113|type=DISCLOSE|tag=REPORTED|sha16_v2=580eb8b3437d8d1d|json=0
+ROWNEW|id=114|type=PIN|tag=REQUIRED|sha16_v2=81f035e65dcb8217|json=0
+ROWNEW|id=115|type=PIN|tag=REQUIRED|sha16_v2=5ef9e87f39aa4d51|json=0
+ROWNEW|id=116|type=DISCLOSE|tag=REPORTED|sha16_v2=c046543503c33ee5|json=0
+ROWNEW|id=117|type=DISCLOSE|tag=REPORTED|sha16_v2=df4e261f93eed347|json=0
+ROWNEW|id=118|type=DISCLOSE|tag=REPORTED|sha16_v2=34b5a27bb0c5c9bb|json=0
+ROWNEW|id=119|type=DISCLOSE|tag=REPORTED|sha16_v2=fcb40b30d312fb4f|json=0
+ROWNEW|id=120|type=DISCLOSE|tag=REPORTED|sha16_v2=601a393ce9875500|json=0
+ROWNEW|id=121|type=DISCLOSE|tag=REPORTED|sha16_v2=d30c94d8e9910f8e|json=0
+ROWNEW|id=122|type=DISCLOSE|tag=REPORTED|sha16_v2=d603094df428da5e|json=0
+ROWCMP_END|v1_rows=109|same_bytes=98|changed=11|changed_ids=001_003_006_007_008_009_010_013_016_020_070|new_rows=13|new_ids=110_111_112_113_114_115_116_117_118_119_120_121_122|predict_rows=16|predict_same_bytes=15|predict_value_met_if_not_met_if_falsifier_same=16|json=0
