@@ -1,0 +1,237 @@
+# Global-lock measurement (PR #159), acceptance gates. Integer only, json=0.
+# 1. The independent refuter's filed evidence is checked against its manifest: manifest sha256, then every file's path, byte
+#    count and sha256, then that the folder holds nothing else apart from the manifest, the README and an optional FILED.hbp.
+# 2. The gates in gl_accept.py recompute rho44, P2max, the M=4 move profiles and the level index from the lattice with the
+#    refuter's filed code and compare the measurement with that recomputation. Each planted fault must fail by name.
+# 3. The 3x3 points and the 1x3 and 3x1 full tori are recomputed here. The long 3x4 runs are compared row by row with the
+#    filed outputs (the PR's runs, the refuter's replay, the rows after the check rename).
+name: GL159 acceptance gates
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'independent/global-lock-20261110/measure/**'
+      - 'reviews/opus55-gl159-refute-20261110/**'
+      - '.github/workflows/gl159-acceptance-gates.yml'
+      - '.gitattributes'
+  pull_request:
+    paths:
+      - 'independent/global-lock-20261110/measure/**'
+      - 'reviews/opus55-gl159-refute-20261110/**'
+      - '.github/workflows/gl159-acceptance-gates.yml'
+      - '.gitattributes'
+
+permissions:
+  contents: read
+
+env:
+  # the refuter manifest's sha256, as recorded in the PR #159 body; the manifest was filed alone in commit 68c3cc1
+  REFUTER_MANIFEST_SHA256: c329a89f831189202af5754ab52899111ac856ed0a4b94a91af9b4ac9b693d4b
+  REFUTER_RECEIPT_SHA256: d00cda91fa1fd83dde2193e8b5c022ef046376d28f8b1f28fa950824446f9b74
+  M: independent/global-lock-20261110/measure
+  R: reviews/opus55-gl159-refute-20261110
+
+jobs:
+  manifest-and-gates:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: No floating point
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py --selftest
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+      - name: The refuter's filed evidence against its manifest (manifest sha256, then path, bytes, sha256 of each file, then unlisted files)
+        run: bash "$M/verify_refuter_manifest.sh" "$REFUTER_MANIFEST_SHA256"
+      - name: The manifest check goes red on an unlisted file, a changed byte, a missing file and a changed manifest
+        run: |
+          set -euo pipefail
+          t=$(mktemp -d)
+          expect() { # name, expected check
+            rc=0; bash "$M/verify_refuter_manifest.sh" "$REFUTER_MANIFEST_SHA256" "$t/$1" > "$t/$1.out" || rc=$?
+            test "$rc" -eq 1
+            grep -q "^FAILED|check=$2|" "$t/$1.out"
+            echo "MANIFEST_PLANT|name=$1|caught_as=$2|exit_code=$rc|json=0"
+          }
+          for c in unlisted changed missing manifest; do cp -r "$R" "$t/$c"; done
+          : > "$t/unlisted/indep/extra.rows"
+          printf 'x' >> "$t/changed/indep_gl.py"
+          rm "$t/missing/plant/exits"
+          printf '\n' >> "$t/manifest/REFUTER-MANIFEST.hbp"
+          expect unlisted unlisted
+          expect changed bytes
+          expect missing missing
+          expect manifest manifest_sha256
+      - name: Sidecars, the refuter's receipt hash, the frozen prediction files
+        run: |
+          set -euo pipefail
+          (cd "$R" && sha256sum --strict -c REFUTE-GL159.hbp.sha256 REFUTE-GL159.md.sha256 build_refute_hbp.py.sha256 fullspace.py.sha256 indep_gl.py.sha256 plant.py.sha256 rederive.py.sha256)
+          test "$(sha256sum "$R/REFUTE-GL159.hbp" | cut -c1-64)" = "$REFUTER_RECEIPT_SHA256"
+          (cd "$M" && sha256sum --strict -c MEASURE-GLOBAL-LOCK.hbp.sha256 ACCEPTANCE-GATES.hbp.sha256 ELECTRIC-TERM-NOTE.hbp.sha256 CHECK-RENAMES.hbp.sha256)
+          test "$(sha256sum docs/PREDICTION-GLOBAL-LOCK-20261110.hbp | cut -c1-64)" = 93350dd41e7d8817647ccefa3d7ac6cf890bf09ef694c0037f1f9681f41ff738
+          test "$(sha256sum docs/ERRATUM-GLOBAL-LOCK-20261110.hbp | cut -c1-64)" = c358974c9b55f400bd4e2aefdc2cf50f6468176256237e562840681ea96ec11f
+          test "$(sha256sum "$M/CONTROLS-PREDICT.hbp" | cut -c1-64)" = caca9c6dba1c56401182dde8fe58ea6d63f5f3d6ec6d98e0ca8ed48a48d0122c
+      - name: Earlier measurement rows are unchanged (the PR's first runs, by sha256)
+        run: |
+          set -euo pipefail
+          cd "$M/runs"
+          sha256sum --strict -c - <<'EOF'
+          b2fc3341ed662342e945a9c407b9b03d6bdf9a2a0abf96ea7db7307bd3d30ab0  levels-3x3.rows
+          bf49352cef1db3a607ca2b054a497451125a811e64a70dc7675da87f5adb7770  levels-3x4.rows
+          c82ed05ffd0ba335e4c7ffa644f33dcd94a5c6ee52615211a7d579efe4dda6b6  levels-3x4-k3plus.rows
+          cc2bb5ec1cdac9f45977280c5f13e0e7f9d9bd773f57cdc9fcf9d927a68916fb  controls.rows
+          EOF
+      - name: Planted faults, module grain and filed outputs, each caught by name
+        run: |
+          set -euo pipefail
+          mkdir -p build/gl159
+          o=build/gl159/plants-fast.rows
+          python3 -I -B "$M/gl_accept_plants.py" fast "$RUNNER_TEMP/gl159-plants" | tee "$o"
+          grep -q '^PLANT|name=p2_95|grain=live_module_3x3|.*|observed_check=accept_P2max_equals_independent_recount|exit_code=1|.*|result=CAUGHT_BY_NAME|' "$o"
+          grep -q '^PLANT|name=floor105|grain=live_module_3x3|.*|observed_check=accept_floor_at_most_certified_value|exit_code=1|.*|result=CAUGHT_BY_NAME|' "$o"
+          grep -q '^PLANT|name=drop_edge|grain=live_module_3x3|.*|observed_check=accept_m4_exterior_edges_complete|exit_code=1|.*|result=CAUGHT_BY_NAME|' "$o"
+          grep -q '^PLANT|name=p2_95_3x3_r243|grain=filed_plant_output|.*|observed_check=accept_P2max_equals_independent_recount|exit_code=1|' "$o"
+          grep -q '^PLANT|name=floor105_3x3_r243|grain=filed_plant_output|.*|observed_check=accept_floor_at_most_certified_value|exit_code=1|' "$o"
+          grep -q '^PLANT|name=drop_edge_3x3_r243|grain=filed_plant_output|.*|observed_check=accept_replay_computational_rows_equal|exit_code=1|' "$o"
+          grep -q '^PLANT|name=e8_as_e7_3x3_r729|grain=filed_plant_output|.*|observed_check=accept_level_index_E8|exit_code=1|' "$o"
+          grep -q '^PLANT|name=e9_as_e10_3x3_r729|grain=filed_plant_output|.*|observed_check=accept_level_index_E9|exit_code=1|' "$o"
+          grep -q '^PLANT|name=electric_sign_flipped|.*|observed_check=accept_electric_link_spectrum_0_3_6|exit_code=1|' "$o"
+          test "$(grep -c '|result=CLEAN_PASSED|' "$o")" -eq 5
+          test "$(grep -c '|result=CAUGHT_BY_NAME|' "$o")" -eq 9
+          grep -qx 'PLANTS_END|mode=fast|not_as_expected=0|result=PASS|json=0' "$o"
+      - name: Gates on the code as committed (3x3 and 3x4, recomputed from the lattice)
+        run: |
+          set -euo pipefail
+          python3 -I -B "$M/gl_accept.py" electric | tee build/gl159/electric.rows
+          python3 -I -B "$M/gl_accept.py" module "$M" 3x3 | tee build/gl159/module-3x3.rows
+          python3 -I -B "$M/gl_accept.py" module "$M" 3x4 | tee build/gl159/module-3x4.rows
+          grep -qx 'ACCEPT_END|gate=module|lattice=3x3|result=PASS|json=0' build/gl159/module-3x3.rows
+          grep -qx 'ACCEPT_END|gate=module|lattice=3x4|result=PASS|json=0' build/gl159/module-3x4.rows
+      - name: Gates on the filed receipts (rho44, P2max, floor, level index against the refuter's filed enclosures)
+        run: |
+          set -euo pipefail
+          i="$R/indep"
+          for d in runs runs-after-rename; do
+            python3 -I -B "$M/gl_accept.py" receipt 3x3 "$M/$d/levels-3x3.rows" "$i/i-3x3-r27.rows" "$i/i-3x3-r81.rows" "$i/i-3x3-r243.rows" "$i/i-3x3-r729.rows" > "build/gl159/receipt-$d-3x3.rows"
+            python3 -I -B "$M/gl_accept.py" receipt 3x4 "$M/$d/levels-3x4.rows" "$i/i-3x4-r27.rows" "$i/i-3x4-r81.rows" "$i/i-3x4-r243.rows" "$i/i-3x4-r729.rows" > "build/gl159/receipt-$d-3x4.rows"
+            python3 -I -B "$M/gl_accept.py" receipt 3x4 "$M/$d/levels-3x4-k3plus.rows" "$i/i-3x4-r27.rows" "$i/i-3x4-r81.rows" > "build/gl159/receipt-$d-3x4-k3plus.rows"
+            grep -q '^ACCEPT_END|gate=receipt|lattice=3x3|.*|floors=4|levels=12|result=PASS|json=0$' "build/gl159/receipt-$d-3x3.rows"
+            grep -q '^ACCEPT_END|gate=receipt|lattice=3x4|.*|floors=4|levels=12|result=PASS|json=0$' "build/gl159/receipt-$d-3x4.rows"
+            grep -q '^ACCEPT_END|gate=receipt|lattice=3x4|.*|floors=2|levels=6|result=PASS|json=0$' "build/gl159/receipt-$d-3x4-k3plus.rows"
+          done
+      - name: Long 3x4 runs and the 3x3 run, row comparison of the filed outputs (timing and header fields set aside)
+        run: |
+          set -euo pipefail
+          for f in levels-3x3 levels-3x4 levels-3x4-k3plus; do
+            python3 -I -B "$M/gl_accept.py" replay "$M/runs/$f.rows" "$R/replay/$f.rows"
+            python3 -I -B "$M/gl_accept.py" replay "$M/runs/$f.rows" "$M/runs-after-rename/$f.rows"
+          done
+          grep -qx 'CONTROLS_END|not_as_predicted=0|result=PASS|json=0' "$M/runs-after-rename/controls.rows"
+          test "$(grep -c '|result=AS_PREDICTED|json=0$' "$M/runs-after-rename/controls.rows")" -eq 9
+      - name: The gate results on file match this run
+        run: |
+          set -euo pipefail
+          for n in p2_95 floor105 drop_edge; do
+            a=$(grep "^PLANT|name=$n|grain=live_module_3x3|" build/gl159/plants-fast.rows | sed 's/|stdout_sha256=[0-9a-f]*//')
+            grep -qxF "$a" <(sed 's/|stdout_sha256=[0-9a-f]*//' "$M/ACCEPTANCE-GATES.hbp")
+          done
+      - name: The review folder still holds only the listed files
+        run: bash "$M/verify_refuter_manifest.sh" "$REFUTER_MANIFEST_SHA256"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gl159-manifest-and-gates
+          path: build/gl159/
+          if-no-files-found: warn
+
+  independent-3x3-and-level-index:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: The refuter's filed evidence against its manifest
+        run: bash "$M/verify_refuter_manifest.sh" "$REFUTER_MANIFEST_SHA256"
+      - name: The refuter's code recomputes E1, E7, E8, E9, E10 on 3x3 at r = 27, 81, 243, 729
+        run: |
+          set -euo pipefail
+          mkdir -p build/gl159
+          w="$GITHUB_WORKSPACE"
+          pids=""
+          for r in 27 81 243 729; do
+            (cd "$R" && python3 -I -B indep_gl.py 3x3 "$r" "check=$w/$M/runs/levels-3x3.rows" > "$w/build/gl159/i-3x3-r$r.rows") &
+            pids="$pids $!"
+          done
+          for p in $pids; do wait "$p"; done
+          for r in 27 81 243 729; do
+            python3 -I -B "$M/gl_accept.py" replay "$R/indep/i-3x3-r$r.rows" "build/gl159/i-3x3-r$r.rows"
+          done
+      - name: Level index of the 3x3 receipt against the enclosures recomputed in this run
+        run: |
+          set -euo pipefail
+          b=build/gl159
+          for d in runs runs-after-rename; do
+            python3 -I -B "$M/gl_accept.py" receipt 3x3 "$M/$d/levels-3x3.rows" "$b/i-3x3-r27.rows" "$b/i-3x3-r81.rows" "$b/i-3x3-r243.rows" "$b/i-3x3-r729.rows" | tee "$b/receipt-fresh-$d-3x3.rows"
+            grep -q '^ACCEPT_END|gate=receipt|lattice=3x3|.*|floors=4|levels=12|result=PASS|json=0$' "$b/receipt-fresh-$d-3x3.rows"
+          done
+      - name: Planted level-index faults at 3x3 r=729 (E7 as E8, E10 as E9), run live, each caught by name
+        run: |
+          set -euo pipefail
+          o=build/gl159/plants-levels.rows
+          python3 -I -B "$M/gl_accept_plants.py" levels "$RUNNER_TEMP/gl159-plants" build/gl159/i-3x3-r729.rows | tee "$o"
+          test "$(grep -c '^PLANT_RUN|.*|own_checks_exit_code=0|own_checks_first_failed=NONE|' "$o")" -eq 3
+          grep -q '^PLANT|name=clean|grain=live_levels_3x3_r729|.*|observed_check=NONE|exit_code=0|.*|result=CLEAN_PASSED|' "$o"
+          grep -q '^PLANT|name=e8_as_e7|grain=live_levels_3x3_r729|.*|observed_check=accept_level_index_E8|exit_code=1|.*|result=CAUGHT_BY_NAME|' "$o"
+          grep -q '^PLANT|name=e9_as_e10|grain=live_levels_3x3_r729|.*|observed_check=accept_level_index_E9|exit_code=1|.*|result=CAUGHT_BY_NAME|' "$o"
+          grep -qx 'PLANTS_END|mode=levels|not_as_expected=0|result=PASS|json=0' "$o"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gl159-independent-3x3
+          path: build/gl159/
+          if-no-files-found: warn
+
+  replay-3x3-small-tori-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: The measurement script reruns on 3x3; computational rows equal the filed rows
+        run: |
+          set -euo pipefail
+          mkdir -p build/gl159
+          python3 -I -B "$M/gl_measure.py" 3x3 27,81,243,729 > build/gl159/levels-3x3.rows
+          python3 -I -B "$M/gl_accept.py" replay "$M/runs/levels-3x3.rows" build/gl159/levels-3x3.rows
+          python3 -I -B "$M/gl_accept.py" replay "$M/runs-after-rename/levels-3x3.rows" build/gl159/levels-3x3.rows
+      - name: Full-space floor test on the 1x3 and 3x1 tori, byte for byte against the refuter's filed output
+        run: |
+          set -euo pipefail
+          w="$GITHUB_WORKSPACE"
+          for L in 1x3 3x1; do
+            (cd "$R" && python3 -B fullspace.py "$L" 9,27,81 "small/pr-$L.rows" > "$w/build/gl159/full-$L.rows")
+            cmp "build/gl159/full-$L.rows" "$R/small/full-$L.rows"
+            test "$(grep -c '|lemma_holds=True|' "build/gl159/full-$L.rows")" -eq 3
+          done
+      - name: The nine controls, each stopping at its predeclared check
+        run: |
+          set -euo pipefail
+          python3 -I -B "$M/gl_controls.py" | tee build/gl159/controls.rows
+          grep -qx 'CONTROLS_END|not_as_predicted=0|result=PASS|json=0' build/gl159/controls.rows
+          test "$(grep -c '|result=AS_PREDICTED|json=0$' build/gl159/controls.rows)" -eq 9
+          grep -q '^CONTROL|name=flipped_electric_sign|.*|expect_check=electric_term_psd_gershgorin|expect_check_current_name=electric_sign_is_plus_one|observed_check=electric_sign_is_plus_one|exit_code=1|' build/gl159/controls.rows
+      - name: The review folder still holds only the listed files
+        run: bash "$M/verify_refuter_manifest.sh" "$REFUTER_MANIFEST_SHA256"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gl159-replay-small-controls
+          path: build/gl159/
+          if-no-files-found: warn
