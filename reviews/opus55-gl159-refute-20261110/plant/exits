@@ -1,0 +1,10 @@
+clean exit=0
+floor105 3x3_r243 exit=0
+p2_95 3x3_r243 exit=0
+drop_edge 3x3_r243 exit=0
+e8_as_e7 3x3_r243 exit=0
+e9_as_e10 3x3_r243 exit=1
+clean 3x3_r729 exit=0
+e8_as_e7 3x3_r729 exit=0
+e9_as_e10 3x3_r729 exit=0
+DONE

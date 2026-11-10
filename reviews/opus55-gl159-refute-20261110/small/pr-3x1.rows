@@ -1,0 +1,3 @@
+GL_MEASURE_BEGIN|lattice=3x1|r_list=9,27,81|kf=2|k3=1|k3plus=0|sabotage=none|D=1000000000000|BDEN=1000000000000|FD=1000000|float_used=0|script_sha256=daf78b00ed40acb350efe8a70611f07162317fca3a3f13e2b1b79fc724fa5e32|core_sha256=aab0bd5a91bad6080c70b4d7698acfa2bcfa16180ae91805fefba2486242e36b|json=0
+CENSUS|lattice=3x1|links=6|plaquettes=3|orbit_dimension_burnside=251|orbit_dimension_onfile=None|flat_orbits=8|flat_raw=18|m3_orbits=9|m3_raw=54|m4_orbits=60|m4_raw=324|ms=3|json=0
+FAILED|check=no_direct_Pprime_moves|json=0

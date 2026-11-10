@@ -1,0 +1,14 @@
+GL_MEASURE_BEGIN|lattice=3x3|r_list=729|kf=1|k3=1|k3plus=0|sabotage=none|D=1000000000000|BDEN=1000000000000|FD=1000000|float_used=0|script_sha256=daf78b00ed40acb350efe8a70611f07162317fca3a3f13e2b1b79fc724fa5e32|core_sha256=aab0bd5a91bad6080c70b4d7698acfa2bcfa16180ae91805fefba2486242e36b|json=0
+CENSUS|lattice=3x3|links=18|plaquettes=9|orbit_dimension_burnside=10097891|orbit_dimension_onfile=10097891|flat_orbits=8|flat_raw=18|m3_orbits=27|m3_raw=162|m4_orbits=720|m4_raw=3888|ms=104|json=0
+FLOOR_INPUTS|m4_orbits=720|rho44=8|P2max=112|m6_neighbours=21168|ms=19161|json=0
+BALLS|flats_layers=198|m3_layers=1296|m3_plus=0|ball_f=198|ball_3=1296|ms=2|json=0
+FLOOR|lattice=3x3|r=729|floor_num=2961920684|floor_den=1000000|floor_dec=2961.920684|rule=(3N+4r-rho44-l)(6r-l)>=P2max|json=0
+ASSEMBLY|lattice=3x3|r=729|stage=A|ball=198|exterior=5364|gs=198,8,4,0|json=0
+ASSEMBLY|lattice=3x3|r=729|stage=A|ball=1296|exterior=27138|gs=1296,27,5,0|json=0
+ASSEMBLY|lattice=3x3|r=729|stage=B|ball=1494|exterior=31008|lambda0_num=53981481601947|gs=198,8,4,0;1296,27,4,0|json=0
+ASSEMBLY|lattice=3x3|r=729|stage=C|ball=1494|exterior=31008|lambda0_num=2240952621239555|gs=198,8,4,0;1296,27,5,0|json=0
+LEVEL|lattice=3x3|r=729|level=E1|lo_num=53981473416306|hi_num=53981473672659|den=1000000000000|lo_dec=53.981473416306|hi_dec=53.981473672659|width_dec=0.000000256353|lower_side=CERTIFIED|floor_num=2961920684|floor_den=1000000|json=0
+LEVEL|lattice=3x3|r=729|level=E8|lo_num=53981489257769|hi_num=53981489513689|den=1000000000000|lo_dec=53.981489257769|hi_dec=53.981489513689|width_dec=0.000000255920|lower_side=CERTIFIED|floor_num=2961920684|floor_den=1000000|json=0
+LEVEL|lattice=3x3|r=729|level=E9|lo_num=2240952613404097|hi_num=2240952621196086|den=1000000000000|lo_dec=2240.952613404097|hi_dec=2240.952621196086|width_dec=0.000007791989|lower_side=CERTIFIED|floor_num=2961920684|floor_den=1000000|json=0
+RUN_STATS|lattice=3x3|r=729|ms=101909|peak_kb=58184|json=0
+GL_MEASURE_END|lattice=3x3|result=PASS|peak_kb=58184|json=0
