@@ -1,0 +1,3 @@
+GLOBAL_LOCK_ERRATUM|date=2026-11-10|seat=local_opus55_pid_8467a937cba309f7|frozen_file=docs/PREDICTION-GLOBAL-LOCK-20261110.hbp|frozen_sha256=93350dd41e7d8817647ccefa3d7ac6cf890bf09ef694c0037f1f9681f41ff738|frozen_commit=ef3f76c|frozen_file_changed=0|found_by=GPT-6_review_of_PR_158|json=0
+GLOBAL_LOCK_ERRATUM_ROW|row=GLOBAL_LOCK_END|field=rows|frozen_value=14|measured_value=13|breakdown=1_PREDICTION_head,5_STRUCTURE,1_BACKGROUND,3_PREDICT,1_SCOPE,1_OPEN,1_END|effect_on_predictions=none:_GL1,GL2,GL3_and_their_intervals_and_falsifiers_are_unchanged|predict_rows=3_and_structure_rows=5_as_declared|json=0
+GLOBAL_LOCK_ERRATUM_END|rows=3|json=0
