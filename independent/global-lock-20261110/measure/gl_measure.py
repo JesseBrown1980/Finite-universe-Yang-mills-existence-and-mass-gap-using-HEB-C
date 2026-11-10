@@ -127,7 +127,9 @@ def census(md):
 
 
 def floor_inputs(md, m4, Pset):
-    """rho44 and P2max over the complete M=4 census; E>=0 by Gershgorin on every state touched."""
+    """rho44 and P2max over the complete M=4 census.  The sign check below tests one thing:
+    the electric sign factor s_E of this run equals +1 (the flip_electric control sets -1).
+    E >= 0 itself is DERIVED, not computed here: see ELECTRIC-TERM-NOTE.hbp (link spectrum 0,3,6)."""
     t0 = time.monotonic_ns()
     m4set = set(m4)
     rho = 0
@@ -136,8 +138,7 @@ def floor_inputs(md, m4, Pset):
     lat = md.lat
     for h in m4:
         nb = md.nbr(h)
-        cself = sum(c for x, c in nb if x == h)
-        check(md.sE * (md.N3 - cself) - (md.N3 - cself) >= 0, "electric_term_psd_gershgorin")
+        check(md.sE == 1, "electric_sign_is_plus_one")
         r44 = 0
         q = 0
         for x, c in nb:
@@ -162,7 +163,7 @@ def floor_inputs(md, m4, Pset):
 
 def floor_value(md, r, rho, p2):
     """Largest n/FD with (FD(N3+4r-rho)-n)(6r FD-n) >= p2 FD^2, n < 6r FD."""
-    check(md.sE == 1, "electric_term_psd_gershgorin")
+    check(md.sE == 1, "electric_sign_is_plus_one")
     A0 = FD * (md.N3 + 4 * r - rho)
     B0 = FD * 6 * r
     lo, hi = 0, min(A0, B0)

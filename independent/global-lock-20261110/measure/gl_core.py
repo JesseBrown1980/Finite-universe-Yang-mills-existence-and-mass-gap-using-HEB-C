@@ -23,7 +23,9 @@ Certificate (Haynsworth inertia with a trial resolvent, as in #136 / #155):
   fl comes from the complete M=4 census:  H_CC >= lambda'  when
       (3N + 4r - rho44 - lambda')(6r - lambda') >= P2max,
   rho44 = max row sum of the electric moves inside M=4, P2max = max two-step
-  M4 -> (M>=6) -> M4 path count (Schur test), and E >= 0 checked by Gershgorin.
+  M4 -> (M>=6) -> M4 path count (Schur test).  E >= 0 is DERIVED from representation
+  theory (each link term h_E has spectrum {0,3,6}; ELECTRIC-TERM-NOTE.hbp); the code's
+  check electric_sign_is_plus_one tests the sign factor s_E = +1 of the run and nothing more.
 """
 import hashlib
 import sys
