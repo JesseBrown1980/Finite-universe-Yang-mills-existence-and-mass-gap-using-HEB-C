@@ -1,0 +1,19 @@
+GATE|r_policy|PASS|r=12/1
+CERT|m0=7|r=12/1|t=1042273/10000|f=4,3,2,1|claimed_cap=111/1|classes=682
+ENUM|orbits=26106|classes=682|weight=153468|tree_gauge_configurations=153468
+GATE|class_bijection|PASS|682 classes
+KEYSHASH|m0=7|sha256=051ef322cd8442a1dc1139f29755c74a74af142d516febbeee43d83545205df7
+GATE|keys_hash|PASS|header=051ef322cd8442a1 own=051ef322cd8442a1
+GATE|positivity_f|PASS|f=4,3,2,1
+GATE|positivity_v|PASS|min v=7935782178
+TABLE|cc:[(-2, -2, -2)]|ce:[(1, 1, 1)]|ct:[(-3, 0, 0)]|ee:[(4, 4, 4)]|et:[(0, 3, 3)]|tt:[(-4, 2, 2), (-1, -1, 2)]
+TAILCAP|own=111/1
+GATE|tail_cap_claim|PASS|claimed 111/1, own 111/1
+GATE|t_below_tail_cap|PASS|t=1042273/10000, own cap 111/1
+ROWHASH|m0=7|sha256=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|classes=682|tail_moves=40850|back_moves=93040|bytes=2101058
+MEM|22036kB
+RITZ_CLASS_VECTOR|104.854117|upper bound on lambda_min(QHQ) from the zero-extended class vector
+GATE|row_check|PASS|rows=682|min_slack=48436191597
+GATE|row_hash|PASS|header=6cfcff1492d3e02a own=6cfcff1492d3e02a
+VERDICT|PASS|lambda_min(QHQ) >= 1042273/10000 at r = 12/1 (m0 = 7)|rowhash=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|min_slack=48436191597
+GATE_REQUIRED|PASS|cert=/root/floor-v2/reg/smoke/cert_m7_r12_1_f4-3-2-1.txt|cert_sha256=6b0864111909134dde63be778bb986c706a6c280303ab90da14f5adc7e768823|rowhash=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|verifier_sha256=6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889

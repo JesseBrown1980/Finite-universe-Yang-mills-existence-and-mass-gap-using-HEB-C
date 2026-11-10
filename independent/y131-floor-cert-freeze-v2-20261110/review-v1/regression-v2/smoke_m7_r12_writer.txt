@@ -1,0 +1,19 @@
+GATE|s3_link_table|PASS|36 holonomy pairs x 3 transpositions match the 7-type table
+ENUM|m0=7|classes=682|secs=0|hwm=2524kB
+KEYSHASH|m0=7|classes=682|sha256=051ef322cd8442a1dc1139f29755c74a74af142d516febbeee43d83545205df7
+ROWS|m0=7|classes=682|tail_targets=40850|two_step_back_moves=93040|secs=0|hwm=6360kB
+GATE|local_delta_vs_full_M|PASS|moves_checked=2990304
+GATE|link_multiset_table|PASS|configurations_checked=41532
+GATE|symmetry_image_rows|PASS|classes=682|images_per_class=2|rows_rebuilt=1364
+ROWHASH|m0=7|sha256=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|classes=682|tail_moves=40850|back_moves=93040|bytes=2101058|secs=0
+GATE|core_census_vs_closed_form|PASS|M=1..7
+GATE|class_detailed_balance|PASS|edges=5560
+COLOURINGS|even_t_only=false|signatures=1979
+TAIL|f=4,3,2,1|min_layer_floor=111.0000|min_observed_target_floor=120.0000|observed_targets=40850|gate_observed_ge_layer=PASS
+OUTER|honest|it=0|t=36.0000|cw_lo(F(t))=68.598903
+OUTER|honest|it=1|t=104.5989|cw_lo(F(t))=-0.378013
+OUTER|honest|it=2|t=104.2209|cw_lo(F(t))=0.006814
+OUTER|honest|it=3|t=104.2277|cw_lo(F(t))=-0.000082
+VEC|classes=682|v_max=2^50|v_min=7935782178|entries_below_2^10=0
+CERT|r=12/1|m0=7|classes=682|f=4,3,2,1|gamma=1042273/10000=104.2273|row_check=PASS|min_slack=48436191597|next_t_refused=gate=row_check|ritz_upper=104.854117|trivial_r(m0+1)=96.0000|tail_cap=111.0000|rowhash=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|images=2|independent_gate=REQUIRED|secs=0
+WROTE|/root/floor-v2/reg/smoke/cert_m7_r12_1_f4-3-2-1.txt|sha256=6b0864111909134dde63be778bb986c706a6c280303ab90da14f5adc7e768823|independent_gate=REQUIRED: design/gate_required.sh /root/floor-v2/reg/smoke/cert_m7_r12_1_f4-3-2-1.txt

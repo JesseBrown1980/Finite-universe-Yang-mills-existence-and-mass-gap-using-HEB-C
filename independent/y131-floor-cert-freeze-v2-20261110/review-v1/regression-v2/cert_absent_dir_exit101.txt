@@ -1,0 +1,5 @@
+GATE|s3_link_table|PASS|36 holonomy pairs x 3 transpositions match the 7-type table
+ENUM|m0=7|classes=682|secs=0|hwm=2648kB
+thread 'main' panicked at src/main.rs:1243:44:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

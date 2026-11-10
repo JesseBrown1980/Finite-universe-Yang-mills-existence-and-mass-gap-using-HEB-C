@@ -1,0 +1,22 @@
+R_SCAN|dirs=map design critic critic2 review verify1_0 verify1_1 refix2 verify2_0 verify2_1 verify3_0|exclude=target|files=*.txt,*.log|forms=(start_or_|_or_#_or_space)r=<int>/<int>_and_--r_<token>
+R_VALUE|r=21/2|occurrences=309
+R_VALUE|r=12/1|occurrences=137
+R_VALUE|r=20/1|occurrences=94
+R_VALUE|r=14/1|occurrences=52
+R_VALUE|r=19/2|occurrences=14
+R_VALUE|r=9/1|occurrences=14
+R_VALUE|r=90000001/10000000|occurrences=14
+R_VALUE|r=10/1|occurrences=12
+R_VALUE|r=8/1|occurrences=12
+R_VALUE|r=21/1|occurrences=6
+R_VALUE|r=41/4|occurrences=5
+R_NEAR9|r=10/1|files=design/out/fix1/adhoc/py_r_refusals.txt,design/out/fix1/adhoc/r_refusals.txt,verify1_1/v2/r_scan_excl_verify.txt,verify1_1/v2/r_scan_rerun.txt,verify2_0/r_scan_rerun.txt,verify2_0/rstar_v2.txt,verify2_1/r_scan_rerun.txt,
+R_NEAR9|r=19/2|files=design/out/fix1/adhoc/py_r_refusals.txt,design/out/fix1/adhoc/r_refusals.txt,verify1_1/v2/r_scan_excl_verify.txt,verify1_1/v2/r_scan_rerun.txt,verify2_0/r_scan_rerun.txt,verify2_1/r_scan_rerun.txt,
+R_NEAR9|r=90000001/10000000|files=design/out/fix1/adhoc/py_r_refusals.txt,design/out/fix1/adhoc/r_refusals.txt,verify1_1/v2/r_scan_excl_verify.txt,verify1_1/v2/r_scan_rerun.txt,verify2_0/r_scan_rerun.txt,verify2_1/r_scan_rerun.txt,
+R_NEAR9|r=8/1|files=design/out/fix1/adhoc/py_r_refusals.txt,design/out/fix1/adhoc/r_refusals.txt,verify1_1/v2/r_scan_excl_verify.txt,verify1_1/v2/r_scan_rerun.txt,verify2_0/r_scan_rerun.txt,verify2_1/r_scan_rerun.txt,
+R_NEAR9|r=9/1|files=critic2/r9test/in/fake_r9_freeze.txt,critic2/r9test/in/fake_r9_ind.txt,critic2/r9test/in/fake_r9_nofreeze.txt,critic2/r9test/verifier_r9_refusals.txt,verify1_1/v2/r_scan_excl_verify.txt,verify1_1/v2/r_scan_rerun.txt,verify2_0/r_scan_rerun.txt,verify2_1/r_scan_rerun.txt,
+R_ARG|--r=9|occurrences=5|near9=yes|files=critic2/r9test/writer_r9_refusals.txt,verify2_0/r_scan_rerun.txt,verify2_1/r_scan_rerun.txt,
+R_ARG|--r=18/2|occurrences=3|near9=yes|files=critic2/r9test/writer_r9_refusals.txt,verify2_0/r_scan_rerun.txt,verify2_1/r_scan_rerun.txt,
+R_ARG|--r=21/2,9|occurrences=3|near9=yes|files=critic2/r9test/writer_r9_refusals.txt,verify2_0/r_scan_rerun.txt,verify2_1/r_scan_rerun.txt,
+R_ARG|--r=41/4|occurrences=3|near9=no
+R_ARG|--r=20|occurrences=1|near9=no

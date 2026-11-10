@@ -1,0 +1,282 @@
+floor lane, PREDICTION seat: change log for floor/final/
+
+== PRED-1 (2026-11-09; the frozen prediction for the r = 9 floor certificate) ==
+
+New files (nothing under floor/work/ was changed):
+- PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp  8d30ac00985670f1aa48c7ed65d4d6898b9b9d38428309ba6ed7506fc9fb415e
+  101 rows: FREEZE 12, PIN 22, REQUIRED 23, PREDICT 16, LINK 2, STATUS 9, DISCLOSE 17.
+  Tags: REQUIRED 57, REPORTED 25, CONJECTURE 15, DERIVED 2, OPEN 2.
+- NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md: prose for the record. The record is authoritative.
+- tools/lint_hbp.py c054e27116a0f513, the record lint. Its output is tools/lint_result.txt 45e1c103c6ddcb0a:
+  0 errors, 18 pins recomputed, 93 disclosure fingerprints matched.
+- tools/lint_controls.txt cfedb0db72f9aaf1: four planted record faults (a wrong pin, falsifier=none, a CONJECTURE with
+  no basis, a decimal value). Each was caught with exactly one error.
+- tools/lint_token_scan.txt 30eef93f67e048d7: the lint has no '/', '**', float literal or forbidden module.
+- tools/r_scan.sh c9b3863e09522889 and tools/r_scan.txt 594b115de376036b: a text scan of the r fields in the lane
+  outputs.
+- tools/repro_build.txt 434795bd6e546d48: a pin-free rebuild of floorcert into a separate target directory is
+  byte-identical to 0432b8265b88921e. The build directory was deleted.
+
+Decisions frozen, each before any r = 9 run:
+- Primary step m0 = 11. Fallback m0 = 12 runs only if the comparison with g0 = 94070673/10^6 is undecided
+  (max G < g0 <= U_all), or after an operational failure. Fallback m0 = 13 follows the same rule one step later, and
+  only after its r-independent row hash agrees between writer and verifier. There is no step with m0 > 13.
+- A REQUIRED failure on an honest certificate stops the lane. It is not a fallback trigger.
+- The f set is 1;8,7,6,5,4;6,5,4,3. The vector, stopping and bisection rules are the FIX-1 code, unchanged.
+- The stricter stopping rule of design NOTE section 6 is not adopted (record row 100).
+- gamma_cert is the largest gated gamma over all steps and all f.
+- The r = 9 mode needs the binary built with FLOORCERT_FREEZE_COMMIT and FLOORCERT_PREDICTION_SHA256 (the sha256 of
+  the .hbp). Its own hash is recorded from the FREEZE line.
+- The comparison with #131 is OPEN, with the conclusions of each branch fixed now. The CONJECTURE (row 066) leans
+  BELOW.
+- The averaging lemma is recorded as PROVED by the review seat. It removes no condition from #131's lift, and no #137
+  prediction changes.
+- This record is the second floor named by #137 row 138: read and report, lift-free.
+
+Corrections relative to the inputs, noted in the record:
+- The task text's pointer "MAP.md section 5" for the averaging side result is MAP section 6. Section 5 is Theorem F,
+  which was not reviewed and is not used.
+- The smallest excluded-r deficit at m0 <= 13 is 0.0026 (r = 14, m0 = 11), not the 0.0028 at r = 12, m0 = 13 that the
+  NOTE quotes for the deepest core.
+- #131's upper value 94.070936 comes from MAP section 5 as REPORTED. This seat did not re-read PERRON-BOUND.md.
+
+Computations by this seat. None depends on r.
+1. sha256 of lane files (sha256sum and Python hashlib).
+2. A pin-free cargo +1.81 rebuild into a separate target directory, giving tools/repro_build.txt.
+3. tools/r_scan.sh, giving tools/r_scan.txt.
+4. tools/lint_hbp.py on the record, giving tools/lint_result.txt, and on four planted copies, giving
+   tools/lint_controls.txt.
+5. The token scan of the lint, giving tools/lint_token_scan.txt.
+
+== REFIX seat, round 1 (2026-11-10). Findings of the previous critic, applied. Nothing r-dependent was computed. ==
+
+Record: PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp is now sha256
+6595594a61bb015d3c237215c1e5adfef03d7768de8e6a5df43f71760a8f3f18 (102 rows). It supersedes 8d30ac00985670f1 (101 rows,
+kept as refix1/PREDICT.before.hbp). The record has not been frozen yet: no binary has P compiled in.
+
+Blocking (where the frozen binary is built), fixed:
+- Row 009: the frozen binary is FB = work/run9/target/release/floorcert. It is built in work/design/rs by
+  CARGO_TARGET_DIR=work/run9/target FLOORCERT_FREEZE_COMMIT=C FLOORCERT_PREDICTION_SHA256=P cargo +1.81 build --release
+  --locked -j1. work/run9/target must not exist before that build. The build never writes work/design/rs/target.
+- Rows 001, 006 and 007 name FB (binary= field). Their r = 9 and rowhash commands run FB only.
+- Row 016: checked on the untouched non-frozen binary at work/design/rs/target/release/floorcert, at both pin checks.
+- Row 010: the pin check is logged twice, before the frozen build and again after it, before the first r = 9 command.
+- Row 018: sha256sum of FB is logged after the build and before each r = 9 step, and must equal the FREEZE binary_sha256.
+  This gives an outside check of the writer's own claim.
+- NOTE section 1 (r = 9 mode and layout) says the same.
+- Evidence: refix1/targetdir_test.txt 5806dc6f760912dc. A cargo +1.81 build with dummy pins (40 and 64 zeros) and its
+  own CARGO_TARGET_DIR left work/design/rs/target/release/floorcert unchanged: sha256 0432b8265b88921e and the same mtime
+  before and after. The dummy-pinned binary (4f10cd986493b2a1) was never run, and its directory was deleted.
+
+Minor, applied:
+- Verifier r = 9 limit (cert_gate.py lines 196-209, indep_verify.py lines 123-136). The finding offered two fixes. I
+  took the stated-limit one: row 009 now has a verifier_limit field, and the NOTE says the same. The other fix (a binary
+  hash in the header) would change main.rs and cert_gate.py. That would unpin rows 013, 016, 019 and 020 and need the
+  plant suite again. Row 018's logged sha256sum of FB is the outside check that replaces it.
+- Row 070: value and met_if now give one set of limits, each program against its own: writer < 400 MB at m0 = 11 and 12;
+  verifier < 1 GB at m0 = 11 and < 15/10 GB at m0 = 12. NOTE section 3 table updated.
+- Row 007: the keys file is RUN13/core_keys_m13.bin, written by FB rowhash --m0 13 --dir RUN13 in a fresh RUN13. Its
+  sha256sum is logged and must equal row 027. cert_gate.py --rows-only reads that exact file, not
+  work/design/out/core_keys_m13.bin.
+- New row 102 (DISCLOSE, critic/2) lists every work/critic2/ file with its 16-hex fingerprint. Row 096 now says r = 9/1
+  occurs only in the four critic2/r9test files and r = 41/4 only in the critic2 writer refusal log. Header and row 099
+  now cover rows 085-102. PREDICTION_END counts are updated (DISCLOSE 18, REPORTED 26).
+- Row 094 now gives the rustout_p1b fingerprints: cert_m11_r21_2_P1b 819e6421c3c59e06, cert_m11_r21_2_P1b_fullf
+  51199bd0d4ac6a81, plant.log ecd41427fe7c4528, core_keys_m11.bin e25b8b392161f6f0.
+- Row 082 (and NOTE section 2): P1b is vacuous at (6; 4,3,2,1), (7; 4,3,2,1) and (7; 1), where it is byte-identical to the
+  honest file. It is non-vacuous and refused by the independent gate only at m0 = 8 and m0 = 11.
+- Row 097 records this seat's computations, and the NOTE disclosure table gains rows for critic/2 and for this seat.
+
+Not changed: main.rs, Cargo.*, cert_gate.py, gate_required.sh, indep_verify.py, critic files, design/NOTE.md, every
+pinned receipt. All 18 path pins re-verify.
+
+Computations by this seat (none depends on r; sha256 prefixes of script / output):
+1. refix1/edit_record.py a139832d2aaa7562: record 8d30ac00985670f1 -> 6595594a61bb015d.
+2. refix1/edit_note.py fc5d43e235504ad6: NOTE c4310e5e49a00c4f -> e87f3d462fe40f7b.
+3. final/tools/r_scan.sh c9b3863e09522889 -> final/tools/r_scan.txt 08ef1d0cb7bfc7a1 (was 594b115de376036b; now also
+   lists r=9/1 in the 4 critic2/r9test files and r=41/4 once).
+4. final/tools/lint_hbp.py c054e27116a0f513 (unchanged) -> final/tools/lint_result.txt 42860ae08e3dd39b: 0 errors, 102
+   rows, 18 pins recomputed, 122 disclosure fingerprints matched. A second run is byte-identical.
+5. refix1/controls.py e5b9466d8265fb4b -> final/tools/lint_controls.txt 155de2a8a8095cca. There are 4 planted faults
+   (pin, falsifier=none, CONJECTURE without basis, decimal value), and each gives exactly one error.
+6. Dummy-pinned target-dir build test -> refix1/targetdir_test.txt 5806dc6f760912dc (cargo 1.81.0 2dbb1af80, rustc
+   1.81.0 eeb90cda1; build 7 s, -j1).
+Kept for diffing: refix1/PREDICT.before.hbp 8d30ac00985670f1, refix1/NOTE.before.md c4310e5e49a00c4f,
+refix1/lint_result.before.txt 45e1c103c6ddcb0a, refix1/r_scan.before.txt 594b115de376036b. New files: 116 kB.
+
+== REFIX-2 seat (round 2), 2026-11-10 ==
+Record 6595594a61bb015d -> 21aeaaf5436b9d9c (102 -> 106 rows). NOTE e87f3d462fe40f7b -> 20d9cad10f1d6d5c.
+Nothing r-dependent was computed at r = 9 or within 1 of it. The only r-dependent runs were at the excluded r = 21/2.
+
+Blocking, applied:
+- B1, writer peak memory (rows 011 and 070, NOTE sections 1 and 3). main.rs is unchanged. The new wrapper
+  work/design/peak_rss.py (pinned as new row 103, 9bc36642e5ae03bf) execs its argv unchanged. After the child exits it
+  prints PEAK_RSS|kB=<ru_maxrss from wait4>|exit=..|wall_ms=..|argv0=.. and returns the child's exit code. Every r = 9
+  FB command (cert and rowhash, rows 001, 006 and 007) now runs under it. Row 011 reads the writer's peak from that
+  line, says the writer's hwm= fields are stage values and not peaks, and adds "an r9 FB command without PEAK_RSS" to
+  its falsifier. Row 070 is rebased on true peaks measured at r = 21/2 (row 106): writer 440480 kB at m0 = 11 with the
+  three frozen f in one run, and 810940 kB at m0 = 12 with f = 8,7,6,5,4. An outside /proc sampler read 440796 and
+  811396 kB. Its new limits are writer PEAK_RSS < 524288 kB (m0 = 11) and < 1048576 kB (m0 = 12), and verifier MEM
+  < 1048576 kB and < 1572864 kB (unchanged in substance). The NOTE section 3 table is corrected.
+- B2, disclosure completeness (rows 096 and 099, new rows 104, 105 and 106). Row 104 discloses work/verify1_0/, row 105
+  work/verify1_1/ (including the excluded-r receipt for the row 001 shape: three f in one run at r = 21/2, m0 = 11, the
+  6,5,4,3 file gated PASS, and 8,7,6,5,4 byte-identical to a217a469), and row 106 work/refix2/. r_scan.sh is rescoped
+  to a FIXED list of work/ dirs (map design critic critic2 review verify1_0 verify1_1 refix2; target excluded). It
+  also scans --r arguments, refuses an output path under work/, and names any unlisted work/ dir on stderr. Row 096
+  now names --r 9, --r 18/2 and --r 21/2,9 (critic2 writer refusal log, all refused at r9_frozen_mode, exit 3), and the
+  two verify-seat copies of the old receipt. Its met_if is now a rerun as the freeze seat's last step, reproducing
+  r_scan.txt byte for byte with no unlisted dir. Row 099 now covers rows 085-098, 102 and 104-106. So does the header.
+
+Minor, applied:
+- Rows 001, 006 and 007 (and NOTE section 1): the f list is one shell word, --f '1;8,7,6,5,4;6,5,4,3'. The quotes are
+  shell syntax. A new f_word field says so, and rows 006 and 007 repeat the quoted word. Row 007 gains a command field.
+- Rows 005 and 057 (and NOTE section 1): each gated gamma is the tn/td of the verifier's VERDICT|PASS line. It must
+  equal the header t= and the writer's CERT gamma. A mismatch falsifies the code (row 008). gate_required.sh is
+  unchanged (pinned).
+- Row 083 (and NOTE section 6): adds 27 = 3r, the solver's initial t (row 003).
+- Row 050: no_claim is replaced by a REPORTED, r-independent field rstar_m13. At m0 = 13, f = 8,7,6,5,4 has
+  r_star 15/4 and gain 131/8, and f = 6,5,4,3 has r_star 5 and gain 19 (verify1_1/rstar.out; the first one also in
+  verify1_0/rstar_own.txt). It is not a gate.
+- Row 058 basis: "for the best f". f = 1 is not within 0.05 (0.332, 0.182, 0.110).
+- Row 061 basis: the best-f deficit at r = 21/2, m0 = 10 is 0.020 (6,3,2,1; 0.0194), not 0.041. The frozen 6,5,4,3
+  gives 0.049.
+- Row 066 (and NOTE section 3): the claim now says gamma_cert stays below g0, which row 012 scores UNDECIDED unless
+  U_all < g0. The word BELOW is no longer used for the lean.
+
+Not changed: main.rs, Cargo.*, cert_gate.py, gate_required.sh, indep_verify.py, critic files, design/NOTE.md, every
+previously pinned receipt, lint_hbp.py. All 19 path pins verify (lint).
+
+Computations by this seat (sha256 prefixes of script / output):
+1. work/design/peak_rss.py: its first text 3fa3fccbd119db69 was used for runs 3 and 4 and is kept as
+   work/refix2/peak_rss.3fa3fccb.py. The final text 9bc36642e5ae03bf differs only in comment line 5.
+2. work/refix2/run_peak.sh 77f73f23425c7b56 control (r-independent, a Python child holding 300 MiB, final wrapper):
+   writer.txt 99aaa3f45418c744, samples.txt ae5949d0cab4b860, exit.txt b15973e81c897afb. PEAK_RSS 315908 kB against a
+   sampled 315916 kB.
+3. run_peak.sh m11 (r = 21/2, m0 = 11, --f '1;8,7,6,5,4;6,5,4,3' --write-cert --threads 2, pin-free 0432b826):
+   writer.txt 17b4b64d2a8e8907, samples 65dbfa32807c2eee, exit 151f253ee02e812c. The certs 179393e42a3be509,
+   a217a469e1bb4822 and 1462c2ed070815a8 are byte-identical to verify1_1/v2. PEAK_RSS 440480 kB, ROWS hwm 174584 kB,
+   7.8 min.
+4. run_peak.sh m12 (r = 21/2, m0 = 12, f = 8,7,6,5,4): writer.txt 770d0f56f9f02f68, samples 0f7b04f029d3dab3, exit
+   15ee17d7698d5ae1, cert d16c665bd0493fe2, keys 942c2eed527aa2c3. The rowhash equals row 029. PEAK_RSS 810940 kB,
+   ROWS hwm 311748 kB, 6.2 min. Not gated: these are memory receipts only.
+5. refix2/edit_record.py 9c377c71ea36a9c0 (17 edits) plus refix2/new_rows.txt aead26d718085bf1 (rows 103-106), then
+   refix2/edit_end.py f0960750974abf9b (2 edits): record 6595594a61bb015d -> 21aeaaf5436b9d9c.
+6. refix2/edit_note.py a2a79efc55fd5abe (15 edits) and refix2/edit_note2.py 77c3808d7c3bacc7 (8 edits): NOTE
+   e87f3d462fe40f7b -> 20d9cad10f1d6d5c.
+7. final/tools/r_scan.sh c9b3863e09522889 -> d14ea612169df1c7, output final/tools/r_scan.txt 7d47a27c3e7ab52b (was
+   08ef1d0cb7bfc7a1). It was run twice, byte-identical, with no unlisted dir. An output path under work/ is refused
+   (exit 2).
+8. final/tools/lint_hbp.py c054e27116a0f513 (unchanged) -> final/tools/lint_result.txt 91e0899b11542b6b: 0 errors, 106
+   rows, 19 pins, 238 fingerprints.
+9. refix2/controls.py a145bd9989ca8433 -> final/tools/lint_controls.txt 237c054d84a9d783: 6 planted faults (the
+   4 from before, plus the row 103 pin and a row 105 fingerprint), each giving exactly one error.
+Kept for diffing: refix2/PREDICT.before.hbp 6595594a61bb015d, refix2/NOTE.before.md e87f3d462fe40f7b,
+refix2/r_scan.before.sh c9b3863e09522889, refix2/r_scan.before.txt 08ef1d0cb7bfc7a1, refix2/lint_result.before.txt
+42860ae08e3dd39b. New files: about 5.0 MB in work/refix2 and 144 kB in refix2/. Peak memory per job was at most
+811 MB, and the jobs ran one at a time.
+
+== REFIX-3 (2026-11-10; owner authorization: ONLY the identified corrections) ==
+
+Record 21aeaaf5436b9d9c -> d06ff237f55a762e7c50087d98a757ed366e749f6a736c9c1793f495efd84041 (109 rows: FREEZE 12,
+PIN 23, REQUIRED 23, PREDICT 16, LINK 2, STATUS 9, DISCLOSE 24; tags REQUIRED 58, REPORTED 32, CONJECTURE 15,
+DERIVED 2, OPEN 2). NOTE 20d9cad10f1d6d5c -> e3291bcc00a1353e. No PREDICT, PIN, REQUIRED, STATUS or LINK row changed.
+No prediction, tolerance, window, gate or mathematical claim changed; the averaging lemma and Theorem S are untouched
+(design/NOTE.md is pinned and unchanged). The changed rows are FREEZE 001, 006 and 007 (wording) and DISCLOSE rows only.
+
+Blocking, applied (verifier-folder disclosures):
+- New rows 107 (work/verify2_0/, 39 files) and 108 (work/verify2_1/, 16 files), each with every file named and
+  fingerprinted, and new row 109, which pre-lists work/verify3_0/ as the folder of this pass's records verifier. That
+  folder did not exist when the record was written. Its files go in that seat's own receipt, and its scan and lint
+  copies go to .out files, so the row 096 rerun still matches. verify1_0 (row 104, 28 files) and verify1_1 (row 105,
+  66 files) were already disclosed. They now carry complete=work/<dir> and a name-bound files= list, as rows 102
+  (critic2) and 106 (refix2) do.
+- r_scan.sh DIRS now holds map design critic critic2 review verify1_0 verify1_1 refix2 verify2_0 verify2_1 verify3_0.
+  A listed dir that does not exist yet is skipped. Rerun twice, byte-identical, with empty stderr (no unlisted dir).
+- Row 096 now gives the new receipt: r = 21 occurs only in the verify2_0 controls X2a and X2b (value field now
+  ..._20_21_only), and the near-9 values occur in four verify-seat copies of the receipt instead of two. The 10/1 file list
+  also names verify2_0/rstar_v2.txt, where the unanchored grep matches the r-independent r_star=10/1. --r 20 occurs
+  once (verify2_0 PREDICTIONS.txt). Row 099 and header line 3 now cover rows 104-109.
+
+Minor, applied:
+- Rows 001, 006 and 007: 'fresh directory' is replaced by the mandated sequence. RUNxx does not exist before the
+  rowhash command, and the cert command reuses that directory and loads its keys file (KEYS|loaded expected, no
+  writer ENUM line). Row 001 gains a dir_sequence field that cites the dry run at the excluded r = 21/2 in row 108.
+  Row 001's not_met_if is reworded to match. Its falsifier is unchanged.
+- r_scan file-type limit: the script header and row 096 (new field file_type_limit) now say that only .txt and .log
+  are read, and how the other types were checked. That is verify seat 2's grep, plus refix3/nontxt_scan.txt for
+  verify2_0 and verify2_1 (0 near-9 lines). OUT may now lie under work/ if its name ends in .out.
+- lint_hbp.py binds every DISCLOSE fingerprint to a named file. Each files= entry path@sha16 is checked against the
+  sha256 of that named file. A complete=DIR row must list every file in DIR (target/ excluded). Every other 16-hex
+  fingerprint in the row must equal one of that row's own entries (or a PIN value, or the one EXTERNAL16). The old
+  "matches some file under work/" test is removed. Limit: the prose next to a fingerprint is descriptive, and the
+  files= entry is the binding.
+
+Not changed: everything under work/, all 19 pinned paths, lint_token_scan result (same text, 30eef93f67e048d7).
+Known, not changed (outside the authorized list): row 102 still says that critic2's lint hash 'is in
+final/tools/lint_result.txt'. That file now holds the REFIX-3 lint hash. The lint critic2 ran was an earlier text
+(its output lint_rerun 45e1c103c6ddcb0a is pinned in row 102 itself). The old lint c054e27116a0f513 is kept as
+refix3/lint_hbp.before.py.
+
+Computations by this seat (all r-independent: text edits, sha256, text scans; nothing run at any r; python3 -I -B):
+1. refix3/coverage.py bca40a218d3ddb1b: which work/ files are fingerprinted in the record (verify2_0 38/39 and
+   verify2_1 12/16 missing before this pass; verify1_0 and verify1_1 complete).
+2. refix3/fpmap.py 7541289c7b6e764b -> refix3/fpmap.txt df6f230b917d46e8: each old DISCLOSE fingerprint and its files.
+3. refix3/edit_record.py ea7396e86048bbf3 (12 edits, rows 107-109 new): 21aeaaf5436b9d9c -> refix3/PREDICT.stage1.hbp
+   cfaa733e8d0d2bba; then refix3/manifest.py c579964d22617fed (files=/complete= fields on rows 085-091, 094, 095,
+   101, 102, 104-108; overrides for two byte-identical file pairs in rows 089 and 090) -> PREDICT.stage2.hbp
+   d06ff237f55a762e = final record. refix3/manifest_trial.txt 7c26d5c689788607 is a first trial output of an earlier
+   manifest.py text, not used.
+4. final/tools/r_scan.sh d14ea612169df1c7 -> 9ea6158809513727, output final/tools/r_scan.txt 7d47a27c3e7ab52b ->
+   1e6113f86dd1a2e3. It was run 4 times (refix3/r_scan_a.txt, r_scan_b.txt, r_scan_final2.txt, all byte-identical)
+   with empty stderr. A refusal test with OUT=work/x.txt exited 2 and wrote nothing.
+5. text grep of the non-.txt/.log files of work/verify2_0 and work/verify2_1 -> refix3/nontxt_scan.txt c0efdaed8ef6024b
+   (0 near-9 lines in every file).
+6. final/tools/lint_hbp.py c054e27116a0f513 -> 609655a3c6004bdc, output final/tools/lint_result.txt 980e0d788ad11d96:
+   0 errors, 109 rows, 19 pins, 307 named files, 308/308 fingerprints bound. On the old record the new lint
+   reports 210 errors (no files= fields), as expected.
+7. refix3/controls.py de02052599bd52e8 -> final/tools/lint_controls.txt 91f2685243eef147: 9 planted faults, each giving
+   exactly one error. They are the 6 of REFIX-2, plus c7, a real fingerprint copied onto the wrong name (passed the old
+   lint), c8, a file of a complete= dir left out, and c9, a real work/ fingerprint in prose outside the row's files=
+   (passed the old lint). Temporary copies were deleted.
+8. refix3/token_scan.py 089d4420baa26b5f -> final/tools/lint_token_scan.txt 30eef93f67e048d7 (forbidden=none).
+9. refix3/edit_note.py 1790158861e1fb41 (14 edits), plus the two lint hashes filled in: NOTE 20d9cad10f1d6d5c ->
+   e3291bcc00a1353e (refix3/NOTE.stage1.md 8f4c3105c17782bc).
+Kept for diffing in refix3/: PREDICT.before.hbp 21aeaaf5436b9d9c, NOTE.before.md 20d9cad10f1d6d5c, CHANGES.before.txt
+08e8b0e2213c6b07, r_scan.before.sh d14ea612169df1c7, r_scan.before.txt 7d47a27c3e7ab52b, lint_hbp.before.py
+c054e27116a0f513, lint_result.before.txt 91e0899b11542b6b, lint_controls.before.txt 237c054d84a9d783. These files are
+named by files= entries in rows 107 and 108, so refix1/, refix2/ and refix3/ must stay unchanged. refix3/ is outside
+work/ (460 kB). No work/ file was written. No repository or GitHub writes. scratchpad/refute155/ was not read.
+
+Next (not done here): the records verifier writes only under work/verify3_0/ and reruns lint, controls and r_scan
+(copies as .out). If it passes, the freeze seat's last step is the row 096 r_scan rerun. P is
+d06ff237f55a762e7c50087d98a757ed366e749f6a736c9c1793f495efd84041 unless that verifier forces an edit.
+
+AT THE FREEZE (2026-11-10, cloud seat main session; recorded, not applied; owner-authorized scope was the identified corrections only)
+- Row 102's program field still says critic2's lint hash "is in final/tools/lint_result.txt"; that file now holds the new lint's hash (609655a3...). The critic2
+  hash is still recoverable from critic2's own folder, which row 102 lists file by file.
+- The files= lists name files in refix1/, refix2/ and refix3/ under the lane's scratch; they are not in this folder. The floorcert binary is not committed:
+  rebuild it from work/design/rs with cargo +1.81.0 --locked and check it against its PIN row.
+
+VERSION 2 (2026-11-10, local build seat, Claude Opus 5.5; owner-relayed reviewer authorization: version 2 freeze before any measurement)
+- Version 1 (commit e74d8a46e86034096fd9c9231c87f594f17a93bf, folder independent/y131-floor-cert-freeze-20261110) stays unchanged. This folder is a copy of it
+  with the repairs below. Everything above this section is the version 1 text, unchanged.
+- E1: rowhash creates its --dir when it is absent (std::fs::create_dir_all at the start of rowhash_only). cert creates no directory; with an absent --dir it
+  exits 101 as in version 1, and it reuses the directory rowhash made (KEYS|loaded).
+- E5: the 22 errors of cargo +1.81 clippy --release --locked -- -D warnings are rewritten, with no allow attribute. Clippy exit 0, build exit 0, 0 warnings.
+  main.rs f173b6833b194a0bab6cab6d0ef30b125993aa70f306050397247ed03e464bc6. Pin-free binary 9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f (a rebuild in a separate target dir is byte-identical).
+- E2: work/design/gate_required.sh and final/tools/r_scan.sh take their base directory from their own location. gate_required.sh 0064ca4654aa8725f2040f8b50b01e95a521966eada0ac75ffdf2ee63b98849c,
+  r_scan.sh a666deb720747de4b6e56f104eb477930afde6f0fefcae7a14145a32b6a4b46f. r_scan.sh was left unrun: it is a text scan and 10 of its 11 folders hold absent files.
+  final/tools/r_scan.txt, lint_controls.txt and lint_token_scan.txt are the version 1 outputs, unchanged. final/tools/lint_hbp.py is unchanged.
+- E4: row 070's basis gives the verifier memory of the pinned FIX-1 receipt, 403696kB, and names the version 1 figure 403336kB.
+- E3: review-v1/E3-PROVENANCE.hbp lists every absent files= path with its provenance. E3_END|absent_paths=278|absent_entries=286|verified=8|not_established=270|of_which_content_reproduced=20|seat_folders_absent=6|json=0
+  No absent file was recreated or back-filled.
+- Regression with the version 2 binary, at the excluded r 12 and 21/2 only: selftest, the m0 7 smoke certificate, the 14 m0 6 plant certificates and the
+  m0 11 certificate with its key file and row hash are byte-identical to their FIX-1 pins; the required gate passes on the honest files and refuses the
+  12 distinct plants. Receipts: review-v1/regression-v2/. Record row 112.
+- Launcher (added scope, owner-relayed): final/tools/run_floor.sh 7de05245684805b872b410f200e320ee7c373104818e372f8a3a60e268e5595f and final/tools/floor_eval.py
+  16303ec6dd277b19e4beefe61f4c9724490aa91f4c6b1e884c0feb75af96e644. One command for the r = 9 run: pin checks, frozen build, rowhash and cert under peak_rss.py,
+  gate_required.sh on every certificate, rows 006/007 decided in exact rational arithmetic from verifier-accepted certificates only, one FLOOR_RUN line,
+  a receipt. Rehearsed in test mode at excluded r only (record row 117, review-v1/rehearsal-v2/). The default mode was not run. Rows 001 006 007 008 name it.
+- Record: 3012db17c1feee49dc9b0a20da162b4272a11825ee1d7ec0631bd50d0108b9a6, 118 rows. ROWCMP_END|v1_rows=109|same_bytes=98|changed=11|changed_ids=001_003_006_007_008_009_010_013_016_020_070|new_rows=9|new_ids=110_111_112_113_114_115_116_117_118|predict_rows=16|predict_same_bytes=15|predict_value_met_if_not_met_if_falsifier_same=16|json=0
+- final/tools/lint_result.txt holds the real lint result on the version 2 record, with the error count and the reason of each class.
+- Nothing was computed at r = 9 or at any r within 1 of 9. No push, no pull request. The r = 9 run waits for the review of this version 2 freeze.

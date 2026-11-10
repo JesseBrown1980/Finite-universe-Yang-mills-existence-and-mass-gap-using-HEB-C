@@ -1,0 +1,2 @@
+RCHECK|r=19/2|within_1_of_9=1
+FLOOR_RUN|result=UNRESOLVED|stage=prelude|reason=test_r_refused_within_1_of_9|r=19/2|steps_run=none|accepted_certificates=0|certificate_commands_run=0|json=0

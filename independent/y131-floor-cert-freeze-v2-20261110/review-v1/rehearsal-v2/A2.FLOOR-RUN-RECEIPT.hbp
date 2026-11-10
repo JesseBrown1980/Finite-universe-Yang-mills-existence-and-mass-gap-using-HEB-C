@@ -1,0 +1,47 @@
+# floor run receipt written by final/tools/floor_eval.py; pipe rows; json=0
+RECEIPT|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|r=12|mode=test|driver_sha256=7de05245684805b872b410f200e320ee7c373104818e372f8a3a60e268e5595f|evaluator_sha256=16303ec6dd277b19e4beefe61f4c9724490aa91f4c6b1e884c0feb75af96e644|json=0
+STEP|m0=7|status=OK|accepted=2|certificates=2|G=1042273/10000|U=104854118000000/1000000000000|U_verifier_only=104854118000000/1000000000000|writer_peak_kB=7824|verifier_mem_max_kB=22256|rowhash=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|keyshash=051ef322cd8442a1dc1139f29755c74a74af142d516febbeee43d83545205df7|rowhash_pin=three_way_equality_only|bad=none|json=0
+CERTROW|m0=7|f=1|file=cert_m7_r12_1_f1.txt|sha256=e980c552510dec8a66e5c8f7369fd4e0354a8fae19fe45ed7aa7523f105d7171|accepted=1|gate=PASS|gamma=804069/10000|ritz_writer=113469933/1000000|ritz_verifier=113469933/1000000|tail_cap=96.0000|next_t_refused=gate=row_check|bad=none|json=0
+CERTROW|m0=7|f=4,3,2,1|file=cert_m7_r12_1_f4-3-2-1.txt|sha256=6b0864111909134dde63be778bb986c706a6c280303ab90da14f5adc7e768823|accepted=1|gate=PASS|gamma=1042273/10000|ritz_writer=104854117/1000000|ritz_verifier=104854117/1000000|tail_cap=111.0000|next_t_refused=gate=row_check|bad=none|json=0
+ACCEPTED|m0=7|count=2|json=0
+NOTE|rustc=rustc 1.81.0 (eeb90cda1 2024-09-04)|cargo=cargo 1.81.0 (2dbb1af80 2024-08-20)|json=0
+NOTE|binary=work/design/rs/target/release/floorcert|binary_sha256=9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f|json=0
+NOTE|before_m0=7|binary_sha256=9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f|json=0
+INVOKE|seq=1|m0=7|kind=rowhash|attempt=1|rc=0|limit_s=21600|log=log/m7_rowhash_a1.txt|log_sha256=7b9926c9640a3c0c57105dddd75b3571cfeb6f63de830a6bb091cee6d877872c|argv=python3 -I -B work/design/peak_rss.py work/design/rs/target/release/floorcert rowhash --m0 7 --threads 2 --dir /root/floor-v2/reh/A2/RUN7|json=0
+INVOKE|seq=2|m0=7|kind=cert|attempt=1|rc=0|limit_s=21600|log=log/m7_cert_a1.txt|log_sha256=d9d62f00cbf076da135803a03aee2b1683877fd41ac249a2728186486df17afe|argv=python3 -I -B work/design/peak_rss.py work/design/rs/target/release/floorcert cert --m0 7 --r 12 --f 1;4,3,2,1 --write-cert --threads 2 --dir /root/floor-v2/reh/A2/RUN7|json=0
+INVOKE|seq=3|m0=7|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m7_gate_cert_m7_r12_1_f1.txt_a1.txt|log_sha256=aa33a8aa5cd030c1d6a45773ba15dbdac90f471d63d498bfa2b0326cc6c343dd|argv=bash work/design/gate_required.sh /root/floor-v2/reh/A2/RUN7/cert_m7_r12_1_f1.txt|json=0
+INVOKE|seq=4|m0=7|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m7_gate_cert_m7_r12_1_f4-3-2-1.txt_a1.txt|log_sha256=b541d7d76c8f013773391c672e3a323368c02237f6ab893d14ad780549c5425c|argv=bash work/design/gate_required.sh /root/floor-v2/reh/A2/RUN7/cert_m7_r12_1_f4-3-2-1.txt|json=0
+DECISION|after_m0=7|state=ABOVE|G_max=1042273/10000|G_max_vs_g0=GE|g0=100/1|U_all=104854118000000/1000000000000|U_all_vs_g0=GE|U_all_verifier_only=104854118000000/1000000000000|inputs=verifier_accepted_certificates_only|next=STOP|rule=row_006_not_run_if|json=0
+PREDICT_SCORE|row=058|value=GE_80|outcome=MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=059|value=GE_935/10|outcome=MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=060|value=in_[94070673/1000000,9413/100]|outcome=NOT_MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=061|value=LE_3/10|outcome=NOT_MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=062|value=LE_1/10|outcome=NOT_EVALUATED|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=063|value=LE_1/20|outcome=NOT_EVALUATED|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=064|value=LE_3/10|outcome=MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=065|value=gamma_cert_LE_94070936/1000000|outcome=NOT_MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=066|value=gamma_cert_LT_g0_at_every_step_run|outcome=NOT_MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=067|value=a_mild_f|outcome=NO_GATED_VALUE|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=068|value=gamma_LE_cap-10_on_every_r9_certificate|outcome=NOT_MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=069|value=G(12)_GE_G(11)-1/1000|outcome=NOT_EVALUATED|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=070|value=writer_PEAK_RSS_under_524288kB_at_m0_11_and_under_1048576kB_at_m0_12;_verifier_MEM_under_1048576kB_at_m0_11_and_under_1572864kB_at_m0_12|outcome=MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=071|value=in_[9407/100,9410/100]|outcome=NOT_MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=072|value=OPEN|outcome=OPEN_BRANCH_ABOVE|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=073|value=U_all_GE_g0|outcome=MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+FILE|path=RUN7/cert_m7_r12_1_f1.txt|sha256=e980c552510dec8a66e5c8f7369fd4e0354a8fae19fe45ed7aa7523f105d7171|bytes=18331|json=0
+FILE|path=RUN7/cert_m7_r12_1_f4-3-2-1.txt|sha256=6b0864111909134dde63be778bb986c706a6c280303ab90da14f5adc7e768823|bytes=17914|json=0
+FILE|path=RUN7/core_keys_m7.bin|sha256=051ef322cd8442a1dc1139f29755c74a74af142d516febbeee43d83545205df7|bytes=5456|json=0
+FILE|path=log/m7_cert.txt|sha256=d9d62f00cbf076da135803a03aee2b1683877fd41ac249a2728186486df17afe|bytes=3061|json=0
+FILE|path=log/m7_cert_a1.txt|sha256=d9d62f00cbf076da135803a03aee2b1683877fd41ac249a2728186486df17afe|bytes=3061|json=0
+FILE|path=log/m7_dir_after_rowhash.txt|sha256=ea44f389126858883215107b1c551489e524c47bdc03f86a4579bbb894a12fff|bytes=17|json=0
+FILE|path=log/m7_gate_cert_m7_r12_1_f1.txt.txt|sha256=aa33a8aa5cd030c1d6a45773ba15dbdac90f471d63d498bfa2b0326cc6c343dd|bytes=1497|json=0
+FILE|path=log/m7_gate_cert_m7_r12_1_f1.txt_a1.txt|sha256=aa33a8aa5cd030c1d6a45773ba15dbdac90f471d63d498bfa2b0326cc6c343dd|bytes=1497|json=0
+FILE|path=log/m7_gate_cert_m7_r12_1_f4-3-2-1.txt.txt|sha256=b541d7d76c8f013773391c672e3a323368c02237f6ab893d14ad780549c5425c|bytes=1517|json=0
+FILE|path=log/m7_gate_cert_m7_r12_1_f4-3-2-1.txt_a1.txt|sha256=b541d7d76c8f013773391c672e3a323368c02237f6ab893d14ad780549c5425c|bytes=1517|json=0
+FILE|path=log/m7_rowhash.txt|sha256=7b9926c9640a3c0c57105dddd75b3571cfeb6f63de830a6bb091cee6d877872c|bytes=1043|json=0
+FILE|path=log/m7_rowhash_a1.txt|sha256=7b9926c9640a3c0c57105dddd75b3571cfeb6f63de830a6bb091cee6d877872c|bytes=1043|json=0
+FILE|path=log/m7_step.hbp|sha256=de059fecc21ce7898598f9d01ec4c7acf9a2f66a4df6c7d92397fb1039dab877|bytes=959|json=0
+FILE|path=log/pincheck_1.txt|sha256=5ad544259c3af904046ad08d3a9af116cc6a2b4a49e5c6358718274f8407c88b|bytes=4533|json=0
+FILE|path=log/row034_from_git.hbp|sha256=0b97fa83c02e94e78605f64f3086cd0a75d6af61f4e420b2f92cf3b8d454a55e|bytes=98234|json=0
+FILE|path=log/run.log|sha256=180f965135829566e53f7f016dbf2e5deb27db4f1e58ab81f5441683b3a57680|bytes=3105|json=0
+FLOOR_RUN|result=PASS|comparison=ABOVE|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|r=12|g0=100/1|gamma_cert=1042273/10000|U_all=104854118000000/1000000000000|steps_run=7|steps_ok=7|operational_failures=none|accepted_certificates=2|stop=DECIDED|rule=row_006_not_run_if|predict_met=058,059,064,070,073|predict_not_met=060,061,065,066,068,071|predict_other=062:NOT_EVALUATED,063:NOT_EVALUATED,067:NO_GATED_VALUE,069:NOT_EVALUATED,072:OPEN_BRANCH_ABOVE|freeze_commit=NONE|prediction_sha256=67aa529e90f8e6cad665ab009a1a0390e6ce27ec6b5322a35fd2291f6554d4de|binary_sha256=9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f|files=RUN7/cert_m7_r12_1_f1.txt@e980c552510dec8a66e5c8f7369fd4e0354a8fae19fe45ed7aa7523f105d7171,RUN7/cert_m7_r12_1_f4-3-2-1.txt@6b0864111909134dde63be778bb986c706a6c280303ab90da14f5adc7e768823,RUN7/core_keys_m7.bin@051ef322cd8442a1dc1139f29755c74a74af142d516febbeee43d83545205df7,log/m7_cert.txt@d9d62f00cbf076da135803a03aee2b1683877fd41ac249a2728186486df17afe,log/m7_cert_a1.txt@d9d62f00cbf076da135803a03aee2b1683877fd41ac249a2728186486df17afe,log/m7_dir_after_rowhash.txt@ea44f389126858883215107b1c551489e524c47bdc03f86a4579bbb894a12fff,log/m7_gate_cert_m7_r12_1_f1.txt.txt@aa33a8aa5cd030c1d6a45773ba15dbdac90f471d63d498bfa2b0326cc6c343dd,log/m7_gate_cert_m7_r12_1_f1.txt_a1.txt@aa33a8aa5cd030c1d6a45773ba15dbdac90f471d63d498bfa2b0326cc6c343dd,log/m7_gate_cert_m7_r12_1_f4-3-2-1.txt.txt@b541d7d76c8f013773391c672e3a323368c02237f6ab893d14ad780549c5425c,log/m7_gate_cert_m7_r12_1_f4-3-2-1.txt_a1.txt@b541d7d76c8f013773391c672e3a323368c02237f6ab893d14ad780549c5425c,log/m7_rowhash.txt@7b9926c9640a3c0c57105dddd75b3571cfeb6f63de830a6bb091cee6d877872c,log/m7_rowhash_a1.txt@7b9926c9640a3c0c57105dddd75b3571cfeb6f63de830a6bb091cee6d877872c,log/m7_step.hbp@de059fecc21ce7898598f9d01ec4c7acf9a2f66a4df6c7d92397fb1039dab877,log/pincheck_1.txt@5ad544259c3af904046ad08d3a9af116cc6a2b4a49e5c6358718274f8407c88b,log/row034_from_git.hbp@0b97fa83c02e94e78605f64f3086cd0a75d6af61f4e420b2f92cf3b8d454a55e,log/run.log@180f965135829566e53f7f016dbf2e5deb27db4f1e58ab81f5441683b3a57680|json=0

@@ -1,0 +1,52 @@
+# floor run receipt written by final/tools/floor_eval.py; pipe rows; json=0
+RECEIPT|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|r=21/2|mode=test|driver_sha256=7de05245684805b872b410f200e320ee7c373104818e372f8a3a60e268e5595f|evaluator_sha256=16303ec6dd277b19e4beefe61f4c9724490aa91f4c6b1e884c0feb75af96e644|json=0
+STEP|m0=11|status=OK|accepted=3|certificates=3|G=993665/10000|U=99389477000000/1000000000000|U_verifier_only=99389477000000/1000000000000|writer_peak_kB=440348|verifier_mem_max_kB=405168|rowhash=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|keyshash=e25b8b392161f6f02d933f6a1e78643b3ff95ae3fb69b72b02a36c2c8a5f3a7e|rowhash_pin=row_028|bad=none|json=0
+CERTROW|m0=11|f=1|file=cert_m11_r21_2_f1.txt|sha256=179393e42a3be5094d9fac4a0b53f3224b33671dec4bfdee93cf919b01a06aab|accepted=1|gate=PASS|gamma=993528/10000|ritz_writer=99391530/1000000|ritz_verifier=99391530/1000000|tail_cap=126.0000|next_t_refused=gate=row_check|bad=none|json=0
+CERTROW|m0=11|f=8,7,6,5,4|file=cert_m11_r21_2_f8-7-6-5-4.txt|sha256=a217a469e1bb482226e0cb92a54fdb32ebd0b3ef5608892627da6ec0433effa5|accepted=1|gate=PASS|gamma=993655/10000|ritz_writer=99389579/1000000|ritz_verifier=99389579/1000000|tail_cap=144.0000|next_t_refused=gate=row_check|bad=none|json=0
+CERTROW|m0=11|f=6,5,4,3|file=cert_m11_r21_2_f6-5-4-3.txt|sha256=1462c2ed070815a89a2cf9741188b5045a0b92272b8f1c946c9ac8a631a17fcb|accepted=1|gate=PASS|gamma=993665/10000|ritz_writer=99389476/1000000|ritz_verifier=99389476/1000000|tail_cap=145.5000|next_t_refused=gate=row_check|bad=none|json=0
+ACCEPTED|m0=11|count=3|json=0
+NOTE|rustc=rustc 1.81.0 (eeb90cda1 2024-09-04)|cargo=cargo 1.81.0 (2dbb1af80 2024-08-20)|json=0
+NOTE|binary=work/design/rs/target/release/floorcert|binary_sha256=9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f|json=0
+NOTE|before_m0=11|binary_sha256=9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f|json=0
+INVOKE|seq=1|m0=11|kind=rowhash|attempt=1|rc=0|limit_s=21600|log=log/m11_rowhash_a1.txt|log_sha256=1e7c9c2aaa8d97810052434e4667cbe1d4c537a705c0030b1ea6c919e10ba4aa|argv=python3 -I -B work/design/peak_rss.py work/design/rs/target/release/floorcert rowhash --m0 11 --threads 2 --dir /root/floor-v2/reh/D1/RUN11|json=0
+INVOKE|seq=2|m0=11|kind=cert|attempt=1|rc=0|limit_s=21600|log=log/m11_cert_a1.txt|log_sha256=2176454bdf362032208bbf8f724fd9c70e9171edc64338447817fd28b0ec9918|argv=python3 -I -B work/design/peak_rss.py work/design/rs/target/release/floorcert cert --m0 11 --r 21/2 --f 1;8,7,6,5,4;6,5,4,3 --write-cert --threads 2 --dir /root/floor-v2/reh/D1/RUN11|json=0
+INVOKE|seq=3|m0=11|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m11_gate_cert_m11_r21_2_f1.txt_a1.txt|log_sha256=13c30419b81689206269470a53179fc6d35d91ce105a62a8aca9c11112797412|argv=bash work/design/gate_required.sh /root/floor-v2/reh/D1/RUN11/cert_m11_r21_2_f1.txt|json=0
+INVOKE|seq=4|m0=11|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m11_gate_cert_m11_r21_2_f6-5-4-3.txt_a1.txt|log_sha256=00e8114df1fc14b798dd1d8692fb61d5d0dcf7805b78af054ffa8e1fab50f7a6|argv=bash work/design/gate_required.sh /root/floor-v2/reh/D1/RUN11/cert_m11_r21_2_f6-5-4-3.txt|json=0
+INVOKE|seq=5|m0=11|kind=gate|attempt=1|rc=0|limit_s=21600|log=log/m11_gate_cert_m11_r21_2_f8-7-6-5-4.txt_a1.txt|log_sha256=fe282c7fec635887a0512470f381abeb7c798493b9bd99b7366f8959523361eb|argv=bash work/design/gate_required.sh /root/floor-v2/reh/D1/RUN11/cert_m11_r21_2_f8-7-6-5-4.txt|json=0
+DECISION|after_m0=11|state=ABOVE|G_max=993665/10000|G_max_vs_g0=GE|g0=99/1|U_all=99389477000000/1000000000000|U_all_vs_g0=GE|U_all_verifier_only=99389477000000/1000000000000|inputs=verifier_accepted_certificates_only|next=STOP|rule=row_006_not_run_if|json=0
+PREDICT_SCORE|row=058|value=GE_80|outcome=MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=059|value=GE_935/10|outcome=MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=060|value=in_[94070673/1000000,9413/100]|outcome=NOT_MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=061|value=LE_3/10|outcome=MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=062|value=LE_1/10|outcome=NOT_EVALUATED|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=063|value=LE_1/20|outcome=NOT_EVALUATED|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=064|value=LE_3/10|outcome=MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=065|value=gamma_cert_LE_94070936/1000000|outcome=NOT_MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=066|value=gamma_cert_LT_g0_at_every_step_run|outcome=NOT_MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=067|value=a_mild_f|outcome=MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=068|value=gamma_LE_cap-10_on_every_r9_certificate|outcome=MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=069|value=G(12)_GE_G(11)-1/1000|outcome=NOT_EVALUATED|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=070|value=writer_PEAK_RSS_under_524288kB_at_m0_11_and_under_1048576kB_at_m0_12;_verifier_MEM_under_1048576kB_at_m0_11_and_under_1572864kB_at_m0_12|outcome=MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=071|value=in_[9407/100,9410/100]|outcome=NOT_MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=072|value=OPEN|outcome=OPEN_BRANCH_ABOVE|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+PREDICT_SCORE|row=073|value=U_all_GE_g0|outcome=MET|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|json=0
+FILE|path=RUN11/cert_m11_r21_2_f1.txt|sha256=179393e42a3be5094d9fac4a0b53f3224b33671dec4bfdee93cf919b01a06aab|bytes=891267|json=0
+FILE|path=RUN11/cert_m11_r21_2_f6-5-4-3.txt|sha256=1462c2ed070815a89a2cf9741188b5045a0b92272b8f1c946c9ac8a631a17fcb|bytes=889447|json=0
+FILE|path=RUN11/cert_m11_r21_2_f8-7-6-5-4.txt|sha256=a217a469e1bb482226e0cb92a54fdb32ebd0b3ef5608892627da6ec0433effa5|bytes=889716|json=0
+FILE|path=RUN11/core_keys_m11.bin|sha256=e25b8b392161f6f02d933f6a1e78643b3ff95ae3fb69b72b02a36c2c8a5f3a7e|bytes=279360|json=0
+FILE|path=log/m11_cert.txt|sha256=2176454bdf362032208bbf8f724fd9c70e9171edc64338447817fd28b0ec9918|bytes=3622|json=0
+FILE|path=log/m11_cert_a1.txt|sha256=2176454bdf362032208bbf8f724fd9c70e9171edc64338447817fd28b0ec9918|bytes=3622|json=0
+FILE|path=log/m11_dir_after_rowhash.txt|sha256=8b2c7309e38a62be702844e5d8983b631b792eb2d465efd22382b8db3d0db206|bytes=18|json=0
+FILE|path=log/m11_gate_cert_m11_r21_2_f1.txt.txt|sha256=13c30419b81689206269470a53179fc6d35d91ce105a62a8aca9c11112797412|bytes=1519|json=0
+FILE|path=log/m11_gate_cert_m11_r21_2_f1.txt_a1.txt|sha256=13c30419b81689206269470a53179fc6d35d91ce105a62a8aca9c11112797412|bytes=1519|json=0
+FILE|path=log/m11_gate_cert_m11_r21_2_f6-5-4-3.txt.txt|sha256=00e8114df1fc14b798dd1d8692fb61d5d0dcf7805b78af054ffa8e1fab50f7a6|bytes=1537|json=0
+FILE|path=log/m11_gate_cert_m11_r21_2_f6-5-4-3.txt_a1.txt|sha256=00e8114df1fc14b798dd1d8692fb61d5d0dcf7805b78af054ffa8e1fab50f7a6|bytes=1537|json=0
+FILE|path=log/m11_gate_cert_m11_r21_2_f8-7-6-5-4.txt.txt|sha256=fe282c7fec635887a0512470f381abeb7c798493b9bd99b7366f8959523361eb|bytes=1553|json=0
+FILE|path=log/m11_gate_cert_m11_r21_2_f8-7-6-5-4.txt_a1.txt|sha256=fe282c7fec635887a0512470f381abeb7c798493b9bd99b7366f8959523361eb|bytes=1553|json=0
+FILE|path=log/m11_rowhash.txt|sha256=1e7c9c2aaa8d97810052434e4667cbe1d4c537a705c0030b1ea6c919e10ba4aa|bytes=1086|json=0
+FILE|path=log/m11_rowhash_a1.txt|sha256=1e7c9c2aaa8d97810052434e4667cbe1d4c537a705c0030b1ea6c919e10ba4aa|bytes=1086|json=0
+FILE|path=log/m11_step.hbp|sha256=ae31230b3ab7f4c997e955d4e53ef286fcee7d79a6cef0d3560ab2f8c42c4f68|bytes=1241|json=0
+FILE|path=log/pincheck_1.txt|sha256=5ad544259c3af904046ad08d3a9af116cc6a2b4a49e5c6358718274f8407c88b|bytes=4533|json=0
+FILE|path=log/row034_from_git.hbp|sha256=0b97fa83c02e94e78605f64f3086cd0a75d6af61f4e420b2f92cf3b8d454a55e|bytes=98234|json=0
+FILE|path=log/run.log|sha256=236a94f560e46e0a62da114dad345dd858071967d3a255eab6dc1eafe36b54aa|bytes=3715|json=0
+FLOOR_RUN|result=PASS|comparison=ABOVE|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|r=21/2|g0=99/1|gamma_cert=993665/10000|U_all=99389477000000/1000000000000|steps_run=11|steps_ok=11|operational_failures=none|accepted_certificates=3|stop=DECIDED|rule=row_006_not_run_if|predict_met=058,059,061,064,067,068,070,073|predict_not_met=060,065,066,071|predict_other=062:NOT_EVALUATED,063:NOT_EVALUATED,069:NOT_EVALUATED,072:OPEN_BRANCH_ABOVE|freeze_commit=NONE|prediction_sha256=67aa529e90f8e6cad665ab009a1a0390e6ce27ec6b5322a35fd2291f6554d4de|binary_sha256=9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f|files=RUN11/cert_m11_r21_2_f1.txt@179393e42a3be5094d9fac4a0b53f3224b33671dec4bfdee93cf919b01a06aab,RUN11/cert_m11_r21_2_f6-5-4-3.txt@1462c2ed070815a89a2cf9741188b5045a0b92272b8f1c946c9ac8a631a17fcb,RUN11/cert_m11_r21_2_f8-7-6-5-4.txt@a217a469e1bb482226e0cb92a54fdb32ebd0b3ef5608892627da6ec0433effa5,RUN11/core_keys_m11.bin@e25b8b392161f6f02d933f6a1e78643b3ff95ae3fb69b72b02a36c2c8a5f3a7e,log/m11_cert.txt@2176454bdf362032208bbf8f724fd9c70e9171edc64338447817fd28b0ec9918,log/m11_cert_a1.txt@2176454bdf362032208bbf8f724fd9c70e9171edc64338447817fd28b0ec9918,log/m11_dir_after_rowhash.txt@8b2c7309e38a62be702844e5d8983b631b792eb2d465efd22382b8db3d0db206,log/m11_gate_cert_m11_r21_2_f1.txt.txt@13c30419b81689206269470a53179fc6d35d91ce105a62a8aca9c11112797412,log/m11_gate_cert_m11_r21_2_f1.txt_a1.txt@13c30419b81689206269470a53179fc6d35d91ce105a62a8aca9c11112797412,log/m11_gate_cert_m11_r21_2_f6-5-4-3.txt.txt@00e8114df1fc14b798dd1d8692fb61d5d0dcf7805b78af054ffa8e1fab50f7a6,log/m11_gate_cert_m11_r21_2_f6-5-4-3.txt_a1.txt@00e8114df1fc14b798dd1d8692fb61d5d0dcf7805b78af054ffa8e1fab50f7a6,log/m11_gate_cert_m11_r21_2_f8-7-6-5-4.txt.txt@fe282c7fec635887a0512470f381abeb7c798493b9bd99b7366f8959523361eb,log/m11_gate_cert_m11_r21_2_f8-7-6-5-4.txt_a1.txt@fe282c7fec635887a0512470f381abeb7c798493b9bd99b7366f8959523361eb,log/m11_rowhash.txt@1e7c9c2aaa8d97810052434e4667cbe1d4c537a705c0030b1ea6c919e10ba4aa,log/m11_rowhash_a1.txt@1e7c9c2aaa8d97810052434e4667cbe1d4c537a705c0030b1ea6c919e10ba4aa,log/m11_step.hbp@ae31230b3ab7f4c997e955d4e53ef286fcee7d79a6cef0d3560ab2f8c42c4f68,log/pincheck_1.txt@5ad544259c3af904046ad08d3a9af116cc6a2b4a49e5c6358718274f8407c88b,log/row034_from_git.hbp@0b97fa83c02e94e78605f64f3086cd0a75d6af61f4e420b2f92cf3b8d454a55e,log/run.log@236a94f560e46e0a62da114dad345dd858071967d3a255eab6dc1eafe36b54aa|json=0

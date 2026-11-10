@@ -1,0 +1,34 @@
+START 2026-11-10T16:30:42Z binary=9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f
+selftest_rc=0 sha16=345f71973e0982dc
+e1_m7_rowhash_rc=0 dir_exists=1 keys_sha16=051ef322cd8442a1
+ENUM|m0=7|classes=682|secs=0|hwm=2492kB
+KEYSHASH|m0=7|classes=682|sha256=051ef322cd8442a1dc1139f29755c74a74af142d516febbeee43d83545205df7
+ROWHASH_ONLY|m0=7|sha256=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|keyshash=051ef322cd8442a1dc1139f29755c74a74af142d516febbeee43d83545205df7|classes=682
+PEAK_RSS|kB=7244|exit=0|wall_ms=1148|argv0=/root/floor-v2/repo/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs/target/release/floorcert
+smoke_rc=0
+smoke cert_m7_r12_1_f4-3-2-1.txt sha16=6b0864111909134d
+smoke core_keys_m7.bin sha16=051ef322cd8442a1
+TAIL|f=4,3,2,1|min_layer_floor=111.0000|min_observed_target_floor=120.0000|observed_targets=40850|gate_observed_ge_layer=PASS
+CERT|r=12/1|m0=7|classes=682|f=4,3,2,1|gamma=1042273/10000=104.2273|row_check=PASS|min_slack=48436191597|next_t_refused=gate=row_check|ritz_upper=104.854117|trivial_r(m0+1)=96.0000|tail_cap=111.0000|rowhash=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|images=2|independent_gate=REQUIRED|secs=0
+WROTE|/root/floor-v2/reg/smoke/cert_m7_r12_1_f4-3-2-1.txt|sha256=6b0864111909134dde63be778bb986c706a6c280303ab90da14f5adc7e768823|independent_gate=REQUIRED: design/gate_required.sh /root/floor-v2/reg/smoke/cert_m7_r12_1_f4-3-2-1.txt
+smoke_gate_rc=0 GATE_REQUIRED|PASS|cert=/root/floor-v2/reg/smoke/cert_m7_r12_1_f4-3-2-1.txt|cert_sha256=6b0864111909134dde63be778bb986c706a6c280303ab90da14f5adc7e768823|rowhash=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|verifier_sha256=6043d0897250a7c873
+e1_m7_cert_rc=0 KEYS|loaded=/root/floor-v2/reg/e1_m7/core_keys_m7.bin|classes=682
+KEYSHASH|m0=7|classes=682|sha256=051ef322cd8442a1dc1139f29755c74a74af142d516febbeee43d83545205df7 cert_sha16=6b0864111909134d
+cert_absent_dir_rc=101 dir_exists=0
+plants_rc=0
+plant cert_m6_r21_2_P1a_wrong_sign_offdiagonal.txt v2=a393e6a7ce21eb7c ledger=a393e6a7ce21eb7c MATCH gate_rc=1 VERDICT|REFUSE|reasons=row_check(failing_rows=54|nonpositive_schur_denominators=0|first=ke
+plant cert_m6_r21_2_P1b_wrong_sign_schur_term_code.txt v2=9718f847317803c5 ledger=9718f847317803c5 MATCH gate_rc=0 VERDICT|PASS|lambda_min(QHQ) >= 899999/10000 at r = 21/2 (m0 = 6)|rowhash=d591edb7e9b546cb
+plant cert_m6_r21_2_P2a_all_tail_neighbours_missing.txt v2=33bf73bc043dc1af ledger=33bf73bc043dc1af MATCH gate_rc=1 VERDICT|REFUSE|reasons=row_check(failing_rows=53|nonpositive_schur_denominators=0|first=ke
+plant cert_m6_r21_2_P2b_heaviest_tail_neighbour_missing.txt v2=cdacd52ec5718c3a ledger=cdacd52ec5718c3a MATCH gate_rc=1 VERDICT|REFUSE|reasons=row_hash(header=920570c0a0ce311b own=d591edb7e9b546cb)
+plant cert_m6_r21_2_P2c_two_step_paths_missing.txt v2=cfab377b9d256c18 ledger=cfab377b9d256c18 MATCH gate_rc=1 VERDICT|REFUSE|reasons=row_check(failing_rows=53|nonpositive_schur_denominators=0|first=ke
+plant cert_m6_r21_2_P3a_tail_f_not_positive.txt v2=4490795ef0d004c3 ledger=4490795ef0d004c3 MATCH gate_rc=1 VERDICT|REFUSE|reasons=positivity_f(f=4,-3,2,1)
+plant cert_m6_r21_2_P3b_core_v_not_positive.txt v2=08cb379fe02a50c8 ledger=08cb379fe02a50c8 MATCH gate_rc=1 VERDICT|REFUSE|reasons=positivity_v(min v=0)
+plant cert_m6_r21_2_P4a_gamma_overstated_by_1e-4.txt v2=449ed472fcee7f76 ledger=449ed472fcee7f76 MATCH gate_rc=1 VERDICT|REFUSE|reasons=t_below_tail_cap(t=900000/10000, own cap 180/2)
+plant cert_m6_r21_2_P4b_tail_target_floors_overstated.txt v2=6f8fe314627d130d ledger=6f8fe314627d130d MATCH gate_rc=1 VERDICT|REFUSE|reasons=row_hash(header=5608bb5c72bba95b own=d591edb7e9b546cb)
+plant cert_m6_r21_2_P4c_tail_cap_overstated_by_10.txt v2=cf88e33f97703495 ledger=cf88e33f97703495 MATCH gate_rc=1 VERDICT|REFUSE|reasons=tail_cap_claim(claimed 200/2, own 180/2)
+plant cert_m6_r21_2_P4d_colouring_bound_understated_10pct.txt v2=d542b630740c8fbf ledger=d542b630740c8fbf MATCH gate_rc=1 VERDICT|REFUSE|reasons=tail_cap_claim(claimed 196/2, own 180/2)
+plant cert_m6_r21_2_P5a_misrouted_core_target.txt v2=30e07d6597b2d5e2 ledger=30e07d6597b2d5e2 MATCH gate_rc=1 VERDICT|REFUSE|reasons=row_check(failing_rows=10|nonpositive_schur_denominators=0|first=ke
+plant cert_m6_r21_2_P5b_misrouted_two_step_target.txt v2=29dd071f4d53f1fe ledger=29dd071f4d53f1fe MATCH gate_rc=1 VERDICT|REFUSE|reasons=row_check(failing_rows=60|nonpositive_schur_denominators=0|first=ke
+plant cert_m6_r21_2_f4-3-2-1.txt v2=9718f847317803c5 ledger=9718f847317803c5 MATCH gate_rc=0 VERDICT|PASS|lambda_min(QHQ) >= 899999/10000 at r = 21/2 (m0 = 6)|rowhash=d591edb7e9b546cb
+plants_files=14 ledger_match=14
+END 2026-11-10T16:33:49Z

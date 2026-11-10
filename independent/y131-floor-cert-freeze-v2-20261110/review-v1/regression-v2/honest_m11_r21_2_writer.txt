@@ -1,0 +1,19 @@
+GATE|s3_link_table|PASS|36 holonomy pairs x 3 transpositions match the 7-type table
+KEYS|loaded=/root/floor-v2/reg/RUN11/core_keys_m11.bin|classes=34920
+KEYSHASH|m0=11|classes=34920|sha256=e25b8b392161f6f02d933f6a1e78643b3ff95ae3fb69b72b02a36c2c8a5f3a7e
+ROWS|m0=11|classes=34920|tail_targets=1738430|two_step_back_moves=7947874|secs=93|hwm=174528kB
+GATE|local_delta_vs_full_M|PASS|moves_checked=127681200
+GATE|link_multiset_table|PASS|configurations_checked=1773350
+GATE|symmetry_image_rows|PASS|classes=34920|images_per_class=2|rows_rebuilt=69840
+ROWHASH|m0=11|sha256=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|classes=34920|tail_moves=1738430|back_moves=7947874|bytes=138223384|secs=2
+GATE|core_census_vs_closed_form|PASS|M=1..11
+GATE|class_detailed_balance|PASS|edges=725464
+COLOURINGS|even_t_only=false|signatures=1979
+TAIL|f=8,7,6,5,4|min_layer_floor=144.0000|min_observed_target_floor=147.0000|observed_targets=1738430|gate_observed_ge_layer=PASS
+OUTER|honest|it=0|t=31.5000|cw_lo(F(t))=67.878434
+OUTER|honest|it=1|t=99.3784|cw_lo(F(t))=-0.012201
+OUTER|honest|it=2|t=99.3662|cw_lo(F(t))=0.000007
+VEC|classes=34920|v_max=2^50|v_min=598876066|entries_below_2^10=0
+CERT|r=21/2|m0=11|classes=34920|f=8,7,6,5,4|gamma=993655/10000=99.3655|row_check=PASS|min_slack=2883978097|next_t_refused=gate=row_check|ritz_upper=99.389579|trivial_r(m0+1)=126.0000|tail_cap=144.0000|rowhash=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|images=2|independent_gate=REQUIRED|secs=144
+WROTE|/root/floor-v2/reg/RUN11/cert_m11_r21_2_f8-7-6-5-4.txt|sha256=a217a469e1bb482226e0cb92a54fdb32ebd0b3ef5608892627da6ec0433effa5|independent_gate=REQUIRED: design/gate_required.sh /root/floor-v2/reg/RUN11/cert_m11_r21_2_f8-7-6-5-4.txt
+PEAK_RSS|kB=440320|exit=0|wall_ms=241114|argv0=/root/floor-v2/repo/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs/target/release/floorcert
