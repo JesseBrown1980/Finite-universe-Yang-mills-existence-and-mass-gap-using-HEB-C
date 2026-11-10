@@ -1,0 +1,3 @@
+Finite-vs-continuous prediction package (FC1 universal vs non-universal on finite S3 tori; FC2 the break for SU(2) subgroups; FC3 SU(2)_k past degree 11): FROZEN by the cloud seat, 2026-11-10.
+Prediction first: nothing MEASURED. Blind codes state what the searches listed in the head row found, up to the stated cutoff; an earlier result found later makes that row a CONTROL and changes no value.
+Check: sha256sum -c FREEZE-PIN.sha256. The scripts are integers only; this folder is pinned as one row in native/scripts/FLOAT-EVIDENCE.txt.

@@ -1,0 +1,11 @@
+FLOAT_SCAN|file=fc_float_scan.py|hits=0|detail=none|json=0
+FLOAT_SCAN|file=fc_arith_check.py|hits=0|detail=none|json=0
+FLOAT_SCAN|file=fc_assemble.py|hits=0|detail=none|json=0
+FLOAT_SCAN|file=s3_gamma.py|hits=0|detail=none|json=0
+FLOAT_SCAN|file=cycle_orderings.py|hits=0|detail=none|json=0
+FLOAT_SCAN|file=torus2x2_second_order.py|hits=0|detail=none|json=0
+FLOAT_SCAN|file=t2_groups.py|hits=0|detail=none|json=0
+FLOAT_SCAN|file=t2_asym.py|hits=0|detail=none|json=0
+FLOAT_SCAN|file=t3_small_checks.py|hits=0|detail=none|json=0
+FLOAT_SCAN|file=t3_closed_forms.py|hits=0|detail=none|json=0
+FLOAT_SCAN|file=t3_rowlint.py|hits=0|detail=none|json=0
