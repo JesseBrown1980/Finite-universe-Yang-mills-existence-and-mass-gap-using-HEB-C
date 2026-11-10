@@ -32,16 +32,18 @@ Gate names:
 """
 import contextlib
 import hashlib
-import importlib.util
 import io
 import sys
 from collections import Counter
 from itertools import permutations
 from pathlib import Path
 
-sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 REVIEW = HERE.parents[2].joinpath("reviews", "opus55-gl159-refute-20261110")
+# The refuter's filed code, imported as filed.  Run this script with python3 -B so that the
+# review folder stays as the manifest lists it.
+sys.path.insert(0, str(REVIEW))
+import indep_gl as ig  # noqa: E402
 R_LIST = (27, 81, 243, 729)
 SET_ASIDE = ("ms", "peak_kb", "script_sha256", "core_sha256")
 
@@ -54,13 +56,6 @@ def check(t, label):
 
 def emit(label, **f):
     print(label + "|" + "|".join(str(k) + "=" + str(v) for k, v in f.items()) + "|json=0", flush=True)
-
-
-def load(path, name):
-    spec = importlib.util.spec_from_file_location(name, str(path))
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
 
 
 def rows_of(path):
@@ -76,7 +71,6 @@ def rows_of(path):
 def recount(LX, LY):
     """rho44, P2max, the M>=6 neighbour count and the M=4 row profiles, from the lattice,
     by the filed independent code."""
-    ig = load(REVIEW.joinpath("indep_gl.py"), "indep_gl")
     tor = ig.Torus(LX, LY)
     md = ig.Model(tor)
     buf = io.StringIO()
@@ -93,13 +87,15 @@ def recount(LX, LY):
     prof = Counter()
     for h in m4:
         prof[(md.w[h], tuple(sorted((-1 if x == h else md.m[x], c) for x, c in md.nbr(h))))] += 1
-    return dict(ig=ig, N3=tor.NMOVE, flat=len(flats), m3=len(m3), m4=len(m4), rho=rho, p2=p2, m6=m6,
+    return dict(N3=tor.NMOVE, flat=len(flats), m3=len(m3), m4=len(m4), rho=rho, p2=p2, m6=m6,
                 prof=prof)
 
 
 def gate_module(d, LX, LY):
     ref = recount(LX, LY)
-    gm = load(Path(d).joinpath("gl_measure.py"), "gl_measure_under_test")
+    # gl_measure.py and its gl_core.py are taken from the folder under test
+    sys.path.insert(0, str(Path(d).resolve()))
+    import gl_measure as gm
     lat = gm.Lattice(LX, LY)
     md = gm.Model(lat, "")
     flats, m3, m4 = gm.census(md)
@@ -118,7 +114,7 @@ def gate_module(d, LX, LY):
     check(p2 == ref["p2"], "accept_P2max_equals_independent_recount")
     for r in R_LIST:
         n = gm.floor_value(md, r, rho, p2)
-        ok = ref["ig"].floor_ok(ref["N3"], r, ref["rho"], ref["p2"], n, gm.FD)
+        ok = ig.floor_ok(ref["N3"], r, ref["rho"], ref["p2"], n, gm.FD)
         emit("ACCEPT_FLOOR", lattice=str(LX) + "x" + str(LY), r=r, floor_num=n, floor_den=gm.FD,
              valid_by_recount=int(ok))
         check(ok, "accept_floor_at_most_certified_value")
@@ -127,7 +123,6 @@ def gate_module(d, LX, LY):
 
 def gate_receipt(LX, LY, rows_file, indep_files):
     ref = recount(LX, LY)
-    ig = ref["ig"]
     lattice = str(LX) + "x" + str(LY)
     rows = rows_of(rows_file)
     fi = [f for t, f in rows if t == "FLOOR_INPUTS"]

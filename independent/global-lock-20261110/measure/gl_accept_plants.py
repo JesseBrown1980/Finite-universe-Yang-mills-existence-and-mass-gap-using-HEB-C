@@ -21,7 +21,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 REVIEW = HERE.parents[2].joinpath("reviews", "opus55-gl159-refute-20261110")
 GATE = str(HERE.joinpath("gl_accept.py"))

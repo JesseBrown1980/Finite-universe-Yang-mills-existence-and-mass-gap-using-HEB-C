@@ -72,7 +72,7 @@ jobs:
           set -euo pipefail
           (cd "$R" && sha256sum --strict -c REFUTE-GL159.hbp.sha256 REFUTE-GL159.md.sha256 build_refute_hbp.py.sha256 fullspace.py.sha256 indep_gl.py.sha256 plant.py.sha256 rederive.py.sha256)
           test "$(sha256sum "$R/REFUTE-GL159.hbp" | cut -c1-64)" = "$REFUTER_RECEIPT_SHA256"
-          (cd "$M" && sha256sum --strict -c MEASURE-GLOBAL-LOCK.hbp.sha256 ACCEPTANCE-GATES.hbp.sha256 ELECTRIC-TERM-NOTE.hbp.sha256 CHECK-RENAMES.hbp.sha256)
+          (cd "$M" && sha256sum --strict -c MEASURE-GLOBAL-LOCK.hbp.sha256 ACCEPTANCE-GATES.hbp.sha256 ACCEPTANCE-GATES-R2.hbp.sha256 ELECTRIC-TERM-NOTE.hbp.sha256 CHECK-RENAMES.hbp.sha256)
           test "$(sha256sum docs/PREDICTION-GLOBAL-LOCK-20261110.hbp | cut -c1-64)" = 93350dd41e7d8817647ccefa3d7ac6cf890bf09ef694c0037f1f9681f41ff738
           test "$(sha256sum docs/ERRATUM-GLOBAL-LOCK-20261110.hbp | cut -c1-64)" = c358974c9b55f400bd4e2aefdc2cf50f6468176256237e562840681ea96ec11f
           test "$(sha256sum "$M/CONTROLS-PREDICT.hbp" | cut -c1-64)" = caca9c6dba1c56401182dde8fe58ea6d63f5f3d6ec6d98e0ca8ed48a48d0122c
@@ -138,7 +138,7 @@ jobs:
           set -euo pipefail
           for n in p2_95 floor105 drop_edge; do
             a=$(grep "^PLANT|name=$n|grain=live_module_3x3|" build/gl159/plants-fast.rows | sed 's/|stdout_sha256=[0-9a-f]*//')
-            grep -qxF "$a" <(sed 's/|stdout_sha256=[0-9a-f]*//' "$M/ACCEPTANCE-GATES.hbp")
+            grep -qxF "$a" <(sed 's/|stdout_sha256=[0-9a-f]*//' "$M/ACCEPTANCE-GATES-R2.hbp")
           done
       - name: The review folder still holds only the listed files
         run: bash "$M/verify_refuter_manifest.sh" "$REFUTER_MANIFEST_SHA256"

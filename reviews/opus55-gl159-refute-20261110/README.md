@@ -89,7 +89,7 @@ checks:
 | Check `electric_term_psd_gershgorin` | at s_E = +1 its first form reads 0 ≥ 0; E ≥ 0 holds by representation theory (link spectrum 0, 3, 6) |
 
 The acceptance gates that answer these are in `independent/global-lock-20261110/measure/` (`gl_accept.py`,
-`gl_accept_plants.py`), with their results in `ACCEPTANCE-GATES.hbp` there.
+`gl_accept_plants.py`), with their results in `ACCEPTANCE-GATES.hbp` and `ACCEPTANCE-GATES-R2.hbp` (the rerun with the gate that passes the no-float gate) there.
 
 ## How this folder is checked in CI
 
