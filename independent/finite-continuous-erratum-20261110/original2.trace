@@ -1,0 +1,1 @@
+POWTRACE2|file=t3_closed_forms.py|pow_calls=3144|non_integer_operand_calls=0|negative_exponent_calls=911|non_integer_result_calls=911|min_exp=-35|lines_with_non_integer_result=[72]|exit=0|json=0
