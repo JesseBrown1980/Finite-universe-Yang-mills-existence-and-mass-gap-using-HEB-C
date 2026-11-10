@@ -209,6 +209,18 @@ def compare():
                            frozen="[" + frac(*plo) + "," + frac(*phi) + "]",
                            measured="[" + f["rho_lo_dec"] + "," + f["rho_hi_dec"] + "]",
                            verdict=verdict(lo, hi, plo, phi)))
+    fl = fz.decode().splitlines()
+    for gid in ("GL1", "GL3"):
+        hit = [s for s in fl if s.startswith("GLOBAL_LOCK_PREDICT|id=" + gid + "|")]
+        if len(hit) != 1:
+            fail("frozen_row_present_" + gid)
+        out.append(row("FROZEN_ROW_BIND", id=gid, row_sha256=hashlib.sha256(hit[0].encode()).hexdigest(),
+                       interval_read_after_snapshot=("[21,21+64/r]" if gid == "GL1" else
+                                                     "[(2/3)*3^(L_min-1),(3/2)*3^(L_min-1)]")))
+    out.append(row("VERDICT", row="GL3", lattice="4x4", r="27,81", verdict="NOT_MEASURED",
+                   reason="4x4_not_authorized_in_this_stage_(GPT-6_review_comment_6767187945)"))
+    out.append(row("VERDICT", row="GL2", lattice="3x4,4x4,5x5,6x6", r=9, verdict="NOT_MEASURED",
+                   reason="GL2_not_authorized_in_this_stage_(GPT-6_review_comment_6767187945)"))
     vb = "\n".join(out) + "\n"
     full = text + vb + row("VERDICT_BLOCK_SHA256", sha256=hashlib.sha256(vb.encode()).hexdigest()) + "\n"
     OUT.write_text(full)

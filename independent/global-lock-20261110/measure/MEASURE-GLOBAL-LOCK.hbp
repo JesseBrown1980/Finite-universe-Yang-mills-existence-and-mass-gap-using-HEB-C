@@ -43,3 +43,17 @@ GL3_MEASURED|lattice=3x3|r=81|rho=W(r)/W(3r)|rho_lo=1284267592/142587655|rho_hi=
 GL3_MEASURED|lattice=3x4|r=27|rho=W(r)/W(3r)|rho_lo=3094185728/343333105|rho_hi=12532884055/1372823413|rho_lo_dec=9.012197|rho_hi_dec=9.129277|L_min=3|json=0
 GL3_MEASURED|lattice=3x4|r=81|rho=W(r)/W(3r)|rho_lo=1372823413/152433306|rho_hi=1373332420/152431251|rho_lo_dec=9.006059|rho_hi_dec=9.009521|L_min=3|json=0
 MEASURE_BLOCK_SHA256|sha256=755767ceb4983a90f60e07fdc59872aaeff32fe5384d9969bdc161481d2cc1c6|rows=44|json=0
+COMPARE_BEGIN|measured_block_sha256=755767ceb4983a90f60e07fdc59872aaeff32fe5384d9969bdc161481d2cc1c6|frozen_file=docs/PREDICTION-GLOBAL-LOCK-20261110.hbp|frozen_sha256=93350dd41e7d8817647ccefa3d7ac6cf890bf09ef694c0037f1f9681f41ff738|json=0
+VERDICT|row=GL1|lattice=3x4|r=27|frozen=[21,631/27]|measured=[22.121279362,31.203443581]|verdict=NOT_RESOLVED|json=0
+VERDICT|row=GL1|lattice=3x4|r=81|frozen=[21,1765/81]|measured=[21.340976192,21.428772202]|verdict=MET|json=0
+VERDICT|row=GL1|lattice=3x4|r=729|frozen=[21,15373/729]|measured=[21.033509375,21.041012154]|verdict=MET|json=0
+VERDICT|row=GL1|lattice=3x3|r=729|frozen=[21,15373/729]|measured=[21.044892571,21.050572934]|verdict=MET|json=0
+VERDICT|row=GL3|lattice=3x3|r=27|frozen=[6/1,27/2]|measured=[9.044103,9.095315]|verdict=MET|json=0
+VERDICT|row=GL3|lattice=3x3|r=81|frozen=[6/1,27/2]|measured=[9.006863,9.008560]|verdict=MET|json=0
+VERDICT|row=GL3|lattice=3x4|r=27|frozen=[6/1,27/2]|measured=[9.012197,9.129277]|verdict=MET|json=0
+VERDICT|row=GL3|lattice=3x4|r=81|frozen=[6/1,27/2]|measured=[9.006059,9.009521]|verdict=MET|json=0
+FROZEN_ROW_BIND|id=GL1|row_sha256=b922861e219999b20e3cf5e5e0d973e1a5276224fe7a5ea8c9b4c77bdb61bc87|interval_read_after_snapshot=[21,21+64/r]|json=0
+FROZEN_ROW_BIND|id=GL3|row_sha256=dabdda74de413bc36e53baa7f0432aab6735bac1f746ecd2e8e3ab1e559af7bf|interval_read_after_snapshot=[(2/3)*3^(L_min-1),(3/2)*3^(L_min-1)]|json=0
+VERDICT|row=GL3|lattice=4x4|r=27,81|verdict=NOT_MEASURED|reason=4x4_not_authorized_in_this_stage_(GPT-6_review_comment_6767187945)|json=0
+VERDICT|row=GL2|lattice=3x4,4x4,5x5,6x6|r=9|verdict=NOT_MEASURED|reason=GL2_not_authorized_in_this_stage_(GPT-6_review_comment_6767187945)|json=0
+VERDICT_BLOCK_SHA256|sha256=c8a28b7b5ce852013188f60e55f6b7901b50f66653fbfe576b5ba1f13b6a9ad3|json=0
