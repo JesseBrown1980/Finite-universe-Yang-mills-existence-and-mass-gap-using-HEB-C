@@ -1,0 +1,9 @@
+CONTROL|c1|ERROR|line 21: PIN mismatch work/design/rs/src/main.rs: file 7824ed780aa7f15e|LINT_RESULT|errors=1
+CONTROL|c2|ERROR|line 69: falsifier is not concrete|LINT_RESULT|errors=1
+CONTROL|c3|ERROR|line 67: CONJECTURE without basis|LINT_RESULT|errors=1
+CONTROL|c4|ERROR|line 67: decimal number in machine field value (use a/b)|LINT_RESULT|errors=1
+CONTROL|c5|ERROR|line 111: PIN mismatch work/design/peak_rss.py: file 9bc36642e5ae03bf|LINT_RESULT|errors=1
+CONTROL|c6|ERROR|line 113: fingerprint e2b4f5f178781574 (key output) is bound to no named file of this row, no PIN and no EXTERNAL16|LINT_RESULT|errors=1
+CONTROL|c7|ERROR|line 115: files entry work/verify2_0/ctrl/X1a.txt: named file is cc04fc1ff2c9aa9c, row says e44c2686d19c8694|LINT_RESULT|errors=1
+CONTROL|c8|ERROR|line 115: complete=work/verify2_0: file work/verify2_0/ctrl/H0.txt is not in files=|LINT_RESULT|errors=1
+CONTROL|c9|ERROR|line 115: fingerprint e2b4f5f178781573 (key output) is bound to no named file of this row, no PIN and no EXTERNAL16|LINT_RESULT|errors=1
