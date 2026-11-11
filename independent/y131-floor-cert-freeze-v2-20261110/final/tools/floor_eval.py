@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# floor_eval.py -- evaluator used by final/tools/run_floor.sh (version 2 freeze, second correction round).
+# floor_eval.py -- evaluator used by final/tools/run_floor.sh (version 2 freeze, third correction round).
 # Integer and exact-rational arithmetic only. Reads logs and certificates, never computes a spectrum.
 # Subcommands: rcheck, pins, limit, prereq, step, opfail, decide, final.  Arguments are key=value words.
 # The final line separates three things: CERTIFICATE (PASS only when every REQUIRED gate, the verifier and the
@@ -16,6 +16,9 @@
 # subcommand opfail before a crash or a time limit may count as an operational failure, and step to every command
 # of a step. limkb=N lowers the limit in test mode only.
 # Exit of final: 0 CERTIFICATE=PASS with ABOVE, 3 PASS with BELOW, 2 PASS with UNRESOLVED, 1 every CERTIFICATE=FAIL.
+# The receipt names its run directory (RUN_DIRECTORY row); the certificate paths of its RECHECK rows are relative to
+# that directory, and its VERDICT_FIELDS row carries the upper bound from the verifier's Ritz values alone, which is
+# the value the second-environment checker final/tools/recheck_floor.py (row 131) must reproduce (row 133).
 import sys
 import re
 import os
@@ -834,21 +837,29 @@ def cmd_final(a):
     for f in files:
         o.append("FILE|path=%s|sha256=%s|bytes=%d|json=0" % f)
     # what a second environment needs to recheck this result without relying on the line below (row 125)
-    o.append("VERDICT_FIELDS|CERTIFICATE=%s|PREDICTION=%s|DECISION=%s|GAMMA=%s|UPPER_BOUND=%s|g0=%s|accepted_certificates=%d|json=0"
-             % (cert, pred, dec, rs(G), rs(U), rs(g0), acc))
+    o.append("VERDICT_FIELDS|CERTIFICATE=%s|PREDICTION=%s|DECISION=%s|GAMMA=%s|UPPER_BOUND=%s|UPPER_BOUND_VERIFIER_ONLY=%s|g0=%s|accepted_certificates=%d|r=%s|mode=%s|json=0"
+             % (cert, pred, dec, rs(G), rs(U), rs(Uv), rs(g0), acc, a["r"], a["mode"]))
+    o.append("RUN_DIRECTORY|path=%s|holds=this_receipt_its_sha256_file_and_the_RUN_folders|certificate_paths_of_the_RECHECK_rows=relative_to_this_directory|json=0"
+             % os.path.realpath(out))
     if cert == "PASS":
         extra = ""
         if a["mode"] == "r9":
             extra = " --freeze-commit %s --prediction %s --prediction-sha256 %s" % (a.get("commit", "NONE"), a.get("predrel", "final/" + PRED_NAME), sha(a["pred"]))
-        o.append("RECHECK_RULE|row=125|accepted_only_after=a_second_independent_environment_ran_the_command_on_every_RECHECK_row_and_recomputed_the_verdict_fields|where=a_clean_checkout_of_the_freeze_commit,_inside_the_freeze_folder|command=bash work/design/gate_required.sh CERTIFICATE%s|gate_driver_sha256=%s|verifier_sha256=%s|expect=last_line_GATE_REQUIRED_PASS_with_the_cert_sha256_rowhash_and_verifier_sha256_of_the_RECHECK_row,_and_VERDICT_PASS_with_the_gamma_of_the_RECHECK_row|then=GAMMA_is_the_largest_gamma;_UPPER_BOUND_is_the_smallest_ritz_value_of_the_RECHECK_rows_plus_1/1000000;_DECISION_by_the_decision_rule_field_of_the_final_line|json=0"
-                 % (extra, R["020"][1]["value"], R["019"][1]["value"]))
+        o.append("RECHECK_RULE|rows=125_133|accepted_only_after=a_second_independent_environment_ran_the_checker_of_row_131_on_this_receipt_and_it_ended_RECHECK_VERDICT:ACCEPT=YES|"
+                 "where=a_clean_checkout_of_the_freeze_commit,_inside_the_freeze_folder,_with_this_run_directory_copied_whole_(the_receipt,_its_sha256_file_and_the_RUN_folders)|"
+                 "command=python3 -I -B final/tools/recheck_floor.py receipt=RUN_DIRECTORY/FLOOR-RUN-RECEIPT.hbp%s|"
+                 "certificate_paths=each_RECHECK_row_names_its_certificate_relative_to_the_directory_that_holds_the_receipt_(the_run_directory);_the_checker_refuses_a_missing_file,_a_symbolic_link,_a_path_that_leaves_that_directory_and_a_file_whose_sha256_differs_from_the_row|"
+                 "gate_command_per_certificate=bash --noprofile --norc work/design/gate_required.sh RUN_DIRECTORY/CERTIFICATE%s|gate_driver_sha256=%s|verifier_sha256=%s|"
+                 "expect=last_line_GATE_REQUIRED_PASS_with_the_cert_sha256_rowhash_and_verifier_sha256_of_the_RECHECK_row,_and_VERDICT_PASS_with_the_gamma_of_the_RECHECK_row|"
+                 "then=GAMMA_is_the_largest_gamma_the_checker's_verifier_printed;_the_upper_bound_is_the_smallest_Ritz_value_the_checker's_verifier_printed_plus_1/1000000_and_no_value_of_this_receipt_enters_it;_DECISION_by_the_decision_rule_field_of_the_final_line;_the_three_must_equal_DECISION,_GAMMA_and_UPPER_BOUND_VERIFIER_ONLY_of_the_VERDICT_FIELDS_row;_any_difference_blocks_acceptance|json=0"
+                 % ((" commit=%s" % a.get("commit", "NONE")) if a["mode"] == "r9" else "", extra, R["020"][1]["value"], R["019"][1]["value"]))
         for s in S:
             if s["status"] != "OK":
                 continue
             rhs = fld(s["line"]).get("rowhash", "NONE")
             for c in s["certs"]:
                 if c.get("accepted") == "1":
-                    o.append("RECHECK|m0=%d|certificate=RUN%d/%s|sha256=%s|gamma=%s|ritz_writer=%s|ritz_verifier=%s|rowhash=%s|verifier_sha256=%s|json=0"
+                    o.append("RECHECK|m0=%d|certificate=RUN%d/%s|relative_to=RUN_DIRECTORY|sha256=%s|gamma=%s|ritz_writer=%s|ritz_verifier=%s|rowhash=%s|verifier_sha256=%s|json=0"
                              % (s["m"], s["m"], c.get("file"), c.get("sha256"), c.get("gamma"), c.get("ritz_writer"), c.get("ritz_verifier"), rhs, R["019"][1]["value"]))
     o.append(fin)
     with open(a["receipt"], "w", encoding="utf-8", newline="\n") as fh:

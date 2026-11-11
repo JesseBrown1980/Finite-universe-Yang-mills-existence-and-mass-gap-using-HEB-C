@@ -311,3 +311,17 @@ VERSION 2 (2026-11-10, local build seat, Claude Opus 5.5; owner-relayed reviewer
   main.rs, the binary hash, gate_required.sh, cert_gate.py, indep_verify.py, peak_rss.py and the 16 PREDICT rows are unchanged.
 - Record after the second correction round: 41ced0bb2ad9b4078153f4264c46ba6c767994ecbd774c47efd6b20188bdefdc, 130 rows. ROWCMP_END|3b91d1a0_rows=122|same_bytes=120|changed=2|changed_ids=114_115|new_rows=8|new_ids=123_124_125_126_127_128_129_130|predict_rows=16|predict_same_bytes=16|header_lines_3b91d1a0=11|header_lines_now=12|header_lines_same=11|json=0
 - Nothing was computed at r = 9 or at any r within 1 of 9. No push, no pull request. The r = 9 run stays on HOLD.
+- THIRD CORRECTION ROUND (2026-11-11, one commit on top of 78c89c312a265fe4090071fc1abdc7d6eb102e7e; reviewer acceptance review HOLD, review-v4/; record rows 131-136).
+  The record hash, the launcher hash, the evaluator hash and the row count in the lines above are those of the earlier commits.
+  Gate 1, namespace: stage 2 could be entered directly and then mounted its tmpfs on the host. It now compares its mount namespace with that of its parent
+  process and of process 1, refuses shared mounts, and after mounting checks that both tmpfs mounts are absent outside; a direct entry stops with exit 4 (row 132).
+  Gate 2, independent verdict: final/tools/recheck_floor.py (row 131) reruns the gate on every accepted certificate in a second environment, takes the upper
+  bound from its own verifier output alone, decides, and then compares with the receipt; any difference gives ACCEPT=NO (row 133 beside row 125).
+  Gate 3, certificate paths: the receipt carries a RUN_DIRECTORY row and each RECHECK row is relative to it; the checker refuses missing, substituted,
+  linked and out-of-directory files and unlisted certificate files (row 133).
+  Gate 4: --test-frozen-build rehearses the freeze-commit lookup, the frozen build and pin check 2 at an excluded r; D13 is a full-size fallback to m0 13
+  at r 21/2 with the prerequisite of row 007 and the 2 GiB limit (row 134 beside row 128). The freeze options of the writer and the verifier stay unexercised.
+  Launcher 1d069f79638a10dbdb6c7021a6b57331200d689285b31671b81115f5474ea5ce, evaluator 00cb6334ae13aeb0848423f5132c80abd5978f492ae15575a56aebb1a6b22b04, checker 19b4baf6e6be907a3b878d05a5c472ad4914efffd8aef0ca16a6f17c32f065ba.
+  main.rs, the binary hash, gate_required.sh, cert_gate.py, indep_verify.py, peak_rss.py and the 16 PREDICT rows are unchanged.
+- Record after the third correction round: 908373ebb40979e0d8d49a1b20990fe2c65195ec338dc4424189649850be4d82, 136 rows. ROWCMP_END|78c89c31_rows=130|same_bytes=128|changed=2|changed_ids=114_115|new_rows=6|new_ids=131_132_133_134_135_136|predict_rows=16|predict_same_bytes=16|header_lines_78c89c31=12|header_lines_now=13|header_lines_same=12|json=0
+- Nothing was computed at r = 9 or at any r within 1 of 9. The r = 9 run stays on HOLD.

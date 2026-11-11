@@ -1,11 +1,14 @@
 #!/bin/bash
-# run_floor.sh -- single launcher of the frozen floor-certificate run (version 2 freeze, second correction round).
+# run_floor.sh -- single launcher of the frozen floor-certificate run (version 2 freeze, third correction round).
 #   frozen run: bash final/tools/run_floor.sh --launch-r9 [--freeze-commit C]
 #               r = 9, m0 = 11, then 12 and 13 only under rows 006 and 007 of the prediction record.
 #               The token --launch-r9 is the only way into this mode; no other argument set reaches r = 9.
 #   rehearsal:  bash final/tools/run_floor.sh --test-r R --test-m0 a,b,c --test-f WORDS --test-g0 N/D --test-out DIR
 #               [--test-plant IDX:UB] [--test-crash LIST] [--test-hang LIST] [--test-hang-hard LIST]
 #               [--test-vexc IDX] [--test-census] [--test-limit-kb N] [--test-git-check]
+#               [--test-frozen-build [--freeze-commit C]]
+#               --test-frozen-build runs the freeze-commit lookup, the frozen build with the two compiled pins and
+#               pin check 2 exactly as the frozen run does, and then runs the rehearsal with that binary at R.
 #               (LIST is IDX:KIND[,IDX:KIND...]; KIND is rowhash, cert, rowsonly or gate)
 #               R must lie more than 1 away from 9; the binary's own r policy stays in force.
 # TWO STAGES. Stage 1 (the file as called) reads this file once into memory and replaces itself by
@@ -13,6 +16,11 @@
 #   /usr/bin/bash --noprofile --norc -c "<the bytes read>" run_floor.sh <arguments>
 # so stage 2 runs the bytes that were read, with an empty environment, a fixed PATH of system directories and a
 # mount namespace of its own. Stage 2 hashes its own text (BASH_EXECUTION_STRING) against row 114.
+# NAMESPACE (row 132). Stage 2 starts no work unless the mount namespace of its own process differs from the mount
+# namespace of its parent process and from that of process 1 and holds no shared or slave mount; entered directly,
+# without stage 1, it stops with NOT_STARTED (exit 4) before it mounts or writes anything. After the two tmpfs
+# mounts it reads the mount tables: both mounts must be listed for this process and absent for the parent process
+# and for process 1, or the run stops with NOT_STARTED. Only then does the run log say that the namespace is private.
 # Stage 1 first refuses a caller environment that carries BASH_ENV, ENV, an LD_ name, a PYTHON name or an exported
 # shell function (NOT_STARTED, exit 4); stage 2 stops unless its environment holds the whitelisted names only.
 # TOOLS. python3, bash, sha256sum, timeout, setsid and git are resolved once under the fixed PATH to absolute paths,
@@ -38,7 +46,8 @@
 #       2 CERTIFICATE=PASS and PREDICTION=UNRESOLVED; 1 CERTIFICATE=FAIL after the run started (every reason);
 #       4 CERTIFICATE=FAIL with certificate_reason=NOT_STARTED (refused arguments or a refused prelude).
 # ACCEPTANCE (row 125): a PASS line of this launcher is accepted only after a second, independent environment has
-# run gate_required.sh on each published certificate (the RECHECK rows of the receipt give the command).
+# run final/tools/recheck_floor.py (row 131) on the receipt: it runs gate_required.sh on every certificate of the
+# RECHECK rows, takes the upper bound from its own verifier output alone and must reproduce the decision (row 133).
 set -u
 {
 NOBOUND="PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE"
@@ -50,7 +59,7 @@ if [ "${FLOOR_STAGE:-}" != 2 ] || [ -z "${BASH_EXECUTION_STRING:-}" ]; then
   # ---- stage 1: read this file once, then run exactly those bytes in an empty environment and a private mount namespace
   # a caller environment that carries a shell start file, a loader setting, a python setting or an exported function is refused
   for v in $(compgen -e); do
-    case "$v" in BASH_ENV|ENV|LD_*|PYTHON*) early_stop entry "caller_environment_sets_$v";; esac
+    case "$v" in BASH_ENV|ENV|LD_*|PYTHON*|BASHOPTS|SHELLOPTS|PS4|IFS|POSIXLY_CORRECT|BASH_COMPAT|BASH_XTRACEFD|BASH_LOADABLES_PATH|EXECIGNORE|GLOBIGNORE|CDPATH) early_stop entry "caller_environment_sets_$v";; esac
   done
   [ "$(declare -F)" = "declare -f early_stop" ] || early_stop entry caller_environment_carries_shell_functions
   [ -n "${BASH_SOURCE[0]:-}" ] || early_stop entry launcher_file_path_unknown
@@ -68,6 +77,16 @@ for v in $(compgen -e); do
   case "$v" in PATH|LANG|FLOOR_STAGE|FLOOR_ROOT|PWD|OLDPWD|SHLVL|_) ;; *) early_stop environment "environment_carries_$v";; esac
 done
 [ "$PATH" = /usr/bin:/bin ] && [ "$LANG" = C ] || early_stop environment path_or_lang_differs_from_the_fixed_values
+# ---- the mount namespace (row 132): this process must sit in a mount namespace other than that of its parent
+# process and of process 1, with no shared or slave mount in it; a direct entry into stage 2 stops here
+NS_SELF=$(/usr/bin/readlink /proc/self/ns/mnt 2>/dev/null) || NS_SELF=""
+NS_PARENT=$(/usr/bin/readlink "/proc/$PPID/ns/mnt" 2>/dev/null) || NS_PARENT=""
+NS_INIT=$(/usr/bin/readlink /proc/1/ns/mnt 2>/dev/null) || NS_INIT=""
+for v in "$NS_SELF" "$NS_PARENT" "$NS_INIT"; do
+  case "$v" in mnt:\[[0-9]*\]) ;; *) early_stop namespace a_mount_namespace_id_cannot_be_read;; esac
+done
+[ "$NS_SELF" != "$NS_PARENT" ] && [ "$NS_SELF" != "$NS_INIT" ] || early_stop namespace second_stage_entered_outside_a_private_mount_namespace
+/usr/bin/grep -Eq ' (shared|master|propagate_from):[0-9]+ ' /proc/self/mountinfo; [ $? -eq 1 ] || early_stop namespace mount_namespace_holds_a_shared_or_slave_mount
 unset BASH_ENV ENV CDPATH GLOBIGNORE
 ROOT="$FLOOR_ROOT"; HERE="$ROOT/final/tools"
 cd "$ROOT" || early_stop environment cannot_enter_the_freeze_folder
@@ -83,13 +102,14 @@ KILLAFTER=30
 RUSTC_PIN="rustc 1.81.0 (eeb90cda1 2024-09-04)"
 CARGO_PIN="cargo 1.81.0 (2dbb1af80 2024-08-20)"
 MODE=none; R=9; STEPS=(11 12 13); FSPEC='1;8,7,6,5,4;6,5,4,3'; G0=94070673/1000000; OUT="$ROOT/work/run9"
-C=""; T_R=""; T_PLANT=""; T_CRASH=""; T_HANG=""; T_HARD=""; T_VEXC=""; T_LIM=""; CENSUS=0; T_ANY=0; LAUNCH=0; T_GIT=0
+C=""; T_R=""; T_PLANT=""; T_CRASH=""; T_HANG=""; T_HARD=""; T_VEXC=""; T_LIM=""; CENSUS=0; T_ANY=0; LAUNCH=0; T_GIT=0; T_FB=0
 arg_stop() { early_stop arguments "$1"; }
 while [ $# -gt 0 ]; do
   case "$1" in
     --launch-r9) LAUNCH=1; shift; continue;;
     --test-census) CENSUS=1; T_ANY=1; shift; continue;;
     --test-git-check) T_GIT=1; T_ANY=1; shift; continue;;
+    --test-frozen-build) T_FB=1; T_ANY=1; shift; continue;;
     --freeze-commit|--test-r|--test-m0|--test-f|--test-g0|--test-out|--test-plant|--test-crash|--test-hang|--test-hang-hard|--test-vexc|--test-limit-kb) ;;
     *) arg_stop unknown_argument;;
   esac
@@ -114,7 +134,7 @@ if [ $LAUNCH -eq 1 ]; then
   [ $T_ANY -eq 0 ] || arg_stop launch_r9_takes_no_test_option
   MODE=r9
 elif [ -n "$T_R" ]; then
-  [ -z "$C" ] || arg_stop freeze_commit_belongs_to_launch_r9
+  [ -z "$C" ] || [ $T_FB -eq 1 ] || arg_stop freeze_commit_belongs_to_launch_r9_or_test_frozen_build
   MODE=test; R="$T_R"
 elif [ $T_ANY -ne 0 ]; then
   arg_stop test_options_need_test_r
@@ -229,7 +249,8 @@ git_contact() { # the checkout as git reports it: readable, no dubious ownership
   done < <("$GIT" -C "$ROOT" -c core.filemode=true diff --raw -- . 2>/dev/null)
   return 0
 }
-if [ "$MODE" = r9 ] || [ $T_GIT -eq 1 ]; then git_contact; fi
+FZ=0; { [ "$MODE" = r9 ] || [ $T_FB -eq 1 ]; } && FZ=1
+if [ $FZ -eq 1 ] || [ $T_GIT -eq 1 ]; then git_contact; fi
 { [ -e "$OUT" ] || [ -L "$OUT" ]; } && prelude_stop UNRESOLVED run_directory_already_exists
 mkdir -p "$OUT/log" "$OUT/tmp" || prelude_stop UNRESOLVED cannot_create_run_directory
 # ---- TMPDIR: a tmpfs inside the run directory, mounted in this launcher's private mount namespace; the tools get a
@@ -238,6 +259,17 @@ mount -t tmpfs -o mode=700,size=256m floor-run-tmp "$OUT/tmp" 2>/dev/null || pre
 export TMPDIR="$OUT/tmp"
 PRIV="$TMPDIR/tools"
 mkdir -m 700 "$PRIV" && mount -t tmpfs -o mode=700,size=256m floor-run-tools "$PRIV" 2>/dev/null && mkdir -m 700 "$PRIV/py"   || prelude_stop UNRESOLVED cannot_create_the_private_tool_directory
+# ---- the namespace once more, by its effect (row 132): both mounts are in this process's mount table and in
+# neither the parent's nor that of process 1; a mount that shows outside is taken down and the run does not start
+ns_seen() { /usr/bin/grep -Fq " $2 " "$1" 2>/dev/null; } # mount table, mount point ; 0 listed, 1 absent, 2 unreadable
+NSBAD=""
+for x in "$OUT/tmp" "$PRIV"; do
+  ns_seen /proc/self/mountinfo "$x"; [ $? -eq 0 ] || NSBAD=mount_absent_from_the_mount_table_of_this_process
+  ns_seen "/proc/$PPID/mountinfo" "$x"; [ $? -eq 1 ] || NSBAD=${NSBAD:-private_tmpfs_listed_or_unreadable_in_the_mount_table_of_the_parent_process}
+  ns_seen /proc/1/mountinfo "$x"; [ $? -eq 1 ] || NSBAD=${NSBAD:-private_tmpfs_listed_or_unreadable_in_the_mount_table_of_process_1}
+done
+[ "$(/usr/bin/readlink /proc/self/ns/mnt 2>/dev/null)" = "$NS_SELF" ] || NSBAD=${NSBAD:-mount_namespace_id_changed}
+if [ -n "$NSBAD" ]; then umount "$PRIV" 2>/dev/null; umount "$OUT/tmp" 2>/dev/null; prelude_stop UNRESOLVED "$NSBAD"; fi
 TDST=("$PRIV/gate_required.sh" "$PRIV/py/cert_gate.py" "$PRIV/py/indep_verify.py")
 for i in 0 1 2; do
   printf '%s\n' "${MTXT[$i]}" > "${TDST[$i]}" || prelude_stop UNRESOLVED cannot_write_a_tool_into_the_private_directory
@@ -250,7 +282,7 @@ guard || integrity_stop
 GATE="$PRIV/gate_required.sh"; VERIFIER="$PRIV/py/cert_gate.py"
 LOG="$OUT/log"
 say "START|mode=$MODE|r=$R|m0_steps=${STEPS[*]}|f=$FSPEC|g0=$G0|prediction_sha256=$P|driver_sha256=$DRVSHA|run_directory=$OUT|json=0"
-say "NOTE|environment=env_-i_with_PATH=/usr/bin:/bin_LANG=C_HOME=${HOME}_TMPDIR=<run_directory>/tmp|mount_namespace=private_(unshare_-m)|tmpdir=tmpfs_mounted_in_that_namespace|private_tools=a_second_tmpfs_read-only_after_the_last_write|launcher_pid=$$|children=bash_--noprofile_--norc_and_python3_-I_-B|json=0"
+say "NOTE|environment=env_-i_with_PATH=/usr/bin:/bin_LANG=C_HOME=${HOME}_TMPDIR=<run_directory>/tmp|mount_namespace=private_CHECKED_(row_132)|namespace_of_this_process=$NS_SELF|namespace_of_the_parent_process=$NS_PARENT|namespace_of_process_1=$NS_INIT|shared_or_slave_mounts=0|both_tmpfs_mounts=listed_here_and_absent_from_the_mount_tables_of_the_parent_process_and_of_process_1|tmpdir=tmpfs_mounted_in_that_namespace|private_tools=a_second_tmpfs_read-only_after_the_last_write|launcher_pid=$$|children=bash_--noprofile_--norc_and_python3_-I_-B|json=0"
 for x in "${TOOLLINES[@]}"; do say "$x"; done
 for i in 0 1 2; do
   say "TOOL|private_copy=${TDST[$i]#"$PRIV"/}|written_from=memory|source=${MSRC[$i]}|sha256=$("$SHA" "${TDST[$i]}" | cut -d' ' -f1)|pin=${MROW[$i]}|want=${MWANT[$i]}|json=0"
@@ -259,8 +291,9 @@ say "TOOL|in_memory=peak_rss.py|runs_as=python3_-I_-B_-c|source=${MSRC[3]}|sha25
 say "TOOL|in_memory=floor_eval.py|runs_as=python3_-I_-B_-c|source=final/tools/floor_eval.py|sha256=$EVSHA|pin=115|want=${MWANT[4]}|json=0"
 say "TOOL|in_memory=run_floor.sh|runs_as=bash_--noprofile_--norc_-c|source=final/tools/run_floor.sh|sha256=$DRVSHA|pin=114|want=$(pinval 114)|json=0"
 say "TOOL|private_copy=${PPRED#"$PRIV"/}|written_from=memory|source=$PREDREL|sha256=$("$SHA" "$PPRED" | cut -d' ' -f1)|pin=record|want=$P|json=0"
-# ---- freeze commit (frozen run): the commit that carries the prediction record, checked by blob hash
-if [ "$MODE" = r9 ]; then
+# ---- freeze commit (frozen run, and a rehearsal with --test-frozen-build): the commit that carries the prediction
+# record, checked by blob hash
+if [ $FZ -eq 1 ]; then
   [ -n "$C" ] || C=$("$GIT" log -1 --format=%H -- "$PREDREL" 2>/dev/null)
   echo "$C" | grep -Eq '^[0-9a-f]{40}$' || prelude_stop UNRESOLVED freeze_commit_not_found
   PFX=$("$GIT" rev-parse --show-prefix 2>/dev/null)
@@ -280,14 +313,20 @@ fi
 guard || integrity_stop
 "${EVAL[@]}" pins root="$ROOT" pred="$PPRED" tag=1 > "$LOG/pincheck_1.txt" 2>&1 || { tail -1 "$LOG/pincheck_1.txt"; prelude_stop FAIL pin_check_1_mismatch_row_010; }
 say "$(tail -1 "$LOG/pincheck_1.txt")"
-if [ "$MODE" = r9 ]; then
+if [ $FZ -eq 1 ]; then
   FB="$OUT/target/release/floorcert"
   (cd work/design/rs && RUSTC="$RUSTC" CARGO_TARGET_DIR="$OUT/target" FLOORCERT_FREEZE_COMMIT="$C" FLOORCERT_PREDICTION_SHA256="$P" "$CARGO" build --release --locked -j1) > "$LOG/build_frozen.txt" 2>&1 || prelude_stop UNRESOLVED frozen_build_failed
   [ -f "$FB" ] || prelude_stop UNRESOLVED frozen_binary_absent
   guard || integrity_stop
   "${EVAL[@]}" pins root="$ROOT" pred="$PPRED" tag=2 > "$LOG/pincheck_2.txt" 2>&1 || { tail -1 "$LOG/pincheck_2.txt"; prelude_stop FAIL pin_check_2_mismatch_row_010; }
   say "$(tail -1 "$LOG/pincheck_2.txt")"
-  FREEZE_ARGS=(--freeze-commit "$C" --prediction "$PREDREL" --prediction-sha256 "$P")
+  if [ "$MODE" = r9 ]; then
+    FREEZE_ARGS=(--freeze-commit "$C" --prediction "$PREDREL" --prediction-sha256 "$P")
+  else
+    # a rehearsal: the binary carries the two pins and runs at the excluded R, where it takes no freeze argument
+    FREEZE_ARGS=()
+    say "NOTE|frozen_build_rehearsal=1|freeze_commit=$C|compiled_prediction_sha256=$P|build_log=log/build_frozen.txt|pin_check_2=HELD|r=$R|json=0"
+  fi
 else
   FB="$PINFREE"; C=NONE; FREEZE_ARGS=()
 fi
@@ -295,10 +334,14 @@ fi
 XB="$PRIV/floorcert"
 cp "$FB" "$XB" && chmod -R a-w "$PRIV" && mount -o remount,ro "$PRIV" 2>/dev/null   || prelude_stop UNRESOLVED cannot_copy_the_binary_into_the_private_directory
 FBSHA=$("$SHA" "$XB" | cut -d' ' -f1)
-[ "$MODE" = r9 ] || [ "$FBSHA" = "$(pinval 016)" ] || prelude_stop FAIL binary_copy_differs_from_row_016
+if [ $FZ -eq 1 ]; then
+  [ "$FBSHA" != "$(pinval 016)" ] || prelude_stop FAIL frozen_build_gave_the_pin_free_binary_of_row_016
+else
+  [ "$FBSHA" = "$(pinval 016)" ] || prelude_stop FAIL binary_copy_differs_from_row_016
+fi
 GF+=("$FB" "$XB"); GW+=("$FBSHA" "$FBSHA")
 guard || integrity_stop
-say "TOOL|private_copy=floorcert|source=$FB|sha256=$FBSHA|pin=$([ "$MODE" = r9 ] && echo frozen_build_of_row_009 || echo 016)|want=$FBSHA|json=0"
+say "TOOL|private_copy=floorcert|source=$FB|sha256=$FBSHA|pin=$([ $FZ -eq 1 ] && echo frozen_build_of_row_009 || echo 016)|want=$FBSHA|json=0"
 say "NOTE|binary=$FB|binary_sha256=$FBSHA|executed_copy=PRIVATE_COPY/floorcert|private_directory=$PRIV|json=0"
 
 run_cmd() { # kind m0 attempt limit killafter logfile prefix argv... ; prefix peak = under peak_rss.py from memory
