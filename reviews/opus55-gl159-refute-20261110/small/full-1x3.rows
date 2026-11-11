@@ -1,0 +1,6 @@
+I_CENSUS|lattice=1x3|F=3|dim=251|flat=8|flat_raw=18|m3=9|m3_raw=54|m4=60|m4_raw=324|m4_weight_hist=0@w1,0@w2,12@w3,48@w6|json=0
+F_SPACE|lattice=1x3|orbits=251|burnside=251|match=True|json=0
+I_FLOOR_INPUTS|rho44=11|P2max=33|m6plus_nbrs=153|json=0
+F_FLOOR_TEST|lattice=1x3|r=9|rho44=11|P2max=33|floor_num=174148095385|floor_den=4294967296|neg_KCC_minus_floor=0|lemma_holds=True|json=0
+F_FLOOR_TEST|lattice=1x3|r=27|rho44=11|P2max=33|floor_num=490949375904|floor_den=4294967296|neg_KCC_minus_floor=0|lemma_holds=True|json=0
+F_FLOOR_TEST|lattice=1x3|r=81|rho44=11|P2max=33|floor_num=1420721015154|floor_den=4294967296|neg_KCC_minus_floor=0|lemma_holds=True|json=0

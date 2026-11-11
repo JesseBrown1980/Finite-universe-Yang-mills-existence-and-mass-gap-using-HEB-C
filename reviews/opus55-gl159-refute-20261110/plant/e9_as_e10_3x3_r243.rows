@@ -1,0 +1,17 @@
+GL_MEASURE_BEGIN|lattice=3x3|r_list=243|kf=1|k3=1|k3plus=0|sabotage=none|D=1000000000000|BDEN=1000000000000|FD=1000000|float_used=0|script_sha256=2501fe144315949106366605a4519d216c4b7bac2785dfe2be1e6230d156d9cc|core_sha256=aab0bd5a91bad6080c70b4d7698acfa2bcfa16180ae91805fefba2486242e36b|json=0
+CENSUS|lattice=3x3|links=18|plaquettes=9|orbit_dimension_burnside=10097891|orbit_dimension_onfile=10097891|flat_orbits=8|flat_raw=18|m3_orbits=27|m3_raw=162|m4_orbits=720|m4_raw=3888|ms=127|json=0
+FLOOR_INPUTS|m4_orbits=720|rho44=8|P2max=112|m6_neighbours=21168|ms=20822|json=0
+BALLS|flats_layers=198|m3_layers=1296|m3_plus=0|ball_f=198|ball_3=1296|ms=2|json=0
+FLOOR|lattice=3x3|r=243|floor_num=1017745601|floor_den=1000000|floor_dec=1017.745601|rule=(3N+4r-rho44-l)(6r-l)>=P2max|json=0
+ASSEMBLY|lattice=3x3|r=243|stage=A|ball=198|exterior=5364|gs=198,8,4,0|json=0
+ASSEMBLY|lattice=3x3|r=243|stage=A|ball=1296|exterior=27138|gs=1296,27,6,0|json=0
+ASSEMBLY|lattice=3x3|r=243|stage=B|ball=1494|exterior=31008|lambda0_num=53944447508544|gs=198,8,4,0;1296,27,5,0|json=0
+ASSEMBLY|lattice=3x3|r=243|stage=C|ball=1494|exterior=31008|lambda0_num=782857581172018|gs=198,8,5,0;1296,27,6,0|json=0
+LEVEL|lattice=3x3|r=243|level=E1|lo_num=53944369213950|hi_num=53944376185781|den=1000000000000|lo_dec=53.944369213950|hi_dec=53.944376185781|width_dec=0.000006971831|lower_side=CERTIFIED|floor_num=1017745601|floor_den=1000000|json=0
+LEVEL|lattice=3x3|r=243|level=E8|lo_num=53944511797325|hi_num=53944518733918|den=1000000000000|lo_dec=53.944511797325|hi_dec=53.944518733918|width_dec=0.000006936593|lower_side=CERTIFIED|floor_num=1017745601|floor_den=1000000|json=0
+LEVEL|lattice=3x3|r=243|level=E9|lo_num=782857867636799|hi_num=782858085096834|den=1000000000000|lo_dec=782.857867636799|hi_dec=782.858085096834|width_dec=0.000217460035|lower_side=CERTIFIED|floor_num=1017745601|floor_den=1000000|json=0
+RUN_STATS|lattice=3x3|r=243|ms=125667|peak_kb=58008|json=0
+ANCHOR|lattice=3x3|r=243|check=onfile_E8_anchor_3x3|result=PASS|json=0
+ANCHOR|lattice=3x3|r=243|check=onfile_E1_floor_anchor_3x3|result=PASS|json=0
+ANCHOR|lattice=3x3|r=243|check=onfile_E9_zero_momentum_anchor_3x3|result=FAIL|json=0
+FAILED|check=onfile_E9_zero_momentum_anchor_3x3|json=0

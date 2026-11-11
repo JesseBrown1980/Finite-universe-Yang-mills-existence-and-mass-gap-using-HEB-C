@@ -1,0 +1,5 @@
+pr 1x3 exit=1
+full 1x3 exit=0
+pr 3x1 exit=1
+full 3x1 exit=0
+DONE

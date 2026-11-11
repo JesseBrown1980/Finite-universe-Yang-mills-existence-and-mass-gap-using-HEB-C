@@ -1,0 +1,11 @@
+CONTROLS_PREDICT_BEGIN|written=before_any_control_run|utc=2026-11-10T12:50Z|runner=gl_controls.py|json=0
+CONTROL_PREDICT|name=clean_3x3_r243|lattice=3x3|r=243|kf=1|k3=1|sabotage=none|expect_check=NONE|json=0
+CONTROL_PREDICT|name=wrong_r_3x3|lattice=3x3|r=243|kf=1|k3=1|sabotage=wrong_r|expect_check=onfile_E8_anchor_3x3|note=H built at r+27=270 while rows say 243|json=0
+CONTROL_PREDICT|name=wrong_r_3x4|lattice=3x4|r=243|kf=1|k3=1|sabotage=wrong_r|expect_check=analytic_second_order_anchor_3x4_E1|note=H built at 270 while rows say 243|json=0
+CONTROL_PREDICT|name=dropped_flat_state|lattice=3x3|r=243|kf=1|k3=1|sabotage=drop_flat|expect_check=all_eight_flat_orbits|json=0
+CONTROL_PREDICT|name=flipped_electric_sign|lattice=3x3|r=243|kf=1|k3=1|sabotage=flip_electric|expect_check=electric_term_psd_gershgorin|note=H=-J_E*E+J_B*M|json=0
+CONTROL_PREDICT|name=truncated_exterior|lattice=3x3|r=243|kf=1|k3=1|sabotage=truncate_exterior|expect_check=exterior_move_conservation|note=one exterior residual target deleted|json=0
+CONTROL_PREDICT|name=dropped_m3_state|lattice=3x3|r=243|kf=1|k3=1|sabotage=drop_m3|expect_check=m3_orbit_count|json=0
+CONTROL_PREDICT|name=sector_count_3x3_onfile|lattice=3x3|r=243|kf=1|k3=1|sabotage=wrong_dim_onfile|expect_check=burnside_dimension_onfile|note=on-file 10097891 replaced by 10097890|json=0
+CONTROL_PREDICT|name=sector_count_3x4_onfile|lattice=3x4|r=243|kf=1|k3=1|sabotage=wrong_dim_onfile|expect_check=burnside_dimension_onfile|note=on-file 2177317873 replaced by 2177317872|json=0
+CONTROLS_PREDICT_END|rows=9|json=0

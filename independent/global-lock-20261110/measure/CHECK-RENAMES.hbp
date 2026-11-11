@@ -1,0 +1,3 @@
+CHECK_RENAMES_BEGIN|utc=2026-11-10|reason=GPT-6_review_of_PR_159:_the_old_name_said_Gershgorin_PSD_test;_the_code_tests_the_sign_factor_s_E=+1|frozen_file_unchanged=CONTROLS-PREDICT.hbp|frozen_sha256=caca9c6dba1c56401182dde8fe58ea6d63f5f3d6ec6d98e0ca8ed48a48d0122c|json=0
+CHECK_RENAME|old=electric_term_psd_gershgorin|new=electric_sign_is_plus_one|computes=md.sE==1|scripts=gl_measure.py|old_script_sha256=daf78b00ed40acb350efe8a70611f07162317fca3a3f13e2b1b79fc724fa5e32|json=0
+CHECK_RENAMES_END|rows=1|json=0
