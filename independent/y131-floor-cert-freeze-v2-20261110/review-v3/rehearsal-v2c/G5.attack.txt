@@ -1,0 +1,2 @@
+ATTACK|file=final/tools/run_floor.sh|how=append|launcher_sha16=2d9c743eebb51dec|changed_after_the_binary_line=1|sha256_after_change=2d9c743eebb51decc0537f3d70bbdb846ccacf6c11bf76b5dcd37fe3a02a705f|json=0
+ATTACK_END|file=final/tools/run_floor.sh|put_back=1|copy_equals_repository_file=1|fake_gate_calls=0|json=0

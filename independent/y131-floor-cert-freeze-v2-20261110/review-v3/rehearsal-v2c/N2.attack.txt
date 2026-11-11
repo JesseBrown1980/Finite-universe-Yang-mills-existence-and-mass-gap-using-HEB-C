@@ -1,0 +1,1 @@
+ATTACK|case=N2|launcher_sha16=8d1f01cfb85f19ce|fake_calls=0|what=N2_nsenter_into_the_launcher_namespace_and_append_to_PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp|nsenter_exit=0|json=0

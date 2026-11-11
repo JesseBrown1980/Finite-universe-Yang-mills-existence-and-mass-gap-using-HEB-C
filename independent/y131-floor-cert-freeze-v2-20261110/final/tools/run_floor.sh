@@ -1,32 +1,77 @@
 #!/bin/bash
-# run_floor.sh -- single launcher of the frozen floor-certificate run (version 2 freeze, correction round).
+# run_floor.sh -- single launcher of the frozen floor-certificate run (version 2 freeze, second correction round).
 #   frozen run: bash final/tools/run_floor.sh --launch-r9 [--freeze-commit C]
 #               r = 9, m0 = 11, then 12 and 13 only under rows 006 and 007 of the prediction record.
 #               The token --launch-r9 is the only way into this mode; no other argument set reaches r = 9.
 #   rehearsal:  bash final/tools/run_floor.sh --test-r R --test-m0 a,b,c --test-f WORDS --test-g0 N/D --test-out DIR
 #               [--test-plant IDX:UB] [--test-crash LIST] [--test-hang LIST] [--test-hang-hard LIST]
-#               [--test-vexc IDX] [--test-census] [--test-limit-kb N]
+#               [--test-vexc IDX] [--test-census] [--test-limit-kb N] [--test-git-check]
 #               (LIST is IDX:KIND[,IDX:KIND...]; KIND is rowhash, cert, rowsonly or gate)
 #               R must lie more than 1 away from 9; the binary's own r policy stays in force.
-# Every path is derived from this file's location. One heavy process at a time. No retry beyond row 008:
-# one rerun with identical arguments after a crash, for the whole run, both attempts logged; a time limit gets none.
-# ISOLATED TOOLS: gate_required.sh, cert_gate.py, indep_verify.py, peak_rss.py, the evaluator, the prediction record
-# and the binary are copied into a fresh private directory (mktemp -d, mode 700); the copies are hashed against the
-# frozen SHA-256 values and made read-only, and only the copies are executed. The copies and the files in the tree
-# are hashed again before every invocation and at the close. This file is read to its end before its first command.
-# A certificate counts only with a logged verifier invocation that exited 0 (row 122).
-# A completed process at or over 2097152 kB gives CERTIFICATE=FAIL, RESOURCE_LIMIT_EXCEEDED, and no fallback (row 122).
+# TWO STAGES. Stage 1 (the file as called) reads this file once into memory and replaces itself by
+#   /usr/bin/env -i PATH=/usr/bin:/bin LANG=C ... /usr/bin/unshare -m --propagation private
+#   /usr/bin/bash --noprofile --norc -c "<the bytes read>" run_floor.sh <arguments>
+# so stage 2 runs the bytes that were read, with an empty environment, a fixed PATH of system directories and a
+# mount namespace of its own. Stage 2 hashes its own text (BASH_EXECUTION_STRING) against row 114.
+# Stage 1 first refuses a caller environment that carries BASH_ENV, ENV, an LD_ name, a PYTHON name or an exported
+# shell function (NOT_STARTED, exit 4); stage 2 stops unless its environment holds the whitelisted names only.
+# TOOLS. python3, bash, sha256sum, timeout, setsid and git are resolved once under the fixed PATH to absolute paths,
+# logged with their SHA-256 (TOOLPATH lines) and called by those paths; cargo and rustc 1.81 are the toolchain
+# binaries under HOME (HOME from the password database), called by absolute path and logged the same way.
+# HASHED BYTES. The prediction record, gate_required.sh, cert_gate.py, indep_verify.py, peak_rss.py and the
+# evaluator are each read once into memory and hashed there against the frozen SHA-256 values. peak_rss.py and the
+# evaluator run from memory (python3 -I -B -c). gate_required.sh, cert_gate.py, indep_verify.py, the record and the
+# binary are written from those bytes into a tmpfs mounted at <run directory>/tmp inside the private mount namespace
+# (TMPDIR; the tools sit in a second tmpfs under it, read-only once written; a process outside the namespace sees
+# neither); the tmpfs files and the files in the tree are hashed
+# before and after every command and at the close. A certificate counts only with a logged verifier invocation that
+# exited 0 with the tools still at their hashes after the call (row 122, row 124).
+# A completed measured process at or over 2097152 kB gives CERTIFICATE=FAIL, RESOURCE_LIMIT_EXCEEDED, and no fallback;
+# this includes the rowhash and the rows-only verifier of the row 007 prerequisite, checked before the prerequisite
+# outcome is read (row 123).
+# One heavy process at a time. No retry beyond row 008: one rerun with identical arguments after a crash, for the
+# whole run, both attempts logged; a time limit gets none.
 # The last line printed is FLOOR_RUN|CERTIFICATE=PASS or FAIL|PREDICTION=CONFIRMED or FALSIFIED or UNRESOLVED|
-# DECISION=ABOVE or BELOW or UNRESOLVED|GAMMA=|UPPER_BOUND=|...|HASHES=
+# DECISION=ABOVE or BELOW or UNRESOLVED|GAMMA=|UPPER_BOUND=|...|HASHES= ; this launcher prints it from the output of
+# the evaluator it ran from memory, and derives the exit code from that line.
 # Exit: 0 CERTIFICATE=PASS and PREDICTION=CONFIRMED; 3 CERTIFICATE=PASS and PREDICTION=FALSIFIED;
-#       2 nothing decided (UNRESOLVED, or no accepted certificate for an operational reason, or not started);
-#       1 CERTIFICATE=FAIL after a REQUIRED, resource-limit or integrity failure (rows 008 011).
+#       2 CERTIFICATE=PASS and PREDICTION=UNRESOLVED; 1 CERTIFICATE=FAIL after the run started (every reason);
+#       4 CERTIFICATE=FAIL with certificate_reason=NOT_STARTED (refused arguments or a refused prelude).
+# ACCEPTANCE (row 125): a PASS line of this launcher is accepted only after a second, independent environment has
+# run gate_required.sh on each published certificate (the RECHECK rows of the receipt give the command).
 set -u
 {
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT="$(cd "$HERE/../.." && pwd)"
-cd "$ROOT" || exit 2
-[ -d "$HOME/.cargo/bin" ] && export PATH="$HOME/.cargo/bin:$PATH"
+NOBOUND="PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE"
+early_stop() { # stage reason ; nothing has run
+  echo "FLOOR_RUN|CERTIFICATE=FAIL|$NOBOUND|certificate_reason=NOT_STARTED|stage=$1|reason=$2|steps_run=none|accepted_certificates=0|certificate_commands_run=0|HASHES=NONE|json=0"
+  exit 4
+}
+if [ "${FLOOR_STAGE:-}" != 2 ] || [ -z "${BASH_EXECUTION_STRING:-}" ]; then
+  # ---- stage 1: read this file once, then run exactly those bytes in an empty environment and a private mount namespace
+  # a caller environment that carries a shell start file, a loader setting, a python setting or an exported function is refused
+  for v in $(compgen -e); do
+    case "$v" in BASH_ENV|ENV|LD_*|PYTHON*) early_stop entry "caller_environment_sets_$v";; esac
+  done
+  [ "$(declare -F)" = "declare -f early_stop" ] || early_stop entry caller_environment_carries_shell_functions
+  [ -n "${BASH_SOURCE[0]:-}" ] || early_stop entry launcher_file_path_unknown
+  SELF=$(/usr/bin/realpath -e -- "${BASH_SOURCE[0]}" 2>/dev/null) || early_stop entry launcher_file_path_unknown
+  SRC=$(/usr/bin/cat -- "$SELF") || early_stop entry cannot_read_the_launcher
+  SROOT=$(/usr/bin/realpath -e -- "${SELF%/*}/../.." 2>/dev/null) || early_stop entry freeze_folder_not_found
+  /usr/bin/env -i PATH=/usr/bin:/bin /usr/bin/unshare -m --propagation private /usr/bin/true 2>/dev/null \
+    || early_stop entry cannot_create_a_private_mount_namespace
+  exec /usr/bin/env -i PATH=/usr/bin:/bin LANG=C FLOOR_STAGE=2 FLOOR_ROOT="$SROOT" \
+    /usr/bin/unshare -m --propagation private /usr/bin/bash --noprofile --norc -c "$SRC" run_floor.sh "$@"
+  early_stop entry cannot_start_the_second_stage
+fi
+# ---- stage 2: the environment holds the names set by stage 1 and by bash itself, and nothing else
+for v in $(compgen -e); do
+  case "$v" in PATH|LANG|FLOOR_STAGE|FLOOR_ROOT|PWD|OLDPWD|SHLVL|_) ;; *) early_stop environment "environment_carries_$v";; esac
+done
+[ "$PATH" = /usr/bin:/bin ] && [ "$LANG" = C ] || early_stop environment path_or_lang_differs_from_the_fixed_values
+unset BASH_ENV ENV CDPATH GLOBIGNORE
+ROOT="$FLOOR_ROOT"; HERE="$ROOT/final/tools"
+cd "$ROOT" || early_stop environment cannot_enter_the_freeze_folder
+HOME=$(getent passwd "$(id -u)" | cut -d: -f6); export HOME
 PREDREL=final/PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp
 PEAK=work/design/peak_rss.py
 GATE=work/design/gate_required.sh
@@ -37,17 +82,14 @@ LIMIT=21600
 KILLAFTER=30
 RUSTC_PIN="rustc 1.81.0 (eeb90cda1 2024-09-04)"
 CARGO_PIN="cargo 1.81.0 (2dbb1af80 2024-08-20)"
-NOBOUND="PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE"
-MODE=none; R=9; STEPS=(11 12 13); FSPEC='1;8,7,6,5,4;6,5,4,3'; G0=94070673/1000000; OUT=work/run9
-C=""; T_R=""; T_PLANT=""; T_CRASH=""; T_HANG=""; T_HARD=""; T_VEXC=""; T_LIM=""; CENSUS=0; T_ANY=0; LAUNCH=0
-arg_stop() { # reason ; nothing has run
-  echo "FLOOR_RUN|CERTIFICATE=FAIL|$NOBOUND|certificate_reason=NOT_STARTED|stage=arguments|reason=$1|steps_run=none|accepted_certificates=0|certificate_commands_run=0|HASHES=NONE|json=0"
-  exit 2
-}
+MODE=none; R=9; STEPS=(11 12 13); FSPEC='1;8,7,6,5,4;6,5,4,3'; G0=94070673/1000000; OUT="$ROOT/work/run9"
+C=""; T_R=""; T_PLANT=""; T_CRASH=""; T_HANG=""; T_HARD=""; T_VEXC=""; T_LIM=""; CENSUS=0; T_ANY=0; LAUNCH=0; T_GIT=0
+arg_stop() { early_stop arguments "$1"; }
 while [ $# -gt 0 ]; do
   case "$1" in
     --launch-r9) LAUNCH=1; shift; continue;;
     --test-census) CENSUS=1; T_ANY=1; shift; continue;;
+    --test-git-check) T_GIT=1; T_ANY=1; shift; continue;;
     --freeze-commit|--test-r|--test-m0|--test-f|--test-g0|--test-out|--test-plant|--test-crash|--test-hang|--test-hang-hard|--test-vexc|--test-limit-kb) ;;
     *) arg_stop unknown_argument;;
   esac
@@ -81,37 +123,70 @@ else
 fi
 LIMARG=(); [ -n "$T_LIM" ] && LIMARG=("limkb=$T_LIM")
 LOG=""; SEQ=0; RERUNS=1; STOP=DECIDED; RUNSTEPS=""; FB=""; FBSHA=NONE; RC=0; TIMEDOUT=0; CLS=ok
-BADFILE=""; BADWANT=""; PRIV=""
-cleanup() { [ -n "$PRIV" ] && [ -d "$PRIV" ] && { chmod -R u+w "$PRIV" 2>/dev/null; rm -rf "$PRIV"; }; return 0; }
-trap cleanup EXIT
+BADFILE=""; BADWANT=""; PRIV=""; P=NONE
 has() { case ",$1," in *",$2,"*) return 0;; esac; return 1; } # list item
 say() { echo "$1"; [ -n "$LOG" ] && echo "$1" >> "$LOG/run.log"; return 0; }
-prelude_stop() { # class reason ; class FAIL = integrity or REQUIRED failure, UNRESOLVED = not started
+prelude_stop() { # class reason ; class FAIL = integrity or REQUIRED failure (exit 1), UNRESOLVED = not started (exit 4)
   local cr=NOT_STARTED; [ "$1" = FAIL ] && cr=REQUIRED_OR_INTEGRITY_FAILURE_ROW_008
   say "FLOOR_RUN|CERTIFICATE=FAIL|$NOBOUND|certificate_reason=$cr|stage=prelude|reason=$2|r=$R|steps_run=none|accepted_certificates=0|certificate_commands_run=0|HASHES=NONE|json=0"
-  [ "$1" = FAIL ] && exit 1; exit 2
+  [ "$1" = FAIL ] && exit 1; exit 4
 }
-# ---- the pinned hashes, read from the record by this script itself (rows 019 020 021 103 114 115)
-P=$(sha256sum "$PREDREL" | cut -d' ' -f1)
-pinval() { grep -E "^PIN\|id=$1\|" "$PREDREL" | sed -n 's/.*|value=\([0-9a-f]\{64\}\)|.*/\1/p'; }
+# ---- the programs this launcher calls: resolved once under the fixed PATH, logged with their hashes, called by path
+TOOLLINES=()
+SHA=$(command -v sha256sum) && SHA=$(realpath -e -- "$SHA") || prelude_stop UNRESOLVED program_sha256sum_not_found
+resolve() { # name -> RES: the absolute path of a program in a system directory
+  RES=$(command -v "$1") && RES=$(realpath -e -- "$RES") || prelude_stop UNRESOLVED "program_$1_not_found"
+  case "$RES" in /usr/*|/bin/*|/sbin/*) ;; *) prelude_stop UNRESOLVED "program_$1_lies_outside_the_system_directories";; esac
+  TOOLLINES+=("TOOLPATH|name=$1|path=$RES|sha256=$("$SHA" "$RES" | cut -d' ' -f1)|found_under=PATH_/usr/bin:/bin|json=0")
+}
+resolve sha256sum
+resolve python3; PY="$RES"
+resolve bash; BASHX="$RES"
+resolve timeout; TIMEOUT="$RES"
+resolve setsid; SETSID="$RES"
+resolve git; GIT="$RES"
+TC="$HOME/.rustup/toolchains/1.81-x86_64-unknown-linux-gnu/bin"; CARGO="$TC/cargo"; RUSTC="$TC/rustc"
+for x in "$CARGO" "$RUSTC"; do
+  TOOLLINES+=("TOOLPATH|name=${x##*/}|path=$x|sha256=$("$SHA" "$x" 2>/dev/null | cut -d' ' -f1)|found_under=the_1.81_toolchain_directory_of_HOME_(password_database)|json=0")
+done
+# ---- the hashed bytes: each file read once into memory and hashed there (rows 019 020 021 103 114 115)
+msha() { printf '%s\n' "$1" | "$SHA" | cut -d' ' -f1; }
+PRED_SRC=$(cat -- "$PREDREL" 2>/dev/null) || prelude_stop UNRESOLVED cannot_read_the_prediction_record
+P=$(msha "$PRED_SRC")
+pinval() { printf '%s\n' "$PRED_SRC" | grep -E "^PIN\|id=$1\|" | sed -n 's/.*|value=\([0-9a-f]\{64\}\)|.*/\1/p'; }
+DRVSHA=$(msha "$BASH_EXECUTION_STRING")
+[ "$DRVSHA" = "$(pinval 114)" ] || prelude_stop FAIL pinned_file_differs_run_floor.sh
+MSRC=("$GATE" "$VERIFIER" "$INDEP" "$PEAK" "$HERE/floor_eval.py")
+MROW=(020 019 021 103 115)
+MTXT=(); MSHA=(); MWANT=()
+for i in "${!MSRC[@]}"; do
+  x=$(cat -- "${MSRC[$i]}" 2>/dev/null) || prelude_stop FAIL "pinned_file_differs_${MSRC[$i]##*/}"
+  MTXT[$i]="$x"; MSHA[$i]=$(msha "$x"); MWANT[$i]=$(pinval "${MROW[$i]}")
+  [ ${#MWANT[$i]} -eq 64 ] && [ "${MSHA[$i]}" = "${MWANT[$i]}" ] || prelude_stop FAIL "pinned_file_differs_${MSRC[$i]##*/}"
+done
+PEAKSHA="${MSHA[3]}"; EVSHA="${MSHA[4]}"
+PEAKCMD=("$PY" -I -B -c "${MTXT[3]}")
+PEAKDISP="$PY -I -B -c MEMORY:peak_rss.py@$PEAKSHA"
+EVAL=("$PY" -I -B -c "${MTXT[4]}")
+# the files of the tree stay under watch as well: a change after this point stops the run
 GF=("$PREDREL" "$HERE/run_floor.sh" "$HERE/floor_eval.py" "$GATE" "$VERIFIER" "$INDEP" "$PEAK")
-GW=("$P" "$(pinval 114)" "$(pinval 115)" "$(pinval 020)" "$(pinval 019)" "$(pinval 021)" "$(pinval 103)")
+GW=("$P" "$DRVSHA" "$EVSHA" "${MSHA[0]}" "${MSHA[1]}" "${MSHA[2]}" "$PEAKSHA")
 guard() { # 0 when every file of GF still has the hash of GW; else BADFILE and BADWANT name the first that differs
   local i got
   for i in "${!GF[@]}"; do
-    got=$(sha256sum "${GF[$i]}" 2>/dev/null | cut -d' ' -f1)
+    got=$("$SHA" "${GF[$i]}" 2>/dev/null | cut -d' ' -f1)
     if [ ${#GW[$i]} -ne 64 ] || [ "$got" != "${GW[$i]}" ]; then BADFILE="${GF[$i]}"; BADWANT="${GW[$i]:-NO_PIN_ROW}"; return 1; fi
   done
   return 0
 }
 hashes_of_out() {
-  ( cd "$OUT" 2>/dev/null && find . -type f ! -name 'FLOOR-RUN-RECEIPT.hbp*' ! -path './target/*' | LC_ALL=C sort | while read -r f; do
-      printf '%s@%s,' "${f#./}" "$(sha256sum "$f" | cut -d' ' -f1)"; done ) | sed 's/,$//'
+  ( cd "$OUT" 2>/dev/null && find . -type f ! -name 'FLOOR-RUN-RECEIPT.hbp*' ! -path './target/*' ! -path './tmp/*' | LC_ALL=C sort | while read -r f; do
+      printf '%s@%s,' "${f#./}" "$("$SHA" "$f" | cut -d' ' -f1)"; done ) | sed 's/,$//'
 }
 integrity_stop() { # a pinned file or a private copy differs: no evaluator call, no accepted bound, CERTIFICATE=FAIL
   local got fin m rc="$OUT/FLOOR-RUN-RECEIPT.hbp" nm="${BADFILE#"$ROOT"/}"
   [ -n "$PRIV" ] && nm="${nm/#"$PRIV"/PRIVATE_COPY}"
-  got=$(sha256sum "$BADFILE" 2>/dev/null | cut -d' ' -f1)
+  got=$("$SHA" "$BADFILE" 2>/dev/null | cut -d' ' -f1)
   [ -n "$LOG" ] || prelude_stop FAIL "pinned_file_differs_${BADFILE##*/}"
   say "INTEGRITY|file=$nm|want=$BADWANT|got=${got:-ABSENT}|json=0"
   fin="FLOOR_RUN|CERTIFICATE=FAIL|$NOBOUND|certificate_reason=REQUIRED_OR_INTEGRITY_FAILURE_ROW_008|stage=integrity|reason=pinned_file_changed_${BADFILE##*/}|r=$R|steps_run=${RUNSTEPS:-none}|accepted_certificates=0|prediction_sha256=$P|binary_sha256=$FBSHA|HASHES=$(hashes_of_out)|json=0"
@@ -120,66 +195,94 @@ integrity_stop() { # a pinned file or a private copy differs: no evaluator call,
     echo "RECEIPT|scope=INTEGRITY_STOP|r=$R|mode=$MODE|json=0"
     echo "INTEGRITY|file=$nm|want=$BADWANT|got=${got:-ABSENT}|json=0"
     for m in "${STEPS[@]}"; do [ -e "$LOG/m${m}_rowhash_a1.txt" ] && echo "ACCEPTED|m0=$m|count=0|json=0"; done
-    grep -E '^(INVOKE|INJECTED|NOTE|DECISION|TOOL)\|' "$LOG/run.log"
+    grep -E '^(INVOKE|INJECTED|NOTE|DECISION|TOOL)' "$LOG/run.log"
     echo "$fin"
   } > "$rc"
-  ( cd "$OUT" && sha256sum FLOOR-RUN-RECEIPT.hbp > FLOOR-RUN-RECEIPT.hbp.sha256 )
+  ( cd "$OUT" && "$SHA" FLOOR-RUN-RECEIPT.hbp > FLOOR-RUN-RECEIPT.hbp.sha256 )
   echo "$fin"; exit 1
 }
 guard || integrity_stop
-# ---- the isolated copies: a fresh private directory, each copy hashed against its frozen value, only the copies run
-PRIV=$(mktemp -d "${TMPDIR:-/tmp}/floor-run-tools.XXXXXXXX") || { PRIV=""; prelude_stop UNRESOLVED cannot_create_the_private_tool_directory; }
-chmod 700 "$PRIV" && mkdir "$PRIV/py" || prelude_stop UNRESOLVED cannot_create_the_private_tool_directory
-TSRC=("$GATE" "$VERIFIER" "$INDEP" "$PEAK" "$HERE/floor_eval.py" "$PREDREL")
-TDST=("$PRIV/gate_required.sh" "$PRIV/py/cert_gate.py" "$PRIV/py/indep_verify.py" "$PRIV/peak_rss.py" "$PRIV/floor_eval.py" "$PRIV/${PREDREL##*/}")
-TWANT=("$(pinval 020)" "$(pinval 019)" "$(pinval 021)" "$(pinval 103)" "$(pinval 115)" "$P")
-TROW=(020 019 021 103 115 record)
-for i in "${!TSRC[@]}"; do
-  cp "${TSRC[$i]}" "${TDST[$i]}" || prelude_stop UNRESOLVED cannot_copy_a_tool_into_the_private_directory
-  GF+=("${TDST[$i]}"); GW+=("${TWANT[$i]}")
-done
-chmod -R a-w "$PRIV"; chmod u+w "$PRIV"
-guard || integrity_stop
-GATE="$PRIV/gate_required.sh"; VERIFIER="$PRIV/py/cert_gate.py"; PEAK="$PRIV/peak_rss.py"; PPRED="$PRIV/${PREDREL##*/}"
-EVAL=(python3 -I -B "$PRIV/floor_eval.py")
+# ---- the run directory: an absolute, canonical path; in test mode it lies outside the repository and the freeze folder
+TOP=$("$GIT" -C "$ROOT" rev-parse --show-toplevel 2>/dev/null) || TOP=""
 if [ "$MODE" = test ]; then
   "${EVAL[@]}" rcheck r="$R" || prelude_stop UNRESOLVED test_r_refused_within_1_of_9
   case "$OUT" in /*) ;; *) prelude_stop UNRESOLVED test_out_must_be_an_absolute_path;; esac
-  case "$OUT" in "$ROOT"/*) prelude_stop UNRESOLVED test_out_must_lie_outside_the_freeze_folder;; esac
+  [ -L "$OUT" ] && prelude_stop UNRESOLVED run_directory_already_exists
+  OUT=$(realpath -m -- "$OUT") || prelude_stop UNRESOLVED test_out_cannot_be_resolved
+  case "$OUT/" in "$ROOT"/*) prelude_stop UNRESOLVED test_out_must_lie_outside_the_freeze_folder;; esac
+  [ -n "$TOP" ] && case "$OUT/" in "$TOP"/*) prelude_stop UNRESOLVED test_out_must_lie_outside_the_repository;; esac
   [ ${#STEPS[@]} -ge 1 ] && [ ${#STEPS[@]} -le 3 ] || prelude_stop UNRESOLVED test_m0_takes_1_to_3_steps
+else
+  OUT=$(realpath -m -- "$OUT") || prelude_stop UNRESOLVED run_directory_cannot_be_resolved
+  case "$OUT" in "$ROOT"/work/run9) ;; *) prelude_stop UNRESOLVED run_directory_resolves_outside_work_run9;; esac
 fi
-[ -e "$OUT" ] && prelude_stop UNRESOLVED run_directory_already_exists
-mkdir -p "$OUT/log" || prelude_stop UNRESOLVED cannot_create_run_directory
-LOG="$OUT/log"
-DRVSHA=$(sha256sum "$HERE/run_floor.sh" | cut -d' ' -f1)
-say "START|mode=$MODE|r=$R|m0_steps=${STEPS[*]}|f=$FSPEC|g0=$G0|prediction_sha256=$P|driver_sha256=$DRVSHA|json=0"
-for i in "${!TDST[@]}"; do
-  say "TOOL|private_copy=${TDST[$i]#"$PRIV"/}|source=${TSRC[$i]#"$ROOT"/}|sha256=$(sha256sum "${TDST[$i]}" | cut -d' ' -f1)|pin=${TROW[$i]}|want=${TWANT[$i]}|json=0"
+git_contact() { # the checkout as git reports it: readable, no dubious ownership, no file-mode difference
+  local e a b rest
+  e=$("$GIT" -C "$ROOT" rev-parse --show-toplevel 2>&1) || {
+    case "$e" in *dubious*) prelude_stop UNRESOLVED git_reports_dubious_ownership_of_this_checkout;; esac
+    prelude_stop UNRESOLVED git_cannot_read_this_checkout
+  }
+  while read -r a b rest; do
+    [ -n "$a" ] || continue
+    a="${a#:}"
+    [ "$a" != "$b" ] && [ "$a" != 000000 ] && [ "$b" != 000000 ] && prelude_stop UNRESOLVED git_reports_filemode_differences
+  done < <("$GIT" -C "$ROOT" -c core.filemode=true diff --raw -- . 2>/dev/null)
+  return 0
+}
+if [ "$MODE" = r9 ] || [ $T_GIT -eq 1 ]; then git_contact; fi
+{ [ -e "$OUT" ] || [ -L "$OUT" ]; } && prelude_stop UNRESOLVED run_directory_already_exists
+mkdir -p "$OUT/log" "$OUT/tmp" || prelude_stop UNRESOLVED cannot_create_run_directory
+# ---- TMPDIR: a tmpfs inside the run directory, mounted in this launcher's private mount namespace; the tools get a
+# tmpfs of their own inside it, set read-only once the last file is written
+mount -t tmpfs -o mode=700,size=256m floor-run-tmp "$OUT/tmp" 2>/dev/null || prelude_stop UNRESOLVED cannot_mount_the_private_tmpfs
+export TMPDIR="$OUT/tmp"
+PRIV="$TMPDIR/tools"
+mkdir -m 700 "$PRIV" && mount -t tmpfs -o mode=700,size=256m floor-run-tools "$PRIV" 2>/dev/null && mkdir -m 700 "$PRIV/py"   || prelude_stop UNRESOLVED cannot_create_the_private_tool_directory
+TDST=("$PRIV/gate_required.sh" "$PRIV/py/cert_gate.py" "$PRIV/py/indep_verify.py")
+for i in 0 1 2; do
+  printf '%s\n' "${MTXT[$i]}" > "${TDST[$i]}" || prelude_stop UNRESOLVED cannot_write_a_tool_into_the_private_directory
+  GF+=("${TDST[$i]}"); GW+=("${MSHA[$i]}")
 done
+PPRED="$PRIV/${PREDREL##*/}"
+printf '%s\n' "$PRED_SRC" > "$PPRED" || prelude_stop UNRESOLVED cannot_write_a_tool_into_the_private_directory
+GF+=("$PPRED"); GW+=("$P")
+guard || integrity_stop
+GATE="$PRIV/gate_required.sh"; VERIFIER="$PRIV/py/cert_gate.py"
+LOG="$OUT/log"
+say "START|mode=$MODE|r=$R|m0_steps=${STEPS[*]}|f=$FSPEC|g0=$G0|prediction_sha256=$P|driver_sha256=$DRVSHA|run_directory=$OUT|json=0"
+say "NOTE|environment=env_-i_with_PATH=/usr/bin:/bin_LANG=C_HOME=${HOME}_TMPDIR=<run_directory>/tmp|mount_namespace=private_(unshare_-m)|tmpdir=tmpfs_mounted_in_that_namespace|private_tools=a_second_tmpfs_read-only_after_the_last_write|launcher_pid=$$|children=bash_--noprofile_--norc_and_python3_-I_-B|json=0"
+for x in "${TOOLLINES[@]}"; do say "$x"; done
+for i in 0 1 2; do
+  say "TOOL|private_copy=${TDST[$i]#"$PRIV"/}|written_from=memory|source=${MSRC[$i]}|sha256=$("$SHA" "${TDST[$i]}" | cut -d' ' -f1)|pin=${MROW[$i]}|want=${MWANT[$i]}|json=0"
+done
+say "TOOL|in_memory=peak_rss.py|runs_as=python3_-I_-B_-c|source=${MSRC[3]}|sha256=$PEAKSHA|pin=103|want=${MWANT[3]}|json=0"
+say "TOOL|in_memory=floor_eval.py|runs_as=python3_-I_-B_-c|source=final/tools/floor_eval.py|sha256=$EVSHA|pin=115|want=${MWANT[4]}|json=0"
+say "TOOL|in_memory=run_floor.sh|runs_as=bash_--noprofile_--norc_-c|source=final/tools/run_floor.sh|sha256=$DRVSHA|pin=114|want=$(pinval 114)|json=0"
+say "TOOL|private_copy=${PPRED#"$PRIV"/}|written_from=memory|source=$PREDREL|sha256=$("$SHA" "$PPRED" | cut -d' ' -f1)|pin=record|want=$P|json=0"
 # ---- freeze commit (frozen run): the commit that carries the prediction record, checked by blob hash
 if [ "$MODE" = r9 ]; then
-  [ -n "$C" ] || C=$(git log -1 --format=%H -- "$PREDREL" 2>/dev/null)
+  [ -n "$C" ] || C=$("$GIT" log -1 --format=%H -- "$PREDREL" 2>/dev/null)
   echo "$C" | grep -Eq '^[0-9a-f]{40}$' || prelude_stop UNRESOLVED freeze_commit_not_found
-  PFX=$(git rev-parse --show-prefix 2>/dev/null)
-  BL=$(git show "$C:$PFX$PREDREL" 2>/dev/null | sha256sum | cut -d' ' -f1)
+  PFX=$("$GIT" rev-parse --show-prefix 2>/dev/null)
+  BL=$("$GIT" show "$C:$PFX$PREDREL" 2>/dev/null | "$SHA" | cut -d' ' -f1)
   [ "$BL" = "$P" ] || prelude_stop FAIL prediction_record_differs_from_the_freeze_commit
-  [ -z "$(git status --porcelain --untracked-files=no -- . 2>/dev/null)" ] || prelude_stop FAIL tracked_files_differ_from_the_commit
+  [ -z "$("$GIT" status --porcelain --untracked-files=no -- . 2>/dev/null)" ] || prelude_stop FAIL tracked_files_differ_from_the_commit
   say "NOTE|freeze_commit=$C|prediction_blob_sha256=$BL|json=0"
 fi
 # ---- toolchain (row 017) and the pin-free binary of row 016
-RV=$(rustc +1.81 --version 2>&1); CV=$(cargo +1.81 --version 2>&1)
+RV=$("$RUSTC" --version 2>&1); CV=$("$CARGO" --version 2>&1)
 say "NOTE|rustc=$RV|cargo=$CV|json=0"
 [ "$RV" = "$RUSTC_PIN" ] && [ "$CV" = "$CARGO_PIN" ] || prelude_stop FAIL toolchain_differs_from_row_017
 if [ ! -f "$PINFREE" ]; then
-  (cd work/design/rs && env -u FLOORCERT_FREEZE_COMMIT -u FLOORCERT_PREDICTION_SHA256 cargo +1.81 build --release --locked -j1) > "$LOG/build_pinfree.txt" 2>&1 \
+  (cd work/design/rs && RUSTC="$RUSTC" "$CARGO" build --release --locked -j1) > "$LOG/build_pinfree.txt" 2>&1 \
     || prelude_stop UNRESOLVED pin_free_build_failed
 fi
 guard || integrity_stop
 "${EVAL[@]}" pins root="$ROOT" pred="$PPRED" tag=1 > "$LOG/pincheck_1.txt" 2>&1 || { tail -1 "$LOG/pincheck_1.txt"; prelude_stop FAIL pin_check_1_mismatch_row_010; }
 say "$(tail -1 "$LOG/pincheck_1.txt")"
 if [ "$MODE" = r9 ]; then
-  FB=work/run9/target/release/floorcert
-  (cd work/design/rs && CARGO_TARGET_DIR="$ROOT/work/run9/target" FLOORCERT_FREEZE_COMMIT="$C" FLOORCERT_PREDICTION_SHA256="$P" cargo +1.81 build --release --locked -j1) > "$LOG/build_frozen.txt" 2>&1 || prelude_stop UNRESOLVED frozen_build_failed
+  FB="$OUT/target/release/floorcert"
+  (cd work/design/rs && RUSTC="$RUSTC" CARGO_TARGET_DIR="$OUT/target" FLOORCERT_FREEZE_COMMIT="$C" FLOORCERT_PREDICTION_SHA256="$P" "$CARGO" build --release --locked -j1) > "$LOG/build_frozen.txt" 2>&1 || prelude_stop UNRESOLVED frozen_build_failed
   [ -f "$FB" ] || prelude_stop UNRESOLVED frozen_binary_absent
   guard || integrity_stop
   "${EVAL[@]}" pins root="$ROOT" pred="$PPRED" tag=2 > "$LOG/pincheck_2.txt" 2>&1 || { tail -1 "$LOG/pincheck_2.txt"; prelude_stop FAIL pin_check_2_mismatch_row_010; }
@@ -190,19 +293,25 @@ else
 fi
 # ---- the binary: one private copy, and that copy is the program every writer command runs
 XB="$PRIV/floorcert"
-cp "$FB" "$XB" && chmod a-w "$XB" || prelude_stop UNRESOLVED cannot_copy_the_binary_into_the_private_directory
-FBSHA=$(sha256sum "$XB" | cut -d' ' -f1)
+cp "$FB" "$XB" && chmod -R a-w "$PRIV" && mount -o remount,ro "$PRIV" 2>/dev/null   || prelude_stop UNRESOLVED cannot_copy_the_binary_into_the_private_directory
+FBSHA=$("$SHA" "$XB" | cut -d' ' -f1)
 [ "$MODE" = r9 ] || [ "$FBSHA" = "$(pinval 016)" ] || prelude_stop FAIL binary_copy_differs_from_row_016
 GF+=("$FB" "$XB"); GW+=("$FBSHA" "$FBSHA")
 guard || integrity_stop
 say "TOOL|private_copy=floorcert|source=$FB|sha256=$FBSHA|pin=$([ "$MODE" = r9 ] && echo frozen_build_of_row_009 || echo 016)|want=$FBSHA|json=0"
 say "NOTE|binary=$FB|binary_sha256=$FBSHA|executed_copy=PRIVATE_COPY/floorcert|private_directory=$PRIV|json=0"
 
-run_cmd() { # kind m0 attempt limit killafter logfile argv... ; the command runs in a process group of its own
-  local kind=$1 m=$2 att=$3 lim=$4 ka=$5 lf=$6 t0 t1 cpid pg n; shift 6
+run_cmd() { # kind m0 attempt limit killafter logfile prefix argv... ; prefix peak = under peak_rss.py from memory
+  local kind=$1 m=$2 att=$3 lim=$4 ka=$5 lf=$6 pre=$7 t0 t1 cpid pg n disp; shift 7
   guard || integrity_stop
   SEQ=$((SEQ+1)); t0=$(date +%s)
-  setsid timeout -k "$ka" "$lim" "$@" > "$lf" 2>&1 &
+  if [ "$pre" = peak ]; then
+    disp="$PEAKDISP $*"
+    "$SETSID" "$TIMEOUT" -k "$ka" "$lim" "${PEAKCMD[@]}" "$@" > "$lf" 2>&1 &
+  else
+    disp="$*"
+    "$SETSID" "$TIMEOUT" -k "$ka" "$lim" "$@" > "$lf" 2>&1 &
+  fi
   cpid=$!
   # setsid runs in place here (a background job of a script is never a group leader), so the new group id is $cpid
   pg=""; n=0
@@ -218,7 +327,9 @@ run_cmd() { # kind m0 attempt limit killafter logfile argv... ; the command runs
     # the time limit ended this command: end what is left of the process group this launcher started, and only that group
     kill -KILL -- "-$cpid" 2>/dev/null
   fi
-  say "INVOKE|seq=$SEQ|m0=$m|kind=$kind|attempt=$att|rc=$RC|limit_s=$lim|elapsed_s=$((t1-t0))|time_limit_hit=$TIMEDOUT|own_process_group=$([ "$pg" = "$cpid" ] && echo 1 || echo 0)|log=${lf#"$OUT"/}|log_sha256=$(sha256sum "$lf" | cut -d' ' -f1)|argv=$*|json=0"
+  # the tools once more after the call: the bytes that ran are the bytes that were hashed
+  guard || integrity_stop
+  say "INVOKE|seq=$SEQ|m0=$m|kind=$kind|attempt=$att|rc=$RC|limit_s=$lim|elapsed_s=$((t1-t0))|time_limit_hit=$TIMEDOUT|own_process_group=$([ "$pg" = "$cpid" ] && echo 1 || echo 0)|private_tools_after=HELD|log=${lf#"$OUT"/}|log_sha256=$("$SHA" "$lf" | cut -d' ' -f1)|argv=$disp|json=0"
 }
 classify() { # logfile -> CLS: refuse (a refusal line), timeout (the time limit), ok, crash (anything else, a verifier exception included)
   local pat='^REFUSE\||^VERDICT\|REFUSE|^GATE\|[^|]*\|FAIL|^GATE_REQUIRED\|REFUSE\|verifier sha256'
@@ -233,25 +344,25 @@ aside() { # kind m0 attempt : keep the remains of a failed attempt out of the ru
   else for x in "$OUT/RUN$2"/cert_*.txt; do [ -e "$x" ] && mv "$x" "$d/"; done; fi
   return 0
 }
-do_cmd() { # kind m0 idx logbase argv... ; one rerun after a crash while the run still has its rerun; none after a time limit
-  local kind=$1 m=$2 idx=$3 lb=$4; shift 4
+do_cmd() { # kind m0 idx logbase prefix argv... ; one rerun after a crash while the run still has its rerun; none after a time limit
+  local kind=$1 m=$2 idx=$3 lb=$4 pre=$5; shift 5
   local att=1 lf
   while :; do
     lf="$LOG/${lb}_a${att}.txt"
     if [ $att -eq 1 ] && has "$T_CRASH" "$idx:$kind"; then
       say "INJECTED|m0=$m|kind=$kind|what=crash_by_signal_in_place_of_the_first_attempt|json=0"
-      run_cmd "$kind" "$m" $att "$LIMIT" "$KILLAFTER" "$lf" python3 -I -B "$PEAK" bash -c 'kill -SEGV $$'
+      run_cmd "$kind" "$m" $att "$LIMIT" "$KILLAFTER" "$lf" peak "$BASHX" --noprofile --norc -c 'kill -SEGV $$'
     elif [ $att -eq 1 ] && [ "$kind" = gate ] && has "$T_VEXC" "$idx"; then
       say "INJECTED|m0=$m|kind=$kind|what=the_output_of_gate_required.sh_for_a_verifier_that_ended_with_an_exception_(exit_1,_no_verdict_line)_in_place_of_the_first_attempt|json=0"
-      run_cmd "$kind" "$m" $att "$LIMIT" "$KILLAFTER" "$lf" bash -c 'echo "Traceback (most recent call last):"; echo "GATE_REQUIRED|REFUSE|cert=INJECTED|cert_sha256=INJECTED|verifier_exit=1|header_rowhash=|verifier_rowhash=|"; exit 1'
+      run_cmd "$kind" "$m" $att "$LIMIT" "$KILLAFTER" "$lf" plain "$BASHX" --noprofile --norc -c 'echo "Traceback (most recent call last):"; echo "GATE_REQUIRED|REFUSE|cert=INJECTED|cert_sha256=INJECTED|verifier_exit=1|header_rowhash=|verifier_rowhash=|"; exit 1'
     elif has "$T_HANG" "$idx:$kind"; then
       say "INJECTED|m0=$m|kind=$kind|what=sleep_20_under_a_2_second_limit_in_place_of_the_command|json=0"
-      run_cmd "$kind" "$m" $att 2 "$KILLAFTER" "$lf" sleep 20
+      run_cmd "$kind" "$m" $att 2 "$KILLAFTER" "$lf" plain sleep 20
     elif has "$T_HARD" "$idx:$kind"; then
       say "INJECTED|m0=$m|kind=$kind|what=a_command_that_ignores_TERM_under_a_2_second_limit_with_KILL_3_seconds_later|json=0"
-      run_cmd "$kind" "$m" $att 2 3 "$lf" bash -c 'trap "" TERM; sleep 20'
+      run_cmd "$kind" "$m" $att 2 3 "$lf" plain "$BASHX" --noprofile --norc -c 'trap "" TERM; sleep 20'
     else
-      run_cmd "$kind" "$m" $att "$LIMIT" "$KILLAFTER" "$lf" "$@"
+      run_cmd "$kind" "$m" $att "$LIMIT" "$KILLAFTER" "$lf" "$pre" "$@"
     fi
     classify "$lf"
     if [ "$CLS" = crash ] && [ $RERUNS -gt 0 ]; then
@@ -273,15 +384,19 @@ opfail() { # m0 why ; a crash or a time limit: operational only while no complet
 step() { # idx m0 ; return 0 when a step file exists, 1 when the run stops without one
   local idx=$1 m=$2 RUN="$OUT/RUN$2" x b
   [ -e "$RUN" ] && { STOP=FAIL_run_directory_exists_before_rowhash_row_001; return 1; }
-  say "NOTE|before_m0=$m|binary_sha256=$(sha256sum "$XB" | cut -d' ' -f1)|json=0"
-  do_cmd rowhash "$m" "$idx" "m${m}_rowhash" python3 -I -B "$PEAK" "$XB" rowhash --m0 "$m" --threads 2 --dir "$RUN"
+  say "NOTE|before_m0=$m|binary_sha256=$("$SHA" "$XB" | cut -d' ' -f1)|json=0"
+  do_cmd rowhash "$m" "$idx" "m${m}_rowhash" peak "$XB" rowhash --m0 "$m" --threads 2 --dir "$RUN"
   case $CLS in
     refuse) stub "$m" FAIL rowhash_command_refused; return 0;;
     crash|timeout) aside rowhash "$m" final; opfail "$m" "rowhash_command_$CLS"; return 0;;
   esac
   if [ "$idx" -eq 3 ]; then # row 007 prerequisite
-    sha256sum "$RUN/core_keys_m$m.bin" > "$LOG/m${m}_keysha.txt" 2>&1
-    do_cmd rowsonly "$m" "$idx" "m${m}_rowsonly" python3 -I -B "$VERIFIER" --rows-only "$RUN/core_keys_m$m.bin" "$m"
+    "$SHA" "$RUN/core_keys_m$m.bin" > "$LOG/m${m}_keysha.txt" 2>&1
+    do_cmd rowsonly "$m" "$idx" "m${m}_rowsonly" plain "$PY" -I -B "$VERIFIER" --rows-only "$RUN/core_keys_m$m.bin" "$m"
+    # row 123: the memory limit first, over the rowhash and the rows-only verifier, before the prerequisite outcome is read
+    guard || integrity_stop
+    x=$("${EVAL[@]}" limit out="$OUT" m0="$m" mode="$MODE" "${LIMARG[@]}"); b=$?; say "$x"
+    if [ $b -ne 0 ]; then [ -f "$LOG/m${m}_step.hbp" ] || stub "$m" FAIL memory_limit_check_gave_no_result; return 0; fi
     [ "$CLS" = ok ] || { STOP="PREREQUISITE_NOT_MET_row_007_verifier_$CLS"; return 1; }
     guard || integrity_stop
     x=$("${EVAL[@]}" prereq out="$OUT" pred="$PPRED" m0="$m" mode="$MODE" "${LIMARG[@]}"); b=$?; say "$x|json=0"
@@ -290,7 +405,7 @@ step() { # idx m0 ; return 0 when a step file exists, 1 when the run stops witho
   ls -1 "$RUN" > "$LOG/m${m}_dir_after_rowhash.txt"
   local extra=()
   [ "$T_PLANT" != "" ] && [ "${T_PLANT%%:*}" = "$idx" ] && { extra=(--plant all --ub "${T_PLANT#*:}"); say "INJECTED|m0=$m|kind=cert|what=plant_all_files_written_beside_the_honest_certificate|json=0"; }
-  do_cmd cert "$m" "$idx" "m${m}_cert" python3 -I -B "$PEAK" "$XB" cert --m0 "$m" --r "$R" --f "$FSPEC" --write-cert --threads 2 --dir "$RUN" "${FREEZE_ARGS[@]}" "${extra[@]}"
+  do_cmd cert "$m" "$idx" "m${m}_cert" peak "$XB" cert --m0 "$m" --r "$R" --f "$FSPEC" --write-cert --threads 2 --dir "$RUN" "${FREEZE_ARGS[@]}" "${extra[@]}"
   case $CLS in
     refuse) stub "$m" FAIL cert_command_refused; return 0;;
     crash|timeout) aside cert "$m" final; opfail "$m" "cert_command_$CLS"; return 0;;
@@ -298,12 +413,14 @@ step() { # idx m0 ; return 0 when a step file exists, 1 when the run stops witho
   for x in "$RUN"/cert_*.txt; do
     [ -e "$x" ] || continue
     b=$(basename "$x")
-    do_cmd gate "$m" "$idx" "m${m}_gate_$b" bash "$GATE" "$x" "${FREEZE_ARGS[@]}"
-    # a verifier that ended without a verdict (exception, kill) or ran into the time limit: operational, rows 006 (b) and 007 (b)
+    do_cmd gate "$m" "$idx" "m${m}_gate_$b" plain "$BASHX" --noprofile --norc "$GATE" "$x" "${FREEZE_ARGS[@]}"
+    # a verifier that ended without a verdict (exception, kill) or ran into the time limit: operational, rows 006 (b) and
+    # 007 (b); the certificates of this step are set aside and none of them counts (row 126)
     case $CLS in crash|timeout) aside gate "$m" final; opfail "$m" "verifier_$CLS"; return 0;; esac
   done
   guard || integrity_stop
-  "${EVAL[@]}" step root="$ROOT" tools="$PRIV" pred="$PPRED" out="$OUT" m0="$m" r="$R" fspec="$FSPEC" mode="$MODE" census="$CENSUS" commit="$C" psha="$P" fbsha="$FBSHA" "${LIMARG[@]}" | tee -a "$LOG/run.log"
+  "${EVAL[@]}" step root="$ROOT" tools="$PRIV" pred="$PPRED" out="$OUT" m0="$m" r="$R" fspec="$FSPEC" mode="$MODE" census="$CENSUS" commit="$C" psha="$P" fbsha="$FBSHA" \
+    py="$PY" bash="$BASHX" peaksha="$PEAKSHA" evsha="$EVSHA" drvsha="$DRVSHA" "${LIMARG[@]}" | tee -a "$LOG/run.log"
   [ -f "$LOG/m${m}_step.hbp" ] || { STOP=FAIL_evaluator_wrote_no_step_file_m0_$m; return 1; }
   return 0
 }
@@ -321,10 +438,32 @@ done
 # ---- closing: every pinned file and every private copy once more here, and every PIN row and the private copies
 # again inside the evaluator before it prints
 guard || integrity_stop
-for i in "${!TDST[@]}"; do
-  say "TOOL_CLOSING|private_copy=${TDST[$i]#"$PRIV"/}|sha256=$(sha256sum "${TDST[$i]}" | cut -d' ' -f1)|want=${TWANT[$i]}|json=0"
+for i in 0 1 2; do
+  say "TOOL_CLOSING|private_copy=${TDST[$i]#"$PRIV"/}|sha256=$("$SHA" "${TDST[$i]}" | cut -d' ' -f1)|want=${MWANT[$i]}|json=0"
 done
-"${EVAL[@]}" final root="$ROOT" tools="$PRIV" out="$OUT" pred="$PPRED" steps="$RUNSTEPS" g0="$G0" allowed="${#STEPS[@]}" mode="$MODE" r="$R" stop="$STOP" \
-  commit="$C" fbsha="$FBSHA" drvsha="$DRVSHA" receipt="$OUT/FLOOR-RUN-RECEIPT.hbp"
-exit $?
+say "TOOL_CLOSING|in_memory=peak_rss.py|sha256=$(msha "${MTXT[3]}")|want=${MWANT[3]}|json=0"
+say "TOOL_CLOSING|in_memory=floor_eval.py|sha256=$(msha "${MTXT[4]}")|want=${MWANT[4]}|json=0"
+say "TOOL_CLOSING|in_memory=run_floor.sh|sha256=$(msha "$BASH_EXECUTION_STRING")|want=$(pinval 114)|json=0"
+FOUT=$("${EVAL[@]}" final root="$ROOT" tools="$PRIV" out="$OUT" pred="$PPRED" steps="$RUNSTEPS" g0="$G0" allowed="${#STEPS[@]}" mode="$MODE" r="$R" stop="$STOP" \
+  commit="$C" fbsha="$FBSHA" drvsha="$DRVSHA" evsha="$EVSHA" peaksha="$PEAKSHA" predrel="$PREDREL" receipt="$OUT/FLOOR-RUN-RECEIPT.hbp")
+ERC=$?
+guard || integrity_stop
+# ---- the final line: printed here from the captured output of the evaluator that ran from memory; the exit code
+# is read off that line and must agree with the evaluator's own
+FIN=$(printf '%s\n' "$FOUT" | grep '^FLOOR_RUN|')
+printf '%s\n' "$FOUT" | grep -v '^FLOOR_RUN|'
+case "$FIN" in
+  *$'\n'*) XC=bad;;
+  "FLOOR_RUN|CERTIFICATE=PASS|PREDICTION=CONFIRMED|DECISION=ABOVE|"*) XC=0;;
+  "FLOOR_RUN|CERTIFICATE=PASS|PREDICTION=FALSIFIED|DECISION=BELOW|"*) XC=3;;
+  "FLOOR_RUN|CERTIFICATE=PASS|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|"*) XC=2;;
+  "FLOOR_RUN|CERTIFICATE=FAIL|$NOBOUND|"*) XC=1;;
+  *) XC=bad;;
+esac
+if [ "$XC" = bad ] || [ "$XC" != "$ERC" ]; then
+  echo "FLOOR_RUN|CERTIFICATE=FAIL|$NOBOUND|certificate_reason=REQUIRED_OR_INTEGRITY_FAILURE_ROW_008|stage=closing|reason=evaluator_output_and_exit_code_${ERC}_do_not_form_one_final_line|r=$R|steps_run=${RUNSTEPS:-none}|accepted_certificates=0|prediction_sha256=$P|binary_sha256=$FBSHA|HASHES=$(hashes_of_out)|json=0"
+  exit 1
+fi
+printf '%s\n' "$FIN"
+exit "$XC"
 }

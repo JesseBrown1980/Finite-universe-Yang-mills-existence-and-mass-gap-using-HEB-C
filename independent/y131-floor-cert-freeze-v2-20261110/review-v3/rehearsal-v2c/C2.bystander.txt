@@ -1,0 +1,1 @@
+BYSTANDER|name=floorcert|what=a_copy_of_sleep_named_floorcert_started_outside_the_launcher|alive_before=1|alive_after=1|leftover_sleep_20=0|json=0

@@ -290,3 +290,24 @@ VERSION 2 (2026-11-10, local build seat, Claude Opus 5.5; owner-relayed reviewer
 - Record: adf784483eb89746c95ca17ea0589888da41d2bd2b7f221915d2b2332da23ec7, 122 rows. ROWCMP_END|v1_rows=109|same_bytes=98|changed=11|changed_ids=001_003_006_007_008_009_010_013_016_020_070|new_rows=13|new_ids=110_111_112_113_114_115_116_117_118_119_120_121_122|predict_rows=16|predict_same_bytes=15|predict_value_met_if_not_met_if_falsifier_same=16|json=0
 - final/tools/lint_result.txt holds the real lint result on the version 2 record, with the error count and the reason of each class.
 - Nothing was computed at r = 9 or at any r within 1 of 9. No push, no pull request. The r = 9 run waits for the review of this version 2 freeze.
+- SECOND CORRECTION ROUND (one commit on top of 3b91d1a047d7485693c754ece8c7c18f43fbf326; final-head verification HOLD, review-v3/; record rows 123-130).
+  The record hash, the launcher hash, the evaluator hash and the row count in the lines above are those of 3b91d1a0.
+  Found by the verifier seat on the launcher of 3b91d1a0, each giving a CERTIFICATE=PASS line with no genuine verification: T1 a planted python3 ahead of the
+  system directories in PATH; T2 BASH_ENV; T3 a swap of the private gate driver copy between hash check and start; T4 the same for the evaluator copy.
+  Launcher: stage 1 refuses BASH_ENV, ENV, LD_*, PYTHON* and exported functions and starts its own bytes under env -i (PATH /usr/bin:/bin, LANG C) in a private
+  mount namespace; every program is resolved once to an absolute path and logged with its sha256 (TOOLPATH lines); cargo and rustc are the 1.81 toolchain
+  binaries by absolute path; each tool is read once, hashed and run from those bytes (peak_rss.py and floor_eval.py by python3 -I -B -c; gate_required.sh,
+  cert_gate.py and indep_verify.py from a read-only tmpfs inside the namespace); a guard hashes them before and after every command; the launcher prints the
+  final line from the evaluator's captured output. TMPDIR is a tmpfs in the run directory; the run directory is absolute; --test-out is made canonical and
+  refused inside the freeze folder or the repository; the r9 mode refuses a checkout with dubious ownership or file-mode differences.
+  2 GiB (reviewer ruling, strict reading): every completed REQUIRED process, including the rows-only prerequisite verifier and the m0 13 rowhash of row 007,
+  at or over 2097152 kB gives CERTIFICATE=FAIL, RESOURCE_LIMIT_EXCEEDED, checked before the prerequisite outcome is read (row 123 beside row 122).
+  Exit codes: 0 PASS+CONFIRMED, 3 PASS+FALSIFIED, 2 PASS+UNRESOLVED, 1 CERTIFICATE=FAIL, 4 NOT_STARTED (row 128 beside row 116).
+  Kept outside the commit: the race program of the swap attacks (race.py, sha256 8e460e45e434d81f9663387e9a13a60594d0cdd5d869296ea40ed4478b790752) imports ctypes, an import the no-float gate lists; it stays out of the commit and is named by that hash in row 129.
+  A verifier crash on a later certificate of a step sets the whole step aside; none of its certificates is counted (row 126).
+  Disclosed residual (row 127): one run as root on one machine; a concurrent root process is outside what the launcher can exclude. Acceptance (row 125): only
+  after a second environment reruns gate_required.sh on every certificate of the receipt's RECHECK rows from a clean checkout and recomputes the verdict.
+  Launcher 8d1f01cfb85f19ce596baa63e245ab96298fe1c8c74db2afebaff27d387c9059, evaluator c237a54a0d1e85ee4d22230d532a86ad336535cd3feeb1087da6e4804c6e4278.
+  main.rs, the binary hash, gate_required.sh, cert_gate.py, indep_verify.py, peak_rss.py and the 16 PREDICT rows are unchanged.
+- Record after the second correction round: 41ced0bb2ad9b4078153f4264c46ba6c767994ecbd774c47efd6b20188bdefdc, 130 rows. ROWCMP_END|3b91d1a0_rows=122|same_bytes=120|changed=2|changed_ids=114_115|new_rows=8|new_ids=123_124_125_126_127_128_129_130|predict_rows=16|predict_same_bytes=16|header_lines_3b91d1a0=11|header_lines_now=12|header_lines_same=11|json=0
+- Nothing was computed at r = 9 or at any r within 1 of 9. No push, no pull request. The r = 9 run stays on HOLD.

@@ -1,0 +1,1 @@
+ATTACK|case=T2b|launcher_sha16=8d1f01cfb85f19ce|fake_calls=0|what=T2b_stage_2_entered_directly_with_BASH_ENV_set|json=0

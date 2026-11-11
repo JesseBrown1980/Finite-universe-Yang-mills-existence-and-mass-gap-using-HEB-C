@@ -1,0 +1,1 @@
+ATTACK|case=XT1|launcher_sha16=123aee3576084a06|fake_calls=2|what=T1_a_program_named_python3_in_HOME/.cargo/bin_that_replays_a_verifier_log|json=0

@@ -42,6 +42,35 @@ read-only copies of the gate driver, the verifier, the peak wrapper and the eval
 with the record of a verifier invocation that exited 0 (row 122). `review-v2/rehearsal-v2b/` holds the swap of the gate
 driver as found against the first version 2 commit (X1) and its rejection by this launcher (Y1, Y1b, P1).
 
+Second correction round (same day, one commit on top of `3b91d1a047d7485693c754ece8c7c18f43fbf326`): the final-head verification of
+that commit returned HOLD (`review-v3/VERIFY-FLOOR-FREEZE-V2-FINAL.md`). The verifier seat obtained CERTIFICATE=PASS lines
+from the launcher of that commit with no genuine verification, four ways: a program named `python3` placed ahead of the
+system directories in PATH (T1), the variable BASH_ENV (T2), and a swap of the private copy of the gate driver (T3) or of
+the evaluator (T4) between its hash check and its start. The launcher and the evaluator are changed; the Rust source, the
+binary hash, `gate_required.sh`, `cert_gate.py`, `indep_verify.py`, `peak_rss.py` and the 16 PREDICT rows are
+byte-identical (`review-v3/ROW-COMPARE-3B91D1A0.hbp`). The record now has 130 rows and sha256
+`41ced0bb2ad9b4078153f4264c46ba6c767994ecbd774c47efd6b20188bdefdc`; the launcher is
+`8d1f01cfb85f19ce596baa63e245ab96298fe1c8c74db2afebaff27d387c9059` and the evaluator
+`c237a54a0d1e85ee4d22230d532a86ad336535cd3feeb1087da6e4804c6e4278`. The record hash, the launcher hash, the evaluator hash and the
+row count given earlier in this notice are those of `3b91d1a0`.
+One file of the verifier material stays out of the commit: the race program of the swap attacks (race.py, sha256 8e460e45e434d81f9663387e9a13a60594d0cdd5d869296ea40ed4478b790752) imports ctypes, an import the no-float gate lists; it stays out of the commit and is named by that hash in row 129.
+
+What changed (record rows 123-130): the launcher starts itself again under `env -i` with PATH `/usr/bin:/bin` in a mount
+namespace of its own, resolves every program once to an absolute path and logs it with its sha256, reads each tool once,
+hashes those bytes and runs those bytes (the peak wrapper and the evaluator from memory, the gate driver and the verifier
+from a read-only tmpfs inside the namespace), and prints the final line itself from the evaluator's captured output
+(row 124). The 2 GiB limit applies to every completed REQUIRED process including the rows-only prerequisite verifier of
+row 007, by the reviewer's ruling: at or over 2,097,152 KiB the run ends CERTIFICATE=FAIL, RESOURCE_LIMIT_EXCEEDED
+(row 123). Exit codes: 0 PASS and CONFIRMED, 3 PASS and FALSIFIED, 2 PASS and UNRESOLVED, 1 every CERTIFICATE=FAIL of a
+started run, 4 NOT_STARTED (row 128).
+
+Remaining risk, disclosed (row 127): the r = 9 run is one run as root on one machine. A concurrent root process on that
+machine is outside what a launcher can exclude: it can act before the environment is cleared, change a system program or
+library, enter the launcher's mount namespace, or exchange a file and restore it between two hash checks. The control is
+row 125: a CERTIFICATE=PASS line is the launcher's own statement, and the result is accepted only after a second,
+independent environment has rerun `gate_required.sh` on every certificate listed in the RECHECK rows of the receipt, from
+a clean checkout of the freeze commit, and recomputed the verdict fields. The receipt prints the exact command.
+
 The text below this notice is the version 1 note, unchanged. Where it gives the version 1 record hash, the version 1
 hashes of `main.rs`, the binary, `gate_required.sh` or `r_scan.sh`, the absolute scratch paths, or the row count 109, the
 version 2 record and this notice give the current values. `work/design/NOTE.md` and `work/map/MAP.md` are the pinned

@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
-# floor_eval.py -- evaluator used by final/tools/run_floor.sh (version 2 freeze, correction round).
+# floor_eval.py -- evaluator used by final/tools/run_floor.sh (version 2 freeze, second correction round).
 # Integer and exact-rational arithmetic only. Reads logs and certificates, never computes a spectrum.
-# Subcommands: rcheck, pins, prereq, step, decide, final.  Arguments are key=value words.
+# Subcommands: rcheck, pins, limit, prereq, step, opfail, decide, final.  Arguments are key=value words.
 # The final line separates three things: CERTIFICATE (PASS only when every REQUIRED gate, the verifier and the
 # closing pin check held and at least one certificate was accepted), DECISION (ABOVE, BELOW or UNRESOLVED, from
 # accepted bounds only) and PREDICTION (CONFIRMED for ABOVE, FALSIFIED for BELOW, UNRESOLVED otherwise).
-# The launcher runs this file from a private directory that also holds its copies of gate_required.sh, cert_gate.py,
-# indep_verify.py and peak_rss.py (argument tools=DIR); step and final hash those copies against rows 020 019 021
-# 103 115, and step accepts a certificate only with the launcher's INVOKE record of that verifier call (exit 0, log
-# hash, argv naming the private gate driver). A completed process at or over the memory limit of row 011 gives
-# status FAIL with RESOURCE_LIMIT_EXCEEDED; subcommand opfail applies that before a crash or a time limit may count
-# as an operational failure. limkb=N lowers the limit in test mode only.
+# The launcher reads this file once, hashes those bytes against row 115 and runs them from memory (python3 -I -B -c);
+# it does the same with peak_rss.py (row 103) and with its own text (row 114) and hands the three hashes over as
+# evsha= peaksha= drvsha=. Its copies of gate_required.sh, cert_gate.py and indep_verify.py sit in a private tmpfs
+# (argument tools=DIR). step and final compare the three hashes with rows 115 103 114 and hash the three copies
+# against rows 020 019 021; step accepts a certificate only with the launcher's INVOKE record of that verifier call
+# (exit 0, log hash, tools at their hashes after the call, argv naming the private gate driver).
+# A completed process at or over the memory limit of row 011 gives status FAIL with RESOURCE_LIMIT_EXCEEDED and no
+# fallback (rows 122 123): subcommand limit applies that at the third step before the row 007 prerequisite is read,
+# subcommand opfail before a crash or a time limit may count as an operational failure, and step to every command
+# of a step. limkb=N lowers the limit in test mode only.
+# Exit of final: 0 CERTIFICATE=PASS with ABOVE, 3 PASS with BELOW, 2 PASS with UNRESOLVED, 1 every CERTIFICATE=FAIL.
 import sys
 import re
 import os
@@ -37,8 +42,8 @@ NEED = [("043", ["1608786", "34920", "9635688"]), ("047", ["725464", "1610000"])
         ("073", ["94070673/1000000"]), ("065", ["94070936/1000000"]), ("007", ["89301"])]
 WGATES = ["s3_link_table", "local_delta_vs_full_M", "link_multiset_table", "symmetry_image_rows",
           "core_census_vs_closed_form", "class_detailed_balance"]
-TOOLS = [("020", "gate_required.sh"), ("019", "py/cert_gate.py"), ("021", "py/indep_verify.py"),
-         ("103", "peak_rss.py"), ("115", "floor_eval.py")]
+TOOLS = [("020", "gate_required.sh"), ("019", "py/cert_gate.py"), ("021", "py/indep_verify.py")]
+MEMTOOLS = [("103", "peaksha", "peak_rss.py"), ("115", "evsha", "floor_eval.py"), ("114", "drvsha", "run_floor.sh")]
 RLE = "RESOURCE_LIMIT_EXCEEDED"
 VGATES = ["r_policy", "class_bijection", "keys_hash", "positivity_f", "positivity_v", "tail_cap_claim",
           "t_below_tail_cap", "row_check", "row_hash"]
@@ -175,21 +180,24 @@ def args(av):
     return d
 
 
-def tools_check(R, tools):
-    """The private copies the launcher executes, hashed against the PIN rows; this file must be one of them."""
+def tools_check(R, a):
+    """The private copies the launcher executes, hashed against the PIN rows, and the hashes of the bytes the
+    launcher runs from memory (the peak wrapper, this evaluator, the launcher itself) against theirs."""
     bad = []
     for rid, rel in TOOLS:
-        p = os.path.join(tools, rel)
+        p = os.path.join(a["tools"], rel)
         if rid not in R or not os.path.isfile(p) or sha(p) != R[rid][1].get("value"):
             bad.append("row_%s:private_copy_%s_differs_from_pin" % (rid, rel.replace("/", "_")))
-    if os.path.realpath(sys.argv[0]) != os.path.realpath(os.path.join(tools, "floor_eval.py")):
-        bad.append("row_115:evaluator_runs_outside_the_private_directory")
+    for rid, key, nm in MEMTOOLS:
+        if rid not in R or len(a.get(key, "")) != 64 or a.get(key) != R[rid][1].get("value"):
+            bad.append("row_%s:in_memory_%s_differs_from_pin" % (rid, nm))
     return bad
 
 
 def invocation(lg, m, kind, lb, want_argv):
     """True when the last INVOKE line of run.log for this log names exit 0, no time limit, a process group of its
-    own, the hash of the log as it is read here and an argv that starts with want_argv."""
+    own, the tools at their hashes after the call, the hash of the log as it is read here and an argv that starts
+    with want_argv."""
     hit = []
     for x in pick(lines(lg + "/run.log"), "INVOKE|"):
         f = fld(x)
@@ -201,7 +209,7 @@ def invocation(lg, m, kind, lb, want_argv):
     f, x = hit[-1]
     am = re.search(r"\|argv=(.*)\|json=0$", x)
     return (f.get("rc") == "0" and f.get("time_limit_hit") == "0" and f.get("own_process_group") == "1"
-            and f.get("log_sha256") == sha(final) and am is not None
+            and f.get("private_tools_after") == "HELD" and f.get("log_sha256") == sha(final) and am is not None
             and (am.group(1) == want_argv or am.group(1).startswith(want_argv + " ")))
 
 
@@ -346,10 +354,11 @@ def cmd_step(a):
             bad.append("row_%s:file_on_disk_differs_from_pin" % rid)
     # the copies that were executed (private directory of the launcher), and the launcher's record of each command
     tools = a["tools"]
-    bad.extend(tools_check(R, tools))
-    if not invocation(lg, m, "rowhash", "m%d_rowhash" % m, "python3 -I -B %s/peak_rss.py %s/floorcert rowhash --m0 %d" % (tools, tools, m)):
+    bad.extend(tools_check(R, a))
+    pkw = "%s -I -B -c MEMORY:peak_rss.py@%s %s/floorcert" % (a["py"], a["peaksha"], tools)
+    if not invocation(lg, m, "rowhash", "m%d_rowhash" % m, "%s rowhash --m0 %d" % (pkw, m)):
         bad.append("row_008:no_valid_invocation_record_rowhash")
-    if not invocation(lg, m, "cert", "m%d_cert" % m, "python3 -I -B %s/peak_rss.py %s/floorcert cert --m0 %d" % (tools, tools, m)):
+    if not invocation(lg, m, "cert", "m%d_cert" % m, "%s cert --m0 %d" % (pkw, m)):
         bad.append("row_008:no_valid_invocation_record_cert")
     nrec = 0
     crows = []
@@ -471,7 +480,7 @@ def cmd_step(a):
                 row["gate"] = "PASS"
                 gf = fld(gr[0])
                 # an actual verifier invocation: the launcher's INVOKE record with exit 0 for exactly this log
-                if invocation(lg, m, "gate", "m%d_gate_%s" % (m, base), "bash %s/gate_required.sh %s" % (tools, path)):
+                if invocation(lg, m, "gate", "m%d_gate_%s" % (m, base), "%s --noprofile --norc %s/gate_required.sh %s" % (a["bash"], tools, path)):
                     nrec += 1
                 else:
                     cb.append("row_053:no_valid_verification_record")
@@ -552,12 +561,9 @@ def cmd_step(a):
 
 
 # ------------------------------------------------------------------ opfail: a crash or a time limit inside a step
-def cmd_opfail(a):
-    """A command of this step crashed or ran into the time limit. Fallback is open only while no REQUIRED gate has
-    failed: a process of this step that completed (exit 0, or a verifier that printed its verdict) at or over the
-    memory limit makes the step FAIL with RESOURCE_LIMIT_EXCEEDED, and the run stops."""
-    m = int(a["m0"])
-    lg = a["out"] + "/log"
+def limit_scan(lg, m):
+    """Every completed measured process of this step (a writer command with PEAK_RSS exit 0, a verifier that printed
+    its verdict) at or over the memory limit, as a list of row 011 words."""
     bad = []
     for nm in sorted(os.listdir(lg)):
         if not re.match(r"^m%d_(rowhash|cert|rowsonly|gate_.*)\.txt$" % m, nm) or re.search(r"_a[12]\.txt$", nm):
@@ -573,6 +579,32 @@ def cmd_opfail(a):
                 mm = re.match(r"^MEM\|([0-9]+)kB", x)
                 if mm and int(mm.group(1)) >= LIM_KB:
                     bad.append("row_011:%s:%s_MEM_%skB_limit_%dkB" % (RLE, what, mm.group(1), LIM_KB))
+    return bad
+
+
+def cmd_limit(a):
+    """Third step, after the rowhash and the rows-only verifier and before the row 007 prerequisite is read: a
+    completed process at or over the limit makes the step FAIL with RESOURCE_LIMIT_EXCEEDED (row 123)."""
+    m = int(a["m0"])
+    lg = a["out"] + "/log"
+    bad = limit_scan(lg, m)
+    if not bad:
+        print("LIMIT|m0=%d|status=HELD|limit_kB=%d|checked=completed_rowhash_and_rows_only_verifier_before_the_row_007_prerequisite|json=0" % (m, LIM_KB))
+        sys.exit(0)
+    st = "STEP|m0=%d|status=FAIL|accepted=0|certificates=0|resource_limit=EXCEEDED|limit_kB=%d|checked=before_the_row_007_prerequisite_is_read|fallback=PROHIBITED|bad=%s|json=0" % (m, LIM_KB, ";".join(bad))
+    with open(lg + "/m%d_step.hbp" % m, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(st + "\n")
+    print(st)
+    sys.exit(1)
+
+
+def cmd_opfail(a):
+    """A command of this step crashed or ran into the time limit. Fallback is open only while no REQUIRED gate has
+    failed: a process of this step that completed (exit 0, or a verifier that printed its verdict) at or over the
+    memory limit makes the step FAIL with RESOURCE_LIMIT_EXCEEDED, and the run stops."""
+    m = int(a["m0"])
+    lg = a["out"] + "/log"
+    bad = limit_scan(lg, m)
     if bad:
         st = "STEP|m0=%d|status=FAIL|accepted=0|certificates=0|resource_limit=EXCEEDED|limit_kB=%d|operational_event=%s|fallback=PROHIBITED|bad=%s|json=0" % (m, LIM_KB, a["why"], ";".join(bad))
     else:
@@ -638,7 +670,7 @@ def decide(S, g0, allowed):
     n = len(S)
     rule = "row_006" if n == 1 else ("row_007" if n == 2 else "row_007_after_13_stop")
     if any(s["status"] == "FAIL" and s["res"] == "EXCEEDED" for s in S):
-        return ("FAIL", "STOP", "row_011_resource_limit_exceeded_fallback_prohibited_row_122", G, U, Uv)
+        return ("FAIL", "STOP", "row_011_resource_limit_exceeded_fallback_prohibited_rows_122_123", G, U, Uv)
     if any(s["status"] == "FAIL" for s in S):
         return ("FAIL", "STOP", "row_008", G, U, Uv)
     if not ok:
@@ -734,7 +766,7 @@ def cmd_final(a):
         fh.write("\n".join(po) + "\n")
     if pbad:
         stop = "FAIL_closing_pin_check_%d_rows_differ_row_010" % pbad
-    tb = tools_check(R, a["tools"])
+    tb = tools_check(R, a)
     if tb:
         stop = "FAIL_private_tool_copies_" + "_".join(sorted(set(y.split(":")[0] for y in tb)))
     if S:
@@ -770,9 +802,9 @@ def cmd_final(a):
     files = []
     for dp, dn, fn in os.walk(out):
         dn.sort()
-        if os.path.basename(dp) == "target" or "/target/" in dp + "/":
-            dn[:] = []
-            continue
+        if dp == out:
+            # the build directory of the frozen binary and the launcher's tmpfs mount point stay outside the listing
+            dn[:] = [d for d in dn if d not in ("target", "tmp")]
         for n in sorted(fn):
             p = os.path.join(dp, n)
             rel = os.path.relpath(p, out)
@@ -787,10 +819,10 @@ def cmd_final(a):
     key = ",".join("%s@%s" % (f[0], f[1]) for f in files)
     fin = ("FLOOR_RUN|CERTIFICATE=%s|PREDICTION=%s|DECISION=%s|GAMMA=%s|UPPER_BOUND=%s|certificate_reason=%s|prediction_tested=lambda_min(QHQ)_GE_g0|decision_rule=G_max_GE_g0_ABOVE;U_min_LT_g0_BELOW;G_max_LT_g0_LE_U_min_UNRESOLVED|state_row_012=%s|scope=%s|r=%s|g0=%s|steps_run=%s|steps_ok=%s|operational_failures=%s|accepted_certificates=%d|stop=%s|rule=%s|closing_pin_check=rows_%d_bad_%d|private_tools_check=files_%d_bad_%d|predict_met=%s|predict_not_met=%s|predict_other=%s|freeze_commit=%s|prediction_sha256=%s|binary_sha256=%s|HASHES=%s|json=0"
            % (cert, pred, dec, rs(G), rs(U), why, st, scope, a["r"], rs(g0), ",".join(str(s["m"]) for s in S) or "none",
-              ",".join(str(s["m"]) for s in S if s["status"] == "OK") or "none", ",".join(opf) or "none", acc, stop, rule, pn, pbad, len(TOOLS), len(tb),
+              ",".join(str(s["m"]) for s in S if s["status"] == "OK") or "none", ",".join(opf) or "none", acc, stop, rule, pn, pbad, len(TOOLS) + len(MEMTOOLS), len(tb),
               met, notmet, other, a.get("commit", "NONE"), sha(a["pred"]), a.get("fbsha", "NONE"), key))
     o = ["# floor run receipt written by final/tools/floor_eval.py; pipe rows; json=0",
-         "RECEIPT|scope=%s|r=%s|mode=%s|driver_sha256=%s|evaluator_sha256=%s|json=0" % (scope, a["r"], a["mode"], a.get("drvsha", "NONE"), sha(sys.argv[0]))]
+         "RECEIPT|scope=%s|r=%s|mode=%s|driver_sha256=%s|evaluator_sha256=%s|json=0" % (scope, a["r"], a["mode"], a.get("drvsha", "NONE"), a.get("evsha", "NONE"))]
     for s in S:
         o.extend((re.sub(r"\|accepted=[0-9]+\|", "|accepted=0_ROW_008|", x) if failed else x) for x in s["raw"])
         o.append("ACCEPTED|m0=%d|count=%d|json=0" % (s["m"], 0 if failed or s["status"] != "OK" else sum(1 for c in s["certs"] if c.get("accepted") == "1")))
@@ -801,25 +833,42 @@ def cmd_final(a):
         o.append("PREDICT_SCORE|row=%s|value=%s|outcome=%s|scope=%s|json=0" % (k, R[k][1].get("value", ""), P[k], scope))
     for f in files:
         o.append("FILE|path=%s|sha256=%s|bytes=%d|json=0" % f)
+    # what a second environment needs to recheck this result without relying on the line below (row 125)
+    o.append("VERDICT_FIELDS|CERTIFICATE=%s|PREDICTION=%s|DECISION=%s|GAMMA=%s|UPPER_BOUND=%s|g0=%s|accepted_certificates=%d|json=0"
+             % (cert, pred, dec, rs(G), rs(U), rs(g0), acc))
+    if cert == "PASS":
+        extra = ""
+        if a["mode"] == "r9":
+            extra = " --freeze-commit %s --prediction %s --prediction-sha256 %s" % (a.get("commit", "NONE"), a.get("predrel", "final/" + PRED_NAME), sha(a["pred"]))
+        o.append("RECHECK_RULE|row=125|accepted_only_after=a_second_independent_environment_ran_the_command_on_every_RECHECK_row_and_recomputed_the_verdict_fields|where=a_clean_checkout_of_the_freeze_commit,_inside_the_freeze_folder|command=bash work/design/gate_required.sh CERTIFICATE%s|gate_driver_sha256=%s|verifier_sha256=%s|expect=last_line_GATE_REQUIRED_PASS_with_the_cert_sha256_rowhash_and_verifier_sha256_of_the_RECHECK_row,_and_VERDICT_PASS_with_the_gamma_of_the_RECHECK_row|then=GAMMA_is_the_largest_gamma;_UPPER_BOUND_is_the_smallest_ritz_value_of_the_RECHECK_rows_plus_1/1000000;_DECISION_by_the_decision_rule_field_of_the_final_line|json=0"
+                 % (extra, R["020"][1]["value"], R["019"][1]["value"]))
+        for s in S:
+            if s["status"] != "OK":
+                continue
+            rhs = fld(s["line"]).get("rowhash", "NONE")
+            for c in s["certs"]:
+                if c.get("accepted") == "1":
+                    o.append("RECHECK|m0=%d|certificate=RUN%d/%s|sha256=%s|gamma=%s|ritz_writer=%s|ritz_verifier=%s|rowhash=%s|verifier_sha256=%s|json=0"
+                             % (s["m"], s["m"], c.get("file"), c.get("sha256"), c.get("gamma"), c.get("ritz_writer"), c.get("ritz_verifier"), rhs, R["019"][1]["value"]))
     o.append(fin)
     with open(a["receipt"], "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(o) + "\n")
     with open(a["receipt"] + ".sha256", "w", encoding="utf-8", newline="\n") as fh:
         fh.write("%s  %s\n" % (sha(a["receipt"]), os.path.basename(a["receipt"])))
     print(fin)
-    if failed:
+    if cert != "PASS":
         sys.exit(1)
-    if cert == "PASS" and dec == "ABOVE":
+    if dec == "ABOVE":
         sys.exit(0)
-    if cert == "PASS" and dec == "BELOW":
+    if dec == "BELOW":
         sys.exit(3)
     sys.exit(2)
 
 
-CMDS = {"rcheck": cmd_rcheck, "pins": cmd_pins, "prereq": cmd_prereq, "step": cmd_step, "opfail": cmd_opfail,
-        "decide": cmd_decide, "final": cmd_final}
+CMDS = {"rcheck": cmd_rcheck, "pins": cmd_pins, "limit": cmd_limit, "prereq": cmd_prereq, "step": cmd_step,
+        "opfail": cmd_opfail, "decide": cmd_decide, "final": cmd_final}
 if len(sys.argv) < 2 or sys.argv[1] not in CMDS:
-    die("usage: floor_eval.py rcheck|pins|prereq|step|opfail|decide|final key=value ...")
+    die("usage: floor_eval.py rcheck|pins|limit|prereq|step|opfail|decide|final key=value ...")
 ARGS = args(sys.argv[2:])
 if "limkb" in ARGS:
     # a lowered memory limit exists for rehearsals only; the frozen run has the limit of row 011 and no other

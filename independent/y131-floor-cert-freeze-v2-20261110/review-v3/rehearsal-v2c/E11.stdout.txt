@@ -1,0 +1,1 @@
+FLOOR_RUN|CERTIFICATE=FAIL|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE|certificate_reason=NOT_STARTED|stage=arguments|reason=test_limit_kb_takes_digits|steps_run=none|accepted_certificates=0|certificate_commands_run=0|HASHES=NONE|json=0

@@ -1,0 +1,794 @@
+diff --git a/independent/y131-floor-cert-freeze-v2-20261110/final/tools/floor_eval.py b/independent/y131-floor-cert-freeze-v2-20261110/final/tools/floor_eval.py
+index ebf08f8..917a25e 100755
+--- a/independent/y131-floor-cert-freeze-v2-20261110/final/tools/floor_eval.py
++++ b/independent/y131-floor-cert-freeze-v2-20261110/final/tools/floor_eval.py
+@@ -1,7 +1,16 @@
+ #!/usr/bin/env python3
+-# floor_eval.py -- evaluator used by final/tools/run_floor.sh (version 2 freeze).
++# floor_eval.py -- evaluator used by final/tools/run_floor.sh (version 2 freeze, correction round).
+ # Integer and exact-rational arithmetic only. Reads logs and certificates, never computes a spectrum.
+ # Subcommands: rcheck, pins, prereq, step, decide, final.  Arguments are key=value words.
++# The final line separates three things: CERTIFICATE (PASS only when every REQUIRED gate, the verifier and the
++# closing pin check held and at least one certificate was accepted), DECISION (ABOVE, BELOW or UNRESOLVED, from
++# accepted bounds only) and PREDICTION (CONFIRMED for ABOVE, FALSIFIED for BELOW, UNRESOLVED otherwise).
++# The launcher runs this file from a private directory that also holds its copies of gate_required.sh, cert_gate.py,
++# indep_verify.py and peak_rss.py (argument tools=DIR); step and final hash those copies against rows 020 019 021
++# 103 115, and step accepts a certificate only with the launcher's INVOKE record of that verifier call (exit 0, log
++# hash, argv naming the private gate driver). A completed process at or over the memory limit of row 011 gives
++# status FAIL with RESOURCE_LIMIT_EXCEEDED; subcommand opfail applies that before a crash or a time limit may count
++# as an operational failure. limkb=N lowers the limit in test mode only.
+ import sys
+ import re
+ import os
+@@ -12,6 +21,9 @@ MIL = 1000000
+ G0 = (94070673, 1000000)
+ CAP = (94070936, 1000000)
+ PRED_NAME = "PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp"
++# row 034 names a file of the #137 package outside this folder; a byte copy is carried here and is used when the
++# literal path is absent. Either source must hash to the value of row 034.
++CARRIED_034 = "final/link/PREDICT-S3-3X4-R9-WILSON-FESHBACH-AMPLITUDE-20261109.hbp"
+ # census pins restated from rows 043 044 045 047 051 055 (checked against the row text by need()).
+ CENSUS = {
+     11: {"orbits": 1608786, "classes": 34920, "weight": 9635688, "edges": 725464,
+@@ -25,6 +37,9 @@ NEED = [("043", ["1608786", "34920", "9635688"]), ("047", ["725464", "1610000"])
+         ("073", ["94070673/1000000"]), ("065", ["94070936/1000000"]), ("007", ["89301"])]
+ WGATES = ["s3_link_table", "local_delta_vs_full_M", "link_multiset_table", "symmetry_image_rows",
+           "core_census_vs_closed_form", "class_detailed_balance"]
++TOOLS = [("020", "gate_required.sh"), ("019", "py/cert_gate.py"), ("021", "py/indep_verify.py"),
++         ("103", "peak_rss.py"), ("115", "floor_eval.py")]
++RLE = "RESOURCE_LIMIT_EXCEEDED"
+ VGATES = ["r_policy", "class_bijection", "keys_hash", "positivity_f", "positivity_v", "tail_cap_claim",
+           "t_below_tail_cap", "row_check", "row_hash"]
+ 
+@@ -160,6 +175,36 @@ def args(av):
+     return d
+ 
+ 
++def tools_check(R, tools):
++    """The private copies the launcher executes, hashed against the PIN rows; this file must be one of them."""
++    bad = []
++    for rid, rel in TOOLS:
++        p = os.path.join(tools, rel)
++        if rid not in R or not os.path.isfile(p) or sha(p) != R[rid][1].get("value"):
++            bad.append("row_%s:private_copy_%s_differs_from_pin" % (rid, rel.replace("/", "_")))
++    if os.path.realpath(sys.argv[0]) != os.path.realpath(os.path.join(tools, "floor_eval.py")):
++        bad.append("row_115:evaluator_runs_outside_the_private_directory")
++    return bad
++
++
++def invocation(lg, m, kind, lb, want_argv):
++    """True when the last INVOKE line of run.log for this log names exit 0, no time limit, a process group of its
++    own, the hash of the log as it is read here and an argv that starts with want_argv."""
++    hit = []
++    for x in pick(lines(lg + "/run.log"), "INVOKE|"):
++        f = fld(x)
++        if f.get("m0") == str(m) and f.get("kind") == kind and re.match(r"^log/%s_a[12]\.txt$" % re.escape(lb), f.get("log", "")):
++            hit.append((f, x))
++    final = lg + "/%s.txt" % lb
++    if not hit or not os.path.isfile(final):
++        return False
++    f, x = hit[-1]
++    am = re.search(r"\|argv=(.*)\|json=0$", x)
++    return (f.get("rc") == "0" and f.get("time_limit_hit") == "0" and f.get("own_process_group") == "1"
++            and f.get("log_sha256") == sha(final) and am is not None
++            and (am.group(1) == want_argv or am.group(1).startswith(want_argv + " ")))
++
++
+ # ------------------------------------------------------------------ rcheck: test-mode r stays away from 9
+ def cmd_rcheck(a):
+     r = rat(a["r"])
+@@ -169,10 +214,9 @@ def cmd_rcheck(a):
+ 
+ 
+ # ------------------------------------------------------------------ pins: every PIN row that names a path
+-def cmd_pins(a):
+-    R = rows(a["pred"])
+-    need(R)
+-    root = a["root"]
++def pin_scan(R, root):
++    """Hash every PIN row that names a path. Returns the PINCHECK lines, the row count and the count that differ."""
++    o = []
+     bad = 0
+     n = 0
+     for rid in sorted(R):
+@@ -182,13 +226,21 @@ def cmd_pins(a):
+         n += 1
+         p = os.path.join(root, f["path"])
+         src = "tree"
+-        if not os.path.isfile(p) and rid == "034" and a.get("alt034") and os.path.isfile(a["alt034"]):
+-            p = a["alt034"]
+-            src = "git_object"
++        if not os.path.isfile(p) and rid == "034":
++            p = os.path.join(root, CARRIED_034)
++            src = "carried_copy_final/link"
+         got = sha(p) if os.path.isfile(p) else "ABSENT"
+         ok = 1 if got == f["value"] else 0
+         bad += 1 - ok
+-        print("PINCHECK|id=%s|path=%s|source=%s|want=%s|got=%s|ok=%d" % (rid, f["path"], src, f["value"], got, ok))
++        o.append("PINCHECK|id=%s|path=%s|source=%s|want=%s|got=%s|ok=%d" % (rid, f["path"], src, f["value"], got, ok))
++    return o, n, bad
++
++
++def cmd_pins(a):
++    R = rows(a["pred"])
++    need(R)
++    o, n, bad = pin_scan(R, a["root"])
++    print("\n".join(o))
+     print("PINCHECK_RESULT|tag=%s|prediction_sha256=%s|rows=%d|bad=%d" % (a.get("tag", "1"), sha(a["pred"]), n, bad))
+     sys.exit(1 if bad else 0)
+ 
+@@ -227,7 +279,7 @@ def cmd_prereq(a):
+         for x in mem:
+             mm = re.match(r"^MEM\|([0-9]+)kB", x)
+             if not mm or int(mm.group(1)) >= LIM_KB:
+-                bad.append("verifier_MEM_not_under_2GB")
++                bad.append("verifier_MEM_at_or_over_%dkB" % LIM_KB)
+     print("PREREQ|m0=%d|keys_sha256=%s|keys_pin=%s|status=%s|bad=%s" % (m, ks, pin, "FAIL" if bad else "PASS", ",".join(bad) or "none"))
+     sys.exit(1 if bad else 0)
+ 
+@@ -241,9 +293,12 @@ def peak(ls, bad, what):
+     f = fld(pk[0])
+     if f.get("exit") != "0":
+         bad.append("row_011:%s_exit_%s" % (what, f.get("exit")))
+-    kb = int(f.get("kB", "0")) if f.get("kB", "").isdigit() else LIM_KB
++    if not f.get("kB", "").isdigit():
++        bad.append("row_011:%s_PEAK_RSS_unreadable" % what)
++        return 0
++    kb = int(f["kB"])
+     if kb >= LIM_KB:
+-        bad.append("row_011:%s_PEAK_RSS_not_under_2GB" % what)
++        bad.append("row_011:%s:%s_PEAK_RSS_%dkB_limit_%dkB" % (RLE, what, kb, LIM_KB))
+     return kb
+ 
+ 
+@@ -283,6 +338,20 @@ def cmd_step(a):
+     need(R)
+     C = CENSUS.get(m, {}) if mode == "r9" or a.get("census") == "1" else {}
+     bad = []
++    # the evaluator hashes the verifier, the gate driver and the peak wrapper itself (rows 019 020 103); the
++    # verifier_sha256 printed by the gate driver is compared too, further down, and is not relied on alone
++    for rid in ("019", "020", "103"):
++        pf = os.path.join(a["root"], R[rid][1]["path"])
++        if not os.path.isfile(pf) or sha(pf) != R[rid][1]["value"]:
++            bad.append("row_%s:file_on_disk_differs_from_pin" % rid)
++    # the copies that were executed (private directory of the launcher), and the launcher's record of each command
++    tools = a["tools"]
++    bad.extend(tools_check(R, tools))
++    if not invocation(lg, m, "rowhash", "m%d_rowhash" % m, "python3 -I -B %s/peak_rss.py %s/floorcert rowhash --m0 %d" % (tools, tools, m)):
++        bad.append("row_008:no_valid_invocation_record_rowhash")
++    if not invocation(lg, m, "cert", "m%d_cert" % m, "python3 -I -B %s/peak_rss.py %s/floorcert cert --m0 %d" % (tools, tools, m)):
++        bad.append("row_008:no_valid_invocation_record_cert")
++    nrec = 0
+     crows = []
+     fwords = a["fspec"].split(";")
+     rh = lines(lg + "/m%d_rowhash.txt" % m)
+@@ -401,6 +470,12 @@ def cmd_step(a):
+             else:
+                 row["gate"] = "PASS"
+                 gf = fld(gr[0])
++                # an actual verifier invocation: the launcher's INVOKE record with exit 0 for exactly this log
++                if invocation(lg, m, "gate", "m%d_gate_%s" % (m, base), "bash %s/gate_required.sh %s" % (tools, path)):
++                    nrec += 1
++                else:
++                    cb.append("row_053:no_valid_verification_record")
++                    row["gate"] = "NO_RECORD"
+                 if gf.get("cert_sha256") != row["sha"] or gf.get("rowhash") != rowhash or gf.get("verifier_sha256") != vsha_pin:
+                     cb.append("row_053:GATE_REQUIRED_fields")
+                 vm = re.match(r"^VERDICT\|PASS\|lambda_min\(QHQ\) >= ([0-9]+)/([0-9]+) at r = ([0-9]+)/([0-9]+) \(m0 = ([0-9]+)\)\|", vd[0])
+@@ -430,10 +505,13 @@ def cmd_step(a):
+                     cb.append("row_011:verifier_MEM_absent")
+                 for y in mems:
+                     mm = re.match(r"^MEM\|([0-9]+)kB", y)
+-                    kb = int(mm.group(1)) if mm else LIM_KB
++                    if not mm:
++                        cb.append("row_011:verifier_MEM_unreadable")
++                        continue
++                    kb = int(mm.group(1))
+                     mem_max = max(mem_max, kb)
+                     if kb >= LIM_KB:
+-                        cb.append("row_011:verifier_MEM_not_under_2GB")
++                        cb.append("row_011:%s:verifier_MEM_%dkB_limit_%dkB" % (RLE, kb, LIM_KB))
+                 for y in pick(g, "KEYSHASH|"):
+                     if fld(y).get("sha256") != keyshash:
+                         cb.append("row_056:verifier_keyshash")
+@@ -455,8 +533,9 @@ def cmd_step(a):
+     G = rmax([c["gamma"] for c in acc])
+     U = rmin([add(rmin([c["rv"], c["rw"]]), (1, MIL)) for c in acc])
+     Uv = rmin([add(c["rv"], (1, MIL)) for c in acc])
+-    o = ["STEP|m0=%d|status=%s|accepted=%d|certificates=%d|G=%s|U=%s|U_verifier_only=%s|writer_peak_kB=%d|verifier_mem_max_kB=%d|rowhash=%s|keyshash=%s|rowhash_pin=%s|bad=%s|json=0"
+-         % (m, "OK" if ok else "FAIL", len(acc), len(crows), rs(G), rs(U), rs(Uv), max(pk_r, pk_c), mem_max,
++    res = "EXCEEDED" if any(RLE in y for y in bad) else "HELD"
++    o = ["STEP|m0=%d|status=%s|accepted=%d|certificates=%d|G=%s|U=%s|U_verifier_only=%s|writer_peak_kB=%d|verifier_mem_max_kB=%d|resource_limit=%s|limit_kB=%d|verification_records=%d|rowhash=%s|keyshash=%s|rowhash_pin=%s|bad=%s|json=0"
++         % (m, "OK" if ok else "FAIL", len(acc), len(crows), rs(G), rs(U), rs(Uv), max(pk_r, pk_c), mem_max, res, LIM_KB, nrec,
+             rowhash or "NONE", keyshash or "NONE", ("row_" + C["rh"]) if "rh" in C else "three_way_equality_only", ";".join(bad) or "none")]
+     for c in crows:
+         o.append("CERTROW|m0=%d|f=%s|file=%s|sha256=%s|accepted=%d|gate=%s|gamma=%s|ritz_writer=%s|ritz_verifier=%s|tail_cap=%s|next_t_refused=%s|bad=%s|json=0"
+@@ -472,6 +551,37 @@ def cmd_step(a):
+     sys.exit(0 if ok else 1)
+ 
+ 
++# ------------------------------------------------------------------ opfail: a crash or a time limit inside a step
++def cmd_opfail(a):
++    """A command of this step crashed or ran into the time limit. Fallback is open only while no REQUIRED gate has
++    failed: a process of this step that completed (exit 0, or a verifier that printed its verdict) at or over the
++    memory limit makes the step FAIL with RESOURCE_LIMIT_EXCEEDED, and the run stops."""
++    m = int(a["m0"])
++    lg = a["out"] + "/log"
++    bad = []
++    for nm in sorted(os.listdir(lg)):
++        if not re.match(r"^m%d_(rowhash|cert|rowsonly|gate_.*)\.txt$" % m, nm) or re.search(r"_a[12]\.txt$", nm):
++            continue
++        ls = lines(lg + "/" + nm)
++        what = nm[:-4].replace("|", "_")
++        for x in pick(ls, "PEAK_RSS|"):
++            f = fld(x)
++            if f.get("exit") == "0" and f.get("kB", "").isdigit() and int(f["kB"]) >= LIM_KB:
++                bad.append("row_011:%s:%s_PEAK_RSS_%skB_limit_%dkB" % (RLE, what, f["kB"], LIM_KB))
++        if pick(ls, "VERDICT|"):
++            for x in pick(ls, "MEM|"):
++                mm = re.match(r"^MEM\|([0-9]+)kB", x)
++                if mm and int(mm.group(1)) >= LIM_KB:
++                    bad.append("row_011:%s:%s_MEM_%skB_limit_%dkB" % (RLE, what, mm.group(1), LIM_KB))
++    if bad:
++        st = "STEP|m0=%d|status=FAIL|accepted=0|certificates=0|resource_limit=EXCEEDED|limit_kB=%d|operational_event=%s|fallback=PROHIBITED|bad=%s|json=0" % (m, LIM_KB, a["why"], ";".join(bad))
++    else:
++        st = "STEP|m0=%d|status=OPFAIL|accepted=0|certificates=0|resource_limit=HELD|limit_kB=%d|bad=%s|json=0" % (m, LIM_KB, a["why"])
++    with open(lg + "/m%d_step.hbp" % m, "w", encoding="utf-8", newline="\n") as fh:
++        fh.write(st + "\n")
++    print(st)
++
++
+ # ------------------------------------------------------------------ decide / final
+ def load_steps(out, steps):
+     S = []
+@@ -482,6 +592,7 @@ def load_steps(out, steps):
+             die("step file of m0 %d unreadable" % m)
+         f = fld(st[0])
+         d = {"m": m, "status": f["status"], "G": None, "U": None, "Uv": None, "certs": [], "line": st[0],
++             "res": f.get("resource_limit", "HELD"),
+              "pk": int(f.get("writer_peak_kB", "0")), "mem": int(f.get("verifier_mem_max_kB", "0"))}
+         if f["status"] == "OK":
+             d["G"] = rat(f["G"])
+@@ -505,6 +616,18 @@ def state_of(G, U, g0):
+     return "UNDECIDED"
+ 
+ 
++def decision_of(st):
++    """Row 012 state word to the three-way decision. G_max >= g0: ABOVE. U_min < g0: BELOW. Otherwise UNRESOLVED."""
++    if st == "ABOVE":
++        return "ABOVE"
++    if st == "BELOW_FALSIFIED_H4":
++        return "BELOW"
++    return "UNRESOLVED"
++
++
++PRED_OF = {"ABOVE": "CONFIRMED", "BELOW": "FALSIFIED", "UNRESOLVED": "UNRESOLVED"}
++
++
+ def decide(S, g0, allowed):
+     ok = [s for s in S if s["status"] == "OK"]
+     G = rmax([s["G"] for s in ok])
+@@ -514,6 +637,8 @@ def decide(S, g0, allowed):
+     more = len(S) < allowed
+     n = len(S)
+     rule = "row_006" if n == 1 else ("row_007" if n == 2 else "row_007_after_13_stop")
++    if any(s["status"] == "FAIL" and s["res"] == "EXCEEDED" for s in S):
++        return ("FAIL", "STOP", "row_011_resource_limit_exceeded_fallback_prohibited_row_122", G, U, Uv)
+     if any(s["status"] == "FAIL" for s in S):
+         return ("FAIL", "STOP", "row_008", G, U, Uv)
+     if not ok:
+@@ -540,8 +665,8 @@ def cmd_decide(a):
+     st, nxt, rule, G, U, Uv = decide(S, g0, int(a["allowed"]))
+     cg = "NONE" if G is None else ("GE" if le(g0, G) else "LT")
+     cu = "NONE" if U is None else ("LT" if lt(U, g0) else "GE")
+-    print("DECISION|after_m0=%d|state=%s|G_max=%s|G_max_vs_g0=%s|g0=%s|U_all=%s|U_all_vs_g0=%s|U_all_verifier_only=%s|inputs=verifier_accepted_certificates_only|next=%s|rule=%s|json=0"
+-          % (steps[-1], st, rs(G), cg, rs(g0), rs(U), cu, rs(Uv), nxt, rule))
++    print("DECISION|after_m0=%d|decision=%s|state=%s|G_max=%s|G_max_vs_g0=%s|g0=%s|U_all=%s|U_all_vs_g0=%s|U_all_verifier_only=%s|inputs=verifier_accepted_certificates_only|next=%s|rule=%s|json=0"
++          % (steps[-1], decision_of(st), st, rs(G), cg, rs(g0), rs(U), cu, rs(Uv), nxt, rule))
+     print("NEXT|" + nxt)
+ 
+ 
+@@ -602,19 +727,37 @@ def cmd_final(a):
+     R = rows(a["pred"])
+     S = load_steps(out, steps) if steps else []
+     stop = a.get("stop", "DECIDED")
++    # closing pin check: every PIN row that names a path, hashed again before anything is printed
++    po, pn, pbad = pin_scan(R, a["root"])
++    po.append("PINCHECK_RESULT|tag=closing|prediction_sha256=%s|rows=%d|bad=%d" % (sha(a["pred"]), pn, pbad))
++    with open(out + "/log/pincheck_closing.txt", "w", encoding="utf-8", newline="\n") as fh:
++        fh.write("\n".join(po) + "\n")
++    if pbad:
++        stop = "FAIL_closing_pin_check_%d_rows_differ_row_010" % pbad
++    tb = tools_check(R, a["tools"])
++    if tb:
++        stop = "FAIL_private_tool_copies_" + "_".join(sorted(set(y.split(":")[0] for y in tb)))
+     if S:
+         st, nxt, rule, G, U, Uv = decide(S, g0, int(a["allowed"]))
+     else:
+         st, nxt, rule, G, U, Uv = ("NO_STEP", "STOP", "prelude", None, None, None)
+     failed = any(s["status"] == "FAIL" for s in S) or st == "CONTRADICTION" or stop.startswith("FAIL")
+     opf = [str(s["m"]) for s in S if s["status"] == "OPFAIL"]
++    nacc = 0 if failed else sum(1 for s in S for c in s["certs"] if c.get("accepted") == "1" and s["status"] == "OK")
+     if failed:
+-        result, comp = "FAIL", "NONE_ROW_008"
++        # an integrity, REQUIRED-gate or verifier failure: no accepted bound is printed (row 008)
++        cert, why, dec = "FAIL", "REQUIRED_OR_INTEGRITY_FAILURE_ROW_008", "UNRESOLVED"
++        if any(s["status"] == "FAIL" and s["res"] == "EXCEEDED" for s in S):
++            why = RLE
++        G = U = Uv = None
++    elif nacc == 0 or G is None or U is None:
++        cert, why, dec = "FAIL", "NO_ACCEPTED_CERTIFICATE_OPERATIONAL", "UNRESOLVED"
+         G = U = Uv = None
+-    elif stop != "DECIDED" or st not in ("ABOVE", "BELOW_FALSIFIED_H4"):
+-        result, comp = "UNRESOLVED", ("OPEN_" + stop if stop != "DECIDED" else st)
++    elif stop != "DECIDED":
++        cert, why, dec = "PASS", "ACCEPTED_CERTIFICATES_THEN_STOP_" + stop, "UNRESOLVED"
+     else:
+-        result, comp = "PASS", st
++        cert, why, dec = "PASS", "EVERY_REQUIRED_GATE_AND_THE_CLOSING_PIN_CHECK_HELD", decision_of(st)
++    pred = PRED_OF[dec]
+     P = score([] if failed else S, g0, G, U) if (S and not failed) else {}
+     if not P:
+         for k in range(58, 74):
+@@ -623,7 +766,7 @@ def cmd_final(a):
+     for rid in P:
+         if rid not in R or R[rid][0] != "PREDICT":
+             die("row %s is not a PREDICT row" % rid)
+-    acc = 0 if failed else sum(1 for s in S for c in s["certs"] if c.get("accepted") == "1" and s["status"] == "OK")
++    acc = nacc
+     files = []
+     for dp, dn, fn in os.walk(out):
+         dn.sort()
+@@ -642,9 +785,9 @@ def cmd_final(a):
+     notmet = ",".join(k for k in sorted(P) if P[k] == "NOT_MET") or "none"
+     other = ",".join("%s:%s" % (k, P[k]) for k in sorted(P) if P[k] not in ("MET", "NOT_MET")) or "none"
+     key = ",".join("%s@%s" % (f[0], f[1]) for f in files)
+-    fin = ("FLOOR_RUN|result=%s|comparison=%s|scope=%s|r=%s|g0=%s|gamma_cert=%s|U_all=%s|steps_run=%s|steps_ok=%s|operational_failures=%s|accepted_certificates=%d|stop=%s|rule=%s|predict_met=%s|predict_not_met=%s|predict_other=%s|freeze_commit=%s|prediction_sha256=%s|binary_sha256=%s|files=%s|json=0"
+-           % (result, comp, scope, a["r"], rs(g0), rs(G), rs(U), ",".join(str(s["m"]) for s in S) or "none",
+-              ",".join(str(s["m"]) for s in S if s["status"] == "OK") or "none", ",".join(opf) or "none", acc, stop, rule,
++    fin = ("FLOOR_RUN|CERTIFICATE=%s|PREDICTION=%s|DECISION=%s|GAMMA=%s|UPPER_BOUND=%s|certificate_reason=%s|prediction_tested=lambda_min(QHQ)_GE_g0|decision_rule=G_max_GE_g0_ABOVE;U_min_LT_g0_BELOW;G_max_LT_g0_LE_U_min_UNRESOLVED|state_row_012=%s|scope=%s|r=%s|g0=%s|steps_run=%s|steps_ok=%s|operational_failures=%s|accepted_certificates=%d|stop=%s|rule=%s|closing_pin_check=rows_%d_bad_%d|private_tools_check=files_%d_bad_%d|predict_met=%s|predict_not_met=%s|predict_other=%s|freeze_commit=%s|prediction_sha256=%s|binary_sha256=%s|HASHES=%s|json=0"
++           % (cert, pred, dec, rs(G), rs(U), why, st, scope, a["r"], rs(g0), ",".join(str(s["m"]) for s in S) or "none",
++              ",".join(str(s["m"]) for s in S if s["status"] == "OK") or "none", ",".join(opf) or "none", acc, stop, rule, pn, pbad, len(TOOLS), len(tb),
+               met, notmet, other, a.get("commit", "NONE"), sha(a["pred"]), a.get("fbsha", "NONE"), key))
+     o = ["# floor run receipt written by final/tools/floor_eval.py; pipe rows; json=0",
+          "RECEIPT|scope=%s|r=%s|mode=%s|driver_sha256=%s|evaluator_sha256=%s|json=0" % (scope, a["r"], a["mode"], a.get("drvsha", "NONE"), sha(sys.argv[0]))]
+@@ -652,7 +795,7 @@ def cmd_final(a):
+         o.extend((re.sub(r"\|accepted=[0-9]+\|", "|accepted=0_ROW_008|", x) if failed else x) for x in s["raw"])
+         o.append("ACCEPTED|m0=%d|count=%d|json=0" % (s["m"], 0 if failed or s["status"] != "OK" else sum(1 for c in s["certs"] if c.get("accepted") == "1")))
+     for x in lines(out + "/log/run.log"):
+-        if x.startswith("DECISION|") or x.startswith("INVOKE|") or x.startswith("INJECTED|") or x.startswith("NOTE|"):
++        if x.startswith("DECISION|") or x.startswith("INVOKE|") or x.startswith("INJECTED|") or x.startswith("NOTE|") or x.startswith("TOOL"):
+             o.append(x if x.endswith("json=0") else x + "|json=0")
+     for k in sorted(P):
+         o.append("PREDICT_SCORE|row=%s|value=%s|outcome=%s|scope=%s|json=0" % (k, R[k][1].get("value", ""), P[k], scope))
+@@ -664,10 +807,23 @@ def cmd_final(a):
+     with open(a["receipt"] + ".sha256", "w", encoding="utf-8", newline="\n") as fh:
+         fh.write("%s  %s\n" % (sha(a["receipt"]), os.path.basename(a["receipt"])))
+     print(fin)
+-    sys.exit(0 if result == "PASS" else (1 if result == "FAIL" else 2))
++    if failed:
++        sys.exit(1)
++    if cert == "PASS" and dec == "ABOVE":
++        sys.exit(0)
++    if cert == "PASS" and dec == "BELOW":
++        sys.exit(3)
++    sys.exit(2)
+ 
+ 
+-CMDS = {"rcheck": cmd_rcheck, "pins": cmd_pins, "prereq": cmd_prereq, "step": cmd_step, "decide": cmd_decide, "final": cmd_final}
++CMDS = {"rcheck": cmd_rcheck, "pins": cmd_pins, "prereq": cmd_prereq, "step": cmd_step, "opfail": cmd_opfail,
++        "decide": cmd_decide, "final": cmd_final}
+ if len(sys.argv) < 2 or sys.argv[1] not in CMDS:
+-    die("usage: floor_eval.py rcheck|pins|prereq|step|decide|final key=value ...")
+-CMDS[sys.argv[1]](args(sys.argv[2:]))
++    die("usage: floor_eval.py rcheck|pins|prereq|step|opfail|decide|final key=value ...")
++ARGS = args(sys.argv[2:])
++if "limkb" in ARGS:
++    # a lowered memory limit exists for rehearsals only; the frozen run has the limit of row 011 and no other
++    if ARGS.get("mode") != "test" or not ARGS["limkb"].isdigit() or not 1 <= int(ARGS["limkb"]) <= LIM_KB:
++        die("limkb is a test-mode argument between 1 and %d" % LIM_KB)
++    LIM_KB = int(ARGS["limkb"])
++CMDS[sys.argv[1]](ARGS)
+diff --git a/independent/y131-floor-cert-freeze-v2-20261110/final/tools/run_floor.sh b/independent/y131-floor-cert-freeze-v2-20261110/final/tools/run_floor.sh
+index c32f4c9..fb2b765 100755
+--- a/independent/y131-floor-cert-freeze-v2-20261110/final/tools/run_floor.sh
++++ b/independent/y131-floor-cert-freeze-v2-20261110/final/tools/run_floor.sh
+@@ -1,14 +1,28 @@
+ #!/bin/bash
+-# run_floor.sh -- single launcher of the frozen floor-certificate run (version 2 freeze).
+-#   default:  bash final/tools/run_floor.sh [--freeze-commit C]
+-#             r = 9, m0 = 11, then 12 and 13 only under rows 006 and 007 of the prediction record.
+-#   rehearsal: bash final/tools/run_floor.sh --test-r R --test-m0 a,b,c --test-f WORDS --test-g0 N/D --test-out DIR
+-#             [--test-plant IDX:UB] [--test-crash IDX:KIND] [--test-hang IDX:KIND] [--test-census]
+-#             R must lie more than 1 away from 9; the binary's own r policy stays in force.
++# run_floor.sh -- single launcher of the frozen floor-certificate run (version 2 freeze, correction round).
++#   frozen run: bash final/tools/run_floor.sh --launch-r9 [--freeze-commit C]
++#               r = 9, m0 = 11, then 12 and 13 only under rows 006 and 007 of the prediction record.
++#               The token --launch-r9 is the only way into this mode; no other argument set reaches r = 9.
++#   rehearsal:  bash final/tools/run_floor.sh --test-r R --test-m0 a,b,c --test-f WORDS --test-g0 N/D --test-out DIR
++#               [--test-plant IDX:UB] [--test-crash LIST] [--test-hang LIST] [--test-hang-hard LIST]
++#               [--test-vexc IDX] [--test-census] [--test-limit-kb N]
++#               (LIST is IDX:KIND[,IDX:KIND...]; KIND is rowhash, cert, rowsonly or gate)
++#               R must lie more than 1 away from 9; the binary's own r policy stays in force.
+ # Every path is derived from this file's location. One heavy process at a time. No retry beyond row 008:
+-# one rerun with identical arguments after a crash, for the whole run, both attempts logged.
+-# Exit: 0 PASS, 1 FAIL, 2 UNRESOLVED. The last line printed is FLOOR_RUN|result=...
++# one rerun with identical arguments after a crash, for the whole run, both attempts logged; a time limit gets none.
++# ISOLATED TOOLS: gate_required.sh, cert_gate.py, indep_verify.py, peak_rss.py, the evaluator, the prediction record
++# and the binary are copied into a fresh private directory (mktemp -d, mode 700); the copies are hashed against the
++# frozen SHA-256 values and made read-only, and only the copies are executed. The copies and the files in the tree
++# are hashed again before every invocation and at the close. This file is read to its end before its first command.
++# A certificate counts only with a logged verifier invocation that exited 0 (row 122).
++# A completed process at or over 2097152 kB gives CERTIFICATE=FAIL, RESOURCE_LIMIT_EXCEEDED, and no fallback (row 122).
++# The last line printed is FLOOR_RUN|CERTIFICATE=PASS or FAIL|PREDICTION=CONFIRMED or FALSIFIED or UNRESOLVED|
++# DECISION=ABOVE or BELOW or UNRESOLVED|GAMMA=|UPPER_BOUND=|...|HASHES=
++# Exit: 0 CERTIFICATE=PASS and PREDICTION=CONFIRMED; 3 CERTIFICATE=PASS and PREDICTION=FALSIFIED;
++#       2 nothing decided (UNRESOLVED, or no accepted certificate for an operational reason, or not started);
++#       1 CERTIFICATE=FAIL after a REQUIRED, resource-limit or integrity failure (rows 008 011).
+ set -u
++{
+ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ ROOT="$(cd "$HERE/../.." && pwd)"
+ cd "$ROOT" || exit 2
+@@ -17,52 +31,132 @@ PREDREL=final/PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp
+ PEAK=work/design/peak_rss.py
+ GATE=work/design/gate_required.sh
+ VERIFIER=work/design/py/cert_gate.py
++INDEP=work/design/py/indep_verify.py
+ PINFREE=work/design/rs/target/release/floorcert
+ LIMIT=21600
+-Y137_COMMIT=5e70e9dc02d6ed32fe9a94d03a2c3a77587ff9af
+-Y137_PATH=independent/y137-amplitude-freeze-20261109/PREDICT-S3-3X4-R9-WILSON-FESHBACH-AMPLITUDE-20261109.hbp
++KILLAFTER=30
+ RUSTC_PIN="rustc 1.81.0 (eeb90cda1 2024-09-04)"
+ CARGO_PIN="cargo 1.81.0 (2dbb1af80 2024-08-20)"
+-MODE=r9; R=9; STEPS=(11 12 13); FSPEC='1;8,7,6,5,4;6,5,4,3'; G0=94070673/1000000; OUT=work/run9
+-C=""; T_R=""; T_PLANT=""; T_CRASH=""; T_HANG=""; CENSUS=0; T_ANY=0
++NOBOUND="PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE"
++MODE=none; R=9; STEPS=(11 12 13); FSPEC='1;8,7,6,5,4;6,5,4,3'; G0=94070673/1000000; OUT=work/run9
++C=""; T_R=""; T_PLANT=""; T_CRASH=""; T_HANG=""; T_HARD=""; T_VEXC=""; T_LIM=""; CENSUS=0; T_ANY=0; LAUNCH=0
++arg_stop() { # reason ; nothing has run
++  echo "FLOOR_RUN|CERTIFICATE=FAIL|$NOBOUND|certificate_reason=NOT_STARTED|stage=arguments|reason=$1|steps_run=none|accepted_certificates=0|certificate_commands_run=0|HASHES=NONE|json=0"
++  exit 2
++}
+ while [ $# -gt 0 ]; do
+   case "$1" in
+-    --freeze-commit) C="$2"; shift 2;;
+-    --test-r) T_R="$2"; shift 2;;
+-    --test-m0) IFS=, read -r -a STEPS <<< "$2"; T_ANY=1; shift 2;;
+-    --test-f) FSPEC="$2"; T_ANY=1; shift 2;;
+-    --test-g0) G0="$2"; T_ANY=1; shift 2;;
+-    --test-out) OUT="$2"; T_ANY=1; shift 2;;
+-    --test-plant) T_PLANT="$2"; T_ANY=1; shift 2;;
+-    --test-crash) T_CRASH="$2"; T_ANY=1; shift 2;;
+-    --test-hang) T_HANG="$2"; T_ANY=1; shift 2;;
+-    --test-census) CENSUS=1; T_ANY=1; shift;;
+-    *) echo "FLOOR_RUN|result=UNRESOLVED|stage=arguments|reason=unknown_argument|steps_run=none|accepted_certificates=0|json=0"; exit 2;;
++    --launch-r9) LAUNCH=1; shift; continue;;
++    --test-census) CENSUS=1; T_ANY=1; shift; continue;;
++    --freeze-commit|--test-r|--test-m0|--test-f|--test-g0|--test-out|--test-plant|--test-crash|--test-hang|--test-hang-hard|--test-vexc|--test-limit-kb) ;;
++    *) arg_stop unknown_argument;;
++  esac
++  [ $# -ge 2 ] && [ -n "$2" ] || arg_stop "option_${1#--}_needs_a_value"
++  case "$1" in
++    --freeze-commit) C="$2";;
++    --test-r) T_R="$2"; T_ANY=1;;
++    --test-m0) IFS=, read -r -a STEPS <<< "$2"; T_ANY=1;;
++    --test-f) FSPEC="$2"; T_ANY=1;;
++    --test-g0) G0="$2"; T_ANY=1;;
++    --test-out) OUT="$2"; T_ANY=1;;
++    --test-plant) T_PLANT="$2"; T_ANY=1;;
++    --test-crash) T_CRASH="$2"; T_ANY=1;;
++    --test-hang) T_HANG="$2"; T_ANY=1;;
++    --test-hang-hard) T_HARD="$2"; T_ANY=1;;
++    --test-vexc) T_VEXC="$2"; T_ANY=1;;
++    --test-limit-kb) T_LIM="$2"; T_ANY=1; case "$2" in *[!0-9]*) arg_stop test_limit_kb_takes_digits;; esac;;
+   esac
++  shift 2
+ done
+-LOG=""; SEQ=0; RERUNS=1; STOP=DECIDED; RUNSTEPS=""; FBSHA=NONE; P=NONE
+-EVAL=(python3 -I -B "$HERE/floor_eval.py")
++if [ $LAUNCH -eq 1 ]; then
++  [ $T_ANY -eq 0 ] || arg_stop launch_r9_takes_no_test_option
++  MODE=r9
++elif [ -n "$T_R" ]; then
++  [ -z "$C" ] || arg_stop freeze_commit_belongs_to_launch_r9
++  MODE=test; R="$T_R"
++elif [ $T_ANY -ne 0 ]; then
++  arg_stop test_options_need_test_r
++else
++  arg_stop no_mode_given_use_launch_r9_or_test_r
++fi
++LIMARG=(); [ -n "$T_LIM" ] && LIMARG=("limkb=$T_LIM")
++LOG=""; SEQ=0; RERUNS=1; STOP=DECIDED; RUNSTEPS=""; FB=""; FBSHA=NONE; RC=0; TIMEDOUT=0; CLS=ok
++BADFILE=""; BADWANT=""; PRIV=""
++cleanup() { [ -n "$PRIV" ] && [ -d "$PRIV" ] && { chmod -R u+w "$PRIV" 2>/dev/null; rm -rf "$PRIV"; }; return 0; }
++trap cleanup EXIT
++has() { case ",$1," in *",$2,"*) return 0;; esac; return 1; } # list item
+ say() { echo "$1"; [ -n "$LOG" ] && echo "$1" >> "$LOG/run.log"; return 0; }
+-prelude_stop() { # result reason
+-  say "FLOOR_RUN|result=$1|stage=prelude|reason=$2|r=$R|steps_run=none|accepted_certificates=0|certificate_commands_run=0|json=0"
++prelude_stop() { # class reason ; class FAIL = integrity or REQUIRED failure, UNRESOLVED = not started
++  local cr=NOT_STARTED; [ "$1" = FAIL ] && cr=REQUIRED_OR_INTEGRITY_FAILURE_ROW_008
++  say "FLOOR_RUN|CERTIFICATE=FAIL|$NOBOUND|certificate_reason=$cr|stage=prelude|reason=$2|r=$R|steps_run=none|accepted_certificates=0|certificate_commands_run=0|HASHES=NONE|json=0"
+   [ "$1" = FAIL ] && exit 1; exit 2
+ }
+-if [ -n "$T_R" ]; then
+-  MODE=test; R="$T_R"
++# ---- the pinned hashes, read from the record by this script itself (rows 019 020 021 103 114 115)
++P=$(sha256sum "$PREDREL" | cut -d' ' -f1)
++pinval() { grep -E "^PIN\|id=$1\|" "$PREDREL" | sed -n 's/.*|value=\([0-9a-f]\{64\}\)|.*/\1/p'; }
++GF=("$PREDREL" "$HERE/run_floor.sh" "$HERE/floor_eval.py" "$GATE" "$VERIFIER" "$INDEP" "$PEAK")
++GW=("$P" "$(pinval 114)" "$(pinval 115)" "$(pinval 020)" "$(pinval 019)" "$(pinval 021)" "$(pinval 103)")
++guard() { # 0 when every file of GF still has the hash of GW; else BADFILE and BADWANT name the first that differs
++  local i got
++  for i in "${!GF[@]}"; do
++    got=$(sha256sum "${GF[$i]}" 2>/dev/null | cut -d' ' -f1)
++    if [ ${#GW[$i]} -ne 64 ] || [ "$got" != "${GW[$i]}" ]; then BADFILE="${GF[$i]}"; BADWANT="${GW[$i]:-NO_PIN_ROW}"; return 1; fi
++  done
++  return 0
++}
++hashes_of_out() {
++  ( cd "$OUT" 2>/dev/null && find . -type f ! -name 'FLOOR-RUN-RECEIPT.hbp*' ! -path './target/*' | LC_ALL=C sort | while read -r f; do
++      printf '%s@%s,' "${f#./}" "$(sha256sum "$f" | cut -d' ' -f1)"; done ) | sed 's/,$//'
++}
++integrity_stop() { # a pinned file or a private copy differs: no evaluator call, no accepted bound, CERTIFICATE=FAIL
++  local got fin m rc="$OUT/FLOOR-RUN-RECEIPT.hbp" nm="${BADFILE#"$ROOT"/}"
++  [ -n "$PRIV" ] && nm="${nm/#"$PRIV"/PRIVATE_COPY}"
++  got=$(sha256sum "$BADFILE" 2>/dev/null | cut -d' ' -f1)
++  [ -n "$LOG" ] || prelude_stop FAIL "pinned_file_differs_${BADFILE##*/}"
++  say "INTEGRITY|file=$nm|want=$BADWANT|got=${got:-ABSENT}|json=0"
++  fin="FLOOR_RUN|CERTIFICATE=FAIL|$NOBOUND|certificate_reason=REQUIRED_OR_INTEGRITY_FAILURE_ROW_008|stage=integrity|reason=pinned_file_changed_${BADFILE##*/}|r=$R|steps_run=${RUNSTEPS:-none}|accepted_certificates=0|prediction_sha256=$P|binary_sha256=$FBSHA|HASHES=$(hashes_of_out)|json=0"
++  {
++    echo "# floor run receipt written by final/tools/run_floor.sh after an integrity stop; pipe rows; json=0"
++    echo "RECEIPT|scope=INTEGRITY_STOP|r=$R|mode=$MODE|json=0"
++    echo "INTEGRITY|file=$nm|want=$BADWANT|got=${got:-ABSENT}|json=0"
++    for m in "${STEPS[@]}"; do [ -e "$LOG/m${m}_rowhash_a1.txt" ] && echo "ACCEPTED|m0=$m|count=0|json=0"; done
++    grep -E '^(INVOKE|INJECTED|NOTE|DECISION|TOOL)\|' "$LOG/run.log"
++    echo "$fin"
++  } > "$rc"
++  ( cd "$OUT" && sha256sum FLOOR-RUN-RECEIPT.hbp > FLOOR-RUN-RECEIPT.hbp.sha256 )
++  echo "$fin"; exit 1
++}
++guard || integrity_stop
++# ---- the isolated copies: a fresh private directory, each copy hashed against its frozen value, only the copies run
++PRIV=$(mktemp -d "${TMPDIR:-/tmp}/floor-run-tools.XXXXXXXX") || { PRIV=""; prelude_stop UNRESOLVED cannot_create_the_private_tool_directory; }
++chmod 700 "$PRIV" && mkdir "$PRIV/py" || prelude_stop UNRESOLVED cannot_create_the_private_tool_directory
++TSRC=("$GATE" "$VERIFIER" "$INDEP" "$PEAK" "$HERE/floor_eval.py" "$PREDREL")
++TDST=("$PRIV/gate_required.sh" "$PRIV/py/cert_gate.py" "$PRIV/py/indep_verify.py" "$PRIV/peak_rss.py" "$PRIV/floor_eval.py" "$PRIV/${PREDREL##*/}")
++TWANT=("$(pinval 020)" "$(pinval 019)" "$(pinval 021)" "$(pinval 103)" "$(pinval 115)" "$P")
++TROW=(020 019 021 103 115 record)
++for i in "${!TSRC[@]}"; do
++  cp "${TSRC[$i]}" "${TDST[$i]}" || prelude_stop UNRESOLVED cannot_copy_a_tool_into_the_private_directory
++  GF+=("${TDST[$i]}"); GW+=("${TWANT[$i]}")
++done
++chmod -R a-w "$PRIV"; chmod u+w "$PRIV"
++guard || integrity_stop
++GATE="$PRIV/gate_required.sh"; VERIFIER="$PRIV/py/cert_gate.py"; PEAK="$PRIV/peak_rss.py"; PPRED="$PRIV/${PREDREL##*/}"
++EVAL=(python3 -I -B "$PRIV/floor_eval.py")
++if [ "$MODE" = test ]; then
+   "${EVAL[@]}" rcheck r="$R" || prelude_stop UNRESOLVED test_r_refused_within_1_of_9
+   case "$OUT" in /*) ;; *) prelude_stop UNRESOLVED test_out_must_be_an_absolute_path;; esac
+   case "$OUT" in "$ROOT"/*) prelude_stop UNRESOLVED test_out_must_lie_outside_the_freeze_folder;; esac
+   [ ${#STEPS[@]} -ge 1 ] && [ ${#STEPS[@]} -le 3 ] || prelude_stop UNRESOLVED test_m0_takes_1_to_3_steps
+-elif [ $T_ANY -ne 0 ]; then
+-  prelude_stop UNRESOLVED test_options_need_test_r
+ fi
+ [ -e "$OUT" ] && prelude_stop UNRESOLVED run_directory_already_exists
+ mkdir -p "$OUT/log" || prelude_stop UNRESOLVED cannot_create_run_directory
+ LOG="$OUT/log"
+-P=$(sha256sum "$PREDREL" | cut -d' ' -f1)
+ DRVSHA=$(sha256sum "$HERE/run_floor.sh" | cut -d' ' -f1)
+ say "START|mode=$MODE|r=$R|m0_steps=${STEPS[*]}|f=$FSPEC|g0=$G0|prediction_sha256=$P|driver_sha256=$DRVSHA|json=0"
+-# ---- freeze commit (default mode): the commit that carries the prediction record, checked by blob hash
++for i in "${!TDST[@]}"; do
++  say "TOOL|private_copy=${TDST[$i]#"$PRIV"/}|source=${TSRC[$i]#"$ROOT"/}|sha256=$(sha256sum "${TDST[$i]}" | cut -d' ' -f1)|pin=${TROW[$i]}|want=${TWANT[$i]}|json=0"
++done
++# ---- freeze commit (frozen run): the commit that carries the prediction record, checked by blob hash
+ if [ "$MODE" = r9 ]; then
+   [ -n "$C" ] || C=$(git log -1 --format=%H -- "$PREDREL" 2>/dev/null)
+   echo "$C" | grep -Eq '^[0-9a-f]{40}$' || prelude_stop UNRESOLVED freeze_commit_not_found
+@@ -72,11 +166,6 @@ if [ "$MODE" = r9 ]; then
+   [ -z "$(git status --porcelain --untracked-files=no -- . 2>/dev/null)" ] || prelude_stop FAIL tracked_files_differ_from_the_commit
+   say "NOTE|freeze_commit=$C|prediction_blob_sha256=$BL|json=0"
+ fi
+-# ---- row 034 lives outside this folder: read it from its own commit when the literal path is absent
+-ALT="$LOG/row034_from_git.hbp"
+-if [ ! -f "../ym137/final/$(basename "$Y137_PATH")" ]; then
+-  git show "$Y137_COMMIT:$Y137_PATH" > "$ALT" 2>/dev/null || rm -f "$ALT"
+-fi
+ # ---- toolchain (row 017) and the pin-free binary of row 016
+ RV=$(rustc +1.81 --version 2>&1); CV=$(cargo +1.81 --version 2>&1)
+ say "NOTE|rustc=$RV|cargo=$CV|json=0"
+@@ -85,99 +174,137 @@ if [ ! -f "$PINFREE" ]; then
+   (cd work/design/rs && env -u FLOORCERT_FREEZE_COMMIT -u FLOORCERT_PREDICTION_SHA256 cargo +1.81 build --release --locked -j1) > "$LOG/build_pinfree.txt" 2>&1 \
+     || prelude_stop UNRESOLVED pin_free_build_failed
+ fi
+-"${EVAL[@]}" pins root="$ROOT" pred="$PREDREL" alt034="$ALT" tag=1 > "$LOG/pincheck_1.txt" 2>&1 || { tail -1 "$LOG/pincheck_1.txt"; prelude_stop FAIL pin_check_1_mismatch_row_010; }
++guard || integrity_stop
++"${EVAL[@]}" pins root="$ROOT" pred="$PPRED" tag=1 > "$LOG/pincheck_1.txt" 2>&1 || { tail -1 "$LOG/pincheck_1.txt"; prelude_stop FAIL pin_check_1_mismatch_row_010; }
+ say "$(tail -1 "$LOG/pincheck_1.txt")"
+ if [ "$MODE" = r9 ]; then
+   FB=work/run9/target/release/floorcert
+   (cd work/design/rs && CARGO_TARGET_DIR="$ROOT/work/run9/target" FLOORCERT_FREEZE_COMMIT="$C" FLOORCERT_PREDICTION_SHA256="$P" cargo +1.81 build --release --locked -j1) > "$LOG/build_frozen.txt" 2>&1 || prelude_stop UNRESOLVED frozen_build_failed
+   [ -f "$FB" ] || prelude_stop UNRESOLVED frozen_binary_absent
+-  "${EVAL[@]}" pins root="$ROOT" pred="$PREDREL" alt034="$ALT" tag=2 > "$LOG/pincheck_2.txt" 2>&1 || { tail -1 "$LOG/pincheck_2.txt"; prelude_stop FAIL pin_check_2_mismatch_row_010; }
++  guard || integrity_stop
++  "${EVAL[@]}" pins root="$ROOT" pred="$PPRED" tag=2 > "$LOG/pincheck_2.txt" 2>&1 || { tail -1 "$LOG/pincheck_2.txt"; prelude_stop FAIL pin_check_2_mismatch_row_010; }
+   say "$(tail -1 "$LOG/pincheck_2.txt")"
+   FREEZE_ARGS=(--freeze-commit "$C" --prediction "$PREDREL" --prediction-sha256 "$P")
+ else
+   FB="$PINFREE"; C=NONE; FREEZE_ARGS=()
+ fi
+-FBSHA=$(sha256sum "$FB" | cut -d' ' -f1)
+-say "NOTE|binary=$FB|binary_sha256=$FBSHA|json=0"
++# ---- the binary: one private copy, and that copy is the program every writer command runs
++XB="$PRIV/floorcert"
++cp "$FB" "$XB" && chmod a-w "$XB" || prelude_stop UNRESOLVED cannot_copy_the_binary_into_the_private_directory
++FBSHA=$(sha256sum "$XB" | cut -d' ' -f1)
++[ "$MODE" = r9 ] || [ "$FBSHA" = "$(pinval 016)" ] || prelude_stop FAIL binary_copy_differs_from_row_016
++GF+=("$FB" "$XB"); GW+=("$FBSHA" "$FBSHA")
++guard || integrity_stop
++say "TOOL|private_copy=floorcert|source=$FB|sha256=$FBSHA|pin=$([ "$MODE" = r9 ] && echo frozen_build_of_row_009 || echo 016)|want=$FBSHA|json=0"
++say "NOTE|binary=$FB|binary_sha256=$FBSHA|executed_copy=PRIVATE_COPY/floorcert|private_directory=$PRIV|json=0"
+ 
+-run_cmd() { # kind m0 attempt limit logfile argv...
+-  local kind=$1 m=$2 att=$3 lim=$4 lf=$5; shift 5
+-  SEQ=$((SEQ+1))
+-  timeout -k 30 "$lim" "$@" > "$lf" 2>&1; RC=$?
+-  [ $RC -eq 124 ] && pkill -KILL -x floorcert
+-  say "INVOKE|seq=$SEQ|m0=$m|kind=$kind|attempt=$att|rc=$RC|limit_s=$lim|log=${lf#"$OUT"/}|log_sha256=$(sha256sum "$lf" | cut -d' ' -f1)|argv=$*|json=0"
++run_cmd() { # kind m0 attempt limit killafter logfile argv... ; the command runs in a process group of its own
++  local kind=$1 m=$2 att=$3 lim=$4 ka=$5 lf=$6 t0 t1 cpid pg n; shift 6
++  guard || integrity_stop
++  SEQ=$((SEQ+1)); t0=$(date +%s)
++  setsid timeout -k "$ka" "$lim" "$@" > "$lf" 2>&1 &
++  cpid=$!
++  # setsid runs in place here (a background job of a script is never a group leader), so the new group id is $cpid
++  pg=""; n=0
++  while [ $n -lt 100 ]; do
++    pg=$(ps -o pgid= -p "$cpid" 2>/dev/null | tr -d ' ')
++    [ -z "$pg" ] || [ "$pg" = "$cpid" ] && break
++    n=$((n+1)); sleep 0.01
++  done
++  wait "$cpid"; RC=$?
++  t1=$(date +%s); TIMEDOUT=0
++  if [ $RC -eq 124 ] || { [ $RC -eq 137 ] && [ $((t1-t0)) -ge "$lim" ]; }; then
++    TIMEDOUT=1
++    # the time limit ended this command: end what is left of the process group this launcher started, and only that group
++    kill -KILL -- "-$cpid" 2>/dev/null
++  fi
++  say "INVOKE|seq=$SEQ|m0=$m|kind=$kind|attempt=$att|rc=$RC|limit_s=$lim|elapsed_s=$((t1-t0))|time_limit_hit=$TIMEDOUT|own_process_group=$([ "$pg" = "$cpid" ] && echo 1 || echo 0)|log=${lf#"$OUT"/}|log_sha256=$(sha256sum "$lf" | cut -d' ' -f1)|argv=$*|json=0"
+ }
+-classify() { # logfile -> CLS in ok refuse timeout crash
+-  local pat='^REFUSE\||^VERDICT\|REFUSE|^GATE\|[^|]*\|FAIL|^GATE_REQUIRED\|REFUSE\|verifier sha256|^GATE_REQUIRED\|REFUSE\|.*\|verifier_exit=1\|'
++classify() { # logfile -> CLS: refuse (a refusal line), timeout (the time limit), ok, crash (anything else, a verifier exception included)
++  local pat='^REFUSE\||^VERDICT\|REFUSE|^GATE\|[^|]*\|FAIL|^GATE_REQUIRED\|REFUSE\|verifier sha256'
+   if grep -Eq "$pat" "$1"; then CLS=refuse
++  elif [ $TIMEDOUT -eq 1 ]; then CLS=timeout
+   elif [ $RC -eq 0 ]; then CLS=ok
+-  elif [ $RC -eq 124 ]; then CLS=timeout
+   else CLS=crash; fi
+ }
+ aside() { # kind m0 attempt : keep the remains of a failed attempt out of the run directory
+   local d="$OUT/aside/m$2_$1_a$3"; mkdir -p "$d"
+   if [ "$1" = rowhash ]; then [ -e "$OUT/RUN$2" ] && mv "$OUT/RUN$2" "$d/"
+-  elif [ "$1" = cert ]; then for x in "$OUT/RUN$2"/cert_*.txt; do [ -e "$x" ] && mv "$x" "$d/"; done; fi
++  else for x in "$OUT/RUN$2"/cert_*.txt; do [ -e "$x" ] && mv "$x" "$d/"; done; fi
+   return 0
+ }
+-do_cmd() { # kind m0 idx logbase argv... ; one rerun after a crash while the run still has its rerun
++do_cmd() { # kind m0 idx logbase argv... ; one rerun after a crash while the run still has its rerun; none after a time limit
+   local kind=$1 m=$2 idx=$3 lb=$4; shift 4
+   local att=1 lf
+   while :; do
+     lf="$LOG/${lb}_a${att}.txt"
+-    if [ $att -eq 1 ] && [ "$T_CRASH" = "$idx:$kind" ]; then
++    if [ $att -eq 1 ] && has "$T_CRASH" "$idx:$kind"; then
+       say "INJECTED|m0=$m|kind=$kind|what=crash_by_signal_in_place_of_the_first_attempt|json=0"
+-      run_cmd "$kind" "$m" $att "$LIMIT" "$lf" python3 -I -B "$PEAK" bash -c 'kill -SEGV $$'
+-    elif [ "$T_HANG" = "$idx:$kind" ]; then
++      run_cmd "$kind" "$m" $att "$LIMIT" "$KILLAFTER" "$lf" python3 -I -B "$PEAK" bash -c 'kill -SEGV $$'
++    elif [ $att -eq 1 ] && [ "$kind" = gate ] && has "$T_VEXC" "$idx"; then
++      say "INJECTED|m0=$m|kind=$kind|what=the_output_of_gate_required.sh_for_a_verifier_that_ended_with_an_exception_(exit_1,_no_verdict_line)_in_place_of_the_first_attempt|json=0"
++      run_cmd "$kind" "$m" $att "$LIMIT" "$KILLAFTER" "$lf" bash -c 'echo "Traceback (most recent call last):"; echo "GATE_REQUIRED|REFUSE|cert=INJECTED|cert_sha256=INJECTED|verifier_exit=1|header_rowhash=|verifier_rowhash=|"; exit 1'
++    elif has "$T_HANG" "$idx:$kind"; then
+       say "INJECTED|m0=$m|kind=$kind|what=sleep_20_under_a_2_second_limit_in_place_of_the_command|json=0"
+-      run_cmd "$kind" "$m" $att 2 "$lf" sleep 20
++      run_cmd "$kind" "$m" $att 2 "$KILLAFTER" "$lf" sleep 20
++    elif has "$T_HARD" "$idx:$kind"; then
++      say "INJECTED|m0=$m|kind=$kind|what=a_command_that_ignores_TERM_under_a_2_second_limit_with_KILL_3_seconds_later|json=0"
++      run_cmd "$kind" "$m" $att 2 3 "$lf" bash -c 'trap "" TERM; sleep 20'
+     else
+-      run_cmd "$kind" "$m" $att "$LIMIT" "$lf" "$@"
++      run_cmd "$kind" "$m" $att "$LIMIT" "$KILLAFTER" "$lf" "$@"
+     fi
+     classify "$lf"
+     if [ "$CLS" = crash ] && [ $RERUNS -gt 0 ]; then
+       RERUNS=0; say "NOTE|rerun_once_with_identical_arguments=row_008|m0=$m|kind=$kind|first_rc=$RC|json=0"
+-      aside "$kind" "$m" $att; att=2; continue
++      [ "$kind" = gate ] || aside "$kind" "$m" $att
++      att=2; continue
+     fi
+     break
+   done
+   cp "$lf" "$LOG/${lb}.txt"
+ }
+-stub() { echo "STEP|m0=$1|status=$2|accepted=0|certificates=0|bad=$3|json=0" > "$LOG/m$1_step.hbp"; say "STEP|m0=$1|status=$2|accepted=0|bad=$3|json=0"; }
++stub() { echo "STEP|m0=$1|status=$2|accepted=0|certificates=0|resource_limit=HELD|bad=$3|json=0" > "$LOG/m$1_step.hbp"; say "STEP|m0=$1|status=$2|accepted=0|bad=$3|json=0"; }
++opfail() { # m0 why ; a crash or a time limit: operational only while no completed process of the step broke the memory limit (row 122)
++  guard || integrity_stop
++  "${EVAL[@]}" opfail out="$OUT" m0="$1" why="$2" mode="$MODE" "${LIMARG[@]}" | tee -a "$LOG/run.log"
++  [ -f "$LOG/m$1_step.hbp" ] || stub "$1" FAIL evaluator_wrote_no_step_file
++}
+ 
+ step() { # idx m0 ; return 0 when a step file exists, 1 when the run stops without one
+-  local idx=$1 m=$2 RUN="$OUT/RUN$2" h x b
++  local idx=$1 m=$2 RUN="$OUT/RUN$2" x b
+   [ -e "$RUN" ] && { STOP=FAIL_run_directory_exists_before_rowhash_row_001; return 1; }
+-  h=$(sha256sum "$FB" | cut -d' ' -f1); say "NOTE|before_m0=$m|binary_sha256=$h|json=0"
+-  [ "$h" = "$FBSHA" ] || { STOP=FAIL_binary_changed_row_018; return 1; }
+-  do_cmd rowhash "$m" "$idx" "m${m}_rowhash" python3 -I -B "$PEAK" "$FB" rowhash --m0 "$m" --threads 2 --dir "$RUN"
++  say "NOTE|before_m0=$m|binary_sha256=$(sha256sum "$XB" | cut -d' ' -f1)|json=0"
++  do_cmd rowhash "$m" "$idx" "m${m}_rowhash" python3 -I -B "$PEAK" "$XB" rowhash --m0 "$m" --threads 2 --dir "$RUN"
+   case $CLS in
+     refuse) stub "$m" FAIL rowhash_command_refused; return 0;;
+-    crash|timeout) aside rowhash "$m" final; stub "$m" OPFAIL "rowhash_command_$CLS"; return 0;;
++    crash|timeout) aside rowhash "$m" final; opfail "$m" "rowhash_command_$CLS"; return 0;;
+   esac
+   if [ "$idx" -eq 3 ]; then # row 007 prerequisite
+     sha256sum "$RUN/core_keys_m$m.bin" > "$LOG/m${m}_keysha.txt" 2>&1
+     do_cmd rowsonly "$m" "$idx" "m${m}_rowsonly" python3 -I -B "$VERIFIER" --rows-only "$RUN/core_keys_m$m.bin" "$m"
+     [ "$CLS" = ok ] || { STOP="PREREQUISITE_NOT_MET_row_007_verifier_$CLS"; return 1; }
+-    x=$("${EVAL[@]}" prereq out="$OUT" pred="$PREDREL" m0="$m"); b=$?; say "$x|json=0"
++    guard || integrity_stop
++    x=$("${EVAL[@]}" prereq out="$OUT" pred="$PPRED" m0="$m" mode="$MODE" "${LIMARG[@]}"); b=$?; say "$x|json=0"
+     [ $b -eq 0 ] || { STOP=PREREQUISITE_NOT_MET_row_007; return 1; }
+   fi
+   ls -1 "$RUN" > "$LOG/m${m}_dir_after_rowhash.txt"
+   local extra=()
+   [ "$T_PLANT" != "" ] && [ "${T_PLANT%%:*}" = "$idx" ] && { extra=(--plant all --ub "${T_PLANT#*:}"); say "INJECTED|m0=$m|kind=cert|what=plant_all_files_written_beside_the_honest_certificate|json=0"; }
+-  do_cmd cert "$m" "$idx" "m${m}_cert" python3 -I -B "$PEAK" "$FB" cert --m0 "$m" --r "$R" --f "$FSPEC" --write-cert --threads 2 --dir "$RUN" "${FREEZE_ARGS[@]}" "${extra[@]}"
++  do_cmd cert "$m" "$idx" "m${m}_cert" python3 -I -B "$PEAK" "$XB" cert --m0 "$m" --r "$R" --f "$FSPEC" --write-cert --threads 2 --dir "$RUN" "${FREEZE_ARGS[@]}" "${extra[@]}"
+   case $CLS in
+     refuse) stub "$m" FAIL cert_command_refused; return 0;;
+-    crash|timeout) aside cert "$m" final; stub "$m" OPFAIL "cert_command_$CLS"; return 0;;
++    crash|timeout) aside cert "$m" final; opfail "$m" "cert_command_$CLS"; return 0;;
+   esac
+   for x in "$RUN"/cert_*.txt; do
+     [ -e "$x" ] || continue
+     b=$(basename "$x")
+     do_cmd gate "$m" "$idx" "m${m}_gate_$b" bash "$GATE" "$x" "${FREEZE_ARGS[@]}"
+-    case $CLS in crash|timeout) STOP="GATE_OPERATIONAL_FAILURE_m0_${m}_$CLS"; return 1;; esac
++    # a verifier that ended without a verdict (exception, kill) or ran into the time limit: operational, rows 006 (b) and 007 (b)
++    case $CLS in crash|timeout) aside gate "$m" final; opfail "$m" "verifier_$CLS"; return 0;; esac
+   done
+-  "${EVAL[@]}" step pred="$PREDREL" out="$OUT" m0="$m" r="$R" fspec="$FSPEC" mode="$MODE" census="$CENSUS" commit="$C" psha="$P" fbsha="$FBSHA" | tee -a "$LOG/run.log"
+-  [ -f "$LOG/m${m}_step.hbp" ] || { STOP=EVALUATOR_FAILED_m0_$m; return 1; }
++  guard || integrity_stop
++  "${EVAL[@]}" step root="$ROOT" tools="$PRIV" pred="$PPRED" out="$OUT" m0="$m" r="$R" fspec="$FSPEC" mode="$MODE" census="$CENSUS" commit="$C" psha="$P" fbsha="$FBSHA" "${LIMARG[@]}" | tee -a "$LOG/run.log"
++  [ -f "$LOG/m${m}_step.hbp" ] || { STOP=FAIL_evaluator_wrote_no_step_file_m0_$m; return 1; }
+   return 0
+ }
+ 
+@@ -186,10 +313,18 @@ for m in "${STEPS[@]}"; do
+   idx=$((idx+1))
+   step "$idx" "$m" || break
+   RUNSTEPS="${RUNSTEPS:+$RUNSTEPS,}$m"
+-  D=$("${EVAL[@]}" decide out="$OUT" steps="$RUNSTEPS" g0="$G0" allowed="${#STEPS[@]}") || { STOP=EVALUATOR_FAILED_decide; break; }
++  guard || integrity_stop
++  D=$("${EVAL[@]}" decide out="$OUT" steps="$RUNSTEPS" g0="$G0" allowed="${#STEPS[@]}") || { STOP=FAIL_evaluator_decide; break; }
+   say "$(echo "$D" | grep '^DECISION|')"
+   [ "$(echo "$D" | grep '^NEXT|')" = "NEXT|ADVANCE" ] || break
+ done
+-"${EVAL[@]}" final out="$OUT" pred="$PREDREL" steps="$RUNSTEPS" g0="$G0" allowed="${#STEPS[@]}" mode="$MODE" r="$R" stop="$STOP" \
++# ---- closing: every pinned file and every private copy once more here, and every PIN row and the private copies
++# again inside the evaluator before it prints
++guard || integrity_stop
++for i in "${!TDST[@]}"; do
++  say "TOOL_CLOSING|private_copy=${TDST[$i]#"$PRIV"/}|sha256=$(sha256sum "${TDST[$i]}" | cut -d' ' -f1)|want=${TWANT[$i]}|json=0"
++done
++"${EVAL[@]}" final root="$ROOT" tools="$PRIV" out="$OUT" pred="$PPRED" steps="$RUNSTEPS" g0="$G0" allowed="${#STEPS[@]}" mode="$MODE" r="$R" stop="$STOP" \
+   commit="$C" fbsha="$FBSHA" drvsha="$DRVSHA" receipt="$OUT/FLOOR-RUN-RECEIPT.hbp"
+ exit $?
++}

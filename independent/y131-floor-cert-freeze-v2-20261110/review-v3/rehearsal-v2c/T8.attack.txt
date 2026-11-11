@@ -1,0 +1,1 @@
+ATTACK|case=T8|launcher_sha16=8d1f01cfb85f19ce|fake_calls=0|what=T8_append_to_the_private_record_copy|write_into_the_private_directory_exit=1|json=0
