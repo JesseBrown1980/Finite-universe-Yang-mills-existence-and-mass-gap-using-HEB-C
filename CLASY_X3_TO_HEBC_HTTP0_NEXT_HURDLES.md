@@ -2,6 +2,8 @@
 
 **Current status — November 3, 2026.** The two-plaquette interacting Hamiltonian (Stage 2B), periodic 2×2 gauge-invariant Hamiltonian and mixed-coupling intervals (Stage 2C), the finite-volume sector ladder, full-space 3×3 certificate and 3×4 Perron route have been implemented and recorded. The [current research and verification register](docs/RESEARCH-STATUS-2026-11-03.md) tracks these achievements and the next continuum and reproducibility milestones. The original priority table below preserves the October 24 development sequence.
 
+**November 11, 2026.** The current map is the README's [Where we stand, November 11, 2026](README.md#where-we-stand-november-11-2026); this document is kept as the dated hurdle list.
+
 **Updated:** 2026-10-24. **Execution:** Rust 1.81.0, safe code, integer-only arithmetic, Clippy -D warnings, zero JSON serialization, no JavaScript/Node/V8. **Display:** not required.
 
 ## Provenance
