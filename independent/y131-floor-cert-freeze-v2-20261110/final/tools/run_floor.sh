@@ -1,5 +1,5 @@
 #!/bin/bash
-# run_floor.sh -- single launcher of the frozen floor-certificate run (version 2 freeze, third correction round).
+# run_floor.sh -- single launcher of the frozen floor-certificate run (version 2 freeze, fourth correction round).
 #   frozen run: bash final/tools/run_floor.sh --launch-r9 [--freeze-commit C]
 #               r = 9, m0 = 11, then 12 and 13 only under rows 006 and 007 of the prediction record.
 #               The token --launch-r9 is the only way into this mode; no other argument set reaches r = 9.
@@ -21,6 +21,15 @@
 # without stage 1, it stops with NOT_STARTED (exit 4) before it mounts or writes anything. After the two tmpfs
 # mounts it reads the mount tables: both mounts must be listed for this process and absent for the parent process
 # and for process 1, or the run stops with NOT_STARTED. Only then does the run log say that the namespace is private.
+# EXCLUSIVE (row 139). No other process may sit in that mount namespace: at the start of stage 2, after the mounts and
+# at the close the launcher lists every process whose mount namespace is its own; one that is neither this shell nor
+# a child of it stops the run (NOT_STARTED before the first command, CERTIFICATE=FAIL at the close). An entry made
+# through a namespace that another process holds (nsenter) is refused by this check.
+# BUILD (row 139). Cargo runs with CARGO_HOME set to an empty directory on the launcher's tmpfs; a cargo
+# configuration file in the Rust folder or in any directory above it, and any untracked file in the Rust folder
+# outside target/, stop the run. With a frozen build the tracked files of the whole repository must be unchanged.
+# PUBLISH. Before its final line the launcher prints PUBLISH|receipt_sha256=...; that value is to be made public at
+# once, and the checker of row 131 requires it for the r9 receipt (row 138).
 # Stage 1 first refuses a caller environment that carries BASH_ENV, ENV, an LD_ name, a PYTHON name or an exported
 # shell function (NOT_STARTED, exit 4); stage 2 stops unless its environment holds the whitelisted names only.
 # TOOLS. python3, bash, sha256sum, timeout, setsid and git are resolved once under the fixed PATH to absolute paths,
@@ -87,6 +96,18 @@ for v in "$NS_SELF" "$NS_PARENT" "$NS_INIT"; do
 done
 [ "$NS_SELF" != "$NS_PARENT" ] && [ "$NS_SELF" != "$NS_INIT" ] || early_stop namespace second_stage_entered_outside_a_private_mount_namespace
 /usr/bin/grep -Eq ' (shared|master|propagate_from):[0-9]+ ' /proc/self/mountinfo; [ $? -eq 1 ] || early_stop namespace mount_namespace_holds_a_shared_or_slave_mount
+ns_others() { # the pids, other than this shell and its own children, whose mount namespace is this one (row 139)
+  local p q
+  for p in /proc/[0-9]*; do
+    p=${p#/proc/}
+    [ "$p" = "$$" ] && continue
+    [ "$(/usr/bin/readlink "/proc/$p/ns/mnt" 2>/dev/null)" = "$NS_SELF" ] || continue
+    q=$(/usr/bin/sed -n 's/^PPid:[[:space:]]*//p' "/proc/$p/status" 2>/dev/null)
+    [ "$q" = "$$" ] && continue
+    echo "$p"
+  done
+}
+[ -z "$(ns_others)" ] || early_stop namespace mount_namespace_is_held_by_another_process
 unset BASH_ENV ENV CDPATH GLOBIGNORE
 ROOT="$FLOOR_ROOT"; HERE="$ROOT/final/tools"
 cd "$ROOT" || early_stop environment cannot_enter_the_freeze_folder
@@ -269,6 +290,7 @@ for x in "$OUT/tmp" "$PRIV"; do
   ns_seen /proc/1/mountinfo "$x"; [ $? -eq 1 ] || NSBAD=${NSBAD:-private_tmpfs_listed_or_unreadable_in_the_mount_table_of_process_1}
 done
 [ "$(/usr/bin/readlink /proc/self/ns/mnt 2>/dev/null)" = "$NS_SELF" ] || NSBAD=${NSBAD:-mount_namespace_id_changed}
+[ -z "$(ns_others)" ] || NSBAD=${NSBAD:-mount_namespace_is_held_by_another_process}
 if [ -n "$NSBAD" ]; then umount "$PRIV" 2>/dev/null; umount "$OUT/tmp" 2>/dev/null; prelude_stop UNRESOLVED "$NSBAD"; fi
 TDST=("$PRIV/gate_required.sh" "$PRIV/py/cert_gate.py" "$PRIV/py/indep_verify.py")
 for i in 0 1 2; do
@@ -282,7 +304,7 @@ guard || integrity_stop
 GATE="$PRIV/gate_required.sh"; VERIFIER="$PRIV/py/cert_gate.py"
 LOG="$OUT/log"
 say "START|mode=$MODE|r=$R|m0_steps=${STEPS[*]}|f=$FSPEC|g0=$G0|prediction_sha256=$P|driver_sha256=$DRVSHA|run_directory=$OUT|json=0"
-say "NOTE|environment=env_-i_with_PATH=/usr/bin:/bin_LANG=C_HOME=${HOME}_TMPDIR=<run_directory>/tmp|mount_namespace=private_CHECKED_(row_132)|namespace_of_this_process=$NS_SELF|namespace_of_the_parent_process=$NS_PARENT|namespace_of_process_1=$NS_INIT|shared_or_slave_mounts=0|both_tmpfs_mounts=listed_here_and_absent_from_the_mount_tables_of_the_parent_process_and_of_process_1|tmpdir=tmpfs_mounted_in_that_namespace|private_tools=a_second_tmpfs_read-only_after_the_last_write|launcher_pid=$$|children=bash_--noprofile_--norc_and_python3_-I_-B|json=0"
+say "NOTE|environment=env_-i_with_PATH=/usr/bin:/bin_LANG=C_HOME=${HOME}_TMPDIR=<run_directory>/tmp|mount_namespace=private_CHECKED_(row_132)|namespace_of_this_process=$NS_SELF|namespace_of_the_parent_process=$NS_PARENT|namespace_of_process_1=$NS_INIT|shared_or_slave_mounts=0|other_processes_in_this_namespace=0|both_tmpfs_mounts=listed_here_and_absent_from_the_mount_tables_of_the_parent_process_and_of_process_1|tmpdir=tmpfs_mounted_in_that_namespace|private_tools=a_second_tmpfs_read-only_after_the_last_write|launcher_pid=$$|children=bash_--noprofile_--norc_and_python3_-I_-B|json=0"
 for x in "${TOOLLINES[@]}"; do say "$x"; done
 for i in 0 1 2; do
   say "TOOL|private_copy=${TDST[$i]#"$PRIV"/}|written_from=memory|source=${MSRC[$i]}|sha256=$("$SHA" "${TDST[$i]}" | cut -d' ' -f1)|pin=${MROW[$i]}|want=${MWANT[$i]}|json=0"
@@ -299,15 +321,27 @@ if [ $FZ -eq 1 ]; then
   PFX=$("$GIT" rev-parse --show-prefix 2>/dev/null)
   BL=$("$GIT" show "$C:$PFX$PREDREL" 2>/dev/null | "$SHA" | cut -d' ' -f1)
   [ "$BL" = "$P" ] || prelude_stop FAIL prediction_record_differs_from_the_freeze_commit
-  [ -z "$("$GIT" status --porcelain --untracked-files=no -- . 2>/dev/null)" ] || prelude_stop FAIL tracked_files_differ_from_the_commit
+  [ -z "$("$GIT" status --porcelain --untracked-files=no 2>/dev/null)" ] || prelude_stop FAIL tracked_files_differ_from_the_commit
   say "NOTE|freeze_commit=$C|prediction_blob_sha256=$BL|json=0"
 fi
 # ---- toolchain (row 017) and the pin-free binary of row 016
 RV=$("$RUSTC" --version 2>&1); CV=$("$CARGO" --version 2>&1)
 say "NOTE|rustc=$RV|cargo=$CV|json=0"
 [ "$RV" = "$RUSTC_PIN" ] && [ "$CV" = "$CARGO_PIN" ] || prelude_stop FAIL toolchain_differs_from_row_017
+# ---- the build environment (row 139): nothing but the pinned source, Cargo.toml and Cargo.lock reaches cargo
+CGD="$ROOT/work/design/rs"
+while :; do
+  { [ -e "$CGD/.cargo/config.toml" ] || [ -e "$CGD/.cargo/config" ] || [ -L "$CGD/.cargo" ]; } && prelude_stop FAIL cargo_configuration_file_in_the_Rust_folder_or_above_it
+  [ "$CGD" = / ] && break
+  CGD=$(dirname "$CGD")
+done
+if [ -n "$TOP" ]; then
+  [ -z "$("$GIT" -C "$ROOT" ls-files --others -- work/design/rs 2>/dev/null | grep -v '^work/design/rs/target/')" ] || prelude_stop FAIL untracked_file_in_the_Rust_folder
+fi
+CH="$TMPDIR/cargo-home"; mkdir -m 700 "$CH" || prelude_stop UNRESOLVED cannot_create_the_empty_cargo_home
+say "NOTE|build_environment=CARGO_HOME_is_an_empty_directory_on_the_launcher_tmpfs|cargo_configuration_files_in_the_Rust_folder_or_above=0|untracked_files_in_the_Rust_folder_outside_target=$([ -n "$TOP" ] && echo 0 || echo NOT_CHECKED_no_git_checkout)|json=0"
 if [ ! -f "$PINFREE" ]; then
-  (cd work/design/rs && RUSTC="$RUSTC" "$CARGO" build --release --locked -j1) > "$LOG/build_pinfree.txt" 2>&1 \
+  (cd work/design/rs && CARGO_HOME="$CH" RUSTC="$RUSTC" "$CARGO" build --release --locked -j1) > "$LOG/build_pinfree.txt" 2>&1 \
     || prelude_stop UNRESOLVED pin_free_build_failed
 fi
 guard || integrity_stop
@@ -315,7 +349,7 @@ guard || integrity_stop
 say "$(tail -1 "$LOG/pincheck_1.txt")"
 if [ $FZ -eq 1 ]; then
   FB="$OUT/target/release/floorcert"
-  (cd work/design/rs && RUSTC="$RUSTC" CARGO_TARGET_DIR="$OUT/target" FLOORCERT_FREEZE_COMMIT="$C" FLOORCERT_PREDICTION_SHA256="$P" "$CARGO" build --release --locked -j1) > "$LOG/build_frozen.txt" 2>&1 || prelude_stop UNRESOLVED frozen_build_failed
+  (cd work/design/rs && CARGO_HOME="$CH" RUSTC="$RUSTC" CARGO_TARGET_DIR="$OUT/target" FLOORCERT_FREEZE_COMMIT="$C" FLOORCERT_PREDICTION_SHA256="$P" "$CARGO" build --release --locked -j1) > "$LOG/build_frozen.txt" 2>&1 || prelude_stop UNRESOLVED frozen_build_failed
   [ -f "$FB" ] || prelude_stop UNRESOLVED frozen_binary_absent
   guard || integrity_stop
   "${EVAL[@]}" pins root="$ROOT" pred="$PPRED" tag=2 > "$LOG/pincheck_2.txt" 2>&1 || { tail -1 "$LOG/pincheck_2.txt"; prelude_stop FAIL pin_check_2_mismatch_row_010; }
@@ -481,13 +515,14 @@ done
 # ---- closing: every pinned file and every private copy once more here, and every PIN row and the private copies
 # again inside the evaluator before it prints
 guard || integrity_stop
+if [ -n "$(ns_others)" ]; then STOP=FAIL_another_process_sits_in_the_mount_namespace_at_the_close; say "NOTE|close=another_process_sits_in_the_mount_namespace|json=0"; fi
 for i in 0 1 2; do
   say "TOOL_CLOSING|private_copy=${TDST[$i]#"$PRIV"/}|sha256=$("$SHA" "${TDST[$i]}" | cut -d' ' -f1)|want=${MWANT[$i]}|json=0"
 done
 say "TOOL_CLOSING|in_memory=peak_rss.py|sha256=$(msha "${MTXT[3]}")|want=${MWANT[3]}|json=0"
 say "TOOL_CLOSING|in_memory=floor_eval.py|sha256=$(msha "${MTXT[4]}")|want=${MWANT[4]}|json=0"
 say "TOOL_CLOSING|in_memory=run_floor.sh|sha256=$(msha "$BASH_EXECUTION_STRING")|want=$(pinval 114)|json=0"
-FOUT=$("${EVAL[@]}" final root="$ROOT" tools="$PRIV" out="$OUT" pred="$PPRED" steps="$RUNSTEPS" g0="$G0" allowed="${#STEPS[@]}" mode="$MODE" r="$R" stop="$STOP" \
+FOUT=$("${EVAL[@]}" final root="$ROOT" tools="$PRIV" out="$OUT" pred="$PPRED" steps="$RUNSTEPS" g0="$G0" allowed="${#STEPS[@]}" plan="$(IFS=,; echo "${STEPS[*]}")" fspec="$FSPEC" mode="$MODE" r="$R" stop="$STOP" \
   commit="$C" fbsha="$FBSHA" drvsha="$DRVSHA" evsha="$EVSHA" peaksha="$PEAKSHA" predrel="$PREDREL" receipt="$OUT/FLOOR-RUN-RECEIPT.hbp")
 ERC=$?
 guard || integrity_stop
@@ -507,6 +542,7 @@ if [ "$XC" = bad ] || [ "$XC" != "$ERC" ]; then
   echo "FLOOR_RUN|CERTIFICATE=FAIL|$NOBOUND|certificate_reason=REQUIRED_OR_INTEGRITY_FAILURE_ROW_008|stage=closing|reason=evaluator_output_and_exit_code_${ERC}_do_not_form_one_final_line|r=$R|steps_run=${RUNSTEPS:-none}|accepted_certificates=0|prediction_sha256=$P|binary_sha256=$FBSHA|HASHES=$(hashes_of_out)|json=0"
   exit 1
 fi
+echo "PUBLISH|receipt_sha256=$("$SHA" "$OUT/FLOOR-RUN-RECEIPT.hbp" | cut -d' ' -f1)|receipt=$OUT/FLOOR-RUN-RECEIPT.hbp|make_this_value_public_now=the_checker_of_row_131_requires_it_for_the_r9_receipt_(row_138)|json=0"
 printf '%s\n' "$FIN"
 exit "$XC"
 }

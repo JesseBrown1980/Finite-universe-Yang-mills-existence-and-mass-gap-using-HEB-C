@@ -325,3 +325,17 @@ VERSION 2 (2026-11-10, local build seat, Claude Opus 5.5; owner-relayed reviewer
   main.rs, the binary hash, gate_required.sh, cert_gate.py, indep_verify.py, peak_rss.py and the 16 PREDICT rows are unchanged.
 - Record after the third correction round: 908373ebb40979e0d8d49a1b20990fe2c65195ec338dc4424189649850be4d82, 136 rows. ROWCMP_END|78c89c31_rows=130|same_bytes=128|changed=2|changed_ids=114_115|new_rows=6|new_ids=131_132_133_134_135_136|predict_rows=16|predict_same_bytes=16|header_lines_78c89c31=12|header_lines_now=13|header_lines_same=12|json=0
 - Nothing was computed at r = 9 or at any r within 1 of 9. The r = 9 run stays on HOLD.
+- FOURTH CORRECTION ROUND (2026-11-11, one commit on top of 5eecb540431a1b5665605f68ed81bc701719dcd1; fourth final-head verification FAIL on the checker, review-v5/; record rows 137-141).
+  The record hash, the tool hashes and the row count in the lines above are those of the earlier commits.
+  Found by the verifier seat on the checker of 5eecb540: ACCEPT=YES on rewritten receipts (a step's certificates removed to hide BELOW; a certificate of another
+  f word added to reach ABOVE; a failed run rewritten as PASS; a hand-written receipt; scores changed), and four smaller acceptances (row 137).
+  Checker: rewritten to replay the frozen protocol from constants, to require exactly the protocol's certificates, to refuse a step after a decision and an
+  UNRESOLVED result with an uncompleted step, to recompute the scores other than 068 and 070, to compare the verifier memory with the limit, and to require the
+  published receipt hash for the r9 receipt (row 138 beside rows 127 and 133).
+  Launcher: the mount namespace must hold the launcher alone (finding C4); empty CARGO_HOME, no cargo configuration file, no untracked file in the Rust folder
+  (finding E4); the whole repository unchanged for a frozen build (finding E3b); a PUBLISH line with the receipt sha256 (row 139).
+  Evaluator: one PROTOCOL row in the receipt.
+  Launcher 5203631998f0ff53d2bfe86dc0307405e42e5b2bd908b2aaf28beef7566ceda8, evaluator f92f404f117d6d5f20fb8c5d020797060b539d2a0784d2b1d2c851b68ac42a10, checker e28ea393ba00fb173ef0678a06959b37df17073f81ef9f48c1f5565c1e58afe4.
+  main.rs, the binary hash, gate_required.sh, cert_gate.py, indep_verify.py, peak_rss.py, freeze_args_controls.sh and the 16 PREDICT rows are unchanged.
+- Record after the fourth correction round: 561e36b40630485c9f27ee981bb1c03280c63296153fca21c3123703308cc96e, 141 rows. ROWCMP_END|5eecb540_rows=136|same_bytes=133|changed=3|changed_ids=114_115_131|new_rows=5|new_ids=137_138_139_140_141|predict_rows=16|predict_same_bytes=16|header_lines_5eecb540=13|header_lines_now=14|header_lines_same=13|json=0
+- Nothing was computed at r = 9 or at any r within 1 of 9. The r = 9 run stays on HOLD.

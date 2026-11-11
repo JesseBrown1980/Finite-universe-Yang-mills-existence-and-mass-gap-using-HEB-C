@@ -103,6 +103,38 @@ The rehearsals of this round are listed in row 135 and kept under `review-v4/reh
 within 1 of it. The r = 9 run stays on HOLD until the reviewer accepts this commit with evidence from an independent
 environment.
 
+Fourth correction round (2026-11-11, one commit on top of `5eecb540431a1b5665605f68ed81bc701719dcd1`): the fourth final-head
+verification of that commit returned FAIL on the checker (`review-v5/verifier/VERIFY-FLOOR-FREEZE-V2-FINAL4.md`). The
+launcher, the frozen build and a full-size run to m0 = 13 were reproduced from a fresh clone. The checker accepted
+rewritten receipts whose decision the run had not reached: a falsification hidden by removing a step's certificates, a
+result decided by a certificate from another run, a failed run rewritten as a pass. The record now has 141 rows and sha256
+`561e36b40630485c9f27ee981bb1c03280c63296153fca21c3123703308cc96e`; the launcher is
+`5203631998f0ff53d2bfe86dc0307405e42e5b2bd908b2aaf28beef7566ceda8`, the evaluator
+`f92f404f117d6d5f20fb8c5d020797060b539d2a0784d2b1d2c851b68ac42a10` and the checker
+`e28ea393ba00fb173ef0678a06959b37df17073f81ef9f48c1f5565c1e58afe4`. The hashes and the row count given earlier in this notice are
+those of the earlier commits. The Rust source, the binary hash, `gate_required.sh`, `cert_gate.py`, `indep_verify.py`,
+`peak_rss.py` and the 16 PREDICT rows are byte-identical (`review-v5/ROW-COMPARE-5EECB540.hbp`).
+
+What changed (record rows 137-141):
+
+- The checker replays the frozen protocol (row 138). It holds r = 9, the steps 11, 12, 13, the three f words and g0 as
+  constants. ACCEPT=YES needs every certificate the protocol calls for, no certificate beside them, no step after a
+  decision, and its own decision, bounds, per-step values and scores equal to the receipt's. An UNRESOLVED result with a
+  step that did not complete is left to the reviewer: the checker ends ACCEPT=NO.
+- The receipt hash is published (row 138). The launcher prints `PUBLISH|receipt_sha256=...` before its final line, and the
+  checker needs that value for the r = 9 receipt: `python3 -I -B final/tools/recheck_floor.py
+  receipt=RUN_DIRECTORY/FLOOR-RUN-RECEIPT.hbp commit=C receipt_sha256=H`.
+- The launcher's mount namespace must hold the launcher alone (row 139): another process in it stops the run at the
+  start, after the mounts, or at the close.
+- The build takes nothing but the pinned files (row 139): an empty CARGO_HOME, no cargo configuration file in the Rust
+  folder or above it, no untracked file in the Rust folder, and with a frozen build an unchanged repository.
+
+What stays open is listed in row 139: the writer's peak memory and PREDICT rows 068 and 070 are values of the launching
+host; a certificate is accepted on what the verifier proves, whoever wrote it; a root process can still enter the
+namespace between two checks. The rehearsals of this round are in row 140 and under `review-v5/rehearsal-v2e/`. Nothing
+was computed at r = 9 or within 1 of it. The r = 9 run stays on HOLD until an independent verification of this commit
+passes.
+
 The text below this notice is the version 1 note, unchanged. Where it gives the version 1 record hash, the version 1
 hashes of `main.rs`, the binary, `gate_required.sh` or `r_scan.sh`, the absolute scratch paths, or the row count 109, the
 version 2 record and this notice give the current values. `work/design/NOTE.md` and `work/map/MAP.md` are the pinned
