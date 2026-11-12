@@ -1,0 +1,13 @@
+CONTRACT|schema=GPT6-R12-TRIVIAL-26D-KRYLOV-V1|date=2026-11-12|status=POST_EXPLORATION_HOSTED_VERIFICATION|json=0
+SOURCE|core_sha256=74c0d38850790c2fff38a6680bf36d3701aeb63b998bd4d7be778539ddd82aec|source_run=43271826090|symmetry_class_source_run=43272369709|json=0
+SEED|class_key=2613485090|orbit_size=12|all_gauge_weights=6|M=3|v0=sum_all_twelve_same_D3xD4_orbit_basis_vectors|group_invariant=YES|json=0
+METHOD|B=180I_minus_H_CC|moments=weighted_inner_v0_Bpower_v0|Krylov_degree=30|dim=31|Gram_positive_required=1|json=0
+POSTEXPLORATION|t=10451/100|negative_directions=1|json=0
+POSTEXPLORATION|t=10468/100|negative_directions=2|json=0
+POSTEXPLORATION|t=10485/100|negative_directions=3|json=0
+POSTEXPLORATION|t=1055/10|negative_directions=3|json=0
+POSTEXPLORATION|t=110/1|negative_directions=3|json=0
+COMBINE|independent_nontrivial_K25_t1055_over10_negative_directions=2|independent_invariant_K30_t1055_over10_negative_directions=3|full_nonflat_at_least_five_below_1055_over10|json=0
+COMBINE|independent_nontrivial_K25_t110_negative_directions=4|independent_invariant_K30_t110_negative_directions=3|full_nonflat_at_least_seven_below_110|json=0
+GATE|exact_integer_Gram_Bareiss_and_Q_Bareiss|authentic_full_graph_source|authentic_M3_class_table|separate_nontrivial_source_receipt|r9=HOLD|json=0
+LIMIT|source_representation_and_symmetry_covariance_required|trivial_nonlinear_gap_not_claimed|full_nonflat_level_1_to_2_gap_lower_BOUND_OPEN|r9_HOLD=YES|json=0
