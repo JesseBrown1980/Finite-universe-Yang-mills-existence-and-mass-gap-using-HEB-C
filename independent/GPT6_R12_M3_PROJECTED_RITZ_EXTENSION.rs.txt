@@ -27,6 +27,15 @@ fn gauge_m3_projected_ritz(args: &[String]) {
         }
         edges[i].sort_by_key(|x| x.0);
     }
+    let mut m3_classes:HashMap<u64,Vec<u64>>=HashMap::new();
+    for (i,&key) in keys.iter().enumerate() {
+        let u=tab.links_of_key(key);
+        let class_key=tab.canon(&u);
+        m3_classes.entry(class_key).or_default().push(key);
+        println!("M3_ORBIT_CLASS|index={}|key={}|class_key={}|gauge_weight={}|json=0",i,key,class_key,weights[i]);
+    }
+    assert_eq!(m3_classes.len(),3);
+    assert_eq!(m3_classes.values().map(|v|v.len()).sum::<usize>(),36);
     let mut directed=0usize;
     for i in 0..36 {
         assert!(weights[i]>0);
