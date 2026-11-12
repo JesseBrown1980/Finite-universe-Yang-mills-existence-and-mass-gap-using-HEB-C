@@ -1,0 +1,99 @@
+name: GPT6 exact GS sweep reversal r12, all three cutoffs
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-gs-sweep-reversal-r12.yml'
+      - 'independent/gpt6_gs_sweep_order_20261112.py'
+      - 'independent/GPT6_GS_SWEEP_PREDICTION_R12_20261112.hbp'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: gpt6-gs-r12-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  test_matrix:
+    name: Independently replay forward/reverse GS at cutoff ${{ matrix.cutoff }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        cutoff: [7, 8, 9]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43222707802
+          name: gitram-cutoff-${{ matrix.cutoff }}
+          github-token: ${{ github.token }}
+          path: pinned
+      - name: Verify frozen prediction, all source SHA manifests, source base
+        run: |
+          set -euo pipefail
+          grep -q '^EXACT_IDENTITY|' independent/GPT6_GS_SWEEP_PREDICTION_R12_20261112.hbp
+          grep -q '^LIMIT|frozen_certificates_not_edited=1|r9_HOLD=1|' independent/GPT6_GS_SWEEP_PREDICTION_R12_20261112.hbp
+          (cd pinned && sha256sum -c SHA256SUMS)
+          test "$(find pinned -name 'cert_m*_r12_1_f*.txt' | wc -l)" -eq 3
+          test -s pinned/rows.txt
+      - name: Independently replay fixed inverse solver in two directions, 8 then 24 sweeps
+        env:
+          M0: ${{ matrix.cutoff }}
+        run: |
+          set -euo pipefail
+          mkdir -p audit
+          python3 -B independent/gpt6_gs_sweep_order_20261112.py pinned "$M0" independent/y140-residual-leaves-spectrum-r12-20261112/leaves > "audit/GS-CUTOFF-$M0.hbp"
+          cat "audit/GS-CUTOFF-$M0.hbp"
+          test "$(grep -c '^FROZEN_RESIDUAL|' "audit/GS-CUTOFF-$M0.hbp")" -eq 3
+          test "$(grep -c '^GS_EXACT|' "audit/GS-CUTOFF-$M0.hbp")" -eq 12
+          test "$(grep -c '^CONVERGENCE|' "audit/GS-CUTOFF-$M0.hbp")" -eq 6
+          grep -q "^GS_CUTOFF_PASS|m0=$M0|words=3|forward_backward=PASS|replay_8_and_24=PASS|r=12|r9=HOLD|" "audit/GS-CUTOFF-$M0.hbp"
+          (cd audit && sha256sum GS-CUTOFF-*.hbp > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-exact-gs-r12-cutoff-${{ matrix.cutoff }}
+          path: audit/
+          retention-days: 30
+          if-no-files-found: warn
+  seal:
+    name: Nine-case exact GS order and convergence all-or-nothing seal
+    needs: test_matrix
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gpt6-exact-gs-r12-cutoff-*
+          path: seal
+      - name: Verify all three authenticated exact samples
+        run: |
+          set -euo pipefail
+          test '${{ needs.test_matrix.result }}' = success
+          for m in 7 8 9; do
+            p="seal/gpt6-exact-gs-r12-cutoff-$m"
+            test -s "$p/GS-CUTOFF-$m.hbp"
+            (cd "$p" && sha256sum -c SHA256SUMS)
+            grep -q "^GS_CUTOFF_PASS|m0=$m|" "$p/GS-CUTOFF-$m.hbp"
+          done
+          {
+            echo 'GS_SEAL|schema=GPT6-EXACT-GS-ORDER-V1|cutoffs=7,8,9|weights=3|direction=forward,reverse|sweeps=8,24|r=12|r9=HOLD|json=0'
+            for m in 7 8 9; do cat "seal/gpt6-exact-gs-r12-cutoff-$m/GS-CUTOFF-$m.hbp"; done
+            echo 'GS_SEAL_PASS|cutoffs=3|cases=9|reversed_and_fixed_sweep_replay=YES|r9=HOLD|json=0'
+          } > seal/GPT6-GS-R12-SEALED.hbp
+          (cd seal && sha256sum GPT6-GS-R12-SEALED.hbp > GPT6-GS-R12-SEALED.hbp.sha256 && sha256sum -c GPT6-GS-R12-SEALED.hbp.sha256)
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: gpt6-gs-r12-reversal-sealed
+          retention-days: 30
+          path: |
+            seal/GPT6-GS-R12-SEALED.hbp
+            seal/GPT6-GS-R12-SEALED.hbp.sha256
