@@ -1,0 +1,114 @@
+name: GPT6 nonblind V19C 6561-function trailing source order audit
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-v19c-tail-order-probe.yml'
+      - 'independent/GPT6_V19C_TAIL_ORDER_PROVENANCE.hbp'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    name: Source f6543 followed by ${{ matrix.second }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        second: [1, 8-7-6-5-4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify source pins and construct one-cell wrapper without dynamics edits
+        env:
+          SECOND: ${{ matrix.second }}
+        run: |
+          set -euo pipefail
+          ROOT=independent/y140-residual-leaves-spectrum-r12-20261112
+          (cd "$ROOT/results" && sha256sum -c block-cert_m7_r12_1_f1.bin.sha256)
+          mkdir -p out
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          txt=Path("independent/y140-residual-leaves-spectrum-r12-20261112/scripts/field_v19c.py").read_text()
+          a="for N in (729, 2187, 6561):"
+          assert txt.count(a)==1
+          Path("out/v19c-tail.py").write_text(txt.replace(a,"for N in (6561,):",1))
+          s=os.environ["SECOND"]
+          assert s in ("1","8-7-6-5-4")
+          last="8-7-6-5-4" if s=="1" else "1"
+          Path("out/INPUTS.txt").write_text("6-5-4-3\n"+s+"\n"+last+"\n")
+          PY
+      - name: Run two real 6561-function trajectories with one control each
+        run: |
+          set -euo pipefail
+          ROOT=independent/y140-residual-leaves-spectrum-r12-20261112
+          FIRST="$(sed -n '1p' out/INPUTS.txt)"
+          SECOND="$(sed -n '2p' out/INPUTS.txt)"
+          THIRD="$(sed -n '3p' out/INPUTS.txt)"
+          python3 -B out/v19c-tail.py "$ROOT/results/block-cert_m7_r12_1_f1.bin" \
+            "$ROOT/leaves/S_cert_m9_r12_1_f$FIRST.leaf.hbp" \
+            "$ROOT/leaves/S_cert_m9_r12_1_f$SECOND.leaf.hbp" \
+            "$ROOT/leaves/S_cert_m9_r12_1_f$THIRD.leaf.hbp" \
+            1 > out/REAL-6561.hbp
+          python3 - <<'PY'
+          from pathlib import Path
+          def records(path):
+            d={}
+            for line in Path(path).read_text().splitlines():
+              if not line.startswith("FIELD|"):continue
+              f=dict(x.split("=",1) for x in line.split("|") if "=" in x)
+              if f["functions"]!="6561":continue
+              d[f["mode"]]=(f["FANO_real"],f["FAR_real"],f["centre_share_real"])
+            return d
+          actual=records("out/REAL-6561.hbp")
+          expected=records("independent/y140-residual-leaves-spectrum-r12-20261112/results/RESULT-FIELD-V19C.hbp")
+          assert set(actual)==set(expected)=={"FROZEN","GLOBAL_HASH"}
+          second=Path("out/INPUTS.txt").read_text().splitlines()[1]
+          with Path("out/RESULT.hbp").open("w") as w:
+            for mode in ("FROZEN","GLOBAL_HASH"):
+              m=int(actual[mode]==expected[mode])
+              w.write("TAIL_ORDER|first=f6543|second=%s|mode=%s|observed=%s|published=%s|identical=%d|blind=NO|json=0\n"%(second,mode,",".join(actual[mode]),",".join(expected[mode]),m))
+          print(Path("out/RESULT.hbp").read_text())
+          PY
+          (cd out && sha256sum INPUTS.txt REAL-6561.hbp RESULT.hbp > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-v19c-tail-second-${{ matrix.second }}
+          path: out/
+          retention-days: 30
+          if-no-files-found: warn
+  seal:
+    name: Compare all possible remaining source orders
+    if: always()
+    needs: probe
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gpt6-v19c-tail-second-*
+          path: sources
+      - run: |
+          set -euo pipefail
+          test '${{ needs.probe.result }}' = success
+          {
+            echo 'CONTRACT|scope=NONBLIND_SOURCE_ORDER|N=6561|json=0'
+            for f in 1 8-7-6-5-4; do
+              d="sources/gpt6-v19c-tail-second-$f"
+              (cd "$d" && sha256sum -c SHA256SUMS)
+              cat "$d/RESULT.hbp"
+            done
+            echo 'TAIL_PROVENANCE_PASS|two_options=2|json=0'
+          } > sources/TAIL-SOURCE-AUDIT.hbp
+          (cd sources && sha256sum TAIL-SOURCE-AUDIT.hbp > TAIL-SOURCE-AUDIT.hbp.sha256)
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: gpt6-v19c-second-word-audited
+          path: |
+            sources/TAIL-SOURCE-AUDIT.hbp
+            sources/TAIL-SOURCE-AUDIT.hbp.sha256
+          retention-days: 30
