@@ -1,0 +1,128 @@
+name: Independent r12 symmetry-invariant counting inequality audit
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-r12-counting-bridge-independent.yml'
+      - 'independent/gpt6_r12_inertia_bridge_20261112.py'
+      - 'independent/GPT6_R12_COUNTING_BRIDGE_FREEZE_20261112.hbp'
+      - 'independent/GPT6_R12_COUNTING_BRIDGE_REVIEW_20261112.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: gpt6-counting-r12-only-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  inertia:
+    name: Exact weighted 2880-state counting at t=${{ matrix.threshold }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - threshold: 10455/100
+            id: t10455
+            witness: wit-m9-f6543-t104.55-L4.txt
+            expected: 1
+          - threshold: 10470/100
+            id: t10470
+            witness: wit-m9-f6543-t104.7-L4.txt
+            expected: 2
+          - threshold: 110/1
+            id: t110
+            witness: wit-m9-f6543-t110-L3.txt
+            expected: 3
+    env:
+      THRESHOLD: ${{ matrix.threshold }}
+      WITNESS: ${{ matrix.witness }}
+      ID: ${{ matrix.id }}
+      EXPECTED: ${{ matrix.expected }}
+      SRC: independent/y140-residual-leaves-spectrum-r12-20261112
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43222707802
+          name: gitram-cutoff-9
+          github-token: ${{ github.token }}
+          path: pinned
+      - name: Verify immutable source, witnesses, frozen prediction and hold
+        run: |
+          set -euo pipefail
+          grep -q '^CASE|threshold='"$THRESHOLD"'|' independent/GPT6_R12_COUNTING_BRIDGE_FREEZE_20261112.hbp
+          grep -q '^LIMIT|underlying_tail_cap_and_complete_48_symmetry_class_reduction_require_separate_coverage_verification|' independent/GPT6_R12_COUNTING_BRIDGE_FREEZE_20261112.hbp
+          (cd pinned && sha256sum -c SHA256SUMS)
+          test "$(sha256sum pinned/rows.txt | cut -d' ' -f1)" = 865dae9216a87a0ed1caa0594c1273eb36f9785c6b4984815384a254ff670d78
+          test -s "$SRC/results/$WITNESS"
+          test -s "$SRC/leaves/S_cert_m9_r12_1_f6-5-4-3.leaf.hbp"
+          mkdir -p "report"
+      - name: Exact independent weighted Schur K and strict fraction-free inertia
+        run: |
+          set -euo pipefail
+          python3 -B -m independent.gpt6_r12_inertia_bridge_20261112 \
+            pinned "$SRC/leaves/S_cert_m9_r12_1_f6-5-4-3.leaf.hbp" "$SRC/results/$WITNESS" \
+            "$THRESHOLD" "report/GPT6-COUNT-$ID.hbp" \
+            | tee "report/GPT6-COUNT-$ID.log"
+          grep -q "^COUNTING_R12_INDEPENDENT_PASS|threshold=$THRESHOLD|negative=$EXPECTED|" "report/GPT6-COUNT-$ID.hbp"
+          grep -q '^MATRIX|classes=2880|low_dim=' "report/GPT6-COUNT-$ID.hbp"
+          grep -q '^WITNESS|.*positive=YES|' "report/GPT6-COUNT-$ID.hbp"
+          (cd report && sha256sum -c "GPT6-COUNT-$ID.hbp.sha256")
+      - name: Malformed witness fails closed without recomputing expensive inertia
+        run: |
+          set -euo pipefail
+          head -n -1 "$SRC/results/$WITNESS" > "$SRC/results/$WITNESS.mutated"
+          if python3 -B -m independent.gpt6_r12_inertia_bridge_20261112 \
+              pinned "$SRC/leaves/S_cert_m9_r12_1_f6-5-4-3.leaf.hbp" \
+              "$SRC/results/$WITNESS.mutated" "$THRESHOLD" report/SHOULD-NOT-PASS.hbp >/dev/null 2>&1; then
+            echo 'TRUNCATED_WITNESS_ACCEPTED'; exit 1
+          fi
+          echo 'NEGATIVE|truncated_witness=REFUSED|r9=HOLD|json=0' > report/NEGATIVE.hbp
+          (cd report && sha256sum GPT6-COUNT-*.hbp GPT6-COUNT-*.log NEGATIVE.hbp > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-r12-count-bridge-${{ matrix.id }}
+          path: report/
+          retention-days: 30
+          if-no-files-found: warn
+  seal:
+    name: All three independent r12 invariant-sector inertia certificates
+    needs: inertia
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gpt6-r12-count-bridge-*
+          path: gathered
+      - name: Verify exact audit receipts and refuse any missing threshold
+        run: |
+          set -euo pipefail
+          test '${{ needs.inertia.result }}' = 'success'
+          {
+            echo 'COUNT_BRIDGE_CONTRACT|symmetry_sector=48_invariant|r=12|tail_cap=EXTERNAL_GATED|all_nontrivial_sectors=OPEN|json=0'
+            for id in t10455 t10470 t110; do
+              dir="gathered/gpt6-r12-count-bridge-$id"
+              (cd "$dir" && sha256sum -c SHA256SUMS)
+              grep -q '^COUNTING_R12_INDEPENDENT_PASS|' "$dir/GPT6-COUNT-$id.hbp"
+              cat "$dir/GPT6-COUNT-$id.hbp"
+            done
+            echo 'COUNT_BRIDGE_INDEPENDENT_PASS|thresholds=3|sector=INVARIANT_ONLY|r9=HOLD|json=0'
+          } > gathered/GPT6-COUNT-BRIDGE-SEALED.hbp
+          (cd gathered && sha256sum GPT6-COUNT-BRIDGE-SEALED.hbp > GPT6-COUNT-BRIDGE-SEALED.hbp.sha256 && sha256sum -c GPT6-COUNT-BRIDGE-SEALED.hbp.sha256)
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: gpt6-r12-count-bridge-independent-seal
+          retention-days: 30
+          path: |
+            gathered/GPT6-COUNT-BRIDGE-SEALED.hbp
+            gathered/GPT6-COUNT-BRIDGE-SEALED.hbp.sha256
