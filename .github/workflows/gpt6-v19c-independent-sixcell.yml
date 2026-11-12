@@ -3,7 +3,7 @@ on:
   push:
     paths:
       - '.github/workflows/gpt6-v19c-independent-sixcell.yml'
-      - 'independent/GPT6_V19C_INDEPENDENT_REPLAY_FREEZE_20261112.hbp'
+      - 'independent/GPT6_V19C_SOURCE_ORDER_VERIFIED_20261112.hbp'
   workflow_dispatch:
 permissions:
   contents: read
@@ -31,7 +31,7 @@ jobs:
           set -euo pipefail
           ROOT=independent/y140-residual-leaves-spectrum-r12-20261112
           (cd "$ROOT/results" && sha256sum -c block-cert_m7_r12_1_f1.bin.sha256)
-          grep -q '^ASSUMPTION|source_leaves_order=f1_then_f6-5-4-3_then_f8-7-6-5-4|' independent/GPT6_V19C_INDEPENDENT_REPLAY_FREEZE_20261112.hbp
+          grep -q '^FINAL_ORDER|cutoff=9|words=f6-5-4-3_then_f8-7-6-5-4_then_f1|' independent/GPT6_V19C_SOURCE_ORDER_VERIFIED_20261112.hbp
           test -s "$ROOT/scripts/field_v19c.py"
           for f in 1 6-5-4-3 8-7-6-5-4; do
             test -s "$ROOT/leaves/S_cert_m9_r12_1_f$f.leaf.hbp"
@@ -71,9 +71,9 @@ jobs:
           ROOT=independent/y140-residual-leaves-spectrum-r12-20261112
           python3 -B reproduce/v19c-one-cell.py \
             "$ROOT/results/block-cert_m7_r12_1_f1.bin" \
-            "$ROOT/leaves/S_cert_m9_r12_1_f1.leaf.hbp" \
             "$ROOT/leaves/S_cert_m9_r12_1_f6-5-4-3.leaf.hbp" \
             "$ROOT/leaves/S_cert_m9_r12_1_f8-7-6-5-4.leaf.hbp" \
+            "$ROOT/leaves/S_cert_m9_r12_1_f1.leaf.hbp" \
             27 > reproduce/ONE-CELL.hbp
           cat reproduce/ONE-CELL.hbp
           test "$(grep -c '^FIELD|' reproduce/ONE-CELL.hbp)" -eq 1
