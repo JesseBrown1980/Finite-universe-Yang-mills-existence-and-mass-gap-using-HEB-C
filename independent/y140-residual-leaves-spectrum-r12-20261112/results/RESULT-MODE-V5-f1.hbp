@@ -1,0 +1,12 @@
+REBUILD|rows=682|rowhash_ok=1|max_relative_difference_between_rebuilt_(Gv)_and_the_leaf_slack=2.712e-15|note=the_verifier_rounds_each_tail_term_up|json=0
+SPECTRUM|imag_max=0.00e+00|mu0=23.349414199|mu1=23.620707493|mu2=23.889227097|mu3=27.267842264|gap_mu1_minus_mu0=0.271293294|json=0
+E0|positive_entries=682|of=682|json=0
+FIELD|q=local_ratio_slack/(rd*td*v)|min=0.000046242|max=54.292288147|mean=31.764746323|json=0
+VECTOR_VS_E0|cosine=0.093664633191|json=0
+CORR|q_with_e1/e0=0.040527|e2/e0=0.017932|e3/e0=-0.101681|e4/e0=-0.038593|e5/e0=-0.031253|json=0
+CORR_ALT|q_with_row_position=0.033524|q_with_magnetic_number=0.355433|q_with_log_v=-0.231130|json=0
+FIT|modes_used=1|share_of_the_field_variance_explained=0.001642|json=0
+FIT|modes_used=2|share_of_the_field_variance_explained=0.001803|json=0
+FIT|modes_used=3|share_of_the_field_variance_explained=0.015079|json=0
+FIT|modes_used=5|share_of_the_field_variance_explained=0.039276|json=0
+NULL|statistic=abs_corr_q_with_e1/e0|shuffles=999|null_max=0.136138|null_95th=0.074236|real=0.040527|json=0

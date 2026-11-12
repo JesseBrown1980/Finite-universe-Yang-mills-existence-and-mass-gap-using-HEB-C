@@ -1,0 +1,14 @@
+YMPUMP4HDR|unit=ACER-CLAUDE-FABLE52|unit_pid=61089a99becaa89b|seat_pid=8467a937cba309f7|owner=OP-JESSE|date=2026-11-12|work=C:/tmp/opus55/ym-residual-rooms|spec_sha256=fd1d88380c198d71982f58d6261513091838df0e53c1dc66309756b902dbe610|spec_written_before_extraction=1|null_seeds=SplitMix64_9000..9026|json=0
+M0_7|STRUCT|m0=7|rows=682|structure_classes=123|rows_alone_in_their_class=19|rows_in_classes_of_two_or_more=663|largest_class=44|json=0
+M0_7|WHITE|all_rows=185|rows_in_classes_of_two_or_more=182|of=663|within_structure_class_null_min=136|max=147|mean=141|real_per_1000_of_null_max=1238|json=0
+M0_7|PURITY|view=f8-7-6-5-4|rows_whose_trit_is_their_class_majority=528|of=682|json=0
+M0_7|VERDICT|m0=7|rule=real_WHITE_at_most_1.15_times_the_null_maximum_on_rows_in_classes_of_two_or_more|result=FALSIFIED|json=0
+M0_8|STRUCT|m0=8|rows=2748|structure_classes=398|rows_alone_in_their_class=59|rows_in_classes_of_two_or_more=2689|largest_class=99|json=0
+M0_8|WHITE|all_rows=2414|rows_in_classes_of_two_or_more=2363|of=2689|within_structure_class_null_min=790|max=867|mean=819|real_per_1000_of_null_max=2725|json=0
+M0_8|PURITY|view=f8-7-6-5-4|rows_whose_trit_is_their_class_majority=1663|of=2748|json=0
+M0_8|VERDICT|m0=8|rule=real_WHITE_at_most_1.15_times_the_null_maximum_on_rows_in_classes_of_two_or_more|result=FALSIFIED|json=0
+M0_9|STRUCT|m0=9|rows=2880|structure_classes=460|rows_alone_in_their_class=76|rows_in_classes_of_two_or_more=2804|largest_class=77|json=0
+M0_9|WHITE|all_rows=2176|rows_in_classes_of_two_or_more=2130|of=2804|within_structure_class_null_min=946|max=1029|mean=983|real_per_1000_of_null_max=2069|json=0
+M0_9|PURITY|view=f8-7-6-5-4|rows_whose_trit_is_their_class_majority=1904|of=2880|json=0
+M0_9|VERDICT|m0=9|rule=real_WHITE_at_most_1.15_times_the_null_maximum_on_rows_in_classes_of_two_or_more|result=FALSIFIED|json=0
+READING|prediction=the_structure_class_carries_most_of_the_agreement_(real_at_most_1.15x_the_null_maximum_at_cutoffs_8_and_9)|outcome=FALSIFIED|measured=real_2363_against_null_max_867_at_cutoff_8_(2.7x)_and_2130_against_1029_at_cutoff_9_(2.1x)|structure_explains=a_part:_the_null_mean_rises_from_about_380_(within_M)_to_819_at_cutoff_8_and_from_476_to_983_at_cutoff_9|power=rows_alone_in_their_class_19_59_76,_so_the_shuffle_moves_almost_every_row|meaning=the_three_certificates_share_a_row_specific_residual_pattern_beyond_the_row_s_move_counts|next_hypothesis=CONJECTURE_the_residual_of_each_certificate_vector_is_dominated_by_the_same_slow_mode_of_the_operator,_so_the_leaf_field_images_the_next_excitation;_test_by_reading_how_the_writer_builds_the_vector_and_by_comparing_the_residual_field_with_a_second_mode|tag=MEASURED|json=0

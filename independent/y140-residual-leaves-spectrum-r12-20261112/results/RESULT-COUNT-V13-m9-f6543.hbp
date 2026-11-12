@@ -1,0 +1,9 @@
+COUNTHDR|m0=9|r=12/1|f=6,5,4,3|t=10455/100|cap=864/6|classes=2880|L=73_(M<=4)|R=2807|offdiagonal_entries_positive=0|W_selfadjoint_violations=0|json=0
+RBLOCK|witness_positive=1|min_of_G_RR_g=POSITIVE|G_RR_positive_definite_certified=1|json=0
+COUNT|n_minus_of_K=1|n_plus_of_K=72|method=signs_of_the_73_leading_principal_minors_(all_nonzero)|therefore_levels_of_the_symmetric_sector_strictly_below_t=AT_MOST_1|so_level_number_2_is_at_least_t=10455/100|exact=1|float_used=0|json=0
+COUNTHDR|m0=9|r=12/1|f=6,5,4,3|t=10470/100|cap=864/6|classes=2880|L=73_(M<=4)|R=2807|offdiagonal_entries_positive=0|W_selfadjoint_violations=0|json=0
+RBLOCK|witness_positive=1|min_of_G_RR_g=POSITIVE|G_RR_positive_definite_certified=1|json=0
+COUNT|n_minus_of_K=2|n_plus_of_K=71|method=signs_of_the_73_leading_principal_minors_(all_nonzero)|therefore_levels_of_the_symmetric_sector_strictly_below_t=AT_MOST_2|so_level_number_3_is_at_least_t=10470/100|exact=1|float_used=0|json=0
+COUNTHDR|m0=9|r=12/1|f=6,5,4,3|t=110/1|cap=864/6|classes=2880|L=3_(M<=3)|R=2877|offdiagonal_entries_positive=0|W_selfadjoint_violations=0|json=0
+RBLOCK|witness_positive=1|min_of_G_RR_g=POSITIVE|G_RR_positive_definite_certified=1|json=0
+COUNT|n_minus_of_K=3|n_plus_of_K=0|method=signs_of_the_3_leading_principal_minors_(all_nonzero)|therefore_levels_of_the_symmetric_sector_strictly_below_t=AT_MOST_3|so_level_number_4_is_at_least_t=110/1|exact=1|float_used=0|json=0

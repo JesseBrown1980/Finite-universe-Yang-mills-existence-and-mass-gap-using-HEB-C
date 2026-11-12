@@ -1,0 +1,3 @@
+VECTOR|m0=7|pair=f1~f87654|rows=682|ratio_deviation_ppm_min=-989237|max=291982802|rows_within_1000_ppm=2|by_M=M3:-989237..-987140_M4:-956023..291982802_M6:-934841..136567067_M7:-961030..280345933|json=0
+VECTOR|m0=7|pair=f1~f6543|rows=682|ratio_deviation_ppm_min=-989843|max=418229687|rows_within_1000_ppm=0|by_M=M3:-989843..-986680_M4:-956786..418229687_M6:-936577..185032035_M7:-963153..351164805|json=0
+VECTOR|m0=7|pair=f87654~f6543|rows=682|ratio_deviation_ppm_min=-64636|max=430902|rows_within_1000_ppm=3|by_M=M3:-56283..35765_M4:-22046..430902_M6:-43494..352300_M7:-64636..336354|json=0

@@ -1,0 +1,13 @@
+PUMPHDR|m0=9|rows=2880|views=f1,f8-7-6-5-4,f6-5-4-3|trit=own_terciles_of_relative_slack|integer_only=1|json=0
+LEVEL2|pair=f1~f87654|rows_that_tie=2294|of=2880|independent_expectation=960|json=0
+LEVEL2|pair=f1~f6543|rows_that_tie=2217|of=2880|independent_expectation=960|json=0
+LEVEL2|pair=f87654~f6543|rows_that_tie=2718|of=2880|independent_expectation=960|json=0
+LEVEL3|WHITE_all_equal=2176|SECONDARY_two_equal=701|TRIJECTION_all_different=3|of=2880|independent_expectation=320_1920_640|json=0
+CONTROL|null=global_shuffle|class=WHITE|real=2176|null_min=302|null_max=361|result=OUTSIDE_ABOVE|json=0
+CONTROL|null=global_shuffle|class=SECONDARY|real=701|null_min=1873|null_max=1966|result=OUTSIDE_BELOW|json=0
+CONTROL|null=global_shuffle|class=TRIJECTION|real=3|null_min=587|null_max=695|result=OUTSIDE_BELOW|json=0
+CONTROL|null=within_M_shuffle|class=WHITE|real=2176|null_min=444|null_max=509|result=OUTSIDE_ABOVE|json=0
+CONTROL|null=within_M_shuffle|class=SECONDARY|real=701|null_min=1774|null_max=1907|result=OUTSIDE_BELOW|json=0
+CONTROL|null=within_M_shuffle|class=TRIJECTION|real=3|null_min=516|null_max=639|result=OUTSIDE_BELOW|json=0
+WHITE_BY_M|M3=3_of_3|M4=70_of_70|M6=37_of_57|M7=413_of_552|M8=1528_of_2066|M9=125_of_132|json=0
+SHELL|m0=9|white_per_million=755555|json=0

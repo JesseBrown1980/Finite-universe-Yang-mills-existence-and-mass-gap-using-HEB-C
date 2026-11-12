@@ -1,0 +1,12 @@
+PROMPT|lighthouse=three_shells_r_1_2_3_from_every_centre_row|matrix=frozen_leaf_field_v_in_key_order|rows=682|levels=3_9_27|integer_only=1|json=0
+TRANSLUCENT_FIRST|value_mod_3_census_0_1_2=243_237_202|json=0
+CLOSE|shell_r=1|level=3|closing_triples=220|of=680|chance_expected=226|row_shuffle=205..250_INSIDE|random_values_same_bit_length=196..258_INSIDE|json=0
+CLOSE|shell_r=1|level=9|closing_triples=81|of=680|chance_expected=75|row_shuffle=62..88_INSIDE|random_values_same_bit_length=62..95_INSIDE|json=0
+CLOSE|shell_r=1|level=27|closing_triples=24|of=680|chance_expected=25|row_shuffle=17..37_INSIDE|random_values_same_bit_length=18..39_INSIDE|json=0
+CLOSE|shell_r=2|level=3|closing_triples=226|of=678|chance_expected=226|row_shuffle=202..246_INSIDE|random_values_same_bit_length=207..245_INSIDE|json=0
+CLOSE|shell_r=2|level=9|closing_triples=78|of=678|chance_expected=75|row_shuffle=54..87_INSIDE|random_values_same_bit_length=64..88_INSIDE|json=0
+CLOSE|shell_r=2|level=27|closing_triples=17|of=678|chance_expected=25|row_shuffle=13..36_INSIDE|random_values_same_bit_length=14..41_INSIDE|json=0
+CLOSE|shell_r=3|level=3|closing_triples=221|of=676|chance_expected=225|row_shuffle=201..249_INSIDE|random_values_same_bit_length=192..240_INSIDE|json=0
+CLOSE|shell_r=3|level=9|closing_triples=76|of=676|chance_expected=75|row_shuffle=60..91_INSIDE|random_values_same_bit_length=61..93_INSIDE|json=0
+CLOSE|shell_r=3|level=27|closing_triples=30|of=676|chance_expected=25|row_shuffle=15..34_INSIDE|random_values_same_bit_length=15..33_INSIDE|json=0
+SUMMARY|cells=9|outside_row_shuffle=0|outside_random_values_same_bit_length=0|json=0

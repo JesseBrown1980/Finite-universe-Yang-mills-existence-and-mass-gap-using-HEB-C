@@ -1,0 +1,15 @@
+ENCLHDR|unit=ACER-CLAUDE-FABLE52|unit_pid=61089a99becaa89b|owner=OP-JESSE|date=2026-11-12|directed_by=OP-JESSE_do_it_all|work=C:/tmp/opus55/ym-residual-rooms|spec_sha256=5382e9bcb000b7d9b7324ed209a2d745573868fe5f4817274da772e0e07fa537|spec_written_before_the_exact_counts=1|lattice=S3_3x4|coupling=r_12|cutoff=9|weight_word=6,5,4,3|sector=SYMMETRY_INVARIANT_ONLY|arithmetic=exact_integers_and_rationals_in_the_certifying_programs;_floats_only_produced_the_witness_and_trial_vectors|json=0
+COUNTHDR|m0=9|r=12/1|f=6,5,4,3|t=10455/100|cap=864/6|classes=2880|L=73_(M<=4)|R=2807|offdiagonal_entries_positive=0|W_selfadjoint_violations=0|json=0
+RBLOCK|witness_positive=1|min_of_G_RR_g=POSITIVE|G_RR_positive_definite_certified=1|json=0
+COUNT|n_minus_of_K=1|n_plus_of_K=72|method=signs_of_the_73_leading_principal_minors_(all_nonzero)|therefore_levels_of_the_symmetric_sector_strictly_below_t=AT_MOST_1|so_level_number_2_is_at_least_t=10455/100|exact=1|float_used=0|json=0
+COUNTHDR|m0=9|r=12/1|f=6,5,4,3|t=10470/100|cap=864/6|classes=2880|L=73_(M<=4)|R=2807|offdiagonal_entries_positive=0|W_selfadjoint_violations=0|json=0
+RBLOCK|witness_positive=1|min_of_G_RR_g=POSITIVE|G_RR_positive_definite_certified=1|json=0
+COUNT|n_minus_of_K=2|n_plus_of_K=71|method=signs_of_the_73_leading_principal_minors_(all_nonzero)|therefore_levels_of_the_symmetric_sector_strictly_below_t=AT_MOST_2|so_level_number_3_is_at_least_t=10470/100|exact=1|float_used=0|json=0
+COUNTHDR|m0=9|r=12/1|f=6,5,4,3|t=110/1|cap=864/6|classes=2880|L=3_(M<=3)|R=2877|offdiagonal_entries_positive=0|W_selfadjoint_violations=0|json=0
+RBLOCK|witness_positive=1|min_of_G_RR_g=POSITIVE|G_RR_positive_definite_certified=1|json=0
+COUNT|n_minus_of_K=3|n_plus_of_K=0|method=signs_of_the_3_leading_principal_minors_(all_nonzero)|therefore_levels_of_the_symmetric_sector_strictly_below_t=AT_MOST_3|so_level_number_4_is_at_least_t=110/1|exact=1|float_used=0|json=0
+RITZ_FLOAT_GUIDE|theta=104.506616_104.672474_104.842650|json=0
+RITZ|m0=9|f=6,5,4,3|u=10451/100|negative_eigenvalues_of_A_minus_uB=1|therefore_level_1_is_below_u=YES|exact=1|json=0
+RITZ|m0=9|f=6,5,4,3|u=10468/100|negative_eigenvalues_of_A_minus_uB=2|therefore_level_2_is_below_u=YES|exact=1|json=0
+RITZ|m0=9|f=6,5,4,3|u=10485/100|negative_eigenvalues_of_A_minus_uB=3|therefore_level_3_is_below_u=YES|exact=1|json=0
+ENCLOSURE|level_1=at_least_1044146/10000_(the_certificate_floor)_and_below_10451/100|level_2=at_least_10455/100_and_below_10468/100|level_3=at_least_10470/100_and_below_10485/100|level_4=at_least_110/1|first_gap_at_least=4/100|second_gap_at_least=2/100|gap_above_the_cluster_at_least=515/100|conditions=the_Step_1_bridge_(hand_derivation,_STEP1-BRIDGE-NOTE.md)_and_the_pinned_verifier_s_tail_cap;_lower_bounds_hold_in_the_invariant_sector,_upper_bounds_in_the_whole_space|open=the_other_symmetry_sectors_(the_full_orbit_matrix_has_111906_orbits_at_this_cutoff);_independent_recomputation;_other_couplings|prediction_outcome=HELD_3_of_3|hashes=out/CERT-V13-V14.sha256|tag=MEASURED_exact_counts,_CONJECTURE_until_the_bridge_is_checked_by_a_third_party|json=0

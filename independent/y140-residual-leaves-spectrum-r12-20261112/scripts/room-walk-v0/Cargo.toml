@@ -1,0 +1,14 @@
+[package]
+name = "ym-residual-rooms"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.81"
+description = "V0: residual-carrying functions through a 3^9 block of Host8 8-byte rooms; counts triples per 27-room group around an Omega room and their lifetimes. Integer only, std only, read-only on the store."
+license = "MIT"
+publish = false
+
+[dependencies]
+
+[profile.release]
+opt-level = 3
+overflow-checks = true

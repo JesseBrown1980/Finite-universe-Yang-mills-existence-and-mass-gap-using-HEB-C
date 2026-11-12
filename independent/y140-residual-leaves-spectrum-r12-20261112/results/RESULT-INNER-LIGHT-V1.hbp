@@ -1,0 +1,11 @@
+TOOL|path=D:/asolaria-absorb/ASOLARIA-UNIVERSE-SIMULATOR/tools/shadow_net.py|sha256=db0b031d8295d0b377c5834c3c68dbd05a2fa5486a7f29321bb70140bc4a5ee7|functions_lifted=PATHS,basis,BAS,own,free,rot120,shadow_waves,MAXW|rewritten=0|mode=FLOAT_SCAFFOLD_AS_SHIPPED|json=0
+BODY|name=A_weak_certificate|rows=682|bytes=10912|sha256=16c8b1b1dbd29dee967fddfd62548b442586fa9becea2ed4f99aeb1def14c774|json=0
+BODY|name=B_strong_certificate|rows=682|bytes=10912|sha256=fb4a361c9549f7dc17626617a733aef461f956a88dc688edb7be1817dd2f113b|json=0
+PATHS|5_7_9_11_13_17|arms=B_and_its_two_thirds_of_a_turn|json=0
+SELFCHECK|body=B_against_arms_from_B|residue=0.000000_0.000000_0.000000_0.000000_0.000000_0.000000|must_be_zero=1|max=6.290e-16|json=0
+REAL|body=A_against_arms_from_B|residue=0.115838_0.250832_0.201934_0.639802_0.806715_0.997281|mean=0.502067|json=0
+CONTROL|name=zero_body|residue=nan_nan_nan_nan_nan_nan|json=0
+CONTROL|name=byte_shuffle|runs=27|min=0.072664_0.486572_0.443256_0.643766_0.749689_0.735112|max=0.930289_0.987785_0.998802_0.991923_0.997505_0.999197|mean=0.612707_0.821274_0.863952_0.901460_0.921587_0.918529|runs_below_real=1_0_0_0_2_25|per_path=INSIDE_OUTSIDE_OUTSIDE_OUTSIDE_INSIDE_INSIDE|json=0
+CONTROL|name=row_shuffle|runs=27|min=0.005074_0.131734_0.075748_0.309643_0.564920_0.777930|max=0.218276_0.339180_0.245389_0.738684_0.904580_0.999802|mean=0.128646_0.241797_0.178400_0.548542_0.698361_0.935434|runs_below_real=10_17_20_21_23_25|per_path=INSIDE_INSIDE_INSIDE_INSIDE_INSIDE_INSIDE|json=0
+CONTROL|name=random_values_same_bit_length|runs=27|min=0.040840_0.132964_0.098740_0.401649_0.528594_0.757211|max=0.237206_0.338898_0.344701_0.671719_0.921909_0.996262|mean=0.113504_0.241176_0.182511_0.559831_0.726715_0.925085|runs_below_real=15_16_16_22_17_27|per_path=INSIDE_INSIDE_INSIDE_INSIDE_INSIDE_OUTSIDE|json=0
+END|room_writes=0|servers_started=0|json=0
