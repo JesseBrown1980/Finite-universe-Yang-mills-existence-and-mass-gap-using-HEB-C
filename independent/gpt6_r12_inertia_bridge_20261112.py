@@ -108,7 +108,7 @@ def load_G(lines,weight,t):
                          for j,amount in enumerate(hist) if amount),0)
                 denom=lhs-rhs
                 assert denom>0,("bad tail denominator",m)
-                cache[sig]=Rat(fm)*recip(denom)
+                cache[sig]=Rat(fm)*reciproc(denom)
             w=cache[sig]
             for b in cells[3:]:
                 j=int(b)
