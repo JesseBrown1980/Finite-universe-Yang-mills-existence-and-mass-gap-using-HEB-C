@@ -1,0 +1,8 @@
+CONTRACT|schema=GPT6-R12-D3XD4-CHARACTER-DECOMP-V1|date=2026-11-12|source_class_census_run=43266382744|json=0
+SYMMETRY|group=D3_x_D4|order=48|lattice_rotations=3x4|independent_reflections=2|json=0
+HILBERT|gauge_only_orbits_at_magnetic_cutoff9=111906|trivial_symmetry_dimension=2880|no_other_sector_omitted=YES|json=0
+PREDICT|D3_real_irreps=3|D4_real_irreps=5|combined_irreps=15|dimensions_squared_sum=48|json=0
+CHARACTERS|D3=1_trivial,1_reflection_sign,2_standard|D4=four_1D_rotation_reflection_characters_plus_2_standard|all_real|json=0
+GATE|character_orthogonality_exact_integer|48_group_fixed_point_counts|identity_fixed=111906|Burnside_trivial=2880|each_multiplicity_nonnegative_integer|dimension_sum=111906|json=0
+METHOD|gauge_orbit_key_set=recensus_by_exact_pinned_engine|one_change_to_enumerator_global_conjugacy_not_48_sym|fixed_points_direct_from_tab_letters_and_orbit_min|json=0
+LIMIT|rep_dimensions_only_NOT_Hamiltonian_matrix_NOT_spectral_gap|no_r9_coupling_run|r9_HOLD=YES|json=0
