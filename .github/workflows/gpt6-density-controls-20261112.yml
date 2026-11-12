@@ -27,6 +27,7 @@ jobs:
           grep -q '^DENSITY_REPORTED_AUDIT_PASS|cells=9|outliers=3|' out/REPORTED-DENSITY-AUDIT.hbp
           test "$(grep -c '^REPORTED_CELL|' out/REPORTED-DENSITY-AUDIT.hbp)" -eq 9
           grep -q '^MATCHED_REAL|functions=6561|global_minus_frozen=0|' out/REPORTED-DENSITY-AUDIT.hbp
+          grep -q '^MATCHED_ENVELOPE|functions=2187|real_delta=107|control_delta_lower_bound=-134|control_delta_upper_bound=88|forced_outside_for_every_pairing=1|' out/REPORTED-DENSITY-AUDIT.hbp
           grep -q '^EXCHANGEABLE_INDEPENDENT_BENCHMARK|controls=27|global_2of3_n=5|global_2of3_d=343|and_frozen_0of3_n=10985|and_frozen_0of3_d=941192|' out/REPORTED-DENSITY-AUDIT.hbp
           python3 -B independent/gpt6_density_controls_20261112.py selftest | tee out/NEGATIVE-CONTROLS.hbp
           grep -q '^DENSITY_AUDITOR_SELFTEST_PASS|mutated_digits=REFUSED|paired_differences=PASS|trajectory_change=PASS|' out/NEGATIVE-CONTROLS.hbp
