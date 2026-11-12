@@ -21,7 +21,7 @@ const SOURCE_SHA: &str = "2220ee3a11c66281b586de77f44999c06e863f0e9f83509a867047
 const STEPS: usize = 40000;
 const BURN: usize = 10000;
 const THIN: usize = 1000;
-const PAIRS: [(u16,u16);3] = [(0,1),(0,2),(1,2)];
+const PAIRS: [[u16;2];3] = [[0,1],[0,2],[1,2]];
 
 #[derive(Clone,Copy)]
 struct Cube { cells: [u16;8] }
@@ -213,7 +213,7 @@ impl Chain {
                 let moved=self.active[index];
                 self.slots[moved as usize]=index as i32;
             }
-            self.slots[mid as usize]=-1;
+            self.slots[mid as usize] = -1;
         }
     }
     fn update_count(&mut self,mid:u32){
