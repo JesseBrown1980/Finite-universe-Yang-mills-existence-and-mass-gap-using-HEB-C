@@ -1,0 +1,9 @@
+PASCALHDR|leaves=3|rows=682|compositions_possible=10|compositions_occupied=10|layer_sum=3^3|json=0
+PASCAL|rows_at_the_three_corners=162|independent_expectation=682/9|rows_on_the_edges=479|rows_in_the_interior=41|independent_expectation_interior=151_of_682|json=0
+PROFILE|by_largest_count|max=1:rows_41_expected_151|max=2:rows_479_expected_454|max=3:rows_162_expected_75|json=0
+PASCALHDR|leaves=3|rows=2748|compositions_possible=10|compositions_occupied=8|layer_sum=3^3|json=0
+PASCAL|rows_at_the_three_corners=2424|independent_expectation=916/3|rows_on_the_edges=323|rows_in_the_interior=1|independent_expectation_interior=610_of_2748|json=0
+PROFILE|by_largest_count|max=1:rows_1_expected_610|max=2:rows_323_expected_1832|max=3:rows_2424_expected_305|json=0
+PASCALHDR|leaves=3|rows=2880|compositions_possible=10|compositions_occupied=10|layer_sum=3^3|json=0
+PASCAL|rows_at_the_three_corners=2397|independent_expectation=320/1|rows_on_the_edges=475|rows_in_the_interior=8|independent_expectation_interior=640_of_2880|json=0
+PROFILE|by_largest_count|max=1:rows_8_expected_640|max=2:rows_475_expected_1920|max=3:rows_2397_expected_320|json=0

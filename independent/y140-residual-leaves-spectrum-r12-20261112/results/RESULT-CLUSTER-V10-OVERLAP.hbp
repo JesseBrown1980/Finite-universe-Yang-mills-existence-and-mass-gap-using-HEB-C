@@ -1,0 +1,4 @@
+OVERLAP|cutoffs=8_9|f=f8-7-6-5-4|shared_rows=2748|mode0=0.999975_(weight_on_shared_rows_1.0000_1.0000)|mode1=0.999977_(weight_on_shared_rows_1.0000_1.0000)|mode2=0.999981_(weight_on_shared_rows_1.0000_1.0000)|mode3=0.999984_(weight_on_shared_rows_1.0000_1.0000)|json=0
+OVERLAP|cutoffs=8_9|f=f6-5-4-3|shared_rows=2748|mode0=0.999970_(weight_on_shared_rows_1.0000_1.0000)|mode1=0.999973_(weight_on_shared_rows_1.0000_1.0000)|mode2=0.999979_(weight_on_shared_rows_1.0000_1.0000)|mode3=0.999937_(weight_on_shared_rows_1.0000_1.0000)|json=0
+OVERLAP|cutoff=8|words=f87654~f6543|mode0=0.999997|mode1=0.999998|mode2=0.999999|mode3=0.999978|json=0
+OVERLAP|cutoff=9|words=f87654~f6543|mode0=1.000000|mode1=1.000000|mode2=1.000000|mode3=1.000000|json=0

@@ -1,0 +1,4 @@
+RITZ_FLOAT_GUIDE|theta=104.506616_104.672474_104.842650|json=0
+RITZ|m0=9|f=6,5,4,3|u=10451/100|negative_eigenvalues_of_A_minus_uB=1|therefore_level_1_is_below_u=YES|exact=1|json=0
+RITZ|m0=9|f=6,5,4,3|u=10468/100|negative_eigenvalues_of_A_minus_uB=2|therefore_level_2_is_below_u=YES|exact=1|json=0
+RITZ|m0=9|f=6,5,4,3|u=10485/100|negative_eigenvalues_of_A_minus_uB=3|therefore_level_3_is_below_u=YES|exact=1|json=0

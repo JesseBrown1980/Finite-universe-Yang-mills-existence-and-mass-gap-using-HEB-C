@@ -1,0 +1,2 @@
+SPECHDR|name=YM-LIGHTHOUSE-PROMPT-V2|kind=SIDE_TEST|unit_pid=61089a99becaa89b|date=2026-11-12|written=BEFORE_THE_RUN|operator=the_lighthouse_is_the_prompt_sent_into_the_matrix|json=0
+PREDICT|by=this_unit|statement=for_both_certificates_and_both_fields_the_closing_counts_are_INSIDE_both_nulls_in_at_least_8_of_9_cells|falsified_if=3_or_more_of_9_cells_OUTSIDE_the_row_shuffle_null_for_any_field|json=0

@@ -1,0 +1,16 @@
+TARGETHDR|unit=ACER-CLAUDE-FABLE52|unit_pid=61089a99becaa89b|owner=OP-JESSE|date=2026-11-12|purpose=frozen_numerical_targets_for_certified_spectral_counting_and_enclosures|coupling=r_12|written=BEFORE_ANY_ENCLOSURE_WAS_COMPUTED|json=0
+SOURCE|local=out/RESULT-CROSSING-V11.hbp_sha256_eee8e6e8463aaec3cbe7d118efccc46a186a8677f6b2cedcf9e15b915e38f2c0|independent=GPT-6_GitRAM_GitHub_Actions_run_43222707802_GITRAM_SEAL_PASS_3_of_3_cells_(as_relayed_by_the_operator;_not_reopened_by_this_unit)|agreement=spacings_agree_to_the_third_decimal_at_cutoffs_7_8_9|json=0
+TARGET_CROSSING|m0=7|r=12/1|f=8,7,6,5,4|certified_floor=103.8323|largest_admissible_t=120.0000|zero_crossings_of_the_lowest_4_values=103.832657_104.076840_104.323908_107.224223|json=0
+TARGET_CROSSING_GAPS|m0=7|f=8,7,6,5,4|differences_between_consecutive_crossings=0.244183_0.247068_2.900315|json=0
+TARGET_CROSSING|m0=7|r=12/1|f=6,5,4,3|certified_floor=103.9283|largest_admissible_t=122.0000|zero_crossings_of_the_lowest_4_values=103.928639_104.156267_104.388673_107.838493|json=0
+TARGET_CROSSING_GAPS|m0=7|f=6,5,4,3|differences_between_consecutive_crossings=0.227628_0.232406_3.449820|json=0
+TARGET_CROSSING|m0=8|r=12/1|f=8,7,6,5,4|certified_floor=104.4054|largest_admissible_t=130.5000|zero_crossings_of_the_lowest_4_values=104.405673_104.582140_104.763388_110.263717|json=0
+TARGET_CROSSING_GAPS|m0=8|f=8,7,6,5,4|differences_between_consecutive_crossings=0.176466_0.181249_5.500329|json=0
+TARGET_CROSSING|m0=8|r=12/1|f=6,5,4,3|certified_floor=104.3975|largest_admissible_t=132.0000|zero_crossings_of_the_lowest_4_values=104.397861_104.575449_104.757767_110.225904|json=0
+TARGET_CROSSING_GAPS|m0=8|f=6,5,4,3|differences_between_consecutive_crossings=0.177589_0.182317_5.468137|json=0
+TARGET_CROSSING|m0=9|r=12/1|f=8,7,6,5,4|certified_floor=104.4147|largest_admissible_t=141.0000|zero_crossings_of_the_lowest_4_values=104.415611_104.591268_104.771711_110.286687|json=0
+TARGET_CROSSING_GAPS|m0=9|f=8,7,6,5,4|differences_between_consecutive_crossings=0.175657_0.180443_5.514976|json=0
+TARGET_CROSSING|m0=9|r=12/1|f=6,5,4,3|certified_floor=104.4146|largest_admissible_t=144.0000|zero_crossings_of_the_lowest_4_values=104.415451_104.591245_104.771790_110.280712|json=0
+TARGET_CROSSING_GAPS|m0=9|f=6,5,4,3|differences_between_consecutive_crossings=0.175794_0.180545_5.508921|json=0
+RITZ|m0_9_r_12=certified_upper_bound_on_the_lowest_level_104.506577_(launcher_run_T9,_FLOOR_RUN_UPPER_BOUND)|m0_8=104.510702|m0_7=104.986303|json=0
+OPEN|step_1=prove_or_refute_that_the_comparison_matrix_bounds_the_exact_Schur_complement_level_by_level_(the_certificate_argument_is_a_positivity_argument_for_the_lowest_level_only)|step_2=exact_integer_inertia_count_of_the_comparison_matrix_at_chosen_t_(Rust_1.81)|step_3=Ritz_upper_bounds_for_the_first_three_levels|json=0
