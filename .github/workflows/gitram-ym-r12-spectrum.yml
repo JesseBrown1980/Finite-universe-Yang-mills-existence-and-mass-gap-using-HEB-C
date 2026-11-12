@@ -1,0 +1,133 @@
+# GitRAM: isolated coupling-12 spectral diagnostics, never r=9
+name: GitRAM YM Schur spectra (r12 only)
+on:
+  push:
+    paths:
+      - '.github/workflows/gitram-ym-r12-spectrum.yml'
+      - 'independent/gitram-ym-r12-spectrum-20261112/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gitram-ym-r12-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  cell:
+    name: GitRAM cutoff-${{ matrix.cutoff }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        cutoff: [7, 8, 9]
+    env:
+      RUSTUP_TOOLCHAIN: 1.81.0
+      ROOT: independent/y131-floor-cert-freeze-v2-20261110/work/design
+      TOOL: independent/gitram-ym-r12-spectrum-20261112/gitram_ym_spectra.py
+      CUTOFF: ${{ matrix.cutoff }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust 1.81 pinned
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal
+          rustc --version
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Numeric diagnostics dependencies
+        run: python -m pip install --disable-pip-version-check numpy scipy
+      - name: Compile unmodified floorcert
+        run: |
+          set -euo pipefail
+          cargo build --release --locked -j2 --manifest-path "$ROOT/rs/Cargo.toml"
+          test -x "$ROOT/rs/target/release/floorcert"
+      - name: Generate three excluded rehearsal coupling-12 certificates
+        run: |
+          set -euo pipefail
+          OUT="independent/gitram-ym-r12-spectrum-20261112/out/cutoff-$CUTOFF"
+          mkdir -p "$OUT"
+          "$ROOT/rs/target/release/floorcert" cert --m0 "$CUTOFF" --r 12 \
+            --f '1;8,7,6,5,4;6,5,4,3' --threads 2 --images 2 \
+            --sweeps 200 --write-cert --dir "$OUT" | tee "$OUT/writer.log"
+          test "$(find "$OUT" -maxdepth 1 -name 'cert_m*_r12_1_f*.txt' | wc -l)" -eq 3
+          grep -q 'GATE|class_detailed_balance|PASS' "$OUT/writer.log"
+          grep -q 'GATE|core_census_vs_closed_form|PASS' "$OUT/writer.log"
+      - name: Independent verifier with scratch row export
+        run: |
+          set -euo pipefail
+          OUT="independent/gitram-ym-r12-spectrum-20261112/out/cutoff-$CUTOFF"
+          python "$TOOL" instrument "$ROOT/py/cert_gate.py" "$OUT/cert_gate_scratch.py"
+          first=1
+          for cert in "$OUT"/cert_m*_r12_1_f*.txt; do
+            name="$(basename "$cert" .txt)"
+            if [ "$first" -eq 1 ]; then
+              GITRAM_ROW_OUT="$OUT/rows.txt" GITRAM_WEIGHTS_OUT="$OUT/weights.txt" \
+                python -I -B "$OUT/cert_gate_scratch.py" "$cert" | tee "$OUT/$name.gate.log"
+              first=0
+            else
+              python -I -B "$OUT/cert_gate_scratch.py" "$cert" | tee "$OUT/$name.gate.log"
+            fi
+            grep -q '^VERDICT|PASS|' "$OUT/$name.gate.log"
+            grep -q '^GATE|row_hash|PASS|' "$OUT/$name.gate.log"
+          done
+          test -s "$OUT/rows.txt"
+          test -s "$OUT/weights.txt"
+          printf 'SOURCE|commit=%s|m0=%s|r=12|json=0\n' "$GITHUB_SHA" "$CUTOFF" > "$OUT/SOURCE.hbp"
+          (cd "$OUT" && sha256sum rows.txt weights.txt cert_m*_r12_1_f*.txt SOURCE.hbp > SHA256SUMS)
+      - name: Calculate low modes and four Schur secular root brackets
+        run: |
+          set -euo pipefail
+          OUT="independent/gitram-ym-r12-spectrum-20261112/out/cutoff-$CUTOFF"
+          python "$TOOL" analyze "$OUT" "$CUTOFF" "$OUT/SPECTRUM.hbp" | tee "$OUT/spectrum.log"
+          (cd "$OUT" && sha256sum -c SHA256SUMS && sha256sum -c SPECTRUM.hbp.sha256)
+          grep -q "^GITRAM_SHARD_PASS|m0=$CUTOFF|" "$OUT/SPECTRUM.hbp"
+      - name: Upload self-contained GitRAM checkpoint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitram-cutoff-${{ matrix.cutoff }}
+          retention-days: 30
+          if-no-files-found: error
+          path: independent/gitram-ym-r12-spectrum-20261112/out/cutoff-${{ matrix.cutoff }}/
+  fan-in:
+    name: Verify all three checkpoints and seal
+    needs: cell
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gitram-cutoff-*
+          path: gitram-seal
+          merge-multiple: false
+      - name: All-or-nothing integrity gate
+        run: |
+          set -euo pipefail
+          test '${{ needs.cell.result }}' = 'success'
+          test "$(find gitram-seal -maxdepth 1 -type d -name 'gitram-cutoff-*' | wc -l)" -eq 3
+          for m in 7 8 9; do
+            p="gitram-seal/gitram-cutoff-$m"
+            test -s "$p/SPECTRUM.hbp"
+            (cd "$p" && sha256sum -c SHA256SUMS && sha256sum -c SPECTRUM.hbp.sha256)
+            grep -q "^GITRAM_SHARD_PASS|m0=$m|" "$p/SPECTRUM.hbp"
+          done
+          {
+            echo 'GITRAM_SEAL|schema=YM-SCHUR-R12-DIAGNOSTIC-V1|cells=3|cutoffs=7,8,9|r=12|physics_claim=0|json=0'
+            for m in 7 8 9; do cat "gitram-seal/gitram-cutoff-$m/SPECTRUM.hbp"; done
+            echo 'GITRAM_SEAL_PASS|cells=3|verified=3|json=0'
+          } > gitram-seal/GITRAM-SPECTRAL-SEAL.hbp
+          (cd gitram-seal && sha256sum GITRAM-SPECTRAL-SEAL.hbp > GITRAM-SPECTRAL-SEAL.hbp.sha256)
+      - name: Upload sealed report
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitram-schur-r12-sealed
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            gitram-seal/GITRAM-SPECTRAL-SEAL.hbp
+            gitram-seal/GITRAM-SPECTRAL-SEAL.hbp.sha256
