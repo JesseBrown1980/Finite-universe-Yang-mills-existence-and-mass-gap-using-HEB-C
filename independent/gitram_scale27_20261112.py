@@ -218,8 +218,6 @@ def run(r12_root, new_root, nine_path, out_root):
         rows, rh = load_rows(orig, m0)
         rows_by_key = {row[0]: row for row in rows}
         assert set(keys).issubset(rows_by_key)
-        assert all(rows_by_key[k][1] == rows_by_key[next(iter(rows_by_key))][1]
-                   for k in () )  # all keys' magnetic costs checked below
         sources[m0] = (rows, rows_by_key, rh, orig, added)
 
     # The same canonical physical keys and magnetic costs under all cutoffs.
