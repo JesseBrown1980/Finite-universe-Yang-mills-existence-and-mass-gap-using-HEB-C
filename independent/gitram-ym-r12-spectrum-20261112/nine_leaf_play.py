@@ -28,7 +28,7 @@ def load(directory):
     d=Path(directory)
     for line in (d/"SHA256SUMS").read_text().splitlines():
         hashval,name=line.split(None,1)
-        target=d/name.strip(" *")
+        target=d.joinpath(name.strip(" *"))
         assert target.exists() and sh(target)==hashval, ("integrity",name)
     assert sh(d/"rows.txt")==ROOT_SHA
     rows=[]
