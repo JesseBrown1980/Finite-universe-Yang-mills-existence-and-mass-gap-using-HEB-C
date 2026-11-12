@@ -216,7 +216,7 @@ def audit(folder,m0,leafdir):
     output=[]
     for wordtxt in WORDS:
         stem=wordtxt.replace(",","-")
-        cert=folder/("cert_m%d_r12_1_f%s.txt"%(m0,stem))
+        cert=leafdir.parent/"certificates"/("cert_m%d_r12_1_f%s.txt"%(m0,stem))
         leaf=leafdir/("S_cert_m%d_r12_1_f%s.leaf.hbp"%(m0,stem))
         assert cert.is_file() and leaf.is_file()
         word,t,vals=cert_read(cert,m0,rhash,rows)
