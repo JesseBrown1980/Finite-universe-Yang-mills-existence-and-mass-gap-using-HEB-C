@@ -64,3 +64,29 @@ This does **not** disprove a positive *first* mass gap of the finite model, and 
 Build symmetry-resolved **lower** comparisons, beginning with the nontrivial sector that produced the Krylov witness: invertible positive tail blocks, exact group projection of all core rows and weighted coupling, rational outward-rounded Schur bounds, and integer inertia. Only then can we separate the first full-space eigenvalues with certified lower and upper enclosures.
 
 The protected r=9 floor launch is still **HOLD**. None of these runs used coupling r=9.
+
+
+## Independent invariant-sector Krylov witness and complete five-level count
+
+The original three Ritz trial vectors for the invariant sector were derived using floating-point guidance and then checked by exact arithmetic. To make the independent full-space comparison **entirely independent** of that guidance, a second certificate starts with the **sum of all twelve gauge-orbit basis vectors in the exact D₃×D₄ orbit class 2613485090**, which is invariant under the full lattice-symmetry group.
+
+[Hosted run 43275514998](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43275514998) uses the same source-verified 111,906-row binary matrix but an independently chosen 31-dimensional integer Krylov basis. Its exact Gram is positive definite, and all fraction-free inertia divisions are checked. It gives:
+
+| Threshold | Strictly negative directions in 31D invariant trial subspace |
+| --- | ---: |
+| 104.51 | 1 |
+| 104.68 | 2 |
+| 104.85 | 3 |
+| 105.50 | 3 |
+| 110.00 | 3 |
+
+Because the nontrivial signed-difference Krylov basis is orthogonal to **every** vector in the invariant one, the negative dimensions add. At coupling r=12, the **full non-flat Hamiltonian** has at least:
+
+* **5 levels strictly below 105.50** (3 invariant plus 2 nontrivial);
+* **7 levels strictly below 110** (3 invariant plus 4 nontrivial).
+
+The exact proof uses only principal-core, zero-extended trial vectors; **no tail correction is needed to obtain variational existence bounds**. The model's D₃×D₄ covariance and the verified class-orbit membership guarantee orthogonality between the two subspaces. Therefore the fourth and fifth ordered non-flat energy levels are strictly below 105.50, conditional only on the stated finite Hamiltonian and symmetry representation. These are one-sided **upper bounds** and do not give a lower bound on the first excited level.
+
+This is a meaningful correction to any claim that the entire non-flat spectrum has only three levels below 110. The **invariant-sector** fourth level can still be at least 110 without contradiction.
+
+The full-space first gap, the sectors' complete lower counting, coupling r=9, and continuum remain open.
