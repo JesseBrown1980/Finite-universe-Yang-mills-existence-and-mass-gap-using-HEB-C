@@ -1,0 +1,95 @@
+name: GitRAM three-slice pairwise-fixed test (r12)
+on:
+  push:
+    paths:
+      - '.github/workflows/gitram-ym-r12-threeway.yml'
+      - 'independent/gitram-ym-r12-spectrum-20261112/threeway_pairfixed.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: gitram-ym-threeway-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  cell:
+    name: Three-way pair-fixed cutoff-${{ matrix.cutoff }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        cutoff: [7, 8, 9]
+    env:
+      CUTOFF: ${{ matrix.cutoff }}
+      SRC: independent/gitram-ym-r12-spectrum-20261112/threeway_pairfixed.py
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download immutable source checkpoint from prior successful GitRAM run
+        uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43222707802
+          github-token: ${{ github.token }}
+          name: gitram-cutoff-${{ matrix.cutoff }}
+          path: inputs/cutoff-${{ matrix.cutoff }}
+      - name: Test exact 3-way structure while preserving all 2-way marginals
+        run: |
+          set -euo pipefail
+          IN="inputs/cutoff-$CUTOFF"
+          python3 -I -B "$SRC" "$IN" "$CUTOFF" | tee "$IN/threeway.log"
+          (cd "$IN" && sha256sum -c THREEWAY-PAIRFIXED.hbp.sha256)
+          grep -q "^GITRAM_SHARD_PASS|m0=$CUTOFF|pairwise_preserved=1|" "$IN/THREEWAY-PAIRFIXED.hbp"
+          mkdir -p "checkpoint/cutoff-$CUTOFF"
+          cp "$IN/THREEWAY-PAIRFIXED.hbp" "$IN/THREEWAY-PAIRFIXED.hbp.sha256" "$IN/threeway.log" "checkpoint/cutoff-$CUTOFF/"
+          printf 'SOURCE|run=43222707802|cutoff=%s|coupling=12|threeway=pairwise_fixed|sha256=%s|json=0\n' \
+            "$CUTOFF" "$(sha256sum "$IN/SHA256SUMS" | cut -d' ' -f1)" > "checkpoint/cutoff-$CUTOFF/SOURCE.hbp"
+          (cd "checkpoint/cutoff-$CUTOFF" && sha256sum THREEWAY-PAIRFIXED.hbp SOURCE.hbp > SHA256SUMS)
+      - name: Publish immutable cell checkpoint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitram-3way-cutoff-${{ matrix.cutoff }}
+          retention-days: 30
+          if-no-files-found: error
+          path: checkpoint/cutoff-${{ matrix.cutoff }}/
+  fan-in:
+    name: All three pairwise-null controls verified
+    needs: cell
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gitram-3way-cutoff-*
+          path: sealed
+          merge-multiple: false
+      - name: Fail closed if any checkpoint or pairwise-invariant gate fails
+        run: |
+          set -euo pipefail
+          test '${{ needs.cell.result }}' = 'success'
+          test "$(find sealed -mindepth 1 -maxdepth 1 -type d -name 'gitram-3way-cutoff-*' | wc -l)" -eq 3
+          for m in 7 8 9; do
+            p="sealed/gitram-3way-cutoff-$m"
+            (cd "$p" && sha256sum -c SHA256SUMS && sha256sum -c THREEWAY-PAIRFIXED.hbp.sha256)
+            grep -q "^GITRAM_SHARD_PASS|m0=$m|pairwise_preserved=1|" "$p/THREEWAY-PAIRFIXED.hbp"
+          done
+          {
+            echo 'THREEWAY_SEAL|source_run=43222707802|cutoffs=7,8,9|r=12|exact_pairwise_margins=1|interpretation=numeric_diagnostic|json=0'
+            for m in 7 8 9; do cat "sealed/gitram-3way-cutoff-$m/THREEWAY-PAIRFIXED.hbp"; done
+            echo 'GITRAM_3WAY_SEAL_PASS|verified=3|pairwise_preserved=1|json=0'
+          } > sealed/GITRAM-THREEWAY-PAIRFIXED-SEAL.hbp
+          (cd sealed && sha256sum GITRAM-THREEWAY-PAIRFIXED-SEAL.hbp > GITRAM-THREEWAY-PAIRFIXED-SEAL.hbp.sha256)
+      - name: Upload sealed 3-way result
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitram-threeway-pairfixed-sealed
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            sealed/GITRAM-THREEWAY-PAIRFIXED-SEAL.hbp
+            sealed/GITRAM-THREEWAY-PAIRFIXED-SEAL.hbp.sha256
