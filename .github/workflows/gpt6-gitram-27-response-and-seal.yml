@@ -1,0 +1,118 @@
+name: GitRAM independent 27 seal repair plus finite quantum response
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-gitram-27-response-and-seal.yml'
+      - 'independent/gitram_quantum_response_20261112.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: gitram27-response-seal-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  repair_seal:
+    name: Archive verified 27-column Pascal source with corrected artifact path
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43250689541
+          github-token: ${{ github.token }}
+          name: gpt6-gitram27-exact-pyramid
+          path: stage
+      - name: Source and receipt all-or-nothing verification
+        run: |
+          set -euo pipefail
+          cd stage
+          test -s FROZEN-27.hbp
+          test -s PASCAL-27.hbp
+          test -s REPLAY-27.hbp
+          sha256sum -c SHA256SUMS
+          sha256sum -c FROZEN-27.hbp.sha256
+          sha256sum -c PASCAL-27.hbp.sha256
+          sha256sum -c REPLAY-27.hbp.sha256
+          printf '%s  %s\n' b0e564d9202a473a23f39c9ed9cf3b64e88d38950d128dc9212217209b8002c2 FROZEN-27.hbp | sha256sum -c -
+          grep -q '^GITRAM_27_INDEPENDENT_PASS|rows=682|columns=27|baseline9=PASS|' REPLAY-27.hbp
+          grep -q '^GITRAM_PASCAL_PYRAMID_AUDIT_PASS|columns=27|rows=682|' PASCAL-27.hbp
+          grep -q '^MOVE_AVAILABILITY|pair_tables=351|three_column_choices=2925|candidate_contexts_ge4=1199|oriented_feasible_cubes=11|' REPLAY-27.hbp
+          {
+            echo 'GITRAM_SEAL|schema=27-pascal-independent-v1|rows=682|columns=27|pair_tables=351|couplings=12,21/2,14|r9=HOLD|json=0'
+            cat REPLAY-27.hbp
+            cat PASCAL-27.hbp
+            echo 'GITRAM_EXACT_27_PASCAL_SEAL_PASS|original_run=43250689541|independent_certificates=PASS|rows=682|cols=27|r9=HOLD|json=0'
+          } > GITRAM-27-SEALED.hbp
+          sha256sum GITRAM-27-SEALED.hbp > GITRAM-27-SEALED.hbp.sha256
+          sha256sum -c GITRAM-27-SEALED.hbp.sha256
+          grep '^GITRAM_EXACT_27_PASCAL_SEAL_PASS' GITRAM-27-SEALED.hbp
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: gitram-27-source-sealed-replayed
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            stage/GITRAM-27-SEALED.hbp
+            stage/GITRAM-27-SEALED.hbp.sha256
+  response:
+    name: Exact weighted Hamiltonian interference versus incoherent control
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43250689541
+          github-token: ${{ github.token }}
+          name: gpt6-gitram27-exact-pyramid
+          path: frozen
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43222707802
+          github-token: ${{ github.token }}
+          name: gitram-cutoff-9
+          path: cutoff9
+      - name: Authenticate original operator and exact source
+        run: |
+          set -euo pipefail
+          (cd cutoff9 && sha256sum -c SHA256SUMS)
+          (cd frozen && sha256sum -c SHA256SUMS)
+          printf '%s  %s\n' 865dae9216a87a0ed1caa0594c1273eb36f9785c6b4984815384a254ff670d78 cutoff9/rows.txt | sha256sum -c -
+          printf '%s  %s\n' b0e564d9202a473a23f39c9ed9cf3b64e88d38950d128dc9212217209b8002c2 frozen/FROZEN-27.hbp | sha256sum -c -
+      - name: Run genuinely coherent quantum Hamiltonian math with classical mixture control
+        run: |
+          set -euo pipefail
+          mkdir -p report
+          python3 -B independent/gitram_quantum_response_20261112.py cutoff9 frozen/FROZEN-27.hbp report/QUANTUM-27.hbp | tee report/quantum.log
+          (cd report && sha256sum -c QUANTUM-27.hbp.sha256)
+          grep -q '^GITRAM_QUANTUM_RESPONSE_PASS|classes=2880|columns=27|r=12|' report/QUANTUM-27.hbp
+          grep -q '^CONTROLS|weighted_selfadjoint=PASS|no_commutator_for_constant_O=PASS|destructive_at_order_t2=PASS|classical_incoherent_control=PASS|' report/QUANTUM-27.hbp
+          test "$(grep -c '^TRIT_RESPONSE|index=' report/QUANTUM-27.hbp)" -eq 27
+          grep -q '^LIMIT|finite_hilbert_operator_interference=YES_BY_DEFINITION|density_simulator_quantumness=NOT_TESTED|' report/QUANTUM-27.hbp
+          (cd report && sha256sum QUANTUM-27.hbp quantum.log > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - name: Verify negative controls against input tampering
+        run: |
+          set -euo pipefail
+          if python3 -B independent/gitram_quantum_response_20261112.py cutoff9 frozen/PASCAL-27.hbp /tmp/invalid.hbp >/dev/null 2>&1; then
+            echo 'INVALID_INPUT_ACCEPTED'
+            exit 1
+          fi
+          cp frozen/FROZEN-27.hbp /tmp/frozen-tampered.hbp
+          printf '\nTAMPER\n' >> /tmp/frozen-tampered.hbp
+          if python3 -B independent/gitram_quantum_response_20261112.py cutoff9 /tmp/frozen-tampered.hbp /tmp/invalid.hbp >/dev/null 2>&1; then
+            echo 'INVALID_SHA_ACCEPTED'
+            exit 1
+          fi
+          echo 'QUANTUM_RESPONSE_TAMPER_CONTROLS_PASS'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gitram-27-exact-quantum-response
+          retention-days: 30
+          if-no-files-found: warn
+          path: report/
