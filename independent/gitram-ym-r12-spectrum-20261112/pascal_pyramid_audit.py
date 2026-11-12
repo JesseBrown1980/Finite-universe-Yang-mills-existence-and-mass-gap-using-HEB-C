@@ -7,10 +7,9 @@ This is a distribution audit, NOT a pairwise-conditioned null or a physical
 continuum proof. No floats, no JSON. Checks a single complete frozen source.
 """
 from collections import Counter
-from fractions import Fraction
 from hashlib import sha256
 from itertools import combinations
-from math import comb
+from math import comb, gcd
 from pathlib import Path
 import sys
 
@@ -51,9 +50,23 @@ def parse(path):
     return rows, digest, n
 
 
-def scaled_fraction(q, scale):
-    assert q >= 0
-    return q.numerator * scale // q.denominator
+def integer_power(value, exponent):
+    assert isinstance(exponent, int) and exponent >= 0
+    acc = 1
+    for _ in range(exponent):
+        acc *= value
+    return acc
+
+
+def reduced(numer, denom):
+    assert denom > 0 and numer >= 0
+    factor = gcd(numer, denom)
+    return numer // factor, denom // factor
+
+
+def scaled_ratio(numer, denom, scale):
+    assert denom > 0 and numer >= 0
+    return numer * scale // denom
 
 
 def analyze(path, destination, expected=None):
@@ -78,22 +91,28 @@ def analyze(path, destination, expected=None):
     # Exact independent-column comparison using each observed single-column
     # marginal, not a uniform-thirds assumption. Cross-column correlations
     # are absent ONLY in this diagnostic reference.
-    p_all = sum(
-        (Fraction(1, 1) if n == 0 else _product(
-            Fraction(marg[i][symbol], count) for i in range(n)
-        )) for symbol in range(3)
-    )
-    p_missing = sum(
-        _product(Fraction(count - marg[i][symbol], count) for i in range(n))
+    denominator = integer_power(count, n)
+    all_one_num = sum(
+        _product(marg[i][symbol] for i in range(n))
         for symbol in range(3)
     )
-    expected_corners = count * p_all
-    expected_edges = count * (p_missing - 2 * p_all)
-    expected_interior = count - expected_corners - expected_edges
-    assert expected_corners >= 0 and expected_edges >= 0 and expected_interior >= 0
-    assert expected_corners + expected_edges + expected_interior == count
-    independent_uniform_corners = Fraction(3*count, 3**n)
-    independent_uniform_edges = Fraction(3*(2**n-2)*count, 3**n)
+    missing_num = sum(
+        _product(count - marg[i][symbol] for i in range(n))
+        for symbol in range(3)
+    )
+    corner_num = count * all_one_num
+    edge_num = count * (missing_num - 2*all_one_num)
+    interior_num = count * (denominator - missing_num + all_one_num)
+    assert corner_num >= 0 and edge_num >= 0 and interior_num >= 0
+    assert corner_num + edge_num + interior_num == count * denominator
+    expected_corners = reduced(corner_num, denominator)
+    expected_edges = reduced(edge_num, denominator)
+    expected_interior = reduced(interior_num, denominator)
+    uniform_denominator = integer_power(3, n)
+    independent_uniform_corners = reduced(3*count, uniform_denominator)
+    independent_uniform_edges = reduced(
+        3*(integer_power(2, n)-2)*count, uniform_denominator
+    )
 
     out = [
         "CONTRACT|schema=GITRAM-PASCAL-PYRAMID-AUDIT-V1|source_sha256=%s|rows=%d|columns=%d|arithmetic=exact|reference=independent_column_marginals|pair_conditioned=NO|json=0"
@@ -101,16 +120,13 @@ def analyze(path, destination, expected=None):
         "GEOMETRY|corners=%d|edges=%d|interior=%d|compositions=%d|possible_compositions=%d|unique_labeled_patterns=%d|json=0"
         % (corners, edges, interior, len(compositions), comb(n+2, 2), patterns),
         "INDEPENDENT_COLUMN_REFERENCE|corner_expected_n=%d|corner_expected_d=%d|edge_expected_n=%d|edge_expected_d=%d|interior_expected_n=%d|interior_expected_d=%d|json=0"
-        % (expected_corners.numerator, expected_corners.denominator,
-           expected_edges.numerator, expected_edges.denominator,
-           expected_interior.numerator, expected_interior.denominator),
+        % (*expected_corners, *expected_edges, *expected_interior),
         "UNIFORM_REFERENCE|corner_expected_n=%d|corner_expected_d=%d|edge_expected_n=%d|edge_expected_d=%d|json=0"
-        % (independent_uniform_corners.numerator, independent_uniform_corners.denominator,
-           independent_uniform_edges.numerator, independent_uniform_edges.denominator),
+        % (*independent_uniform_corners, *independent_uniform_edges),
         "READOUT|independent_corner_ppb=%d|independent_edge_ppb=%d|independent_interior_ppb=%d|json=0"
-        % (scaled_fraction(expected_corners/count, 10**9),
-           scaled_fraction(expected_edges/count, 10**9),
-           scaled_fraction(expected_interior/count, 10**9))
+        % (scaled_ratio(corner_num, count*denominator, 1000000000),
+           scaled_ratio(edge_num, count*denominator, 1000000000),
+           scaled_ratio(interior_num, count*denominator, 1000000000))
     ]
     for (a, b, c), multiplicity in sorted(compositions.items()):
         out.append("COMPOSITION|low=%d|middle=%d|high=%d|rows=%d|json=0"
@@ -144,10 +160,10 @@ def analyze(path, destination, expected=None):
 
 
 def _product(values):
-    v = Fraction(1)
+    result = 1
     for x in values:
-        v *= x
-    return v
+        result *= x
+    return result
 
 
 if __name__ == "__main__":
