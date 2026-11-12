@@ -33,16 +33,16 @@ def trunc(a,b):
     return a//b if a>=0 else -( (-a)//b )
 
 def chk(folder):
-    manifest=folder/"SHA256SUMS"
+    manifest=folder.joinpath("SHA256SUMS")
     assert manifest.is_file()
     for line in manifest.read_text(encoding="ascii").splitlines():
         digest, name=line.split(None,1)
         name=name.strip(" *")
         assert name and "/" not in name and ".." not in name
-        assert h(folder/name)==digest,("source checksum mismatch",name)
+        assert h(folder.joinpath(name))==digest,("source checksum mismatch",name)
 
 def rows_read(folder,m0):
-    lines=(folder/"rows.txt").read_text(encoding="ascii").splitlines()
+    lines=folder.joinpath("rows.txt").read_text(encoding="ascii").splitlines()
     assert lines[0]=="floorcert-rows-v1 m0=%d"%m0
     rows=[]
     for line in lines[1:]:
@@ -60,7 +60,7 @@ def rows_read(folder,m0):
         else:raise AssertionError("unrecognized tag")
     assert [x[0] for x in rows]==sorted({x[0] for x in rows})
     assert all(x[2]+sum(v for _,v in x[3])+len(x[4])==72 for x in rows)
-    return rows,h(folder/"rows.txt")
+    return rows,h(folder.joinpath("rows.txt"))
 
 def cert_read(path,m0,rhash,rows):
     lines=path.read_text(encoding="ascii").splitlines()
@@ -158,8 +158,8 @@ def matrix(rows,m0,word,tn,vals):
         for jj,c in exact.items():
             if jj>a:uf+=c*v[jj]
             elif jj<a:ub+=c*v[jj]
-        forward.append(uf/v[a])
-        backward.append(ub/v[a])
+        forward.append(uf*Rat(1,v[a]))
+        backward.append(ub*Rat(1,v[a]))
     assert len(diagonal)==len(v) and all(diagonal[i]>0 for i in range(len(v)))
     return diagonal,all_w,v,forward,backward
 
@@ -216,8 +216,8 @@ def audit(folder,m0,leafdir):
     output=[]
     for wordtxt in WORDS:
         stem=wordtxt.replace(",","-")
-        cert=leafdir.parent/"certificates"/("cert_m%d_r12_1_f%s.txt"%(m0,stem))
-        leaf=leafdir/("S_cert_m%d_r12_1_f%s.leaf.hbp"%(m0,stem))
+        cert=leafdir.parent.joinpath("certificates","cert_m%d_r12_1_f%s.txt"%(m0,stem))
+        leaf=leafdir.joinpath("S_cert_m%d_r12_1_f%s.leaf.hbp"%(m0,stem))
         assert cert.is_file() and leaf.is_file()
         word,t,vals=cert_read(cert,m0,rhash,rows)
         vl=leaves_read(leaf,rows,vals)
