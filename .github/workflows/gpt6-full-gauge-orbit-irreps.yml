@@ -1,0 +1,72 @@
+name: Independent D3xD4 characters on all 111906 gauge orbit states
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-full-gauge-orbit-irreps.yml'
+      - 'independent/GPT6_R12_GAUGE_IRREPS_FREEZE_20261112.hbp'
+      - 'independent/GPT6_R12_GAUGE_IRREPS_EXTENSION.rs.txt'
+      - 'independent/gpt6_patch_orbit_irreps.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gpt6-48-group-irreps-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  exact_character_decomp:
+    name: All 15 D3xD4 irreps, integer character traces and Burnside
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      RUSTUP_TOOLCHAIN: 1.81.0
+      ENGINE: frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          ref: 8aca957babbb8b0903fb8683422cde30b3f55668
+          path: frozen-engine
+          persist-credentials: false
+      - name: Verify original census source and precommitted 15-character prediction
+        run: |
+          set -euo pipefail
+          grep -q '^PREDICT|D3_real_irreps=3|D4_real_irreps=5|combined_irreps=15|dimensions_squared_sum=48|' independent/GPT6_R12_GAUGE_IRREPS_FREEZE_20261112.hbp
+          grep -q '^LIMIT|rep_dimensions_only_NOT_Hamiltonian_matrix_NOT_spectral_gap|' independent/GPT6_R12_GAUGE_IRREPS_FREEZE_20261112.hbp
+          test -s "$ENGINE/src/main.rs"
+          mkdir -p out
+      - name: Build isolated Rust 1.81 gauge orbit and character code from pinned source
+        run: |
+          set -euo pipefail
+          python3 -B independent/gpt6_patch_gauge_orbit_census.py \
+             "$ENGINE/src/main.rs" independent/GPT6_R12_GAUGE_ORBIT_CENSUS_EXTENSION.rs.txt out/ORBIT-PATCH.hbp
+          python3 -B independent/gpt6_patch_orbit_irreps.py \
+             "$ENGINE/src/main.rs" independent/GPT6_R12_GAUGE_IRREPS_EXTENSION.rs.txt out/IRREP-PATCH.hbp
+          grep -q '^IRREP_SOURCE_PATCH|schema=D3xD4-CHARACTER-V1|' out/IRREP-PATCH.hbp
+          rustup toolchain install 1.81.0 --profile minimal
+          cargo build --release --locked -j2 --manifest-path "$ENGINE/Cargo.toml"
+      - name: Count fixed gauge orbits of all 48 lattice symmetries and all 15 irrep dimensions
+        run: |
+          set -euo pipefail
+          "$ENGINE/target/release/floorcert" orbit-irreps --m0 9 --threads 4 \
+            | tee out/GROUP-DECOMPOSITION.hbp
+          grep -q '^GROUP_CHARACTERS|name=D3xD4|order=48|irreps=15|sum_dimension_squared=48|orthonormality=PASS|' out/GROUP-DECOMPOSITION.hbp
+          grep -q '^BURNSIDE|trace_identity=111906|sum_traces=138240|invariant_dimension=2880|' out/GROUP-DECOMPOSITION.hbp
+          grep -q '^GAUGE_IRREP_DECOMP_PASS|gauge_orbits=111906|symmetry_irreps=15|trivial_dimension=2880|other_sector_dimension=109026|all_sector_dimensions=111906|' out/GROUP-DECOMPOSITION.hbp
+          test "$(grep -c '^SYMMETRY_FIXED|' out/GROUP-DECOMPOSITION.hbp)" -eq 48
+          test "$(grep -c '^SYMMETRY_IRREP|' out/GROUP-DECOMPOSITION.hbp)" -eq 15
+      - name: Negative control and SHA-256 seal
+        run: |
+          set -euo pipefail
+          if "$ENGINE/target/release/floorcert" orbit-irreps --m0 8 --threads 1 >/dev/null 2>&1; then
+            echo 'UNFROZEN_M0_ACCEPTED'; exit 1
+          fi
+          printf 'IRREP_CONTROLS|m0_not9=REFUSED|no_coupling_call=YES|r9=HOLD|json=0\n' > out/NEGATIVE.hbp
+          (cd out && sha256sum ORBIT-PATCH.hbp IRREP-PATCH.hbp GROUP-DECOMPOSITION.hbp NEGATIVE.hbp > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-15-irrep-exact-decomposition
+          retention-days: 30
+          if-no-files-found: warn
+          path: out/
