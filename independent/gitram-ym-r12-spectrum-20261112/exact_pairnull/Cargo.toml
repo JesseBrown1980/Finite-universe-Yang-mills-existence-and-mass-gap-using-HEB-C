@@ -1,0 +1,11 @@
+[package]
+name = "gitram-nineleaf-exact-null"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.81"
+[dependencies]
+[profile.release]
+opt-level = 3
+overflow-checks = true
+codegen-units = 1
+lto = "thin"
