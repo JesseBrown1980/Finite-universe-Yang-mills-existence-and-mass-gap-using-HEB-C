@@ -1,0 +1,94 @@
+name: GitRAM nine frozen YM leaves forward/reverse (r12)
+on:
+  push:
+    paths:
+      - '.github/workflows/gitram-ym-r12-nine-leaves.yml'
+      - 'independent/gitram-ym-r12-spectrum-20261112/nine_cutoff_waves.py'
+      - 'independent/gitram-ym-r12-spectrum-20261112/threeway_pairfixed.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: gitram-ym-nine-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  cell:
+    name: Independent freeze-play replica-${{ matrix.seat }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        seat: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve the three pinned source cutoff checkpoints
+        uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43222707802
+          github-token: ${{ github.token }}
+          pattern: gitram-cutoff-*
+          path: inputs
+          merge-multiple: false
+      - name: Independently reconstruct 9 leaves; three exact reversible waves
+        run: |
+          set -euo pipefail
+          python3 -B independent/gitram-ym-r12-spectrum-20261112/nine_cutoff_waves.py inputs results/NINE-LEAF-WAVE.hbp | tee results.log
+          (cd results && sha256sum -c NINE-LEAF-WAVE.hbp.sha256)
+          grep -q '^GITRAM_SHARD_PASS|replay=nine_leaves|source_run=43222707802|rows=682|' results/NINE-LEAF-WAVE.hbp
+          grep -q '^REVERSE|stages=3|rows=682|all_original_nine_trits_restored=PASS|' results/NINE-LEAF-WAVE.hbp
+          (cd results && sha256sum NINE-LEAF-WAVE.hbp NINE-LEAF-WAVE.hbp.sha256 NINE-LEAVES-FROZEN.hbp > SHA256SUMS)
+      - name: Upload independent cell receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitram-nineleaf-replica-${{ matrix.seat }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            results/
+            results.log
+  fan-in:
+    name: Verify three independent nine-leaf replays and seal
+    needs: cell
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gitram-nineleaf-replica-*
+          path: seal
+          merge-multiple: false
+      - name: Exact byte agreement and hashes
+        run: |
+          set -euo pipefail
+          test '${{ needs.cell.result }}' = 'success'
+          test "$(find seal -mindepth 1 -maxdepth 1 -type d -name 'gitram-nineleaf-replica-*' | wc -l)" -eq 3
+          for seat in 1 2 3; do
+            p="seal/gitram-nineleaf-replica-$seat/results"
+            (cd "$p" && sha256sum -c SHA256SUMS && sha256sum -c NINE-LEAF-WAVE.hbp.sha256)
+          done
+          for seat in 2 3; do
+            cmp "seal/gitram-nineleaf-replica-1/results/NINE-LEAF-WAVE.hbp" "seal/gitram-nineleaf-replica-$seat/results/NINE-LEAF-WAVE.hbp"
+            cmp "seal/gitram-nineleaf-replica-1/results/NINE-LEAVES-FROZEN.hbp" "seal/gitram-nineleaf-replica-$seat/results/NINE-LEAVES-FROZEN.hbp"
+          done
+          {
+            echo 'GITRAM_SEAL|schema=NINE-FROZEN-LEAVES-FWDREV-R12|cells=3|sources=3cutoff_by_3weight|rows=682|physical_evolution=0|json=0'
+            cat seal/gitram-nineleaf-replica-1/results/NINE-LEAF-WAVE.hbp
+            echo 'GITRAM_NINELEAF_SEAL_PASS|replicas=3|matching_bytes=1|json=0'
+          } > seal/GITRAM-NINELEAF-SEALED.hbp
+          (cd seal && sha256sum GITRAM-NINELEAF-SEALED.hbp > GITRAM-NINELEAF-SEALED.hbp.sha256)
+      - name: Publish seal artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitram-nineleaf-fwdrev-sealed
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            seal/GITRAM-NINELEAF-SEALED.hbp
+            seal/GITRAM-NINELEAF-SEALED.hbp.sha256
