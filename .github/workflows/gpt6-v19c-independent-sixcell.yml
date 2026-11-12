@@ -1,0 +1,134 @@
+name: GPT6 independently replay six V19C strict 27-shuffle density cells
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-v19c-independent-sixcell.yml'
+      - 'independent/GPT6_V19C_INDEPENDENT_REPLAY_FREEZE_20261112.hbp'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gpt6-6cell-v19c-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  replay:
+    name: Real frozen V19C source, mode ${{ matrix.mode }}, N=${{ matrix.N }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        mode: [0, 2]
+        N: [729, 2187, 6561]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Authenticate real room block, frozen hypothesis, and V19C source
+        run: |
+          set -euo pipefail
+          ROOT=independent/y140-residual-leaves-spectrum-r12-20261112
+          (cd "$ROOT/results" && sha256sum -c block-cert_m7_r12_1_f1.bin.sha256)
+          grep -q '^ASSUMPTION|source_leaves_order=f1_then_f6-5-4-3_then_f8-7-6-5-4|' independent/GPT6_V19C_INDEPENDENT_REPLAY_FREEZE_20261112.hbp
+          test -s "$ROOT/scripts/field_v19c.py"
+          for f in 1 6-5-4-3 8-7-6-5-4; do
+            test -s "$ROOT/leaves/S_cert_m9_r12_1_f$f.leaf.hbp"
+          done
+      - name: Restrict only ORIGINAL top-level loops; preserve the exact V19C dynamics
+        env:
+          SELECT_N: ${{ matrix.N }}
+          SELECT_MODE: ${{ matrix.mode }}
+        run: |
+          set -euo pipefail
+          mkdir -p reproduce
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          original = Path("independent/y140-residual-leaves-spectrum-r12-20261112/scripts/field_v19c.py").read_text()
+          mode = int(os.environ["SELECT_MODE"])
+          density = int(os.environ["SELECT_N"])
+          assert mode in (0,2) and density in (729,2187,6561)
+          a="for respond in (0, 2):"
+          b="for N in (729, 2187, 6561):"
+          assert original.count(a)==1 and original.count(b)==1
+          after=original.replace(a,"for respond in ("+str(mode)+",):",1)
+          after=after.replace(b,"for N in ("+str(density)+",):",1)
+          assert after.count("def run(N, respond, scramble_seed):")==1
+          assert after.count("def mixer(seed):")==1
+          assert after.count("for q in range(len(ds) - 1, 0, -1):")==1
+          Path("reproduce/v19c-one-cell.py").write_text(after)
+          PY
+          sha256sum independent/y140-residual-leaves-spectrum-r12-20261112/scripts/field_v19c.py > reproduce/ORIGINAL-PROGRAM-SHA256
+          python3 -m py_compile reproduce/v19c-one-cell.py
+      - name: Replay original control seed recipe, all 27 own-digit permutations, one density
+        env:
+          SELECT_N: ${{ matrix.N }}
+          SELECT_MODE: ${{ matrix.mode }}
+        run: |
+          set -euo pipefail
+          ROOT=independent/y140-residual-leaves-spectrum-r12-20261112
+          python3 -B reproduce/v19c-one-cell.py \
+            "$ROOT/results/block-cert_m7_r12_1_f1.bin" \
+            "$ROOT/leaves/S_cert_m9_r12_1_f1.leaf.hbp" \
+            "$ROOT/leaves/S_cert_m9_r12_1_f6-5-4-3.leaf.hbp" \
+            "$ROOT/leaves/S_cert_m9_r12_1_f8-7-6-5-4.leaf.hbp" \
+            27 > reproduce/ONE-CELL.hbp
+          cat reproduce/ONE-CELL.hbp
+          test "$(grep -c '^FIELD|' reproduce/ONE-CELL.hbp)" -eq 1
+          if test "$SELECT_MODE" = 0; then NAME=FROZEN; else NAME=GLOBAL_HASH; fi
+          grep "^FIELD|mode=$NAME|functions=$SELECT_N|" "$ROOT/results/RESULT-FIELD-V19C.hbp" > reproduce/EXPECTED.hbp
+          grep "^FIELD|mode=$NAME|functions=$SELECT_N|" reproduce/ONE-CELL.hbp > reproduce/ACTUAL.hbp
+          diff -u reproduce/EXPECTED.hbp reproduce/ACTUAL.hbp
+          grep -q '|FANO_verdict=INSIDE|json=0' reproduce/ACTUAL.hbp
+          printf 'V19C_INDEPENDENT_PASS|mode=%s|N=%s|controls=27|source_original=UNCHANGED|r9=HOLD|json=0\n' "$NAME" "$SELECT_N" > reproduce/PASS.hbp
+          (cd reproduce && sha256sum ONE-CELL.hbp EXPECTED.hbp ACTUAL.hbp PASS.hbp > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-v19c-mode-${{ matrix.mode }}-N-${{ matrix.N }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: reproduce/
+  seal:
+    name: All six original V19C control cells byte-for-byte
+    needs: replay
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gpt6-v19c-mode-*
+          path: six
+      - name: Authenticate all six and seal
+        run: |
+          set -euo pipefail
+          test '${{ needs.replay.result }}' = 'success'
+          for mode in 0 2; do
+            for n in 729 2187 6561; do
+              dir="six/gpt6-v19c-mode-$mode-N-$n"
+              test -s "$dir/PASS.hbp"
+              (cd "$dir" && sha256sum -c SHA256SUMS)
+              grep -q '^V19C_INDEPENDENT_PASS|' "$dir/PASS.hbp"
+            done
+          done
+          {
+            echo 'V19C_REPRODUCTION|source_main=7934dcaf56362a4370e9c5c2225a3ba48195a0aa|modes=FROZEN,GLOBAL_HASH|N=729,2187,6561|controls_per_cell=27|json=0'
+            for mode in 0 2; do
+              for n in 729 2187 6561; do
+                cat "six/gpt6-v19c-mode-$mode-N-$n/ACTUAL.hbp"
+              done
+            done
+            echo 'V19C_EXACT_REPLAY_PASS|cells=6|matching_source=6|scrambles_each=27|source_block=19683_rooms|r9=HOLD|json=0'
+          } > six/GPT6-V19C-SEALED.hbp
+          (cd six && sha256sum GPT6-V19C-SEALED.hbp > GPT6-V19C-SEALED.hbp.sha256)
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: gpt6-v19c-all-six-exact-replay
+          path: |
+            six/GPT6-V19C-SEALED.hbp
+            six/GPT6-V19C-SEALED.hbp.sha256
+          retention-days: 30
