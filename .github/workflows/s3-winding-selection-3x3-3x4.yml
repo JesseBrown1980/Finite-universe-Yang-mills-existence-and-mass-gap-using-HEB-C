@@ -1,0 +1,67 @@
+name: S3 3x3 and 3x4 winding selection and exact electric-time jumps
+
+on:
+  push:
+    paths:
+      - 'native/ym/results/s3_winding_selection_3x3_3x4_20261107/**'
+      - '.github/workflows/s3-winding-selection-3x3-3x4.yml'
+  pull_request:
+    paths:
+      - 'native/ym/results/s3_winding_selection_3x3_3x4_20261107/**'
+      - '.github/workflows/s3-winding-selection-3x3-3x4.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  gauge-observable-and-electric-jump:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit integer-only source and frozen prediction
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/s3_winding_selection_3x3_3x4_20261107
+          test "$(grep -c '^PREDICT|id=' "$dir/PREDICTION.hbp")" -eq 17
+          python3 -I native/scripts/integer_only_audit.py "$dir/verify_winding_and_slices.py"
+      - name: Exact gauge covariance, both lattices, and 43-million-step scalar jump
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/s3_winding_selection_3x3_3x4_20261107
+          mkdir -p build/s3_winding_33_34
+          python3 -I -X utf8 "$dir/verify_winding_and_slices.py" | tee build/s3_winding_33_34/MEASURED.hbp
+          grep -F 'S3_GEOMETRY|shape=3x3|sites=9|oriented_links=18|free_links=10|full_physical_gauge_orbits=10097891|' build/s3_winding_33_34/MEASURED.hbp
+          grep -F 'S3_GEOMETRY|shape=3x4|sites=12|oriented_links=24|free_links=13|full_physical_gauge_orbits=2177317873|' build/s3_winding_33_34/MEASURED.hbp
+          grep -F 'S3_ELECTRIC_OBSERVABLE|shape=3x3|interaction_JB=0|eigenvalue=9|uniform_vacuum_mean=0|connected_variance=6|' build/s3_winding_33_34/MEASURED.hbp
+          grep -F 'S3_ELECTRIC_OBSERVABLE|shape=3x4|interaction_JB=0|eigenvalue=9|uniform_vacuum_mean=0|connected_variance=4|' build/s3_winding_33_34/MEASURED.hbp
+          grep -F 'S3_ELECTRIC_CROSSCHECK|shape=3x4|x_winding_length=3|x_winding_energy=9|y_winding_length=4|y_winding_energy=12|' build/s3_winding_33_34/MEASURED.hbp
+          grep -F 'S3_ELECTRIC_IDENTITY|loop_length=3|group_words=216|elementary_move_checks=1944|exact_eigenvalue=9|' build/s3_winding_33_34/MEASURED.hbp
+          grep -F 'S3_ELECTRIC_IDENTITY|loop_length=4|group_words=1296|elementary_move_checks=15552|exact_eigenvalue=12|' build/s3_winding_33_34/MEASURED.hbp
+          grep -F 'S3_VERIFY|status=PASS|lattices=3x3,3x4|exact_pure_electric_eigenmode=E9|hosted_time_steps_max=43046721|interacting_E1_sector=OPEN|interacting_vacuum_overlap=OPEN|' build/s3_winding_33_34/MEASURED.hbp
+          test "$(grep -c '^S3_TIME_SLICE|' build/s3_winding_33_34/MEASURED.hbp)" -eq 14
+          test "$(grep -c '^S3_MODULAR_JUMP|' build/s3_winding_33_34/MEASURED.hbp)" -eq 6
+          test "$(grep -c '^S3_CONTINUOUS_ELECTRIC|' build/s3_winding_33_34/MEASURED.hbp)" -eq 2
+          if test -f "$dir/MEASURED-20261107.hbp"; then
+            tail -n +4 "$dir/MEASURED-20261107.hbp" | cmp - build/s3_winding_33_34/MEASURED.hbp
+          fi
+      - name: Six observable and matrix-jump falsifiers
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/s3_winding_selection_3x3_3x4_20261107
+          for case in swapped_even_as_odd rect_alt_as_even bare_holonomy_gauge_invariance wrong_electric_cost wrong_cubing wrong_variance; do
+            rc=0
+            python3 -I -X utf8 "$dir/verify_winding_and_slices.py" "sabotage=$case" > "build/s3_winding_33_34/RED-$case.hbp" || rc=$?
+            test "$rc" -eq 1
+            grep -F "FAILED|check=RED_$case|json=0" "build/s3_winding_33_34/RED-$case.hbp"
+          done
+          (cd build/s3_winding_33_34 && sha256sum *.hbp > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: s3-3x3-3x4-winding-electric-slices
+          path: build/s3_winding_33_34/
+          if-no-files-found: warn

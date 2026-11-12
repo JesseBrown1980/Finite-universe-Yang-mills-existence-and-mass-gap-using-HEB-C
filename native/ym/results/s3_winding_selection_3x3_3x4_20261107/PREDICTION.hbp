@@ -1,0 +1,22 @@
+# 2026-11-07. FROZEN BEFORE NEW SOURCE AND HOSTED MEASUREMENT.
+# NEW independent main-based PR; does not import unmerged PR127 or PR128.
+# Periodic spatial S3 gauge group, 3x3 and 3x4, electric JB=0 endpoint.
+# Interacting JB>0 spectral parity and E1 overlap remain OPEN.
+PREDICT|id=01|lattice=3x3|sites=9|links=18|free_links=10|full_orbits=10097891|status=DERIVED|json=0
+PREDICT|id=02|lattice=3x4|sites=12|links=24|free_links=13|full_orbits=2177317873|status=DERIVED|json=0
+PREDICT|id=03|lattice=3x4|stored_rows=45508080|entire_gauge_space=NO|status=BOUNDARY|json=0
+PREDICT|id=04|lattice=3x3|operator=O_plus=sum_y_chi_Wx+sum_x_chi_Wy|axis_exchange=EVEN|gauge_invariant=YES|status=DERIVED|json=0
+PREDICT|id=05|lattice=3x3|operator=O_minus=sum_y_chi_Wx-minus_sum_x_chi_Wy|axis_exchange=ODD|gauge_invariant=YES|status=DERIVED|json=0
+PREDICT|id=06|lattice=3x4|operator=O_alt=sum_y_minus1_to_y_chi_Wx_y|unit_y_translation=ODD|gauge_invariant=YES|status=DERIVED|json=0
+PREDICT|id=07|lattice=3x4|operator=O_xsum=sum_y_chi_Wx_y|unit_y_translation=EVEN|gauge_invariant=YES|status=DERIVED|json=0
+PREDICT|id=08|check=S3_plaquette|transposition_class_size=3|chi_std_values=2,0,-1|electric_link_identity=3*chi|status=DERIVED|json=0
+PREDICT|id=09|lattice=3x3|JB=0|electric_O_plus_eigenvalue=9|electric_O_minus_eigenvalue=9|uniform_vacuum_mean=0|variance_each=6|status=DERIVED|json=0
+PREDICT|id=10|lattice=3x4|JB=0|electric_O_alt_eigenvalue=9|electric_O_xsum_eigenvalue=9|uniform_vacuum_mean=0|variance_each=4|status=DERIVED|json=0
+PREDICT|id=11|lattice=3x4|JB=0|y_winding_loop_energy=12|x_winding_loop_energy=9|status=DERIVED|json=0
+PREDICT|id=12|check=CONTINUOUS_ELECTRIC_TIME|t=1|C_3x3=6*exp(-9)|C_3x4=4*exp(-9)|JB=0|status=DERIVED|json=0
+PREDICT|id=13|check=TERNARY_TIME_SLICES|N=27,81,243,729,19683,531441,43046721|C_N=m*(1-9/N)^N|converges_from_below=YES|status=DERIVED|json=0
+PREDICT|id=14|check=THREE_POWER_JUMP|N=43046721|cubings=16|primes=1000081,1000003|matches_binary_powers=YES|status=DERIVED|json=0
+PREDICT|id=15|check=GAUGE_SAMPLES|seeds_per_lattice=48|single_vertex_transformations_per_seed=6*sites|magnetic_invariant=YES|electric_covariant=YES|status=DERIVED|json=0
+PREDICT|id=16|check=NEGATIVE_CONTROLS|swapped_even_as_odd=REJECT|rect_alt_as_even=REJECT|bare_holonomy_gauge_invariance=REJECT|wrong_electric_cost=REJECT|wrong_cubing=REJECT|wrong_variance=REJECT|status=RED|json=0
+PREDICT|id=17|check=STATUS|3x3_interacting_E1_parity=OPEN|3x4_interacting_E1_sector=OPEN|interacting_nonzero_overlap=OPEN|actual_spatial_continuum=OPEN|status=LIMIT|json=0
+PREDICTION_SUMMARY|rows=17|predictions_frozen_before_new_code=YES|measurements=NOT_RUN|json=0
