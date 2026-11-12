@@ -1,0 +1,21 @@
+# Independent 27-column Pascal-pyramid freeze — 2026-11-12
+
+FREEZE|schema=YM-R12-27-INDEPENDENT-V1|operator=finite-S3-3x4-core-classes|source_baseline_run=43231913054|source_r12_run=43222707802|baseline_sha256=2220ee3a11c66281b586de77f44999c06e863f0e9f83509a867047048326bbc7|json=0
+GRID|couplings_order=12,21/2,14|cutoffs_order=7,8,9|word_order=lexicographic_f1_f6-5-4-3_f8-7-6-5-4|total_columns=27|json=0
+ROW_UNIVERSE|intersection_of_pinned_r12_canonical_keys=682|new_certificates_must_match_pinned_cutoff_rowhash=1|json=0
+PREDICTION|nine_prefix_must_reproduce_frozen_nine_exactly=1|27_column_pyramid_rows=682|possible_compositions=406|pair_tables=351|json=0
+PREDICTION|exclude_r9_and_any_near_r9=1|coupling_certifications_only=21/2,14|r12=immutable_existing_artifact|json=0
+CONTROL|source_sha256_and_independent_cert_gate=REQUIRED|tercile_tie_rule=sha256_of_frozen_cert_and_key|no_float_no_json=REQUIRED|json=0
+CONTROL|higher_order_null=ONLY_IF_EACH_OF_351_PAIR_TABLES_PRESERVED|cube_move_reachability_and_mixing=UNPROVED_UNTIL_TESTED|no_moves_means_INCONCLUSIVE|json=0
+CONTROL|geometry_vs_pairwise=SEPARATE|full_pattern_vs_composition=SEPARATE|individual_weak_certificate=column0_tested_without_selecting_new_hypothesis|json=0
+LIMIT|27_columns_are_multiple_certificates_on_same_682_rows|not_27_new_spatial_sites|physical_continuum=NOT_PROVEN|r9_run=HOLD|json=0
+FROZEN_ACCEPTANCE|all_sources_authentic=1|independent_cert_gate=PASS|nine_prefix_exact=PASS|27_columns=27|351_pair_tables=351|all_or_nothing=PASS|json=0
+
+Scope: this branch replays 27 authentic ternary certificate columns, not the
+nested address readout experiment. New r=21/2 and r=14 certificates are
+produced from the SHA-pinned excluded-coupling launcher; r=12 uses immutable
+existing artifacts. The other seat's separate 243-certificate extraction is
+not modified or presumed to have finished. Every direct-ratio comparison
+uses Python integer numerator/denominator pairs only. A new independent
+pair-fixed null at 27 can fail for lack of any feasible cube trades; that
+is an explicit unresolved result, not evidence of no higher-order signal.
