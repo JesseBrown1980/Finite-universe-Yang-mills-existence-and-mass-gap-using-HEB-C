@@ -1,0 +1,92 @@
+// Complete 111906-state *principal core* matrix H_CC at coupling 12.
+// Every gauge-only orbit (unreduced by D3xD4) is included at m0=9.
+// All 72 moves are enumerated on every row; all reciprocal weighted edges
+// checked before writing a binary artifact. The tail M>9 is NOT integrated.
+// This is not an isolated whole-H spectrum or r9 computation.
+
+fn full_gauge_sparse_r12(args: &[String]) {
+    let tab=tables();
+    let cutoff=9i64;
+    let threads: usize=arg(args,"--threads","4").parse().unwrap();
+    let destination=arg(args,"--output","S3-GAUGE-111906-R12-CORE.bin");
+    assert!((1..=16).contains(&threads));
+    let keys=enumerate(&tab,cutoff,threads);
+    assert_eq!(keys.len(),111906);
+    let kh=keys_hash(&keys);
+    assert_eq!(kh,"3cfd4f0ac9d7866e3b8a6f54d35153a50011dc2ee23feb7952f194b12cc45eb7");
+    let indices: HashMap<u64,u32>=keys.iter().enumerate().map(|(i,&key)|(key,i as u32)).collect();
+    let kept:HashSet<u64>=keys.iter().copied().collect();
+    assert_eq!(kept.len(),111906);
+    // (m, orbit_weight, edges(sorted), flat, tail) per gauge orbit.
+    let rows=par_map(keys.len(),threads,|i| {
+        let key=keys[i];
+        let u=tab.links_of_key(key);
+        let m=tab.magnetic(&u);
+        assert!(m>=3 && m<=cutoff);
+        let w=gauge_conj_orbit_size(&tab,key);
+        assert!(w>=1 && w<=6);
+        let (raw,flat,tail)=gauge_only_neighbours(&tab,key,&kept,cutoff);
+        let mut edges:Vec<(u32,u32)>=raw.into_iter().map(|(k,n)|(*indices.get(&k).unwrap(),n)).collect();
+        edges.sort_unstable_by_key(|&(j,_)|j);
+        let count:u32=edges.iter().map(|&(_,c)|c).sum();
+        assert_eq!(count+flat+tail,72);
+        assert!(edges.windows(2).all(|a|a[0].0<a[1].0));
+        (m as u8,w as u8,edges,flat as u8,tail as u8)
+    });
+    assert_eq!(rows.len(),111906);
+    let mut directed=0u64;
+    let mut weighted=0u64;
+    let mut self_count=0u64;
+    let mut flat_total=0u64;
+    let mut tail_total=0u64;
+    let mut by_m=[0u64;10];
+    let mut by_m_edges=[0u64;10];
+    for (i,(m,w,edges,flat,tail)) in rows.iter().enumerate() {
+        assert!(*m>=3 && *m<=9);
+        by_m[*m as usize]+=1;
+        flat_total+=*flat as u64;
+        tail_total+=*tail as u64;
+        directed+=edges.len() as u64;
+        by_m_edges[*m as usize]+=edges.len() as u64;
+        for &(j,c) in edges.iter() {
+            let jj=j as usize;
+            let (_,wj,back,_,_)=&rows[jj];
+            let k=back.binary_search_by_key(&(i as u32),|x|x.0)
+                .expect("full reciprocal edge missing");
+            let cback=back[k].1;
+            assert_eq!((*w as u64)*(c as u64),(*wj as u64)*(cback as u64),
+                "full gauge-only weighted balance");
+            weighted+=1;
+            if i==jj {self_count+=c as u64}
+        }
+    }
+    assert_eq!(directed,weighted);
+    println!("FULL_R12_CORE_VALIDATED|states=111906|directed_distinct_edges={}|reciprocal_pairs_verified={}|self_hops={}|flat_hops={}|tail_hops={}|all_rows_72_moves=PASS|weighted_balance=PASS|json=0",
+             directed,weighted,self_count,flat_total,tail_total);
+    for m in 3..=9usize {
+        println!("FULL_R12_MAG_LAYER|M={}|rows={}|directed_distinct_core_edges={}|json=0",
+                 m,by_m[m],by_m_edges[m]);
+    }
+    // Deterministic integer binary receipt:
+    // Magic 14 bytes, n u32, each row key u64, mag/w/flat/tail u8,
+    // number of distinct edges u16, then (target index u32, count u8).
+    // Only canonical sorted keys and sorted target indices are used.
+    let mut bytes=Vec::<u8>::with_capacity(40_000_000);
+    bytes.extend_from_slice(b"S3R12CORE111906");
+    bytes.extend_from_slice(&(rows.len() as u32).to_le_bytes());
+    for (i,(m,w,edges,flat,tail)) in rows.iter().enumerate() {
+        bytes.extend_from_slice(&keys[i].to_le_bytes());
+        bytes.extend_from_slice(&[*m,*w,*flat,*tail]);
+        assert!(edges.len()<=72);
+        bytes.extend_from_slice(&(edges.len() as u16).to_le_bytes());
+        for &(j,c) in edges.iter() {
+            assert!((1..=72).contains(&c));
+            bytes.extend_from_slice(&j.to_le_bytes());
+            bytes.push(c as u8);
+        }
+    }
+    let checksum=sha256_hex(&bytes);
+    std::fs::write(&destination,&bytes).unwrap();
+    println!("FULL_R12_CORE_FILE|filename={}|bytes={}|sha256={}|format=S3R12CORE111906-v1|no_tail_claim=1|json=0",destination,bytes.len(),checksum);
+    println!("FULL_R12_GAUGE_CORE_PASS|states=111906|magnetic_cutoff=9|coupling=12|key_sha256={}|full_weighted_reciprocal=PASS|r9=HOLD|json=0",kh);
+}

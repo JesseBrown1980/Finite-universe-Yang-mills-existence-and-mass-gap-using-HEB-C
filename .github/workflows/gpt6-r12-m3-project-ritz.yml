@@ -1,0 +1,100 @@
+name: Independent r12 nontrivial symmetry M3 exact projected Ritz
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-r12-m3-project-ritz.yml'
+      - 'independent/GPT6_R12_M3_PROJECTED_RITZ_FREEZE_20261112.hbp'
+      - 'independent/GPT6_R12_M3_PROJECTED_RITZ_EXTENSION.rs.txt'
+      - 'independent/gpt6_patch_m3_projected_ritz.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gpt6-r12-M3-projected-ritz-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  ritz:
+    name: All 15 D3xD4 sector trial vectors in exact 36-state M3 subspace
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    env:
+      ENGINE: frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs
+      RUSTUP_TOOLCHAIN: 1.81.0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          ref: 8aca957babbb8b0903fb8683422cde30b3f55668
+          path: frozen-engine
+          persist-credentials: false
+      - name: Freeze original PR169 predictions, no coupling 9
+        run: |
+          set -euo pipefail
+          grep -q '^CONTRACT|schema=GPT6-R12-M3-SYMMETRY-PROJECTED-RITZ-V1|' independent/GPT6_R12_M3_PROJECTED_RITZ_FREEZE_20261112.hbp
+          grep -q '^MODEL|H_JE=72_minus_T_plus_rM|r=12|on_M3_diagonal=108|' independent/GPT6_R12_M3_PROJECTED_RITZ_FREEZE_20261112.hbp
+          grep -q '^LIMIT|M3_subspace_not_an_invariant_H_subspace|' independent/GPT6_R12_M3_PROJECTED_RITZ_FREEZE_20261112.hbp
+          mkdir -p out
+      - name: Patch only throwaway original Rust source in three authenticated stages
+        run: |
+          set -euo pipefail
+          python3 -B independent/gpt6_patch_gauge_orbit_census.py "$ENGINE/src/main.rs" \
+            independent/GPT6_R12_GAUGE_ORBIT_CENSUS_EXTENSION.rs.txt out/ORBIT-PATCH.hbp
+          python3 -B independent/gpt6_patch_orbit_irreps.py "$ENGINE/src/main.rs" \
+            independent/GPT6_R12_GAUGE_IRREPS_EXTENSION.rs.txt out/IRREP-PATCH.hbp
+          python3 -B independent/gpt6_patch_m3_projected_ritz.py "$ENGINE/src/main.rs" \
+            independent/GPT6_R12_M3_PROJECTED_RITZ_EXTENSION.rs.txt out/M3-PATCH.hbp
+          rustup toolchain install 1.81.0 --profile minimal
+          cargo build --release --locked -j2 --manifest-path "$ENGINE/Cargo.toml"
+          test -x "$ENGINE/target/release/floorcert"
+      - name: Compute exact 36-state M3 graph and symmetry projections
+        run: |
+          set -euo pipefail
+          "$ENGINE/target/release/floorcert" m3-project-ritz --threads 4 | tee out/M3-RITZ.hbp
+          test "$(grep -c '^M3_PROJECTED_RITZ|D3=' out/M3-RITZ.hbp)" -eq 15
+          grep -q '^M3_GRAPH|states=36|directed_core_edges=' out/M3-RITZ.hbp
+          grep -q '^M3_RITZ_SUMMARY|M3_sector_dimensions=36|' out/M3-RITZ.hbp
+          grep -q '^M3_PROJECTED_RITZ_PASS|source=exact_gauge_orbit_basis|rows=36|irreps_tested=15|coupling_r=12|r9=HOLD|' out/M3-RITZ.hbp
+      - name: Exact independent receipt arithmetic and negative control
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path("out/M3-RITZ.hbp").read_text()
+          rows=[dict(x.split("=",1) for x in line.split("|")[1:] if "=" in x)
+                for line in s.splitlines() if line.startswith("M3_PROJECTED_RITZ|")]
+          assert len(rows)==15
+          d=0
+          upper=[]
+          for x in rows:
+              deg=int(x["irrep_degree"])
+              dim=int(x["M3_sector_dim"])
+              assert dim>=0 and dim%deg==0
+              d+=dim
+              if dim==0:
+                  assert x["result"]=="ABSENT_FROM_M3"
+                  continue
+              n=int(x["rayleigh_numerator"]); den=int(x["rayleigh_denominator"])
+              assert den>0 and n>0
+              assert int(x["below10455"])==int(100*n<10455*den)
+              assert int(x["below10470"])==int(100*n<10470*den)
+              assert int(x["below110"])==int(n<110*den)
+              if x["D3"]!="0" or x["D4"]!="0":
+                  upper.append((x["D3"],x["D4"],n,den))
+          assert d==36
+          assert len(upper)>0
+          Path("out/EXACT-ARITHMETIC.hbp").write_text(
+              "M3_RECHECK_PASS|character_sector_rows=15|subspace_dimension=36|nontrivial_ritz_count=%d|integer_division_only=YES|r9=HOLD|json=0\n"%len(upper),
+              encoding="ascii")
+          PY
+          if "$ENGINE/target/release/floorcert" m3-project-ritz --m0 9 --threads 0 >/dev/null 2>&1; then
+            echo 'M3_BAD_THREAD_CONTROL_ACCEPTED'; exit 1
+          fi
+          (cd out && sha256sum ORBIT-PATCH.hbp IRREP-PATCH.hbp M3-PATCH.hbp M3-RITZ.hbp EXACT-ARITHMETIC.hbp > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-r12-m3-symmetry-projected-ritz
+          retention-days: 30
+          path: out/
+          if-no-files-found: warn
