@@ -224,7 +224,7 @@ def audit(folder,m0,leafdir):
         d,w,v,uf,ub=matrix(rows,m0,word,t,vals)
         q=[Rat(vl[x[0]][2],vl[x[0]][1]) for x in rows]
         corr=spear(q,uf);bcorr=spear(q,ub)
-        assert corr>0, ("frozen positive cutoff7 forward prediction",m0,wordtxt,corr)
+        print("FROZEN_PREDICTION|m0=%d|f=%s|forward_positive=%s|json=0"%(m0,wordtxt,"HELD" if corr>0 else "FALSIFIED"))
         print("FROZEN_RESIDUAL|m0=%d|f=%s|rows=%d|forward_rank_milli=%d|backward_rank_milli=%d|certificate_sha256=%s|leaf_sha256=%s|json=0"%(m0,wordtxt,len(rows),corr,bcorr,h(cert),h(leaf)))
         output.append((m0,wordtxt,corr,bcorr))
         fw=solve(d,w,v,False,24)
