@@ -1,5 +1,5 @@
 #!/bin/bash
-# run_floor.sh -- single launcher of the frozen floor-certificate run (version 2 freeze, fourth correction round).
+# run_floor.sh -- single launcher of the frozen floor-certificate run (version 2 freeze, fifth correction round).
 #   frozen run: bash final/tools/run_floor.sh --launch-r9 [--freeze-commit C]
 #               r = 9, m0 = 11, then 12 and 13 only under rows 006 and 007 of the prediction record.
 #               The token --launch-r9 is the only way into this mode; no other argument set reaches r = 9.
@@ -25,9 +25,16 @@
 # at the close the launcher lists every process whose mount namespace is its own; one that is neither this shell nor
 # a child of it stops the run (NOT_STARTED before the first command, CERTIFICATE=FAIL at the close). An entry made
 # through a namespace that another process holds (nsenter) is refused by this check.
+# REFERENCES (row 144). At the same three points the launcher reads every mount table it can read and the open
+# descriptors of every process: a bind mount or a descriptor that names this mount namespace, or one that names a
+# mount namespace with no member process, stops the run. An entry through a namespace that a bound file keeps alive
+# with no process in it is refused by this check.
 # BUILD (row 139). Cargo runs with CARGO_HOME set to an empty directory on the launcher's tmpfs; a cargo
 # configuration file in the Rust folder or in any directory above it, and any untracked file in the Rust folder
 # outside target/, stop the run. With a frozen build the tracked files of the whole repository must be unchanged.
+# A Cargo.toml that names a workspace in any directory above the Rust folder stops the run (row 144). With a frozen
+# build the checkout must be at the freeze commit (HEAD equal to C) and the index may mark no file assume-unchanged
+# or skip-worktree.
 # PUBLISH. Before its final line the launcher prints PUBLISH|receipt_sha256=...; that value is to be made public at
 # once, and the checker of row 131 requires it for the r9 receipt (row 138).
 # Stage 1 first refuses a caller environment that carries BASH_ENV, ENV, an LD_ name, a PYTHON name or an exported
@@ -39,8 +46,8 @@
 # evaluator are each read once into memory and hashed there against the frozen SHA-256 values. peak_rss.py and the
 # evaluator run from memory (python3 -I -B -c). gate_required.sh, cert_gate.py, indep_verify.py, the record and the
 # binary are written from those bytes into a tmpfs mounted at <run directory>/tmp inside the private mount namespace
-# (TMPDIR; the tools sit in a second tmpfs under it, read-only once written; a process outside the namespace sees
-# neither); the tmpfs files and the files in the tree are hashed
+# (TMPDIR; the tools sit in a second tmpfs under it, read-only once written; a process outside the namespace has
+# neither in its own mount table; root reads them through /proc/PID/root, row 144); the tmpfs files and the files in the tree are hashed
 # before and after every command and at the close. A certificate counts only with a logged verifier invocation that
 # exited 0 with the tools still at their hashes after the call (row 122, row 124).
 # A completed measured process at or over 2097152 kB gives CERTIFICATE=FAIL, RESOURCE_LIMIT_EXCEEDED, and no fallback;
@@ -108,6 +115,17 @@ ns_others() { # the pids, other than this shell and its own children, whose moun
   done
 }
 [ -z "$(ns_others)" ] || early_stop namespace mount_namespace_is_held_by_another_process
+ns_refs() { # mount namespace references that are no member process (row 144): nsfs bind mounts of every readable mount
+  # table and open descriptors of every process; printed when one names this namespace or a namespace without a member
+  local m="" x
+  for x in /proc/[0-9]*/ns/mnt; do m="$m $(/usr/bin/readlink "$x" 2>/dev/null) "; done
+  { /usr/bin/cat /proc/[0-9]*/mountinfo 2>/dev/null | /usr/bin/sed -n 's/^[0-9]* [0-9]* [0-9:]* \(mnt:\[[0-9]*\]\) .* - nsfs .*$/\1/p'
+    /usr/bin/find /proc/[0-9]*/fd -maxdepth 1 -lname 'mnt:*' -printf '%l\n' 2>/dev/null
+  } | while read -r x; do
+    if [ "$x" = "$NS_SELF" ]; then echo "$x"; else case "$m" in *" $x "*) ;; *) echo "$x";; esac; fi
+  done
+}
+[ -z "$(ns_refs)" ] || early_stop namespace mount_namespace_reference_outside_a_member_process
 unset BASH_ENV ENV CDPATH GLOBIGNORE
 ROOT="$FLOOR_ROOT"; HERE="$ROOT/final/tools"
 cd "$ROOT" || early_stop environment cannot_enter_the_freeze_folder
@@ -291,6 +309,7 @@ for x in "$OUT/tmp" "$PRIV"; do
 done
 [ "$(/usr/bin/readlink /proc/self/ns/mnt 2>/dev/null)" = "$NS_SELF" ] || NSBAD=${NSBAD:-mount_namespace_id_changed}
 [ -z "$(ns_others)" ] || NSBAD=${NSBAD:-mount_namespace_is_held_by_another_process}
+[ -z "$(ns_refs)" ] || NSBAD=${NSBAD:-mount_namespace_reference_outside_a_member_process}
 if [ -n "$NSBAD" ]; then umount "$PRIV" 2>/dev/null; umount "$OUT/tmp" 2>/dev/null; prelude_stop UNRESOLVED "$NSBAD"; fi
 TDST=("$PRIV/gate_required.sh" "$PRIV/py/cert_gate.py" "$PRIV/py/indep_verify.py")
 for i in 0 1 2; do
@@ -304,7 +323,7 @@ guard || integrity_stop
 GATE="$PRIV/gate_required.sh"; VERIFIER="$PRIV/py/cert_gate.py"
 LOG="$OUT/log"
 say "START|mode=$MODE|r=$R|m0_steps=${STEPS[*]}|f=$FSPEC|g0=$G0|prediction_sha256=$P|driver_sha256=$DRVSHA|run_directory=$OUT|json=0"
-say "NOTE|environment=env_-i_with_PATH=/usr/bin:/bin_LANG=C_HOME=${HOME}_TMPDIR=<run_directory>/tmp|mount_namespace=private_CHECKED_(row_132)|namespace_of_this_process=$NS_SELF|namespace_of_the_parent_process=$NS_PARENT|namespace_of_process_1=$NS_INIT|shared_or_slave_mounts=0|other_processes_in_this_namespace=0|both_tmpfs_mounts=listed_here_and_absent_from_the_mount_tables_of_the_parent_process_and_of_process_1|tmpdir=tmpfs_mounted_in_that_namespace|private_tools=a_second_tmpfs_read-only_after_the_last_write|launcher_pid=$$|children=bash_--noprofile_--norc_and_python3_-I_-B|json=0"
+say "NOTE|environment=env_-i_with_PATH=/usr/bin:/bin_LANG=C_HOME=${HOME}_TMPDIR=<run_directory>/tmp|mount_namespace=private_CHECKED_(row_132)|namespace_of_this_process=$NS_SELF|namespace_of_the_parent_process=$NS_PARENT|namespace_of_process_1=$NS_INIT|shared_or_slave_mounts=0|other_processes_in_this_namespace=0|references_to_this_namespace_outside_member_processes=0|mount_namespaces_without_a_member_process=0|both_tmpfs_mounts=listed_here_and_absent_from_the_mount_tables_of_the_parent_process_and_of_process_1|tmpdir=tmpfs_mounted_in_that_namespace|private_tools=a_second_tmpfs_read-only_after_the_last_write|launcher_pid=$$|children=bash_--noprofile_--norc_and_python3_-I_-B|json=0"
 for x in "${TOOLLINES[@]}"; do say "$x"; done
 for i in 0 1 2; do
   say "TOOL|private_copy=${TDST[$i]#"$PRIV"/}|written_from=memory|source=${MSRC[$i]}|sha256=$("$SHA" "${TDST[$i]}" | cut -d' ' -f1)|pin=${MROW[$i]}|want=${MWANT[$i]}|json=0"
@@ -322,7 +341,9 @@ if [ $FZ -eq 1 ]; then
   BL=$("$GIT" show "$C:$PFX$PREDREL" 2>/dev/null | "$SHA" | cut -d' ' -f1)
   [ "$BL" = "$P" ] || prelude_stop FAIL prediction_record_differs_from_the_freeze_commit
   [ -z "$("$GIT" status --porcelain --untracked-files=no 2>/dev/null)" ] || prelude_stop FAIL tracked_files_differ_from_the_commit
-  say "NOTE|freeze_commit=$C|prediction_blob_sha256=$BL|json=0"
+  [ "$("$GIT" rev-parse HEAD 2>/dev/null)" = "$C" ] || prelude_stop FAIL checkout_head_is_not_the_freeze_commit
+  [ -z "$("$GIT" -C "$TOP" ls-files -v 2>/dev/null | grep '^[a-zS] ')" ] || prelude_stop FAIL index_marks_a_file_assume_unchanged_or_skip_worktree
+  say "NOTE|freeze_commit=$C|prediction_blob_sha256=$BL|head_equals_the_freeze_commit=1|files_marked_assume_unchanged_or_skip_worktree=0|json=0"
 fi
 # ---- toolchain (row 017) and the pin-free binary of row 016
 RV=$("$RUSTC" --version 2>&1); CV=$("$CARGO" --version 2>&1)
@@ -332,6 +353,7 @@ say "NOTE|rustc=$RV|cargo=$CV|json=0"
 CGD="$ROOT/work/design/rs"
 while :; do
   { [ -e "$CGD/.cargo/config.toml" ] || [ -e "$CGD/.cargo/config" ] || [ -L "$CGD/.cargo" ]; } && prelude_stop FAIL cargo_configuration_file_in_the_Rust_folder_or_above_it
+  [ "$CGD" != "$ROOT/work/design/rs" ] && [ -e "$CGD/Cargo.toml" ] && grep -q workspace "$CGD/Cargo.toml" 2>/dev/null && prelude_stop FAIL cargo_manifest_naming_a_workspace_above_the_Rust_folder
   [ "$CGD" = / ] && break
   CGD=$(dirname "$CGD")
 done
@@ -339,7 +361,7 @@ if [ -n "$TOP" ]; then
   [ -z "$("$GIT" -C "$ROOT" ls-files --others -- work/design/rs 2>/dev/null | grep -v '^work/design/rs/target/')" ] || prelude_stop FAIL untracked_file_in_the_Rust_folder
 fi
 CH="$TMPDIR/cargo-home"; mkdir -m 700 "$CH" || prelude_stop UNRESOLVED cannot_create_the_empty_cargo_home
-say "NOTE|build_environment=CARGO_HOME_is_an_empty_directory_on_the_launcher_tmpfs|cargo_configuration_files_in_the_Rust_folder_or_above=0|untracked_files_in_the_Rust_folder_outside_target=$([ -n "$TOP" ] && echo 0 || echo NOT_CHECKED_no_git_checkout)|json=0"
+say "NOTE|build_environment=CARGO_HOME_is_an_empty_directory_on_the_launcher_tmpfs|cargo_configuration_files_in_the_Rust_folder_or_above=0|cargo_manifests_naming_a_workspace_above_the_Rust_folder=0|untracked_files_in_the_Rust_folder_outside_target=$([ -n "$TOP" ] && echo 0 || echo NOT_CHECKED_no_git_checkout)|json=0"
 if [ ! -f "$PINFREE" ]; then
   (cd work/design/rs && CARGO_HOME="$CH" RUSTC="$RUSTC" "$CARGO" build --release --locked -j1) > "$LOG/build_pinfree.txt" 2>&1 \
     || prelude_stop UNRESOLVED pin_free_build_failed
@@ -516,6 +538,7 @@ done
 # again inside the evaluator before it prints
 guard || integrity_stop
 if [ -n "$(ns_others)" ]; then STOP=FAIL_another_process_sits_in_the_mount_namespace_at_the_close; say "NOTE|close=another_process_sits_in_the_mount_namespace|json=0"; fi
+if [ -n "$(ns_refs)" ]; then STOP=FAIL_a_mount_namespace_reference_outside_a_member_process_at_the_close; say "NOTE|close=mount_namespace_reference_outside_a_member_process|json=0"; fi
 for i in 0 1 2; do
   say "TOOL_CLOSING|private_copy=${TDST[$i]#"$PRIV"/}|sha256=$("$SHA" "${TDST[$i]}" | cut -d' ' -f1)|want=${MWANT[$i]}|json=0"
 done

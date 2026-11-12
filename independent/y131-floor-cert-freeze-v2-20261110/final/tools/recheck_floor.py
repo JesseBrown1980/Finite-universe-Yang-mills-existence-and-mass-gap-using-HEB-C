@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# recheck_floor.py -- second-environment checker of a floor run receipt (rows 125, 131, 133 and 138 of the record).
-# Fourth correction round. Integer and exact-rational arithmetic only. It computes no spectrum: it runs the pinned
+# recheck_floor.py -- second-environment checker of a floor run receipt (rows 125, 131, 133, 138 and 143 of the record).
+# Fifth correction round. Integer and exact-rational arithmetic only. It computes no spectrum: it runs the pinned
 # gate driver on certificates and replays the frozen protocol on what that driver prints.
 #
 #   python3 -I -B final/tools/recheck_floor.py receipt=RUN_DIRECTORY/FLOOR-RUN-RECEIPT.hbp
@@ -15,11 +15,12 @@
 # WHAT IS ACCEPTED. ACCEPT=YES says three things at once: (1) every certificate the protocol calls for is present and
 # passes the pinned verifier here; (2) the list of certificates is exactly the one the frozen protocol produces, no
 # more and no fewer: the steps in their order, each completed step with every frozen f word once, no step after a
-# decision, and, for an UNRESOLVED result, every allowed step completed; (3) the decision, the bounds, the per-step
+# decision; (3) the decision, the bounds, the per-step
 # values and the prediction scores this checker computes from its own verifier output equal the ones in the receipt.
-# A result that is ABOVE or BELOW stands on certificates verified here. An UNRESOLVED result with a step that did not
-# complete (an operational failure, an early stop) is NOT accepted by this checker: nothing here can tell a step
-# that failed from a step whose certificates were removed, and that reading belongs to the reviewer.
+# A result that is ABOVE or BELOW stands on certificates verified here. An UNRESOLVED result is NEVER accepted by this
+# checker (row 143): certificates that do not decide cannot show that no certificate decides, because a valid
+# certificate can be replaced by a weaker valid one (a smaller t, another positive vector). The checks are still run
+# and printed for an UNRESOLVED receipt; the last line is ACCEPT=NO and the reading belongs to the reviewer.
 #
 # THE PROTOCOL. For the frozen run it is the constant below (rows 001 006 007 012): r = 9, steps m0 = 11, 12, 13,
 # f words 1 ; 8,7,6,5,4 ; 6,5,4,3 at every step, g0 = 94070673/1000000. For a rehearsal it is read from the PROTOCOL
@@ -290,6 +291,17 @@ def main():
         if not pub:
             finish(False, bad + ["a_receipt_of_the_r9_run_needs_receipt_sha256=H,_the_value_of_the_launcher's_PUBLISH_line_as_made_public_at_the_end_of_the_run"], "certificates_rechecked=0", outfile)
         freeze_args = ["--freeze-commit", commit, "--prediction", PRED_REL, "--prediction-sha256", P]
+        # commit= against the checkout this checker runs in, where git can read it (an export carries no HEAD)
+        try:
+            chead = subprocess.run(["git", "-C", root, "rev-parse", "HEAD"], stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                   stderr=subprocess.DEVNULL).stdout.decode("ascii", "replace").strip()
+        except Exception:
+            chead = ""
+        if not re.match(r"^[0-9a-f]{40}$", chead):
+            chead = "NOT_READ_no_git_checkout"
+        elif chead != commit:
+            bad.append("commit=_differs_from_the_HEAD_of_this_checkout")
+        say("CHECKOUT_HEAD|head=%s|commit_given=%s|json=0" % (chead, commit))
         steps_plan, fwords, g0, g0src = list(STEPS_R9), list(FWORDS_R9), G0_R9, "record_constant_row_073"
     else:
         if commit:
@@ -308,7 +320,7 @@ def main():
             finish(False, bad + ["PROTOCOL_row_of_the_rehearsal_unreadable"], "certificates_rechecked=0", outfile)
     if mode == "r9" and len(prot) == 1:
         pf = fld(prot[0])
-        if pf.get("m0_steps") != ",".join(str(x) for x in steps_plan) or pf.get("f") != ";".join(fwords) or not eq(rat(pf.get("g0", "")), g0):
+        if pf["\0dup"] or pf.get("m0_steps") != ",".join(str(x) for x in steps_plan) or pf.get("f") != ";".join(fwords) or not eq(rat(pf.get("g0", "")), g0):
             bad.append("PROTOCOL_row_differs_from_the_frozen_protocol")
     elif mode == "r9":
         bad.append("receipt_has_%d_PROTOCOL_rows" % len(prot))
@@ -490,6 +502,8 @@ def main():
             break
     dec = "UNRESOLVED" if st == "UNDECIDED" else ("NONE" if st == "CONTRADICTION" else st)
     complete = len(listed) == len(steps_plan) and not opfail and all(S)
+    if dec == "UNRESOLVED":
+        bad.append("UNRESOLVED_is_never_accepted_by_this_checker_(row_143):_certificates_that_do_not_decide_cannot_show_that_no_certificate_decides")
     if dec == "UNRESOLVED" and not complete:
         bad.append("UNRESOLVED_with_a_step_that_did_not_complete_or_did_not_run_(steps_%s_of_%s,_not_completed_%s):_this_reading_belongs_to_the_reviewer"
                    % (",".join(str(m) for m, _, _ in listed), ",".join(str(x) for x in steps_plan), ",".join(str(x) for x in opfail) or "none"))
@@ -546,9 +560,11 @@ def main():
     for x in L:
         if x.startswith("PREDICT_SCORE|"):
             f = fld(x)
-            if f.get("row") in srec or f["\0dup"]:
+            if "row" not in f:
+                bad.append("PREDICT_SCORE_row_without_a_row_key")
+            if f.get("row", "NO_ROW_KEY") in srec or f["\0dup"]:
                 bad.append("PREDICT_SCORE_row_repeated")
-            srec[f.get("row")] = f.get("outcome")
+            srec[f.get("row", "NO_ROW_KEY")] = f.get("outcome")
     sdiff = [k for k in sorted(PS) if k not in NOT_RECHECKED and srec.get(k) != PS[k]]
     if PS and (sorted(srec) != sorted(PS) or sdiff):
         bad.append("PREDICT_SCORE_rows_differ_from_the_scores_computed_here:%s" % (",".join("%s_receipt_%s_here_%s" % (k, srec.get(k), PS[k]) for k in sdiff) or "row_set"))

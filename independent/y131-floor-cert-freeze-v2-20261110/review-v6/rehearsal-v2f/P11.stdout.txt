@@ -1,0 +1,7 @@
+RECHECK_START|checker=final/tools/recheck_floor.py|checkout=/root/floor-v6/export1/independent/y131-floor-cert-freeze-v2-20261110|record_sha256=5ca62847d3e031e0ceef1830498142c388e4bc8b2acf605cf9405217d733e1e7|receipt=/root/floor-v6/rehf/cd/P11/FLOOR-RUN-RECEIPT.hbp|run_directory=/root/floor-v6/rehf/cd/P11|json=0
+CHECKOUT_PIN|row=020|path=work/design/gate_required.sh|want=0064ca4654aa8725f2040f8b50b01e95a521966eada0ac75ffdf2ee63b98849c|got=0064ca4654aa8725f2040f8b50b01e95a521966eada0ac75ffdf2ee63b98849c|ok=1|json=0
+CHECKOUT_PIN|row=019|path=work/design/py/cert_gate.py|want=6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889|got=6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889|ok=1|json=0
+CHECKOUT_PIN|row=021|path=work/design/py/indep_verify.py|want=497d2fbb64eb14e95522c1b39bd43b9b63103a0805b8d6b2b8caf75d898fdf24|got=497d2fbb64eb14e95522c1b39bd43b9b63103a0805b8d6b2b8caf75d898fdf24|ok=1|json=0
+CHECKOUT_PIN|row=131|path=final/tools/recheck_floor.py|want=36526aa2b5d790e1b027056f3b21771e7d2b11c7b59d16444016db1cf399f928|got=36526aa2b5d790e1b027056f3b21771e7d2b11c7b59d16444016db1cf399f928|ok=1|json=0
+RECEIPT_HASH|sha256=25a4cc1c53e4e7665e781ebd37840e83d846ac2bb0beb221c7f0575edbb92a42|sha256_file=25a4cc1c53e4e7665e781ebd37840e83d846ac2bb0beb221c7f0575edbb92a42|equal=1|published=NOT_GIVEN|equal_to_published=NOT_GIVEN|json=0
+RECHECK_VERDICT|ACCEPT=NO|certificates_rechecked=0|reasons=rehearsal_receipt_has_0_PROTOCOL_rows|json=0

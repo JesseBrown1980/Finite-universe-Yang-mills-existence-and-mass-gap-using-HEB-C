@@ -135,6 +135,34 @@ namespace between two checks. The rehearsals of this round are in row 140 and un
 was computed at r = 9 or within 1 of it. The r = 9 run stays on HOLD until an independent verification of this commit
 passes.
 
+Fifth correction round (2026-11-12, one commit on top of `3c41ea2d9dd01de0ffcd547a7e7d417baa2ca6c0`): the fifth final-head
+verification of that commit returned FAIL (`review-v6/verifier/VERIFY-FLOOR-FREEZE-V2-FINAL5.md`). Integrity and a
+full-size run to m0 = 13 were reproduced from a fresh clone, and the rewritten receipts of the fourth report were
+refused. Three findings stood: a falsified rehearsal result was turned into an accepted UNRESOLVED one with weaker
+valid certificates (high); stage 2 was entered through a mount namespace that a bound file kept alive with no process
+in it (medium); a workspace manifest above the Rust folder changed the frozen binary (medium). The record now has 146
+rows and sha256 `9f1076dd756d5b3ff3cb7c18974f52ce1c088f23e06ca3077ac05ab66f44f99c`; the launcher is
+`ae114b64348d676ec8056974e7d27af9c0f351efb82ccc9c9e9522b13d7c187f` and the checker
+`36526aa2b5d790e1b027056f3b21771e7d2b11c7b59d16444016db1cf399f928`; the evaluator is unchanged
+(`f92f404f117d6d5f20fb8c5d020797060b539d2a0784d2b1d2c851b68ac42a10`). The hashes and the row count given earlier in this
+notice are those of the earlier commits. The Rust source, the binary hash, `gate_required.sh`, `cert_gate.py`,
+`indep_verify.py`, `peak_rss.py` and the 16 PREDICT rows are byte-identical (`review-v6/ROW-COMPARE-3C41EA2D.hbp`).
+
+What changed (record rows 142-146):
+
+- The checker never accepts an UNRESOLVED result (row 143). ACCEPT=YES is given to ABOVE and to BELOW only: each is a
+  statement the certificates prove. UNRESOLVED says that no certificate of the run decides, and certificates cannot
+  prove that, because a valid certificate can be replaced by a weaker valid one. An r = 9 run that ends UNRESOLVED is
+  still reported UNRESOLVED by the launcher; that report is the launching host's statement.
+- The launcher reads every mount table and every open descriptor at the three points of row 139 (row 144). A bind
+  mount or a descriptor that names its mount namespace, or a mount namespace with no member process, stops the run.
+- A `Cargo.toml` that names a workspace in a directory above the Rust folder stops the run. With a frozen build the
+  checkout must be at the freeze commit, and the index may mark no file assume-unchanged or skip-worktree (row 144).
+
+What stays open is listed in row 144 beside rows 127 and 139. The rehearsals of this round are in row 145 and under
+`review-v6/rehearsal-v2f/`. Nothing was computed at r = 9 or within 1 of it. The r = 9 run stays on HOLD until an
+independent verification of this commit passes.
+
 The text below this notice is the version 1 note, unchanged. Where it gives the version 1 record hash, the version 1
 hashes of `main.rs`, the binary, `gate_required.sh` or `r_scan.sh`, the absolute scratch paths, or the row count 109, the
 version 2 record and this notice give the current values. `work/design/NOTE.md` and `work/map/MAP.md` are the pinned
