@@ -1,0 +1,210 @@
+name: GitRAM independent 27-column Pascal pyramid, r9 excluded
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-gitram-27-pascal-20261112.yml'
+      - 'independent/gitram_scale27_20261112.py'
+      - 'independent/gitram-ym-r12-spectrum-20261112/27_PASCAL_INDEPENDENT_FREEZE_20261112.hbp'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: gitram-27-independent-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  certificates:
+    name: Certified excluded-coupling leaf matrix m0=${{ matrix.cutoff }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        cutoff: [7, 8, 9]
+    env:
+      CUTOFF: ${{ matrix.cutoff }}
+      RUSTUP_TOOLCHAIN: 1.81.0
+      SOURCE_COMMIT: 8aca957babbb8b0903fb8683422cde30b3f55668
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          ref: 8aca957babbb8b0903fb8683422cde30b3f55668
+          path: frozen-engine
+          persist-credentials: false
+      - name: Restore authenticated r12 rows and three original words
+        uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43222707802
+          github-token: ${{ github.token }}
+          name: gitram-cutoff-${{ matrix.cutoff }}
+          path: original
+      - name: Freeze source and test coupling exclusion before any generation
+        run: |
+          set -euo pipefail
+          (cd original && sha256sum -c SHA256SUMS)
+          test "$(find original -maxdepth 1 -name 'cert_m*_r12_1_f*.txt' | wc -l)" -eq 3
+          test -s independent/gitram-ym-r12-spectrum-20261112/27_PASCAL_INDEPENDENT_FREEZE_20261112.hbp
+          grep -q '^PREDICTION|nine_prefix_must_reproduce_frozen_nine_exactly=1|' independent/gitram-ym-r12-spectrum-20261112/27_PASCAL_INDEPENDENT_FREEZE_20261112.hbp
+          grep -q '^PREDICTION|exclude_r9_and_any_near_r9=1|' independent/gitram-ym-r12-spectrum-20261112/27_PASCAL_INDEPENDENT_FREEZE_20261112.hbp
+          test -s frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs/Cargo.lock
+      - name: Compile excluded-coupling Rust 1.81 certificate engine
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal
+          cargo build --release --locked -j2 --manifest-path frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs/Cargo.toml
+          test -x frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs/target/release/floorcert
+      - name: Generate six certificates at 21/2 and 14 only
+        run: |
+          set -euo pipefail
+          mkdir -p generated
+          frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs/target/release/floorcert \
+            cert --m0 "$CUTOFF" --r '21/2,14' \
+            --f '1;8,7,6,5,4;6,5,4,3' \
+            --threads 2 --images 2 --sweeps 200 --write-cert --dir generated \
+            | tee generated/writer.log
+          test "$(find generated -maxdepth 1 -name 'cert_m*_r21_2_f*.txt' | wc -l)" -eq 3
+          test "$(find generated -maxdepth 1 -name 'cert_m*_r14_1_f*.txt' | wc -l)" -eq 3
+          if grep -Eq 'CERT[|]r=9(/|[|])' generated/writer.log; then
+            echo 'FORBIDDEN_R9_CERTIFICATE'
+            exit 1
+          fi
+          grep -q 'GATE|class_detailed_balance|PASS' generated/writer.log
+          grep -q 'GATE|core_census_vs_closed_form|PASS' generated/writer.log
+      - name: Independently authenticate all six certificates, no floats
+        run: |
+          set -euo pipefail
+          for cert in generated/cert_m*_r*.txt; do
+            basename="$(basename "$cert" .txt)"
+            python3 -I -B frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/py/cert_gate.py "$cert" > "generated/$basename.verifier.log"
+            grep -q '^VERDICT|PASS|' "generated/$basename.verifier.log"
+            grep -q '^GATE|row_hash|PASS|' "generated/$basename.verifier.log"
+            grep -q '^GATE|r_policy|PASS|' "generated/$basename.verifier.log"
+          done
+          printf 'SOURCE|engine_commit=8aca957babbb8b0903fb8683422cde30b3f55668|m0=%s|r=21/2,14|r12_original_run=43222707802|r9=NOT_LAUNCHED|json=0\n' "$CUTOFF" > generated/SOURCE.hbp
+          (cd generated && sha256sum cert_m*_r*.txt SOURCE.hbp > SHA256SUMS && sha256sum -c SHA256SUMS)
+          echo 'EXCLUDED_CERTIFICATES_VERIFIED|couplings=21/2,14|words=3|PASS'
+      - name: Preserve verified input for exact independent replay
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpt6-gitram27-new-m0-${{ matrix.cutoff }}
+          retention-days: 30
+          if-no-files-found: error
+          path: generated/
+  pyramid:
+    name: Rebuild frozen 27 leaves, audit pyramid and enumerate 351-pair cube moves
+    needs: certificates
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore the nine original frozen columns
+        uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43231913054
+          github-token: ${{ github.token }}
+          name: gitram-nineleaf-replica-1
+          path: baseline
+      - name: Restore all pinned r12 cutoff sources
+        uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43222707802
+          github-token: ${{ github.token }}
+          pattern: gitram-cutoff-*
+          merge-multiple: false
+          path: original-inputs
+      - name: Restore independently verified new excluded-coupling sources
+        uses: actions/download-artifact@v4
+        with:
+          pattern: gpt6-gitram27-new-m0-*
+          merge-multiple: false
+          path: new-inputs
+      - name: Verify all source hashes and full-source cube prerequisites
+        run: |
+          set -euo pipefail
+          test '${{ needs.certificates.result }}' = 'success'
+          mkdir -p original generated report
+          for m in 7 8 9; do
+            mv "original-inputs/gitram-cutoff-$m" "original/cutoff-$m"
+            mv "new-inputs/gpt6-gitram27-new-m0-$m" "generated/cutoff-$m"
+            (cd "original/cutoff-$m" && sha256sum -c SHA256SUMS)
+            (cd "generated/cutoff-$m" && sha256sum -c SHA256SUMS)
+          done
+          (cd baseline/results && sha256sum -c SHA256SUMS)
+          printf '%s  %s\n' 2220ee3a11c66281b586de77f44999c06e863f0e9f83509a867047048326bbc7 baseline/results/NINE-LEAVES-FROZEN.hbp | sha256sum -c -
+      - name: Extract real 27 trit columns using integer-pair Schur residuals
+        run: |
+          set -euo pipefail
+          python3 -B -m independent.gitram_scale27_20261112 \
+            original generated baseline/results/NINE-LEAVES-FROZEN.hbp report | tee report/extraction.log
+          (cd report && sha256sum -c FROZEN-27.hbp.sha256 && sha256sum -c REPLAY-27.hbp.sha256)
+          grep -q '^GITRAM_27_INDEPENDENT_PASS|rows=682|columns=27|baseline9=PASS|' report/REPLAY-27.hbp
+          grep -q '^MOVE_AVAILABILITY|pair_tables=351|three_column_choices=2925|' report/REPLAY-27.hbp
+          test "$(grep -c '^COLUMN|index=' report/REPLAY-27.hbp)" -eq 27
+          test "$(grep -c '^LEAF|key=' report/FROZEN-27.hbp)" -eq 682
+      - name: Independent exact Pascal-pyramid geometry and pair table audit
+        run: |
+          set -euo pipefail
+          python3 -B independent/gitram-ym-r12-spectrum-20261112/pascal_pyramid_audit.py \
+            report/FROZEN-27.hbp report/PASCAL-27.hbp | tee report/pascal.log
+          grep -q '^GEOMETRY|.*possible_compositions=406|' report/PASCAL-27.hbp
+          grep -q '^PAIR_MARGINS|tables=351|' report/PASCAL-27.hbp
+          grep -q '^GITRAM_PASCAL_PYRAMID_AUDIT_PASS|columns=27|rows=682|' report/PASCAL-27.hbp
+          (cd report && sha256sum -c PASCAL-27.hbp.sha256)
+          (cd report && sha256sum *.hbp extraction.log pascal.log > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - name: Upload measurements even if a gate fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpt6-gitram27-exact-pyramid
+          retention-days: 30
+          if-no-files-found: warn
+          path: report/
+  seal:
+    name: All-or-nothing 27-column exact source and Pascal seal
+    needs: [certificates, pyramid]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gpt6-gitram27-exact-pyramid
+          path: audit
+      - name: Verify entire 27-column evidence and fail closed
+        run: |
+          set -euo pipefail
+          test '${{ needs.certificates.result }}' = 'success'
+          test '${{ needs.pyramid.result }}' = 'success'
+          cd audit
+          test -s FROZEN-27.hbp
+          test -s PASCAL-27.hbp
+          test -s REPLAY-27.hbp
+          sha256sum -c SHA256SUMS
+          sha256sum -c FROZEN-27.hbp.sha256
+          sha256sum -c PASCAL-27.hbp.sha256
+          sha256sum -c REPLAY-27.hbp.sha256
+          grep -q '^GITRAM_27_INDEPENDENT_PASS|' REPLAY-27.hbp
+          grep -q '^GITRAM_PASCAL_PYRAMID_AUDIT_PASS|columns=27|' PASCAL-27.hbp
+          {
+            echo 'GITRAM_SEAL|schema=27-pascal-independent-v1|rows=682|columns=27|pair_tables=351|couplings=12,21/2,14|r9=HOLD|json=0'
+            cat REPLAY-27.hbp
+            cat PASCAL-27.hbp
+            echo 'GITRAM_EXACT_27_PASCAL_SEAL_PASS|sources=3cutoffs_x_3couplings|certs=27|baseline9=PASS|continuum=UNPROVED|json=0'
+          } > GITRAM-27-SEALED.hbp
+          sha256sum GITRAM-27-SEALED.hbp > GITRAM-27-SEALED.hbp.sha256
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: gpt6-gitram27-final-seal
+          retention-days: 30
+          path: |
+            audit/GITRAM-27-SEALED.hbp
+            audit/GITRAM-27-SEALED.hbp.sha256
