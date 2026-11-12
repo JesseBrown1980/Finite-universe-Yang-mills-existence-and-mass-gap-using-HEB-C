@@ -1,0 +1,44 @@
+name: SU3 finite-slice positive-gap proof and viewer calibration
+
+on:
+  pull_request:
+    paths:
+      - 'proofs/su3-finite-lattice-transfer-20261106/**'
+      - '.github/workflows/su3-finite-viewer.yml'
+  push:
+    paths:
+      - 'proofs/su3-finite-lattice-transfer-20261106/**'
+      - '.github/workflows/su3-finite-viewer.yml'
+
+jobs:
+  independent-integer-viewer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile Python source
+        run: python3 -m py_compile proofs/su3-finite-lattice-transfer-20261106/audit_viewer.py
+      - name: Run exact symbolic checkpoint and S3/Z3 group verification
+        run: |
+          python3 proofs/su3-finite-lattice-transfer-20261106/audit_viewer.py > /tmp/VIEWER.hbp
+          cat /tmp/VIEWER.hbp
+          grep -F 'SU3_VIEWER_GATE|Z3_jumps=9|S3_spectrum=PASS|viewer_checkpoint_samples=9|numeric_floats=0|state_hash_not_state=1|json=0' /tmp/VIEWER.hbp
+      - name: Verify result determinism and fault controls
+        run: |
+          python3 proofs/su3-finite-lattice-transfer-20261106/audit_viewer.py > /tmp/VIEWER2.hbp
+          cmp /tmp/VIEWER.hbp /tmp/VIEWER2.hbp
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+          path = Path('proofs/su3-finite-lattice-transfer-20261106/audit_viewer.py')
+          tree = ast.parse(path.read_text())
+          assert not any(isinstance(x, ast.Constant) and isinstance(x.value, float)
+                         for x in ast.walk(tree))
+          rows = Path('/tmp/VIEWER.hbp').read_text().splitlines()
+          assert len([x for x in rows if x.startswith('Z3_JUMP|')]) == 9
+          assert len([x for x in rows if x.startswith('S3_VIEWER|')]) == 9
+          assert len(rows) == 23
+          assert all(x.endswith('|json=0') for x in rows)
+          assert any(x.startswith('Z3_FAULT|mutated_transition=REJECT') for x in rows)
+          assert any(x.startswith('S3_VIEWER_CONVEXITY|') for x in rows)
+          PY
