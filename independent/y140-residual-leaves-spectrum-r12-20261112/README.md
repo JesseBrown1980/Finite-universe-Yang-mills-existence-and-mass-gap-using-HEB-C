@@ -29,6 +29,9 @@ SHA-256 is the certificate's row hash. Every prediction file in `specs/` was wri
 | V15 | Nine leaves: structure no pair explains? Near-exact pairwise control (27 surrogates, 0.03-0.13% off) | All-nine-equal inside (FALSIFIED); distinct patterns 149 below 160-174 (held against near-exact controls only) | `results/RESULT-NINE-V15.hbp` |
 | V16 | Nine leaves: exact pairwise control by balanced cube moves from the real table (all 36 pair tables exact, integers only) | The real 149 distinct patterns lie INSIDE 145-159 in three chains of 40,000 steps (FALSIFIED: no structure above pairs is shown). GPT-6's hosted chains agree. Limit: the chains stay within about 65 rows of the real table; mixing is not established | `results/RESULT-CUBE-V16-*.hbp`, `scripts/cube_v16.py` |
 | V17 | Where the rows sit on Pascal's pyramid (composition of the leaves per row; descriptive) | Nine leaves: 109 rows at a corner, 497 on an edge, 76 in the interior, against about 0.1, 53 and 628 for independent leaves | `results/RESULT-PASCAL-V17-*.hbp`, `scripts/pascal_v17.py` |
+| V19, V19B | Density, pull, gate and push in the room block (729, 2,187, 6,561 functions); V19B: every function reads an instant hash of the whole block. Control: uniform random digits, 9 per cell | Real residuals outside the control range in 3 of 9 cells, one of them in the mode with no interaction | `results/RESULT-FIELD-V19*.hbp`, `scripts/field_v19*.py` |
+| V19C | Same, with each function keeping its own digits in shuffled order, 27 controls per cell | Inside in 6 of 6 cells (prediction held): digit order makes no measurable difference, with or without the global hash. The V19/V19B departures came from digit frequencies | `results/RESULT-FIELD-V19C.hbp`, `scripts/field_v19c.py` |
+| V20, V21 | What equation gives the shared leaf pattern of V3/V4? Proposed from the writer's Gauss-Seidel sweep: leaf(a) = const + c U(a), U(a) = sum over rows j after a in key order of A(a,j) v(j) / v(a) | Rank correlation 0.951 to 0.983 in 6 of 6 cells (total coupling 0.04 to 0.15); V21 is the exact integer redo of V20 and agrees within 0.001. The pattern is the trace of the sweep order | `results/RESULT-GS-V2*.hbp`, `scripts/gs_v21.py` |
 
 ## Scope that travels with every number
 
@@ -53,7 +56,8 @@ SHA-256 is the certificate's row hash. Every prediction file in `specs/` was wri
 2. Third-party check of the bridge; independent recomputation of the exact counts.
 3. Integer redo of the float diagnostics, with enclosures.
 4. Other couplings and the word `8,7,6,5,4` for the exact enclosure.
-5. What the shared row pattern of V3/V4 is: three explanations were falsified; its cause is not identified.
+5. The shared row pattern of V3/V4: V20/V21 tie it to the writer's sweep order (rank correlation 0.95 to 0.98). Still to do: a reversed-sweep run, an exact replay of the writer's last sweep, cutoff 7.
+6. V19C with the frozen and global-hash controls on matched seeds.
 
 ## Layout
 

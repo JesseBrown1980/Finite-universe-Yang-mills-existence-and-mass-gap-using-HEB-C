@@ -1,0 +1,4 @@
+SPECHDR|name=YM-GS-V20|unit_pid=61089a99becaa89b|date=2026-11-12|written=BEFORE_THE_RUN|directed_by=OP-JESSE_find_the_equation_that_makes_the_leaf_pattern_happen|json=0
+SOURCE|writer=floorcert_gs_eigen:_inverse_iteration,_inner_solve_8_Gauss_Seidel_sweeps_over_rows_in_key_order,_stop_when_the_lower_quotient_moves_by_2_units_or_less|leaf=slack_a/v_a,_the_row_quotient_(Fv)_a/v_a_minus_t|json=0
+EQUATION_PROPOSED|exact_sweep_identity=((F-sigma)x)_a=v_a-sum_{j_after_a}A_aj(x_j_new-x_j_old)|closure=last_change_close_to_a_common_factor_gamma|result=leaf_a=const-gamma*U_a,_U_a=sum_{j_after_a_in_key_order}A_aj*v_j/v_a|json=0
+PREDICT|by=this_unit|statement_1=abs_Spearman(leaf,U)>=0.5_at_cutoffs_8_and_9_for_the_words_6,5,4,3_and_8,7,6,5,4_(four_cells)|statement_2=in_those_cells_abs_Spearman_with_U_exceeds_that_with_the_backward_share,_the_total_and_M|falsified_if=either_fails_in_two_or_more_cells|json=0

@@ -1,0 +1,6 @@
+GSV20|m0=8|f=6,5,4,3|rows=2748|spearman_leaf_vs_forward_U=0.972|vs_backward_B=-0.857|vs_total=0.049|vs_forward_fraction=0.933|vs_M=0.100|vs_key_position=-0.290|float_diagnostic=1|json=0
+GSV20|m0=8|f=8,7,6,5,4|rows=2748|spearman_leaf_vs_forward_U=0.974|vs_backward_B=-0.863|vs_total=0.060|vs_forward_fraction=0.937|vs_M=0.077|vs_key_position=-0.285|float_diagnostic=1|json=0
+GSV20|m0=8|f=1|rows=2748|spearman_leaf_vs_forward_U=0.983|vs_backward_B=-0.865|vs_total=0.144|vs_forward_fraction=0.942|vs_M=0.072|vs_key_position=-0.307|float_diagnostic=1|json=0
+GSV20|m0=9|f=6,5,4,3|rows=2880|spearman_leaf_vs_forward_U=0.951|vs_backward_B=-0.829|vs_total=0.069|vs_forward_fraction=0.908|vs_M=0.089|vs_key_position=-0.289|float_diagnostic=1|json=0
+GSV20|m0=9|f=8,7,6,5,4|rows=2880|spearman_leaf_vs_forward_U=0.955|vs_backward_B=-0.852|vs_total=0.037|vs_forward_fraction=0.922|vs_M=0.026|vs_key_position=-0.288|float_diagnostic=1|json=0
+GSV20|m0=9|f=1|rows=2880|spearman_leaf_vs_forward_U=0.980|vs_backward_B=-0.832|vs_total=0.146|vs_forward_fraction=0.921|vs_M=0.112|vs_key_position=-0.322|float_diagnostic=1|json=0
