@@ -36,6 +36,10 @@ jobs:
       - name: Independently reconstruct 9 leaves; three exact reversible waves
         run: |
           set -euo pipefail
+          for m in 7 8 9; do
+            test -s "inputs/gitram-cutoff-$m/SHA256SUMS"
+            mv "inputs/gitram-cutoff-$m" "inputs/cutoff-$m"
+          done
           python3 -B independent/gitram-ym-r12-spectrum-20261112/nine_cutoff_waves.py inputs results/NINE-LEAF-WAVE.hbp | tee results.log
           (cd results && sha256sum -c NINE-LEAF-WAVE.hbp.sha256)
           grep -q '^GITRAM_SHARD_PASS|replay=nine_leaves|source_run=43222707802|rows=682|' results/NINE-LEAF-WAVE.hbp
