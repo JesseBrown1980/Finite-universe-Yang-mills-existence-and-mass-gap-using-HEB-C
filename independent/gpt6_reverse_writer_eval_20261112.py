@@ -41,13 +41,13 @@ def calculate(folder,m0,leafdir,revdir):
     allgood=0;favors=0
     for name in WORDS:
         stem=name.replace(",","-")
-        p=leafdir.parent/"certificates"/("cert_m%d_r12_1_f%s.txt"%(m0,stem))
-        rp=revdir/("cert_m%d_r12_1_f%s.txt"%(m0,stem))
+        p=leafdir.parent.joinpath("certificates","cert_m%d_r12_1_f%s.txt"%(m0,stem))
+        rp=revdir.joinpath("cert_m%d_r12_1_f%s.txt"%(m0,stem))
         assert p.is_file() and rp.is_file()
         ow,ot,ov=cert_read(p,m0,rhash,rows)
         nw,nt,nv=cert_read(rp,m0,rhash,rows)
         assert ow==nw
-        oldleaf=leaves_read(leafdir/("S_cert_m%d_r12_1_f%s.leaf.hbp"%(m0,stem)),rows,ov)
+        oldleaf=leaves_read(leafdir.joinpath("S_cert_m%d_r12_1_f%s.leaf.hbp"%(m0,stem)),rows,ov)
         oldq=[Rat(oldleaf[x[0]][2],oldleaf[x[0]][1]) for x in rows]
         _,_,_,ou,ob=matrix(rows,m0,ow,ot,ov)
         os1=spear(oldq,ou);os2=spear(oldq,ob)
