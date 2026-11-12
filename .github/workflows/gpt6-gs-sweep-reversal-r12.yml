@@ -48,7 +48,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p audit
-          python3 -B independent/gpt6_gs_sweep_order_20261112.py pinned "$M0" independent/y140-residual-leaves-spectrum-r12-20261112/leaves > "audit/GS-CUTOFF-$M0.hbp"
+          python3 -B -m independent.gpt6_gs_sweep_order_20261112 pinned "$M0" independent/y140-residual-leaves-spectrum-r12-20261112/leaves > "audit/GS-CUTOFF-$M0.hbp"
           cat "audit/GS-CUTOFF-$M0.hbp"
           test "$(grep -c '^FROZEN_RESIDUAL|' "audit/GS-CUTOFF-$M0.hbp")" -eq 3
           test "$(grep -c '^GS_EXACT|' "audit/GS-CUTOFF-$M0.hbp")" -eq 12
