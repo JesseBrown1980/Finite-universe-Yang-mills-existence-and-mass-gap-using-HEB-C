@@ -135,7 +135,7 @@ def matrix(rows,m0,word,tn,vals):
     backward=[]
     for a,row in enumerate(rows):
         key,mag,flat,core,tails=row
-        diagonal.append(E*((72*DT+R*DT*mag-tn)//DT))
+        diagonal.append(E*(72*DT+R*DT*mag-tn)//DT)
         ws={}
         exact={}
         for j,c in core:
