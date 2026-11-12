@@ -1,0 +1,2 @@
+PULL|rule=LOCAL|quanta=4000000|pulls_at_3=48860|at_6=10474|at_12=2394|ratio_3_to_6_thousandths=4664|ratio_6_to_12_thousandths=4375|inverse_square_would_give=4000|json=0
+PULL|rule=GLOBAL|ticks=2000000|background=99|pulls_at_3=20043|at_6=20260|at_12=20019|ratio_3_to_6_thousandths=989|ratio_6_to_12_thousandths=1012|no_falloff_would_give=1000|json=0
