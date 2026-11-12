@@ -20,6 +20,15 @@ DEN = base.D
 SOURCE_RUN = base.SOURCE_RUN
 
 
+def integer_power(value, exponent):
+    """Exact power only for explicitly checked nonnegative integer exponents."""
+    assert isinstance(exponent, int) and exponent >= 0
+    result = 1
+    for _ in range(exponent):
+        result *= value
+    return result
+
+
 def address_order(keys, mags, adj):
     """Deterministic graph BFS, retaining the original nine-address prefix.
 
@@ -74,7 +83,7 @@ def forward(sources, mags, weights, adj):
                 for x, h, y in zip(now, hv, prev)
             ])
             assert base.energy_scaled(now, next_layer[-1], weights, mags, adj) == (
-                energy[a] * DEN ** (2*tick)
+                energy[a] * integer_power(DEN, 2*tick)
             ), ("energy", tick, a)
         frames.append(next_layer)
     assert len(frames) == 10
