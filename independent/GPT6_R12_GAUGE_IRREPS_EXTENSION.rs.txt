@@ -1,0 +1,127 @@
+// Exact D3 x D4 irreducible character and fixed-point trace computation.
+// Injected into the pinned gauge-only orbit enumerator, never the original.
+// Group elements are indexed in the source's order
+// sx in [+1,-1], sy in [+1,-1], dx=0,1,2, dy=0,1,2,3.
+
+fn chi_d3(sym: usize, ir: usize) -> i64 {
+    assert!(sym < NSYM && ir < 3);
+    let reflect_x = sym >= 24;
+    let dx = (sym % 12) / 4;
+    match ir {
+        0 => 1,
+        1 => if reflect_x { -1 } else { 1 },
+        2 => if reflect_x { 0 } else if dx == 0 { 2 } else { -1 },
+        _ => panic!(),
+    }
+}
+
+fn chi_d4(sym: usize, ir: usize) -> i64 {
+    assert!(sym < NSYM && ir < 5);
+    let reflect_y = sym % 24 >= 12;
+    let dy = sym % 4;
+    if ir == 4 {
+        if reflect_y { 0 }
+        else if dy == 0 { 2 }
+        else if dy == 2 { -2 }
+        else { 0 }
+    } else {
+        let a = if ir & 1 == 0 { 1i64 } else { -1i64 };
+        let b = if ir & 2 == 0 { 1i64 } else { -1i64 };
+        let rot = if dy & 1 == 0 { 1i64 } else { a };
+        rot * if reflect_y { b } else { 1 }
+    }
+}
+
+fn chi_product(sym: usize, d3: usize, d4: usize) -> i64 {
+    chi_d3(sym, d3) * chi_d4(sym, d4)
+}
+
+fn gauge_orbit_irrep_census(args: &[String]) {
+    let tab = tables();
+    let cutoff: i64 = arg(args, "--m0", "9").parse().unwrap();
+    let threads: usize = arg(args, "--threads", "4").parse().unwrap();
+    assert_eq!(cutoff, 9);
+    assert!((1..=16).contains(&threads));
+    let keys = enumerate(&tab, cutoff, threads);
+    assert_eq!(keys.len(), 111906);
+    let keyhash = keys_hash(&keys);
+    assert_eq!(
+        keyhash,
+        "3cfd4f0ac9d7866e3b8a6f54d35153a50011dc2ee23feb7952f194b12cc45eb7",
+        "gauge orbit keys must exactly reproduce the independent first census"
+    );
+    let d3dim = [1i64,1i64,2i64];
+    let d4dim = [1i64,1i64,1i64,1i64,2i64];
+    let mut dim_square = 0i64;
+    let mut char_labels = Vec::new();
+    for p in 0..3 {
+        for q in 0..5 {
+            let degree = d3dim[p] * d4dim[q];
+            dim_square += degree * degree;
+            char_labels.push((p,q,degree));
+        }
+    }
+    assert_eq!(char_labels.len(), 15);
+    assert_eq!(dim_square,48);
+    // All 15 characters must be orthonormal under the exact 48-element sum.
+    for (i,&(a,b,_)) in char_labels.iter().enumerate() {
+        for (j,&(c,d,_)) in char_labels.iter().enumerate() {
+            let prod: i64=(0..NSYM)
+                .map(|s|chi_product(s,a,b)*chi_product(s,c,d))
+                .sum();
+            assert_eq!(prod, if i==j {48} else {0},
+                       "D3xD4 character orthogonality failure");
+        }
+    }
+    println!("GROUP_CHARACTERS|name=D3xD4|order=48|irreps=15|sum_dimension_squared=48|orthonormality=PASS|json=0");
+
+    // The permutation representation on the exact gauge-only basis fixes
+    // a key under s iff s sends it into the SAME GLOBAL-CONJUGACY orbit.
+    let fixed = par_map(NSYM, threads, |sym| {
+        let mut total=0i64;
+        let mut z=[0u8;NK];
+        for &key in keys.iter() {
+            let u=tab.links_of_key(key);
+            tab.letters(sym,&u,&mut z);
+            if tab.orbit_min(&z)==key {
+                total+=1;
+            }
+        }
+        total
+    });
+    assert_eq!(fixed.len(), NSYM);
+    assert_eq!(fixed[0],111906, "identity must fix all 111906 gauge orbits");
+    let burnside_total: i64=fixed.iter().sum();
+    assert_eq!(burnside_total,48*2880,"Burnside must recover 2880 symmetry orbits");
+    for (sym, count) in fixed.iter().enumerate() {
+        println!("SYMMETRY_FIXED|group_element={}|fixed_gauge_orbits={}|json=0",sym,count);
+    }
+    println!("BURNSIDE|trace_identity={}|sum_traces={}|invariant_dimension={}|json=0",
+             fixed[0],burnside_total,burnside_total/48);
+
+    let mut total_dimension = 0i64;
+    let mut trivial=0i64;
+    let mut nontriv_sector_dimensions=0i64;
+    for &(p,q,degree) in char_labels.iter() {
+        let numerator: i64 = (0..NSYM)
+            .map(|sym|chi_product(sym,p,q)*fixed[sym])
+            .sum();
+        assert_eq!(numerator%48,0,"character multiplicity must be integral");
+        let copies=numerator/48;
+        assert!(copies>=0,"negative multiplicity is impossible");
+        let dimension=copies*degree;
+        total_dimension+=dimension;
+        if p==0 && q==0 {
+            trivial=dimension;
+        } else {
+            nontriv_sector_dimensions+=dimension;
+        }
+        println!("SYMMETRY_IRREP|D3={}|D4={}|degree={}|multiplicity={}|sector_dimension={}|json=0",
+                 p,q,degree,copies,dimension);
+    }
+    assert_eq!(trivial,2880,"trivial irrep must equal 48-symmetry class count");
+    assert_eq!(total_dimension,111906);
+    assert_eq!(nontriv_sector_dimensions,111906-2880);
+    println!("GAUGE_IRREP_DECOMP_PASS|gauge_orbits=111906|symmetry_irreps=15|trivial_dimension=2880|other_sector_dimension={}|all_sector_dimensions=111906|source_keys_sha256={}|no_mass_gap_claim=1|r9=HOLD|json=0",
+             nontriv_sector_dimensions,keyhash);
+}
