@@ -1,0 +1,1 @@
+# floorcert certificate: m0=8 r=12/1 t=1043974/10000 f=6,5,4,3 cap=792/6 rowhash=714b8ba3e318c8f85fc617e5c7b2e0213165b443e5c5d2a52bcacbb9b90a12d4 keyshash=72fa23e6818c77880d2e0a5367ef95c8e4b1cb1b9c40e9a0ee0a304f1df3bb32 classes=2748
