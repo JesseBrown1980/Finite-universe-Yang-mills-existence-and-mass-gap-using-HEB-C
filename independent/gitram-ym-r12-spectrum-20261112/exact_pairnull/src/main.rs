@@ -124,26 +124,26 @@ fn statistics(counts:&[u16],initial:&[u16])->(usize,usize,usize,usize,usize){
 fn build()->(Vec<Cube>,Vec<Vec<u32>>){
     let mut cubes=Vec::with_capacity(84*27*729);
     let mut incidents:Vec<Vec<u32>>=(0..N).map(|_|Vec::with_capacity(672)).collect();
-    for a in 0..9 {
-        for b in (a+1)..9{
-            for c in (b+1)..9{
+    for (a,&wa) in W.iter().enumerate() {
+        for (b,&wb) in W.iter().enumerate().skip(a+1) {
+            for (c,&wc) in W.iter().enumerate().skip(b+1) {
                 let rest:Vec<usize>=(0..9).filter(|&z|z!=a&&z!=b&&z!=c).collect();
                 assert_eq!(rest.len(),6);
-                for ia in 0..3 {
-                    for ib in 0..3 {
-                        for ic in 0..3 {
+                for pair_a in &PAIRS {
+                    for pair_b in &PAIRS {
+                        for pair_c in &PAIRS {
                             for context in 0..729usize {
                                 let mut val=context;
                                 let mut base=0usize;
                                 for &k in &rest{base+=(val%3)*W[k];val/=3}
                                 let mut cells=[0u16;8];
-                                for mask in 0..8usize{
-                                    let x=PAIRS[ia][(mask&1) as usize] as usize;
-                                    let y=PAIRS[ib][((mask>>1)&1) as usize] as usize;
-                                    let z=PAIRS[ic][((mask>>2)&1) as usize] as usize;
-                                    let addr=base+x*W[a]+y*W[b]+z*W[c];
+                                for (mask,cell) in cells.iter_mut().enumerate(){
+                                    let x=pair_a[mask&1] as usize;
+                                    let y=pair_b[(mask>>1)&1] as usize;
+                                    let z=pair_c[(mask>>2)&1] as usize;
+                                    let addr=base+x*wa+y*wb+z*wc;
                                     assert!(addr<N);
-                                    cells[mask]=addr as u16;
+                                    *cell=addr as u16;
                                 }
                                 let id=cubes.len() as u32;
                                 for &cell in &cells{incidents[cell as usize].push(id)}
