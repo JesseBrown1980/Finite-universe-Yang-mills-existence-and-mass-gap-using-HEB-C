@@ -66,6 +66,16 @@ def audit_reported():
         f=REPORTED[("frozen",d)][0];h=REPORTED[("global-hash",d)][0]
         local=REPORTED[("respond",d)][0]
         print("MATCHED_REAL|functions=%d|global_minus_frozen=%d|global_minus_local=%d|paired_controls=UNAVAILABLE|json=0"%(d,h-f,h-local))
+        fmin=REPORTED[("frozen",d)][1]
+        fmax=REPORTED[("frozen",d)][2]
+        hmin=REPORTED[("global-hash",d)][1]
+        hmax=REPORTED[("global-hash",d)][2]
+        dmin=hmin-fmax
+        dmax=hmax-fmin
+        forced=outside(h-f,dmin,dmax)
+        print("MATCHED_ENVELOPE|functions=%d|real_delta=%d|control_delta_lower_bound=%d|control_delta_upper_bound=%d|forced_outside_for_every_pairing=%d|json=0"%(d,h-f,dmin,dmax,int(forced)))
+        assert (forced if d==2187 else not forced)
+
     for m in (9,27):
         event,joint=rank_benchmark(m)
         print("EXCHANGEABLE_INDEPENDENT_BENCHMARK|controls=%d|global_2of3_n=%d|global_2of3_d=%d|and_frozen_0of3_n=%d|and_frozen_0of3_d=%d|NOT_an_empirical_pvalue=1|json=0"%(m,*event,*joint))
