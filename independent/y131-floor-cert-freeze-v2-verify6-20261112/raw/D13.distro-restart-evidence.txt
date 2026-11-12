@@ -1,0 +1,4 @@
+    PID                  STARTED CMD
+      1 Thu Nov 12 15:07:52 2026 /sbin/init
+IDX BOOT ID                          FIRST ENTRY                 LAST ENTRY
+  0 082d3dcd87114e06b6decc7f66406df0 Thu 2026-11-12 15:31:40 -03 Thu 2026-11-12 16:24:10 -03

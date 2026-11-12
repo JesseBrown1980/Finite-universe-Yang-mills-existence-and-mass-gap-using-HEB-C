@@ -1,0 +1,111 @@
+HEAD=c8dbcdbf990114292313cbc410a745a14ba0b778 tracked_changes=0 untracked=0
+remote_branch=c8dbcdbf990114292313cbc410a745a14ba0b778	refs/heads/local-opus55-floor-cert-freeze-v2-20261110
+pin_c_exit=0 lines=857 ok=857 notok=0
+pin_files=857 tracked_files_in_folder=859
+	FREEZE-PIN.sha256
+	FREEZE-PIN.txt
+regen_vs_committed_difflines=0
+FREEZE-PIN.sha256 sidecar: 
+independent/y131-floor-cert-freeze-v2-20261110/FREEZE-PIN.sha256
+independent/y131-floor-cert-freeze-v2-20261110/FREEZE-PIN.txt
+857
+record_sha=9f1076dd756d5b3ff3cb7c18974f52ce1c088f23e06ca3077ac05ab66f44f99c
+record_hash_mentions independent/y131-floor-cert-freeze-v2-20261110/FREEZE-PIN.txt: 1
+record_hash_mentions independent/y131-floor-cert-freeze-v2-20261110/final/NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md: 1
+record_hash_mentions independent/y131-floor-cert-freeze-v2-20261110/final/CHANGES.txt: 1
+PIN|id=013|path=work/design/rs/src/main.rs|want=f173b6833b194a0b|got=f173b6833b194a0b|ok=1
+PIN|id=014|path=work/design/rs/Cargo.toml|want=63026f703d730712|got=63026f703d730712|ok=1
+PIN|id=015|path=work/design/rs/Cargo.lock|want=964f252c22008671|got=964f252c22008671|ok=1
+PIN|id=016|path=work/design/rs/target/release/floorcert|want=9533e7e902ff5656|got=ABSENT|ok=0
+PIN|id=017|path=|want=rustc_1_81_0_eeb|got=ABSENT|ok=0
+PIN|id=018|path=|want=recorded_at_run_|got=ABSENT|ok=0
+PIN|id=019|path=work/design/py/cert_gate.py|want=6043d0897250a7c8|got=6043d0897250a7c8|ok=1
+PIN|id=020|path=work/design/gate_required.sh|want=0064ca4654aa8725|got=0064ca4654aa8725|ok=1
+PIN|id=021|path=work/design/py/indep_verify.py|want=497d2fbb64eb14e9|got=497d2fbb64eb14e9|ok=1
+PIN|id=022|path=work/critic/class_verify.py|want=756b3a2590293c1a|got=756b3a2590293c1a|ok=1
+PIN|id=023|path=work/critic/orbit_verify.py|want=5b04b07fd484ede3|got=5b04b07fd484ede3|ok=1
+PIN|id=024|path=work/design/NOTE.md|want=ac7bb14d0c15e0b7|got=ac7bb14d0c15e0b7|ok=1
+PIN|id=025|path=work/design/out/core_keys_m11.bin|want=e25b8b392161f6f0|got=e25b8b392161f6f0|ok=1
+PIN|id=026|path=work/design/out/core_keys_m12.bin|want=942c2eed527aa2c3|got=942c2eed527aa2c3|ok=1
+PIN|id=027|path=work/design/out/core_keys_m13.bin|want=b67d54ab32d0c33a|got=b67d54ab32d0c33a|ok=1
+PIN|id=028|path=|want=8369f4a981a888f4|got=ABSENT|ok=0
+PIN|id=029|path=|want=f835b2e1ded4b7f3|got=ABSENT|ok=0
+PIN|id=030|path=work/design/out/fix1/honest_m11/cert_m11_r21_2_f8-7-6-5-4.txt.gate.txt|want=2bf1ce715db454e3|got=2bf1ce715db454e3|ok=1
+PIN|id=031|path=work/design/out/fix1/PLANTS_RECEIPT.txt|want=9b9918354d65a3ed|got=9b9918354d65a3ed|ok=1
+PIN|id=032|path=work/design/out/fix1/LEDGER.txt|want=53e3b7d4c838ffb8|got=53e3b7d4c838ffb8|ok=1
+PIN|id=033|path=work/map/MAP.md|want=de2e240cdaceb90e|got=de2e240cdaceb90e|ok=1
+PIN|id=034|path=../ym137/final/PREDICT-S3-3X4-R9-WILSON-FESHBACH-AMPLITUDE-20261109.hbp|want=0b97fa83c02e94e7|got=ABSENT|ok=0
+PIN|id=103|path=work/design/peak_rss.py|want=9bc36642e5ae03bf|got=9bc36642e5ae03bf|ok=1
+PIN|id=114|path=final/tools/run_floor.sh|want=ae114b64348d676e|got=ae114b64348d676e|ok=1
+PIN|id=115|path=final/tools/floor_eval.py|want=f92f404f117d6d5f|got=f92f404f117d6d5f|ok=1
+PIN|id=131|path=final/tools/recheck_floor.py|want=36526aa2b5d790e1|got=36526aa2b5d790e1|ok=1
+TOOLHASH|final/tools/run_floor.sh|ae114b64348d676ec8056974e7d27af9c0f351efb82ccc9c9e9522b13d7c187f|in_NOTE=1|in_CHANGES=1|in_FREEZEPINTXT=0|in_record=1
+TOOLHASH|final/tools/floor_eval.py|f92f404f117d6d5f20fb8c5d020797060b539d2a0784d2b1d2c851b68ac42a10|in_NOTE=2|in_CHANGES=2|in_FREEZEPINTXT=0|in_record=1
+TOOLHASH|final/tools/recheck_floor.py|36526aa2b5d790e1b027056f3b21771e7d2b11c7b59d16444016db1cf399f928|in_NOTE=1|in_CHANGES=1|in_FREEZEPINTXT=0|in_record=1
+TOOLHASH|final/PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp|9f1076dd756d5b3ff3cb7c18974f52ce1c088f23e06ca3077ac05ab66f44f99c|in_NOTE=1|in_CHANGES=1|in_FREEZEPINTXT=1|in_record=0
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|0064ca4654aa8725f2040f8b50b01e95a521966eada0ac75ffdf2ee63b98849c|matches_pin_file=work/design/gate_required.sh
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|00cb6334ae13aeb0848423f5132c80abd5978f492ae15575a56aebb1a6b22b04|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|123aee3576084a06a259c188d7be423c387d71add70005d35526d18ece5f1286|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|19b4baf6e6be907a3b878d05a5c472ad4914efffd8aef0ca16a6f17c32f065ba|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|1d069f79638a10dbdb6c7021a6b57331200d689285b31671b81115f5474ea5ce|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|36526aa2b5d790e1b027056f3b21771e7d2b11c7b59d16444016db1cf399f928|matches_pin_file=final/tools/recheck_floor.py
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|41ced0bb2ad9b4078153f4264c46ba6c767994ecbd774c47efd6b20188bdefdc|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|5203631998f0ff53d2bfe86dc0307405e42e5b2bd908b2aaf28beef7566ceda8|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|561e36b40630485c9f27ee981bb1c03280c63296153fca21c3123703308cc96e|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|7f135eeee03a6fd8fb0594070ac1c94c76f1448b04f59a199f0e21390536ef06|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|8d1f01cfb85f19ce596baa63e245ab96298fe1c8c74db2afebaff27d387c9059|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|8e460e45e434d81f9663387e9a13a60594d0cdd5d869296ea40ed4478b790752|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|908373ebb40979e0d8d49a1b20990fe2c65195ec338dc4424189649850be4d82|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|9f1076dd756d5b3ff3cb7c18974f52ce1c088f23e06ca3077ac05ab66f44f99c|matches_pin_file=final/PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|a666deb720747de4b6e56f104eb477930afde6f0fefcae7a14145a32b6a4b46f|matches_pin_file=final/tools/r_scan.sh
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|adf784483eb89746c95ca17ea0589888da41d2bd2b7f221915d2b2332da23ec7|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|ae114b64348d676ec8056974e7d27af9c0f351efb82ccc9c9e9522b13d7c187f|matches_pin_file=final/tools/run_floor.sh
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|c237a54a0d1e85ee4d22230d532a86ad336535cd3feeb1087da6e4804c6e4278|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|d06ff237f55a762e7c50087d98a757ed366e749f6a736c9c1793f495efd84041|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|e28ea393ba00fb173ef0678a06959b37df17073f81ef9f48c1f5565c1e58afe4|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|f173b6833b194a0bab6cab6d0ef30b125993aa70f306050397247ed03e464bc6|matches_pin_file=work/design/rs/src/main.rs
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|f835b2e1ded4b7f3f38d9d7f3f8437ebfa0a6ede53783f224ebbd1e9b4b7dee7|matches_pin_file=none
+HEX|NOTE-S3-3X4-R9-FLOOR-CERT-20261109.md|f92f404f117d6d5f20fb8c5d020797060b539d2a0784d2b1d2c851b68ac42a10|matches_pin_file=final/tools/floor_eval.py
+HEX|CHANGES.txt|0064ca4654aa8725f2040f8b50b01e95a521966eada0ac75ffdf2ee63b98849c|matches_pin_file=work/design/gate_required.sh
+HEX|CHANGES.txt|00cb6334ae13aeb0848423f5132c80abd5978f492ae15575a56aebb1a6b22b04|matches_pin_file=none
+HEX|CHANGES.txt|123aee3576084a06a259c188d7be423c387d71add70005d35526d18ece5f1286|matches_pin_file=none
+HEX|CHANGES.txt|19b4baf6e6be907a3b878d05a5c472ad4914efffd8aef0ca16a6f17c32f065ba|matches_pin_file=none
+HEX|CHANGES.txt|1d069f79638a10dbdb6c7021a6b57331200d689285b31671b81115f5474ea5ce|matches_pin_file=none
+HEX|CHANGES.txt|36526aa2b5d790e1b027056f3b21771e7d2b11c7b59d16444016db1cf399f928|matches_pin_file=final/tools/recheck_floor.py
+HEX|CHANGES.txt|41ced0bb2ad9b4078153f4264c46ba6c767994ecbd774c47efd6b20188bdefdc|matches_pin_file=none
+HEX|CHANGES.txt|5203631998f0ff53d2bfe86dc0307405e42e5b2bd908b2aaf28beef7566ceda8|matches_pin_file=none
+HEX|CHANGES.txt|561e36b40630485c9f27ee981bb1c03280c63296153fca21c3123703308cc96e|matches_pin_file=none
+HEX|CHANGES.txt|6595594a61bb015d3c237215c1e5adfef03d7768de8e6a5df43f71760a8f3f18|matches_pin_file=none
+HEX|CHANGES.txt|7f135eeee03a6fd8fb0594070ac1c94c76f1448b04f59a199f0e21390536ef06|matches_pin_file=none
+HEX|CHANGES.txt|8d1f01cfb85f19ce596baa63e245ab96298fe1c8c74db2afebaff27d387c9059|matches_pin_file=none
+HEX|CHANGES.txt|8d30ac00985670f1aa48c7ed65d4d6898b9b9d38428309ba6ed7506fc9fb415e|matches_pin_file=none
+HEX|CHANGES.txt|8e460e45e434d81f9663387e9a13a60594d0cdd5d869296ea40ed4478b790752|matches_pin_file=none
+HEX|CHANGES.txt|908373ebb40979e0d8d49a1b20990fe2c65195ec338dc4424189649850be4d82|matches_pin_file=none
+HEX|CHANGES.txt|9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f|matches_pin_file=none
+HEX|CHANGES.txt|9f1076dd756d5b3ff3cb7c18974f52ce1c088f23e06ca3077ac05ab66f44f99c|matches_pin_file=final/PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp
+HEX|CHANGES.txt|a666deb720747de4b6e56f104eb477930afde6f0fefcae7a14145a32b6a4b46f|matches_pin_file=final/tools/r_scan.sh
+HEX|CHANGES.txt|adf784483eb89746c95ca17ea0589888da41d2bd2b7f221915d2b2332da23ec7|matches_pin_file=none
+HEX|CHANGES.txt|ae114b64348d676ec8056974e7d27af9c0f351efb82ccc9c9e9522b13d7c187f|matches_pin_file=final/tools/run_floor.sh
+HEX|CHANGES.txt|c237a54a0d1e85ee4d22230d532a86ad336535cd3feeb1087da6e4804c6e4278|matches_pin_file=none
+HEX|CHANGES.txt|d06ff237f55a762e7c50087d98a757ed366e749f6a736c9c1793f495efd84041|matches_pin_file=none
+HEX|CHANGES.txt|e28ea393ba00fb173ef0678a06959b37df17073f81ef9f48c1f5565c1e58afe4|matches_pin_file=none
+HEX|CHANGES.txt|f173b6833b194a0bab6cab6d0ef30b125993aa70f306050397247ed03e464bc6|matches_pin_file=work/design/rs/src/main.rs
+HEX|CHANGES.txt|f92f404f117d6d5f20fb8c5d020797060b539d2a0784d2b1d2c851b68ac42a10|matches_pin_file=final/tools/floor_eval.py
+FILECMP|work/design/rs/src/main.rs|same=1|f173b6833b194a0bab6cab6d0ef30b125993aa70f306050397247ed03e464bc6
+FILECMP|work/design/gate_required.sh|same=1|0064ca4654aa8725f2040f8b50b01e95a521966eada0ac75ffdf2ee63b98849c
+FILECMP|work/design/py/cert_gate.py|same=1|6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889
+FILECMP|work/design/py/indep_verify.py|same=1|497d2fbb64eb14e95522c1b39bd43b9b63103a0805b8d6b2b8caf75d898fdf24
+FILECMP|work/design/peak_rss.py|same=1|9bc36642e5ae03bf1cf81c4b6cc535d8945d1e4509bc6c50bccd9aeac7b88103
+FILECMP|work/design/rs/Cargo.lock|same=1|964f252c22008671cdde9b21b9403013686ee766c216c7dc43609582a84a2a13
+FILECMP|work/design/rs/Cargo.toml|same=1|63026f703d7307120fcb18147975b433dac62757a4bf80034a56d366bc5315b0
+FILECMP|final/tools/freeze_args_controls.sh|same=1|45d2d37d0fbe2758fa5accc4f86889f6a37303383fe3c94fb770fc6bd49898c0
+FILECMP|final/tools/floor_eval.py|same=1|f92f404f117d6d5f20fb8c5d020797060b539d2a0784d2b1d2c851b68ac42a10
+PREDICT|now=16|old=16|same=16|ids=058_059_060_061_062_063_064_065_066_067_068_069_070_071_072_073
+ROWCMP|rows_now=146|rows_old=141|dup=0,0|changed_or_new=114_131_142_143_144_145_146
+files_changed_outside_folder=0
+CR introduced:
+CR_scan_done
+nofloat_exit=0
+NO_FLOAT_DONE|code_files=593|listed_files=85|listed_folders=2|listed_findings=1444|failed=0|json=0

@@ -1,0 +1,16 @@
+rustc 1.81.0 (eeb90cda1 2024-09-04)
+cargo 1.81.0 (2dbb1af80 2024-08-20)
+8
+build exit=0
+pinfree_sha=9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f row016=9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f
+clippy exit=101
+
+error: could not compile `floorcert` (bin "floorcert") due to 4 previous errors
+clippy 0.1.81 (eeb90cd 2024-09-04)
+status_after=1
+cargo 1.81.0 (2dbb1af80 2024-08-20)
+clippy 0.1.81 (eeb90cd 2024-09-04)
+clippy181 exit=0
+    Checking floorcert v0.1.0 (/root/floor-v6-verify/repoE/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs)
+    Finished `release` profile [optimized] target(s) in 0.81s
+pinfree_sha_after=9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f

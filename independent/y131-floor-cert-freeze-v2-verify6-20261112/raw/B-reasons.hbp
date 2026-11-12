@@ -1,0 +1,14 @@
+REASON|case=B0|rc=2||stop=|json=0
+REASON|case=B1|rc=|reason=mount_namespace_is_held_by_another_process|stop=NOT_STARTED|json=0
+REASON|case=B2|rc=|reason=mount_namespace_reference_outside_a_member_process|stop=NOT_STARTED|json=0
+REASON|case=B3|rc=2||stop=|json=0
+REASON|case=B3b|rc=1|reason=REQUIRED_OR_INTEGRITY_FAILURE_ROW_008|stop=|json=0
+REASON|case=B4|rc=1|reason=cargo_configuration_file_in_the_Rust_folder_or_above_it|stop=prelude|json=0
+REASON|case=B4b|rc=1|reason=cargo_configuration_file_in_the_Rust_folder_or_above_it|stop=prelude|json=0
+REASON|case=B5|rc=1|reason=cargo_manifest_naming_a_workspace_above_the_Rust_folder|stop=prelude|json=0
+REASON|case=B6|rc=1|reason=tracked_files_differ_from_the_commit|stop=prelude|json=0
+REASON|case=B6b|rc=1|reason=index_marks_a_file_assume_unchanged_or_skip_worktree|stop=prelude|json=0
+REASON|case=B7|rc=1|reason=checkout_head_is_not_the_freeze_commit|stop=prelude|json=0
+findmnt_nsfs=[]
+nsd_mounts=0
+host_floor_run=0
