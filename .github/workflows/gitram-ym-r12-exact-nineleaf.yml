@@ -1,0 +1,121 @@
+name: GitRAM nine-leaf exact 36-pair conditional null (r12)
+on:
+  push:
+    paths:
+      - '.github/workflows/gitram-ym-r12-exact-nineleaf.yml'
+      - 'independent/gitram-ym-r12-spectrum-20261112/exact_pairnull/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: gitram-nineleaf-exact-null-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  cell:
+    name: Exact pair-fixed seed ${{ matrix.seed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        seed: [17001, 17002, 17003]
+    env:
+      ROOT: independent/gitram-ym-r12-spectrum-20261112/exact_pairnull
+      RUSTUP_TOOLCHAIN: 1.81.0
+      SEED: ${{ matrix.seed }}
+      SOURCE_SHA: 2220ee3a11c66281b586de77f44999c06e863f0e9f83509a867047048326bbc7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve immutable GitRAM nine-leaf source
+        uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43231913054
+          github-token: ${{ github.token }}
+          name: gitram-nineleaf-replica-1
+          path: source
+      - name: Recheck original source and all nine frozen columns
+        run: |
+          set -euo pipefail
+          test -s source/results/NINE-LEAVES-FROZEN.hbp
+          printf '%s  %s\n' "$SOURCE_SHA" source/results/NINE-LEAVES-FROZEN.hbp | sha256sum -c -
+          (cd source/results && sha256sum -c SHA256SUMS)
+          grep -q '^NINE_LEAF_FREEZE|schema=YM-R12-3CUTOFF-3WORD|source_run=43222707802|rows=682|' source/results/NINE-LEAVES-FROZEN.hbp
+      - name: Install pinned Rust 1.81 and clippy
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal -c clippy
+          rustc --version
+          cargo --version
+      - name: Build audited integer-only balanced-trade engine
+        run: |
+          set -euo pipefail
+          if grep -En '(\bf32\b|\bf64\b)' "$ROOT/src/main.rs"; then
+            echo "DISALLOWED_FLOAT"
+            exit 1
+          fi
+          cargo clippy --manifest-path "$ROOT/Cargo.toml" --all-targets -- -D warnings
+          cargo build --manifest-path "$ROOT/Cargo.toml" --offline --release -j2
+      - name: Run independent exact 40000-step chain
+        run: |
+          set -euo pipefail
+          mkdir -p checkpoint
+          "$ROOT/target/release/gitram-nineleaf-exact-null" \
+            source/results/NINE-LEAVES-FROZEN.hbp \
+            "$SEED" "checkpoint/EXACT-NINELEAF-$SEED.hbp" | tee checkpoint/chain.log
+          grep -q "^GITRAM_SHARD_PASS|seed=$SEED|pair_margins_exact=1|" "checkpoint/EXACT-NINELEAF-$SEED.hbp"
+          grep -q "|samples=31|" "checkpoint/EXACT-NINELEAF-$SEED.hbp"
+          printf 'SOURCE|run=43231913054|sha256=%s|seed=%s|coupling=12|json=0\n' \
+            "$SOURCE_SHA" "$SEED" > checkpoint/SOURCE.hbp
+          (cd checkpoint && sha256sum *.hbp chain.log > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - name: Upload all results including failure logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitram-nineleaf-exact-seed-${{ matrix.seed }}
+          retention-days: 30
+          if-no-files-found: error
+          path: checkpoint/
+  fan-in:
+    name: All-or-nothing 36-pair exact checksum seal
+    needs: cell
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gitram-nineleaf-exact-seed-*
+          path: seal
+          merge-multiple: false
+      - name: Require and verify all three independent integer cells
+        run: |
+          set -euo pipefail
+          test '${{ needs.cell.result }}' = 'success'
+          test "$(find seal -mindepth 1 -maxdepth 1 -type d -name 'gitram-nineleaf-exact-seed-*' | wc -l)" -eq 3
+          for seed in 17001 17002 17003; do
+            p="seal/gitram-nineleaf-exact-seed-$seed"
+            (cd "$p" && sha256sum -c SHA256SUMS)
+            grep -q "^GITRAM_SHARD_PASS|seed=$seed|pair_margins_exact=1|" "$p/EXACT-NINELEAF-$seed.hbp"
+            grep -q "|mixing_proven=NO|" "$p/EXACT-NINELEAF-$seed.hbp"
+          done
+          {
+            echo 'GITRAM_SEAL|schema=exact-nineleaf-pairwise-conditional-null|r=12|rows=682|pairs=36|seeds=3|steps_each=40000|json=0'
+            for seed in 17001 17002 17003; do
+              cat "seal/gitram-nineleaf-exact-seed-$seed/EXACT-NINELEAF-$seed.hbp"
+            done
+            echo 'GITRAM_EXACT_PAIRNULL_SEAL_PASS|cells=3|margins=exact|source_pin=PASS|mixing=UNPROVED|json=0'
+          } > seal/EXACT-NINELEAF-SEALED.hbp
+          (cd seal && sha256sum EXACT-NINELEAF-SEALED.hbp > EXACT-NINELEAF-SEALED.hbp.sha256)
+      - name: Upload verified sealed report
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitram-nineleaf-exact-pairnull-sealed
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            seal/EXACT-NINELEAF-SEALED.hbp
+            seal/EXACT-NINELEAF-SEALED.hbp.sha256
