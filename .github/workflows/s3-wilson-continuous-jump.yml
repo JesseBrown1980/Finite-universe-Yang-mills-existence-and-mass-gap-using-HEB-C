@@ -1,0 +1,100 @@
+name: S3 finite Yang-Mills Wilson continuous-time 43M jump
+on:
+  push:
+    branches:
+      - gpt6-finite-s3-wilson-continuous-time-43m-20261106
+      - main
+    paths:
+      - 'native/ym/results/s3_1x1_continuous_jump/**'
+      - '.github/workflows/s3-wilson-continuous-jump.yml'
+  pull_request:
+    paths:
+      - 'native/ym/results/s3_1x1_continuous_jump/**'
+      - '.github/workflows/s3-wilson-continuous-jump.yml'
+permissions:
+  contents: read
+jobs:
+  finite-s3-euclidean-time:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prediction first, integer-only exact arithmetic
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/s3_1x1_continuous_jump
+          test "$(grep -c '^PREDICT|id=' "$dir/PREDICT-20261106.hbp")" -eq 15
+          python3 -I -X utf8 native/scripts/integer_only_audit.py "$dir/test_s3_1x1_continuous_jump.py"
+      - name: Actual finite S3 Hamiltonian, certified gap and jump replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/s3_1x1_continuous_jump
+          mkdir -p build/s3_wilson
+          python3 -I -X utf8 "$dir/test_s3_1x1_continuous_jump.py" | tee build/s3_wilson/REPLAY.hbp
+          grep -F 'YM_FINITE_GAP|JE=1|JB=1|E0_interval=[1.096113,1.096114]|E1_interval=[3.274551,3.274552]|first_gap_interval=[2.178437,2.178439]|' build/s3_wilson/REPLAY.hbp
+          grep -F 'YM_FINITE_VERIFY|status=PASS_WITH_REGISTERED_MISS|predictions=15|registered_numeric_misses=1|exact_S3_orbits=11|' build/s3_wilson/REPLAY.hbp
+          grep -F 'YM_FINITE_PREDICTION_MISS|id=10|' build/s3_wilson/REPLAY.hbp
+          test "$(grep -c '^YM_FINITE_SLICE|' build/s3_wilson/REPLAY.hbp)" -eq 7
+          test "$(grep -c '^YM_FINITE_CRT|' build/s3_wilson/REPLAY.hbp)" -eq 4
+          test "$(grep -c '^YM_FINITE_JUMP|' build/s3_wilson/REPLAY.hbp)" -eq 6
+          if test -f "$dir/MEASURED-20261106.hbp"; then
+            tail -n +4 "$dir/MEASURED-20261106.hbp" | cmp - build/s3_wilson/REPLAY.hbp
+          fi
+          (cd build/s3_wilson && sha256sum REPLAY.hbp > SHA256SUMS)
+      - name: Interacting vacuum, gauge-invariant spectral weights and 43M step correlation
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir=native/ym/results/s3_1x1_continuous_jump
+          test "$(grep -c '^PREDICT|id=' "$dir/PREDICT-INTERACTING-VACUUM-20261107.hbp")" -eq 15
+          test "$(grep -c '^PREDICT|id=' "$dir/PREDICT-WINDING-VACUUM-20261107.hbp")" -eq 14
+          python3 -I -X utf8 native/scripts/integer_only_audit.py "$dir/test_s3_interacting_vacuum.py"
+          python3 -I -X utf8 "$dir/test_s3_interacting_vacuum.py" | tee build/s3_wilson/REPLAY-VACUUM.hbp
+          grep -F 'VACUUM_EXACT_SECTOR|rank=5|characteristic_blocks=P5,P3,(x-6)^3|Wilson_preserves_P5=EXACT|first_excited_E1_block=P3|ground_state_E0_block=P5|E1_Wilson_overlap=ZERO_EXACT|' build/s3_wilson/REPLAY-VACUUM.hbp
+          grep -F 'VACUUM_SPECTRAL_SELECTION|true_first_excitation=E1|true_first_gap_interval=[2.178437,2.178439]|E1_Wilson_spectral_weight=ZERO_EXACT|lowest_visible_excitation=E2|Wilson_gap_interval=[2.469275,2.469277]|' build/s3_wilson/REPLAY-VACUUM.hbp
+          grep -F 'VACUUM_VERIFY|status=PASS|predictions=15|true_vacuum=PERRON_CERTIFIED|ground_certified_angular_error_lt=1e-24|E1_Wilson_overlap=EXACT_ZERO|first_visible_state=E2|' build/s3_wilson/REPLAY-VACUUM.hbp
+          test "$(grep -c '^VACUUM_SPECTRAL_WEIGHT|' build/s3_wilson/REPLAY-VACUUM.hbp)" -eq 5
+          test "$(grep -c '^VACUUM_CONNECTED|' build/s3_wilson/REPLAY-VACUUM.hbp)" -eq 11
+          test "$(grep -c '^VACUUM_43M_JUMP|' build/s3_wilson/REPLAY-VACUUM.hbp)" -eq 2
+          grep -F 'WINDING_EXACT_SECTOR|quintic_to_cubic_rank=3|P3_H_times_D_times_K=ZERO_EXACT|winding_vacuum_mean=ZERO_EXACT|' build/s3_wilson/REPLAY-VACUUM.hbp
+          grep -F 'WINDING_SELECTION|first_excitation=E1|true_first_gap_interval=[2.178437,2.178439]|E1_Wilson_winding_weight_gt=3.01|plaquette_E1_weight=ZERO_EXACT|' build/s3_wilson/REPLAY-VACUUM.hbp
+          grep -F 'WINDING_VERIFY|status=PASS|prediction_rows=14|winding_probe=GAUGE_INVARIANT_TRACE_DIFFERENCE|true_E1_visible=YES|plaquette_E1_dark=YES|time_slices_max=43046721|' build/s3_wilson/REPLAY-VACUUM.hbp
+          test "$(grep -c '^WINDING_SPECTRAL_WEIGHT|' build/s3_wilson/REPLAY-VACUUM.hbp)" -eq 3
+          test "$(grep -c '^WINDING_CONNECTED|' build/s3_wilson/REPLAY-VACUUM.hbp)" -eq 11
+          awk '/^VACUUM_/ {print}' build/s3_wilson/REPLAY-VACUUM.hbp > build/s3_wilson/VACUUM-ONLY.hbp
+          awk '/^WINDING_/ {print}' build/s3_wilson/REPLAY-VACUUM.hbp > build/s3_wilson/WINDING-ONLY.hbp
+          if test -f "$dir/MEASURED-INTERACTING-VACUUM-20261107.hbp"; then
+            tail -n +4 "$dir/MEASURED-INTERACTING-VACUUM-20261107.hbp" | cmp - build/s3_wilson/VACUUM-ONLY.hbp
+          fi
+          if test -f "$dir/MEASURED-WINDING-VACUUM-20261107.hbp"; then
+            tail -n +4 "$dir/MEASURED-WINDING-VACUUM-20261107.hbp" | cmp - build/s3_wilson/WINDING-ONLY.hbp
+          fi
+      - name: Four invalid vacuum/observable statements must fail with the named check
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd build/s3_wilson
+          script=../../native/ym/results/s3_1x1_continuous_jump/test_s3_interacting_vacuum.py
+          for case in uniform_vacuum wrong_observable false_E1_visible wrong_cube winding_dark winding_untraced; do
+            rc=0
+            python3 -I -X utf8 "$script" "sabotage=$case" > "RED-$case.hbp" || rc=$?
+            test "$rc" -eq 1
+            case "$case" in
+              uniform_vacuum) expected=RED_uniform_vacuum ;;
+              wrong_observable) expected=RED_wrong_observable ;;
+              false_E1_visible) expected=RED_false_E1_visible ;;
+              wrong_cube) expected=RED_wrong_cube ;;
+              winding_dark) expected=RED_winding_dark ;;
+              winding_untraced) expected=RED_winding_untraced ;;
+            esac
+            grep -F "FAILED|check=$expected|json=0" "RED-$case.hbp"
+          done
+          sha256sum *.hbp > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exact-s3-finite-ym-43m-continuous-time
+          path: build/s3_wilson/
+          if-no-files-found: warn

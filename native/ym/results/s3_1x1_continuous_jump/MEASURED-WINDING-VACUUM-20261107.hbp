@@ -1,0 +1,29 @@
+# True interacting S3 winding Wilson-loop contrast, hosted run 42375510548, job 128412154355
+# Fourteen frozen predictions committed at d161bd8d70e70d9a755c47c315060ace7697d0ea BEFORE source extension.
+# Certified P5-to-P3 exact sector, true E1 visible, 43M-step Euclidean correlation; finite 1x1 model only.
+WINDING_BEGIN|prediction_rows=14|frozen_prediction_sha256=51332afad7a76ff26876e8f1dcb7dd78d2f7b5bc0b418c4279f9432aca844751|same_H=YES|same_vacuum=YES|json=0
+WINDING_GAUGE|orbital_states=11|trace_each_loop_gauge_invariant=YES|difference_odd_under_swap=YES|signed_untraced_holonomy_invariant=NO|json=0
+WINDING_EXACT_SECTOR|quintic_to_cubic_rank=3|P3_H_times_D_times_K=ZERO_EXACT|winding_vacuum_mean=ZERO_EXACT|E1_overlap_possible=YES|json=0
+WINDING_SPECTRAL_WEIGHT|full_spectrum_index=1|root_lower=3.274551264|root_upper=3.274551265|spectral_weight_lower=3.021656777|spectral_weight_upper=3.021676778|certified_filter_error_lt=1e-6|certified_weight_error_lt=1e-5|json=0
+WINDING_SPECTRAL_WEIGHT|full_spectrum_index=6|root_lower=7.601465555|root_upper=7.601465556|spectral_weight_lower=0.000432732|spectral_weight_upper=0.000452733|certified_filter_error_lt=1e-6|certified_weight_error_lt=1e-5|json=0
+WINDING_SPECTRAL_WEIGHT|full_spectrum_index=9|root_lower=10.123983179|root_upper=10.123983180|spectral_weight_lower=0.000085733|spectral_weight_upper=0.000105734|certified_filter_error_lt=1e-6|certified_weight_error_lt=1e-5|json=0
+WINDING_SELECTION|first_excitation=E1|true_first_gap_interval=[2.178437,2.178439]|E1_Wilson_winding_weight_gt=3.01|plaquette_E1_weight=ZERO_EXACT|probe=NONCONTRACTIBLE_TRACE_DIFFERENCE|json=0
+WINDING_CONNECTED|kind=CONTINUOUS|euclidean_time=0|steps=CONTINUOUS_TIME|lower=3.022205243662|upper=3.022205243663|absolute_certified_error_lt=1e-14|physical_finite_vacuum=ACTUAL_INTERACTING|json=0
+WINDING_CONNECTED|kind=CONTINUOUS|euclidean_time=1|steps=CONTINUOUS_TIME|lower=0.342108549199|upper=0.342108549201|absolute_certified_error_lt=1e-14|physical_finite_vacuum=ACTUAL_INTERACTING|json=0
+WINDING_CONNECTED|kind=CONTINUOUS|euclidean_time=2|steps=CONTINUOUS_TIME|lower=0.038732861760|upper=0.038732861761|absolute_certified_error_lt=1e-14|physical_finite_vacuum=ACTUAL_INTERACTING|json=0
+WINDING_CONNECTED|kind=CONTINUOUS|euclidean_time=3|steps=CONTINUOUS_TIME|lower=0.004385267369|upper=0.004385267370|absolute_certified_error_lt=1e-14|physical_finite_vacuum=ACTUAL_INTERACTING|json=0
+WINDING_CONNECTED|kind=TERNARY_JUMP|euclidean_time=1|steps=27|lower=0.311753491310|upper=0.311753491311|absolute_certified_error_lt=1e-14|physical_finite_vacuum=ACTUAL_INTERACTING|json=0
+WINDING_SLICE_ERROR|steps=27|error_lower=0.030355057889|error_upper=0.030355057890|comparison=TRUE_VACUUM_E1_VISIBLE|json=0
+WINDING_CONNECTED|kind=TERNARY_JUMP|euclidean_time=1|steps=81|lower=0.332054072027|upper=0.332054072028|absolute_certified_error_lt=1e-14|physical_finite_vacuum=ACTUAL_INTERACTING|json=0
+WINDING_SLICE_ERROR|steps=81|error_lower=0.010054477172|error_upper=0.010054477173|comparison=TRUE_VACUUM_E1_VISIBLE|json=0
+WINDING_CONNECTED|kind=TERNARY_JUMP|euclidean_time=1|steps=243|lower=0.338764300307|upper=0.338764300308|absolute_certified_error_lt=1e-14|physical_finite_vacuum=ACTUAL_INTERACTING|json=0
+WINDING_SLICE_ERROR|steps=243|error_lower=0.003344248892|error_upper=0.003344248894|comparison=TRUE_VACUUM_E1_VISIBLE|json=0
+WINDING_CONNECTED|kind=TERNARY_JUMP|euclidean_time=1|steps=729|lower=0.340994609203|upper=0.340994609204|absolute_certified_error_lt=1e-14|physical_finite_vacuum=ACTUAL_INTERACTING|json=0
+WINDING_SLICE_ERROR|steps=729|error_lower=0.001113939996|error_upper=0.001113939997|comparison=TRUE_VACUUM_E1_VISIBLE|json=0
+WINDING_CONNECTED|kind=TERNARY_JUMP|euclidean_time=1|steps=19683|lower=0.342067306631|upper=0.342067306632|absolute_certified_error_lt=1e-14|physical_finite_vacuum=ACTUAL_INTERACTING|json=0
+WINDING_SLICE_ERROR|steps=19683|error_lower=0.000041242568|error_upper=0.000041242569|comparison=TRUE_VACUUM_E1_VISIBLE|json=0
+WINDING_CONNECTED|kind=TERNARY_JUMP|euclidean_time=1|steps=531441|lower=0.342107021717|upper=0.342107021718|absolute_certified_error_lt=1e-14|physical_finite_vacuum=ACTUAL_INTERACTING|json=0
+WINDING_SLICE_ERROR|steps=531441|error_lower=0.000001527482|error_upper=0.000001527483|comparison=TRUE_VACUUM_E1_VISIBLE|json=0
+WINDING_CONNECTED|kind=TERNARY_JUMP|euclidean_time=1|steps=43046721|lower=0.342108530342|upper=0.342108530343|absolute_certified_error_lt=1e-14|physical_finite_vacuum=ACTUAL_INTERACTING|json=0
+WINDING_SLICE_ERROR|steps=43046721|error_lower=0.000000018857|error_upper=0.000000018858|comparison=TRUE_VACUUM_E1_VISIBLE|json=0
+WINDING_VERIFY|status=PASS|prediction_rows=14|winding_probe=GAUGE_INVARIANT_TRACE_DIFFERENCE|true_E1_visible=YES|plaquette_E1_dark=YES|time_slices_max=43046721|spatial_continuum=NOT_TESTED|physical_experiment=NOT_MATCHED|Clay_YM4=OPEN|json=0

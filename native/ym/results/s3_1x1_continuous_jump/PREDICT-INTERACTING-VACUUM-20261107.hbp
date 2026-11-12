@@ -1,0 +1,22 @@
+# INTERACTING FINITE S3 GAUGE VACUUM: PREREGISTRATION, BEFORE NEW CODE
+# 2026-11-07. Follows PR #127 1x1 periodic S3 11-orbit exact Hamiltonian.
+# The existing trial state is NOT the interacting vacuum; replace with ground
+# eigenvector with certified rational error, and Wilson connected correlator.
+# Exact sector identities and chosen decimal windows are preregistered.
+# No claim of spatial continuum, empirical particle fit, or Clay theorem.
+PREDICT|id=01|check=ACTUAL_FINITE_H|S3_link_pairs=36|gauge_orbits=11|JE=1|JB=1|weighted_self_adjoint=YES|status=SOURCE|json=0
+PREDICT|id=02|check=VACUUM_APPROX|method=POSITIVE_PERRON_POWER|shift=18|iterations=729|Collatz_E0_width_lt=1e-20|normalized_vacuum_residual_sin_angle_lt=1e-20|status=DERIVED|json=0
+PREDICT|id=03|check=EXACT_SECTOR|factor_P5_degree=5|factor_P3_degree=3|factor_x_minus_6_degree=3|Wilson_sector_rank=5|P5(H)*O*(H-6I)*P3(H)=ZERO|status=DERIVED|json=0
+PREDICT|id=04|check=TRUE_FIRST_GAP|E0_in=1.096113,1.096114|E1_in=3.274551,3.274552|gap_in=2.178437,2.178439|status=EXACT_INERTIA|json=0
+PREDICT|id=05|check=LOWEST_WILSON_VISIBLE_EXCITATION|E2_in=3.565389,3.565390|E2_minus_E0_in=2.469275,2.469277|E1_Wilson_spectral_weight=ZERO_EXACT|status=DERIVED|json=0
+PREDICT|id=06|check=FIRST_VISIBLE_WEIGHT|E2_weight_in=0.34,0.37|vacuum_plaquette_mean_in=1.27255,1.27257|status=DERIVED|json=0
+PREDICT|id=07|check=CONNECTED_VARIANCE|C0_in=1.65315,1.65316|status=DERIVED|json=0
+PREDICT|id=08|check=TRUE_VACUUM_CONNECTED_C1|euclidean_t=1|C1_in=0.03074062,0.03074065|first_state_dark=YES|status=DERIVED|json=0
+PREDICT|id=09|check=TRUE_VACUUM_CONNECTED_C2|euclidean_t=2|C2_in=0.00253450,0.00253453|status=DERIVED|json=0
+PREDICT|id=10|check=TRUE_VACUUM_CONNECTED_C3|euclidean_t=3|C3_in=0.00021446,0.00021449|status=DERIVED|json=0
+PREDICT|id=11|check=PHYSICAL_TIME_SLICES|N=27,81,243,729,19683,531441,43046721|fixed_t=1|converges_to_interacting_vacuum_continuous_evolution=YES|status=DERIVED|json=0
+PREDICT|id=12|check=LONG_JUMP|N=43046721|cubings=16|modular_binary_power_agrees=YES|rational_approximant_error_below=1e-7|status=DERIVED|json=0
+PREDICT|id=13|check=GAUGE_INVARIANCE|O=chi_std(commutator)|local_conjugation_invariant=YES|raw_signed_Z3_label_invariant=NO|status=DERIVED|json=0
+PREDICT|id=14|check=RED_CONTROLS|wrong_vacuum=REJECT|wrong_observable=REJECT|false_E1_visible=REJECT|wrong_cubing=REJECT|status=RED|json=0
+PREDICT|id=15|check=SCOPE|first_eigenstate_in_full_11D=EXISTS|Wilson_dark_E1=TRUE|first_visible_E2=TRUE|real_world_mass_calibration=NOT_DONE|4D_SU2_continuum=NOT_DONE|Clay_proof=OPEN|status=LIMIT|json=0
+PREDICTION_SUMMARY|rows=15|frozen_before_vacuum_code=YES|observations=NOT_RUN|json=0

@@ -1,0 +1,78 @@
+name: Finite S3 winding first-gap selection and large-lattice operator checks
+
+on:
+  push:
+    paths:
+      - 'native/ym/results/s3_1x1_continuous_jump/**'
+      - '.github/workflows/s3-winding-selection.yml'
+  pull_request:
+    paths:
+      - 'native/ym/results/s3_1x1_continuous_jump/**'
+      - '.github/workflows/s3-winding-selection.yml'
+
+jobs:
+  winding-integer-certificates:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enforce integer arithmetic, no untracked dynamic input
+        run: |
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+          p=Path("native/ym/results/s3_1x1_continuous_jump")
+          for name in ("test_s3_winding_vacuum.py","test_s3_larger_operator_selection.py"):
+              tree=ast.parse((p/name).read_text())
+              assert not any(isinstance(node,ast.Constant) and isinstance(node.value,float) for node in ast.walk(tree))
+              assert not any(isinstance(node,ast.BinOp) and isinstance(node.op,ast.Div) for node in ast.walk(tree))
+              print("INTEGER_AUDIT|file="+name+"|result=PASS|json=0")
+          PY
+      - name: Independently rebuild interacting winding vacuum and projector
+        run: |
+          python3 -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_winding_vacuum.py > /tmp/WINDING.hbp
+          cat /tmp/WINDING.hbp
+          grep -F 'WINDING_E1_PROJECTOR|' /tmp/WINDING.hbp
+          grep -F 'WINDING_E1_PERRON|' /tmp/WINDING.hbp
+          grep -F 'WINDING_GATE|result=PASS|' /tmp/WINDING.hbp
+      - name: Verify larger lattice operator-selection and controls
+        run: |
+          python3 -I -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_larger_operator_selection.py > /tmp/LARGER.hbp
+          cat /tmp/LARGER.hbp
+          grep -F 'LARGER_SELECTION_VERIFY|result=PASS|' /tmp/LARGER.hbp
+      - name: Assert registered prediction intervals and deterministic replay
+        run: |
+          python3 -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_winding_vacuum.py > /tmp/WINDING2.hbp
+          python3 -I -X utf8 native/ym/results/s3_1x1_continuous_jump/test_s3_larger_operator_selection.py > /tmp/LARGER2.hbp
+          cmp /tmp/WINDING.hbp /tmp/WINDING2.hbp
+          cmp /tmp/LARGER.hbp /tmp/LARGER2.hbp
+          cmp /tmp/WINDING.hbp native/ym/results/s3_1x1_continuous_jump/MEASURED-WINDING-20261107.hbp
+          cmp /tmp/LARGER.hbp native/ym/results/s3_1x1_continuous_jump/MEASURED-LARGER-SELECTION-20261107.hbp
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path("native/ym/results/s3_1x1_continuous_jump")
+          pred=(root/"PREDICT-WINDING-20261107.hbp").read_text()
+          assert len([x for x in pred.splitlines() if x.startswith("WINDING_PREDICTION|id=")])==15
+          lines=Path("/tmp/WINDING.hbp").read_text().splitlines()
+          corr=[x for x in lines if x.startswith("WINDING_CONNECTED|")]
+          assert len(corr)==4
+          bounds={0:("3.022205243660","3.022205243665"),
+                  1:("0.342108549190","0.342108549210"),
+                  2:("0.038732861750","0.038732861775"),
+                  3:("0.004385267360","0.004385267380")}
+          for item in corr:
+              fields=dict(kv.split("=",1) for kv in item.split("|")[1:] if "=" in kv)
+              t=int(fields["t"])
+              assert bounds[t][0] <= fields["lower"] <= fields["upper"] <= bounds[t][1]
+          large=Path("/tmp/LARGER.hbp").read_text().splitlines()
+          assert len([x for x in large if x.startswith("LARGER_SELECTION|")])==2
+          assert all(x.endswith("|json=0") for x in lines+large)
+          print("WINDING_ACCEPT|freeze=PASS|corr=4|large=2|spectral_routes=2|json=0")
+          PY
+      - name: Publish exact integer HBP evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: finite-s3-winding-20261107-hbp
+          path: |
+            /tmp/WINDING.hbp
+            /tmp/LARGER.hbp
