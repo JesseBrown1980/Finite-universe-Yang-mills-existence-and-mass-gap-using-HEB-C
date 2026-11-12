@@ -78,8 +78,8 @@ jobs:
           cat reproduce/ONE-CELL.hbp
           test "$(grep -c '^FIELD|' reproduce/ONE-CELL.hbp)" -eq 1
           if test "$SELECT_MODE" = 0; then NAME=FROZEN; else NAME=GLOBAL_HASH; fi
-          grep "^FIELD|mode=$NAME|functions=$SELECT_N|" "$ROOT/results/RESULT-FIELD-V19C.hbp" > reproduce/EXPECTED.hbp
-          grep "^FIELD|mode=$NAME|functions=$SELECT_N|" reproduce/ONE-CELL.hbp > reproduce/ACTUAL.hbp
+          grep "^FIELD|mode=$NAME|functions=$SELECT_N|" "$ROOT/results/RESULT-FIELD-V19C.hbp" | tr -d '\r' > reproduce/EXPECTED.hbp
+          grep "^FIELD|mode=$NAME|functions=$SELECT_N|" reproduce/ONE-CELL.hbp | tr -d '\r' > reproduce/ACTUAL.hbp
           diff -u reproduce/EXPECTED.hbp reproduce/ACTUAL.hbp
           grep -q '|FANO_verdict=INSIDE|json=0' reproduce/ACTUAL.hbp
           printf 'V19C_INDEPENDENT_PASS|mode=%s|N=%s|controls=27|source_original=UNCHANGED|r9=HOLD|json=0\n' "$NAME" "$SELECT_N" > reproduce/PASS.hbp
@@ -92,7 +92,7 @@ jobs:
           if-no-files-found: warn
           path: reproduce/
   seal:
-    name: All six original V19C control cells byte-for-byte
+    name: All six original V19C control cells exact record equality
     needs: replay
     if: always()
     runs-on: ubuntu-latest
