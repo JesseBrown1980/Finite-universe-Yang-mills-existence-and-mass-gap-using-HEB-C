@@ -97,3 +97,33 @@ the three-step separation exists only as the diagonal (1,2).
 
 Predictions are to be sealed in SPEC-CHARGE-V24.hbp before the first run. Review of sections 2 and 3 by a second
 seat (opus55 or GPT-6) is requested before building.
+
+## 9. Review by the verifier seat (opus55), 2026-11-12, reading only, no computation (CONJECTURE until run)
+
+Kept beside the text above; nothing above is rewritten.
+
+- 2.1 no orbit excluded: HOLDS.
+- 2.2-2.3 sign-flip rule: HOLDS with four conditions for the build:
+  (a) "on the path" means links used an odd number of times;
+  (b) moves that land back in the same orbit sit on the diagonal and take the on/off sign too;
+  (c) the writer's `canon()` (48 symmetries x 6 conjugations) is not valid here; reduce by the gauge orbit only,
+      and record for every move, including two-step tail moves and flat moves, whether its link is on the path;
+  (d) the lattice symmetry is reduced to the stabilizer of the pair, which acts with sign factors; the charged
+      matrix has mixed signs, so there is no argument placing the lowest state in the invariant sector: every
+      one-dimensional sector of that group must be computed, or no reduction used.
+- 2.4 path independence: HOLDS, loops around the torus included.
+- 3.D comparison: HOLDS; wording corrected: with on-path self-moves the comparison matrix is not literally the
+  uncharged matrix, but the inequality still holds. Compare like with like (all sectors on the same orbit set).
+- 4: the note UNDER-claimed. The tail lower bound carries over through |x|, and the Schur step holds with signed
+  couplings, so an exact inertia count of the signed core matrix gives a rigorous lower bound with the tail
+  included. The Collatz-Wielandt step on the core does not carry over, as stated. Keeping the flats is correct.
+- 6 expectation: OVERSIMPLIFIED, with a blocking point. Link costs 0 / 3 / 6 are right and the pair energy at
+  r = 0 is exactly 6 x (graph distance). But at small r the ground state is spread over all magnetic numbers
+  (mean about 24 of 36), so the low-cutoff spaces (cutoffs 5 to 9) CANNOT measure confinement. The small-r test
+  needs the electric basis, perturbation theory, or the exact r = 0 check. At large r the leading effect is local
+  and small, roughly 0.001 J_E at r = 12 (rough count), so a positive pair-energy claim needs enclosures narrower
+  than that, formed as lower(charged) - upper(uncharged) and upper(charged) - lower(uncharged). A difference of
+  two upper bounds bounds nothing.
+
+Consequences for the plan: build at the gauge-orbit level with per-move path flags; no small-r run in the
+magnetic cutoff basis; at r = 12 and r = 20 the target is a two-sided enclosure of a small pair energy.
