@@ -1,0 +1,7 @@
+FIELDHDR|rooms=19683|cubes=729|functions_available=8640|warm_up_ticks=81|measured_ticks=243|controls_per_cell=9|integer_only=1|room_store_writes=0|json=0
+FIELD|mode=FROZEN|functions=729|per_cube=1|FANO_real=499|FANO_scrambled=424..547|FAR_real=357|FAR_scrambled=213..424|centre_share_real=593|centre_share_scrambled=549..590|FANO_verdict=INSIDE|json=0
+FIELD|mode=FROZEN|functions=2187|per_cube=3|FANO_real=471|FANO_scrambled=465..633|FAR_real=376|FAR_scrambled=289..442|centre_share_real=584|centre_share_scrambled=562..582|FANO_verdict=INSIDE|json=0
+FIELD|mode=FROZEN|functions=6561|per_cube=9|FANO_real=446|FANO_scrambled=480..597|FAR_real=337|FAR_scrambled=271..453|centre_share_real=580|centre_share_scrambled=565..578|FANO_verdict=OUTSIDE|json=0
+FIELD|mode=RESPOND|functions=729|per_cube=1|FANO_real=598|FANO_scrambled=555..661|FAR_real=285|FAR_scrambled=233..352|centre_share_real=501|centre_share_scrambled=500..509|FANO_verdict=INSIDE|json=0
+FIELD|mode=RESPOND|functions=2187|per_cube=3|FANO_real=582|FANO_scrambled=518..591|FAR_real=272|FAR_scrambled=212..316|centre_share_real=504|centre_share_scrambled=504..511|FANO_verdict=INSIDE|json=0
+FIELD|mode=RESPOND|functions=6561|per_cube=9|FANO_real=514|FANO_scrambled=458..530|FAR_real=263|FAR_scrambled=192..277|centre_share_real=504|centre_share_scrambled=505..509|FANO_verdict=INSIDE|json=0

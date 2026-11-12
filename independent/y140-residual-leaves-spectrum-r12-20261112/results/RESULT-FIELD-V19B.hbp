@@ -1,0 +1,4 @@
+FIELDHDR|rooms=19683|cubes=729|functions_available=8640|warm_up_ticks=81|measured_ticks=243|controls_per_cell=9|integer_only=1|room_store_writes=0|json=0
+FIELD|mode=GLOBAL_HASH|functions=729|per_cube=1|FANO_real=602|FANO_scrambled=567..604|FAR_real=329|FAR_scrambled=279..321|centre_share_real=537|centre_share_scrambled=535..538|FANO_verdict=INSIDE|json=0
+FIELD|mode=GLOBAL_HASH|functions=2187|per_cube=3|FANO_real=578|FANO_scrambled=499..553|FAR_real=327|FAR_scrambled=251..295|centre_share_real=536|centre_share_scrambled=534..539|FANO_verdict=OUTSIDE|json=0
+FIELD|mode=GLOBAL_HASH|functions=6561|per_cube=9|FANO_real=446|FANO_scrambled=457..492|FAR_real=208|FAR_scrambled=217..285|centre_share_real=538|centre_share_scrambled=537..538|FANO_verdict=OUTSIDE|json=0

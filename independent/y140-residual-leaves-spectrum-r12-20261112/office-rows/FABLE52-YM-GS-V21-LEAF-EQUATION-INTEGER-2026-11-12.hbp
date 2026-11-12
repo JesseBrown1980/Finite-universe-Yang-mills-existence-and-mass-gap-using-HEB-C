@@ -1,0 +1,8 @@
+GSV21HDR|unit=ACER-CLAUDE-FABLE52|unit_pid=61089a99becaa89b|owner=OP-JESSE|date=2026-11-12|operator_correction=it_is_supposed_to_be_computed_in_integer_only|beside=FABLE52-YM-GS-V20-LEAF-EQUATION-2026-11-12_(float_diagnostic,_kept)|program=gs_v21.py_sha256_8fdc7d9739c6a07ec206d0321f5fb3c8d30e99294d54fd3b3cdead5b9ce1165a|float_used=0|json=0
+GSV21|m0=8|f=6,5,4,3|rows=2748|spearman_leaf_vs_forward_U=971|vs_backward_B=-857|vs_total=49|vs_forward_fraction=932|vs_M=99|vs_key_position=-289|unit=thousandths|integer_only=1|json=0
+GSV21|m0=8|f=8,7,6,5,4|rows=2748|spearman_leaf_vs_forward_U=973|vs_backward_B=-862|vs_total=59|vs_forward_fraction=937|vs_M=77|vs_key_position=-285|unit=thousandths|integer_only=1|json=0
+GSV21|m0=8|f=1|rows=2748|spearman_leaf_vs_forward_U=983|vs_backward_B=-865|vs_total=144|vs_forward_fraction=941|vs_M=72|vs_key_position=-306|unit=thousandths|integer_only=1|json=0
+GSV21|m0=9|f=6,5,4,3|rows=2880|spearman_leaf_vs_forward_U=951|vs_backward_B=-828|vs_total=69|vs_forward_fraction=907|vs_M=89|vs_key_position=-288|unit=thousandths|integer_only=1|json=0
+GSV21|m0=9|f=8,7,6,5,4|rows=2880|spearman_leaf_vs_forward_U=954|vs_backward_B=-851|vs_total=36|vs_forward_fraction=921|vs_M=25|vs_key_position=-288|unit=thousandths|integer_only=1|json=0
+GSV21|m0=9|f=1|rows=2880|spearman_leaf_vs_forward_U=980|vs_backward_B=-832|vs_total=145|vs_forward_fraction=920|vs_M=112|vs_key_position=-321|unit=thousandths|integer_only=1|json=0
+READING|rank_correlation_thousandths=951_to_983_in_6_of_6_cells,_rounded_down|agrees_with_float_run_within_1_thousandth|tag=MEASURED|json=0
