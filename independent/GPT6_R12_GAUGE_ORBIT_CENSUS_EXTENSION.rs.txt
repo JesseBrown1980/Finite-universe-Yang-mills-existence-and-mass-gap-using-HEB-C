@@ -1,0 +1,147 @@
+// This exact integer-only research command is injected into a throwaway clone
+// of the SHA-pinned finite S3 engine. It leaves the original engine untouched.
+// The source's enumerate() predicate is patched separately from the
+// 48-lattice-symmetry minimum to the six global S3 conjugation minimum.
+// Resulting keys are the FULL GAUGE-ORBIT basis at magnetic cutoff m0=9,
+// not the 2880-dimensional lattice-symmetry-invariant quotient.
+
+fn gauge_conj_orbit_size(tab: &Tab, key: u64) -> u32 {
+    let z = Tab::decode(key);
+    let mut choices = HashSet::new();
+    for g in 0..6 {
+        let mut o = [0u8; NK];
+        for j in 0..NK {
+            o[j] = tab.conj[g][z[j] as usize];
+        }
+        choices.insert(Tab::encode(&o));
+    }
+    assert!(choices.len() >= 1 && choices.len() <= 6);
+    choices.len() as u32
+}
+
+fn gauge_only_neighbours(
+    tab: &Tab,
+    key: u64,
+    kept: &HashSet<u64>,
+    cutoff: i64,
+) -> (HashMap<u64, u32>, u32, u32) {
+    let mut u = tab.links_of_key(key);
+    let (pc, m) = plaquette_costs(tab, &u);
+    let mut moves = Vec::with_capacity(72);
+    local_moves(tab, &mut u, &pc, &mut moves);
+    assert_eq!(moves.len(), 72);
+    let mut targets: HashMap<u64, u32> = HashMap::new();
+    let mut flat = 0u32;
+    let mut tail = 0u32;
+    for &(edge, tau, delta) in moves.iter() {
+        let old = u[edge];
+        u[edge] = tab.mul[tau as usize][old as usize];
+        let m2 = m + delta;
+        if m2 == 0 {
+            flat += 1;
+        } else if m2 <= cutoff {
+            assert!(m2 >= 1);
+            let mut z = [0u8; NK];
+            tab.letters(0, &u, &mut z);
+            let gauge_key = tab.orbit_min(&z);
+            assert!(kept.contains(&gauge_key), "missing gauge-only core target");
+            *targets.entry(gauge_key).or_insert(0) += 1;
+        } else {
+            tail += 1;
+        }
+        u[edge] = old;
+    }
+    let total: u32 = targets.values().sum::<u32>() + flat + tail;
+    assert_eq!(total, 72, "all 72 single-link moves must be accounted for");
+    (targets, flat, tail)
+}
+
+fn independent_orbit_census(args: &[String]) {
+    let tab = tables();
+    let cutoff: i64 = arg(args, "--m0", "9").parse().unwrap();
+    let threads: usize = arg(args, "--threads", "4").parse().unwrap();
+    assert_eq!(cutoff, 9, "this read-only rehearsal is fixed at cutoff nine");
+    assert!(threads >= 1 && threads <= 16);
+    s3_table_gate(&tab);
+    let keys = enumerate(&tab, cutoff, threads);
+    assert_eq!(keys.len(), 111906, "prediction: 111906 gauge-only core orbits");
+    assert!(keys.windows(2).all(|pair| pair[0] < pair[1]));
+    let preserved: HashSet<u64> = keys.iter().copied().collect();
+    assert_eq!(preserved.len(), keys.len());
+
+    // Every representative is the lexicographic minimum under GLOBAL
+    // conjugation but NOT necessarily under lattice translations/reflections.
+    let records = par_map(keys.len(), threads, |i| {
+        let key = keys[i];
+        let u = tab.links_of_key(key);
+        let mag = tab.magnetic(&u);
+        let cls = tab.canon(&u);
+        let weight = gauge_conj_orbit_size(&tab, key);
+        assert_eq!(tab.orbit_min(&Tab::decode(key)), key);
+        (cls, mag, weight)
+    });
+    let mut grouped: HashMap<u64, usize> = HashMap::new();
+    let mut by_mag = [0i128; 37];
+    let mut w_by_mag = [0i128; 37];
+    for &(class_key, m, weight) in records.iter() {
+        assert!(m >= 1 && m <= cutoff);
+        *grouped.entry(class_key).or_insert(0) += 1;
+        by_mag[m as usize] += 1;
+        w_by_mag[m as usize] += weight as i128;
+    }
+    assert_eq!(grouped.len(), 2880, "48 symmetry quotient must have 2880 classes");
+    let (closed_orbits, closed_weights) = closed_form();
+    for m in 1..=cutoff as usize {
+        assert_eq!(by_mag[m], closed_orbits[m], "per-magnetic-number orbit census");
+        assert_eq!(w_by_mag[m], closed_weights[m], "conjugacy-weighted census");
+        println!("CORE_GAUGE_CENSUS|M={}|orbit_count={}|predicted_orbit_count={}|weight_sum={}|predicted_weight_sum={}|PASS|json=0",
+                 m, by_mag[m], closed_orbits[m], w_by_mag[m], closed_weights[m]);
+    }
+    let mut class_size_hist = [0usize; 49];
+    for (&class_key, &number) in grouped.iter() {
+        let (_n_conj, n_space_orbit, _wt, _mag) = tab.info(class_key);
+        assert_eq!(number, n_space_orbit as usize,
+                   "class size and orbit-stabilizer multiplicity differ");
+        class_size_hist[number] += 1;
+    }
+    println!("CORE_GAUGE_CLASS_HIST|{}|json=0",
+        (1..=48).filter(|&v| class_size_hist[v] > 0)
+            .map(|v| format!("{}:{}", v, class_size_hist[v]))
+            .collect::<Vec<_>>().join(","));
+
+    // An independent small exact off-diagonal probe before any full matrix
+    // build. Each sampled edge is checked against the actual inverse move
+    // in the FULL gauge-orbit basis, using conjugacy-orbit weights.
+    let sample = 64usize;
+    let mut cache: HashMap<u64, (HashMap<u64, u32>, u32, u32)> = HashMap::new();
+    let mut weighted_pairs = 0usize;
+    let mut flat_samples = 0u64;
+    let mut tail_samples = 0u64;
+    for i in 0..sample {
+        let key = keys[i * keys.len() / sample];
+        if !cache.contains_key(&key) {
+            cache.insert(key, gauge_only_neighbours(&tab, key, &preserved, cutoff));
+        }
+        let (moves, flat, tail) = cache.get(&key).unwrap().clone();
+        flat_samples += flat as u64;
+        tail_samples += tail as u64;
+        let wi = gauge_conj_orbit_size(&tab, key);
+        for (other, forward) in moves.iter() {
+            if !cache.contains_key(other) {
+                cache.insert(*other, gauge_only_neighbours(&tab, *other, &preserved, cutoff));
+            }
+            let (target, _, _) = cache.get(other).unwrap();
+            let backward = *target.get(&key).unwrap_or(&0);
+            let wj = gauge_conj_orbit_size(&tab, *other);
+            assert_eq!(wi * *forward, wj * backward,
+                       "full gauge-only weighted detailed balance fails");
+            weighted_pairs += 1;
+        }
+    }
+    println!("CORE_GAUGE_GRAPH_SAMPLE|sampled_orbits={}|reciprocal_core_pairs={}|flat_moves={}|tail_moves={}|each_row_72_moves=PASS|weighted_balance=PASS|json=0",
+             sample, weighted_pairs, flat_samples, tail_samples);
+
+    let gauge_key_sha256 = keys_hash(&keys);
+    println!("CORE_GAUGE_ORBITS_PASS|m0=9|r=NOT_COMPUTED|gauge_orbits={}|symmetry_classes={}|key_sha256={}|source_mode=GAUGE_ORBITS_NO_48_SYMMETRY_QUOTIENT|r9=HOLD|json=0",
+        keys.len(), grouped.len(), gauge_key_sha256);
+}

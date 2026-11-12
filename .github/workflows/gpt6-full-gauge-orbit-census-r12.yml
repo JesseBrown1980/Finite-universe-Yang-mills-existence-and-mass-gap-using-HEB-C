@@ -1,0 +1,70 @@
+name: Independent full gauge-orbit census before symmetry sector spectrum
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-full-gauge-orbit-census-r12.yml'
+      - 'independent/GPT6_R12_FULL_GAUGE_ORBITS_FREEZE_20261112.hbp'
+      - 'independent/GPT6_R12_GAUGE_ORBIT_CENSUS_EXTENSION.rs.txt'
+      - 'independent/gpt6_patch_gauge_orbit_census.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gpt6-full-gauge-orbits-DOLLAR{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  census:
+    name: Exact 111906 gauge orbit census and 48-class stabilization checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    env:
+      RUSTUP_TOOLCHAIN: 1.81.0
+      ENGINE: frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          ref: 8aca957babbb8b0903fb8683422cde30b3f55668
+          path: frozen-engine
+          persist-credentials: false
+      - name: Validate precommitted census predictions, avoid all r9 execution
+        run: |
+          set -euo pipefail
+          grep -q '^PREDICT|gauge_orbit_keys=111906|space_symmetry_classes=2880|' independent/GPT6_R12_FULL_GAUGE_ORBITS_FREEZE_20261112.hbp
+          grep -q '^SCOPE|magnetic_cutoff_m0=9|coupling_r=12_ONLY|no_r9_calculation=YES|' independent/GPT6_R12_FULL_GAUGE_ORBITS_FREEZE_20261112.hbp
+          test -s "$ENGINE/src/main.rs"
+          mkdir -p output
+      - name: Build experimental gauge-only CLI from separate source copy
+        run: |
+          set -euo pipefail
+          python3 -B independent/gpt6_patch_gauge_orbit_census.py \
+             "$ENGINE/src/main.rs" independent/GPT6_R12_GAUGE_ORBIT_CENSUS_EXTENSION.rs.txt output/SOURCE-PATCH.hbp
+          grep -q '^SOURCE_PATCH|schema=R12-GAUGE-ORBIT-V1|' output/SOURCE-PATCH.hbp
+          rustup toolchain install 1.81.0 --profile minimal
+          cargo build --release --locked -j2 --manifest-path "$ENGINE/Cargo.toml"
+          test -x "$ENGINE/target/release/floorcert"
+      - name: Reproduce every gauge orbit and class stabilizer at magnetic cutoff m0=9
+        run: |
+          set -euo pipefail
+          "$ENGINE/target/release/floorcert" orbit-census --m0 9 --threads 4 \
+            | tee output/ORBIT-CENSUS.hbp
+          grep -q '^CORE_GAUGE_ORBITS_PASS|m0=9|r=NOT_COMPUTED|gauge_orbits=111906|symmetry_classes=2880|' output/ORBIT-CENSUS.hbp
+          grep -q '^CORE_GAUGE_GRAPH_SAMPLE|sampled_orbits=64|reciprocal_core_pairs=' output/ORBIT-CENSUS.hbp
+          grep -q '^GATE|s3_link_table|PASS|' output/ORBIT-CENSUS.hbp
+          test "$(grep -c '^CORE_GAUGE_CENSUS|M=' output/ORBIT-CENSUS.hbp)" -eq 9
+      - name: Refuse unauthorized cutoff or r9 source changes
+        run: |
+          set -euo pipefail
+          if "$ENGINE/target/release/floorcert" orbit-census --m0 8 --threads 1 >/dev/null 2>&1; then
+            echo 'UNFROZEN_CUTOFF_ACCEPTED'; exit 1
+          fi
+          printf 'ORBIT_CENSUS_CONTROLS|wrong_m0=REFUSED|original_unchanged=YES|no_coupling_calculated=YES|r9=HOLD|json=0\n' > output/NEGATIVE.hbp
+          (cd output && sha256sum SOURCE-PATCH.hbp ORBIT-CENSUS.hbp NEGATIVE.hbp > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-full-gauge-orbit-census-111906
+          retention-days: 30
+          if-no-files-found: warn
+          path: output/
