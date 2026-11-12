@@ -12,6 +12,18 @@ The 19,683-room matrix with its D:-resident authenticated stubs is NOT available
 
 3/9 individual comparisons fall outside their scramble range. Frozen 6561 also falls outside, preventing causal field attribution. The hash-vs-frozen **real** spread differences are +103,+107,0. They cannot be assigned significance without the paired per-scramble differences.
 
+### New exact pairing-independent feedback envelope
+
+Even without the 27 matched controls or the individual nine control values, the published minimum and maximum ranges imply bounds on all possible pairwise scrambled feedback differences:
+
+| Functions | Real global minus frozen | Minimum possible control difference | Maximum possible control difference | Guaranteed outside? |
+| --- | ---: | ---: | ---: | --- |
+| 729 | +103 | +20 | +180 | Not determined |
+| 2187 | +107 | -134 | +88 | **Yes** |
+| 6561 | 0 | -140 | +12 | Not determined |
+
+For example, any control difference at 2187 obeys global_control - frozen_control <= 553 - 465 = 88. The real difference is 578 - 471 = 107, **19 units above the largest possible control**. This is robust to pairing the nine controls in any order, assuming the reported ranges and mode values share the same spread definition. It is only one density, against the weaker **uniform-digit** scrambles, so it does not establish the predeclared stricter 27 within-function shuffle gate or a collective field.
+
 ## Strict 27-control, 6-cell workflow
 
 The other seat committed the hypothesis before observing its new output:
