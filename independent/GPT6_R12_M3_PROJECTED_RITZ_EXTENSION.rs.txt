@@ -1,0 +1,138 @@
+// Certified (exact-integer) upper-bound trial vectors in all D3xD4 sectors.
+// The 36 M=3 gauge-only states are a trial subspace, NOT a spectral block.
+// Vectors are lifted by zero outside that subspace in the complete QHQ.
+
+fn gauge_m3_projected_ritz(args: &[String]) {
+    let tab=tables();
+    let threads: usize=arg(args,"--threads","4").parse().unwrap();
+    assert!((1..=16).contains(&threads));
+    let keys=enumerate(&tab,3,threads);
+    assert_eq!(keys.len(),36,"magnetic-three gauge-orbit prediction");
+    let kept: HashSet<u64>=keys.iter().copied().collect();
+    assert_eq!(kept.len(),36);
+    let index: HashMap<u64,usize>=keys.iter().enumerate().map(|(i,&k)|(k,i)).collect();
+    let mut weights=[0i64;36];
+    let mut edges=vec![Vec::<(usize,i64)>::new();36];
+    let mut flat_sum=0u64;
+    let mut tail_sum=0u64;
+    for (i,&key) in keys.iter().enumerate() {
+        let u=tab.links_of_key(key);
+        assert_eq!(tab.magnetic(&u),3);
+        weights[i]=gauge_conj_orbit_size(&tab,key) as i64;
+        let (moves,flat,tail)=gauge_only_neighbours(&tab,key,&kept,3);
+        flat_sum+=flat as u64;
+        tail_sum+=tail as u64;
+        for (target,c) in moves {
+            edges[i].push((*index.get(&target).unwrap(),c as i64));
+        }
+        edges[i].sort_by_key(|x| x.0);
+    }
+    let mut directed=0usize;
+    for i in 0..36 {
+        assert!(weights[i]>0);
+        for &(j,c) in edges[i].iter() {
+            let opposite=edges[j].iter().find(|x|x.0==i).map_or(0,|x|x.1);
+            assert_eq!(weights[i]*c,weights[j]*opposite);
+            directed+=1;
+        }
+    }
+    let group_actions=par_map(NSYM,threads,|sym| {
+        let mut images=[0usize;36];
+        for (i,&key) in keys.iter().enumerate() {
+            let u=tab.links_of_key(key);
+            let mut z=[0u8;NK];
+            tab.letters(sym,&u,&mut z);
+            let b=tab.orbit_min(&z);
+            images[i]=*index.get(&b).expect("M3 symmetry does not preserve basis");
+            assert_eq!(weights[i],weights[images[i]]);
+        }
+        let mut uniq=images.to_vec();
+        uniq.sort_unstable();uniq.dedup();
+        assert_eq!(uniq.len(),36,"each lattice symmetry must permute M3 states");
+        images
+    });
+    assert_eq!(group_actions.len(),48);
+    let fixed:Vec<i64>=group_actions.iter().map(|im|{
+        (0..36).filter(|&i|im[i]==i).count() as i64
+    }).collect();
+    assert_eq!(fixed[0],36);
+    assert_eq!(fixed.iter().sum::<i64>(),3*48,"M3 trivial rep dimension must be 3");
+    let d3dim=[1i64,1,2];
+    let d4dim=[1i64,1,1,1,2];
+    let mut total_dim=0i64;
+    let mut total_nontriv_dim=0i64;
+    let mut projected_nonzero=0usize;
+    let mut any_below_10455=0usize;
+    let mut any_below_10470=0usize;
+    let mut any_below_110=0usize;
+    for p in 0..3usize {
+        for q in 0..5usize {
+            let degree=d3dim[p]*d4dim[q];
+            let numerator:i64=(0..NSYM).map(|s|chi_product(s,p,q)*fixed[s]).sum();
+            assert_eq!(numerator%48,0,"nonintegral M3 irrep multiplicity");
+            let multiplicity=numerator/48;
+            assert!(multiplicity>=0);
+            let sector_dim=multiplicity*degree;
+            total_dim+=sector_dim;
+            if p!=0 || q!=0 {total_nontriv_dim+=sector_dim}
+            let mut best:Option<(i128,i128,usize)>=None;
+            let mut candidates=0usize;
+            for src in 0..36usize {
+                // This is an integer multiple of the central character
+                // projector on the canonical basis vector delta_src.
+                let mut v=[0i64;36];
+                for sym in 0..NSYM {
+                    let dst=group_actions[sym][src];
+                    v[dst]+=chi_product(sym,p,q);
+                }
+                let norm:i128=(0..36).map(|i|
+                    (weights[i] as i128)*(v[i] as i128)*(v[i] as i128)
+                ).sum();
+                if norm==0 {continue}
+                candidates+=1;
+                let mut move_energy=0i128;
+                for i in 0..36 {
+                    for &(j,c) in edges[i].iter() {
+                        move_energy+=(weights[i] as i128)*(c as i128)
+                            *(v[i] as i128)*(v[j] as i128);
+                    }
+                }
+                let energy=108i128*norm-move_energy;
+                if best.as_ref().map_or(true,|(prior,prior_norm,_)|
+                   energy*prior_norm<prior*norm) {
+                    best=Some((energy,norm,src));
+                }
+            }
+            assert_eq!(multiplicity==0,best.is_none(),
+                "M3 character projection disagrees with multiplicity");
+            if let Some((value,norm,source))=best {
+                projected_nonzero+=1;
+                let lt_10455=100*value<10455*norm;
+                let lt_10470=100*value<10470*norm;
+                let lt_110=value<110*norm;
+                if p!=0 || q!=0 {
+                    any_below_10455+=lt_10455 as usize;
+                    any_below_10470+=lt_10470 as usize;
+                    any_below_110+=lt_110 as usize;
+                }
+                println!("M3_PROJECTED_RITZ|D3={}|D4={}|irrep_degree={}|M3_multiplicity={}|M3_sector_dim={}|trial_sources={}|best_base_index={}|rayleigh_numerator={}|rayleigh_denominator={}|below10455={}|below10470={}|below110={}|arithmetic=EXACT|json=0",
+                     p,q,degree,multiplicity,sector_dim,candidates,source,
+                     value,norm,lt_10455 as u8,lt_10470 as u8,lt_110 as u8);
+            } else {
+                println!("M3_PROJECTED_RITZ|D3={}|D4={}|irrep_degree={}|M3_multiplicity=0|M3_sector_dim=0|trial_sources=0|result=ABSENT_FROM_M3|arithmetic=EXACT|json=0",p,q,degree);
+            }
+        }
+    }
+    assert_eq!(total_dim,36);
+    assert_eq!(projected_nonzero,
+               (0..3).flat_map(|p|(0..5).map(move |q|(p,q)))
+                    .filter(|&(p,q)| {
+                        let n:i64=(0..NSYM).map(|s|chi_product(s,p,q)*fixed[s]).sum();
+                        n>0
+                    }).count());
+    println!("M3_GRAPH|states=36|directed_core_edges={}|flat_moves={}|tail_moves={}|r=12|diagonal=108|weighted_balance=PASS|json=0",
+             directed,flat_sum,tail_sum);
+    println!("M3_RITZ_SUMMARY|M3_sector_dimensions=36|M3_nontrivial_dimension={}|nontrivial_sectors_with_trial_below_10455={}|below_10470={}|below_110={}|no_missing_state_claim=1|r9=HOLD|json=0",
+             total_nontriv_dim,any_below_10455,any_below_10470,any_below_110);
+    println!("M3_PROJECTED_RITZ_PASS|source=exact_gauge_orbit_basis|rows=36|irreps_tested=15|coupling_r=12|r9=HOLD|json=0");
+}
