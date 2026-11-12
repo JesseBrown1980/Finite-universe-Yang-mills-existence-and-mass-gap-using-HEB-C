@@ -1,0 +1,78 @@
+name: Exact invariant and nontrivial full-space level counts at r12
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-r12-invariant-5level-krylov.yml'
+      - 'independent/GPT6_R12_INVARIANT_KRYLOV_FREEZE_20261112.hbp'
+      - 'independent/gpt6_r12_invariant_krylov_inertia.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: gpt6-full-five-level-r12-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  exact_five_level:
+    name: Orthogonal 31D invariant + 26D nontrivial Ritz negative inertia
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43271826090
+          github-token: ${{ github.token }}
+          name: gpt6-r12-all-111906-gauge-orbit-core-rows
+          path: full-core
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43272369709
+          github-token: ${{ github.token }}
+          name: gpt6-r12-m3-symmetry-projected-ritz
+          path: m3-orbits
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43273780653
+          github-token: ${{ github.token }}
+          name: gpt6-r12-nontrivial-two-eigenvalues-below-1055
+          path: nontrivial
+      - name: Authenticate all three independent sources and prior conclusions
+        run: |
+          set -euo pipefail
+          grep -q '^CONTRACT|schema=GPT6-R12-TRIVIAL-26D-KRYLOV-V1|date=2026-11-12|status=POST_EXPLORATION_HOSTED_VERIFICATION|' independent/GPT6_R12_INVARIANT_KRYLOV_FREEZE_20261112.hbp
+          grep -q '^COMBINE|independent_nontrivial_K25_t1055_over10_negative_directions=2|' independent/GPT6_R12_INVARIANT_KRYLOV_FREEZE_20261112.hbp
+          (cd full-core && sha256sum -c SHA256SUMS)
+          (cd m3-orbits && sha256sum -c SHA256SUMS)
+          (cd nontrivial && sha256sum -c SHA256SUMS && sha256sum -c KRYLOV-R12-NONTRIV.hbp.sha256)
+          test -s full-core/S3-GAUGE-111906-R12-CORE.bin
+          test -s m3-orbits/M3-RITZ.hbp
+          test -s nontrivial/KRYLOV-R12-NONTRIV.hbp
+          mkdir -p out
+      - name: Independently prove full finite spectrum has five levels under 105.5
+        run: |
+          set -euo pipefail
+          python3 -B -m independent.gpt6_r12_invariant_krylov_inertia \
+            full-core/S3-GAUGE-111906-R12-CORE.bin \
+            m3-orbits/M3-RITZ.hbp \
+            nontrivial/KRYLOV-R12-NONTRIV.hbp \
+            out/INVARIANT-PLUS-NONTRIV-R12.hbp | tee out/LOG.hbp
+          grep -q '^INV_GRAM|dimension=31|negative=0|positive_definite=PASS|' out/INVARIANT-PLUS-NONTRIV-R12.hbp
+          grep -q '^INV_KRYLOV_INERTIA|threshold=10485/100|dimension=31|negative=3|' out/INVARIANT-PLUS-NONTRIV-R12.hbp
+          grep -q '^ORTHOGONAL_COUNT|threshold=1055/10|trivial_negative=3|nontrivial_negative=2|full_nonflat_below_at_least=5|' out/INVARIANT-PLUS-NONTRIV-R12.hbp
+          grep -q '^ORTHOGONAL_COUNT|threshold=110/1|trivial_negative=3|nontrivial_negative=4|full_nonflat_below_at_least=7|' out/INVARIANT-PLUS-NONTRIV-R12.hbp
+          grep -q '^INV_KRYLOV_R12_REPLAY_PASS|dimension=31|trivial_below10485=3|full_below1055=5|full_below110=7|r9=HOLD|' out/INVARIANT-PLUS-NONTRIV-R12.hbp
+          (cd out && sha256sum -c INVARIANT-PLUS-NONTRIV-R12.hbp.sha256 && sha256sum LOG.hbp INVARIANT-PLUS-NONTRIV-R12.hbp > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-full-r12-five-below-1055-seven-below-110
+          retention-days: 30
+          path: out/
+          if-no-files-found: warn
