@@ -1,0 +1,50 @@
+name: Issue 137 exact B72 plus 7D Schur full-state Wilson transfer
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-combined-W-transfer-20261113/**'
+      - '.github/workflows/y137-combined-W-transfer.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-integer-combined-transfer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify pre-host freeze and immutable accepted source receipts
+        run: |
+          set -euo pipefail
+          D=independent/y137-combined-W-transfer-20261113
+          test "$(git hash-object "$D/PREDICTION.hbp")" = "9cbfa316987a7d6c7c8628e7d37f302c22103d6d"
+          grep -Fq 'FROZEN_BEFORE_INDEPENDENT_COMBINED_HOSTED_REPLAY' "$D/PREDICTION.hbp"
+          grep -Fq 'selected_sin_upper_per_trillion=50165123494|strict_improvement=1|nonvacuous=1|' independent/y137-Schur-orthogonal-PSD-20261113/RESULT-ORTHOGONAL-SCHUR.hbp
+          grep -Fq 'selected_sin_upper_per_trillion=114715901341|strict_improvement=1|nonvacuous=1|' independent/y137-Schur-orthogonal-PSD-20261113/RESULT-ORTHOGONAL-SCHUR.hbp
+          grep -Fq 'BstarB_exact_72_identity=1|principal_minors_K_upper=255|' independent/y137-fullstate-Q-normalization-20261113/RESULT-FULL-W-NORM.hbp
+          grep -Fq 'lower_ppb_floor=416300|evidence=RIGOROUS_FOR_UNSHIFTED_WILSON_FIXED_SAMPLES_ONLY|' independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp
+      - name: Independently recalculate Rayleigh and complete Q normalized transfer
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-combined
+          python3 -I -B independent/y137-combined-W-transfer-20261113/replay.py | tee build/y137-combined/replay.stdout.txt
+          test "$(grep -c '^Y137_COMBINED_POINT|' build/y137-combined/replay.stdout.txt)" -eq 2
+          grep -Fq 'combined_fullstate_error_upper_per_trillion=144090460519|' build/y137-combined/replay.stdout.txt
+          grep -Fq 'first_Wilson_weight=HOLD|' build/y137-combined/replay.stdout.txt
+          grep '^Y137_COMBINED_' build/y137-combined/replay.stdout.txt > build/y137-combined/RESULT-COMBINED-FULL-W.hbp
+          cmp build/y137-combined/RESULT-COMBINED-FULL-W.hbp independent/y137-combined-W-transfer-20261113/RESULT-COMBINED-FULL-W.hbp
+          test "$(grep -c '^Y137_COMBINED_' build/y137-combined/RESULT-COMBINED-FULL-W.hbp)" -eq 5
+          grep -Fq 'combined_fullstate_error_upper_per_trillion=144090460519|previously_accepted_fullstate_error_upper_per_trillion=377737771100|' build/y137-combined/RESULT-COMBINED-FULL-W.hbp
+          grep -Fq 'strict_positive_Wilson_first_weight_proved=0|' build/y137-combined/RESULT-COMBINED-FULL-W.hbp
+      - name: Strict integer-only and no-float audits
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-combined-W-transfer-20261113/replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-sqrt72-7D-combined-full-W-state
+          path: build/y137-combined/replay.stdout.txt
+          if-no-files-found: ignore
+          retention-days: 60
