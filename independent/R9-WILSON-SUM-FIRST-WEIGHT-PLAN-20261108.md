@@ -42,3 +42,10 @@ A distinct route may use the exact weighted 8-flat Feshbach/Schur map and a cert
 - **Fail-safe:** if the candidate stays dark or positivity is not certified, report `HOLD` and keep #137 open. It is legitimate to test an alternative *explicitly named* gauge-invariant operator after a separate prediction freeze, but never relabel #144's dual electric shift as the Wilson-summed observable.
 
 No modification to prior #131/#136/#143/#146 certificates, no new physical-continuum claim and no work on the QNN blind ensemble.
+
+## State on November 13, 2026 (added beside; the frozen prediction and the text above are unchanged)
+
+- **Lift-free floor.** λ_min(QHQ) ≥ 94.0682 J_E on the 3×4 non-flat space at r = 9, certificate sha256 `7ad6e19977796ba4ecd321fdd028156fe57ee7ff782a6aef0aedb0a686c4a6b6`, pinned verifier `GATE_REQUIRED|PASS` ([y142](y142-floor-word-search-20261113/README.md), #173). The protected run gave 94.0673 (#172). Neither uses the whole-orbit lift or the store.
+- **First-gap windows.** The #136 checker, imported unmodified, reads the same four inertia pairs (0,0), (1,1), (1,1), (6,2) at 69.89, 69.92, 69.93, 69.96 with the floor 94.0682 ([y137-liftfree-k2](y137-liftfree-k2-20261113/), #174). The sentence above that the `E1,E2` location "still explicitly relies on #131's pinned whole-nonflat Perron source" described November 8; since November 13 the same windows also follow from the lift-free certificate.
+- **Still needed for the weight.** (1) The E₃ boundary of the #155 draft redone on 94.0682. (2) The Wilson-sum amplitude certificate itself: a positive rational lower bound for `weight_first`, with ground-state leakage, higher-state contamination and independent residual checks. (3) A second-machine check of the #173 certificate.
+- **Status.** First-excitation weight OPEN; issue #137 open.

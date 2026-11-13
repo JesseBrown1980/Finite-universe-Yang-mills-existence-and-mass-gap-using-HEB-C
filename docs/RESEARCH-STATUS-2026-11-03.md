@@ -6,7 +6,30 @@ This register is the current entry point for the finite-universe Yang–Mills / 
 
 **November 11, 2026.** This register was last brought up to date on November 4. The current map is the README's [Where we stood, November 11, 2026](../README.md#where-we-stood-november-11-2026), with the November 8 map below it. Since this register was written: the formal 3×4 high-cluster verdict was accepted ([#131](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/131), November 7); the 3×4 first excitation was bounded, 0.01 J_E < E₂ − E₁ < 0.07 J_E at r = 9 ([#136](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/136), November 8); every one of the 45,508,080 sector rows was rebuilt independently ([#152](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/152), November 9); and a lift-free certificate for the floor those results rest on is frozen, with its r = 9 run on HOLD. The text below is kept as written.
 
+**November 13, 2026.** Three measurements since the November 12 note, each merged. (1) The protected r = 9 floor run was made once: CERTIFICATE=PASS, DECISION=UNRESOLVED, lift-free λ_min(QHQ) ≥ 94.0673 J_E, nine certificates rechecked ([#172](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/172)). (2) One bounded weight-word search raised it to **94.0682 J_E** with the word 81,54,36,24,16, 0.002473 short of 94.070673; the search is closed ([#173](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/173)). (3) The first-gap windows of #136 keep all four inertia pairs on that lift-free floor ([#174](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/174)). The plan in order is [below](#plan-as-of-november-13-2026).
+
 **November 12, 2026.** The current map is now the README's [Where we stand, November 12, 2026](../README.md#where-we-stand-november-12-2026), with the November 11 and November 8 maps below it. Since the November 11 note: the lift-free floor certificate went through two more correction rounds after its fourth and fifth independent verifications failed (head `c8dbcdbf`, sixth verification running; **the r = 9 run is still not launched and stays on HOLD**); and a new record at the rehearsal coupling r = 12, [`independent/y140-residual-leaves-spectrum-r12-20261112/`](../independent/y140-residual-leaves-spectrum-r12-20261112/README.md), reads the low spectrum of the certificate's reduced comparison matrix from frozen rows: a three-level cluster and a jump of about 5.5 above it, with exact integer enclosures for the symmetry-invariant sector at cutoff 9 that are conditional on a hand-derived counting inequality. The other symmetry sectors are open. The text below is kept as written.
+
+## Plan as of November 13, 2026
+
+Measured and merged, so that the plan below starts from them:
+
+| Quantity at r = 9, 3×4 | Value | Source |
+|---|---|---|
+| Lift-free floor, protected run (word 6,5,4,3, cutoff 13) | λ_min(QHQ) ≥ 94.0673 J_E, upper bound 94.076703 | #172 |
+| Lift-free floor, word search (word 81,54,36,24,16, cutoff 13) | λ_min(QHQ) ≥ 94.0682 J_E, upper bound 94.076549 | #173 |
+| Lift-dependent floor (unchanged) | 94.070673 J_E, inside the enclosure, undecided by either run | #131 |
+| First-gap windows on the 94.0682 floor | 69.89 < E₁ < 69.92, 69.93 < E₂ < 69.96, 0.01 < E₂ − E₁ < 0.07 J_E | #174 (checker of #136, unmodified) |
+| Word gain over 6,5,4,3 | 0.0121 at cutoff 11, 0.0009 at cutoff 13 | #173 |
+
+In order:
+
+1. **E₃ isolation on the lift-free floor.** Redo the lower side of the #155 draft with 94.0682 in place of 94.070673; the upper side does not use the floor.
+2. **The seven-loop Wilson-sum first-state weight (issue #137).** A strictly positive rational lower bound, with ground-state leakage, higher-state contamination and independent residual checks. The frozen prediction of November 8 is unchanged.
+3. **Second-machine check** of the #172 receipt and the #173 certificate, as a separate audit.
+4. **Standing items of the November 12 plan** (steps 2 to 4, 6 and 7 there) stay as written.
+
+Closed: the weight-word search (one campaign, one candidate, under its protocol). Observation only, proving nothing about higher cutoffs: the bounds move little between cutoffs 12 and 13.
 
 ## Plan as of November 12, 2026
 
