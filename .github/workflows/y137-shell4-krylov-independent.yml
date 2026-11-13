@@ -32,6 +32,7 @@ jobs:
           grep -Fq 'next_real_shell4_certificate=NOT_PRESENT|next_real_energy_brackets=NOT_PRESENT|actual_E1_E2_Wilson_spectral_weight=HOLD|' build/y137-shell4-independent/replay.stdout.txt
           grep '^Y137_INDEP_' build/y137-shell4-independent/replay.stdout.txt > build/y137-shell4-independent/RESULT-PREFLIGHT.hbp
           test "$(grep -c '^Y137_INDEP_' build/y137-shell4-independent/RESULT-PREFLIGHT.hbp)" -eq 8
+          cmp build/y137-shell4-independent/RESULT-PREFLIGHT.hbp independent/y137-shell4-krylov-verifier-20261113/RESULT-PREFLIGHT.hbp
       - name: Strict repository integer-only and source checks
         run: |
           set -euo pipefail
