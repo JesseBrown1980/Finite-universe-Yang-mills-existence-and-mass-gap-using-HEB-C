@@ -127,7 +127,6 @@ def main():
     if len(weights) != 8:
         refuse("flat_weights")
     results = []
-    previous = (-1, -1)
     for a in POINTS:
         if a >= E3_LO or a <= BASE_LO_E1:
             refuse("grid_outside_E3")
@@ -140,9 +139,12 @@ def main():
             refuse("Gram_PSD")
         lower_count = result["nhi"]
         upper_count = result["nlo"]
-        if lower_count < previous[0] or upper_count < previous[1]:
-            refuse("threshold_inertia_not_monotone")
-        previous = (lower_count, upper_count)
+        # Weaken the floor without rebuilding U/G: the normalized
+        # Schur lower form moves downward in Loewner order.
+        old_L = k.lower_for(a, k.OLD_G, result["U"], result["G"])
+        old_lower = mod.c.inertia(old_L)
+        if upper_count < old_lower:
+            refuse("liftfree_floor_weakening_is_not_monotone")
         numer, denom, ppb, ppm = trace_envelope(result, weights, a)
         settled = lower_count == upper_count
         if settled and lower_count not in (0, 1, 2):
@@ -157,12 +159,27 @@ def main():
              W_width_over_0p01_upper_ppm=ppm,
              Gram_principal_minors=255, independent_charpoly="PASS",
              U_sha256=result["hu"], G_sha256=result["hg"], L_sha256=result["hl"])
-    # Derive bounds only from complete count sandwiches, plus old ACCEPTED
-    # outer windows; never substitute Ritz root estimates for certified counts.
+    # The true counting function is monotone, even if point-dependent
+    # variational bound matrices are not monotone. Apply certified closure:
+    # at z_i, N(z_i) >= max_{j<=i} count_min(z_j) and
+    # N(z_i) <= min_{j>=i} count_max(z_j).
+    closure = []
+    for i in range(len(results)):
+        lo = max(results[j][1] for j in range(i + 1))
+        hi = min(results[j][2] for j in range(i, len(results)))
+        if lo > hi:
+            refuse("monotone_closure_contradiction")
+        a = results[i][0]
+        closure.append((a, lo, hi))
+        emit("Y137_SCHUR_MONOTONE", z_num=a, z_den=DEN,
+             inferred_min=lo, inferred_max=hi, exact=int(lo == hi))
+
+    # Derive bounds only from exactly counted points and accepted source
+    # outer windows. Ritz roots are exploratory and never enter this box.
     lo1, hi1 = BASE_LO_E1, BASE_HI_E1
     lo2, hi2 = BASE_LO_E2, BASE_HI_E2
-    for a, lower, upper, settled in results:
-        if not settled:
+    for a, lower, upper in closure:
+        if lower != upper:
             continue
         if lower == 0:
             lo1 = max(lo1, a)
@@ -178,7 +195,7 @@ def main():
          E2_lower=str(lo2) + "/10000000",
          E2_upper=str(hi2) + "/10000000",
          E3_lower=str(E3_LO) + "/10000000",
-         settled_points=sum(1 for row in results if row[3]),
+         settled_points=sum(1 for row in closure if row[1] == row[2]),
          points=len(results), source_floor="94068200/1000000",
          proof="conditional_on_173_176_177")
     emit("Y137_SCHUR_VERDICT", status="BRACKET_PROBE_COMPLETE",
