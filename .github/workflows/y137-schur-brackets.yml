@@ -1,0 +1,46 @@
+name: Issue 137 K3 Schur exact new energy brackets and trace envelope
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-schur-brackets-20261113/**'
+      - '.github/workflows/y137-schur-brackets.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pinned-eight-point-schur:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify pre-code prediction seal and accepted source pins
+        run: |
+          set -euo pipefail
+          D=independent/y137-schur-brackets-20261113
+          test "$(git hash-object "$D/PREDICTION.hbp")" = "5399712c0638cab224b034061dd08495aa151d19"
+          grep -Fq 'status=FROZEN_BEFORE_NEW_K3_EVALUATIONS' "$D/PREDICTION.hbp"
+          test "$(sha256sum independent/y137-liftfree-k3-20261113/src155/y137_k3_sector_isolation.py | cut -d' ' -f1)" = "f3461aa8a50cfa9efb4a1bbdc2d7be44ec1d4a13c80c47fd55fa07de60be28ff"
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = "91bd1e80cbfcfb76198966aa177d097ecfbe8143"
+      - name: Source-pinned eight-point full-K3 integer Schur bracket replay
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-schur
+          python3 -I -B independent/y137-schur-brackets-20261113/replay.py | tee build/y137-schur/replay.stdout.txt
+          test "$(grep -c '^Y137_SCHUR_POINT|' build/y137-schur/replay.stdout.txt)" -eq 8
+          test "$(grep -c '^Y137_SCHUR_MONOTONE|' build/y137-schur/replay.stdout.txt)" -eq 8
+          grep -Fq 'Y137_SCHUR_VERDICT|status=BRACKET_PROBE_COMPLETE|Wilson_weight=OPEN|projector_direction=NOT_COMPUTED|O_eff=NOT_COMPUTED|' build/y137-schur/replay.stdout.txt
+          grep '^Y137_SCHUR_' build/y137-schur/replay.stdout.txt > build/y137-schur/RESULT-K3-SCHUR-BRACKETS.hbp
+          cmp build/y137-schur/RESULT-K3-SCHUR-BRACKETS.hbp independent/y137-schur-brackets-20261113/RESULT-K3-SCHUR-BRACKETS.hbp
+          grep -Fq 'E1_lower=699080000/10000000|E1_upper=699200000/10000000|E2_lower=699480000/10000000|E2_upper=699567503/10000000' build/y137-schur/RESULT-K3-SCHUR-BRACKETS.hbp
+      - name: Repository no-float and integer audit
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-schur-brackets-20261113/replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-k3-eight-point-exact-schur-witness
+          path: build/y137-schur/replay.stdout.txt
+          if-no-files-found: ignore
+          retention-days: 60
