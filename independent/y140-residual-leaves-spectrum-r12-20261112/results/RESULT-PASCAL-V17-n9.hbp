@@ -1,0 +1,13 @@
+PASCALHDR|leaves=9|rows=682|compositions_possible=55|compositions_occupied=38|layer_sum=3^9|json=0
+PASCAL|rows_at_the_three_corners=109|independent_expectation=682/6561|rows_on_the_edges=497|rows_in_the_interior=76|independent_expectation_interior=628_of_682|json=0
+PROFILE|by_largest_count|max=3:rows_0_expected_58|max=4:rows_11_expected_327|max=5:rows_37_expected_209|max=6:rows_67_expected_69|max=7:rows_118_expected_14|max=8:rows_340_expected_1|max=9:rows_109_expected_0|json=0
+LAYER|minus=9|  54|json=0
+LAYER|minus=8|  42   70|json=0
+LAYER|minus=7|   0    5   18|json=0
+LAYER|minus=6|   0    0    6   22|json=0
+LAYER|minus=5|   0    0    0    4    7|json=0
+LAYER|minus=4|   0    0    0    3    4    4|json=0
+LAYER|minus=3|   0    0    0    0    0    2    8|json=0
+LAYER|minus=2|   0    0    1    0    1    2    5   21|json=0
+LAYER|minus=1|  51    8    3    3    3    2    5   19   49|json=0
+LAYER|minus=0|  40   92   13    6    2   10   12   34   36   15|json=0

@@ -1,0 +1,4 @@
+STRUCT|m0=7|rows=682|structure_classes=123|rows_alone_in_their_class=19|rows_in_classes_of_two_or_more=663|largest_class=44|json=0
+WHITE|all_rows=185|rows_in_classes_of_two_or_more=182|of=663|within_structure_class_null_min=136|max=147|mean=141|real_per_1000_of_null_max=1238|json=0
+PURITY|view=f8-7-6-5-4|rows_whose_trit_is_their_class_majority=528|of=682|json=0
+VERDICT|m0=7|rule=real_WHITE_at_most_1.15_times_the_null_maximum_on_rows_in_classes_of_two_or_more|result=FALSIFIED|json=0

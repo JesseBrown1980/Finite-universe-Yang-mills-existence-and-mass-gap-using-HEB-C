@@ -1,0 +1,13 @@
+CONTRACT|schema=GPT6-R12-NONTRIV-KRYLOV-INERTIA-V1|date=2026-11-12|status=POST_EXPLORATION_INDEPENDENT_HOSTED_REPLAY|json=0
+SOURCE|binary_sha256=74c0d38850790c2fff38a6680bf36d3701aeb63b998bd4d7be778539ddd82aec|artifact_run=43271826090|artifact_name=gpt6-r12-all-111906-gauge-orbit-core-rows|json=0
+BASIS|magnetic_cutoff_m0=9|coupling_r=12|gauge_orbit_states=111906|weighted_symmetry=D3xD4|json=0
+SEED|key_plus=2613485090|key_minus=2628605549|D3xD4_class_key_for_both=2613485090|orbit_weights=6,6|group_average=ZERO|source_class_rows=run_43272369709|json=0
+OPERATOR|H_core_ii=72+12M|H_core_ij=minus_n_directed_moves|B=180I-minus_H_core|v0=delta_plus_minus_delta_minus|v_k=B_power_k_v0|json=0
+PROOF|moments_mu_j=weighted_inner_product_v0_B_power_j_v0|Q_t_i_j=(180d_minus_n)*mu_i_plus_j_minus_d*mu_i_plus_j_plus1|t=n/d|json=0
+PREDICTION|Krylov_degree=25|threshold=1055/10|negative_directions=2|target_label=LOCAL_EXPLORATION_THEN_HOSTED_REPRODUCTION|json=0
+PREDICTION|Krylov_degree=25|threshold=10455/100|negative_directions=0|not_entire_sector_conclusion=1|json=0
+PREDICTION|Krylov_degree=25|threshold=10470/100|negative_directions=0|not_entire_sector_conclusion=1|json=0
+PREDICTION|Krylov_degree=25|threshold=110/1|negative_directions=4|json=0
+GATE|all_Bareiss_divisions_exact|all_26_Gram_leading_minors_positive|weighted_binary_graph_reciprocity_source_passed|r9_HOLD=YES|json=0
+INTERPRETATION|if_Q_negative_in_two_dimensions_then_at_least_two_full_nonflat_nontrivial_symmetry_states_below_1055/10|Ritz_lower_bound=NO|json=0
+LIMIT|original_integer_counting_bridge_is_only_for_invariant_sector|this_upper_bound_does_not_certify_nontrivial_lower_gap|full_tail_does_not_need_to_be_built_for_zero_extended_trial|r9_HOLD=YES|json=0

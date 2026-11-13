@@ -1,0 +1,1 @@
+LEAK|cert_f=6,5,4,3|t=1039283/10000|rows=682|tau_min=0.000000|tau_max=1.313575|corr_q_with_tau=0.314709504|fit_q=mu0+dt*(1+tau)|mu0=0.000326562|dt=0.000168648|dt_in_units_of_1/10000=1.6865|share_of_variance_explained=0.099042072|largest_misfit_over_field_range=5.117e-01|json=0

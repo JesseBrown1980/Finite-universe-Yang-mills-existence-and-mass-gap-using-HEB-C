@@ -1,0 +1,119 @@
+name: Independent exact full S3 gauge orbit core graph at coupling twelve
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-full-r12-orbit-sparse-graph.yml'
+      - 'independent/GPT6_R12_FULL_ORBIT_SPARSE_GRAPH_FREEZE_20261112.hbp'
+      - 'independent/GPT6_R12_FULL_ORBIT_SPARSE_GRAPH_EXTENSION.rs.txt'
+      - 'independent/gpt6_patch_full_orbit_sparse_r12.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gpt6-s3-full-orbit-r12-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  exact_sparse:
+    name: Rebuild all 111906 core orbit rows and exact reciprocal transitions
+    runs-on: ubuntu-latest
+    timeout-minutes: 105
+    env:
+      RUSTUP_TOOLCHAIN: 1.81.0
+      ENGINE: pinned-rust/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          ref: 8aca957babbb8b0903fb8683422cde30b3f55668
+          path: pinned-rust
+          persist-credentials: false
+      - name: Check committed graph prediction and original immutable source
+        run: |
+          set -euo pipefail
+          grep -q '^PREDICTION|magnetic_cutoff_m0=9|gauge_only_states=111906|r=12|' independent/GPT6_R12_FULL_ORBIT_SPARSE_GRAPH_FREEZE_20261112.hbp
+          grep -q '^NEGATIVE|do_not_confuse_magnetic_cutoff9_with_coupling_r9|' independent/GPT6_R12_FULL_ORBIT_SPARSE_GRAPH_FREEZE_20261112.hbp
+          mkdir -p out
+      - name: Patch only temporary source copy, preserving main writer
+        run: |
+          set -euo pipefail
+          python3 -B independent/gpt6_patch_gauge_orbit_census.py "$ENGINE/src/main.rs" \
+            independent/GPT6_R12_GAUGE_ORBIT_CENSUS_EXTENSION.rs.txt out/ORBIT-PATCH.hbp
+          python3 -B independent/gpt6_patch_orbit_irreps.py "$ENGINE/src/main.rs" \
+            independent/GPT6_R12_GAUGE_IRREPS_EXTENSION.rs.txt out/IRREP-PATCH.hbp
+          python3 -B independent/gpt6_patch_full_orbit_sparse_r12.py "$ENGINE/src/main.rs" \
+            independent/GPT6_R12_FULL_ORBIT_SPARSE_GRAPH_EXTENSION.rs.txt out/FULL-PATCH.hbp
+          rustup toolchain install 1.81.0 --profile minimal
+          cargo build --release --locked -j2 --manifest-path "$ENGINE/Cargo.toml"
+          test -x "$ENGINE/target/release/floorcert"
+      - name: Materialize exhaustive all-core binary, weight and reciprocal verification
+        run: |
+          set -euo pipefail
+          "$ENGINE/target/release/floorcert" gauge-core-r12 --threads 4 --output out/S3-GAUGE-111906-R12-CORE.bin | tee out/GRAPH.hbp
+          grep -q '^FULL_R12_CORE_VALIDATED|states=111906|directed_distinct_edges=' out/GRAPH.hbp
+          grep -q '^FULL_R12_GAUGE_CORE_PASS|states=111906|magnetic_cutoff=9|coupling=12|key_sha256=3cfd4f0ac9d7866e3b8a6f54d35153a50011dc2ee23feb7952f194b12cc45eb7|' out/GRAPH.hbp
+          test "$(grep -c '^FULL_R12_MAG_LAYER|M=' out/GRAPH.hbp)" -eq 7
+      - name: Independent Python parse and entire weighted reciprocal graph recheck
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          from hashlib import sha256
+          from struct import unpack_from
+          p=Path("out/S3-GAUGE-111906-R12-CORE.bin")
+          b=p.read_bytes()
+          tag=b"S3R12CORE111906"
+          assert b.startswith(tag)
+          off=len(tag)
+          n=unpack_from("<I",b,off)[0];off+=4
+          assert n==111906
+          rows=[];keys=[];mags=[];weights=[];flat_sum=tail_sum=directed=0
+          for i in range(n):
+              key=unpack_from("<Q",b,off)[0];off+=8
+              m,w,flat,tail=b[off:off+4];off+=4
+              k=unpack_from("<H",b,off)[0];off+=2
+              assert k<=72 and 3<=m<=9 and 1<=w<=6
+              key_prev=keys[-1] if keys else -1
+              assert key>key_prev
+              keys.append(key);mags.append(m);weights.append(w)
+              edge={}
+              last=-1
+              total=0
+              for z in range(k):
+                  j=unpack_from("<I",b,off)[0];off+=4
+                  c=b[off];off+=1
+                  assert last<j<n and 1<=c<=72
+                  last=j
+                  edge[j]=c
+                  total+=c
+              assert total+flat+tail==72
+              directed+=k;flat_sum+=flat;tail_sum+=tail
+              rows.append(edge)
+          assert off==len(b)
+          assert len(rows)==111906
+          weighted=0
+          for i,edges in enumerate(rows):
+              for j,c in edges.items():
+                  back=rows[j].get(i,0)
+                  assert weights[i]*c==weights[j]*back,("independent reciprocity failed",i,j,c,back)
+                  weighted+=1
+          assert weighted==directed
+          assert sum(m==3 for m in mags)==36
+          assert sum(m==4 for m in mags)==1320
+          assert sum(m==5 for m in mags)==0
+          assert sum(m==6 for m in mags)==990
+          assert sum(m==7 for m in mags)==23760
+          assert sum(m==8 for m in mags)==81180
+          assert sum(m==9 for m in mags)==4620
+          with Path("out/INDEPENDENT-BINARY.hbp").open("w") as f:
+              f.write("FULL_CORE_PYTHON_RECHECK_PASS|states=%d|directed_edges=%d|weighted_reciprocals=%d|flat_hops=%d|tail_hops=%d|binary_sha256=%s|r=12|r9=HOLD|json=0\n"%(n,directed,weighted,flat_sum,tail_sum,sha256(b).hexdigest()))
+          print(Path("out/INDEPENDENT-BINARY.hbp").read_text())
+          PY
+          (cd out && sha256sum ORBIT-PATCH.hbp IRREP-PATCH.hbp FULL-PATCH.hbp GRAPH.hbp INDEPENDENT-BINARY.hbp S3-GAUGE-111906-R12-CORE.bin > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-r12-all-111906-gauge-orbit-core-rows
+          path: out/
+          retention-days: 30
+          if-no-files-found: warn

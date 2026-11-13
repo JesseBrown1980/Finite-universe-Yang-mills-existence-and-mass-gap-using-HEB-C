@@ -1,5 +1,7 @@
 ## Current research status — November 3, 2026
 
+**November 12, 2026.** The current map is the README's [Where we stand, November 12, 2026](README.md#where-we-stand-november-12-2026), with the [November 11 map](README.md#where-we-stood-november-11-2026) below it; the plan in order is in [docs/RESEARCH-STATUS-2026-11-03.md](docs/RESEARCH-STATUS-2026-11-03.md#plan-as-of-november-12-2026). The r = 9 floor-certificate run is not launched and stays on HOLD; the new work of November 12 is at the rehearsal coupling r = 12 ([y140](independent/y140-residual-leaves-spectrum-r12-20261112/README.md)). The November 3 status below and the plans under it are kept as dated development evidence.
+
 The [current results and verification register](docs/RESEARCH-STATUS-2026-11-03.md) leads with completed Stage 2B, Stage 2C, 2×L, 3×3 and 3×4 finite-lattice results, and records the active checker-hardening and volume-uniform research milestones. The November 1 status table and October 24 execution plan below are retained as dated development evidence.
 
 **What moved since the November 1 table:**

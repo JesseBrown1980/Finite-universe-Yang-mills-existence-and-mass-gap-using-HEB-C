@@ -1,0 +1,12 @@
+CROSSING|m0=7|r=12/1|f=8,7,6,5,4|certified_floor=103.8323|largest_admissible_t=120.0000|zero_crossings_of_the_lowest_4_values=103.832657_104.076840_104.323908_107.224223|json=0
+CROSSING_GAPS|m0=7|f=8,7,6,5,4|differences_between_consecutive_crossings=0.244183_0.247068_2.900315|json=0
+CROSSING|m0=7|r=12/1|f=6,5,4,3|certified_floor=103.9283|largest_admissible_t=122.0000|zero_crossings_of_the_lowest_4_values=103.928639_104.156267_104.388673_107.838493|json=0
+CROSSING_GAPS|m0=7|f=6,5,4,3|differences_between_consecutive_crossings=0.227628_0.232406_3.449820|json=0
+CROSSING|m0=8|r=12/1|f=8,7,6,5,4|certified_floor=104.4054|largest_admissible_t=130.5000|zero_crossings_of_the_lowest_4_values=104.405673_104.582140_104.763388_110.263717|json=0
+CROSSING_GAPS|m0=8|f=8,7,6,5,4|differences_between_consecutive_crossings=0.176466_0.181249_5.500329|json=0
+CROSSING|m0=8|r=12/1|f=6,5,4,3|certified_floor=104.3975|largest_admissible_t=132.0000|zero_crossings_of_the_lowest_4_values=104.397861_104.575449_104.757767_110.225904|json=0
+CROSSING_GAPS|m0=8|f=6,5,4,3|differences_between_consecutive_crossings=0.177589_0.182317_5.468137|json=0
+CROSSING|m0=9|r=12/1|f=8,7,6,5,4|certified_floor=104.4147|largest_admissible_t=141.0000|zero_crossings_of_the_lowest_4_values=104.415611_104.591268_104.771711_110.286687|json=0
+CROSSING_GAPS|m0=9|f=8,7,6,5,4|differences_between_consecutive_crossings=0.175657_0.180443_5.514976|json=0
+CROSSING|m0=9|r=12/1|f=6,5,4,3|certified_floor=104.4146|largest_admissible_t=144.0000|zero_crossings_of_the_lowest_4_values=104.415451_104.591245_104.771790_110.280712|json=0
+CROSSING_GAPS|m0=9|f=6,5,4,3|differences_between_consecutive_crossings=0.175794_0.180545_5.508921|json=0

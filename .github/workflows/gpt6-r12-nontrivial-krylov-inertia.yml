@@ -1,0 +1,82 @@
+name: Exact nontrivial S3 sector 26D Krylov inertia at r12
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-r12-nontrivial-krylov-inertia.yml'
+      - 'independent/GPT6_R12_NONTRIV_KRYLOV_FREEZE_20261112.hbp'
+      - 'independent/gpt6_r12_nontrivial_krylov_inertia.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: gpt6-r12-nontriv-inertia-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  integer_inertia:
+    name: 111906-state full-core integer moments and 26x26 exact negative inertia
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43271826090
+          github-token: ${{ github.token }}
+          name: gpt6-r12-all-111906-gauge-orbit-core-rows
+          path: full-core
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43272369709
+          github-token: ${{ github.token }}
+          name: gpt6-r12-m3-symmetry-projected-ritz
+          path: m3-orbits
+      - name: Verify both separate source receipts, pre-exploration label
+        run: |
+          set -euo pipefail
+          grep -q '^CONTRACT|schema=GPT6-R12-NONTRIV-KRYLOV-INERTIA-V1|date=2026-11-12|status=POST_EXPLORATION_INDEPENDENT_HOSTED_REPLAY|' independent/GPT6_R12_NONTRIV_KRYLOV_FREEZE_20261112.hbp
+          grep -q '^PREDICTION|Krylov_degree=25|threshold=1055/10|negative_directions=2|' independent/GPT6_R12_NONTRIV_KRYLOV_FREEZE_20261112.hbp
+          (cd full-core && sha256sum -c SHA256SUMS)
+          (cd m3-orbits && sha256sum -c SHA256SUMS)
+          test -s full-core/S3-GAUGE-111906-R12-CORE.bin
+          test -s m3-orbits/M3-RITZ.hbp
+          mkdir -p out
+      - name: Exact integer Krylov moments, Gram inertia, threshold signs
+        run: |
+          set -euo pipefail
+          python3 -B -m independent.gpt6_r12_nontrivial_krylov_inertia \
+            full-core/S3-GAUGE-111906-R12-CORE.bin m3-orbits/M3-RITZ.hbp out/KRYLOV-R12-NONTRIV.hbp \
+            | tee out/KRYLOV-LOG.hbp
+          grep -q '^GRAM|dimension=26|negative=0|' out/KRYLOV-R12-NONTRIV.hbp
+          grep -q '^KRYLOV_INERTIA|threshold=1055/10|dim=26|negative=2|' out/KRYLOV-R12-NONTRIV.hbp
+          grep -q '^KRYLOV_INERTIA|threshold=110/1|dim=26|negative=4|' out/KRYLOV-R12-NONTRIV.hbp
+          grep -q '^KRYLOV_NONTRIV_R12_REPLAY_PASS|dimension=26|negative_below1055_over10=2|r9=HOLD|' out/KRYLOV-R12-NONTRIV.hbp
+          (cd out && sha256sum -c KRYLOV-R12-NONTRIV.hbp.sha256)
+      - name: Tampered source file must be refused
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("full-core/S3-GAUGE-111906-R12-CORE.bin")
+          s=p.read_bytes()
+          Path("out/TAMPERED.bin").write_bytes(bytes([s[0]^1])+s[1:])
+          PY
+          if python3 -B -m independent.gpt6_r12_nontrivial_krylov_inertia \
+             out/TAMPERED.bin m3-orbits/M3-RITZ.hbp out/BAD.hbp >out/NEGATIVE.log 2>&1; then
+             echo 'UNAUTHENTICATED_CORE_ACCEPTED';exit 1
+          fi
+          rm -f out/TAMPERED.bin out/BAD.hbp
+          printf 'KRYLOV_NEGATIVE|binary_first_byte_tamper=REFUSED|r9=HOLD|json=0\n' > out/NEGATIVE.hbp
+          (cd out && sha256sum KRYLOV-R12-NONTRIV.hbp KRYLOV-LOG.hbp NEGATIVE.hbp > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-r12-nontrivial-two-eigenvalues-below-1055
+          path: out/
+          retention-days: 30
+          if-no-files-found: warn

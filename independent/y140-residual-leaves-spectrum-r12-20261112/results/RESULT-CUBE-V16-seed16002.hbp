@@ -1,0 +1,9 @@
+CUBEHDR|rows=682|distinct_patterns=149|pair_table_cells=287|available_cube_moves_at_the_real_table=20|steps=40000|seed=16002|target=1/prod(n!)|integer_only=1|json=0
+REAL|all_nine_equal=109|distinct_patterns=149|largest_pattern=81|json=0
+CHAIN|accepted=21087|of=40000|pair_tables_exact_at_the_end=1|distinct_tables_among_samples=401|samples=400|json=0
+SECOND_HALF|statistic=distinct_patterns|min=147|median=152|max=157|samples=200|json=0
+SECOND_HALF|statistic=largest_pattern|min=79|median=81|max=82|samples=200|json=0
+SECOND_HALF|statistic=all_nine_equal|min=102|median=107|max=111|samples=200|json=0
+SECOND_HALF|statistic=rows_moved_from_the_real_table|min=36|median=47|max=60|samples=200|json=0
+SECOND_HALF|statistic=available_moves|min=14|median=25|max=36|samples=200|json=0
+VERDICT|primary=distinct_patterns|real=149|chain_min=147|chain_max=157|samples_at_or_below_real=37|of=200|largest_pattern_real=81|chain_range=79..82|all_nine_equal_real=109|chain_range_9=102..111|json=0
