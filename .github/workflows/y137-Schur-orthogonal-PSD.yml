@@ -1,0 +1,52 @@
+name: Issue 137 exact 7D orthogonal Schur PSD residual improvement
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-Schur-orthogonal-PSD-20261113/**'
+      - '.github/workflows/y137-Schur-orthogonal-PSD.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  orthogonal-source-Schur:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Pre-result prediction, source and accepted 8-flat projector pins
+        run: |
+          set -euo pipefail
+          D=independent/y137-Schur-orthogonal-PSD-20261113
+          test "$(git hash-object "$D/PREDICTION.hbp")" = "df57844f44d5b4c070fece0db4518b30e7a40adf"
+          grep -Fq 'FROZEN_BEFORE_ORTHOGONAL_SOURCE_PSD_RUN' "$D/PREDICTION.hbp"
+          test "$(sha256sum independent/y137-liftfree-k3-20261113/src155/y137_k3_sector_isolation.py | cut -d' ' -f1)" = "f3461aa8a50cfa9efb4a1bbdc2d7be44ec1d4a13c80c47fd55fa07de60be28ff"
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = "91bd1e80cbfcfb76198966aa177d097ecfbe8143"
+          grep -Fq 'selected_sin_upper_per_trillion=108258863901|nonvacuous=1|' independent/y137-centered-schur-transfer-20261113/RESULT-CENTERED-PROJECTOR.hbp
+          grep -Fq 'selected_sin_upper_per_trillion=253465115951|nonvacuous=1|' independent/y137-centered-schur-transfer-20261113/RESULT-CENTERED-PROJECTOR.hbp
+          grep -Fq 'BstarB_exact_72_identity=1|principal_minors_K_upper=255|' independent/y137-fullstate-Q-normalization-20261113/RESULT-FULL-W-NORM.hbp
+      - name: Exact K3 8x8 Gram and 7D W-orthogonal 127-principal PSD replay
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-orthogonal
+          python3 -I -B independent/y137-Schur-orthogonal-PSD-20261113/replay.py | tee build/y137-orthogonal/replay.stdout.txt
+          test "$(grep -c '^Y137_ORTHO_POINT|' build/y137-orthogonal/replay.stdout.txt)" -eq 2
+          grep -Fq 'Y137_ORTHO_VERDICT|tested=2|' build/y137-orthogonal/replay.stdout.txt
+          grep -Fq 'true_E1_E2_Wilson_weight=OPEN|' build/y137-orthogonal/replay.stdout.txt
+          grep '^Y137_ORTHO_' build/y137-orthogonal/replay.stdout.txt > build/y137-orthogonal/RESULT-ORTHOGONAL-SCHUR.hbp
+          cmp build/y137-orthogonal/RESULT-ORTHOGONAL-SCHUR.hbp independent/y137-Schur-orthogonal-PSD-20261113/RESULT-ORTHOGONAL-SCHUR.hbp
+          test "$(grep -c '^Y137_ORTHO_' build/y137-orthogonal/RESULT-ORTHOGONAL-SCHUR.hbp)" -eq 4
+          grep -Fq 'selected_sin_upper_per_trillion=50165123494|strict_improvement=1|nonvacuous=1|' build/y137-orthogonal/RESULT-ORTHOGONAL-SCHUR.hbp
+          grep -Fq 'selected_sin_upper_per_trillion=114715901341|strict_improvement=1|nonvacuous=1|' build/y137-orthogonal/RESULT-ORTHOGONAL-SCHUR.hbp
+          grep -Fq 'improvement_count=2|E1_sin_upper_per_trillion=50165123494|E2_sin_upper_per_trillion=114715901341|' build/y137-orthogonal/RESULT-ORTHOGONAL-SCHUR.hbp
+      - name: Strict no-float and integer-only source audits
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-Schur-orthogonal-PSD-20261113/replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-exact-7D-W-orthogonal-Schur-PSD
+          path: build/y137-orthogonal/replay.stdout.txt
+          if-no-files-found: ignore
+          retention-days: 60
