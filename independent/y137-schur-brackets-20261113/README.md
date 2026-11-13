@@ -24,6 +24,33 @@ Reflection-sector counts satisfy the same inequalities. The pointwise lower and 
 
 Starting intervals are taken **only from the already accepted mainline results**: 69.89 < E1 < 69.92, 69.93 < E2 < 69.9567503, E3 >=69.9686993, all conditional on the source floor. The old K3 Ritz-root estimates in superseded #155 are used for choosing a candidate grid and are not silently promoted into certified bounds.
 
+## Actual first hosted readout (filed after the prediction)
+
+The initial corrected-head calculation completed [GitHub run 43485090193](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43485090193), and its exact 19 reported rows were copied verbatim to [RESULT-K3-SCHUR-BRACKETS.hbp](RESULT-K3-SCHUR-BRACKETS.hbp) **after the run**. The later CI gate compares each freshly rerun row byte for byte to this receipt. The first attempted job failed before constructing the graph because the freeze parser searched for both grid fields as a single contiguous string; the next commit corrected the parser without altering the frozen grid.
+
+| z/J_E | Certified full-H count range N(z) | Even / odd |
+| --- | --- | --- |
+| 69.900 | [0,0] | 0 / 0 |
+| 69.905 | [0,0] | 0 / 0 |
+| 69.908 | [0,0] | 0 / 0 |
+| 69.909 | [0,1] | ambiguous even / 0 odd |
+| 69.940 | [1,1] | 1 / 0 |
+| 69.945 | [1,1] | 1 / 0 |
+| 69.948 | [1,1] | 1 / 0 |
+| 69.949 | [1,2] | ambiguous even / 0 odd |
+
+Six points give exact counts; two honestly remain intervals. Every new Gram matrix passed all 255 PSD principal-minor tests and the independent characteristic-polynomial inertia check. The lift-free floor weakens the old-floor lower matrix monotonically.
+
+By the min–max/inertia count at 69.908 and 69.948, together with the accepted mainline endpoints,
+
+    69.908 < E1/J_E < 69.92
+    69.948 < E2/J_E < 69.9567503
+     0.028 < (E2-E1)/J_E < 0.0487503
+
+These are finite-model source-conditional intervals, not just estimates of K3 Ritz levels. They improve the first gap's certified lower bound from 0.01 to **0.028 J_E**, with the original E3 lower bound unchanged.
+
+The W-normalized Schur error **trace norm bound** from the new exact Gram at z=69.948 is at most 9,358,936 parts per billion, i.e. 0.009358936 J_E (upward rounded). This is a sound but broad bound, and it explains why the small-matrix projector computation should use anisotropic/direction-sensitive error information and a dual residual for the Wilson amplitude rather than treating that trace as an exact shift.
+
 ## What this proves and what remains
 
 Upon hosted replay, this PR can produce genuine new **full-space finite-model eigenvalue interval information** and a source-certified numerical error width on the small Schur pencil. It does not yet compute an eight-flat null vector, the energy-dependent effective observable O_eff, its complete Q-tail transition, or the normalized full-space Wilson weight. Therefore positive Wilson-sum first-excitation weight remains OPEN on issue #137.
