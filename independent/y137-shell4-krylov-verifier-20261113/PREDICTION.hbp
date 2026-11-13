@@ -1,0 +1,11 @@
+# Issue 137 independent verifier pre-host expected checks, November 13, 2026
+# Written after verifier.py was authored, BEFORE the new hosted workflow. Not blind.
+# All numerical changes below are hypothetical inputs to the ACCEPTED sufficient transfer
+# inequality, not certified improvements to any physical/source operator.
+Y137_INDEP_FREEZE|source_branch_main_after_PR187=1|original_fullstate_error_per_trillion=144090460519|real_shell4_improvement=NOT_PRESENT|actual_Wilson_first_weight=HOLD|json=0
+Y137_INDEP_EXPECTED|case=source_action_zero|combined_upper_per_trillion=13162197722|json=0
+Y137_INDEP_EXPECTED|case=energy_variation_zero|combined_upper_per_trillion=130824656179|json=0
+Y137_INDEP_EXPECTED|case=both_100_fixed_rayleigh|combined_upper_per_trillion=1435396879|json=0
+Y137_INDEP_EXPECTED|case=both_101_fixed_rayleigh|combined_upper_per_trillion=1421178505|json=0
+Y137_INDEP_EXPECTED|case=both_100_recomputed_rayleigh|combined_upper_per_trillion=1318722908|json=0
+Y137_INDEP_GATES|source_pins=5|sample_count=2|completeness_required=shell3_shell4_shell5_all_edges|Krylov_identity=VARIATIONAL_RESIDUAL|negative_control=OMIT_SHELL5|json=0
