@@ -29,6 +29,9 @@ jobs:
           test "$(grep -c '^Y137_MICRO_POINT|' build/y137-micro/replay.stdout.txt)" -eq 14
           test "$(grep -c '^Y137_MICRO_CLOSED|' build/y137-micro/replay.stdout.txt)" -eq 14
           grep -Fq 'Y137_MICRO_VERDICT|energy_windows=CERTIFIED_CONDITIONAL_ON_SOURCE_FLOOR|actual_Wilson_first_weight=OPEN|projector_transfer=NEXT_GATE|' build/y137-micro/replay.stdout.txt
+          grep '^Y137_MICRO_' build/y137-micro/replay.stdout.txt > build/y137-micro/RESULT-K3-MICROBRACKETS.hbp
+          cmp build/y137-micro/RESULT-K3-MICROBRACKETS.hbp independent/y137-k3-microbrackets-20261113/RESULT-K3-MICROBRACKETS.hbp
+          grep -Fq 'gap_lo_num=38224495|gap_hi_num=41229820|E3_lo_num=69968699300|' build/y137-micro/RESULT-K3-MICROBRACKETS.hbp
       - name: Exact-only repository gates
         run: |
           set -euo pipefail
