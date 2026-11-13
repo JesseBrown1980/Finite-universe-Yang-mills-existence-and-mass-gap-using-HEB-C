@@ -1,0 +1,43 @@
+name: Issue 137 exact K3 eight-flat Schur projector residual diagnostics
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-schur-projector-20261113/**'
+      - '.github/workflows/y137-schur-projector.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-pinned-schur-projector:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify frozen prediction, accepted source and previously measured U/G pins
+        run: |
+          set -euo pipefail
+          D=independent/y137-schur-projector-20261113
+          test "$(git hash-object "$D/PREDICTION.hbp")" = "ff00966552b3490d852a02fd7b1bd4a302da45b8"
+          grep -Fq 'FROZEN_BEFORE_8D_PROJECTOR_REPLAY' "$D/PREDICTION.hbp"
+          test "$(sha256sum independent/y137-liftfree-k3-20261113/src155/y137_k3_sector_isolation.py | cut -d' ' -f1)" = "f3461aa8a50cfa9efb4a1bbdc2d7be44ec1d4a13c80c47fd55fa07de60be28ff"
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = "91bd1e80cbfcfb76198966aa177d097ecfbe8143"
+      - name: Measure certified energy-dependent eight-flat Schur null direction errors
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-projector
+          python3 -I -B independent/y137-schur-projector-20261113/replay.py | tee build/y137-projector/replay.stdout.txt
+          test "$(grep -c '^Y137_PROJ_POINT|' build/y137-projector/replay.stdout.txt)" -eq 2
+          grep -Fq 'Y137_PROJ_VERDICT|samples=2|' build/y137-projector/replay.stdout.txt
+          grep -Fq 'Wilson_E1_E2_weight=OPEN|' build/y137-projector/replay.stdout.txt
+      - name: No-float and integer-only audits
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-schur-projector-20261113/replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-source-Schur-projector-directional-error
+          path: build/y137-projector/replay.stdout.txt
+          if-no-files-found: ignore
+          retention-days: 60
