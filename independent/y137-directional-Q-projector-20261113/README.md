@@ -24,6 +24,21 @@ The key **new directional quantity** \(\|R_z Bx\|\) is bounded twice, independen
 
 Take the smaller of the two outward-rounded bounds, then the smaller of the new drift and the accepted global drift. Both are sound for the entire certified E interval. The source U-residual and direction-specific PSD Schur error are computed unchanged from #181; the code **must reproduce both prior sine-angle upper endpoints exactly** before printing new ones.
 
+## First hosted measurement and independent recount
+
+The source-pinned hosted [run 43506433217](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43506433217) **PASSED** after the integer source-encoding correction, which did not change frozen inputs. All four exact result rows were filed **after** this run in [RESULT-Q-DIRECTIONAL.hbp](RESULT-Q-DIRECTIONAL.hbp). Its follow-up workflow now requires byte-for-byte reproduction and both measured angle endpoints; a separate independently coded BigInt check verified the directional gamma formula, Q residual correction, selection minimum, old/global drift, and selected projector angle arithmetic.
+
+At the **old** accepted E1/E2 energy windows of PR #181:
+
+| Quantity | Previous broad bound | New source-Q directional bound |
+| --- | ---: | ---: |
+| E1 sin-angle upper | 0.842057984250 | **0.578403508929** |
+| E2 sin-angle upper | 1.465570680225 (vacuous) | **1.032699039502 (still vacuous)** |
+
+The independently counted `||B||_F² = 576` remains. For E1, the W-flat-normalized sample vector has `||Bx|| <= 8.485281374239`, while the actual K3 Q trial and complete Q-residual bound `||R_z Bx|| <= 0.259788930946` is smaller than the source direct coupling bound `0.351236335782`. For E2 the corresponding source-Q bound is `0.254910334285`, also below the direct bound `0.351816732609`. Consequently the E1 energy-drift *extra* term dropped from 0.009996415038 to **0.002614089729**, and the E2 extra dropped from 0.006953704152 to **0.001781320917**. The directional PSD Schur source uncertainty of about 0.0035 was unchanged, as required by the independent proof decomposition.
+
+These are genuine *rigorous conditional W-normalized flat eigendirection bounds* from exact finite K3 source data. The E2 result remains a HOLD under the original broad energy window. The independently verified tighter windows of PR #182 are now available for the next **centered** projector test (draft #184), which also must pass an explicit Rayleigh null-branch-selection gate. Neither of these results yet proves positive first Wilson spectral weight between the true eigenstates.
+
 ## Acceptance and scope
 
 The current energy brackets are those already merged on main: E1∈(69.908,69.92), E2∈(69.948,69.9567503), in J_E. The 8-flat E1 null separation exceeds 0.028 and the E2 separation exceeds 0.011949. The code prints raw and improved energy drift, exact B norms, full Q residual, the total Schur null residual and each new sine-angle bound with outward integer rounding.
