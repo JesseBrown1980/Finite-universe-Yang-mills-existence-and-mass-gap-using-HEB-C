@@ -1,0 +1,34 @@
+FREEZE|r=9|commit=c8dbcdbf990114292313cbc410a745a14ba0b778|prediction_sha256=9f1076dd756d5b3ff3cb7c18974f52ce1c088f23e06ca3077ac05ab66f44f99c|binary_sha256=027b05152ac9f5fa79b3824e47956af3220faee53ccb5d34433d179873f8ba85
+GATE|s3_link_table|PASS|36 holonomy pairs x 3 transpositions match the 7-type table
+KEYS|loaded=/root/floor-r9/repo/independent/y131-floor-cert-freeze-v2-20261110/work/run9/RUN12/core_keys_m12.bin|classes=65025
+KEYSHASH|m0=12|classes=65025|sha256=942c2eed527aa2c327ce2aa5e811c0c64b0c524a46671f4ccb99ee1086ff5479
+ROWS|m0=12|classes=65025|tail_targets=2977316|two_step_back_moves=14202339|secs=146|hwm=312168kB
+GATE|local_delta_vs_full_M|PASS|moves_checked=219048552
+GATE|link_multiset_table|PASS|configurations_checked=3042341
+GATE|symmetry_image_rows|PASS|classes=65025|images_per_class=2|rows_rebuilt=130050
+ROWHASH|m0=12|sha256=f835b2e1ded4b7f3f38d9d7f3f8437ebfa0a6ede53783f224ebbd1e9b4b7dee7|classes=65025|tail_moves=2977316|back_moves=14202339|bytes=247570170|secs=3
+GATE|core_census_vs_closed_form|PASS|M=1..12
+GATE|class_detailed_balance|PASS|edges=1610000
+COLOURINGS|even_t_only=false|signatures=1979
+TAIL|f=1|min_layer_floor=118.0000|min_observed_target_floor=118.0000|observed_targets=2977316|gate_observed_ge_layer=PASS
+OUTER|honest|it=0|t=27.0000|cw_lo(F(t))=67.072041
+OUTER|honest|it=1|t=94.0720|cw_lo(F(t))=-0.009562
+OUTER|honest|it=2|t=94.0625|cw_lo(F(t))=-0.000047
+VEC|classes=65025|v_max=2^50|v_min=304145171|entries_below_2^10=0
+CERT|r=9/1|m0=12|classes=65025|f=1|gamma=940620/10000=94.0620|row_check=PASS|min_slack=6044013804|next_t_refused=gate=row_check|ritz_upper=94.078919|trivial_r(m0+1)=117.0000|tail_cap=118.0000|rowhash=f835b2e1ded4b7f3f38d9d7f3f8437ebfa0a6ede53783f224ebbd1e9b4b7dee7|images=2|independent_gate=REQUIRED|secs=329
+WROTE|/root/floor-r9/repo/independent/y131-floor-cert-freeze-v2-20261110/work/run9/RUN12/cert_m12_r9_1_f1.txt|sha256=8068ef0f0adf26aff03d365a6d81d3e204fa379cca3f311b958958405af996e8|independent_gate=REQUIRED: design/gate_required.sh /root/floor-r9/repo/independent/y131-floor-cert-freeze-v2-20261110/work/run9/RUN12/cert_m12_r9_1_f1.txt
+TAIL|f=8,7,6,5,4|min_layer_floor=134.8750|min_observed_target_floor=134.8750|observed_targets=2977316|gate_observed_ge_layer=PASS
+OUTER|honest|it=0|t=27.0000|cw_lo(F(t))=67.072729
+OUTER|honest|it=1|t=94.0727|cw_lo(F(t))=-0.005612
+OUTER|honest|it=2|t=94.0671|cw_lo(F(t))=0.000000
+VEC|classes=65025|v_max=2^50|v_min=149702512|entries_below_2^10=0
+CERT|r=9/1|m0=12|classes=65025|f=8,7,6,5,4|gamma=940661/10000=94.0661|row_check=PASS|min_slack=3281600980|next_t_refused=gate=row_check|ritz_upper=94.078051|trivial_r(m0+1)=117.0000|tail_cap=134.8750|rowhash=f835b2e1ded4b7f3f38d9d7f3f8437ebfa0a6ede53783f224ebbd1e9b4b7dee7|images=2|independent_gate=REQUIRED|secs=330
+WROTE|/root/floor-r9/repo/independent/y131-floor-cert-freeze-v2-20261110/work/run9/RUN12/cert_m12_r9_1_f8-7-6-5-4.txt|sha256=832be7e0c7cb8d40f43070294c7fd5154a2c0d2fe4fcc00e5a0554807477a947|independent_gate=REQUIRED: design/gate_required.sh /root/floor-r9/repo/independent/y131-floor-cert-freeze-v2-20261110/work/run9/RUN12/cert_m12_r9_1_f8-7-6-5-4.txt
+TAIL|f=6,5,4,3|min_layer_floor=131.3333|min_observed_target_floor=133.0000|observed_targets=2977316|gate_observed_ge_layer=PASS
+OUTER|honest|it=0|t=27.0000|cw_lo(F(t))=67.072681
+OUTER|honest|it=1|t=94.0726|cw_lo(F(t))=-0.005770
+OUTER|honest|it=2|t=94.0669|cw_lo(F(t))=-0.000056
+VEC|classes=65025|v_max=2^50|v_min=139585414|entries_below_2^10=0
+CERT|r=9/1|m0=12|classes=65025|f=6,5,4,3|gamma=940660/10000=94.0660|row_check=PASS|min_slack=1107224956|next_t_refused=gate=row_check|ritz_upper=94.078098|trivial_r(m0+1)=117.0000|tail_cap=131.3333|rowhash=f835b2e1ded4b7f3f38d9d7f3f8437ebfa0a6ede53783f224ebbd1e9b4b7dee7|images=2|independent_gate=REQUIRED|secs=336
+WROTE|/root/floor-r9/repo/independent/y131-floor-cert-freeze-v2-20261110/work/run9/RUN12/cert_m12_r9_1_f6-5-4-3.txt|sha256=01bc37d9aef8e45277235298d5ad76943e8f0ddcc06401a887a97187bd85a810|independent_gate=REQUIRED: design/gate_required.sh /root/floor-r9/repo/independent/y131-floor-cert-freeze-v2-20261110/work/run9/RUN12/cert_m12_r9_1_f6-5-4-3.txt
+PEAK_RSS|kB=810812|exit=0|wall_ms=1147107|argv0=/root/floor-r9/repo/independent/y131-floor-cert-freeze-v2-20261110/work/run9/tmp/tools/floorcert
