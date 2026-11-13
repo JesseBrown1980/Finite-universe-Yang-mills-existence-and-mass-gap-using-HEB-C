@@ -19,6 +19,8 @@ DEN = 1000000000
 UNIT = 1000000000000
 PS = 1000000
 FLOOR = 94068200
+# gamma=94.0682 in the 10^9 energy-unit denominator used by all z endpoints.
+FLOOR_SCALED = 94068200000
 SCALE = 1000000000000
 STEPS = 20
 B_NORM = 24
@@ -97,8 +99,8 @@ def inspect(ball, a, lo, hi, v, uhash, ghash, null_gap, old_sin):
     zhi = hi * 100
     if not (zlo < a < zhi):
         refuse("energy_window_does_not_contain_sample")
-    gammaz = DEN * FLOOR - a * PS
-    gammahi = DEN * FLOOR - zhi * PS
+    gammaz = FLOOR_SCALED - a
+    gammahi = FLOOR_SCALED - zhi
     if min(gammaz, gammahi) <= 0:
         refuse("floor_not_above_energy")
     fw = ball["wf"]
@@ -115,7 +117,8 @@ def inspect(ball, a, lo, hi, v, uhash, ghash, null_gap, old_sin):
     gvv = quad(G, v)
     if gvv < 0:
         refuse("G_negative_quadratic")
-    gamma_num = gammaz
+    # The source Gram lower form uses gamma_num in 10^6 floor units.
+    gamma_num = DEN * FLOOR - a * PS
     trace6 = sum((6 // fw[i]) * G[i][i] for i in range(8))
     direction_num = PS * gvv
     direction_den = 6 * gamma_num * DEN * SCALE * SCALE * vnorm2
@@ -146,8 +149,8 @@ def inspect(ball, a, lo, hi, v, uhash, ghash, null_gap, old_sin):
     # Two independent certified bounds for ||R_z Bx||:
     #   ||B x|| / (gamma-z)
     #   ||yhat|| + ||r_z|| / (gamma-z).
-    via_B = ceil_div(Bx_up * DEN * PS, gammaz)
-    via_Q = Qhat_up + ceil_div(resid_up * DEN * PS, gammaz)
+    via_B = ceil_div(Bx_up * DEN, gammaz)
+    via_Q = Qhat_up + ceil_div(resid_up * DEN, gammaz)
     rzbx_up = min(via_B, via_Q)
     if rzbx_up <= 0 or Bx_up <= 0:
         refuse("norm_bound_zero")
@@ -161,7 +164,7 @@ def inspect(ball, a, lo, hi, v, uhash, ghash, null_gap, old_sin):
         drift * B2_times6 * DEN * UNIT, 6 * gammahi * gammaz)
     # By resolvent identity, ||(S(E)-S(z))x|| <= |E-z| *
     # [ 1 + ||B||*||R_z Bx|| / (gamma-E) ].
-    candidate_indirect = ceil_div(drift * B_NORM * rzbx_up * PS, gammahi)
+    candidate_indirect = ceil_div(drift * B_NORM * rzbx_up, gammahi)
     best_indirect = min(candidate_indirect, old_indirect)
     old_total = u_up + schur_dir_up + direct + old_indirect
     old_sin_check = ceil_div(old_total * UNIT, null_gap)
