@@ -1,0 +1,43 @@
+name: Issue 137 frozen K3 exact E1 E2 microbrackets 14 points
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-k3-microbrackets-20261113/**'
+      - '.github/workflows/y137-k3-microbrackets.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-k3-microbracket:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Source pin and pre-result freeze verification
+        run: |
+          set -euo pipefail
+          D=independent/y137-k3-microbrackets-20261113
+          test "$(git hash-object "$D/PREDICTION.hbp")" = "1ad3eea1b0563473b1d8c6097f1ad53c7c4274d6"
+          grep -Fq 'status=SEALED_BEFORE_MICROBRACKET_EVALUATION' "$D/PREDICTION.hbp"
+          test "$(sha256sum independent/y137-liftfree-k3-20261113/src155/y137_k3_sector_isolation.py | cut -d' ' -f1)" = "f3461aa8a50cfa9efb4a1bbdc2d7be44ec1d4a13c80c47fd55fa07de60be28ff"
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = "91bd1e80cbfcfb76198966aa177d097ecfbe8143"
+      - name: Run fourteen exact K3 threshold matrices and independently count inertia
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-micro
+          python3 -I -B independent/y137-k3-microbrackets-20261113/replay.py | tee build/y137-micro/replay.stdout.txt
+          test "$(grep -c '^Y137_MICRO_POINT|' build/y137-micro/replay.stdout.txt)" -eq 14
+          test "$(grep -c '^Y137_MICRO_CLOSED|' build/y137-micro/replay.stdout.txt)" -eq 14
+          grep -Fq 'Y137_MICRO_VERDICT|energy_windows=CERTIFIED_CONDITIONAL_ON_SOURCE_FLOOR|actual_Wilson_first_weight=OPEN|projector_transfer=NEXT_GATE|' build/y137-micro/replay.stdout.txt
+      - name: Exact-only repository gates
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-k3-microbrackets-20261113/replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-frozen-14-point-K3-microbrackets
+          path: build/y137-micro/replay.stdout.txt
+          if-no-files-found: ignore
+          retention-days: 60
