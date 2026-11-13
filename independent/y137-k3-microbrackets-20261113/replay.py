@@ -40,8 +40,8 @@ SOURCE_E3_LO = 69968699300
 
 
 def emit(label, **pairs):
-    print(label + "|" + "|".join(str(k) + "=" + str(v)
-                                for k, v in pairs.items()) + "|json=0", flush=True)
+    print(label + "|" + "|".join(str(name) + "=" + str(value)
+                                for name, value in pairs.items()) + "|json=0", flush=True)
 
 
 def refuse(label):
@@ -87,7 +87,7 @@ def recount(result):
     counts = (independent.negative_count(le), independent.negative_count(ue),
               int(lo < 0), int(uo < 0))
     source = mod.sectors(result)
-    expected = tuple(source[k] for k in
+    expected = tuple(source[name] for name in
                      ("even_lower", "even_upper", "odd_lower", "odd_upper"))
     if (nu, nl) != (result["nhi"], result["nlo"]) or counts != expected:
         refuse("independent_inertia_disagrees")
