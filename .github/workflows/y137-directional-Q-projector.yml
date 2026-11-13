@@ -29,6 +29,10 @@ jobs:
           test "$(grep -c '^Y137_QDIR_POINT|' build/y137-qdir/replay.stdout.txt)" -eq 2
           grep -Fq 'Y137_QDIR_VERDICT|samples=2|' build/y137-qdir/replay.stdout.txt
           grep -Fq 'actual_first_Wilson_weight=OPEN|' build/y137-qdir/replay.stdout.txt
+          grep '^Y137_QDIR_' build/y137-qdir/replay.stdout.txt > build/y137-qdir/RESULT-Q-DIRECTIONAL.hbp
+          cmp build/y137-qdir/RESULT-Q-DIRECTIONAL.hbp independent/y137-directional-Q-projector-20261113/RESULT-Q-DIRECTIONAL.hbp
+          grep -Fq 'new_sin_upper_per_trillion=578403508929|strict_improvement=1|nonvacuous=1|' build/y137-qdir/RESULT-Q-DIRECTIONAL.hbp
+          grep -Fq 'new_sin_upper_per_trillion=1032699039502|strict_improvement=1|nonvacuous=0|' build/y137-qdir/RESULT-Q-DIRECTIONAL.hbp
       - name: Strict no-floating point and integer-only audit
         run: |
           set -euo pipefail
