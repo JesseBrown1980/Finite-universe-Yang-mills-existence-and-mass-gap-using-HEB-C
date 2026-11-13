@@ -26,12 +26,12 @@ POINTS = (
     699400000, 699450000, 699480000, 699490000,
 )
 PRED = os.path.join(HERE, "PREDICTION.hbp")
-BASE_LO_E1 = 698900000
-BASE_HI_E1 = 69909875505
-BASE_LO_E2 = 699346057
-BASE_HI_E2 = 69949729820
-# The old E2 lower point 69.9346057 has denominator 10^7.
-BASE_LO_E2 = 699346057
+# Only endpoints already certified on main are used as the starting box.
+# K3 exploratory Ritz root estimates guide the grid, not the proof.
+BASE_LO_E1 = 698900000     # E1 > 69.89
+BASE_HI_E1 = 699200000     # E1 < 69.92
+BASE_LO_E2 = 699300000     # E2 > 69.93
+BASE_HI_E2 = 699567503     # E2 < 69.9567503
 E3_LO = 699686993
 
 
@@ -171,22 +171,12 @@ def main():
             lo2 = max(lo2, a)
         elif lower == 2:
             hi2 = min(hi2, a)
-    # The K3 Ritz upper for E1 was historically reported at a / 10^9,
-    # whereas all new points use 10^7. Normalize before comparing.
-    # E1 upper 69.909875505 has numerator 69909875505 / 10^9.
-    # E2 upper 69.949729820 has numerator 69949729820 / 10^9.
-    # Existing upper endpoints above are in 10^9 units.
-    hi1 = min(hi1 * 100, BASE_HI_E1)
-    hi2 = min(hi2 * 100, BASE_HI_E2)
-    # Existing lower E1 = 69.89 and lower E2 = 69.9346057.
-    lo1 = max(lo1, BASE_LO_E1)
-    lo2 = max(lo2, BASE_LO_E2)
-    if not (lo1 * 100 < hi1 and lo2 * 100 < hi2):
+    if not (lo1 < hi1 and lo2 < hi2):
         refuse("inconsistent_bracket")
     emit("Y137_SCHUR_BRACKETS", E1_lower=str(lo1) + "/10000000",
-         E1_upper=str(hi1) + "/1000000000",
+         E1_upper=str(hi1) + "/10000000",
          E2_lower=str(lo2) + "/10000000",
-         E2_upper=str(hi2) + "/1000000000",
+         E2_upper=str(hi2) + "/10000000",
          E3_lower=str(E3_LO) + "/10000000",
          settled_points=sum(1 for row in results if row[3]),
          points=len(results), source_floor="94068200/1000000",
