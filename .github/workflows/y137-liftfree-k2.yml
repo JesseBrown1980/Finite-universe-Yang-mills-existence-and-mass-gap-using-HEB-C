@@ -1,0 +1,40 @@
+name: Issue 137 lift-free K2 first-gap sensitivity replay
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-liftfree-k2-20261113/**'
+      - '.github/workflows/y137-liftfree-k2.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pinned-k2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Check prediction seal, original K2 source and newly merged lift-free source
+        run: |
+          set -euo pipefail
+          grep -Fq 'status=FROZEN_BEFORE_NEW_REPLAY_CODE' independent/y137-liftfree-k2-20261113/PREDICTION.hbp
+          grep -Fq 'new_counts=UNKNOWN_A_PRIORI' independent/y137-liftfree-k2-20261113/PREDICTION.hbp
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = "91bd1e80cbfcfb76198966aa177d097ecfbe8143"
+          test "$(git hash-object independent/y142-floor-word-search-20261113/RESULT-WORD-SEARCH.hbp)" = "57de51858e6a44dadd51c6e8419a549343145038"
+          test "$(git hash-object independent/y142-floor-word-search-20261113/m13/run_m13_gate.txt)" = "de97069e9fcc82fe2695fa922c4a3ab45d9143e8"
+          ! grep -nE '(^|[^a-zA-Z])(float|Decimal|Fraction|eval|exec)[(]|serde_json|import json' independent/y137-liftfree-k2-20261113/replay_k2.py
+      - name: Execute original exact K2 evaluator under old and lift-free floor
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-liftfree-k2
+          python3 -I -B independent/y137-liftfree-k2-20261113/replay_k2.py | tee build/y137-liftfree-k2/RESULT.hbp
+          test "$(grep -c '^LIFT_FREE_K2_THRESHOLD|' build/y137-liftfree-k2/RESULT.hbp)" -eq 4
+          grep -Fq 'LIFT_FREE_K2_COMPLETE|thresholds=4|source_pins=PASS|same_U_and_G=PASS|old_count_replay=PASS|monotonicity=PASS|json=0' build/y137-liftfree-k2/RESULT.hbp
+          grep '^LIFT_FREE_K2_VERDICT|' build/y137-liftfree-k2/RESULT.hbp
+          sha256sum build/y137-liftfree-k2/RESULT.hbp > build/y137-liftfree-k2/SHA256SUMS
+          sha256sum -c build/y137-liftfree-k2/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-liftfree-k2-inertia-audit
+          path: build/y137-liftfree-k2/
+          retention-days: 30
