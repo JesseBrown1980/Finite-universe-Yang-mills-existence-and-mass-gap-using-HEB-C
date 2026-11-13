@@ -52,7 +52,7 @@ def blob_sha(raw):
 
 def records(key):
     path, pin, tag = PINS[key]
-    raw = (ROOT / path).read_bytes()
+    raw = ROOT.joinpath(path).read_bytes()
     require(blob_sha(raw) == pin, "source_pin_" + key)
     result = []
     for line in raw.decode("utf-8").splitlines():
