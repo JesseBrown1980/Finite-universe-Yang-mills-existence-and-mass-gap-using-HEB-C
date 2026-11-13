@@ -1,0 +1,53 @@
+name: Issue 137 full-K3 Wilson Q resolvent and dual residual proof lane
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-q-dual-weight-20261113/**'
+      - '.github/workflows/y137-q-dual-weight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pinned-wilson-q-dual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify pre-result frozen trial input and exact K3 sources
+        run: |
+          set -euo pipefail
+          D=independent/y137-q-dual-weight-20261113
+          test "$(git hash-object "$D/PREDICTION.hbp")" = "207a8b2c37c1465c10411cfa97d1fb084d0592d2"
+          test "$(sha256sum independent/y137-liftfree-k3-20261113/src155/y137_k3_sector_isolation.py | cut -d' ' -f1)" = "f3461aa8a50cfa9efb4a1bbdc2d7be44ec1d4a13c80c47fd55fa07de60be28ff"
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = "91bd1e80cbfcfb76198966aa177d097ecfbe8143"
+          grep -Fq 'status=FROZEN_BEFORE_NEW_R9_QAMPLITUDE' "$D/PREDICTION.hbp"
+      - name: Replay complete K3 Wilson operator, Q trial and both dual residuals
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-q-dual
+          python3 -I -B independent/y137-q-dual-weight-20261113/replay.py | tee build/y137-q-dual/replay.stdout.txt
+          grep -Fq 'Y137_QDUAL_VERDICT|source_floor=94068200/1000000|complete_exterior=1|duals=2|normalized_actual_E1E2_weight=NOT_COMPUTED|issue_137=OPEN|' build/y137-q-dual/replay.stdout.txt
+          test "$(grep -c '^Y137_QDUAL_TRIAL|' build/y137-q-dual/replay.stdout.txt)" -eq 2
+          test "$(grep -c '^Y137_QDUAL_RESIDUAL|' build/y137-q-dual/replay.stdout.txt)" -eq 2
+          grep -Fq 'independent_raw_observable=PASS|' build/y137-q-dual/replay.stdout.txt
+          grep '^Y137_QDUAL_' build/y137-q-dual/replay.stdout.txt > build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
+          test "$(grep -c '^Y137_QDUAL_UNSHIFTED|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp)" -eq 1
+          grep -Fq 'evidence=RIGOROUS_FOR_SHIFTED_WILSON_FIXED_SAMPLES_ONLY|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
+          grep -Fq 'exact_E1E2_projectors=NOT_ENCLOSED|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
+          cmp build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp
+          test "$(grep -c '^Y137_QDUAL_' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp)" -eq 12
+          grep -Fq 'fixed_sample_unshifted_sign_certified=1|exact_E1E2_projectors=NOT_ENCLOSED|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
+          grep -Fq 'lower_ppb_floor=416300|evidence=RIGOROUS_FOR_UNSHIFTED_WILSON_FIXED_SAMPLES_ONLY|actual_E1E2_weight=OPEN|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
+          grep -Fq 'lower_ppb_floor=1059210|evidence=RIGOROUS_FOR_SHIFTED_WILSON_FIXED_SAMPLES_ONLY|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
+      - name: Strict no-floating-point and integer-only replay audit
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-q-dual-weight-20261113/replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-source-pinned-Q-dual-Wilson-residual
+          path: build/y137-q-dual/replay.stdout.txt
+          if-no-files-found: ignore
+          retention-days: 60
