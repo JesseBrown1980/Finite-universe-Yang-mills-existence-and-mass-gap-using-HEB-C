@@ -1,0 +1,29 @@
+START 2026-11-10T16:33:58Z binary=9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f
+RUN11_exists_before=0
+rowhash11_rc=0 dir_exists=1
+ENUM|m0=11|classes=34920|secs=2|hwm=3148kB
+KEYSHASH|m0=11|classes=34920|sha256=e25b8b392161f6f02d933f6a1e78643b3ff95ae3fb69b72b02a36c2c8a5f3a7e
+ROWHASH_ONLY|m0=11|sha256=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|keyshash=e25b8b392161f6f02d933f6a1e78643b3ff95ae3fb69b72b02a36c2c8a5f3a7e|classes=34920
+PEAK_RSS|kB=174448|exit=0|wall_ms=88890|argv0=/root/floor-v2/repo/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs/target/release/floorcert
+e25b8b392161f6f02d933f6a1e78643b3ff95ae3fb69b72b02a36c2c8a5f3a7e  /root/floor-v2/reg/RUN11/core_keys_m11.bin
+core_keys_m11.bin 
+cert11_rc=0
+KEYS|loaded=/root/floor-v2/reg/RUN11/core_keys_m11.bin|classes=34920
+KEYSHASH|m0=11|classes=34920|sha256=e25b8b392161f6f02d933f6a1e78643b3ff95ae3fb69b72b02a36c2c8a5f3a7e
+CERT|r=21/2|m0=11|classes=34920|f=8,7,6,5,4|gamma=993655/10000=99.3655|row_check=PASS|min_slack=2883978097|next_t_refused=gate=row_check|ritz_upper=99.389579|trivial_r(m0+1)=126.0000|tail_cap=144.0000|rowhash=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|images=2|independent_gate=REQUIRED|secs=144
+WROTE|/root/floor-v2/reg/RUN11/cert_m11_r21_2_f8-7-6-5-4.txt|sha256=a217a469e1bb482226e0cb92a54fdb32ebd0b3ef5608892627da6ec0433effa5|independent_gate=REQUIRED: design/gate_required.sh /root/floor-v2/reg/RUN11/cert_m11_r21_2_f8-7-6-5-4.txt
+PEAK_RSS|kB=440320|exit=0|wall_ms=241114|argv0=/root/floor-v2/repo/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs/target/release/floorcert
+a217a469e1bb482226e0cb92a54fdb32ebd0b3ef5608892627da6ec0433effa5  /root/floor-v2/reg/RUN11/cert_m11_r21_2_f8-7-6-5-4.txt
+MID 2026-11-10T16:39:04Z
+gate11_rc=0
+36d1dd51a6f81c8d3f19388be6627ed8678f040b96d5d7bc2ee3c23fa5942249  /root/floor-v2/reg/honest11_gate.txt
+14c14
+< MEM|404896kB
+---
+> MEM|403696kB
+19c19
+< GATE_REQUIRED|PASS|cert=cert_m11_r21_2_f8-7-6-5-4.txt|cert_sha256=a217a469e1bb482226e0cb92a54fdb32ebd0b3ef5608892627da6ec0433effa5|rowhash=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|verifier_sha256=6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889
+---
+> GATE_REQUIRED|PASS|cert=/tmp/claude-0/-home-user/b2fb539a-cb4d-5f0b-a22f-ca1a7fcb500d/scratchpad/floor/work/design/out/fix1/honest_m11/cert_m11_r21_2_f8-7-6-5-4.txt|cert_sha256=a217a469e1bb482226e0cb92a54fdb32ebd0b3ef5608892627da6ec0433effa5|rowhash=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|verifier_sha256=6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889
+gate_receipt_diff_rc=1
+END 2026-11-10T16:49:23Z

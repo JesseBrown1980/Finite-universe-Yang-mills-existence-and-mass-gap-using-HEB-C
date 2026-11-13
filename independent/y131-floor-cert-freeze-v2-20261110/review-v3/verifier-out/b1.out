@@ -1,0 +1,21 @@
+rustc 1.81.0 (eeb90cda1 2024-09-04)
+cargo 1.81.0 (2dbb1af80 2024-08-20)
+CLIPPY_EXIT=0
+BUILD_EXIT=0
+9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f  target/release/floorcert
+f173b6833b194a0bab6cab6d0ef30b125993aa70f306050397247ed03e464bc6  src/main.rs
+PIN|id=013|sec=source|quantity=sha256|path=work/design/rs/src/main.rs VALUE=f173b6833b194a0bab6cab6d0ef30b125993aa70f306050397247ed03e464bc6
+PIN|id=016|sec=binary|quantity=sha256|path=work/design/rs/target/release/floorcert VALUE=9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f
+    Checking floorcert v0.1.0 (/root/floor-v2-final/head/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs)
+    Finished `release` profile [optimized] target(s) in 0.93s
+Python 3.12.3
+total 20856
+drwxr-xr-x 2 root root     4096 Nov  8 13:31 .
+drwxr-xr-x 4 root root     4096 Nov  9 06:39 ..
+lrwxrwxrwx 1 root root        6 Jun 17 20:09 cargo -> rustup
+lrwxrwxrwx 1 root root        6 Jun 17 20:09 cargo-clippy -> rustup
+lrwxrwxrwx 1 root root        6 Jun 17 20:09 cargo-fmt -> rustup
+lrwxrwxrwx 1 root root        6 Jun 17 20:09 cargo-miri -> rustup
+lrwxrwxrwx 1 root root        6 Jun 17 20:09 clippy-driver -> rustup
+lrwxrwxrwx 1 root root        6 Jun 17 20:09 rls -> rustup
+lrwxrwxrwx 1 root root        6 Jun 17 20:09 rust-analyzer -> rustup

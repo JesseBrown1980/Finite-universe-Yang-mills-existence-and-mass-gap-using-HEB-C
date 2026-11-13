@@ -1,0 +1,20 @@
+FREEZE|r=9|commit=c8dbcdbf990114292313cbc410a745a14ba0b778|prediction_sha256=9f1076dd756d5b3ff3cb7c18974f52ce1c088f23e06ca3077ac05ab66f44f99c|verifier_sha256=6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889
+GATE|r_policy|PASS|r=9/1 (frozen r = 9 mode)
+CERT|m0=11|r=9/1|t=939879/10000|f=1|claimed_cap=108/1|classes=34920
+ENUM|orbits=1608786|classes=34920|weight=9635688|tree_gauge_configurations=9635688
+GATE|class_bijection|PASS|34920 classes
+KEYSHASH|m0=11|sha256=e25b8b392161f6f02d933f6a1e78643b3ff95ae3fb69b72b02a36c2c8a5f3a7e
+GATE|keys_hash|PASS|header=e25b8b392161f6f0 own=e25b8b392161f6f0
+GATE|positivity_f|PASS|f=1
+GATE|positivity_v|PASS|min v=4985428711
+TABLE|cc:[(-2, -2, -2)]|ce:[(1, 1, 1)]|ct:[(-3, 0, 0)]|ee:[(4, 4, 4)]|et:[(0, 3, 3)]|tt:[(-4, 2, 2), (-1, -1, 2)]
+TAILCAP|own=108/1
+GATE|tail_cap_claim|PASS|claimed 108/1, own 108/1
+GATE|t_below_tail_cap|PASS|t=939879/10000, own cap 108/1
+ROWHASH|m0=11|sha256=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|classes=34920|tail_moves=1738430|back_moves=7947874|bytes=138223384
+MEM|405020kB
+RITZ_CLASS_VECTOR|94.127338|upper bound on lambda_min(QHQ) from the zero-extended class vector
+GATE|row_check|PASS|rows=34920|min_slack=19988505747
+GATE|row_hash|PASS|header=8369f4a981a888f4 own=8369f4a981a888f4
+VERDICT|PASS|lambda_min(QHQ) >= 939879/10000 at r = 9/1 (m0 = 11)|rowhash=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|min_slack=19988505747
+GATE_REQUIRED|PASS|cert=/root/floor-r9/repo/independent/y131-floor-cert-freeze-v2-20261110/work/run9/RUN11/cert_m11_r9_1_f1.txt|cert_sha256=c46dcda397f71fd34b20efc4c318f64099fa0b14051b0d98f74ea7a499cfba1d|rowhash=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|verifier_sha256=6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889

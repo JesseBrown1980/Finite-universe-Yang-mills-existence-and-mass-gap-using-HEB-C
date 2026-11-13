@@ -1,0 +1,7 @@
+SELFTEST|sha256_constants|PASS|H0 (8) and K (64) rederived from the first 64 primes equal the table
+SELFTEST|sha256_vector|empty|PASS|e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+SELFTEST|sha256_vector|abc|PASS|ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
+SELFTEST|sha256_vector|448bit|PASS|248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1
+SELFTEST|sha256_vector|million_a|PASS|cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0
+SELFTEST|sha256_streaming|PASS|pieces 1,3,55,56,63,64,65,1000,65536 of 200003 bytes|9edbcabdf24dccb7a518d111086636f0331b3c54c197485a478d707407f8a844
+SELFTEST|r_policy|PASS|excluded 21/2,12,14,20,41/2; refused 10,19/2,9+1e-7,8; frozen_binary=false

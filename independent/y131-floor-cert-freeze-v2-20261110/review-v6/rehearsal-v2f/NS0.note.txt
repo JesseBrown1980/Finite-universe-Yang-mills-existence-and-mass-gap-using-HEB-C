@@ -1,0 +1,1 @@
+HOST_MOUNT_TABLE|during_the_run=samples_254_of_/proc/1/mountinfo_every_0.2_s|largest_count_of_floor-run_entries=0|after_the_run=0|json=0

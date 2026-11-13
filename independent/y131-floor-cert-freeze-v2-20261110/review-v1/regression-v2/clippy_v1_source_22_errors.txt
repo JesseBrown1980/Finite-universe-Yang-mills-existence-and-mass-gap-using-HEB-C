@@ -1,0 +1,256 @@
+    Checking floorcert v0.1.0 (/root/floor-v2/repo/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs)
+error: function `fmat` is never used
+    --> src/main.rs:1091:4
+     |
+1091 | fn fmat(rows: &[Row], f: &[i128], r: Rat, tn: i128, td: i128, threads: usize) -> FMat {
+     |    ^^^^
+     |
+     = note: `-D dead-code` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(dead_code)]`
+
+error: use of `format!` to build up a string from an iterator
+   --> src/main.rs:146:5
+    |
+146 |     b.iter().map(|x| format!("{:02x}", x)).collect()
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+help: call `fold` instead
+   --> src/main.rs:146:14
+    |
+146 |     b.iter().map(|x| format!("{:02x}", x)).collect()
+    |              ^^^
+help: ... and use the `write!` macro here
+   --> src/main.rs:146:22
+    |
+146 |     b.iter().map(|x| format!("{:02x}", x)).collect()
+    |                      ^^^^^^^^^^^^^^^^^^^^
+    = note: this can be written more efficiently by appending to a `String` directly
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#format_collect
+    = note: `-D clippy::format-collect` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::format_collect)]`
+
+error: the loop variable `k` is used to index `dst`
+   --> src/main.rs:234:30
+    |
+234 |                     for k in 0..NL {
+    |                              ^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_range_loop
+    = note: `-D clippy::needless-range-loop` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::needless_range_loop)]`
+help: consider using an iterator and enumerate()
+    |
+234 |                     for (k, <item>) in dst.iter().enumerate().take(NL) {
+    |                         ~~~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+error: the loop variable `j` is only used to index `z`
+   --> src/main.rs:269:18
+    |
+269 |         for j in 0..NK {
+    |                  ^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_range_loop
+help: consider using an iterator
+    |
+269 |         for <item> in z.iter().take(NK) {
+    |             ~~~~~~    ~~~~~~~~~~~~~~~~~
+
+error: methods called `from_*` usually take no `self`
+   --> src/main.rs:284:17
+    |
+284 |     fn from_key(&self, key: u64) -> [u8; NL] {
+    |                 ^^^^^
+    |
+    = help: consider choosing a less ambiguous name
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#wrong_self_convention
+    = note: `-D clippy::wrong-self-convention` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::wrong_self_convention)]`
+
+error: the loop variable `j` is used to index `z`
+   --> src/main.rs:308:18
+    |
+308 |         for j in 0..NK {
+    |                  ^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_range_loop
+help: consider using an iterator and enumerate()
+    |
+308 |         for (j, <item>) in z.iter_mut().enumerate().take(NK) {
+    |             ~~~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+error: the loop variable `d` is used to index `o`
+   --> src/main.rs:371:18
+    |
+371 |         for d in 0..NL {
+    |                  ^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_range_loop
+help: consider using an iterator and enumerate()
+    |
+371 |         for (d, <item>) in o.iter_mut().enumerate().take(NL) {
+    |             ~~~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+error: the loop variable `p` is used to index `pdone`
+   --> src/main.rs:540:18
+    |
+540 |         for p in 0..V {
+    |                  ^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_range_loop
+help: consider using an iterator and enumerate()
+    |
+540 |         for (p, <item>) in pdone.iter_mut().enumerate().take(V) {
+    |             ~~~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+error: this function has too many arguments (8/7)
+   --> src/main.rs:548:5
+    |
+548 |     fn dfs(tab: &Tab, order: &[usize; NK], done_at: &[Vec<usize>], lev: usize, u: &mut [u8; NL], msum: i64, m0: i64, out: &mut Vec<u64>) {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#too_many_arguments
+    = note: `-D clippy::too-many-arguments` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::too_many_arguments)]`
+
+error: the loop variable `lev` is only used to index `done_at`
+   --> src/main.rs:593:36
+    |
+593 |                         for lev in 0..3 {
+    |                                    ^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_range_loop
+help: consider using an iterator
+    |
+593 |                         for <item> in done_at.iter().take(3) {
+    |                             ~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~
+
+error: stripping a prefix manually
+   --> src/main.rs:656:20
+    |
+656 |             return l[6..].trim().replace(' ', "");
+    |                    ^^^^^^
+    |
+note: the prefix was tested here
+   --> src/main.rs:655:9
+    |
+655 |         if l.starts_with("VmHWM:") {
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#manual_strip
+    = note: `-D clippy::manual-strip` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::manual_strip)]`
+help: try using the `strip_prefix` method
+    |
+655 ~         if let Some(<stripped>) = l.strip_prefix("VmHWM:") {
+656 ~             return <stripped>.trim().replace(' ', "");
+    |
+
+error: the loop variable `p` is used to index `pc`
+   --> src/main.rs:705:14
+    |
+705 |     for p in 0..V {
+    |              ^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_range_loop
+help: consider using an iterator and enumerate()
+    |
+705 |     for (p, <item>) in pc.iter_mut().enumerate().take(V) {
+    |         ~~~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+error: the loop variable `p` is only used to index `col`
+   --> src/main.rs:882:18
+    |
+882 |         for p in 0..V {
+    |                  ^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_range_loop
+help: consider using an iterator
+    |
+882 |         for <item> in col.iter_mut().take(V) {
+    |             ~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~
+
+error: this boolean expression can be simplified
+    --> src/main.rs:1048:12
+     |
+1048 |         if !(tn * o.cap_d < o.cap_n * td) {
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: try: `tn * o.cap_d >= o.cap_n * td`
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#nonminimal_bool
+     = note: `-D clippy::nonminimal-bool` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::nonminimal_bool)]`
+
+error: this function has too many arguments (8/7)
+    --> src/main.rs:1094:1
+     |
+1094 | fn fmat_x(rows: &[Row], f: &[i128], r: Rat, tn: i128, td: i128, threads: usize, flip: bool, strict: bool) -> FMat {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#too_many_arguments
+
+error: writing `&mut Vec` instead of `&mut [_]` involves a new object where a slice will do
+    --> src/main.rs:1148:27
+     |
+1148 | fn gs_eigen(fm: &FMat, v: &mut Vec<i128>, outer: usize, verbose: bool) -> i128 {
+     |                           ^^^^^^^^^^^^^^ help: change this to: `&mut [i128]`
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#ptr_arg
+     = note: `-D clippy::ptr-arg` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::ptr_arg)]`
+
+error: the loop variable `a` is used to index `selfw`
+    --> src/main.rs:1157:14
+     |
+1157 |     for a in 0..n {
+     |              ^^^^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#needless_range_loop
+help: consider using an iterator and enumerate()
+     |
+1157 |     for (a, <item>) in selfw.iter_mut().enumerate().take(n) {
+     |         ~~~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+error: clamp-like pattern without using clamp function
+    --> src/main.rs:1166:22
+     |
+1166 |         let margin = ((hi - lo) / 4).max(E / 50).min(20 * E);
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: replace with clamp: `((hi - lo) / 4).clamp(E / 50, 20 * E)`
+     |
+     = note: clamp will panic if max < min
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#manual_clamp
+     = note: `-D clippy::manual-clamp` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::manual_clamp)]`
+
+error: this function has too many arguments (11/7)
+    --> src/main.rs:1396:1
+     |
+1396 | fn certify(rows: &[Row], f: &[i128], r: Rat, td: i128, tcap: i128, o: Opts, sweeps: usize, threads: usize, verbose: bool, tag: &str, strict: bool) -> (i128, Vec<i64>...
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#too_many_arguments
+
+error: this function has too many arguments (12/7)
+    --> src/main.rs:1499:1
+     |
+1499 | fn write_cert(path: &str, m0: i64, r: Rat, tn: i128, td: i128, f: &[i128], cap: (i128, i128), rowhash: &str, keyshash: &str, freeze: &Option<(String, String)>, rows: &[Row], v: &[i64]) -> Strin...
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#too_many_arguments
+
+error: redundant closure
+    --> src/main.rs:1575:62
+     |
+1575 |     let rs: Vec<Rat> = arg(args, "--r", "12").split(',').map(|x| parse_rat(x)).collect();
+     |                                                              ^^^^^^^^^^^^^^^^ help: replace the closure with the function itself: `parse_rat`
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#redundant_closure
+     = note: `-D clippy::redundant-closure` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::redundant_closure)]`
+
+error: this function has too many arguments (8/7)
+    --> src/main.rs:1693:1
+     |
+1693 | fn max_t(rows: &[Row], v: &[i64], f: &[i128], r: Rat, td: i128, o: Opts, lo0: i128, hi0: i128) -> Option<i128> {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#too_many_arguments
+
+error: could not compile `floorcert` (bin "floorcert") due to 22 previous errors

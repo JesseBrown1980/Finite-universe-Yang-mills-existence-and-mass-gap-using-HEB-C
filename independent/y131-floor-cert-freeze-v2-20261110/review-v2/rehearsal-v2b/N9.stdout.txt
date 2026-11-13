@@ -1,0 +1,2 @@
+RCHECK|r=19/2|within_1_of_9=1
+FLOOR_RUN|CERTIFICATE=FAIL|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE|certificate_reason=NOT_STARTED|stage=prelude|reason=test_r_refused_within_1_of_9|r=19/2|steps_run=none|accepted_certificates=0|certificate_commands_run=0|HASHES=NONE|json=0

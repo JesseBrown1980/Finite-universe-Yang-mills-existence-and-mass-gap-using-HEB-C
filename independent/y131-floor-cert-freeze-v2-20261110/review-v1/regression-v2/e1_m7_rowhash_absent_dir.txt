@@ -1,0 +1,13 @@
+GATE|s3_link_table|PASS|36 holonomy pairs x 3 transpositions match the 7-type table
+ENUM|m0=7|classes=682|secs=0|hwm=2492kB
+KEYSHASH|m0=7|classes=682|sha256=051ef322cd8442a1dc1139f29755c74a74af142d516febbeee43d83545205df7
+ROWS|m0=7|classes=682|tail_targets=40850|two_step_back_moves=93040|secs=0|hwm=6256kB
+GATE|local_delta_vs_full_M|PASS|moves_checked=2990304
+GATE|link_multiset_table|PASS|configurations_checked=41532
+GATE|symmetry_image_rows|PASS|classes=682|images_per_class=2|rows_rebuilt=1364
+ROWHASH|m0=7|sha256=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|classes=682|tail_moves=40850|back_moves=93040|bytes=2101058|secs=0
+GATE|core_census_vs_closed_form|PASS|M=1..7
+GATE|class_detailed_balance|PASS|edges=5560
+COLOURINGS|even_t_only=false|signatures=1979
+ROWHASH_ONLY|m0=7|sha256=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|keyshash=051ef322cd8442a1dc1139f29755c74a74af142d516febbeee43d83545205df7|classes=682
+PEAK_RSS|kB=7244|exit=0|wall_ms=1148|argv0=/root/floor-v2/repo/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs/target/release/floorcert

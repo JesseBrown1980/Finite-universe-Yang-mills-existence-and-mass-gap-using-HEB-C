@@ -1,0 +1,19 @@
+GATE|r_policy|PASS|r=21/2
+CERT|m0=11|r=21/2|t=993655/10000|f=8,7,6,5,4|claimed_cap=2304/16|classes=34920
+ENUM|orbits=1608786|classes=34920|weight=9635688|tree_gauge_configurations=9635688
+GATE|class_bijection|PASS|34920 classes
+KEYSHASH|m0=11|sha256=e25b8b392161f6f02d933f6a1e78643b3ff95ae3fb69b72b02a36c2c8a5f3a7e
+GATE|keys_hash|PASS|header=e25b8b392161f6f0 own=e25b8b392161f6f0
+GATE|positivity_f|PASS|f=8,7,6,5,4
+GATE|positivity_v|PASS|min v=598876066
+TABLE|cc:[(-2, -2, -2)]|ce:[(1, 1, 1)]|ct:[(-3, 0, 0)]|ee:[(4, 4, 4)]|et:[(0, 3, 3)]|tt:[(-4, 2, 2), (-1, -1, 2)]
+TAILCAP|own=2304/16
+GATE|tail_cap_claim|PASS|claimed 2304/16, own 2304/16
+GATE|t_below_tail_cap|PASS|t=993655/10000, own cap 2304/16
+ROWHASH|m0=11|sha256=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|classes=34920|tail_moves=1738430|back_moves=7947874|bytes=138223384
+MEM|403696kB
+RITZ_CLASS_VECTOR|99.389579|upper bound on lambda_min(QHQ) from the zero-extended class vector
+GATE|row_check|PASS|rows=34920|min_slack=2883978097
+GATE|row_hash|PASS|header=8369f4a981a888f4 own=8369f4a981a888f4
+VERDICT|PASS|lambda_min(QHQ) >= 993655/10000 at r = 21/2 (m0 = 11)|rowhash=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|min_slack=2883978097
+GATE_REQUIRED|PASS|cert=/tmp/claude-0/-home-user/b2fb539a-cb4d-5f0b-a22f-ca1a7fcb500d/scratchpad/floor/work/design/out/fix1/honest_m11/cert_m11_r21_2_f8-7-6-5-4.txt|cert_sha256=a217a469e1bb482226e0cb92a54fdb32ebd0b3ef5608892627da6ec0433effa5|rowhash=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|verifier_sha256=6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889

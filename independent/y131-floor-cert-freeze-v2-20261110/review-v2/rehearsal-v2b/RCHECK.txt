@@ -1,0 +1,15 @@
+RCHECK|r=9|exit=1|out=RCHECK:r=9/1:within_1_of_9=1|json=0
+RCHECK|r=9/1|exit=1|out=RCHECK:r=9/1:within_1_of_9=1|json=0
+RCHECK|r=19/2|exit=1|out=RCHECK:r=19/2:within_1_of_9=1|json=0
+RCHECK|r=10|exit=1|out=RCHECK:r=10/1:within_1_of_9=1|json=0
+RCHECK|r=8|exit=1|out=RCHECK:r=8/1:within_1_of_9=1|json=0
+RCHECK|r=81/10|exit=1|out=RCHECK:r=81/10:within_1_of_9=1|json=0
+RCHECK|r=79/10|exit=0|out=RCHECK:r=79/10:within_1_of_9=0|json=0
+RCHECK|r=10000001/1000000|exit=0|out=RCHECK:r=10000001/1000000:within_1_of_9=0|json=0
+RCHECK|r=7999999/1000000|exit=0|out=RCHECK:r=7999999/1000000:within_1_of_9=0|json=0
+RCHECK|r=12|exit=0|out=RCHECK:r=12/1:within_1_of_9=0|json=0
+RCHECK|r=21/2|exit=0|out=RCHECK:r=21/2:within_1_of_9=0|json=0
+RCHECK|r=13|exit=0|out=RCHECK:r=13/1:within_1_of_9=0|json=0
+RCHECK|r=x|exit=2|out=EVAL_ERROR:not_a_non-negative_rational:_x|json=0
+RCHECK|r=EMPTY|exit=2|out=EVAL_ERROR:not_a_non-negative_rational:_|json=0
+RCHECK|r=-9|exit=2|out=EVAL_ERROR:not_a_non-negative_rational:_-9|json=0

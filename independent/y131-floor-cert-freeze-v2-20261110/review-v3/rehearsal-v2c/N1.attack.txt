@@ -1,0 +1,1 @@
+ATTACK|case=N1|launcher_sha16=8d1f01cfb85f19ce|fake_calls=0|what=N1_nsenter_into_the_launcher_namespace_and_append_to_gate_required.sh|nsenter_exit=0|json=0

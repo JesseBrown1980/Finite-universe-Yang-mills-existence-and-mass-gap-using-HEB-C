@@ -1,0 +1,50 @@
+== X0 rc=0 :: result=PASS comparison=ABOVE accepted_certificates=2 stop=DECIDED 
+== X1 rc=0 :: result=PASS comparison=ABOVE accepted_certificates=2 stop=DECIDED 
+   fake_calls=2
+   tree_gate_restored_sha16=0064ca4654aa8725
+== Y1 rc=1 :: FLOOR_RUN|CERTIFICATE=FAIL|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE|certificate_reason=REQUIRED_OR_INTEGRITY_FAILURE_ROW_008 stage=integrity reason=pinned_file_changed_gate_required.sh accepted_certificates=0 
+INTEGRITY|file=work/design/gate_required.sh|want=0064ca4654aa8725f2040f8b50b01e95a521966eada0ac75ffdf2ee63b98849c|got=d8a0b096caeba7f5cd5bf6a299d1ffe019e44fa1394af648671336352feacc97|json=0
+   tree_gate_restored_sha16=0064ca4654aa8725
+== T1 rc=0 :: FLOOR_RUN|CERTIFICATE=PASS|PREDICTION=CONFIRMED|DECISION=ABOVE|GAMMA=1042273/10000|UPPER_BOUND=104854118000000/1000000000000|certificate_reason=EVERY_REQUIRED_GATE_AND_THE_CLOSING_PIN_CHECK_HELD accepted_certificates=2 stop=DECIDED 
+   fake_calls=2
+== T2 rc=0 :: FLOOR_RUN|CERTIFICATE=PASS|PREDICTION=CONFIRMED|DECISION=ABOVE|GAMMA=1042273/10000|UPPER_BOUND=104854118000000/1000000000000|certificate_reason=EVERY_REQUIRED_GATE_AND_THE_CLOSING_PIN_CHECK_HELD accepted_certificates=2 stop=DECIDED 
+   fake_calls=2
+RACE|status=SWAPPED|target=/root/floor-v2-final/tmp/floor-run-tools.sIN4XAT1/gate_required.sh|mode=gate|after_trigger_us=24692
+== T3 rc=0 :: FLOOR_RUN|CERTIFICATE=PASS|PREDICTION=CONFIRMED|DECISION=ABOVE|GAMMA=1042273/10000|UPPER_BOUND=104854118000000/1000000000000|certificate_reason=EVERY_REQUIRED_GATE_AND_THE_CLOSING_PIN_CHECK_HELD accepted_certificates=2 stop=DECIDED 
+   fake_calls=1
+6
+TOOL_CLOSING|private_copy=gate_required.sh|sha256=0064ca4654aa8725f2040f8b50b01e95a521966eada0ac75ffdf2ee63b98849c|want=0064ca4654aa8725f2040f8b50b01e95a521966eada0ac75ffdf2ee63b98849c|json=0
+RACE|status=SWAPPED|target=/root/floor-v2-final/tmp/floor-run-tools.ZPYqbWNz/floor_eval.py|mode=now|after_trigger_us=149
+== T4 rc=0 :: FLOOR_RUN|CERTIFICATE=PASS|PREDICTION=CONFIRMED|DECISION=ABOVE|GAMMA=1000000/1|UPPER_BOUND=1000001/1|certificate_reason=FABRICATED_BY_A_SWAPPED_PRIVATE_EVALUATOR_COPY 
+   fake_calls=1
+TOOL_CLOSING|private_copy=floor_eval.py|sha256=7f135eeee03a6fd8fb0594070ac1c94c76f1448b04f59a199f0e21390536ef06|want=7f135eeee03a6fd8fb0594070ac1c94c76f1448b04f59a199f0e21390536ef06|json=0
+RUN7
+log
+== T5 rc=1 :: FLOOR_RUN|CERTIFICATE=FAIL|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE|certificate_reason=REQUIRED_OR_INTEGRITY_FAILURE_ROW_008 stage=integrity reason=pinned_file_changed_cert_gate.py accepted_certificates=0 
+INTEGRITY|file=work/design/py/cert_gate.py|want=6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889|got=626cf1d0f223e2ff68ba2e4f2fee79c2b61609d6d1f3cf6ed499323cdb5a4187|json=0
+== T7a rc=2 :: FLOOR_RUN|CERTIFICATE=FAIL|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE|certificate_reason=NOT_STARTED stage=prelude reason=run_directory_already_exists accepted_certificates=0 
+== T7b rc=2 :: FLOOR_RUN|CERTIFICATE=FAIL|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE|certificate_reason=NOT_STARTED stage=prelude reason=cannot_create_run_directory accepted_certificates=0 
+ls: cannot access '/root/floor-v2-final/pkg/work/run9': No such file or directory
+mkdir: cannot create directory ‘/root/floor-v2-final/runs/T7b’: File exists
+FLOOR_RUN|CERTIFICATE=FAIL|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE|certificate_reason=NOT_STARTED|stage=prelude|reason=cannot_create_run_directory|r=12|steps_run=none|acc
+== T7c rc=2 :: FLOOR_RUN|CERTIFICATE=FAIL|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE|certificate_reason=NOT_STARTED stage=prelude reason=run_directory_already_exists accepted_certificates=0 
+== T8 rc=1 :: FLOOR_RUN|CERTIFICATE=FAIL|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE|certificate_reason=REQUIRED_OR_INTEGRITY_FAILURE_ROW_008 stage=integrity reason=pinned_file_changed_PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp accepted_certificates=0 
+INTEGRITY|file=PRIVATE_COPY/PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp|want=adf784483eb89746c95ca17ea0589888da41d2bd2b7f221915d2b2332da23ec7|got=85812186b1c36abb52a41fb435de88b961128b26157cab0add09faf7
+== TO1 rc=0 :: FLOOR_RUN|CERTIFICATE=PASS|PREDICTION=CONFIRMED|DECISION=ABOVE|GAMMA=1044197/10000|UPPER_BOUND=104509140000000/1000000000000|certificate_reason=EVERY_REQUIRED_GATE_AND_THE_CLOSING_PIN_CHECK_HELD accepted_certificates=1 stop=DECIDED 
+BYSTANDER alive=1 comm=floorcert
+LEFTOVER sleep20=0 trapTERM=0 private_tools=0
+m0=7|kind=rowhash|attempt=1|rc=0 time_limit_hit=0 own_process_group=1 m0=7|kind=cert|attempt=1|rc=137 time_limit_hit=1 own_process_group=1 m0=8|kind=rowhash|attempt=1|rc=0 time_limit_hit=0 own_process_group=1 m0=8|kind=cert|attempt=1|rc=0 time_limit_hit=0 own_process_group=1 m0=8|kind=gate|attempt=1|rc=0 time_limit_hit=0 own_process_group=1 
+== TO2 rc=2 :: FLOOR_RUN|CERTIFICATE=FAIL|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE|certificate_reason=NO_ACCEPTED_CERTIFICATE_OPERATIONAL accepted_certificates=0 stop=DECIDED 
+m0=7|kind=rowhash|attempt=1|rc=124 time_limit_hit=1 
+== R1 rc=1 :: FLOOR_RUN|CERTIFICATE=FAIL|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=NONE|UPPER_BOUND=NONE|certificate_reason=RESOURCE_LIMIT_EXCEEDED accepted_certificates=0 stop=DECIDED 
+steps_run=7
+K0 G=1042273/10000 U=104854118000000/1000000000000
+== BA rc=0 :: FLOOR_RUN|CERTIFICATE=PASS|PREDICTION=CONFIRMED|DECISION=ABOVE|GAMMA=1042273/10000|UPPER_BOUND=104854118000000/1000000000000|certificate_reason=EVERY_REQUIRED_GATE_AND_THE_CLOSING_PIN_CHECK_HELD accepted_certificates=2 stop=DECIDED 
+== BAm rc=2 :: FLOOR_RUN|CERTIFICATE=PASS|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=1042273/10000|UPPER_BOUND=104854118000000/1000000000000|certificate_reason=EVERY_REQUIRED_GATE_AND_THE_CLOSING_PIN_CHECK_HELD accepted_certificates=2 stop=DECIDED 
+== BU rc=2 :: FLOOR_RUN|CERTIFICATE=PASS|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=1042273/10000|UPPER_BOUND=104854118000000/1000000000000|certificate_reason=EVERY_REQUIRED_GATE_AND_THE_CLOSING_PIN_CHECK_HELD accepted_certificates=2 stop=DECIDED 
+== BUp rc=3 :: FLOOR_RUN|CERTIFICATE=PASS|PREDICTION=FALSIFIED|DECISION=BELOW|GAMMA=1042273/10000|UPPER_BOUND=104854118000000/1000000000000|certificate_reason=EVERY_REQUIRED_GATE_AND_THE_CLOSING_PIN_CHECK_HELD accepted_certificates=2 stop=DECIDED 
+== PQ rc=2 :: FLOOR_RUN|CERTIFICATE=PASS|PREDICTION=UNRESOLVED|DECISION=UNRESOLVED|GAMMA=1042273/10000|UPPER_BOUND=104854118000000/1000000000000|certificate_reason=ACCEPTED_CERTIFICATES_THEN_STOP_PREREQUISITE_NOT_MET_row_007 accepted_certificates=4 stop=PREREQUISITE_NOT_MET_row_007 
+STEP|m0=6 status=OK writer_peak_kB=7340 verifier_mem_max_kB=17108 resource_limit=HELD bad=none DECISION|after_m0=6 next=ADVANCE STEP|m0=7 status=OK writer_peak_kB=7676 verifier_mem_max_kB=22180 resource_limit=HELD bad=none DECISION|after_m0=7 next=ADVANCE PREREQ|m0=9 status=FAIL bad=verifier_MEM_at_or_over_23000kB 
+PEAK_RSS|kB=16904|exit=0|wall_ms=5641|argv0=/root/floor-v2-final/tmp/floor-run-tools.vT5NPuHV/floorcert
+MEM|41700kB
+DONE

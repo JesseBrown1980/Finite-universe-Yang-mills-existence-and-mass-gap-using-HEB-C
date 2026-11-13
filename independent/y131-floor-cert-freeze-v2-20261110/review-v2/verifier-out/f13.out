@@ -1,0 +1,20 @@
+clean_check_done
+NAME=F13 rc=2 secs=1755
+STEP|m0=7|status=OK|accepted=2|certificates=2|G=1042273/10000|U=104854118000000/1000000000000|U_verifier_only=104854118000000/1000000000000|writer_peak_kB=7620|verifier_mem_max_kB=22188|rowhash=6cfcff1492d3e02a7311a8622ef2dbd41c946898012379519d3ddcbb8958ea3d|k
+DECISION|after_m0=7|state=UNDECIDED|G_max=1042273/10000|G_max_vs_g0=LT|g0=1045/10|U_all=104854118000000/1000000000000|U_all_vs_g0=GE|U_all_verifier_only=104854118000000/1000000000000|inputs=verifier_accepted_certificates_only|next=ADVANCE|rule=row_006(a)|json=
+STEP|m0=8|status=OK|accepted=2|certificates=2|G=1044197/10000|U=104509140000000/1000000000000|U_verifier_only=104509140000000/1000000000000|writer_peak_kB=23640|verifier_mem_max_kB=41712|rowhash=714b8ba3e318c8f85fc617e5c7b2e0213165b443e5c5d2a52bcacbb9b90a12d4|
+DECISION|after_m0=8|state=UNDECIDED|G_max=1044197/10000|G_max_vs_g0=LT|g0=1045/10|U_all=104509140000000/1000000000000|U_all_vs_g0=GE|U_all_verifier_only=104509140000000/1000000000000|inputs=verifier_accepted_certificates_only|next=ADVANCE|rule=row_007(a)|json=
+INJECTED|m0=13|kind=cert|what=sleep_20_under_a_2_second_limit_in_place_of_the_command|json=0
+STEP|m0=13|status=OPFAIL|accepted=0|bad=cert_command_timeout|json=0
+DECISION|after_m0=13|state=UNDECIDED|G_max=1044197/10000|G_max_vs_g0=LT|g0=1045/10|U_all=104509140000000/1000000000000|U_all_vs_g0=GE|U_all_verifier_only=104509140000000/1000000000000|inputs=verifier_accepted_certificates_only|next=STOP|rule=row_007_after_13_s
+FLOOR_RUN|result=UNRESOLVED|comparison=UNDECIDED|scope=REHEARSAL_AT_EXCLUDED_R_NOT_A_SCORE|r=12|g0=1045/10|gamma_cert=1044197/10000|U_all=104509140000000/1000000000000|steps_run=7,8,13|steps_ok=7,8|operational_failures=13|accepted_certificates=4|stop=DECIDED|rule=row_007_after_13_stop_last_step|predict_met=058,059,062,064,066,069,070,073|predict_not_met=060,061,065,068,071|predict_other=063:NOT_EVALUATED,067:NO_GATED_VALUE,072:OPEN_BRANCH_UNDECIDED|freeze_commit=NONE|prediction_sha256=3012db17c1feee49dc9b0a20da162b4272a11825ee1d7ec0631bd50d0108b9a6|binary_sha256=9533e7e902ff565641b34d3bdd0c693ffa0b37baa08575283e00429e2c7fa74f
+ACCEPTED|m0=7|count=2|json=0 ACCEPTED|m0=8|count=2|json=0 ACCEPTED|m0=13|count=0|json=0 
+INVOKE|seq=9|m0=13|kind=rowhash|attempt=1|rc=0|limit_s=21600|log=log/m13_rowhash_a1.txt|log_sha256=5f99bf2d1fe941fa197c4f0686edfd91c64c0ccfe62667b0430b6c693b8474bd
+INVOKE|seq=10|m0=13|kind=rowsonly|attempt=1|rc=0|limit_s=21600|log=log/m13_rowsonly_a1.txt|log_sha256=dea398fac84e32c996d3728729f20c3b8397e3ff89a3e382ae43fdd5b3f11fdb
+PREREQ|m0=13|keys_sha256=b67d54ab32d0c33ac8b1cbd783fa6579c0f7423a342c169a58e4b7c8e86bbc94|keys_pin=row_027|status=PASS|bad=none|json=0
+INVOKE|seq=11|m0=13|kind=cert|attempt=1|rc=124|limit_s=2|log=log/m13_cert_a1.txt|log_sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+MEM|786644kB
+VERDICT|ROWS_ONLY|m0=13|rowhash=902be763e0019b52bd393bffad6abff0d3cd8a9f4ddf8a6f93e8dd283a56654c|keyshash=b67d54ab32d0c33ac8b1cbd783fa6579c0f7423a342c169a58e4b7c8e86bbc94
+GATE|symmetry_image_rows|PASS|classes=89301|images_per_class=2|rows_rebuilt=178602
+ROWHASH_ONLY|m0=13|sha256=902be763e0019b52bd393bffad6abff0d3cd8a9f4ddf8a6f93e8dd283a56654c|keyshash=b67d54ab32d0c33ac8b1cbd783fa6579c0f7423a342c169a58e4b7c8e86bbc94|classes=89301
+PEAK_RSS|kB=443560|exit=0|wall_ms=248883|argv0=work/design/rs/target/release/floorcert

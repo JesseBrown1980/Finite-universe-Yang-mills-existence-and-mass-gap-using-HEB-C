@@ -1,0 +1,4 @@
+Floor certificate prediction (lift-free Schur-Collatz-Wielandt floor for lambda_min(QHQ), periodic 3x4 S3, r = 9): FROZEN by the cloud seat, 2026-11-10.
+Prediction first: nothing r-dependent was computed at r = 9 or within 1 of it; the one critic run at r = 90000001/10^7 is disclosed (row 093).
+The value to compile in as FLOORCERT_PREDICTION_SHA256 is the sha256 of final/PREDICT-S3-3X4-R9-FLOOR-CERT-20261109.hbp below. The r = 9 run happens only after this freeze, with the frozen binary.
+Paths under work/ are the pinned files at their pinned relative paths (the floorcert binary is rebuilt, not committed). Check: sha256sum -c FREEZE-PIN.sha256.

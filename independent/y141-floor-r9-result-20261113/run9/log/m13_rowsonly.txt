@@ -1,0 +1,7 @@
+ROWS_ONLY|keys=/root/floor-r9/repo/independent/y131-floor-cert-freeze-v2-20261110/work/run9/RUN13/core_keys_m13.bin|m0=13|classes=89301
+ENUM|orbits=4123551|classes=89301|weight=24659730|tree_gauge_configurations=24659730
+GATE|class_bijection|PASS|89301 classes
+KEYSHASH|m0=13|sha256=b67d54ab32d0c33ac8b1cbd783fa6579c0f7423a342c169a58e4b7c8e86bbc94
+ROWHASH|m0=13|sha256=902be763e0019b52bd393bffad6abff0d3cd8a9f4ddf8a6f93e8dd283a56654c|classes=89301|tail_moves=4181826|back_moves=22108268|bytes=369199817
+MEM|786964kB
+VERDICT|ROWS_ONLY|m0=13|rowhash=902be763e0019b52bd393bffad6abff0d3cd8a9f4ddf8a6f93e8dd283a56654c|keyshash=b67d54ab32d0c33ac8b1cbd783fa6579c0f7423a342c169a58e4b7c8e86bbc94

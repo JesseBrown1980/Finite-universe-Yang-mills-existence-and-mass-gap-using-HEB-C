@@ -1,0 +1,1 @@
+ENTRY_THROUGH_A_NAMESPACE_HELD_BY_A_BOUND_FILE|exit=4|run_directory_exists=0|processes_in_that_namespace_before_the_entry=0|json=0

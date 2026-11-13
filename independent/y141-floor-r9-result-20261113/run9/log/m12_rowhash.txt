@@ -1,0 +1,13 @@
+GATE|s3_link_table|PASS|36 holonomy pairs x 3 transpositions match the 7-type table
+ENUM|m0=12|classes=65025|secs=4|hwm=3280kB
+KEYSHASH|m0=12|classes=65025|sha256=942c2eed527aa2c327ce2aa5e811c0c64b0c524a46671f4ccb99ee1086ff5479
+ROWS|m0=12|classes=65025|tail_targets=2977316|two_step_back_moves=14202339|secs=143|hwm=311604kB
+GATE|local_delta_vs_full_M|PASS|moves_checked=219048552
+GATE|link_multiset_table|PASS|configurations_checked=3042341
+GATE|symmetry_image_rows|PASS|classes=65025|images_per_class=2|rows_rebuilt=130050
+ROWHASH|m0=12|sha256=f835b2e1ded4b7f3f38d9d7f3f8437ebfa0a6ede53783f224ebbd1e9b4b7dee7|classes=65025|tail_moves=2977316|back_moves=14202339|bytes=247570170|secs=2
+GATE|core_census_vs_closed_form|PASS|M=1..12
+GATE|class_detailed_balance|PASS|edges=1610000
+COLOURINGS|even_t_only=false|signatures=1979
+ROWHASH_ONLY|m0=12|sha256=f835b2e1ded4b7f3f38d9d7f3f8437ebfa0a6ede53783f224ebbd1e9b4b7dee7|keyshash=942c2eed527aa2c327ce2aa5e811c0c64b0c524a46671f4ccb99ee1086ff5479|classes=65025
+PEAK_RSS|kB=311148|exit=0|wall_ms=151198|argv0=/root/floor-r9/repo/independent/y131-floor-cert-freeze-v2-20261110/work/run9/tmp/tools/floorcert
