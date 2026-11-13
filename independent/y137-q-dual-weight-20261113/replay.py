@@ -305,8 +305,42 @@ def main():
         emit("Y137_QDUAL_FIXED_SAMPLE_WEIGHT", lower_num=lo_num // common,
              lower_den=lo_den // common,
              lower_ppb_floor=lo_num * 1000000000 // lo_den,
-             evidence="RIGOROUS_FOR_FIXED_RITZ_FLAT_VECTORS_AND_SAMPLE_ENERGIES_ONLY",
+             evidence="RIGOROUS_FOR_SHIFTED_WILSON_FIXED_SAMPLES_ONLY",
              full_first_spectral_weight="OPEN")
+
+        # A scalar shift O2=2O-7 leaves exact E1-E2 transitions invariant
+        # only after exact orthogonality has been established. The frozen
+        # sample vectors are not certified orthogonal, so bound the full-Q
+        # overlap separately before claiming anything about unshifted O.
+        qn1 = dot_w(t1["q"], t1["q"], ball["wq"])
+        qn2 = dot_w(t2["q"], t2["q"], ball["wq"])
+        overlap_err21 = ceildiv(DEN * sqceil(qres2 * qn1) * PS, g2)
+        overlap_err12 = ceildiv(DEN * sqceil(qres1 * qn2) * PS, g1)
+        overlap_errcross = ceildiv(
+            DEN * sqceil(qres1 * qres2) * PS * PS, g1 * g2)
+        overlap_abs_scaled = (DEN * abs(overlap) + overlap_err21
+                              + overlap_err12 + overlap_errcross)
+        # 2<psi2,O psi1> = <psi2,O2 psi1> + 7<psi2,psi1>.
+        # Both quantities are in integer units 1/DEN.
+        raw_margin_scaled = margin - 7 * overlap_abs_scaled
+        emit("Y137_QDUAL_UNSHIFTED", trial_overlap_W=overlap,
+             overlap_abs_upper_scaled=overlap_abs_scaled,
+             overlap_error_21_scaled=overlap_err21,
+             overlap_error_12_scaled=overlap_err12,
+             overlap_error_cross_scaled=overlap_errcross,
+             raw_margin_scaled=raw_margin_scaled,
+             fixed_sample_unshifted_sign_certified=int(raw_margin_scaled > 0),
+             exact_E1E2_projectors="NOT_ENCLOSED")
+        if raw_margin_scaled > 0:
+            raw_num = raw_margin_scaled * raw_margin_scaled
+            raw_den = 4 * DEN * DEN * maxn1 * maxn2
+            common = gcd(raw_num, raw_den)
+            emit("Y137_QDUAL_RAW_WILSON_FIXED_WEIGHT",
+                 lower_num=raw_num // common,
+                 lower_den=raw_den // common,
+                 lower_ppb_floor=raw_num * 1000000000 // raw_den,
+                 evidence="RIGOROUS_FOR_UNSHIFTED_WILSON_FIXED_SAMPLES_ONLY",
+                 actual_E1E2_weight="OPEN")
     emit("Y137_QDUAL_VERDICT", source_floor="94068200/1000000",
          complete_exterior=1, duals=2, normalized_actual_E1E2_weight="NOT_COMPUTED",
          issue_137="OPEN")
