@@ -1,0 +1,7 @@
+FREEZE|schema=GPT6-INDEPENDENT-V19C-REPLAY-V1|date=2026-11-12|source_main=7934dcaf56362a4370e9c5c2225a3ba48195a0aa|json=0
+SOURCE|block_path=independent/y140-residual-leaves-spectrum-r12-20261112/results/block-cert_m7_r12_1_f1.bin|block_sha256=8eb1455e2042580427df6deba0a2709a05d6f0d013566c4fd4d216a1c57265b5|json=0
+SOURCE|unmodified_algorithm=independent/y140-residual-leaves-spectrum-r12-20261112/scripts/field_v19c.py|per_function_digit_order_shuffle_seeds=19000+100*respond+index|controls=27|json=0
+ASSUMPTION|source_leaves_order=f1_then_f6-5-4-3_then_f8-7-6-5-4|same_m0=9|source_order_may_need_separately_validated_against_original_local_invocation|json=0
+SCOPE|per_shard_only_select_one_original_density_and_one_original_mode_by_replacing_outer_loops_not_simulation_function|runs=6|densities=729,2187,6561|modes=FROZEN,GLOBAL_HASH|json=0
+GATE|six_out_of_six_FANO_cells_match_published_hbp_rows_byte_for_byte=REQUIRED|otherwise=REFUSE_NOT_RETROFIT|json=0
+GATE|block_sha256_exact=REQUIRED|raw_trits_read_only=1|r9=HOLD|physics_claim=NONE|json=0

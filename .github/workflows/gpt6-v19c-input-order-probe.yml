@@ -1,0 +1,122 @@
+name: GPT6 diagnostic V19C input order provenance nonblind
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-v19c-input-order-probe.yml'
+      - 'independent/GPT6_V19C_INPUT_PROVENANCE_DIAGNOSTIC.hbp'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gpt6-input-order-probe-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  probe:
+    name: First authentic 2880-leaf source ${{ matrix.first }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        first: [1, 6-5-4-3, 8-7-6-5-4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Authenticate inputs, constrain only density and one control
+        env:
+          FIRST: ${{ matrix.first }}
+        run: |
+          set -euo pipefail
+          ROOT=independent/y140-residual-leaves-spectrum-r12-20261112
+          (cd "$ROOT/results" && sha256sum -c block-cert_m7_r12_1_f1.bin.sha256)
+          grep -q '^CONTRACT|schema=V19C-INPUT-PROVENANCE-DIAGNOSTIC-V1|' independent/GPT6_V19C_INPUT_PROVENANCE_DIAGNOSTIC.hbp
+          mkdir -p result
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          names=("1","6-5-4-3","8-7-6-5-4")
+          first=os.environ["FIRST"]
+          assert first in names
+          others=[f for f in names if f!=first]
+          Path("result/INPUTS.txt").write_text("\n".join((first,)+tuple(others))+"\n")
+          file=Path("independent/y140-residual-leaves-spectrum-r12-20261112/scripts/field_v19c.py")
+          txt=file.read_text()
+          a="for N in (729, 2187, 6561):"
+          assert txt.count(a)==1
+          txt=txt.replace(a,"for N in (729,):",1)
+          Path("result/v19c-729.py").write_text(txt)
+          PY
+      - name: Run unmodified V19C dynamics at 729 real functions, both modes
+        run: |
+          set -euo pipefail
+          ROOT=independent/y140-residual-leaves-spectrum-r12-20261112
+          FIRST="$(sed -n '1p' result/INPUTS.txt)"
+          SECOND="$(sed -n '2p' result/INPUTS.txt)"
+          THIRD="$(sed -n '3p' result/INPUTS.txt)"
+          python3 -B result/v19c-729.py \
+            "$ROOT/results/block-cert_m7_r12_1_f1.bin" \
+            "$ROOT/leaves/S_cert_m9_r12_1_f$FIRST.leaf.hbp" \
+            "$ROOT/leaves/S_cert_m9_r12_1_f$SECOND.leaf.hbp" \
+            "$ROOT/leaves/S_cert_m9_r12_1_f$THIRD.leaf.hbp" 1 > result/REAL-729.hbp
+          python3 - <<'PY'
+          from pathlib import Path
+          def records(path):
+            r={}
+            for ln in Path(path).read_text().splitlines():
+              if not ln.startswith("FIELD|"):continue
+              fields=dict(z.split("=",1) for z in ln.split("|") if "=" in z)
+              if fields["functions"]=="729":
+                r[fields["mode"]]=(fields["FANO_real"],fields["FAR_real"],fields["centre_share_real"])
+            return r
+          actual=records("result/REAL-729.hbp")
+          expected=records("independent/y140-residual-leaves-spectrum-r12-20261112/results/RESULT-FIELD-V19C.hbp")
+          assert set(actual)==set(expected)=={"FROZEN","GLOBAL_HASH"}
+          first=Path("result/INPUTS.txt").read_text().splitlines()[0]
+          with Path("result/PROBE.hbp").open("w") as w:
+            for mode in ("FROZEN","GLOBAL_HASH"):
+              match=actual[mode]==expected[mode]
+              w.write("PROVENANCE|first_word=%s|mode=%s|observed=%s|published=%s|identical=%d|blind=NO|json=0\n"%(first,mode,",".join(actual[mode]),",".join(expected[mode]),int(match)))
+          print(Path("result/PROBE.hbp").read_text())
+          PY
+          (cd result && sha256sum INPUTS.txt REAL-729.hbp PROBE.hbp > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-v19c-input-order-${{ matrix.first }}
+          path: result/
+          retention-days: 30
+          if-no-files-found: warn
+  gather:
+    name: Gather three provenance checks without postselection
+    needs: probe
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gpt6-v19c-input-order-*
+          path: ordered
+      - name: Verify all three source variants and record all outcomes
+        run: |
+          set -euo pipefail
+          test '${{ needs.probe.result }}' = success
+          {
+            echo 'CONTRACT|schema=V19C-SOURCE-ORDER-AUDIT|status=NOT_BLIND|json=0'
+            for f in 1 6-5-4-3 8-7-6-5-4; do
+              dir="ordered/gpt6-v19c-input-order-$f"
+              (cd "$dir" && sha256sum -c SHA256SUMS)
+              cat "$dir/PROBE.hbp"
+            done
+            echo 'PROVENANCE_PROBE_PASS|first_word_candidates=3|real_density=729|modes=2|r9=HOLD|json=0'
+          } > ordered/SOURCE-ORDER-SEAL.hbp
+          (cd ordered && sha256sum SOURCE-ORDER-SEAL.hbp > SOURCE-ORDER-SEAL.hbp.sha256)
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: gpt6-v19c-nonblind-order-provenance
+          path: |
+            ordered/SOURCE-ORDER-SEAL.hbp
+            ordered/SOURCE-ORDER-SEAL.hbp.sha256
+          retention-days: 30

@@ -1,0 +1,141 @@
+name: GPT6 independent 64 GS inner sweep convergence r12
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-gs64-independent-r12.yml'
+      - 'independent/GPT6_GS64_INDEPENDENT_FREEZE_20261112.hbp'
+      - 'independent/gpt6_gs64_writer_eval_20261112.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: gpt6-gs64-r12-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify64:
+    name: Exact 8-to-64 GS inner sweep certificate, cutoff ${{ matrix.cutoff }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        cutoff: [7, 8, 9]
+    env:
+      M0: ${{ matrix.cutoff }}
+      RUSTUP_TOOLCHAIN: 1.81.0
+      ENGINE: frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs
+      VERIFIER: frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/py/cert_gate.py
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          ref: 8aca957babbb8b0903fb8683422cde30b3f55668
+          path: frozen-engine
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43222707802
+          name: gitram-cutoff-${{ matrix.cutoff }}
+          github-token: ${{ github.token }}
+          path: pinned
+      - name: Authenticate and patch only the inner sweep integer
+        run: |
+          set -euo pipefail
+          grep -q '^METHOD|engine_source_commit=8aca957babbb8b0903fb8683422cde30b3f55668|source_edit_exactly_one=inner_8_to_64|' independent/GPT6_GS64_INDEPENDENT_FREEZE_20261112.hbp
+          (cd pinned && sha256sum -c SHA256SUMS)
+          mkdir -p out
+          python3 - <<'PY'
+          from pathlib import Path
+          from hashlib import sha256
+          p=Path("frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs/src/main.rs")
+          s=p.read_text()
+          old="    let inner = 8usize;"
+          new="    let inner = 64usize;"
+          assert s.count(old)==1 and new not in s
+          t=s.replace(old,new,1)
+          assert t.count(new)==1
+          p.write_text(t)
+          Path("out/ENGINE-PATCH.hbp").write_text(
+              "GS64_SOURCE|old_sha256=%s|new_sha256=%s|modified_token=one_inner_8_to_64|source_commit=8aca957babbb8b0903fb8683422cde30b3f55668|r9=HOLD|json=0\n"
+              %(sha256(s.encode()).hexdigest(),sha256(t.encode()).hexdigest()),encoding="ascii"
+          )
+          PY
+      - name: Compile pinned Rust 1.81 engine with inner=64
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal
+          cargo build --release --locked -j2 --manifest-path "$ENGINE/Cargo.toml"
+          test -x "$ENGINE/target/release/floorcert"
+      - name: Write one original weight word only, at r12
+        run: |
+          set -euo pipefail
+          "$ENGINE/target/release/floorcert" cert \
+            --m0 "$M0" --r 12 --f '6,5,4,3' \
+            --threads 2 --images 2 --sweeps 200 --write-cert --dir out \
+            | tee out/writer.log
+          test "$(find out -maxdepth 1 -name 'cert_m*_r12_1_f*.txt' | wc -l)" -eq 1
+          grep -q 'GATE|class_detailed_balance|PASS' out/writer.log
+          grep -q 'GATE|core_census_vs_closed_form|PASS' out/writer.log
+          if grep -Eq '^CERT[|]r=9' out/writer.log; then exit 1; fi
+      - name: Independently verify exact 64-sweep certificate
+        run: |
+          set -euo pipefail
+          cert="out/cert_m$M0""_r12_1_f6-5-4-3.txt"
+          test -s "$cert"
+          python3 -I -B "$VERIFIER" "$cert" | tee out/CERT-GATE.hbp
+          grep -q '^VERDICT|PASS|' out/CERT-GATE.hbp
+          grep -q '^GATE|row_hash|PASS|' out/CERT-GATE.hbp
+          grep -q '^GATE|r_policy|PASS|' out/CERT-GATE.hbp
+      - name: Independently measure 64-vs-8 sweep signature at the original immutable rows
+        run: |
+          set -euo pipefail
+          python3 -B -m independent.gpt6_gs64_writer_eval_20261112 \
+            pinned "$M0" independent/y140-residual-leaves-spectrum-r12-20261112/leaves out \
+            | tee "out/GS64-CUTOFF-$M0.hbp"
+          grep -q "^GS64_EXACT_PASS|m0=$M0|word=6,5,4,3|" "out/GS64-CUTOFF-$M0.hbp"
+          (cd out && sha256sum ENGINE-PATCH.hbp CERT-GATE.hbp GS64-CUTOFF-*.hbp cert_m*_r12_1_f*.txt > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-64inner-cutoff-${{ matrix.cutoff }}
+          retention-days: 30
+          path: out/
+          if-no-files-found: warn
+  seal:
+    name: Three-cutoff exact 64-inner cross-check all-or-nothing
+    needs: verify64
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gpt6-64inner-cutoff-*
+          path: data
+      - name: Require all verified three cutoff receipts
+        run: |
+          set -euo pipefail
+          test '${{ needs.verify64.result }}' = success
+          {
+            echo 'GS64_SEAL|model=r12|cutoffs=7,8,9|weight=6,5,4,3|inner=64|source_pinned=YES|r9=HOLD|json=0'
+            for m in 7 8 9; do
+              d="data/gpt6-64inner-cutoff-$m"
+              (cd "$d" && sha256sum -c SHA256SUMS)
+              grep -q "^GS64_EXACT_PASS|m0=$m|" "$d/GS64-CUTOFF-$m.hbp"
+              cat "$d/GS64-CUTOFF-$m.hbp"
+            done
+            echo 'GS64_SEAL_PASS|cutoffs=3|inner=64|independent_verifier=YES|r9=HOLD|json=0'
+          } > data/GS64-SEALED.hbp
+          (cd data && sha256sum GS64-SEALED.hbp > GS64-SEALED.hbp.sha256)
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: gpt6-gs64-r12-exact-sealed
+          retention-days: 30
+          path: |
+            data/GS64-SEALED.hbp
+            data/GS64-SEALED.hbp.sha256

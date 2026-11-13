@@ -1,0 +1,144 @@
+name: GPT6 full Rust Yang Mills GS order reversal at r12 only
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-gs-full-reverse-writer-r12.yml'
+      - 'independent/GPT6_REVERSE_WRITER_PREDICTION_20261112.hbp'
+      - 'independent/gpt6_reverse_writer_eval_20261112.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: gpt6-full-reverse-r12-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  reverse:
+    name: Full independent reverse GS writer and certificate verifier m0=${{ matrix.cutoff }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        cutoff: [7, 8, 9]
+    env:
+      M0: ${{ matrix.cutoff }}
+      RUSTUP_TOOLCHAIN: 1.81.0
+      ENGINE: frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs
+      VERIFIER: frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/py/cert_gate.py
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          ref: 8aca957babbb8b0903fb8683422cde30b3f55668
+          path: frozen-engine
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43222707802
+          name: gitram-cutoff-${{ matrix.cutoff }}
+          github-token: ${{ github.token }}
+          path: pinned
+      - name: Verify frozen prediction and original data, patch exactly one inner sweep loop
+        run: |
+          set -euo pipefail
+          grep -q '^PREDICTION|long_words_at_cutoffs_8_and_9_should_have_reverse_sweep_residual_correlating_more_positively_with_B_than_with_U|' independent/GPT6_REVERSE_WRITER_PREDICTION_20261112.hbp
+          grep -q '^LIMIT|r9=HOLD|' independent/GPT6_REVERSE_WRITER_PREDICTION_20261112.hbp
+          (cd pinned && sha256sum -c SHA256SUMS)
+          mkdir -p out
+          python3 - <<'PY'
+          from pathlib import Path
+          from hashlib import sha256
+          path=Path("frozen-engine/independent/y131-floor-cert-freeze-v2-20261110/work/design/rs/src/main.rs")
+          source=path.read_text()
+          needle="        for _ in 0..inner {\n            for a in 0..n {"
+          altered="        for _ in 0..inner {\n            for a in (0..n).rev() {"
+          assert source.count(needle)==1
+          assert altered not in source
+          old=sha256(source.encode()).hexdigest()
+          newer=source.replace(needle,altered,1)
+          assert newer.count(altered)==1
+          path.write_text(newer)
+          with Path("out/ENGINE-PATCH.hbp").open("w") as f:
+              f.write("GS_REVERSE_PATCH|original_sha256=%s|modified_sha256=%s|change=one_inner_sweep_order_only|source_commit=8aca957babbb8b0903fb8683422cde30b3f55668|r9=HOLD|json=0\n"%(old,sha256(newer.encode()).hexdigest()))
+          PY
+      - name: Build Rust 1.81 exact integer reverse sweep fork
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal
+          cargo build --release --locked -j2 --manifest-path "$ENGINE/Cargo.toml"
+          test -x "$ENGINE/target/release/floorcert"
+      - name: Generate three reversal-only r12 excluded-coupling certificates
+        run: |
+          set -euo pipefail
+          "$ENGINE/target/release/floorcert" cert \
+            --m0 "$M0" --r 12 --f '1;6,5,4,3;8,7,6,5,4' \
+            --threads 2 --images 2 --sweeps 200 --write-cert --dir out \
+            | tee out/writer.log
+          grep -q 'GATE|class_detailed_balance|PASS' out/writer.log
+          grep -q 'GATE|core_census_vs_closed_form|PASS' out/writer.log
+          test "$(find out -maxdepth 1 -name 'cert_m*_r12_1_f*.txt' | wc -l)" -eq 3
+          if grep -Eq '^CERT[|]r=9' out/writer.log; then echo 'FORBIDDEN_R9'; exit 1; fi
+      - name: Independent exact nonfloat verification of every newly reversed certificate
+        run: |
+          set -euo pipefail
+          for cert in out/cert_m*_r12_1_f*.txt; do
+            echo "REVERSE_CERT_CHECK|$cert"
+            python3 -I -B "$VERIFIER" "$cert" > "$cert.verifier.log"
+            grep -q '^VERDICT|PASS|' "$cert.verifier.log"
+            grep -q '^GATE|row_hash|PASS|' "$cert.verifier.log"
+            grep -q '^GATE|r_policy|PASS|' "$cert.verifier.log"
+          done
+      - name: Compare reversed writer with original nine exact source leaf patterns
+        run: |
+          set -euo pipefail
+          python3 -B -m independent.gpt6_reverse_writer_eval_20261112 \
+            pinned "$M0" independent/y140-residual-leaves-spectrum-r12-20261112/leaves out \
+            | tee "out/REVERSE-RANK-m0-$M0.hbp"
+          test "$(grep -c '^REVERSE_WRITER|' "out/REVERSE-RANK-m0-$M0.hbp")" -eq 3
+          grep -q "^REVERSE_WRITER_CUTOFF_PASS|m0=$M0|" "out/REVERSE-RANK-m0-$M0.hbp"
+          (cd out && sha256sum cert_m*_r12_1_f*.txt ENGINE-PATCH.hbp REVERSE-RANK-m0-*.hbp > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-rust-reverse-GS-m0-${{ matrix.cutoff }}
+          path: out/
+          retention-days: 30
+          if-no-files-found: warn
+  seal:
+    name: Complete nine-certificate reversed writer with independent source proof
+    needs: reverse
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gpt6-rust-reverse-GS-m0-*
+          path: merge
+      - name: Verify all three complete exact reversals and SHA-256
+        run: |
+          set -euo pipefail
+          test '${{ needs.reverse.result }}' = success
+          {
+            echo 'GS_RUST_REVERSE_SEAL|scope=r12|m0=7,8,9|words=3|engine_rust=1.81|independent_verifier=PASS|r9=HOLD|json=0'
+            for m in 7 8 9; do
+              p="merge/gpt6-rust-reverse-GS-m0-$m"
+              (cd "$p" && sha256sum -c SHA256SUMS)
+              grep -q "^REVERSE_WRITER_CUTOFF_PASS|m0=$m|" "$p/REVERSE-RANK-m0-$m.hbp"
+              cat "$p/REVERSE-RANK-m0-$m.hbp"
+            done
+            echo 'GS_RUST_REVERSE_SEAL_PASS|m0_count=3|weight_words=3|r12_only=YES|json=0'
+          } > merge/GPT6-GS-REVERSED-SEALED.hbp
+          (cd merge && sha256sum GPT6-GS-REVERSED-SEALED.hbp > GPT6-GS-REVERSED-SEALED.hbp.sha256)
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: gpt6-gs-full-reversed-r12-sealed
+          path: |
+            merge/GPT6-GS-REVERSED-SEALED.hbp
+            merge/GPT6-GS-REVERSED-SEALED.hbp.sha256
+          retention-days: 30

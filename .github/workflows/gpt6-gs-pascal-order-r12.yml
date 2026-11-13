@@ -1,0 +1,67 @@
+name: GPT6 exact Pascal geometry under reversed GS order r12
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-gs-pascal-order-r12.yml'
+      - 'independent/GPT6_PASCAL_GS_SWEEP_FREEZE_20261112.hbp'
+      - 'independent/gpt6_gs_pascal_order_20261112.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  independent_geometry:
+    name: Compare same 682 canonical rows and 9 weight/cutoff leaves
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43222707802
+          github-token: ${{ github.token }}
+          pattern: gitram-cutoff-*
+          path: raw-original
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43260992122
+          github-token: ${{ github.token }}
+          pattern: gpt6-rust-reverse-GS-m0-*
+          path: raw-reverse
+      - name: Authenticate all six original/reverse artifact manifests
+        run: |
+          set -euo pipefail
+          grep -q '^PREDICTION|solver_reversal_changes_labeled_nine_column_table=EXPECTED|' independent/GPT6_PASCAL_GS_SWEEP_FREEZE_20261112.hbp
+          mkdir -p inputs/original inputs/reverse report
+          for m in 7 8 9; do
+            test -d "raw-original/gitram-cutoff-$m"
+            test -d "raw-reverse/gpt6-rust-reverse-GS-m0-$m"
+            mv "raw-original/gitram-cutoff-$m" "inputs/original/cutoff-$m"
+            mv "raw-reverse/gpt6-rust-reverse-GS-m0-$m" "inputs/reverse/cutoff-$m"
+            (cd "inputs/original/cutoff-$m" && sha256sum -c SHA256SUMS)
+            (cd "inputs/reverse/cutoff-$m" && sha256sum -c SHA256SUMS)
+          done
+      - name: Calculate old and reversed nine-column Pascal pyramids and transitions exactly
+        run: |
+          set -euo pipefail
+          python3 -B -m independent.gpt6_gs_pascal_order_20261112 \
+            inputs inputs independent/y140-residual-leaves-spectrum-r12-20261112/leaves report/GS-PASCAL.hbp \
+            | tee report/summary.log
+          (cd report && sha256sum -c GS-PASCAL.hbp.sha256)
+          grep -q '^PASCAL_GS_ORDER_COMPARISON_PASS|rows=682|columns=9|r=12|' report/GS-PASCAL.hbp
+          test "$(grep -c '^PASCAL_LAYER|' report/GS-PASCAL.hbp)" -eq 2
+          test "$(grep -c '^PASCAL_COLUMN|' report/GS-PASCAL.hbp)" -eq 9
+          grep -q '^PASCAL_DIFFERENCE|rows_changed=' report/GS-PASCAL.hbp
+          (cd report && sha256sum GS-PASCAL.hbp summary.log > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpt6-gs-pascal-nine-columns-r12
+          path: report/
+          retention-days: 30
+          if-no-files-found: warn

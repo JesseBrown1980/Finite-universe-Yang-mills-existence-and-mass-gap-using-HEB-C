@@ -1,0 +1,6 @@
+CONTRACT|schema=V19C-TAIL-ORDER-PROVENANCE-V1|status=POST_OUTCOME_REPRODUCTION_AUDIT|blind=NO|json=0
+CONFIRMED|first_source_word=6,5,4,3|source=hosted_43260327069|published_m729_all_6_real_metrics=EXACT|json=0
+QUESTION|which_of_remaining_two_published_r12_m9_leaf_files_is_second_for_6561_function_replay|json=0
+CONTROL|test_both_complete_orders=f6543-f1-f87654_and_f6543-f87654-f1|only_original_N6561_and_two_modes|original_dynamics_unchanged=1|scrambles_one_for_runtime_provenance_only=1|json=0
+REQUIRE|compare_FANO_FAR_and_centre_share_real_in_both_modes|report_both_variants_even_if_neither_matches|json=0
+LIMIT|not_blind_scientific_confirmation=1|r9=HOLD|json=0
