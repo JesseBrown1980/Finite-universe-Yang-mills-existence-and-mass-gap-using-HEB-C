@@ -49,8 +49,9 @@ def verify_freeze():
     raw = open(PRED, "rb").read()
     if b"status=FROZEN_BEFORE_NEW_K3_EVALUATIONS" not in raw:
         refuse("not_frozen")
-    expected = ",".join(str(a) for a in POINTS).encode("ascii")
-    if expected not in raw:
+    left = b"E1_candidates=" + ",".join(str(a) for a in POINTS[:4]).encode("ascii")
+    right = b"E2_candidates=" + ",".join(str(a) for a in POINTS[4:]).encode("ascii")
+    if left not in raw or right not in raw:
         refuse("changed_point_grid")
     if b"floor=94068200/1000000" not in raw:
         refuse("floor")
