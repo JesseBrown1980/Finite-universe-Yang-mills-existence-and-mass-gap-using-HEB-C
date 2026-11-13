@@ -4,10 +4,6 @@ c6dbccb93716aae2ed7c014c6c18853c9cfa43a8bd53fafb1c031305f2fb5e26 *./MATRICES-K3.
 734bfcda5b2f1158a95809956cf913999718b90a7a93465831c108000400aaf0 *./README.md
 9c609409f5e7338793bba6158453a54746a4115a39ac368d3df18dd947e84731 *./RECEIPT-K3-LIFTFREE.hbp
 b268a60bdea5326033529b2972c110569db6adbb3c10e7d2d7c40bbec967860e *./RESULT-K3-LIFTFREE.hbp
-9dbe97c513e8b7ce4351c69338288d1ee0cf5d75764eed2f48499a200e2eb62b *./__pycache__/check_k3.cpython-313.pyc
-94b85a9720c83623818466d57c318aa0e21a9d949ecf90a58f85d718a8c03bff *./__pycache__/dump_k3_matrices.cpython-313.pyc
-cd53c6e88444a3de72b23b800339c63af7adcd0a248128dc59066fb27322ef0a *./__pycache__/k3_common.cpython-313.pyc
-f8390beec628e2b50bdfb533e64cb34dc1a3bdfe28ca082da0cd6c80cf1f90d8 *./__pycache__/replay_k3.cpython-313.pyc
 6fed035d7f8a8dde32bc22f3417620bae3014eb4ffe4dbb94bfb26db2fc6bd33 *./check_k3.py
 bd7749b2f98957b2169d168b76aee42b80c18a13c91c9a7eb4b152d85925ea7a *./check_k3.stdout.txt
 371c01ac731fcc09f41e8b28fe5f038e6b9f2c8d5b16e8370cd537cc56d8e97e *./dump_k3_matrices.py
