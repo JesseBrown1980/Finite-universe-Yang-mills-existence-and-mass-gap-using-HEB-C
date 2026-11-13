@@ -33,6 +33,20 @@ This follows from the exact self-adjoint resolvent identity and Cauchy-Schwarz. 
 
 If abs(Acenter)>err, the code may print a **strict rational positive lower weight for the two resolvent-dressed *fixed sample vectors*** after upper-bounding both norms using \(\|y_i-\hat y_i\|\le\|r_i\|/(\gamma-E_i)\). Such a successful sign test establishes a genuine nonzero matrix element for that fixed flat pair with exact infinite-Q dressing. It is **not** a certified \(E_1\to E_2\) spectral transition until the eight-flat null projectors and true energies are rigorously enclosed.
 
+## First hosted result — sign certified for the fixed trial parameters
+
+The first hosted replay at [run 43487300716](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43487300716) passed including the strict no-float and integer-only audits. Its ten exact output rows were filed **after the run** in [RESULT-WILSON-Q-DUAL.hbp](RESULT-WILSON-Q-DUAL.hbp); the revised workflow compares them byte-for-byte on a fresh run.
+
+Results:
+
+- All **155,378 Q states** and **1,985,218 shell-4 targets** were reconstructed. The independent 24-link Wilson observable attained the exact theoretical endpoints **-7 and 14** on the K3 orbits.
+- For the two frozen sample energies, the finite-K3 trial residual norms, rounded outward, are **0.170814** and **0.174313** relative to the W-normalized trial vectors. Their whole-Q residual sums agree **exactly** with the original G forms including the shell-4 contributions.
+- The raw finite-trial normalized Wilson squared amplitude is between **0.001158787** and **0.001158788** (both decimal endpoints are integer-rounded), matching the earlier K3 exploratory magnitude.
+- After evaluating both dual-residual correction terms and the second-order remainder using the accepted Q floor, the shifted observable's signed amplitude interval excludes zero. The **fixed-sample sign test passes** by a large, explicitly positive integer margin.
+- The resulting rigorous rational lower bound for the two **exact Q-resolvent-dressed, frozen sample-flat vectors and frozen sample energies** has a decimal lower endpoint of at least **0.001059210** in normalized squared weight. The exact numerator and denominator are in the receipt. It is a *conditional fixed-sample effective-operator result*, **not** yet the true first-excitation spectral weight.
+
+This is an independently reproducible numerical outcome for the actual K3 trial and complete nonflat Q correction. The result makes the next task precise: certify the true energy-dependent eight-flat eigendirections close enough to this pair that the positive interval survives after the projector error. The source-frozen (E_1,E_2) brackets are now stronger on main via PR #179 (first gap >0.028), but a direction-sensitive Schur error bound must still be computed; the previous broad matrix trace bound near 0.00936 is insufficient by itself.
+
 ## Independent acceptance and remaining theorem obligation
 
 The run must pass source and frozen-grid pins, independent full-link S3 Wilson reconstruction on the actual K3 state keys, complete weighted shell-4 residual squared norms agreeing with Gram G **exactly**, both dual residuals, exterior weighted-balance checks, and strict no-float audits. Negative controls on #178 already establish that a single-link character and a single winding row are invalid symmetry substitutes. The full result should record the approximate-trial overlap, the signed dual-corrected center, each separate error, and either a positive rational fixed-sample enclosure or an explicit HOLD.
