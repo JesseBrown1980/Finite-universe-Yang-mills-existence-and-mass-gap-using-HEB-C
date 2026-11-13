@@ -1,0 +1,41 @@
+name: Issue 137 full-space Wilson algebra and Feshbach exact controls
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-wilson-effective-20261113/**'
+      - '.github/workflows/y137-wilson-effective.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  y137-wilson-transport:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Check frozen predictions
+        run: |
+          set -euo pipefail
+          D=independent/y137-wilson-effective-20261113
+          grep -Fq 'status=FROZEN_BEFORE_REPLAY' "$D/PREDICTION.hbp"
+          grep -Fq 'toy_weight=2/3' "$D/PREDICTION.hbp"
+      - name: Replay exact full-link group and Schur controls
+        run: |
+          set -euo pipefail
+          D=independent/y137-wilson-effective-20261113
+          python3 -I -B "$D/check.py" | tee "$D/RUN.stdout"
+          grep -Fq 'Y137_WILSON_FULLSPACE|fixtures=52|gauge=3744|translations=624|reflections=52|commuting_pairs=18|flat_orbits=8|negative_controls=2|status=PASS|' "$D/RUN.stdout"
+          grep -Fq 'Y137_SCHUR_TOY|P_dim=2|Q_dim=1|lambda=0,6,54|flat_amp=2|tail_amp=-4|full_amp=-2|weight=2/3|identity_dark=0|faulty_coupling_rejected=1|tail_omission_rejected=1|residual_bound=4|status=PASS|' "$D/RUN.stdout"
+          grep -Fq 'Y137_NEXT_VERDICT|scope=observable_algebra_and_toy_only|status=PASS|full_weight=OPEN|' "$D/RUN.stdout"
+      - name: Repository no-floating-point and integer-only audit
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-wilson-effective-20261113/check.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-wilson-effective-prototype
+          path: independent/y137-wilson-effective-20261113/RUN.stdout
+          if-no-files-found: ignore
+          retention-days: 30
