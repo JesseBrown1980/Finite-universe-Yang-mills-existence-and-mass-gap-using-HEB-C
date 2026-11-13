@@ -6,7 +6,7 @@ No trial weights, graph edges, thresholds, Jacobi steps or source are modified.
 Exact integer arithmetic only. New floor is a separate #173 certificate.
 """
 from hashlib import sha1, sha256
-from importlib.util import module_from_spec, spec_from_file_location
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -52,10 +52,9 @@ def source_gate():
 def main():
     result_hash, gate_hash = source_gate()
     blob_pin(OLD_FILE, OLD_SHA)
-    spec = spec_from_file_location("historical_k2_unchanged", OLD_FILE)
-    check(spec is not None and spec.loader is not None, "module_loader")
-    module = module_from_spec(spec)
-    spec.loader.exec_module(module)
+    sys.path.insert(0, str(OLD_FILE.parent))
+    import finite_s3_3x4_r9_first_gap as module
+    check(Path(module.__file__).resolve() == OLD_FILE.resolve(), "pinned_module_path")
 
     name, source_num = module.source_floor()
     check(name == "PINNED_CONDITIONAL_WHOLE_ORBIT_LIFT", "original_source_label")
