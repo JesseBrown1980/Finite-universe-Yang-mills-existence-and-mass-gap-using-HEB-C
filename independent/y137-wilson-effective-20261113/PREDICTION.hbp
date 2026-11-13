@@ -1,0 +1,6 @@
+Y137_NEXT_FREEZE|version=1|status=FROZEN_BEFORE_REPLAY|date=2026-11-13|base=c301c4faead550885b8ace20c519364bcccd0359|json=0
+Y137_NEXT_TARGET|model=periodic_3x4_S3|observable=4_horizontal_plus_3_vertical_faithful_2D_characters|operator=full_24_link_configuration|json=0
+Y137_NEXT_PREDICTION|gauge_invariance=EXACT_FOR_ALL_TESTED_LOCAL_MOVES|translation_invariance=EXACT_ALL_12_SHIFTS|x_reflection=EXACT|class_character=number_of_fixed_points_minus_one|range=-7..14|shift=7/2|norm_upper=21/2|json=0
+Y137_NEXT_FESHBACH|H3_rows=11,-16,-11;-16,38,16;-11,16,11|lambda1=0|lambda2=6|lambda3=54|v1=1,0,1|v2=1,1,-1|v3=-1,2,1|Odiag=2,-1,4|toy_weight=2/3|identity_weight=0|tail_cross_term=-4|flat_cross_term=2|json=0
+Y137_NEXT_ACCEPT|full_space_randomized_symmetry_checks=MANDATORY|negative_gauge_control=MANDATORY|negative_translation_control=MANDATORY|Schur_identity_exact=MANDATORY|identity_dark_channel_zero=MANDATORY|faulty_B_rejected=MANDATORY|tail_omission_rejected=MANDATORY|no_float=MANDATORY|json=0
+Y137_NEXT_SCOPE|positive_weight_full_3x4=OPEN|K3_Ritz_nonzero_not_certified|next_unknown=effective_eigenprojector_error_and_full_Q_resolvent|json=0
