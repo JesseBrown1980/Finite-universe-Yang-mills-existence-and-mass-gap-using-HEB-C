@@ -34,8 +34,11 @@ jobs:
           test "$(grep -c '^Y137_QDUAL_UNSHIFTED|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp)" -eq 1
           grep -Fq 'evidence=RIGOROUS_FOR_SHIFTED_WILSON_FIXED_SAMPLES_ONLY|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
           grep -Fq 'exact_E1E2_projectors=NOT_ENCLOSED|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
-          # The old 10-row result is preserved as a historical reference; after
-          # this amended hosted run we will file its new exact output for cmp.
+          cmp build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp
+          test "$(grep -c '^Y137_QDUAL_' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp)" -eq 12
+          grep -Fq 'fixed_sample_unshifted_sign_certified=1|exact_E1E2_projectors=NOT_ENCLOSED|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
+          grep -Fq 'lower_ppb_floor=416300|evidence=RIGOROUS_FOR_UNSHIFTED_WILSON_FIXED_SAMPLES_ONLY|actual_E1E2_weight=OPEN|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
+          grep -Fq 'lower_ppb_floor=1059210|evidence=RIGOROUS_FOR_SHIFTED_WILSON_FIXED_SAMPLES_ONLY|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
       - name: Strict no-floating-point and integer-only replay audit
         run: |
           set -euo pipefail
