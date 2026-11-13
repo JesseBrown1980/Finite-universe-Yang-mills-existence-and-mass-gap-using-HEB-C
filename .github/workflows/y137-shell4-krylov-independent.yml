@@ -1,0 +1,46 @@
+name: Issue 137 independent shell4-Krylov acceptance preflight
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-shell4-krylov-verifier-20261113/**'
+      - '.github/workflows/y137-shell4-krylov-independent.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-source-pinned-budget-and-faults:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Ensure prediction existed before the hosted replay
+        run: |
+          set -euo pipefail
+          D=independent/y137-shell4-krylov-verifier-20261113
+          grep -Fq 'Y137_INDEP_FREEZE|' "$D/PREDICTION.hbp"
+          grep -Fq 'real_shell4_improvement=NOT_PRESENT|actual_Wilson_first_weight=HOLD|' "$D/PREDICTION.hbp"
+      - name: Run independent integer arithmetic and shell5 omission falsifier
+        run: |
+          set -euo pipefail
+          D=independent/y137-shell4-krylov-verifier-20261113
+          mkdir -p build/y137-shell4-independent
+          python3 -I -B "$D/verify.py" | tee build/y137-shell4-independent/replay.stdout.txt
+          grep -Fq 'accepted_combined_error_per_trillion=144090460519|true_first_Wilson_weight=HOLD|' build/y137-shell4-independent/replay.stdout.txt
+          grep -Fq 'omitted_shell5_rejected=1|tampered_receipt_rejected=1|source_model=TOY_ONLY|' build/y137-shell4-independent/replay.stdout.txt
+          grep -Fq 'case=both_100_fixed_rayleigh|combined_upper_per_trillion=1435396879|would_pass_numeric_gate=0|' build/y137-shell4-independent/replay.stdout.txt
+          grep -Fq 'case=both_101_fixed_rayleigh|combined_upper_per_trillion=1421178505|would_pass_numeric_gate=1|' build/y137-shell4-independent/replay.stdout.txt
+          grep -Fq 'next_real_shell4_certificate=NOT_PRESENT|next_real_energy_brackets=NOT_PRESENT|actual_E1_E2_Wilson_spectral_weight=HOLD|' build/y137-shell4-independent/replay.stdout.txt
+          grep '^Y137_INDEP_' build/y137-shell4-independent/replay.stdout.txt > build/y137-shell4-independent/RESULT-PREFLIGHT.hbp
+          test "$(grep -c '^Y137_INDEP_' build/y137-shell4-independent/RESULT-PREFLIGHT.hbp)" -eq 8
+      - name: Strict repository integer-only and source checks
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-shell4-krylov-verifier-20261113/verify.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-shell4-acceptance-preflight
+          path: build/y137-shell4-independent/replay.stdout.txt
+          if-no-files-found: ignore
+          retention-days: 60
