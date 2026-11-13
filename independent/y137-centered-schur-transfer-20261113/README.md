@@ -52,6 +52,23 @@ This is the **fail-closed identity-selection gate**. If \(m\ge\delta\), report t
 
 The output records every independently auditable rational component: frozen input hashes, raw/centered variational residual, full Q trial and Q residual norm, directional B, PSD error action and Rayleigh, scalar energy drift, original global Q drift and new direction-specific drift, the strict null gap and \(\mu\) gate, the upper sine angles, and a nonvacuous/HOLD verdict.
 
+## Actual first hosted result: both true Schur null branches identified
+
+The first source-pinned [hosted run 43507229795](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43507229795) **PASSED** with both frozen U/G hashes, complete K3 weighted Q data, integer-only/no-float checks, and independent mandatory Rayleigh null-branch selection. Its four exact rows were filed **after the run** as [RESULT-CENTERED-PROJECTOR.hbp](RESULT-CENTERED-PROJECTOR.hbp). The follow-up CI requires byte-for-byte reproduction. A separate BigInt-only route independently rechecked both Rayleigh bounds, both full/centered residual sums and their two rational sine-angle ceilings.
+
+| Certified source-conditioned quantity | E1 | E2 |
+| --- | ---: | ---: |
+| Null separation lower, J_E | 0.038224495 | 0.018969480 |
+| Rayleigh `abs(mu)` upper | 0.003015255473 | 0.003380208233 |
+| Rayleigh selection `mu < gap` | **PASS** | **PASS** |
+| W-normalized centered residual upper | 0.003811712270 | 0.003951336576 |
+| Uncentered sine-angle upper | 0.135704019583 | 0.294217718884 |
+| **Centered sine-angle upper** | **0.108258863901** | **0.253465115951** |
+
+Both true eight-flat null directions now have mathematically nonvacuous **source-conditional** projector estimates; neither of these inequalities would have been valid by simply dropping the scalar energy term without the Rayleigh selection check. Compared with accepted #181's first bounds 0.842057984250 and vacuous 1.465570680225, this gives a substantive numerical improvement with source-complete proof details.
+
+**Remaining HOLD:** these are flat P-space angles, not complete W-normalized state-to-sample errors. The E1/E2 Wilson theorem needs the flat phase discrepancy, true-vs-sample energy-dependent Q-resolvent corrections, full normalization, and an operator-specific signed amplitude enclosure. The simple sufficient combined normalized-state error target of 1/700 is still far smaller than these flat angles; the positive conventional Wilson fixed-sample rational lower bound of merged #180 remains intact and requires no reclassification.
+
 ## Scope and next proof obligation
 
 This is a **rigorous finite-model flat-projector error diagnostic** conditional on the accepted source floor and independently confirmed #182 energy windows. It does not assert the actual positive E1→E2 Wilson spectral weight. Merged #180 already certifies a positive *original unshifted conventional Wilson* fixed-Q-resolvent-sample transition. To transfer that sign, full Q-tail and normalized state errors must be bounded as well; a simple sufficient combined W-state error target is **<1/700**, or an operator-specific signed interval proof must close.
