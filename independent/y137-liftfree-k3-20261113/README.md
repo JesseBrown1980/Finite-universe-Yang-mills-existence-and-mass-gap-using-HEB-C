@@ -24,7 +24,7 @@ So, on the 3×4 lattice at r = 9, conditional only on the #173 certificate for t
 | Frozen prediction | `PREDICTION.hbp` | commit `debf755`, before the replay code and the run |
 | Original #155 source | `src155/y137_k3_sector_isolation.py` | sha256 `f3461aa8…e28ff`; draft receipt `cf91b9e4…16ef` |
 | #173 floor certificate and verifier | `../y142-floor-word-search-20261113/m13/` | certificate `7ad6e199…a6b6`; `gate_required.sh` `0064ca46…849c`; `cert_gate.py` `6043d089…2889` |
-| K3 replay | `replay_k3.py`, `RESULT-K3-LIFTFREE.hbp`, `replay_k3.stdout.txt` | result `6b86dacf…29ed`; draft receipt reproduced byte for byte |
+| K3 replay | `replay_k3.py` with `k3_common.py`, `RESULT-K3-LIFTFREE.hbp`, `replay_k3.stdout.txt` | result `b268a60b…860e`; draft receipt reproduced byte for byte |
 | Independent checker | `check_k3.py`, `check_k3.stdout.txt` | 3 of 3 points agree |
 | Hosted receipt | `.github/workflows/y137-liftfree-k3.yml` | runs both at the pull-request head |
 
@@ -33,9 +33,16 @@ The summary rows are in `RECEIPT-K3-LIFTFREE.hbp`.
 ## How it was done
 
 - **Replay.** The draft script is imported unmodified from a fresh directory holding only it and
-  the merged #136 checker. Its `main` runs as written and rewrites its own receipt identically.
-  The trial matrices U and G do not depend on the floor; the lower matrix for the new floor is
-  L = 6(b·floor − a·10⁶)U − 10⁶G, formed from the same U and G.
+  the merged #136 checker. First its `main` runs as written and rewrites its own receipt
+  identically. Then the K3 ball is built again with the draft's own functions and its threshold
+  function is called at the three original points; the U, G and L hashes and the counts on the
+  old floor equal the rows of the draft receipt, so these are the draft's matrices. U and G do
+  not depend on the floor; the lower matrix for the new floor is L = 6(b·floor − a·10⁶)U − 10⁶G.
+- **Two versions.** Version 1 (commit `6663fc8`, run first) observed the draft's calls by
+  replacing a function in the imported module; the repository's no-float gate refuses that.
+  Version 2 is the gate-clean form described above. Same counts, and the same U and G entry for
+  entry. Version 1's output is kept in `v1/`. The prediction's points, fallback points and
+  outcomes are unchanged; its method line said "observed", and version 2 calls directly.
 - **Checker.** Counts negative eigenvalues from the integer characteristic polynomial by sign
   changes (exact for a symmetric matrix), with its own even/odd basis and exact zero cross terms.
   The draft and the replay use the #136 checker's inertia routine instead.

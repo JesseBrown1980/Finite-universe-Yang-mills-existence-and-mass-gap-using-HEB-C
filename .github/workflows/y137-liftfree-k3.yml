@@ -26,7 +26,8 @@ jobs:
           test "$(sha256sum independent/y131-floor-cert-freeze-v2-20261110/work/design/gate_required.sh | cut -d' ' -f1)" = "0064ca4654aa8725f2040f8b50b01e95a521966eada0ac75ffdf2ee63b98849c"
           test "$(sha256sum independent/y131-floor-cert-freeze-v2-20261110/work/design/py/cert_gate.py | cut -d' ' -f1)" = "6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889"
           (cd $D && sha256sum -c SHA256SUMS --quiet)
-          python3 -I -X utf8 native/scripts/integer_only_audit.py $D/replay_k3.py $D/check_k3.py $D/dump_k3_matrices.py $D/src155/y137_k3_sector_isolation.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py $D/k3_common.py $D/replay_k3.py $D/check_k3.py $D/dump_k3_matrices.py $D/src155/y137_k3_sector_isolation.py
       - name: Replay the draft K3 isolation with the old and the lift-free floor
         run: |
           set -euo pipefail
@@ -38,7 +39,7 @@ jobs:
           cmp build/y137-liftfree-k3/RESULT-K3-LIFTFREE.hbp $D/RESULT-K3-LIFTFREE.hbp
           cmp build/y137-liftfree-k3/DRAFT-RECEIPT-REPRODUCED.hbp $D/DRAFT-RECEIPT-REPRODUCED.hbp
           test "$(sha256sum build/y137-liftfree-k3/DRAFT-RECEIPT-REPRODUCED.hbp | cut -d' ' -f1)" = "cf91b9e4d842698d4972ac8df6ff6210bd3f439f561a354bca2954aac36716ef"
-          grep -Fq 'LIFT_FREE_K3_VERDICT|status=ISOLATION_HOLDS_LIFT_FREE|' build/y137-liftfree-k3/RESULT-K3-LIFTFREE.hbp
+          grep -Fq 'LIFT_FREE_K3_VERDICT|status=ISOLATION_HOLDS_LIFT_FREE|outcome=PRIMARY_PASS|' build/y137-liftfree-k3/RESULT-K3-LIFTFREE.hbp
           test "$(grep -c '^LIFT_FREE_K3_LADDER|' build/y137-liftfree-k3/RESULT-K3-LIFTFREE.hbp || true)" -eq 0
       - name: Independent inertia count from the exact matrices
         run: |
@@ -47,6 +48,8 @@ jobs:
           python3 -I -B $D/check_k3.py | tee build/y137-liftfree-k3/check.stdout.txt
           test "$(grep -c '^LIFT_FREE_K3_CHECK|.*|agree=1|' build/y137-liftfree-k3/check.stdout.txt)" -eq 3
           grep -Fq 'LIFT_FREE_K3_CHECK_VERDICT|status=PRIMARY_PASS|' build/y137-liftfree-k3/check.stdout.txt
+          python3 -I -B $D/dump_k3_matrices.py | grep '^K3MAT' > build/y137-liftfree-k3/MATRICES-K3.hbp
+          cmp build/y137-liftfree-k3/MATRICES-K3.hbp $D/MATRICES-K3.hbp
           sha256sum build/y137-liftfree-k3/* > build/y137-liftfree-k3/SHA256SUMS
       - uses: actions/upload-artifact@v4
         if: always()

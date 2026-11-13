@@ -1,180 +1,136 @@
 #!/usr/bin/env python3
 """Issue #137: the K3 reflection-sector isolation of draft #155, read on the lift-free floor.
 
-The draft script is imported unmodified (pinned by sha256) from a fresh directory that holds
-only it and the merged checker (pinned by git blob). Its main() runs as written with the old
-floor and must write the draft receipt byte for byte. Every call of its threshold_ball is
-observed: U and G do not depend on the floor, so the lower matrix for the new floor,
-    L_new = 6 * (b*NEW_G - a*10^6) * U - 10^6 * G,
-is formed from the same U and G, and its inertia and sector counts are taken with the draft
-script's own functions. Integer arithmetic only. No arguments.
-usage: python3 -I -B replay_k3.py
+Version 2 of this file (the repository's no-float gate refuses a store into a module, which
+version 1 used to observe the draft's calls; version 1 is kept as v1/replay_k3_v1.py with its
+output). Nothing is stored into the draft module here:
+  1. the draft's main() runs as written, with the old floor, and must write the draft receipt
+     byte for byte;
+  2. the K3 ball is built again by the draft's own functions (k3_common.build_k3) and the
+     draft's threshold_ball is called at the three original points with the old floor; its U,
+     G and L hashes and its counts must equal the rows of the reproduced draft receipt, which
+     shows these are the draft's matrices;
+  3. U and G do not depend on the floor, so L_new = 6*(b*NEW_G - a*10^6)*U - 10^6*G is formed
+     from the same U and G; its inertia and sector counts are taken with the draft's own
+     functions.
+Integer arithmetic only. No arguments.   usage: python3 -I -B replay_k3.py
 """
 import hashlib
-import importlib.util
 import os
-import shutil
 import sys
-import tempfile
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(os.path.dirname(HERE))
-SCRIPT = os.path.join(HERE, "src155", "y137_k3_sector_isolation.py")
-CHECKER = os.path.join(ROOT, "independent", "finite_s3_3x4_r9_first_gap.py")
-RESULT = os.path.join(ROOT, "independent", "y142-floor-word-search-20261113",
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # python3 -I leaves it out
+import k3_common as k  # noqa: E402
+import y137_k3_sector_isolation as mod  # noqa: E402  the pinned copy; k3_common put its directory first
+
+RESULT = os.path.join(k.ROOT, "independent", "y142-floor-word-search-20261113",
                       "RESULT-WORD-SEARCH.hbp")
-SCRIPT_SHA = "f3461aa8a50cfa9efb4a1bbdc2d7be44ec1d4a13c80c47fd55fa07de60be28ff"
-CHECKER_BLOB = "91bd1e80cbfcfb76198966aa177d097ecfbe8143"
 RESULT_BLOB = "57de51858e6a44dadd51c6e8419a549343145038"
 RECEIPT_SHA = "cf91b9e4d842698d4972ac8df6ff6210bd3f439f561a354bca2954aac36716ef"
-OLD_G = 94070673
-NEW_G = 94068200
-PS = 1000000
-Z0, Z1, Z2 = 699567503, 699686993, 699689591
+Z0, Z1, Z2 = k.POINTS
 LADDER = (699686000, 699680000, 699650000, 699600000)
-K3_B, K3_STEPS, K3_SCALE, K3_N = 10 ** 7, 12, 10 ** 12, 155378
 ROWS = []
 
 
 def emit(label, **fields):
-    row = label + "|" + "|".join(str(k) + "=" + str(v) for k, v in fields.items()) + "|json=0"
+    row = label + "|" + "|".join(str(a) + "=" + str(v) for a, v in fields.items()) + "|json=0"
     ROWS.append(row)
     print(row, flush=True)
 
 
-def refuse(label):
-    print("LIFT_FREE_K3_REFUSE|gate=" + label + "|json=0", flush=True)
-    raise SystemExit(1)
-
-
-def blob(path):
-    raw = open(path, "rb").read()
-    return hashlib.sha1(b"blob " + str(len(raw)).encode("ascii") + bytes((0,)) + raw).hexdigest()
+def fields_of(line):
+    return dict(p.split("=", 1) for p in line.split("|")[1:] if "=" in p)
 
 
 def main():
-    if len(sys.argv) != 1:
-        raise SystemExit("usage: python3 -I -B replay_k3.py   (no arguments)")
-    if hashlib.sha256(open(SCRIPT, "rb").read()).hexdigest() != SCRIPT_SHA:
-        refuse("draft_script_sha256")
-    if blob(CHECKER) != CHECKER_BLOB:
-        refuse("checker_git_blob")
-    if blob(RESULT) != RESULT_BLOB:
-        refuse("liftfree_result_git_blob")
+    if k.blob(RESULT) != RESULT_BLOB:
+        k.refuse("liftfree_result_git_blob")
     text = open(RESULT, "rb").read().decode("utf-8")
     if "gamma=940682/10000|" not in text or "pinned_verifier=GATE_REQUIRED_PASS|" not in text:
-        refuse("liftfree_result_value")
-    if not (NEW_G * 10000 == 940682 * PS and NEW_G < OLD_G):
-        refuse("liftfree_floor_number")
-
-    work = tempfile.mkdtemp(prefix="y137k3_")
-    shutil.copyfile(SCRIPT, os.path.join(work, "y137_k3_sector_isolation.py"))
-    shutil.copyfile(CHECKER, os.path.join(work, "finite_s3_3x4_r9_first_gap.py"))
-    spec = importlib.util.spec_from_file_location(
-        "y137_k3_sector_isolation", os.path.join(work, "y137_k3_sector_isolation.py"))
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+        k.refuse("liftfree_result_value")
+    if not (k.NEW_G * 10000 == 940682 * k.PS and k.NEW_G < k.OLD_G):
+        k.refuse("liftfree_floor_number")
+    work = k.WORK
     c = mod.c
-    if not (mod.FLOOR_NUM == OLD_G and mod.PS == PS and mod.K3_POINTS == (Z0, Z1, Z2)
-            and mod.K3_B == K3_B and mod.K3_STEPS == K3_STEPS and mod.K3_SCALE == K3_SCALE):
-        refuse("draft_constants")
-    emit("LIFT_FREE_K3_BEGIN", draft_script_sha256=SCRIPT_SHA, checker_git_blob=CHECKER_BLOB,
-         liftfree_result_git_blob=RESULT_BLOB, old_floor=str(OLD_G) + "/1000000",
-         new_floor=str(NEW_G) + "/1000000", draft_script_modified="NO")
+    emit("LIFT_FREE_K3_BEGIN", version=2, draft_script_sha256=k.SCRIPT_SHA,
+         checker_git_blob=k.CHECKER_BLOB, liftfree_result_git_blob=RESULT_BLOB,
+         old_floor=str(k.OLD_G) + "/1000000", new_floor=str(k.NEW_G) + "/1000000",
+         draft_script_modified="NO", stores_into_the_draft_module=0)
 
-    original = mod.threshold_ball
-    seen = {}
-    state = {"ball3": None, "calls": 0}
-
-    def new_side(a, b, r):
-        gamma = b * NEW_G - a * PS
-        if gamma <= 0:
-            return None
-        U, G = r["U"], r["G"]
-        L = [[6 * gamma * U[i][j] - PS * G[i][j] for j in range(8)] for i in range(8)]
-        nlo = c.inertia(L)
-        out = dict(nlo=nlo, nhi=r["nhi"], hl=mod.sha_matrix(L), sectors=None)
-        try:
-            out["sectors"] = mod.sectors(dict(L=L, U=U, nlo=nlo, nhi=r["nhi"]))
-        except SystemExit:
-            out["sectors"] = None
-        return out
-
-    def observed(a, b, steps, scale, ball, floor_num, round_like_original=False,
-                 keep_y=False):
-        r = original(a, b, steps, scale, ball, floor_num, round_like_original, keep_y)
-        state["calls"] += 1
-        if floor_num != OLD_G:
-            return r
-        n = new_side(a, b, r)
-        is_k3 = (ball["n"] == K3_N and b == K3_B and steps == K3_STEPS and scale == K3_SCALE)
-        if is_k3:
-            state["ball3"] = ball
-        if n is not None:
-            s = n["sectors"]
-            emit("LIFT_FREE_K3_CALL", call=state["calls"], q_states=ball["n"],
-                 z=str(a) + "/" + str(b), steps=steps,
-                 rounding="original" if round_like_original else "checker",
-                 old_lower=r["nlo"], new_lower=n["nlo"], upper=r["nhi"],
-                 new_even_lower="NA" if s is None else s["even_lower"],
-                 new_even_upper="NA" if s is None else s["even_upper"],
-                 new_odd_lower="NA" if s is None else s["odd_lower"],
-                 new_odd_upper="NA" if s is None else s["odd_upper"],
-                 U_sha256=r["hu"], G_sha256=r["hg"], L_old_sha256=r["hl"],
-                 L_new_sha256=n["hl"])
-            if n["nlo"] < r["nlo"]:
-                refuse("new_lower_count_below_old_lower_count")
-            if is_k3 and not round_like_original and s is not None:
-                seen[a] = (s["even_lower"], s["even_upper"], s["odd_lower"], s["odd_upper"])
-        return r
-
-    mod.threshold_ball = observed
     mod.main()
-    mod.threshold_ball = original
-
-    got = hashlib.sha256(open(os.path.join(work, mod.OUT_NAME), "rb").read()).hexdigest()
+    raw = open(os.path.join(work, mod.OUT_NAME), "rb").read()
+    got = hashlib.sha256(raw).hexdigest()
     emit("LIFT_FREE_K3_DRAFT_RECEIPT", sha256=got, expected=RECEIPT_SHA,
          byte_identical=int(got == RECEIPT_SHA))
     if got != RECEIPT_SHA:
-        refuse("draft_receipt_not_reproduced")
-    if set(seen) != {Z0, Z1, Z2}:
-        refuse("K3_points_not_all_observed")
+        k.refuse("draft_receipt_not_reproduced")
+    draft = {}
+    for line in raw.decode("utf-8").split("\n"):
+        if line.startswith("Y137_K3_SECTOR|ball=K3|"):
+            f = fields_of(line)
+            draft[int(f["z"].split("/")[0])] = f
+    if set(draft) != set(k.POINTS):
+        k.refuse("draft_receipt_K3_rows")
 
-    emit("LIFT_FREE_K3_POINTS", order="even_lower,even_upper,odd_lower,odd_upper",
-         z0=",".join(str(x) for x in seen[Z0]), z1=",".join(str(x) for x in seen[Z1]),
-         z2=",".join(str(x) for x in seen[Z2]), old="2,2,0,0;2,2,0,0;3,2,0,0")
+    ball3 = k.build_k3()
+    seen = {}
+    for a in k.POINTS:
+        r = mod.threshold_ball(a, k.K3_B, k.K3_STEPS, k.K3_SCALE, ball3, k.OLD_G)
+        so = mod.sectors(r)
+        d = draft[a]
+        same = ((r["hu"], r["hg"], r["hl"]) == (d["U_sha256"], d["G_sha256"], d["L_sha256"])
+                and (so["even_lower"], so["even_upper"], so["odd_lower"], so["odd_upper"])
+                == (int(d["even_lower_count"]), int(d["even_upper_count"]),
+                    int(d["odd_lower_count"]), int(d["odd_upper_count"])))
+        if not same:
+            k.refuse("old_floor_matrices_differ_from_the_draft_receipt")
+        L = k.lower_for(a, k.NEW_G, r["U"], r["G"])
+        nlo = c.inertia(L)
+        sn = mod.sectors(dict(L=L, U=r["U"], nlo=nlo, nhi=r["nhi"]))
+        if nlo < r["nlo"]:
+            k.refuse("new_lower_count_below_old_lower_count")
+        seen[a] = (sn["even_lower"], sn["even_upper"], sn["odd_lower"], sn["odd_upper"])
+        emit("LIFT_FREE_K3_POINT", z=str(a) + "/" + str(k.K3_B), steps=k.K3_STEPS,
+             scale="10^12", rounding="checker", q_states=ball3["n"],
+             old_total_lower=r["nlo"], new_total_lower=nlo, total_upper=r["nhi"],
+             old_counts=",".join(str(so[x]) for x in ("even_lower", "even_upper",
+                                                      "odd_lower", "odd_upper")),
+             new_even_lower=sn["even_lower"], new_even_upper=sn["even_upper"],
+             new_odd_lower=sn["odd_lower"], new_odd_upper=sn["odd_upper"],
+             same_U_G_L_old_as_the_draft_receipt=1, U_sha256=r["hu"], G_sha256=r["hg"],
+             L_old_sha256=r["hl"], L_new_sha256=mod.sha_matrix(L))
+
     at_z0 = seen[Z0] == (2, 2, 0, 0)
     bound = None
     if seen[Z1][0] == 2 and seen[Z1][2] == 0:
         bound = Z1
     else:
         for a in LADDER:
-            r = original(a, K3_B, K3_STEPS, K3_SCALE, state["ball3"], NEW_G)
+            r = mod.threshold_ball(a, k.K3_B, k.K3_STEPS, k.K3_SCALE, ball3, k.NEW_G)
             s = mod.sectors(r)
-            emit("LIFT_FREE_K3_LADDER", z=str(a) + "/" + str(K3_B), even_lower=s["even_lower"],
-                 even_upper=s["even_upper"], odd_lower=s["odd_lower"],
-                 odd_upper=s["odd_upper"], U_sha256=r["hu"], G_sha256=r["hg"],
-                 L_new_sha256=r["hl"])
+            emit("LIFT_FREE_K3_LADDER", z=str(a) + "/" + str(k.K3_B),
+                 even_lower=s["even_lower"], even_upper=s["even_upper"],
+                 odd_lower=s["odd_lower"], odd_upper=s["odd_upper"], U_sha256=r["hu"],
+                 G_sha256=r["hg"], L_new_sha256=r["hl"])
             if s["even_lower"] == 2 and s["odd_lower"] == 0:
                 bound = a
                 break
     odd_bound = Z2 if seen[Z2][2] == 0 else bound
+    primary = at_z0 and bound == Z1 and seen[Z2] == (3, 2, 0, 0)
     holds = at_z0 and bound is not None and bound > Z0
     emit("LIFT_FREE_K3_VERDICT",
          status="ISOLATION_HOLDS_LIFT_FREE" if holds else "ISOLATION_NOT_ESTABLISHED",
-         z0=str(Z0) + "/" + str(K3_B),
-         even_levels_below_z0="2..2" if at_z0 else "see_POINTS",
-         odd_levels_below_z0="0..0" if at_z0 else "see_POINTS",
-         E3_even_GE="NA" if bound is None else str(bound) + "/" + str(K3_B),
-         E_odd_GE="NA" if odd_bound is None else str(odd_bound) + "/" + str(K3_B),
-         floor="lift-free_" + str(NEW_G) + "/1000000_(PR_173)",
+         outcome=("PRIMARY_PASS" if primary else
+                  "PRIMARY_CERTIFICATE_NOT_ESTABLISHED_FALLBACK_PASS" if holds else
+                  "CERTIFICATE_NOT_ESTABLISHED"),
+         z0=str(Z0) + "/" + str(k.K3_B),
+         even_levels_below_z0="2..2" if at_z0 else "see_POINT_rows",
+         odd_levels_below_z0="0..0" if at_z0 else "see_POINT_rows",
+         E3_even_GE="NA" if bound is None else str(bound) + "/" + str(k.K3_B),
+         E_odd_GE="NA" if odd_bound is None else str(odd_bound) + "/" + str(k.K3_B),
+         floor="lift-free_" + str(k.NEW_G) + "/1000000_(PR_173)",
          draft_open_items="UNCHANGED", Wilson_first_weight="OPEN")
-    emit("LIFT_FREE_K3_COMPLETE", threshold_calls=state["calls"], rows=len(ROWS) + 1)
-    data = ("\n".join(ROWS) + "\n").encode("utf-8")
-    with open(os.path.join(work, "RESULT-K3-LIFTFREE.hbp"), "wb") as fh:
-        fh.write(data)
-    print("WROTE|" + os.path.join(work, "RESULT-K3-LIFTFREE.hbp") + "|sha256="
-          + hashlib.sha256(data).hexdigest(), flush=True)
+    emit("LIFT_FREE_K3_COMPLETE", points=3, rows=len(ROWS) + 1)
 
 
 if __name__ == "__main__":
