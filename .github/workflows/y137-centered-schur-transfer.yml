@@ -1,0 +1,49 @@
+name: Issue 137 centered K3 Schur actual eigendirection error
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-centered-schur-transfer-20261113/**'
+      - '.github/workflows/y137-centered-schur-transfer.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  centered-k3-schur:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Freeze, source pins and exact new bracket declaration
+        run: |
+          set -euo pipefail
+          D=independent/y137-centered-schur-transfer-20261113
+          test "$(git hash-object "$D/PREDICTION.hbp")" = "6ac22c5c573464dceabbe3325f1f06f27560f48b"
+          grep -Fq 'status=SEALED_BEFORE_CENTERED_PROJECTOR_RUN' "$D/PREDICTION.hbp"
+          grep -Fq 'E2-E1_gt_num=38224495|E3-E2_gt_num=18969480' "$D/PREDICTION.hbp"
+          test "$(sha256sum independent/y137-liftfree-k3-20261113/src155/y137_k3_sector_isolation.py | cut -d' ' -f1)" = "f3461aa8a50cfa9efb4a1bbdc2d7be44ec1d4a13c80c47fd55fa07de60be28ff"
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = "91bd1e80cbfcfb76198966aa177d097ecfbe8143"
+      - name: Evaluate exact centered Schur Rayleigh and null-branch projector errors
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-centered
+          python3 -I -B independent/y137-centered-schur-transfer-20261113/replay.py | tee build/y137-centered/replay.stdout.txt
+          test "$(grep -c '^Y137_CENTER_POINT|' build/y137-centered/replay.stdout.txt)" -eq 2
+          grep -Fq 'Y137_CENTER_VERDICT|samples=2|' build/y137-centered/replay.stdout.txt
+          grep -Fq 'actual_Wilson_first_weight=OPEN|' build/y137-centered/replay.stdout.txt
+          grep '^Y137_CENTER_' build/y137-centered/replay.stdout.txt > build/y137-centered/RESULT-CENTERED-PROJECTOR.hbp
+          cmp build/y137-centered/RESULT-CENTERED-PROJECTOR.hbp independent/y137-centered-schur-transfer-20261113/RESULT-CENTERED-PROJECTOR.hbp
+          grep -Fq 'selected_sin_upper_per_trillion=108258863901|nonvacuous=1|' build/y137-centered/RESULT-CENTERED-PROJECTOR.hbp
+          grep -Fq 'selected_sin_upper_per_trillion=253465115951|nonvacuous=1|' build/y137-centered/RESULT-CENTERED-PROJECTOR.hbp
+          grep -Fq 'null_branch_identified=2|source_energy_windows=PR182_14_point_count_certified|' build/y137-centered/RESULT-CENTERED-PROJECTOR.hbp
+      - name: Source no-float and integer-only rules
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-centered-schur-transfer-20261113/replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-source-centered-Schur-projector-error
+          path: build/y137-centered/replay.stdout.txt
+          if-no-files-found: ignore
+          retention-days: 60
