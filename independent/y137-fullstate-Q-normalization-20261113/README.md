@@ -69,6 +69,33 @@ If the sum of independently certified full normalized-state errors is **strictly
 
 This lane may identify a major exact norm shortcut while simultaneously demonstrating how much *true eigendirection* accuracy remains to be gained. A HOLD is scientifically useful: the next work then targets the eight-flat Schur source/exterior residual rather than further Q normalization guesses.
 
+## First hosted result: exact B isometry; full-state transfer HOLD
+
+The first source-pinned [hosted run 43511704782](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43511704782) **PASSED** including all K3 source checks, exact no-floating-point and integer-only checks. Its six output rows were filed **after** the run as [RESULT-FULL-W-NORM.hbp](RESULT-FULL-W-NORM.hbp); the revised workflow requires byte-identical reproduction on the final head.
+
+The previously frozen exact coupling-Gram hypothesis **was confirmed**. The full 8×8 raw integer `M=CᵀW_Q C` is diagonal with entries
+
+    diag(M) = (72,216,144,216,216,144,144,144)
+    diag(W_P) = (1,3,2,3,3,2,2,2)
+
+Hence `M=72 W_P` **exactly**, so `B*B=72I_8` and the actual operator norm is `||B||=sqrt(72)=6sqrt(2)`. The complete source has **264 nonzero P/Q coupling entries**. This result is considerably stronger than the old `||B||<=24` Frobenius bound. The exact integer minimal-PSD test certified `K=72`, rejected `K=71`, verified the full weighted trace 576 and rejected a simulated missing-edge witness. It is a separate source-conditional finite Hamiltonian structure result.
+
+The full Q-resolvent-dressed norm intervals (integer-rational outward enclosures, units J_E) are:
+
+| Quantity | Fixed sample 1 | Fixed sample 2 |
+| --- | ---: | ---: |
+| `||R_z Bv||` | [0.245203944133, 0.259788930946] | [0.240019603536, 0.254910334285] |
+| Complete fixed sample `||(v,-R_zBv)||` | [1.029623705155, 1.033194216323] | [1.028401385686, 1.031978332392] |
+| Complete true eigenstate with **unit flat P component**, before normalization | [1.021221826434, 1.043424637589] | [1.011201082923, 1.057786913153] |
+| True-vs-sample aligned flat P error | ≤0.108418281771 | ≤0.255560061211 |
+| Q error from P-direction rotation | ≤0.038080440021 | ≤0.089910305721 |
+| Q error from true-vs-sample energy shift | ≤0.000014791630 | ≤0.000017225718 |
+| **Full normalized W-state distance** | **≤0.112068242735** | **≤0.265669528365** |
+
+The total rigorously enclosed true-vs-fixed-sample normalized state distance is **≤0.377737771100**, whereas the sufficient positivity target inherited from merged #180 is **<1/700≈0.001428571429**. The source-based inequality therefore gives an explicit **HOLD**, with a gap of over 264× in this sufficient bound. The code reports `transfer_sufficient_gate=0`, `true_E1_E2_positive_Wilson_weight=0` as an *unproved* acceptance status, never as a claim that the actual physical matrix element vanishes.
+
+**New mathematical priority:** the complete full-state normalizations are now rigorously enclosed; the source Q-energy dependence contributes only about `1.5–1.7×10^-5` per state. The overwhelming contribution is the currently permitted flat projector rotation (0.1084/0.2556), itself driven by the residual Schur uncertainty of roughly 0.0035–0.004. The next calculation should prioritize a sharper exact **source Q Schur error action**, likely by improving exterior residual/Schur spectral bounds or a larger/source-efficient Krylov Feshbach certificate. Additional digits in the same K3 trial and slightly narrower energy windows alone will not close this factor-264 error budget. Another possible route is an operator-specific Wilson transition interval requiring much less uniform eigenvector accuracy.
+
 ## Run
 
     python3 -I -B independent/y137-fullstate-Q-normalization-20261113/replay.py
