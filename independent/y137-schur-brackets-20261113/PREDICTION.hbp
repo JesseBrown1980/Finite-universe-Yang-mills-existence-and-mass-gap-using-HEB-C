@@ -1,0 +1,7 @@
+Y137_SCHUR_FROZEN|date=2026-11-13|status=FROZEN_BEFORE_NEW_K3_EVALUATIONS|base=ccf8e272ac72aecba7df6c0fbb54914e7744bb3f|json=0
+Y137_SCHUR_SOURCE|k3_script_sha256=f3461aa8a50cfa9efb4a1bbdc2d7be44ec1d4a13c80c47fd55fa07de60be28ff|checker_blob=91bd1e80cbfcfb76198966aa177d097ecfbe8143|floor=94068200/1000000|source=merged_173_176_177|json=0
+Y137_SCHUR_GRID|den=10000000|E1_candidates=699000000,699050000,699080000,699090000|E2_candidates=699400000,699450000,699480000,699490000|points=8|fixed_before_computation=1|json=0
+Y137_SCHUR_PREDICT|outcome=ONLY_THOSE_POINTS_WITH_MATCHING_LOWER_UPPER_EVEN_ODD_INERTIA_COUNT_AS_CERTIFIED_BRACKETS|do_not_assume_all_8_pass=1|json=0
+Y137_SCHUR_FORM|S_interval=[U-PS*G/(6*gamma_num),U]/(b*scale_squared)|gamma_num=b*94068200-a*1000000|weighted_metric=diag(w_flat)|gap_E1_E2_strict_GT=1/100|json=0
+Y137_SCHUR_GUARD|independent_charpoly_inertia=MANDATORY|old_floor_monotonicity=MANDATORY|G_psd=MANDATORY|W_trace_envelope=MANDATORY|threshold_order_monotonicity=MANDATORY|no_float=MANDATORY|json=0
+Y137_SCHUR_WEIGHT|positive_E1_to_E2_sum_wilson_weight=OPEN|next=energy_projector_and_full_Q_corrected_O_eff|json=0
