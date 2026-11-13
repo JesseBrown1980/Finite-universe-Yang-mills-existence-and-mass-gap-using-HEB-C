@@ -1,0 +1,53 @@
+name: GPT6 independent 19,683-room density-controls audit
+on:
+  push:
+    paths:
+      - '.github/workflows/gpt6-density-controls-20261112.yml'
+      - 'independent/gpt6_density_controls_20261112.py'
+      - 'independent/GPT6_DENSITY_CONTROLS_README_20261112.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reported_and_negative_controls:
+    name: Verify 9 reported cells, 27-shuffle gates, tamper controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify script and record exact reported-cell audit
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          python3 -m py_compile independent/gpt6_density_controls_20261112.py
+          python3 -B independent/gpt6_density_controls_20261112.py reported | tee out/REPORTED-DENSITY-AUDIT.hbp
+          grep -q '^DENSITY_REPORTED_AUDIT_PASS|cells=9|outliers=3|' out/REPORTED-DENSITY-AUDIT.hbp
+          test "$(grep -c '^REPORTED_CELL|' out/REPORTED-DENSITY-AUDIT.hbp)" -eq 9
+          grep -q '^MATCHED_REAL|functions=6561|global_minus_frozen=0|' out/REPORTED-DENSITY-AUDIT.hbp
+          grep -q '^MATCHED_ENVELOPE|functions=2187|real_delta=107|control_delta_lower_bound=-134|control_delta_upper_bound=88|forced_outside_for_every_pairing=1|' out/REPORTED-DENSITY-AUDIT.hbp
+          grep -q '^EXCHANGEABLE_INDEPENDENT_BENCHMARK|controls=27|global_2of3_n=5|global_2of3_d=343|and_frozen_0of3_n=10985|and_frozen_0of3_d=941192|' out/REPORTED-DENSITY-AUDIT.hbp
+          python3 -B independent/gpt6_density_controls_20261112.py selftest | tee out/NEGATIVE-CONTROLS.hbp
+          grep -q '^DENSITY_AUDITOR_SELFTEST_PASS|mutated_digits=REFUSED|paired_differences=PASS|trajectory_change=PASS|' out/NEGATIVE-CONTROLS.hbp
+      - name: Ensure missing actual 27-control report fails closed
+        run: |
+          set -euo pipefail
+          if python3 -B independent/gpt6_density_controls_20261112.py strict /nonexistent/actual-six-cells.hbp >out/should-not-exist 2>&1; then
+            echo 'FAIL_OPEN_WITHOUT_ACTUAL_DENSITY_DATA'
+            exit 1
+          fi
+          echo 'MISSING_REAL_DATA_REFUSED|status=PASS|not_a_simulator_replay=1|json=0' | tee out/REAL-DATA-HOLD.hbp
+      - name: Seal exact audit receipts
+        run: |
+          set -euo pipefail
+          (cd out && sha256sum REPORTED-DENSITY-AUDIT.hbp NEGATIVE-CONTROLS.hbp REAL-DATA-HOLD.hbp > SHA256SUMS && sha256sum -c SHA256SUMS)
+          sha256sum independent/gpt6_density_controls_20261112.py > out/CODE-SHA256SUMS
+          echo 'GITRAM_DENSITY_AUDITOR_PASS|source=user_reported|strict_27_cell_result=PENDING_RAW_DATA|r9=HOLD|json=0'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gpt6-density-9cell-audit-and-27control-validator
+          retention-days: 30
+          if-no-files-found: error
+          path: out/
