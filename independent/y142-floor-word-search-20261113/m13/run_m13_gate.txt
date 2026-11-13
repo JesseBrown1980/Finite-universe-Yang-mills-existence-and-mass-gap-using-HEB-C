@@ -1,0 +1,20 @@
+FREEZE|r=9|commit=c8dbcdbf990114292313cbc410a745a14ba0b778|prediction_sha256=9f1076dd756d5b3ff3cb7c18974f52ce1c088f23e06ca3077ac05ab66f44f99c|verifier_sha256=6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889
+GATE|r_policy|PASS|r=9/1 (frozen r = 9 mode)
+CERT|m0=13|r=9/1|t=940682/10000|f=81,54,36,24,16|claimed_cap=1617/16|classes=89301
+ENUM|orbits=4123551|classes=89301|weight=24659730|tree_gauge_configurations=24659730
+GATE|class_bijection|PASS|89301 classes
+KEYSHASH|m0=13|sha256=b67d54ab32d0c33ac8b1cbd783fa6579c0f7423a342c169a58e4b7c8e86bbc94
+GATE|keys_hash|PASS|header=b67d54ab32d0c33a own=b67d54ab32d0c33a
+GATE|positivity_f|PASS|f=81,54,36,24,16
+GATE|positivity_v|PASS|min v=111419830
+TABLE|cc:[(-2, -2, -2)]|ce:[(1, 1, 1)]|ct:[(-3, 0, 0)]|ee:[(4, 4, 4)]|et:[(0, 3, 3)]|tt:[(-4, 2, 2), (-1, -1, 2)]
+TAILCAP|own=1617/16
+GATE|tail_cap_claim|PASS|claimed 1617/16, own 1617/16
+GATE|t_below_tail_cap|PASS|t=940682/10000, own cap 1617/16
+ROWHASH|m0=13|sha256=902be763e0019b52bd393bffad6abff0d3cd8a9f4ddf8a6f93e8dd283a56654c|classes=89301|tail_moves=4181826|back_moves=22108268|bytes=369199817
+MEM|796668kB
+RITZ_CLASS_VECTOR|94.076549|upper bound on lambda_min(QHQ) from the zero-extended class vector
+GATE|row_check|PASS|rows=89301|min_slack=641905231
+GATE|row_hash|PASS|header=902be763e0019b52 own=902be763e0019b52
+VERDICT|PASS|lambda_min(QHQ) >= 940682/10000 at r = 9/1 (m0 = 13)|rowhash=902be763e0019b52bd393bffad6abff0d3cd8a9f4ddf8a6f93e8dd283a56654c|min_slack=641905231
+GATE_REQUIRED|PASS|cert=/root/floor-word-search/run_m13/cert_m13_r9_1_f81-54-36-24-16.txt|cert_sha256=7ad6e19977796ba4ecd321fdd028156fe57ee7ff782a6aef0aedb0a686c4a6b6|rowhash=902be763e0019b52bd393bffad6abff0d3cd8a9f4ddf8a6f93e8dd283a56654c|verifier_sha256=6043d0897250a7c873a3c1c553a52a1e38f99046ba5131375fb3f3dddbe02889

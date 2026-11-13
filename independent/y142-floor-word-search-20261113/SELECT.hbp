@@ -1,0 +1,7 @@
+SELHDR|protocol=PROTOCOL-WORD-SEARCH.hbp|seat=ACER-CLAUDE-FABLE52|pid=61089a99becaa89b|date=2026-11-13|written_after_the_screening_and_before_the_confirmation_run=1|tag=MEASURED|json=0
+SELCONTROL|f=6,5,4,3|screened=940485/10000|benchmark=940485/10000|equal=1|json=0
+SELCOUNT|words=17|cert_lines=17|row_check_PASS=17|refusals_crashes_timeouts=0|campaign_seconds=3767|json=0
+SELABOVE|candidates_above_940485/10000=7|81,54,36,24,16:940606|4,3,2,1:940590|9,6,4,3:940564|256,192,144,108,81:940557|3,2,1:940556|5,4,3,2:940534|7,6,5,4,3:940488|unit=1/10000|json=0
+SELBELOW|2,1:940474|6,6,5,3:940473|9,8,7,6,5,4:940425|5,6,4,3:940421|10,9,8,7,6,5:940396|12,11,10,9,8,7,6:940347|12,10,7,3:929999|3,4,5,6:270000|32,16,8,4,2,1:-110001|unit=1/10000|the_last_three_are_set_by_the_tail_cap_(93,_27,_-11)|json=0
+SELWINNER|rule=WSSELECT|f=81,54,36,24,16|gamma_cutoff_11=940606/10000|above_benchmark_by=121/10000|tail_cap=95.2500|no_tie|WSSTOP_does_not_apply|json=0
+SELNEXT|WSCONFIRM=confirm_m11.sh_(one_run:_certificate_at_cutoff_11,_then_the_pinned_verifier)|json=0

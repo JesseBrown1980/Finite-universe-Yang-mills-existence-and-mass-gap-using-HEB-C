@@ -1,0 +1,18 @@
+FREEZE|r=9|commit=c8dbcdbf990114292313cbc410a745a14ba0b778|prediction_sha256=9f1076dd756d5b3ff3cb7c18974f52ce1c088f23e06ca3077ac05ab66f44f99c|binary_sha256=027b05152ac9f5fa79b3824e47956af3220faee53ccb5d34433d179873f8ba85
+GATE|s3_link_table|PASS|36 holonomy pairs x 3 transpositions match the 7-type table
+KEYS|loaded=/root/floor-word-search/m11_6-6-5-3/core_keys_m11.bin|classes=34920
+KEYSHASH|m0=11|classes=34920|sha256=e25b8b392161f6f02d933f6a1e78643b3ff95ae3fb69b72b02a36c2c8a5f3a7e
+ROWS|m0=11|classes=34920|tail_targets=1738430|two_step_back_moves=7947874|secs=79|hwm=175072kB
+GATE|local_delta_vs_full_M|PASS|moves_checked=127681200
+GATE|link_multiset_table|PASS|configurations_checked=1773350
+GATE|symmetry_image_rows|PASS|classes=34920|images_per_class=2|rows_rebuilt=69840
+ROWHASH|m0=11|sha256=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|classes=34920|tail_moves=1738430|back_moves=7947874|bytes=138223384|secs=1
+GATE|core_census_vs_closed_form|PASS|M=1..11
+GATE|class_detailed_balance|PASS|edges=725464
+COLOURINGS|even_t_only=false|signatures=1979
+TAIL|f=6,6,5,3|min_layer_floor=117.0000|min_observed_target_floor=124.3333|observed_targets=1738430|gate_observed_ge_layer=PASS
+OUTER|honest|it=0|t=27.0000|cw_lo(F(t))=67.082274
+OUTER|honest|it=1|t=94.0822|cw_lo(F(t))=-0.034394
+OUTER|honest|it=2|t=94.0479|cw_lo(F(t))=-0.000048
+VEC|classes=34920|v_max=2^50|v_min=2474091937|entries_below_2^10=0
+CERT|r=9/1|m0=11|classes=34920|f=6,6,5,3|gamma=940473/10000=94.0473|row_check=PASS|min_slack=1568846905|next_t_refused=gate=row_check|ritz_upper=94.109430|trivial_r(m0+1)=108.0000|tail_cap=117.0000|rowhash=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|images=2|independent_gate=REQUIRED|secs=166

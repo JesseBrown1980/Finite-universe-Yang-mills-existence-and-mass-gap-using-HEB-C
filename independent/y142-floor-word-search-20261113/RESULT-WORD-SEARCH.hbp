@@ -1,0 +1,8 @@
+WRHDR|result=S3-3X4-R9-FLOOR-WORD-SEARCH|seat=ACER-CLAUDE-FABLE52|pid=61089a99becaa89b|date=2026-11-13|protocol_sha256=21a4feb0b80db8dd55757b7ff42f4d736fb1ab934419d6a88ba707c1b6cfc2f6|prediction_sha256=7bf6cc85d69d5755bec4f00aa831a4fcc58deb8ae10c65ba3b9055ed736786e7|prediction_commit=15f8db052cb7|tag=MEASURED|json=0
+WRSCREEN|cutoff=11|words=17|recorded=17|control_6,5,4,3=940485/10000_(equal_to_the_protected_run)|above_the_benchmark=7|winner=81,54,36,24,16_at_940606/10000|json=0
+WRCONFIRM|cutoff=11|certificate_sha256=f1ab22012f5b93bfb928e0c9c3db53ed2ed9eca3c78d674c24951c0d28f56902|gamma=940606/10000|pinned_verifier=GATE_REQUIRED_PASS|json=0
+WRM13|cutoff=13|f=81,54,36,24,16|gamma=940682/10000|ritz_upper=94.076549|tail_cap=101.0625|certificate=m13/cert_m13_r9_1_f81-54-36-24-16.txt|certificate_sha256=7ad6e19977796ba4ecd321fdd028156fe57ee7ff782a6aef0aedb0a686c4a6b6|rowhash=902be763e0019b52bd393bffad6abff0d3cd8a9f4ddf8a6f93e8dd283a56654c|pinned_verifier=GATE_REQUIRED_PASS|writer_seconds=666|started=2026-11-13T09:39:26Z|ended=2026-11-13T10:14:41Z|json=0
+WROUTCOME|outcome=IMPROVED_BELOW_THRESHOLD|940673/10000<940682/10000<94070673/1000000|gain_over_the_protected_run=9/10000|short_of_the_threshold_by=2473/1000000|json=0
+WRSTATE|lift-free_lower_bound_on_the_3x4_non-flat_space_at_r=9:_lambda_min(QHQ)>=940682/10000|enclosure=[94.0682,_94.076549]_width_0.008349|the_threshold_94070673/1000000_lies_inside_the_enclosure|the_lift-dependent_floor_of_PR_131_stays_as_stated|the_protected_run_of_PR_172_was_not_rerun|json=0
+WRSHRINK|gain_of_the_winner_over_6,5,4,3:_121/10000_at_cutoff_11,_9/10000_at_cutoff_13|json=0
+WREND|the_search_under_this_protocol_is_closed:_no_second_candidate,_no_second_campaign|next_by_the_operator's_order=issue_137|json=0
