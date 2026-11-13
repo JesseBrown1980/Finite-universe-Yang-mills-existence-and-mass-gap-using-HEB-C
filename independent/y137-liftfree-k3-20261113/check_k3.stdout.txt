@@ -1,0 +1,13 @@
+S3_3X4_CENSUS|flat=8|shell1=264|shell2=7770|total_K2=8042|exterior_residual_states=147344|flat_raw_commuting=18|orbit_dimension_full=2177317873|json=0
+K3_BUILD_PROGRESS|t=0|shell4=58|sec=20|json=0
+K3_BUILD_PROGRESS|t=20000|shell4=390977|sec=45|json=0
+K3_BUILD_PROGRESS|t=40000|shell4=613916|sec=69|json=0
+K3_BUILD_PROGRESS|t=60000|shell4=861681|sec=94|json=0
+K3_BUILD_PROGRESS|t=80000|shell4=1197794|sec=119|json=0
+K3_BUILD_PROGRESS|t=100000|shell4=1406727|sec=143|json=0
+K3_BUILD_PROGRESS|t=120000|shell4=1712096|sec=167|json=0
+K3_BUILD_PROGRESS|t=140000|shell4=1943362|sec=192|json=0
+LIFT_FREE_K3_CHECK|z=699567503/10000000|method=charpoly_and_Descartes|total_lower=2|total_upper=2|even_lower=2|even_upper=2|odd_lower=0|odd_upper=0|replay=2,2,0,0|agree=1|U_sha256=a4f7681e9f0780270954d780e3003c8919e982c6dca476bc00950d577c4d1693|G_sha256=3d495ed54aefb9a1c8425ae88e83ff05b2644eb0114443632432d75b708ccd95|L_new_sha256=4c5bc904b3c49ca2163bf24568fb95850e0bd7c24ab961f8b455e377c658b5ca|json=0
+LIFT_FREE_K3_CHECK|z=699686993/10000000|method=charpoly_and_Descartes|total_lower=2|total_upper=2|even_lower=2|even_upper=2|odd_lower=0|odd_upper=0|replay=2,2,0,0|agree=1|U_sha256=8924f6b2e640586ef48ef95f7831a28cbc05bbadb2ea1d6700008bb140b66f86|G_sha256=a3e980bb3eefa86f3ee992e7cbb184bee6237ca7de5fe6133a914f509d402ab4|L_new_sha256=3307bf6adf399143fac5801f9fcbe3fdc062006f9a452f59909e54d5c3b50311|json=0
+LIFT_FREE_K3_CHECK|z=699689591/10000000|method=charpoly_and_Descartes|total_lower=3|total_upper=2|even_lower=3|even_upper=2|odd_lower=0|odd_upper=0|replay=3,2,0,0|agree=1|U_sha256=3d0f9431d42937fd8057a2b2aed5745a34c712b1fdb92f9c68c301a7893cc1ca|G_sha256=c23dadb46861aaa6fe3b1aba97e738de420b768562f402eb10ae74a6fbdd83fa|L_new_sha256=ed4083615b9bb00fd70c81fcd2d815204a0bb1ca15d2c327e0b3384390ee55a5|json=0
+LIFT_FREE_K3_CHECK_VERDICT|status=PRIMARY_PASS|statement=at z0 = 699567503/10^7 exactly 2 even levels and no odd level lie below z0; E3_even >= 699686993/10^7; E_odd >= 699689591/10^7|floor=94068200/1000000 lift-free (PR 173)|points=3|agree=3|replay_result_sha256=b268a60bdea5326033529b2972c110569db6adbb3c10e7d2d7c40bbec967860e|json=0
