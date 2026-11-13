@@ -5,7 +5,6 @@ This is an acceptance-budget preflight. It does not claim an improved
 shell-4/5 source certificate or a positive actual Wilson spectral weight.
 """
 import hashlib
-from fractions import Fraction
 from math import isqrt
 from pathlib import Path
 
@@ -86,8 +85,8 @@ def source_rows():
             "raw_wilson_scope")
     require(part(fixed, "lower_ppb_floor") == 416300,
             "raw_wilson_lower_bound")
-    require(Fraction(part(fixed, "lower_num"), part(fixed, "lower_den"))
-            > Fraction(1, 2500), "raw_wilson_positive_margin")
+    require(2500 * part(fixed, "lower_num") > part(fixed, "lower_den"),
+            "raw_wilson_positive_margin")
     for i in range(2):
         old, perp, full, combined = (rows[key][i] for key in
                                       ("center", "ortho", "full", "combined"))
@@ -189,11 +188,10 @@ def krylov_lemma_and_faults():
     # Starting residual R=[10,0] is entirely on shell4.
     # Corrector V=[1,0] leaves E=R-AV=[0,1] on shell5.
     # A^-1 = [[5,1],[1,10]] / 49, so X=R^T A^-1 R.
-    lower = Fraction(10)
-    exact = Fraction(500, 49)
-    upper = lower + Fraction(1, 4)
-    require(lower <= exact <= upper, "Krylov_sandwich")
-    require(exact > lower, "shell5_omission_not_detected")
+    # Cross-multiply all rational inequalities; no rational-value imports.
+    require(10 * 49 <= 500 and 4 * 500 <= 41 * 49,
+            "Krylov_sandwich")
+    require(500 > 10 * 49, "shell5_omission_not_detected")
     # A corrupted pinned receipt must fail the independently computed Git blob.
     example = b"Y137_DATA|abc=1|json=0\n"
     require(blob_sha(example) != blob_sha(example + b"tamper"),
