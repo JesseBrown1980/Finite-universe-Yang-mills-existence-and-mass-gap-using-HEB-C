@@ -30,6 +30,10 @@ jobs:
           test "$(grep -c '^Y137_QDUAL_TRIAL|' build/y137-q-dual/replay.stdout.txt)" -eq 2
           test "$(grep -c '^Y137_QDUAL_RESIDUAL|' build/y137-q-dual/replay.stdout.txt)" -eq 2
           grep -Fq 'independent_raw_observable=PASS|' build/y137-q-dual/replay.stdout.txt
+          grep '^Y137_QDUAL_' build/y137-q-dual/replay.stdout.txt > build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
+          cmp build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp
+          grep -Fq 'fixed_sample_sign_certified=1|exact_E1E2_projectors=NOT_ENCLOSED|full_first_spectral_weight=OPEN|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
+          grep -Fq 'lower_ppb_floor=1059210|evidence=RIGOROUS_FOR_FIXED_RITZ_FLAT_VECTORS_AND_SAMPLE_ENERGIES_ONLY|' build/y137-q-dual/RESULT-WILSON-Q-DUAL.hbp
       - name: Strict no-floating-point and integer-only replay audit
         run: |
           set -euo pipefail
