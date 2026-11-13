@@ -51,6 +51,23 @@ The newly certified centered Schur correction action upper is
 
 The old trace bound is also independently recomputed and required to match accepted #184 **exactly**. The selected source-action upper is min(old,new), ensuring no degradation even from integer rounding. The #184 centered variational residual, Q-energy drift, Rayleigh \(\mu\), strict null spectral gap and original accepted sine-angle bounds are preserved unmodified. Final sine-angle ceilings are outward integer ratios of the new centered residual over \(\delta-|\mu|\).
 
+## Hosted result — true-flat angle bounds improved again
+
+The first exact hosted [run 43513738681](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43513738681) **PASSED** including both frozen U/G source SHA pins, all 255 source Gram PSD principal-minor checks, both seven-dimensional weighted orthogonal source matrices with **127-minor** exact integer PSD minimal-eigenvalue checks and K−1 failures, the orthogonal negative control, exact old-action/Rayleigh-angle replay and strict no-float/integer audits. Its four output rows were filed **after that hosted result** in [RESULT-ORTHOGONAL-SCHUR.hbp](RESULT-ORTHOGONAL-SCHUR.hbp); the final-head workflow now requires a byte-for-byte reproduction. An additional independent BigInt path checked both new rational PSD-action square roots and both selected centered angle ceilings.
+
+| Source-conditioned quantity | E1 | E2 |
+| --- | ---: | ---: |
+| Prior full trace `tr Lambda` upper | 0.009300530420 | 0.009362116755 |
+| **Restricted eigenvalue `lambda_max(Lambda on x_perp)` upper** | **0.001550262708** | **0.001413946947** |
+| Old full-trace Schur PSD action bound | 0.003456712890 | 0.003537919283 |
+| **New orthogonal Schur PSD action bound** | **0.001411276469** | **0.001374920069** |
+| Prior centered true-flat sine-angle bound | 0.108258863901 | 0.253465115951 |
+| **New certified centered true-flat sine-angle bound** | **0.050165123494** | **0.114715901341** |
+
+Both new angles are mathematically nonvacuous and improve their predecessors by more than a factor of two while preserving the same accepted #182 energy brackets, #183 energy-dependent directional Q bound, #184 Rayleigh null-branch identification, and #185 full-space W-normalization definitions. The source PSD uncertainty decreased because only the part of the correction that could actually **rotate** each flat trial vector was bounded; its scalar component plays no role in this centered step.
+
+**Next exact test:** replace only the accepted sine-angle input values in the full-normalized W-state calculation from merged #185 and recompute the rigorous Q rotation, energy dependence, sample and true state norms, normalized full-state distance, and <1/700 actual-Wilson first-weight sufficiency gate. Freeze those two accepted angle inputs on a fresh branch **before** its rerun. Even a successful twofold projector improvement may remain far from the strict positive-weight target, and a HOLD must be preserved if so.
+
 ## Scope and next step
 
 A successful smaller orthogonal-source action establishes an improved *true eigendirection* bound for the finite 3×4 S3 r=9 model, conditional on the existing Q-space Perron floor. It is **not** the normalized actual first-Wilson spectral weight. After acceptance, independently recompute the full P+Q true eigenstate errors with the exact B*B=72 I identity from merged #185 and compare the sum against the source-sufficient <1/700 Wilson sign-transfer test. The branch must preserve a genuine HOLD if the result is still too broad.
