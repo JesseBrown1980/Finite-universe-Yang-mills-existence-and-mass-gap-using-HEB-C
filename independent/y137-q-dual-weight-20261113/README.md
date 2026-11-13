@@ -35,15 +35,21 @@ If abs(Acenter)>err, the code may print a **strict rational positive lower weigh
 
 ## First hosted result — sign certified for the fixed trial parameters
 
-The first hosted replay at [run 43487300716](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43487300716) passed including the strict no-float and integer-only audits. Its ten exact output rows were filed **after the run** in [RESULT-WILSON-Q-DUAL.hbp](RESULT-WILSON-Q-DUAL.hbp); the revised workflow compares them byte-for-byte on a fresh run.
+The initial hosted replay at [run 43487300716](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43487300716) passed including the strict no-float and integer-only audits. Its original ten exact output rows were filed **after the run** in [RESULT-WILSON-Q-DUAL.hbp](RESULT-WILSON-Q-DUAL.hbp). A later code revision adds a required sample-overlap bound and will produce a new output receipt; the older ten rows remain the pre-revision evidence.
 
 Results:
 
 - All **155,378 Q states** and **1,985,218 shell-4 targets** were reconstructed. The independent 24-link Wilson observable attained the exact theoretical endpoints **-7 and 14** on the K3 orbits.
 - For the two frozen sample energies, the finite-K3 trial residual norms, rounded outward, are **0.170814** and **0.174313** relative to the W-normalized trial vectors. Their whole-Q residual sums agree **exactly** with the original G forms including the shell-4 contributions.
 - The raw finite-trial normalized Wilson squared amplitude is between **0.001158787** and **0.001158788** (both decimal endpoints are integer-rounded), matching the earlier K3 exploratory magnitude.
-- After evaluating both dual-residual correction terms and the second-order remainder using the accepted Q floor, the shifted observable's signed amplitude interval excludes zero. The **fixed-sample sign test passes** by a large, explicitly positive integer margin.
-- The resulting rigorous rational lower bound for the two **exact Q-resolvent-dressed, frozen sample-flat vectors and frozen sample energies** has a decimal lower endpoint of at least **0.001059210** in normalized squared weight. The exact numerator and denominator are in the receipt. It is a *conditional fixed-sample effective-operator result*, **not** yet the true first-excitation spectral weight.
+- After evaluating both dual-residual correction terms and the second-order remainder using the accepted Q floor, the shifted observable O2=2O-7 signed amplitude interval excludes zero. The **fixed-sample sign test passes** by a large, explicitly positive integer margin.
+- The resulting rigorous rational lower bound for the **shifted O-7/2 observable** between the two **exact Q-resolvent-dressed, frozen sample-flat vectors and frozen sample energies** has a decimal lower endpoint of at least **0.001059210** in normalized squared weight. The exact numerator and denominator are in the receipt. It is a *conditional fixed-sample effective-operator result*, **not** yet the true first-excitation spectral weight.
+
+**Shift correction that must be certified separately:** Replacing the original raw Wilson O by O-7/2 leaves a transition unchanged only when the two states are exactly orthogonal. These frozen approximate states are **not** certified orthogonal. The new replay therefore computes a full-Q-resolvent enclosure for their actual overlap (including quadratic residuals), then uses
+
+    2|<Psi2,O Psi1>| >= |<Psi2,(2O-7)Psi1>| - 7|<Psi2,Psi1>|.
+
+A positive unshifted fixed-sample sign is announced only when the **overlap-corrected** margin is strictly positive using integer-outward bounds. If negative, the true raw fixed-sample transition remains HOLD. The exact E1/E2 spectral weight remains OPEN regardless of the fixed-sample verdict.
 
 This is an independently reproducible numerical outcome for the actual K3 trial and complete nonflat Q correction. The result makes the next task precise: certify the true energy-dependent eight-flat eigendirections close enough to this pair that the positive interval survives after the projector error. The source-frozen (E_1,E_2) brackets are now stronger on main via PR #179 (first gap >0.028), but a direction-sensitive Schur error bound must still be computed; the previous broad matrix trace bound near 0.00936 is insufficient by itself.
 
