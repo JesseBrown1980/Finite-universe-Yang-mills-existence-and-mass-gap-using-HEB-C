@@ -30,6 +30,16 @@ By monotonicity of the Schur pencil \(S'(z)=-I-B^\top(D-z)^{-2}B\preceq-I\), and
 
 The script reports the untruncated upper bound to reveal a **HOLD** when it is ≥1, rather than claiming a meaningful projector enclosure. Even a nontrivial sin-angle bound alone would not close the Wilson weight issue; one must propagate the projector perturbation through the Q-resolvent, O_eff and full W norms, and prove a positive rational lower bound on the true spectral weight.
 
+## Actual hosted result: projector transfer remains HOLD
+
+The first source-pinned calculation [hosted run 43490246508](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43490246508) **passed** its exact replay and integer-only/no-float audits. Its three exact reported rows were filed *after the run* as [RESULT-K3-PROJECTOR.hbp](RESULT-K3-PROJECTOR.hbp), with a subsequent CI gate requiring byte-identical reproduction. The hash of each recomputed 8×8 U/G matrix matched the frozen prior #180 trial matrix.
+
+At E1's historical sample 69.909875505, the W-normalized `U` residual is bounded above by 0.000000000631, the **directional PSD Schur error** by 0.003456712890, and the maximum certified energy-parameter variation by 0.020120910038. The resulting `||S(E1)xhat1|| <=0.023577623559`, divided by the already certified null-gap >0.028, gives **sin(angle1) <=0.842057984250**. This is nontrivial but too broad to establish the Wilson transition.
+
+At E2's historical sample 69.949729820, the directional Schur error is at most 0.003537919283 and the maximal energy-parameter variation at most 0.013974184152. With the <0.000000000623 U residual this gives `||S(E2)xhat2|| <=0.017512104058`. The available E2 null-gap is >0.011949; consequently the reported spectral estimate is **sin(angle2) <=1.465570680225**, which is *vacuous* (the universal bound sin≤1 is stronger).
+
+**Verdict: projector transfer HOLD.** Reducing only the energy brackets cannot remove the ~0.0035 directional Schur-residual term; improving only the Jacobi digit precision also cannot overcome the exterior source uncertainty. A successful full E1/E2 positive Wilson certificate requires both tighter true energy intervals and a sharper direction-sensitive **full-Q dual/effective Schur residual** enclosure (or an exact source reduction), then propagating the resulting eigendirection error through O_eff. The current Q-dual *fixed-sample* positivity is independently useful, but cannot yet be promoted.
+
 ### Reproducibility
 
 All arithmetic is exact integers and integer-square-root outward rounding; the source pins (including U/G hashes of PR #180) and the prediction's git blob are checked by hosted CI. New-head result and all repository no-float/native check groups must pass before a scientific acceptance decision. Negative controls include wrong U/G hash and energy bracket.
