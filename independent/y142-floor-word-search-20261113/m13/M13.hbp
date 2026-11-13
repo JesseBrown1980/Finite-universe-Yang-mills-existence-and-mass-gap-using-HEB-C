@@ -1,0 +1,2 @@
+M13WRITE|f=81,54,36,24,16|exit=0|seconds=666|gamma=940682/10000=94.0682|row_check=PASS|ritz_upper=94.076549|tail_cap=101.0625|certificate=cert_m13_r9_1_f81-54-36-24-16.txt|sha256=7ad6e19977796ba4ecd321fdd028156fe57ee7ff782a6aef0aedb0a686c4a6b6|bytes=2275385|json=0
+M13GATE|gate_exit=0|GATE_REQUIRED|PASS|cert=/root/floor-word|VERDICT|PASS|lambda_min(QHQ) >= 940682/10000 at r = 9/1 (m0 = 13)|rowhash=902be763e0019b52bd393bffad6abff0d3cd8a9f4ddf8a6f93e8dd283a56654c|min_slack=641905231|json=0
