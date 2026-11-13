@@ -1,0 +1,47 @@
+name: Issue 137 exact full-Q coupling Gram and W-state normalization proof gate
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-fullstate-Q-normalization-20261113/**'
+      - '.github/workflows/y137-fullstate-Q-normalization.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-source-PQ-full-state:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Pre-code freeze, exact source and accepted Wilson/projector receipts
+        run: |
+          set -euo pipefail
+          D=independent/y137-fullstate-Q-normalization-20261113
+          test "$(git hash-object "$D/PREDICTION.hbp")" = "3c6594b491f2ce047f7693efea5b2641cfc48b1c"
+          grep -Fq 'status=FROZEN_BEFORE_FULL_STATE_GRAM_AND_NORM_REPLAY' "$D/PREDICTION.hbp"
+          test "$(sha256sum independent/y137-liftfree-k3-20261113/src155/y137_k3_sector_isolation.py | cut -d' ' -f1)" = "f3461aa8a50cfa9efb4a1bbdc2d7be44ec1d4a13c80c47fd55fa07de60be28ff"
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = "91bd1e80cbfcfb76198966aa177d097ecfbe8143"
+          grep -Fq 'lower_ppb_floor=416300|evidence=RIGOROUS_FOR_UNSHIFTED_WILSON_FIXED_SAMPLES_ONLY|' independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp
+          grep -Fq 'selected_sin_upper_per_trillion=108258863901|nonvacuous=1|' independent/y137-centered-schur-transfer-20261113/RESULT-CENTERED-PROJECTOR.hbp
+          grep -Fq 'selected_sin_upper_per_trillion=253465115951|nonvacuous=1|' independent/y137-centered-schur-transfer-20261113/RESULT-CENTERED-PROJECTOR.hbp
+      - name: Rebuild exact K3 8x8 P-Q Gram and full state normalized transfer
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-fulln
+          python3 -I -B independent/y137-fullstate-Q-normalization-20261113/replay.py | tee build/y137-fulln/replay.stdout.txt
+          test "$(grep -c '^Y137_FULLN_GRAM|' build/y137-fulln/replay.stdout.txt)" -eq 1
+          test "$(grep -c '^Y137_FULLN_POINT|' build/y137-fulln/replay.stdout.txt)" -eq 2
+          grep -Fq 'Y137_FULLN_TRANSFER|sample_weight_lower_ppb=416300|' build/y137-fulln/replay.stdout.txt
+          grep -Fq 'full_state_normalization_enclosed=1|' build/y137-fulln/replay.stdout.txt
+      - name: Strict whole-repo no-float and integer-only audit
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-fullstate-Q-normalization-20261113/replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-exact-P-Q-Gram-fullstate-normalization
+          path: build/y137-fulln/replay.stdout.txt
+          if-no-files-found: ignore
+          retention-days: 60
