@@ -31,6 +31,11 @@ jobs:
           test "$(grep -c '^Y137_COMBINED_POINT|' build/y137-combined/replay.stdout.txt)" -eq 2
           grep -Fq 'combined_fullstate_error_upper_per_trillion=144090460519|' build/y137-combined/replay.stdout.txt
           grep -Fq 'first_Wilson_weight=HOLD|' build/y137-combined/replay.stdout.txt
+          grep '^Y137_COMBINED_' build/y137-combined/replay.stdout.txt > build/y137-combined/RESULT-COMBINED-FULL-W.hbp
+          cmp build/y137-combined/RESULT-COMBINED-FULL-W.hbp independent/y137-combined-W-transfer-20261113/RESULT-COMBINED-FULL-W.hbp
+          test "$(grep -c '^Y137_COMBINED_' build/y137-combined/RESULT-COMBINED-FULL-W.hbp)" -eq 5
+          grep -Fq 'combined_fullstate_error_upper_per_trillion=144090460519|previously_accepted_fullstate_error_upper_per_trillion=377737771100|' build/y137-combined/RESULT-COMBINED-FULL-W.hbp
+          grep -Fq 'strict_positive_Wilson_first_weight_proved=0|' build/y137-combined/RESULT-COMBINED-FULL-W.hbp
       - name: Strict integer-only and no-float audits
         run: |
           set -euo pipefail
