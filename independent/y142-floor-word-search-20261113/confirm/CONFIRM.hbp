@@ -1,0 +1,2 @@
+CONFIRMWRITE|f=81,54,36,24,16|exit=0|gamma=940606/10000=94.0606|row_check=PASS|certificate=cert_m11_r9_1_f81-54-36-24-16.txt|sha256=f1ab22012f5b93bfb928e0c9c3db53ed2ed9eca3c78d674c24951c0d28f56902|bytes=903047|json=0
+CONFIRMGATE|gate_exit=0|GATE_REQUIRED|PASS|cert=/root/floor-word|VERDICT|PASS|lambda_min(QHQ) >= 940606/10000 at r = 9/1 (m0 = 11)|rowhash=8369f4a981a888f4e028b155f3306371c2eacb421bed9bbc444b86e7ef862884|min_slack=4005761520|json=0
