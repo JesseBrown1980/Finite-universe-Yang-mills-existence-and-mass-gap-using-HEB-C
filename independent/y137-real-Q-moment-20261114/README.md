@@ -103,10 +103,10 @@ dedicated hosted workflow requires byte-identical replay of it.
 
 The squared residual-norm contraction at degree 1 is exactly
 `d²/s²` (about 0.784), narrowing the original bracket width to
-roughly 78.4% at both energies. This modest improvement is distinct
-from any claim to have completed degree 7.
+roughly 78.4% at both energies. This modest degree-1 improvement does not complete the degree-11
+production certificate.
 
-## Mandatory degree-7 source-unit rule
+## Mandatory degree-11 source-unit rule
 
 The [full-Q Chebyshev algebra of draft #191](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/191)
 must use this same accepted integer residual convention before
@@ -132,12 +132,16 @@ never be mixed with the accepted K3 source files.
    shell-4 transition source. The current checksum and spectral
    tests establish internal consistency but cannot alone exclude
    a shared operator-construction fault.
-2. Actual accepted-K3 moments `mu2..mu13` at both frozen energies.
-   Degree 7 requires fourteen complete W-weighted 8×8 matrices
+2. Actual accepted-K3 moments `mu2..mu21` at both frozen energies.
+   Degree **11** requires **22** complete W-weighted 8×8 matrices
    per sample, including shell5 and each further frontier.
+   The exact production plan and source-unit gates are in
+   `PRODUCTION-D11-ACCEPTANCE.md`.
 3. Recompute fully normalized E1/E2 state directions and actual
    unshifted summed-Wilson first-excitation spectral weight.
 
 Issue #137 remains OPEN; the true first weight remains **HOLD**.
 The separate degree-7 raw-move pilot #192 uses a different Y=0
 residual source and cannot substitute for accepted K3 moments.
+**Degree 11 is the production destination; degree 7 remains an
+instrument-only pilot.**
