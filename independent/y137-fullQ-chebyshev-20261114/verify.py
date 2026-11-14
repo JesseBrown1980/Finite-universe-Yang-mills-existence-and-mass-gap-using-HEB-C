@@ -42,6 +42,17 @@ def ceildiv(a,b):
     return (a+b-1)//b
 
 
+def power(a,n):
+    need(n>=0,"integer_power_negative")
+    result=1
+    while n:
+        if n%2:
+            result*=a
+        a*=a
+        n//=2
+    return result
+
+
 def gitblob(data):
     return hashlib.sha1(("blob "+str(len(data))+"\0").encode("ascii")+data).hexdigest()
 
@@ -78,8 +89,8 @@ def source_gate():
          tuple(int(p["sample_num"]) for p in cs)==Z,
          "sample_order")
     need(b"floor=94068200/1000000" in center and
-         b"source_floor=94068200/1000000" in combined,
-         "whole_Q_floor_changed")
+         b"original_Wilson_amplitude_gt=1/50" in combined,
+         "whole_Q_floor_or_Wilson_scope_changed")
     need(all(p["original_Wilson_amplitude_gt"]=="1/50" if
              "original_Wilson_amplitude_gt" in p else True
              for p in points),"sample_original_Wilson_scope")
@@ -218,7 +229,7 @@ def toy_gate():
         need(matrix_sub(matrix_scale(R,K),matrix_mul(A,Q))==P,
              "toy_exact_corrected_trial_residual")
         GP=matrix_mul(transpose(P),P)
-        diff=matrix_sub(matrix_scale(G,d**(2*n)),GP)
+        diff=matrix_sub(matrix_scale(G,power(d,2*n)),GP)
         need(psd(diff),"toy_chebyshev_Loewner_Gram")
         if n==1:
             need(P[3][0]!=0 and R[3][0]==0,
@@ -254,10 +265,10 @@ def sample(z):
     for n in (1,11,15,16,20):
         p=polynomial(n,s,d)
         need(p[0]==k[n],"independent_scalar_vs_polynomial_recurrence")
-    near={n:ceildiv(d**n*UNIT,k[n]) for n in (10,11,12,14,15,16,20)}
-    n100=next(n for n in range(1,21) if 100*d**n<k[n])
-    n700=next(n for n in range(1,21) if 700*d**n<k[n])
-    n1000=next(n for n in range(1,21) if 1000*d**n<k[n])
+    near={n:ceildiv(power(d,n)*UNIT,k[n]) for n in (10,11,12,14,15,16,20)}
+    n100=next(n for n in range(1,21) if 100*power(d,n)<k[n])
+    n700=next(n for n in range(1,21) if 700*power(d,n)<k[n])
+    n1000=next(n for n in range(1,21) if 1000*power(d,n)<k[n])
     need((n100,n700,n1000)==(11,15,16),
          "unexpected_exact_contraction_thresholds")
     need(near[16]<700000000,"residual_not_strictly_small")
@@ -268,7 +279,7 @@ def sample(z):
          degree15_norm_ratio_ceil_per_trillion=near[15],
          degree16_norm_ratio_ceil_per_trillion=near[16],
          degree16_Gram_ratio_ceil_per_trillion=
-             ceildiv(d**32*UNIT,k[16]*k[16]),
+             ceildiv(power(d,32)*UNIT,k[16]*k[16]),
          first_degree_below_one_percent=n100,
          first_degree_below_one_over_700=n700,
          first_degree_below_one_over_1000=n1000,
