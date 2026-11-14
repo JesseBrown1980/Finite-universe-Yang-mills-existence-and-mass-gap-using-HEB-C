@@ -208,7 +208,103 @@ It rejects a deleted shell4-to-shell5 edge because that edge changes
 the second operator moment. These toy tests are not actual r=9
 moment certificates.
 
-## 6. Executable independent-in-program audit and fault controls
+## 6. Independent completeness requirement before real moments
+
+The second-seat [review of the hosted moment test](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/191#issuecomment-6876752773)
+found an important scope distinction: the original
+\`missing_shell5_negative_control\` proves that a shell5 edge affects a
+moment, **not** that a self-consistent truncated source would be refused.
+A positive Gram/Schur identity or a positive block-Hankel matrix also
+cannot distinguish a complete operator from the same identity applied
+throughout to a truncated operator. We accept the reviewer's correction.
+
+The new \`weighted_completeness.py\` is a separate synthetic 5-orbit
+72-move test with **non-identity diagonal orbit metric**, a flat P orbit
+and four Q orbits, one of which plays the role of shell5. It establishes:
+
+1. All original orbit rows emit **exactly 72 raw electric moves**,
+   including multiplicities and self-moves; every destination must have
+   an index. Q projection happens **after** generating all 72 moves:
+   transitions to an excluded flat P state are valid generated moves
+   but must be projected out before the next Q application. It is wrong
+   to require row sum 72 on \`QTQ\` itself.
+2. Every reached edge obeys exact weight balance
+   \`W_i T_ij = W_j T_ji\`. Exact orbit-size weights are required;
+   an incorrect W is explicitly rejected.
+3. The full move adjacency sends the constant function to 72 at every
+   stored orbit. All rows are checked, never a stride sample.
+4. A separately authored hard-coded reference operator is compared
+   against two nontrivial column applications **and all five complete
+   toy rows**. A changed-but-closed, regular, balanced source can
+   still describe a different operator, so this reference is part of
+   the certificate, not merely a generic random spot check.
+5. Pairing gives \`mu_(2j)=(A^j R)*W(A^j R)\` and
+   \`mu_(2j+1)=(A^j R)*W(A^(j+1) R)\` from exactly n complete Q
+   operator passes (including j=n-1). The test independently
+   compares all \`2n\` paired moments with direct \`R*W A^kR\` and
+   its weighted variational Schur centre for n=1,2,4,8,16.
+6. A fully truncated operator **passes** internally consistent
+   moment pairings but **fails** the separate neighbour-completeness
+   check. Even if missing neighbours are redirected to self-moves,
+   preserving 72, closure and detailed balance in the truncated graph,
+   the independently specified full operator check refuses it.
+   Single-edge imbalances, incorrect orbit weights, and flat-state
+   re-entry into Q powers are separately rejected.
+
+### Necessary proof obligation for any real 3x4 S3 moment source
+
+The tiny 5-orbit toy does not certify the actual orbit graph. Its purpose
+is to impose an **unskippable acceptance gate** on any future producer.
+
+For each sample, begin with a separately certified exact full-Q residual
+\`R0\` and complete canonical-orbit support. For each \`j=0,...,n-1\`:
+
+- For **every** state with nonzero \`V_j=A_Q^j R0\`, generate
+  exactly 72 raw moves from the independently specified three
+  transpositions at 24 links. Canonicalize every destination under the
+  full gauge symmetry, including the P destinations.
+- Resolve all resulting Q destinations into the next frontier or a
+  complete indexed state table; no dangling, discarded, or
+  unaccounted-for boundary move is allowed. P destinations are
+  handled by the exact Q projector, not counted as unresolved.
+- Verify the complete directed multiplicity, W-detailed balance for
+  each encountered pair including reverse moves, and the 72
+  all-ones full-adjacency check. A second author must reproduce
+  selected operator columns **from the raw move rule**, not import
+  the first builder's aggregated matrix or its neighbour cache.
+- Compute \`V_(j+1)=A_Q V_j\` with the correct electric diagonal,
+  magnetic costs and energy shift. Emit exact W-weighted paired
+  8x8 moments, zero omitted Q contributions, graph/projection source
+  hashes, counts, and negative controls.
+- At the final pass only the reached source states need a complete
+  set of outgoing moves; the newly reached final frontier may not
+  require another pass. This is **not** permission to silently
+  restrict the operator to a radius-n ball.
+
+For an **entire prebuilt closed table**, every generated neighbour must
+already be present. For **streaming frontier expansion**, every
+generated neighbour must be included in the next frontier or its
+legally projected P bucket, with complete accounting. A closed but
+incorrect table could still satisfy rows, balance and 72; hence
+independence from a source-derived transition table is essential.
+Sparse sampling by the second builder is a useful negative-control
+screen but does not prove every source edge independently.
+
+Block-Hankel positivity and spectral localizer checks should be added
+as additional consistency gates **after** completeness; neither
+substitutes for full transition accounting.
+
+**Degree choice:** Start with the smallest candidate degree that the
+actual Schur/normalized-W sign-transfer budget permits. Degree 7
+requires 14 moments per sample and seven full-Q passes, contracting
+the residual *Gram* by about 285x; degree 11 requires 22 moments and
+eleven passes, contracting the residual *norm* by about 126x. Do not
+pretend that either factor alone closes the E1/E2 energy-window or
+actual Wilson sign-transfer uncertainty. The huge all-orbit run
+is **not launched** by this small test and remains gated on
+completeness, feasible storage and independent source verification.
+
+## 7. Executable independent-in-program audit and fault controls
 
 The integer verifier:
 - pins three original Git blobs: actual 3x4 operator source, accepted
