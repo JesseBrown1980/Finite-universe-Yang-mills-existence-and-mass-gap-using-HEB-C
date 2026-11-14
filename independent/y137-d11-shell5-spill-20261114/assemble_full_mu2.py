@@ -318,5 +318,34 @@ def reconstruct():
          issue_137="OPEN")
 
 
+def selftest():
+    I=[[int(i==j) for j in range(N)] for i in range(N)]
+    mu0=I
+    mu1=scale(I,2)
+    mu2=scale(I,4)
+    need(hankel_psd(mu0,mu1,mu2)==1,
+         "synthetic_matrix_Hankel")
+    need(psd(sub(mu2,mu1)) and
+         psd(sub(scale(mu1,4),mu2)),
+         "synthetic_upper_lower_localizers")
+    need(not psd(sub(zero(),mu1)),
+         "synthetic_zero_second_moment_control")
+    need(encode(I)==
+         ";".join(",".join(str(int(i==j)) for j in range(N))
+                  for i in range(N)),
+         "independent_8x8_source_serialization")
+    emit("Y137_D11_MU2_ASSEMBLER_TOY",
+         exact_Bareiss_and_adjugate="PASS",
+         full_16x16_block_Hankel="PASS",
+         invalid_mu2_zero="REJECTED",
+         real_source_moments="NOT_COMPUTED")
+
+
 if __name__=="__main__":
-    reconstruct()
+    import sys
+    if len(sys.argv)==2 and sys.argv[1]=="--self-test":
+        selftest()
+    elif len(sys.argv)==1:
+        reconstruct()
+    else:
+        need(False,"invalid_mode")
