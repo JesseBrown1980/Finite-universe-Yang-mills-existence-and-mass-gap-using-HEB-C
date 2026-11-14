@@ -235,8 +235,58 @@ def reconstruct(items,source,result,index):
     return mu0,mu1,parse_matrix(source["U0"])
 
 
-def prove_degree1(z,mu0,mu1,u):
-    # A_int = b(QHQ-z), g/h are integer scaled full-Q endpoints.
+def integer_det(a):
+    """Fraction-free exact Bareiss determinant for a leading principal minor."""
+    k=len(a)
+    insist(k>0 and all(len(r)==k for r in a),"determinant_shape")
+    A=[list(r) for r in a]
+    sign=1
+    prev=1
+    for t in range(k-1):
+        if A[t][t]==0:
+            pivot=next((i for i in range(t+1,k) if A[i][t]!=0),None)
+            if pivot is None:
+                return 0
+            A[t],A[pivot]=A[pivot],A[t]
+            sign=-sign
+        q=A[t][t]
+        for i in range(t+1,k):
+            for j in range(t+1,k):
+                v=q*A[i][j]-A[i][t]*A[t][j]
+                insist(v%prev==0,"nonexact_Bareiss_inertia")
+                A[i][j]=v//prev
+        for i in range(t+1,k):
+            A[i][t]=0
+        prev=q
+    return sign*A[-1][-1]
+
+
+def negative_inertia_from_leading_minors(A):
+    """Sylvester sign variation; a zero principal minor is a HOLD.
+
+    This route checks actual inertia rather than only a PSD improvement,
+    which the historical billion-factor bug passed erroneously.
+    """
+    insist(len(A)==FLATS and all(len(r)==FLATS for r in A),
+           "inertia_shape")
+    insist(all(A[i][j]==A[j][i] for i in range(FLATS)
+                for j in range(FLATS)),"inertia_symmetry")
+    prev=1
+    neg=0
+    for k in range(1,FLATS+1):
+        det=integer_det([r[:k] for r in A[:k]])
+        insist(det!=0,"zero_leading_minor_requires_independent_inertia")
+        if (prev<0)!=(det<0):
+            neg+=1
+        prev=det
+    return neg
+
+
+def prove_degree1(z,mu0,mu1,u,expected_neg):
+    # Units anchored to the accepted #190 cache, NOT to a physical
+    # unscaled Rayleigh form. Cache gives accepted lower U - mu0/g,
+    # with mu0 = G0/6 and g = 94068200000-z. Multiplying by b here
+    # produces an invalid 8-negative Schur enclosure.
     g=FLOOR-z
     h=HMAX-z
     s=g+h
@@ -245,40 +295,74 @@ def prove_degree1(z,mu0,mu1,u):
     low=diff(mu1,times(mu0,g))
     high=diff(times(mu0,h),mu1)
     insist(exact_psd(mu0) and exact_psd(low) and exact_psd(high),
-           "independent_fraction_LDL_spectral_localizers")
+           "integer_pair_LDL_spectral_localizers")
 
-    # n=1 exact Chebyshev:
-    # P1(X)=s-2X, K1=s, F0(X)=2,
-    # Y1=Y-2b R/s.
-    # U1=U-(4b/s²)(s mu0-mu1).
-    numerator_reduction=times(diff(times(mu0,s),mu1),4*B)
+    # n=1 exact Chebyshev on original accepted integer-source units:
+    # P1(X)=s-2X; K1=s.
+    # U1=U-4(s mu0-mu1)/s^2.
+    # S between U1-[d^2/(g s^2)]mu0 and U1.
+    # There is NO extra B=1e9 multiplier on source moments.
+    numerator_reduction=times(diff(times(mu0,s),mu1),4)
     insist(exact_psd(numerator_reduction) and
            any(numerator_reduction[i][i]>0 for i in range(FLATS)),
            "strict_degree1_variational_improvement")
     U1_num=diff(times(u,s*s),numerator_reduction)
-
-    # R1 = (s-2A_int)R/s: global full-Q Gram <= (d/s)²mu0.
-    # S(z) in [U1-(b/g)(d/s)² mu0, U1].
-    # Exact lower has denominator g*s².
-    lower_num=diff(times(U1_num,g),times(mu0,B*d*d))
-    # Old lower: U-(b/g)mu0. Improvement in the NEW lower:
-    #   (4b/s²)(mu1-g mu0), by exact rearrangement.
-    gain_lower=times(low,4*B)
-    old_lower_num=diff(times(u,g*s*s),times(mu0,B*s*s))
+    lower_num=diff(times(U1_num,g),times(mu0,d*d))
+    gain_lower=times(low,4)
+    old_lower_num=diff(times(u,g*s*s),times(mu0,s*s))
     insist(diff(lower_num,old_lower_num)==times(gain_lower,g),
-           "lower_improvement_algebra")
+           "lower_improvement_algebra_in_source_units")
     insist(exact_psd(gain_lower),"lower_bound_not_monotone")
-    # Negative controls: a false lower/upper endpoint must be rejected.
+
+    # Absolute-unit anchors. Both new bounds must fit *inside* the
+    # originally accepted source bracket:
+    # old lower=(g U -mu0)/g, old upper=U.
+    original_lower_num=diff(times(u,g),mu0)
+    upper_inside=diff(times(u,s*s),U1_num)
+    lower_inside=diff(lower_num,times(original_lower_num,s*s))
+    cross_inside=diff(times(U1_num,g),
+                      times(original_lower_num,s*s))
+    new_width=diff(times(U1_num,g),lower_num)
+    insist(exact_psd(upper_inside) and exact_psd(lower_inside) and
+           exact_psd(cross_inside) and exact_psd(new_width),
+           "new_bracket_not_nested_within_accepted_units")
+    insist(new_width==times(mu0,d*d),
+           "exact_residual_Gram_width_mismatch")
+    insist(upper_inside==numerator_reduction,
+           "upper_reduction_not_exact")
+    insist(lower_inside==times(gain_lower,g),
+           "lower_reduction_not_exact")
+
+    # Inertia anchors checked on original U and accepted lower,
+    # then on BOTH corrected matrices in the same source units.
+    accepted_upper_neg=negative_inertia_from_leading_minors(u)
+    accepted_lower_neg=negative_inertia_from_leading_minors(original_lower_num)
+    new_upper_neg=negative_inertia_from_leading_minors(U1_num)
+    new_lower_neg=negative_inertia_from_leading_minors(lower_num)
+    insist((accepted_upper_neg,accepted_lower_neg,
+            new_upper_neg,new_lower_neg)==(expected_neg,)*4,
+           "inertia_disagrees_with_accepted_1_2")
+
+    # Regression for the precise HIGH fault: recreating the archived
+    # billion-fold correction must FAIL the accepted-lower anchor,
+    # and it produces eight negative eigenvalues at both samples.
+    bad_reduction=times(diff(times(mu0,s),mu1),4*B)
+    bad_upper=diff(times(u,s*s),bad_reduction)
+    bad_anchor=diff(times(bad_upper,g),
+                    times(original_lower_num,s*s))
+    insist(not exact_psd(bad_anchor) and
+           negative_inertia_from_leading_minors(bad_upper)==FLATS,
+           "billion_factor_fault_not_rejected")
+
+    # Negative control for a blatantly false spectral input.
     insist(not exact_psd(diff(mu1,times(mu0,h+1))) or
            not exact_psd(diff(times(mu0,g-1),mu1)),
            "fault_control_spectral_endpoint")
-
-    # Directional integer trace improvement: strictly positive.
     sumdiag_upper=sum(numerator_reduction[i][i] for i in range(FLATS))
     sumdiag_lower=sum(gain_lower[i][i] for i in range(FLATS))
     return (s,d,U1_num,lower_num,sha_big(U1_num),sha_big(lower_num),
-            sumdiag_upper,sumdiag_lower)
-
+            sumdiag_upper,sumdiag_lower,accepted_upper_neg,
+            accepted_lower_neg,new_upper_neg,new_lower_neg)
 
 def sha_big(M):
     return matrix_hash(M)
@@ -290,17 +374,19 @@ def main():
     out=[]
     for i,z in enumerate(SAMPLES):
         mu0,mu1,u=reconstruct(shards,src[i],res[i],i)
-        s,d,u1,low,us,ls,upt,lot=prove_degree1(z,mu0,mu1,u)
-        out.append((z,s,d,u1,low,us,ls,upt,lot))
+        s,d,u1,low,us,ls,upt,lot,au,al,nu,nl=prove_degree1(z,mu0,mu1,u,i+1)
+        out.append((z,s,d,u1,low,us,ls,upt,lot,au,al,nu,nl))
     print("Y137_N1_FREEZE|source=ACTUAL_ACCEPTED_K3_3x4_S3"+
           "|complete_shell4_states=1985218|source_shards=8"+
           "|raw_moves=142935696|two_energy_samples=2"+
           "|original_G_exactly_restored=1"+
+          "|source_units=ACCEPTED_U_MINUS_MU0_OVER_G"+
+          "|legacy_billion_factor_receipt=REJECTED"+
           "|PSD_method=INDEPENDENT_INTEGER_PAIR_LDL"+
           "|conditional_floor_num=94068200000"+
           "|whole_Q_upper_num=468000000000"+
           "|first_Wilson_weight=HOLD|json=0",flush=True)
-    for z,s,d,u1,lower,sha_u,sha_l,up,low in out:
+    for z,s,d,u1,lower,sha_u,sha_l,up,low,au,al,nu,nl in out:
         print("Y137_N1_POINT|sample_num="+str(z)+
               "|den=1000000000"+
               "|K1_num="+str(s)+
@@ -311,6 +397,14 @@ def main():
               "|new_lower_denom="+str((FLOOR-z)*s*s)+
               "|new_lower_numerator_8x8="+encode(lower)+
               "|new_lower_sha256="+sha_l+
+              "|accepted_upper_negative_inertia="+str(au)+
+              "|accepted_lower_negative_inertia="+str(al)+
+              "|corrected_upper_negative_inertia="+str(nu)+
+              "|corrected_lower_negative_inertia="+str(nl)+
+              "|old_unit_error_negative_control=REJECTED"+
+              "|new_bracket_nested_within_accepted=1"+
+              "|width_ratio_numerator="+str(d*d)+
+              "|width_ratio_denominator="+str(s*s)+
               "|upper_improvement_trace_numerator="+str(up)+
               "|lower_improvement_trace_numerator="+str(low)+
               "|strict_two_sided_improvement_PSD=1"+
@@ -320,6 +414,9 @@ def main():
     print("Y137_N1_VERDICT|actual_K3_corrected_Schur_degree=1"+
           "|actual_wholeQ_mu0_mu1=EXACT"+
           "|degree1_fullQ_two_sided_sandwich=PASS"+
+          "|rejected_1e9_normalization_negative_control=PASS"+
+          "|accepted_inertia_at_E1=1"+
+          "|accepted_inertia_at_E2=2"+
           "|degree7_corrected_schur=HOLD"+
           "|independent_raw_move_source_review=PENDING"+
           "|actual_Wilson_weight=HOLD|issue_137=OPEN|json=0",
