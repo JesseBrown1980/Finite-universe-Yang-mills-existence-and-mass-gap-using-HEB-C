@@ -74,10 +74,21 @@ def symmetric(M):
     return M
 
 
+def ipow(a,n):
+    need(n>=0,"bad_exact_power")
+    out=1
+    while n:
+        if n%2:
+            out*=a
+        a*=a
+        n//=2
+    return out
+
+
 def linear_combo(moment,z,k):
     out=[[0]*8 for _ in range(8)]
     for j in range(k+1):
-        fac=comb(k,j)*(B**j)*((-z)**(k-j))
+        fac=comb(k,j)*ipow(B,j)*ipow(-z,k-j)
         for p in range(8):
             for q in range(8):
                 out[p][q]+=fac*moment[j][p][q]
