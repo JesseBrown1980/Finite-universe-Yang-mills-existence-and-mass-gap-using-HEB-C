@@ -49,6 +49,7 @@ jobs:
           set -euo pipefail
           python3 -I -B independent/y137-fullQ-chebyshev-20261114/moment_center.py | tee build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
           test "$(grep -c '^Y137_MOMENT_POINT|' build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp)" -eq 4
+          cmp build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp independent/y137-fullQ-chebyshev-20261114/RESULT-MOMENT.hbp
           grep -Fq 'degree16_moments=32|Chebyshev_coefficients=INDEPENDENT_BINOMIAL_FORM|shell5_edge_omission=REJECTED|' build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
           grep -Fq 'actual_3x4_fullQ_moments=NOT_COMPUTED|actual_Wilson_weight=HOLD|' build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
       - name: Strict integer-only and no-floating-point source audits
