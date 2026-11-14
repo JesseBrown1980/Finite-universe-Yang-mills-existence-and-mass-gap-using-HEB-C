@@ -330,7 +330,7 @@ def main():
          all_destinations_resolved=1,
          every_weighted_edge_balanced=1,
          all_rowsum_72=1,
-         independent_reference_operator=PASS,
+         independent_reference_operator="PASS",
          Q_projection_after_every_step=PASS,
          wholeQ_moments="SYNTHETIC_ONLY")
     for n in DEGREES:
