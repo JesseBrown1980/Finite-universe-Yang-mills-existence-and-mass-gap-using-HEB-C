@@ -15,7 +15,13 @@ HERE=os.path.dirname(os.path.abspath(__file__))
 ROOT=os.path.abspath(os.path.join(HERE,"..",".."))
 sys.path.insert(0,os.path.join(ROOT,"independent",
                               "y137-real-Q-moment-20261114"))
+# The pinned historical K3 source loader requires a zero-argument argv.
+# Keep the pilot's explicit mode separate from the historical source import.
+MODE=sys.argv[1] if len(sys.argv)>1 else "--toy"
+SAVED_ARGV=sys.argv[:]
+sys.argv=sys.argv[:1]
 import mu1_shard as orig
+sys.argv=SAVED_ARGV
 
 m=orig.m
 c=orig.c
@@ -82,11 +88,17 @@ def replay(records,source0,source1,width):
     Bmap={}
     weights={}
     maxterm=0
+    reverse_per_target={}
+    seen_pairs=set()
     for offset in range(0,len(records),RECORD.size):
         key,f,reverse,wg=RECORD.unpack_from(records,offset)
         need(0<=f<len(source0) and 1<=reverse<=72 and
              wg in (1,2,3,6),"bad_record_field")
         need(weights.get(key,wg)==wg,"inconsistent_orbit_weight")
+        need((key,f) not in seen_pairs,"duplicate_shell5_source_edge")
+        seen_pairs.add((key,f))
+        reverse_per_target[key]=reverse_per_target.get(key,0)+reverse
+        need(reverse_per_target[key]<=72,"total_reverse_degree_exceeds_72")
         weights[key]=wg
         A[key]=A.get(key,0)+reverse*source0[f]
         Bmap[key]=Bmap.get(key,0)+reverse*source1[f]
@@ -145,6 +157,12 @@ def toy():
     except SystemExit:
         refused=True
     need(refused,"missing_reverse_weight_not_rejected")
+    duplicate_refused=False
+    try:
+        replay(a+a,left,right,width)
+    except SystemExit:
+        duplicate_refused=True
+    need(duplicate_refused,"duplicated_source_edge_not_rejected")
     emit("Y137_D11_S5_TOY",source_rows=2,
          shared_shell5_target=1,
          W_nonidentity=1,
@@ -153,6 +171,7 @@ def toy():
          corrupted_edge="REJECTED",
          missing_outgoing_move="DETECTED_BY_CENSUS",
          zero_reverse="REJECTED",
+         duplicate_source_edge="REJECTED",
          fullQ_moment="NOT_COMPUTED")
 
 
@@ -267,7 +286,7 @@ def real():
 
 
 def main():
-    mode=sys.argv[1] if len(sys.argv)>1 else "--toy"
+    mode=MODE
     need(mode in ("--toy","--real"),"bad_mode")
     toy()
     if mode=="--real":
