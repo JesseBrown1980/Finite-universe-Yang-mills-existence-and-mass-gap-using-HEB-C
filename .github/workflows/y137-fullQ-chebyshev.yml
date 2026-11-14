@@ -1,0 +1,82 @@
+name: Issue 137 exact whole-Q Chebyshev residual contraction
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-fullQ-chebyshev-20261114/**'
+      - '.github/workflows/y137-fullQ-chebyshev.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-fullQ-residual-polynomial:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify pre-host SHA pins and explicit Wilson proof hold
+        run: |
+          set -euo pipefail
+          D=independent/y137-fullQ-chebyshev-20261114
+          grep -Fq 'status=FROZEN|' "$D/PREDICTION.hbp"
+          grep -Fq 'actual_new_trial_Schur_or_Wilson=NOT_COMPUTED|actual_Wilson_weight=HOLD|' "$D/PREDICTION.hbp"
+          test "$(git hash-object "$D/verify.py")" = "5c4de3a6f8715e9abfb932c925c8f0f76e62b3d3"
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = "91bd1e80cbfcfb76198966aa177d097ecfbe8143"
+          test "$(git hash-object independent/y137-centered-schur-transfer-20261113/RESULT-CENTERED-PROJECTOR.hbp)" = "3a147c8a750dae490882702307f8ec795a3c1f51"
+          test "$(git hash-object independent/y137-combined-W-transfer-20261113/RESULT-COMBINED-FULL-W.hbp)" = "a03d3e6ab5d9340518443e7d1b66c1ca25c2214d"
+      - name: Verify 4-state full exterior toy and two whole-Q spectral certificates
+        run: |
+          set -euo pipefail
+          D=independent/y137-fullQ-chebyshev-20261114
+          mkdir -p build/y137-fullQ-chebyshev
+          python3 -I -B "$D/verify.py" | tee build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          test "$(grep -c '^Y137_CHEB_POINT|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp)" -eq 2
+          grep -Fq 'sample_num=69909875505|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          grep -Fq 'sample_num=69949729820|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          grep -Fq 'degree16_norm_ratio_ceil_per_trillion=639127784|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          grep -Fq 'degree16_norm_ratio_ceil_per_trillion=643298996|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          grep -Fq 'omitted_shell5=REJECTED|corrupted_source=REJECTED|wrong_recurrence=REJECTED|false_spectral_upper=REJECTED|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          grep -Fq 'degree16_Q_residual_contraction_over_1550=1|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          grep -Fq 'actual_new_trial_Schur_or_Wilson=NOT_COMPUTED|issue_137=OPEN|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          test "$(grep -c '^Y137_CHEB_' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp)" -eq 5
+          cmp build/y137-fullQ-chebyshev/RESULT-CHEB.hbp "$D/RESULT-CHEB.hbp"
+      - name: Independently replay all factors by 2x2 matrix powers
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-fullQ-chebyshev-20261114/independent_audit.py | tee build/y137-fullQ-chebyshev/RESULT-INDEPENDENT.hbp
+          grep -Fq 'method=2x2_integer_matrix_power_not_source_polynomial|all_norm_and_Gram_ratios=PASS|modified_ratio_negative_control=REJECTED|' build/y137-fullQ-chebyshev/RESULT-INDEPENDENT.hbp
+      - name: Verify new Schur center from exactly 32 operator moments
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-fullQ-chebyshev-20261114/moment_center.py | tee build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
+          test "$(grep -c '^Y137_MOMENT_POINT|' build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp)" -eq 4
+          cmp build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp independent/y137-fullQ-chebyshev-20261114/RESULT-MOMENT.hbp
+          grep -Fq 'degree16_moments=32|Chebyshev_coefficients=INDEPENDENT_BINOMIAL_FORM|shell5_edge_omission=REJECTED|' build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
+          grep -Fq 'actual_3x4_fullQ_moments=NOT_COMPUTED|actual_Wilson_weight=HOLD|' build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
+      - name: Independently reject truncated weighted operator and audit paired moments
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-fullQ-chebyshev-20261114/weighted_completeness.py | tee build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
+          test "$(grep -c '^Y137_COMPLETE_PAIR|' build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp)" -eq 5
+          cmp build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp independent/y137-fullQ-chebyshev-20261114/RESULT-COMPLETENESS.hbp
+          grep -Fq 'full_states=5|flat_states=1|nonflat_states=4|raw_moves_per_state=72|all_destinations_resolved=1|every_weighted_edge_balanced=1|all_rowsum_72=1|' build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
+          grep -Fq 'fully_truncated_moment_identity=PASSES_BUT_IS_NOT_A_PROOF|truncated_operator_completeness=REJECTED|tampered_closed_graph=REJECTED_BY_INDEPENDENT_REFERENCE|unbalanced_edge=REJECTED|wrong_orbit_metric=REJECTED|' build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
+          grep -Fq 'real_3x4_orbit_closure=NOT_COMPUTED|real_moments=NOT_COMPUTED|actual_Wilson_weight=HOLD|issue_137=OPEN|' build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
+      - name: Strict integer-only and no-floating-point source audits
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-fullQ-chebyshev-20261114/verify.py
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-fullQ-chebyshev-20261114/independent_audit.py
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-fullQ-chebyshev-20261114/moment_center.py
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-fullQ-chebyshev-20261114/weighted_completeness.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-completeQ-chebyshev-trial-certificate
+          path: |
+            build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+            build/y137-fullQ-chebyshev/RESULT-INDEPENDENT.hbp
+            build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
+            build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
+          if-no-files-found: ignore
+          retention-days: 60
