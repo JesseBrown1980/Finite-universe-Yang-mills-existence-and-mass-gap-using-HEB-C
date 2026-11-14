@@ -30,7 +30,7 @@ FROZEN = (
      "83efba692ef3a8451a68049ee996451877ac4d646ae2f357fc0b604b48db0b0f"),
     (69949729820, 69948100000, 69949729820,
      (111045317,-38181375,-112233220,1000000000,979217930,216249666,4169404,4169404),
-     "9229dfad058157d80287cb1ab188c1034bdbb16394dec045b540890d8d",
+     "9229dfad058157d80287cb1ab188c1034bdbb16394dec045b540890d8bb05109",
      "e42df65b4b269095177fc609d06b4576917901c598f8ebd477eaa58b61b90d8d")
 )
 WF = (1,3,2,3,3,2,2,2)
@@ -151,10 +151,12 @@ def verify_directional_exterior(ball,Y,a,v,G4):
             acc+=wc[p]*vals[src[p]]
         fac=6//w[f]
         total+=fac*acc*acc
-        if not dropped and es[f+1]>first and wc[first]*vals[src[first]]:
+        if not dropped and es[f+1]>first:
             changed=acc-wc[first]*vals[src[first]]
-            altered += fac*(changed*changed-acc*acc)
-            dropped=1
+            difference=fac*(changed*changed-acc*acc)
+            if difference:
+                altered += difference
+                dropped=1
     direct=B*B*total
     expected=quad(G4,v)
     need(expected>0 and direct == expected, "exterior_Gram_crosscheck")
