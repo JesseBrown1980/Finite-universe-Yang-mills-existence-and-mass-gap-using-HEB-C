@@ -1,0 +1,35 @@
+name: Issue 137 degree11 mu2 complete spill/reduce synthetic preflight
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-d11-shell5-spill-20261114/**'
+      - '.github/workflows/y137-d11-mu2-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-synthetic-source-and-reduction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Independent S3 move rule and target-coalescence planted faults
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-d11-shell5-spill-20261114/source_spill.py --toy | tee /tmp/y137-mu2-toy.hbp
+          grep -Fq 'cross_partition_square_before_reduction=REJECTED|corrupted_edge=REJECTED|' /tmp/y137-mu2-toy.hbp
+          grep -Fq 'spanning_tree_gauge_reconstructed=PASS|magnetic_and_orbit_weight=PASS|' /tmp/y137-mu2-toy.hbp
+      - name: Exact binary target-granular paired Gram and block-Hankel independent unit gates
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-d11-shell5-spill-20261114/reduce_full_mu2.py --self-test | tee /tmp/y137-mu2-reduce-test.hbp
+          python3 -I -B independent/y137-d11-shell5-spill-20261114/assemble_full_mu2.py --self-test | tee /tmp/y137-mu2-assemble-test.hbp
+          grep -Fq 'source_shard_Gram_premature_squaring=REJECTED|real_mu2=NOT_COMPUTED|' /tmp/y137-mu2-reduce-test.hbp
+          grep -Fq 'full_16x16_block_Hankel=PASS|invalid_mu2_zero=REJECTED|real_source_moments=NOT_COMPUTED|' /tmp/y137-mu2-assemble-test.hbp
+      - name: Strict complete source gate for all three producer/consumer scripts
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          for file in independent/y137-d11-shell5-spill-20261114/{full_mu2_shard.py,reduce_full_mu2.py,assemble_full_mu2.py,independent_move_rule.py}; do
+            python3 -I -X utf8 native/scripts/integer_only_audit.py "$file"
+          done

@@ -1,0 +1,46 @@
+name: Issue 137 degree11 full source Q4-to-Q5 mu2 shard zero
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-d11-shell5-spill-20261114/full_mu2_shard.py'
+      - 'independent/y137-d11-shell5-spill-20261114/independent_move_rule.py'
+      - '.github/workflows/y137-d11-mu2-full-shard0.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-completeQ4-shard0:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    env:
+      Y137_D11_MU2_SHARD: "0"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Check exact integer/no-float gate before full 1/8 shell4 source
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-d11-shell5-spill-20261114/full_mu2_shard.py
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-d11-shell5-spill-20261114/independent_move_rule.py
+      - name: Enumerate all 72 moves from 248152 accepted K3 Q4 sources and seal 64 shell5 streams
+        run: |
+          set -euo pipefail
+          ulimit -v 6291456
+          mkdir -p build/y137-d11-mu2-full
+          python3 -I -B independent/y137-d11-shell5-spill-20261114/full_mu2_shard.py | tee build/y137-d11-mu2-full/SHARD0-LOG.hbp
+          D=build/y137-d11-mu2-full/PART-0
+          test "$(grep -c '^Y137_D11_MU2_PART|' "$D/PART.hbp")" -eq 2
+          test "$(grep -c '^Y137_D11_MU2_INNER|' "$D/PART.hbp")" -eq 2
+          test "$(grep -c '^Y137_D11_MU2_BUCKET|' "$D/BUCKETS.hbp")" -eq 64
+          grep -Fq 'source_rows=248152|all_raw_electric_moves=17866944|' "$D/PART.hbp"
+          grep -Fq 'exact_prior_mu0_mu1_shard_match=1|' "$D/PART.hbp"
+          grep -Fq 'complete_Q4_partition=PASS|shell5_spill=FROZEN_BUCKETED|actual_mu2=HOLD_ALL_EIGHT_SHARDS_AND_GLOBAL_TARGET_REDUCTION|' "$D/PART.hbp"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-d11-mu2-full-Q4-source-shard-0
+          path: |
+            build/y137-d11-mu2-full/SHARD0-LOG.hbp
+            build/y137-d11-mu2-full/PART-0/
+          retention-days: 30
+          if-no-files-found: ignore
