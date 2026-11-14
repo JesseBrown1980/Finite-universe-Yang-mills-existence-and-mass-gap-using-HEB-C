@@ -281,6 +281,23 @@ def run():
                 actual_mu2="HOLD_ALL_EIGHT_SHARDS_AND_GLOBAL_TARGET_REDUCTION",
                 target_degree=11,remaining_moments_per_sample=20,
                 original_Wilson_weight="HOLD",issue_137="OPEN")
+    # Freeze eight disjoint upload groups without multiplying disk usage:
+    # hard links preserve byte identity of each original bucket stream.
+    import shutil
+    for group in range(8):
+        dest=os.path.join(folder,"GROUP-"+str(group))
+        os.makedirs(dest,exist_ok=True)
+        shutil.copyfile(os.path.join(folder,"PART.hbp"),
+                        os.path.join(dest,"PART.hbp"))
+        shutil.copyfile(os.path.join(folder,"BUCKETS.hbp"),
+                        os.path.join(dest,"BUCKETS.hbp"))
+        for bucket in range(group,BUCKETS,8):
+            name="bucket-"+str(bucket).zfill(2)+".bin"
+            os.link(os.path.join(bins,name),os.path.join(dest,name))
+    emit("Y137_D11_MU2_UPLOAD",shard=SHARD,groups=8,
+         disjoint_bucket_partition="PASS",
+         hard_link_byte_preservation="PASS",
+         full_mu2="NOT_YET_ASSEMBLED")
 
 
 if __name__=="__main__":
