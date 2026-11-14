@@ -139,7 +139,59 @@ moment route, with exact W and P/Q selection, or find a justified
 alternative first-excitation Wilson positivity proof. The original
 #137 HOLD remains mandatory.
 
-## 5. Executable independent-in-program audit and fault controls
+## 5. The exact 32-moment route to the missing Schur center
+
+The remaining Schur center is not an arbitrary huge vector requirement.
+The polynomial identity gives a finite exact **operator-moment reduction**.
+
+Let P_n be the integer polynomial above, K=K_n, and define
+
+    C_(2n-1)(X) = (K² - P_n(X)²)/X.
+
+This quotient is an integer-coefficient polynomial of degree 2n-1
+because P_n(0)=K. With A_int=b A and the original complete R, define
+
+    mu_k = R* A_int^k R,      0 <= k <= 2n-1.
+
+The new variational Schur center is EXACTLY
+
+    U(Y_n) = U(Y) - (b/K²) R* C_(2n-1)(A_int) R
+           = U(Y) - (b/K²) sum_(k=0)^(2n-1) c_k mu_k.
+
+Proof: putting F=(K-P_n)/X, the source correction is
+V=(b/K)F(A_int)R. The exact quadratic variational improvement is
+2 R*V - V* A V. Using A=A_int/b and the polynomial identity
+
+    2K F(X) - X F(X)² = (K²-P_n(X)²)/X = C_(2n-1)(X)
+
+proves the result in the correct weighted metric.
+
+For n=16, exactly **32 symmetric 8x8 moment matrices**
+mu_0,...,mu_31 determine the corrected source center. Because
+A_int is W-self-adjoint, these moments can be obtained by symmetric
+products of just 17 iterative vectors A_int^k R for k=0,...,16
+(even moments are squared norms; odd moments are consecutive products),
+provided the entire reached Q support is included.
+
+Once these 32 moments are certified, the hash-addressed exact
+parameter-replay law in Matrix Law Essentials can reuse them without
+repeating the giant graph traversal. A cryptographic hash alone cannot
+replace any missing moment.
+
+The **next actual source obligation** is to certify the complete
+moment matrices, ideally by a reduction or invariant-space technique
+that avoids materializing the whole shell20 state ball. There is no
+claim that those matrices have been computed at r=9.
+
+The standalone toy source moment_center.py evaluates C through an
+independent **binomial Chebyshev expansion**, computes 2n moments
+directly at n=1,4,8,16, and checks the resulting U(Y_n) against a
+separately constructed corrected trial and the exact Schur resolvent.
+It rejects a deleted shell4-to-shell5 edge because that edge changes
+the second operator moment. These toy tests are not actual r=9
+moment certificates.
+
+## 6. Executable independent-in-program audit and fault controls
 
 The integer verifier:
 - pins three original Git blobs: actual 3x4 operator source, accepted
