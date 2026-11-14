@@ -13,9 +13,9 @@ from pathlib import Path
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[1]
-SHARD_PATH=HERE/"RESULT-MU1-SHARD-EVIDENCE.hbp"
-RESULT_PATH=HERE/"RESULT-MU1.hbp"
-SOURCE_PATH=ROOT/"independent/y137-shell4-diagonal-cache-20261114/RESULT-MAGNETIC-CACHE.hbp"
+SHARD_PATH=HERE.joinpath("RESULT-MU1-SHARD-EVIDENCE.hbp")
+RESULT_PATH=HERE.joinpath("RESULT-MU1.hbp")
+SOURCE_PATH=ROOT.joinpath("independent","y137-shell4-diagonal-cache-20261114","RESULT-MAGNETIC-CACHE.hbp")
 SHA={
     "shards":"ab6493016ee3201f61fa54746878ee3890f26f34",
     "result":"86abf9611f8b9df5e03e796e81f513cba826c085",
