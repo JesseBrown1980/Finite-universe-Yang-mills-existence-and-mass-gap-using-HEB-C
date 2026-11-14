@@ -20,6 +20,7 @@ jobs:
           python3 -I -B independent/y137-real-d7-pilot-20261114/pilot.py | tee build/y137-degree7/RESULT-D7-PILOT.hbp
           test "$(grep -c '^Y137_D7_PASS|' build/y137-degree7/RESULT-D7-PILOT.hbp)" -eq 2
           test "$(grep -c '^Y137_D7_MOMENT|' build/y137-degree7/RESULT-D7-PILOT.hbp)" -eq 8
+          cmp build/y137-degree7/RESULT-D7-PILOT.hbp independent/y137-real-d7-pilot-20261114/RESULT-D7-PILOT.hbp
           grep -Fq 'completed_operator_passes=2|exact_real_model_source_moments_per_sample=4|degree7_requested_passes=7|' build/y137-degree7/RESULT-D7-PILOT.hbp
           grep -Fq 'accepted_K3_residual_moments=NOT_COMPUTED|degree7_actual_source=HOLD_RESOURCE_BOUND|' build/y137-degree7/RESULT-D7-PILOT.hbp
       - name: Strict no-float and integer-only audits
