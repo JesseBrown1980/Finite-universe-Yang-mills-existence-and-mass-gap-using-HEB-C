@@ -19,6 +19,7 @@ jobs:
           mkdir -p build/y137-real-moments
           python3 -I -B independent/y137-real-Q-moment-20261114/moment0.py | tee build/y137-real-moments/RESULT-MU0.hbp
           test "$(grep -c '^Y137_REAL_MOMENT_POINT|' build/y137-real-moments/RESULT-MU0.hbp)" -eq 2
+          cmp build/y137-real-moments/RESULT-MU0.hbp independent/y137-real-Q-moment-20261114/RESULT-MU0.hbp
           grep -Fq 'actual_accepted_K3_8x8_moment0_samples=2|actual_accepted_K3_highest_exact_moment_order=0|' build/y137-real-moments/RESULT-MU0.hbp
           grep -Fq 'independent_transition_source_check=PENDING|actual_degree7_Schur_center=HOLD|' build/y137-real-moments/RESULT-MU0.hbp
       - name: Strict integer source audit
