@@ -1,0 +1,7 @@
+Y137_COMPLETE_TOY|full_states=5|flat_states=1|nonflat_states=4|raw_moves_per_state=72|all_destinations_resolved=1|every_weighted_edge_balanced=1|all_rowsum_72=1|independent_reference_operator=PASS|Q_projection_after_every_step=PASS|wholeQ_moments=SYNTHETIC_ONLY|json=0
+Y137_COMPLETE_PAIR|degree=1|moment_matrices=2|operator_applications=1|metric=W_NONIDENTITY|direct_vs_paired=PASS|exact_Schur_center=PASS|json=0
+Y137_COMPLETE_PAIR|degree=2|moment_matrices=4|operator_applications=2|metric=W_NONIDENTITY|direct_vs_paired=PASS|exact_Schur_center=PASS|json=0
+Y137_COMPLETE_PAIR|degree=4|moment_matrices=8|operator_applications=4|metric=W_NONIDENTITY|direct_vs_paired=PASS|exact_Schur_center=PASS|json=0
+Y137_COMPLETE_PAIR|degree=8|moment_matrices=16|operator_applications=8|metric=W_NONIDENTITY|direct_vs_paired=PASS|exact_Schur_center=PASS|json=0
+Y137_COMPLETE_PAIR|degree=16|moment_matrices=32|operator_applications=16|metric=W_NONIDENTITY|direct_vs_paired=PASS|exact_Schur_center=PASS|json=0
+Y137_COMPLETE_VERDICT|fully_truncated_moment_identity=PASSES_BUT_IS_NOT_A_PROOF|truncated_operator_completeness=REJECTED|tampered_closed_graph=REJECTED_BY_INDEPENDENT_REFERENCE|unbalanced_edge=REJECTED|wrong_orbit_metric=REJECTED|real_3x4_orbit_closure=NOT_COMPUTED|real_moments=NOT_COMPUTED|actual_Wilson_weight=HOLD|issue_137=OPEN|json=0
