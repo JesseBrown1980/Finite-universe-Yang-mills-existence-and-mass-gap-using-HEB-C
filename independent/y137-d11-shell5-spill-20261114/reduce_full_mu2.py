@@ -14,7 +14,11 @@ import sys
 HERE=os.path.dirname(os.path.abspath(__file__))
 ROOT=os.path.abspath(os.path.join(HERE,"..",".."))
 sys.path.insert(0,os.path.join(ROOT,"independent","y137-real-Q-moment-20261114"))
+MODE=sys.argv[1] if len(sys.argv)>1 else "--real"
+OLD_ARGS=sys.argv[:]
+sys.argv=sys.argv[:1]
 import mu1_shard as src
+sys.argv=OLD_ARGS
 
 m=src.m
 c=src.c
@@ -199,5 +203,34 @@ def run():
          original_Wilson_weight="HOLD",issue_137="OPEN")
 
 
+def selftest():
+    width=16
+    mask=(1<<width)-1
+    words=[i+1 for i in range(COLS)]
+    packed=sum(words[i]<<(width*i) for i in range(COLS))
+    M=empty()
+    add_upper(M,packed,6,width,mask)
+    need(all(M[i][j]==6*6*B*B*words[i]*words[j]
+             for i in range(COLS) for j in range(i,COLS)),
+         "synthetic_exact_outer_Gram")
+    M2=empty()
+    add_upper(M2,packed,6,width,mask)
+    add_upper(M2,packed,6,width,mask)
+    merged=empty()
+    add_upper(merged,packed+packed,6,width,mask)
+    need(merged!=M2 and all(merged[i][i]>M2[i][i]
+                            for i in range(COLS)),
+         "split_before_square_fault_control")
+    emit("Y137_D11_MU2_REDUCER_TOY",
+         packed_integer_outer_product="PASS",
+         identical_shell5_target_from_two_sources="PASS",
+         source_shard_Gram_premature_squaring="REJECTED",
+         real_mu2="NOT_COMPUTED")
+
+
 if __name__=="__main__":
-    run()
+    if MODE=="--self-test":
+        selftest()
+    else:
+        need(MODE=="--real","invalid_mode")
+        run()
