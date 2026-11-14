@@ -1,0 +1,2 @@
+# Source calculation stage passed at hosted run 43587669673; whole original job failed on a quick-replay syntax error now repaired. Does not constitute independent source review.
+Y137_CACHE_HOSTED_PIN|source_run=43587669673|source_step=SUCCESS|original_job=FAIL_SYNTAX_GATE|result_git_blob=6454216973b8e59d65174c7cadc4f22c7dcf0354|source_sha=42cea9b111330d948ca40ef34185e0785e63aa3c|record_rows=5|source_samples=2|proof_first_Wilson_weight=HOLD|json=0
