@@ -1,0 +1,38 @@
+name: Issue 137 real mu3 polynomial enclosure to exact degree2 Schur
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-d11-mu3-envelope-n2-schur-20261114/**'
+      - '.github/workflows/y137-real-mu3-envelope-n2.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  full-Q-truncated-moment-envelope:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Pin all three real moments and compute exact cubic positive-polynomial bound
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-n2-envelope
+          python3 -I -B independent/y137-d11-mu3-envelope-n2-schur-20261114/degree2_envelope.py | tee build/y137-n2-envelope/RESULT-N2.hbp
+          test "$(grep -c '^Y137_N2_ENVELOPE_POINT|' build/y137-n2-envelope/RESULT-N2.hbp)" -eq 2
+          grep -Fq 'degree=2|source_units=ACCEPTED_INTEGER_NO_EXTRA_B|mu3_exact=NOT_COMPUTED|' build/y137-n2-envelope/RESULT-N2.hbp
+          grep -Fq 'original_accepted_bracket_nesting=PASS|lower_bound_improves_degree1=PASS|' build/y137-n2-envelope/RESULT-N2.hbp
+          grep -Fq 'spectral_mu3_polynomial_bounds=PASS|exact_degree2_Schur_8x8_sandwich=PASS|both_original_energy_inertia=1,2|' build/y137-n2-envelope/RESULT-N2.hbp
+          grep -Fq 'planted_billion_source_unit_error=REFUSED|degree11_real_moments_remaining=19|' build/y137-n2-envelope/RESULT-N2.hbp
+          grep -Fq 'full_source_72_move_independence=PENDING|actual_first_Wilson_weight=HOLD|' build/y137-n2-envelope/RESULT-N2.hbp
+      - name: Strict no-float and integer-only certificate audits
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-d11-mu3-envelope-n2-schur-20261114/degree2_envelope.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-real-K3-degree2-mu3-envelope
+          path: build/y137-n2-envelope/RESULT-N2.hbp
+          retention-days: 60
+          if-no-files-found: ignore
