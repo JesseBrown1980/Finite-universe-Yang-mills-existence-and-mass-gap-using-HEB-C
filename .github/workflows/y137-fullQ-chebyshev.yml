@@ -1,0 +1,52 @@
+name: Issue 137 exact whole-Q Chebyshev residual contraction
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-fullQ-chebyshev-20261114/**'
+      - '.github/workflows/y137-fullQ-chebyshev.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-fullQ-residual-polynomial:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify pre-host SHA pins and explicit Wilson proof hold
+        run: |
+          set -euo pipefail
+          D=independent/y137-fullQ-chebyshev-20261114
+          grep -Fq 'status=FROZEN|' "$D/PREDICTION.hbp"
+          grep -Fq 'actual_new_trial_Schur_or_Wilson=NOT_COMPUTED|actual_Wilson_weight=HOLD|' "$D/PREDICTION.hbp"
+          test "$(git hash-object "$D/verify.py")" = "5c4de3a6f8715e9abfb932c925c8f0f76e62b3d3"
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = "91bd1e80cbfcfb76198966aa177d097ecfbe8143"
+          test "$(git hash-object independent/y137-centered-schur-transfer-20261113/RESULT-CENTERED-PROJECTOR.hbp)" = "3a147c8a750dae490882702307f8ec795a3c1f51"
+          test "$(git hash-object independent/y137-combined-W-transfer-20261113/RESULT-COMBINED-FULL-W.hbp)" = "a03d3e6ab5d9340518443e7d1b66c1ca25c2214d"
+      - name: Verify 4-state full exterior toy and two whole-Q spectral certificates
+        run: |
+          set -euo pipefail
+          D=independent/y137-fullQ-chebyshev-20261114
+          mkdir -p build/y137-fullQ-chebyshev
+          python3 -I -B "$D/verify.py" | tee build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          test "$(grep -c '^Y137_CHEB_POINT|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp)" -eq 2
+          grep -Fq 'sample_num=69909875505|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          grep -Fq 'sample_num=69949729820|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          grep -Fq 'degree16_norm_ratio_ceil_per_trillion=639127784|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          grep -Fq 'degree16_norm_ratio_ceil_per_trillion=643298996|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          grep -Fq 'omitted_shell5=REJECTED|corrupted_source=REJECTED|wrong_recurrence=REJECTED|false_spectral_upper=REJECTED|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          grep -Fq 'degree16_Q_residual_contraction_over_1550=1|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          grep -Fq 'actual_new_trial_Schur_or_Wilson=NOT_COMPUTED|issue_137=OPEN|' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          test "$(grep -c '^Y137_CHEB_' build/y137-fullQ-chebyshev/RESULT-CHEB.hbp)" -eq 5
+      - name: Strict integer-only and no-floating-point source audits
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-fullQ-chebyshev-20261114/verify.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-completeQ-chebyshev-trial-certificate
+          path: build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
+          if-no-files-found: ignore
+          retention-days: 60
