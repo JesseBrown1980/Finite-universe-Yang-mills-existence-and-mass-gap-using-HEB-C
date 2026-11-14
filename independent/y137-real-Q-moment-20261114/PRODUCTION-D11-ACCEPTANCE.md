@@ -17,12 +17,18 @@ There are **22 complete symmetric 8x8 integer moment matrices per
 sample**, hence **44 sample-specific matrices** total.
 The paired form is
 
-    mu_(2j)   = (X^j R)* W (X^j R),
-    mu_(2j+1) = (X^j R)* W (X^(j+1) R),  j=0,...,10.
+    V_j = X^j R,
+    mu_(2j)   = V_j* W V_j,
+    mu_(2j+1) = V_j* W X V_j,    j=0,...,10.
 
-The 22 matrices therefore require 11 complete applications of X to
-the eight-column accepted source per sample, with shared graph
-geometry when possible. They do not require explicitly forming X^21 R.
+The final odd moment mu21 is an **on-support W-weighted edge
+quadratic form** in V10, so **10 complete outward applications**
+construct V0 through V10 and supply all 22 moments. The final
+V11 (largest outer frontier) is not constructed. For all earlier
+odd moments the paired alternative V_j*W V_(j+1) remains available.
+The full 72-move operator on each true support must be independently
+verified, including diagonal and self-loop contributions. Both
+frozen energies share graph geometry but retain separate R_z.
 Any compression, power-of-three jump, or hash cache MUST preserve
 the whole-Q operator and exact W pairing, with a proved reduction
 rather than an assumed closed finite shell.
@@ -38,15 +44,24 @@ Completed and preserved in #193:
 
 Remaining real source moments for degree 11:
 
-    mu2, mu3, ... , mu21: 20 8x8 matrices per frozen sample.
+    mu3, mu4, ... , mu21: 19 8x8 matrices per frozen sample.
 
-**Resources:** Before authorizing a new full pass, certify a bounded
-whole-Q operator application over the active real K3 source, including
-every newly reached shell5 destination. Measure the complete frontier,
-W-weighted spill counts, canonicalizer independence, peak memory and
-disk budget. If support growth makes 11 passes infeasible, record
-RESOURCE_HOLD, develop a mathematically justified transfer/moment
-reduction, and retain the degree-11 target. Do NOT quietly replace the
+The exact real mu2 8x8 matrices and all raw source/target fan-in
+checks passed in #194. The complete V1 target values must be kept
+or exactly replayed for the next true mu3 on-support edge form:
+a mu2 Gram alone loses target-specific amplitudes.
+
+**Resources:** The first complete outward application and mu2
+have now passed for both accepted-K3 samples in the descendant
+[#194 run 43606393196](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43606393196).
+It resolved **18,598,040 actual shell5 target states** and all
+**125,426,880** Q4-to-Q5 edge records. The independent source review
+is still pending. The remaining applications are the nine transitions
+V1→V2 through V9→V10, with a final mu21 support-edge quadratic
+form requiring no V11. At every step measure source support, complete
+frontier, W-weighted spill, canonicalizer agreement, memory and disk.
+If support growth makes this infeasible, record RESOURCE_HOLD and
+develop a proved transfer/moment reduction, preserving degree 11. Do NOT quietly replace the
 goal with degree 7 or truncate the outer frontier.
 
 ## Correct historical integer-source normalization — hard acceptance gate
@@ -120,8 +135,9 @@ part of the sign-transfer budget.
 ## Status
 
 **Degree-11 real source: IN PROGRESS, NOT CERTIFIED.**
-The two 8x8 mu0/mu1 matrices per sample are accepted conditionally on
-the archived source; mu2..mu21 are NOT COMPUTED. The independent
+The three 8x8 mu0/mu1/mu2 matrices per sample are accepted
+conditionally on the archived source and complete #194 mu2 source
+fan-in; mu3..mu21 are NOT COMPUTED. The independent
 full raw-transition source audit remains open.
 The true first-excitation Wilson spectral weight remains HOLD,
 issue #137 OPEN, #193 DRAFT. Degree-7 Y=0 pilot #192 may remain as a
