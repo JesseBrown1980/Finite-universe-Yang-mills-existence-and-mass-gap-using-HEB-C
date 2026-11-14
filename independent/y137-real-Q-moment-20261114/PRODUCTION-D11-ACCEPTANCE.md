@@ -1,0 +1,128 @@
+# Issue #137 production target: degree-11 accepted-K3 full-Q moments
+
+**Decision frozen 2026-11-14:** degree **11** is the production
+Chebyshev corrected trial. Degree **7** is only the already authorized
+lower-cost 72-move source-validation pilot in draft #192, which uses
+the different Y=0 source. It is not the stopping degree for #193.
+
+## Exact production obligation
+
+The accepted K3 trial at each original E1/E2 frozen sample has real
+source data R_z supported on K3 plus all 1,985,218 shell4 orbits.
+Let b=10^9, X_z=b(QHQ-zI), W the exact orbit-size metric and
+
+    mu_k(z) = R_z* W X_z^k R_z,      k=0,...,21.
+
+There are **22 complete symmetric 8x8 integer moment matrices per
+sample**, hence **44 sample-specific matrices** total.
+The paired form is
+
+    mu_(2j)   = (X^j R)* W (X^j R),
+    mu_(2j+1) = (X^j R)* W (X^(j+1) R),  j=0,...,10.
+
+The 22 matrices therefore require 11 complete applications of X to
+the eight-column accepted source per sample, with shared graph
+geometry when possible. They do not require explicitly forming X^21 R.
+Any compression, power-of-three jump, or hash cache MUST preserve
+the whole-Q operator and exact W pairing, with a proved reduction
+rather than an assumed closed finite shell.
+
+Completed and preserved in #193:
+
+- mu0 for both frozen samples: accepted exact K3 full-Q Gram, PASS.
+- mu1 for both frozen samples: all eight exhaustive shell4 shards,
+  142,935,696 raw moves, exact 8x8 matrices and source checks, PASS.
+- first degree-1 corrected source Schur sandwich: corrected against
+  the accepted normalization and inertia, PASS. The old extra-10^9
+  matrix receipt remains preserved as REJECTED.
+
+Remaining real source moments for degree 11:
+
+    mu2, mu3, ... , mu21: 20 8x8 matrices per frozen sample.
+
+**Resources:** Before authorizing a new full pass, certify a bounded
+whole-Q operator application over the active real K3 source, including
+every newly reached shell5 destination. Measure the complete frontier,
+W-weighted spill counts, canonicalizer independence, peak memory and
+disk budget. If support growth makes 11 passes infeasible, record
+RESOURCE_HOLD, develop a mathematically justified transfer/moment
+reduction, and retain the degree-11 target. Do NOT quietly replace the
+goal with degree 7 or truncate the outer frontier.
+
+## Correct historical integer-source normalization — hard acceptance gate
+
+Use the accepted #190 source's exact integer matrix U0 and R; **no
+extra factor b=10^9** multiplies the moments when building the centre.
+
+For each energy, define certified operator endpoints
+
+    g = 94068200000-z_num,
+    h = 468000000000-z_num,
+    s = g+h,
+    d = h-g.
+
+Define exact integer polynomials
+
+    P0(X)=1, P1(X)=s-2X,
+    P_(n+1)(X)=2(s-2X) P_n(X)-d^2 P_(n-1)(X),
+    K_n=P_n(0)>0.
+
+Set n=11 and polynomial C21:
+
+    C21(X)=(K11^2-P11(X)^2)/X = sum_(k=0)^21 c_k X^k.
+
+The actual accepted-source corrected variational centre is
+
+    U11 = U0 - [sum_(k=0)^21 c_k mu_k] / K11^2.
+
+The complete Q residual is R11=P11(X)R/K11, and the resulting
+source-conditional Schur bounds are
+
+    U11 - (d/K11)^22 * mu0/g <= S(z) <= U11,
+
+where (d/K11)^22 denotes d^(22)/K11^2.
+Use only integer numerator/denominator arithmetic; parentheses
+must be explicit in code:
+
+    lower = U11 - [d^22 / (g * K11^2)] mu0.
+
+The global whole-Q floor and upper 468 bound remain the accepted
+conditional inputs. The norm-contraction factor d^11/K11 has a
+separately verified strict upper of 0.008 at both original samples
+(approximately 0.00791 and 0.00794), hence a squared residual-Gram
+factor less than 0.000064. This mathematical estimate does not by
+itself settle the fully normalized Wilson weight or the energy-window
+part of the sign-transfer budget.
+
+**Must verify independently, in original U0 units:**
+1. Exact raw 72-move row completeness for every nonzero Q source at
+   each pass, all destination canonical orbit IDs resolved or explicit
+   P projection, every W-weighted electric reverse edge consistent;
+   sample columns independently regenerated from the raw move rule.
+2. Immutable source hashes and both frozen samples, complete outgoing
+   edge counts, exact 8x8 mu0/mu1 historical byte agreement,
+   paired-moment identities, PSD block-Hankel Gram/localizer checks.
+3. Corrected two-sided Schur bracket nested in the accepted original
+
+       U0-mu0/g <= new_lower <= new_upper <= U0
+
+   in the exact 8x8 Loewner order.
+4. Original and new upper and lower Schur inertia counts match the
+   certified E1=1 and E2=2 at the same frozen energies. An
+   extra-billion-factor planted error MUST be rejected, as in #193
+   corrected degree-1 run.
+5. Independently recompute the exact normalized, original
+   (unshifted) E1→E2 Wilson amplitude and compare source, energy,
+   projector-angle and normalization errors with the <1/700
+   positivity gate. Improving the source residual alone is not a
+   complete positive-weight proof.
+
+## Status
+
+**Degree-11 real source: IN PROGRESS, NOT CERTIFIED.**
+The two 8x8 mu0/mu1 matrices per sample are accepted conditionally on
+the archived source; mu2..mu21 are NOT COMPUTED. The independent
+full raw-transition source audit remains open.
+The true first-excitation Wilson spectral weight remains HOLD,
+issue #137 OPEN, #193 DRAFT. Degree-7 Y=0 pilot #192 may remain as a
+separate instrument gate but is not the production destination.
