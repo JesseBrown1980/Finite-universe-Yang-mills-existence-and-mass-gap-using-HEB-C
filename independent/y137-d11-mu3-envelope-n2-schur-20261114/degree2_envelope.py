@@ -276,10 +276,10 @@ def main():
     S=read(CACHE,"source","Y137_CACHE_POINT")
     M1=read(MU1,"mu1","Y137_MU1_COMPLETE_POINT")
     M2=read(MU2,"mu2","Y137_D11_MU2_POINT")
-    N1=read(N1,"n1","Y137_N1_POINT")
+    N1ROWS=read(N1,"n1","Y137_N1_POINT")
     results=[]
     for i in range(2):
-        results.append(certify(S[i],M1[i],M2[i],N1[i],i))
+        results.append(certify(S[i],M1[i],M2[i],N1ROWS[i],i))
     need(len(results)==2,"no_complete_original_energy_samples")
     emit("Y137_N2_ENVELOPE_VERDICT",
          accepted_real_moment_orders="0,1,2",
