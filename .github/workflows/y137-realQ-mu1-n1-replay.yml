@@ -4,6 +4,9 @@ on:
     paths:
       - 'independent/y137-real-Q-moment-20261114/replay_n1.py'
       - 'independent/y137-real-Q-moment-20261114/RESULT-MU1.hbp'
+      - 'independent/y137-real-Q-moment-20261114/RESULT-N1.hbp'
+      - 'independent/y137-real-Q-moment-20261114/RESULT-N1-REJECTED-1E9.hbp'
+      - 'independent/y137-real-Q-moment-20261114/README.md'
       - 'independent/y137-real-Q-moment-20261114/RESULT-MU1-SHARD-EVIDENCE.hbp'
       - '.github/workflows/y137-realQ-mu1-n1-replay.yml'
   workflow_dispatch:
@@ -22,6 +25,14 @@ jobs:
           python3 -I -B independent/y137-real-Q-moment-20261114/replay_n1.py | tee build/y137-mu1-n1/RESULT-N1.hbp
           test "$(grep -c '^Y137_N1_POINT|' build/y137-mu1-n1/RESULT-N1.hbp)" -eq 2
           cmp build/y137-mu1-n1/RESULT-N1.hbp independent/y137-real-Q-moment-20261114/RESULT-N1.hbp
+          D=independent/y137-real-Q-moment-20261114
+          test "$(git hash-object "$D/RESULT-N1-REJECTED-1E9.hbp")" = 84589a120b037acdbeaa08ffe0c7830698b3212e
+          ! cmp -s "$D/RESULT-N1.hbp" "$D/RESULT-N1-REJECTED-1E9.hbp"
+          grep -Fq 'source_units=ACCEPTED_U_MINUS_MU0_OVER_G|legacy_billion_factor_receipt=REJECTED|' build/y137-mu1-n1/RESULT-N1.hbp
+          test "$(grep -c 'old_unit_error_negative_control=REJECTED|new_bracket_nested_within_accepted=1|' build/y137-mu1-n1/RESULT-N1.hbp)" -eq 2
+          grep -Fq 'accepted_upper_negative_inertia=1|accepted_lower_negative_inertia=1|corrected_upper_negative_inertia=1|corrected_lower_negative_inertia=1|' build/y137-mu1-n1/RESULT-N1.hbp
+          grep -Fq 'accepted_upper_negative_inertia=2|accepted_lower_negative_inertia=2|corrected_upper_negative_inertia=2|corrected_lower_negative_inertia=2|' build/y137-mu1-n1/RESULT-N1.hbp
+          grep -Fq 'rejected_1e9_normalization_negative_control=PASS|accepted_inertia_at_E1=1|accepted_inertia_at_E2=2|' build/y137-mu1-n1/RESULT-N1.hbp
           grep -Fq 'strict_two_sided_improvement_PSD=1|new_corrected_schur_center=EXACT|' build/y137-mu1-n1/RESULT-N1.hbp
           grep -Fq 'actual_K3_corrected_Schur_degree=1|actual_wholeQ_mu0_mu1=EXACT|degree1_fullQ_two_sided_sandwich=PASS|' build/y137-mu1-n1/RESULT-N1.hbp
           grep -Fq 'independent_raw_move_source_review=PENDING|actual_Wilson_weight=HOLD|' build/y137-mu1-n1/RESULT-N1.hbp
