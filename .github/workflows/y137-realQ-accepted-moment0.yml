@@ -1,0 +1,35 @@
+name: Issue 137 actual accepted K3 full-Q moment matrices
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-real-Q-moment-20261114/**'
+      - '.github/workflows/y137-realQ-accepted-moment0.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-completeQ-acceptedK3-mu0-matrices:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify actual accepted K3 complete-Q mu0 8x8 matrices at both frozen energies
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-real-moments
+          python3 -I -B independent/y137-real-Q-moment-20261114/moment0.py | tee build/y137-real-moments/RESULT-MU0.hbp
+          test "$(grep -c '^Y137_REAL_MOMENT_POINT|' build/y137-real-moments/RESULT-MU0.hbp)" -eq 2
+          grep -Fq 'actual_accepted_K3_8x8_moment0_samples=2|actual_accepted_K3_highest_exact_moment_order=0|' build/y137-real-moments/RESULT-MU0.hbp
+          grep -Fq 'independent_transition_source_check=PENDING|actual_degree7_Schur_center=HOLD|' build/y137-real-moments/RESULT-MU0.hbp
+      - name: Strict integer source audit
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-real-Q-moment-20261114/moment0.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-actual-K3-mu0-two-samples
+          path: build/y137-real-moments/RESULT-MU0.hbp
+          retention-days: 60
+          if-no-files-found: ignore
