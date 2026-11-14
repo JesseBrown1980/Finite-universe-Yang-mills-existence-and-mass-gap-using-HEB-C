@@ -22,6 +22,7 @@ SAVED_ARGV=sys.argv[:]
 sys.argv=sys.argv[:1]
 import mu1_shard as orig
 sys.argv=SAVED_ARGV
+sys.path.insert(0,HERE)
 import independent_move_rule as independent
 
 m=orig.m
@@ -200,7 +201,10 @@ def real():
         need(sum(adjacent.values())==72,"source_row_not_72")
         if f in independent_indices:
             try:
-                independent.audit_original(src,c)
+                independent.audit_original(
+                    src,adjacent,wf,
+                    c.magnetic(c.from_key(src)),
+                    c.KEPT,c.TRANS)
             except ValueError:
                 need(False,"independently_authored_electric_row_mismatch")
             independently_rebuilt_rows+=1
@@ -300,7 +304,7 @@ def main():
     mode=MODE
     need(mode in ("--toy","--real"),"bad_mode")
     toy()
-    independent.synthetic(c)
+    independent.synthetic()
     if mode=="--real":
         real()
 
