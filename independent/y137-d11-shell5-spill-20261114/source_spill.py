@@ -22,6 +22,7 @@ SAVED_ARGV=sys.argv[:]
 sys.argv=sys.argv[:1]
 import mu1_shard as orig
 sys.argv=SAVED_ARGV
+import independent_move_rule as independent
 
 m=orig.m
 c=orig.c
@@ -189,12 +190,20 @@ def real():
     q3=q4=q5=projected=0
     events=[]
     sample_edges=0
+    independently_rebuilt_rows=0
+    independent_indices={0,1,3,7,15,31,127,255,511,take-1}
     for f in range(take):
         src=m.decode(ex["code4"][f])
         wf=ball["eW"][f]
         need(c.weight(src)==wf,"true_Q4_weight_changed")
         adjacent=c.neighbors(src)
         need(sum(adjacent.values())==72,"source_row_not_72")
+        if f in independent_indices:
+            try:
+                independent.audit_original(src,c)
+            except ValueError:
+                need(False,"independently_authored_electric_row_mismatch")
+            independently_rebuilt_rows+=1
         rows+=1
         moves+=72
         for dst,cc in adjacent.items():
@@ -266,6 +275,8 @@ def real():
          spool_bytes=len(raw),spool_sha256=bytehash(raw),
          aggregate_reverse_coefficient=sum_reverse,
          independent_row_reverse_checks=sample_edges,
+         independently_authored_full_rule_rows=independently_rebuilt_rows,
+         original_vs_independent_72_move_rows="PASS",
          exact_72_move_accounting="PASS",
          exact_weighted_flux="PASS",
          second_sorted_reduction="PASS")
@@ -289,6 +300,7 @@ def main():
     mode=MODE
     need(mode in ("--toy","--real"),"bad_mode")
     toy()
+    independent.synthetic(c)
     if mode=="--real":
         real()
 
