@@ -24,6 +24,7 @@ jobs:
           grep -Fq 'spectral_mu3_polynomial_bounds=PASS|exact_degree2_Schur_8x8_sandwich=PASS|both_original_energy_inertia=1,2|' build/y137-n2-envelope/RESULT-N2.hbp
           grep -Fq 'planted_billion_source_unit_error=REFUSED|degree11_real_moments_remaining=19|' build/y137-n2-envelope/RESULT-N2.hbp
           grep -Fq 'full_source_72_move_independence=PENDING|actual_first_Wilson_weight=HOLD|' build/y137-n2-envelope/RESULT-N2.hbp
+          cmp build/y137-n2-envelope/RESULT-N2.hbp independent/y137-d11-mu3-envelope-n2-schur-20261114/RESULT-N2.hbp
       - name: Strict no-float and integer-only certificate audits
         run: |
           set -euo pipefail
