@@ -4,6 +4,47 @@
 separately. The accepted source-conditional 3x4 S3 finite-model whole-nonflat
 spectral floor is used unchanged. **True E1->E2 unshifted Wilson weight: HOLD.**
 
+## HIGH unit-conversion alert before use with accepted K3 source (#193)
+
+The physical-normalization algebra below defines A=QHQ-z and R=A Y-B,
+so it legitimately contains prefactors b/K_n and b/K_n² when scaling
+A_int=bA. **Those exact formulas cannot be substituted verbatim
+into the historical accepted K3 integer-source matrices**.
+The second seat's [#193 normalization review](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/193#issuecomment-6877824258)
+found that #193's first archived n=1 Schur matrices had an extra
+b=10^9, rendering them negative definite at both frozen energies.
+
+For the historical K3 cache, define
+
+    U_src=b U_physical,    R_src=b R_physical,
+    X=b(QHQ-zI),           mu_k,src=R_src* W X^k R_src.
+
+The accepted historical bracket is
+
+    U_src - mu_0,src/g <= S_src <= U_src,
+
+where g=b(94.0682-z). Therefore the **actual K3 integer-source**
+trial and corrected centre are
+
+    Y_n = Y - F_(n-1)(X) R_src/K_n,
+    U_n,src = U_src - (1/K_n²) sum_(k=0)^(2n-1) c_k mu_k,src.
+
+There is **no b multiplier** on these accepted source moments.
+At n=1 this is
+
+    Y_1 = Y - 2 R_src/s,
+    U_1,src = U_src - 4(s mu_0,src-mu_1,src)/s²,
+
+    U_1,src - d² mu_0,src/(g s²) <= S_src <= U_1,src.
+
+The accepted actual n=1 certificate belongs to #193 after correcting
+this mismatch. **Every higher-degree source evaluator must assert the
+old U-mu0/g bracket and both new-to-old Loewner nesting and exact
+inertia consistency before certifying its result.** The #191 toy
+proves the polynomial identity in its own physical convention;
+it does not certify any archived K3 integer-source Schur matrix.
+Do not mix these conventions. The true first Wilson weight remains HOLD.
+
 This provides a mathematically specified **new Q trial** whose complete
 residual, including every exterior shell, has a certified operator-norm
 contraction. It avoids materializing the roughly billion-state whole-Q
