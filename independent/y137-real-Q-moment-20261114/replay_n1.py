@@ -108,7 +108,7 @@ def exact_psd(a):
         for i in range(k+1,FLATS):
             u=b[i][k]
             for j in range(i,FLATS):
-                b[i][j]-=u*b[k][j]/p
+                b[i][j]-=u*b[k][j]*Fraction(1,p)
         for i in range(k+1,FLATS):
             b[i][k]=Fraction(0)
         for i in range(k+1,FLATS):
