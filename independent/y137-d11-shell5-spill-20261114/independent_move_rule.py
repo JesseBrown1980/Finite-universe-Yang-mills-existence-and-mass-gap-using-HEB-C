@@ -126,20 +126,20 @@ def magnetic_of_key(key):
     return total
 
 
-def audit_original(key,original):
-    require(KEEP==original.KEPT,"independent_keep_link_agreement")
-    require(TRANSPOSITIONS==original.TRANS,"independent_transpositions")
+def audit_original(key,reference_row,reference_weight,
+                   reference_magnetic,reference_keep,reference_trans):
+    require(KEEP==reference_keep,"independent_keep_link_agreement")
+    require(TRANSPOSITIONS==reference_trans,"independent_transpositions")
     mine=neighbor_counts(key)
-    theirs=original.neighbors(key)
-    require(mine==theirs,"raw_full_row_mismatch")
-    require(canonical_weight(key)==original.weight(key),
+    require(mine==reference_row,"raw_full_row_mismatch")
+    require(canonical_weight(key)==reference_weight,
             "canonical_orbit_weight_mismatch")
-    require(magnetic_of_key(key)==original.magnetic(original.from_key(key)),
+    require(magnetic_of_key(key)==reference_magnetic,
             "independent_magnetic_mismatch")
     return len(mine)
 
 
-def synthetic(original):
+def synthetic():
     # Several deterministic nonflat 13-link configurations; exact
     # full 72-row enumeration is independently rebuilt each time.
     cases=(
@@ -147,10 +147,23 @@ def synthetic(original):
         (1,0,2,3,4,5,0,1,2,3,4,5,1),
         (2,3,4,5,1,0,2,4,0,3,5,1,2),
     )
+    # Reference data passed as scalar/tuple/Counter values; no source
+    # module object enters the verifier and the two implementations
+    # retain distinct gauge canonicalization code.
+    import sys
+    from pathlib import Path
+    sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+    old_argv=sys.argv[:]
+    sys.argv=sys.argv[:1]
+    import finite_s3_3x4_r9_first_gap as original
+    sys.argv=old_argv
     n=0
     for row in cases:
         key=canonical_from_full(expanded_links(row))
-        audit_original(key,original)
+        audit_original(key,original.neighbors(key),
+                       original.weight(key),
+                       original.magnetic(original.from_key(key)),
+                       original.KEPT,original.TRANS)
         n+=1
     # A wrong right-multiply rule, or one omitted generator, must be
     # detected by independently recomputed source moves.
@@ -173,15 +186,7 @@ def synthetic(original):
 
 
 def main():
-    # Standalone import of original minimal model requires no arguments.
-    import sys
-    args=sys.argv[:]
-    from pathlib import Path
-    sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-    sys.argv=sys.argv[:1]
-    import finite_s3_3x4_r9_first_gap as original
-    sys.argv=args
-    synthetic(original)
+    synthetic()
 
 
 if __name__=="__main__":
