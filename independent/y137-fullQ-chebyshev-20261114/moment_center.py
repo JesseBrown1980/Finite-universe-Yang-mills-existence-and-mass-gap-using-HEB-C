@@ -198,8 +198,28 @@ def missing_shell5_negative_control():
          "omitted_outer_edge_did_not_change_operator_moment")
 
 
+def flat_reentry_projection_negative_control():
+    """Full H powers may visit the removed flat sector and return to Q.
+
+    Thus Q H^2 Q is generally NOT (Q H Q)^2. The exact moments for
+    the #137 resolvent must apply Q after every operator multiplication.
+    """
+    coupling=(0,0,1,0)
+    H=((5,)+coupling,)+tuple((coupling[i],)+A[i] for i in range(4))
+    raw= multiply(H,H)
+    raw_Q_H2_Q=tuple(tuple(raw[i+1][j+1] for j in range(4))
+                    for i in range(4))
+    true_Q_H_Q_squared=multiply(A,A)
+    need(raw_Q_H2_Q!=true_Q_H_Q_squared,
+         "flat_sector_reentry_undetected")
+    direct=multiply(transpose(R),multiply(true_Q_H_Q_squared,R))
+    wrong=multiply(transpose(R),multiply(raw_Q_H2_Q,R))
+    need(direct!=wrong,"raw_full_operator_moments_wrongly_accepted")
+
+
 def main():
     missing_shell5_negative_control()
+    flat_reentry_projection_negative_control()
     for n in (1,4,8,16):
         count,k=certify(n)
         print("Y137_MOMENT_POINT|degree="+str(n)+
