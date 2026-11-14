@@ -30,6 +30,7 @@ jobs:
           python3 -I -B "$D/quick_replay.py" | tee build/y137-quick/RESULT-QUICK.hbp
           test "$(grep -c '^Y137_QUICK_SOURCE|' build/y137-quick/RESULT-QUICK.hbp)" -eq 2
           test "$(grep -c '^Y137_QUICK_GRID|' build/y137-quick/RESULT-QUICK.hbp)" -eq 13
+          cmp build/y137-quick/RESULT-QUICK.hbp "$D/RESULT-QUICK.hbp"
           grep -Fq 'precomputed_shell4_graph_reused=1|source_records=2|energy_thresholds=13|integer_inertia_8x8=EXACT|' build/y137-quick/RESULT-QUICK.hbp
           grep -Fq 'actual_Wilson_first_spectral_weight=HOLD|' build/y137-quick/RESULT-QUICK.hbp
       - name: Strict source audits
