@@ -225,7 +225,7 @@ def main():
              true_spectral_weight="HOLD")
     emit("Y137_QUICK_VERDICT",precomputed_shell4_graph_reused=1,
          source_records=2,energy_thresholds=len(grid),
-         8x8_integer_inertia="EXACT",
+         integer_inertia_8x8="EXACT",
          actual_Wilson_first_spectral_weight="HOLD")
 
 
