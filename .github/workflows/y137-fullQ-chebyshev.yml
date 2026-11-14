@@ -57,6 +57,7 @@ jobs:
           set -euo pipefail
           python3 -I -B independent/y137-fullQ-chebyshev-20261114/weighted_completeness.py | tee build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
           test "$(grep -c '^Y137_COMPLETE_PAIR|' build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp)" -eq 5
+          cmp build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp independent/y137-fullQ-chebyshev-20261114/RESULT-COMPLETENESS.hbp
           grep -Fq 'full_states=5|flat_states=1|nonflat_states=4|raw_moves_per_state=72|all_destinations_resolved=1|every_weighted_edge_balanced=1|all_rowsum_72=1|' build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
           grep -Fq 'fully_truncated_moment_identity=PASSES_BUT_IS_NOT_A_PROOF|truncated_operator_completeness=REJECTED|tampered_closed_graph=REJECTED_BY_INDEPENDENT_REFERENCE|unbalanced_edge=REJECTED|wrong_orbit_metric=REJECTED|' build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
           grep -Fq 'real_3x4_orbit_closure=NOT_COMPUTED|real_moments=NOT_COMPUTED|actual_Wilson_weight=HOLD|issue_137=OPEN|' build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
