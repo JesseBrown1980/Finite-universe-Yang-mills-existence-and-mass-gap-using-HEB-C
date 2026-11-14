@@ -63,7 +63,7 @@ def matrix_from_moves(rows):
     return tuple(tuple(Counter(row)[j] for j in range(N)) for row in rows)
 
 
-def source_integrity(rows,present,check_reference=True):
+def source_integrity(rows,present,check_reference=True,weights=WEIGHTS):
     """Every represented source has 72 full moves; no unknown destinations.
 
     Flat destinations count as generated and resolved, although a Q operator
@@ -79,8 +79,8 @@ def source_integrity(rows,present,check_reference=True):
         need(sum(table[i].values())==MOVES,"non_regular_electric_row")
     for i in present:
         for j,v in table[i].items():
-            need(j in present and WEIGHTS[i]*v==
-                 WEIGHTS[j]*table[j][i],"weighted_balance_failure")
+            need(j in present and weights[i]*v==
+                 weights[j]*table[j][i],"weighted_balance_failure")
     if check_reference:
         need(present==set(range(N)),"incomplete_reference_operator")
         # Independent reference is also applied to two complete 5-state
@@ -299,12 +299,12 @@ def negative_controls(rows):
                                               range(N),False),
                     "detailed_balance")
     # Wrong metric: symmetrical W relation is lost on a genuine edge.
-    oldweights=WEIGHTS
     a=Q_operator(table)
     # The correct metric must yield a symmetric WA and a certified interval.
     weighted_interval(a,WEIGHTS[1:],G,H)
-    need(WEIGHTS[0]*table[0][1]!=
-         WEIGHTS[1]*table[1][0]//2,"wrong_weight_fault_not_visible")
+    requires_refusal(lambda:source_integrity(rows,range(N),False,
+                                              (1,1,3,6,6)),
+                    "wrong_orbit_metric")
     # Raw full H powers return through the removed P sector.
     whole=tuple(tuple((MOVES+9*MAG[i] if i==j else 0)-table[i][j]
                      for j in range(N)) for i in range(N))
@@ -344,6 +344,7 @@ def main():
          truncated_operator_completeness="REJECTED",
          tampered_closed_graph="REJECTED_BY_INDEPENDENT_REFERENCE",
          unbalanced_edge="REJECTED",
+         wrong_orbit_metric="REJECTED",
          real_3x4_orbit_closure="NOT_COMPUTED",
          real_moments="NOT_COMPUTED",
          actual_Wilson_weight="HOLD",
