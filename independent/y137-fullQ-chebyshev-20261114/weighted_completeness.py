@@ -288,7 +288,14 @@ def negative_controls(rows):
         rebuilt[i]=[i if j==4 else j for j in rebuilt[i]]
     subset_rows=tuple(tuple(x) for x in rebuilt)
     source_integrity(subset_rows,(0,1,2,3),False)
-    requires_refusal(lambda:source_integrity(subset_rows,range(N),True),
+    # A second alteration removes the other ends of those exact edges:
+    # it creates a *fully closed*, 72-regular, W-balanced, but WRONG
+    # 5-state graph. Those three local gates alone cannot reject it.
+    for j in (2,3):
+        rebuilt[4]=[4 if dst==j else dst for dst in rebuilt[4]]
+    changed_closed=tuple(tuple(x) for x in rebuilt)
+    source_integrity(changed_closed,range(N),False)
+    requires_refusal(lambda:source_integrity(changed_closed,range(N),True),
                     "tampered_complete_move_law")
     # One asymmetric changed move keeps all 72 destinations and closure,
     # but fails true orbit-weight detailed balance.
