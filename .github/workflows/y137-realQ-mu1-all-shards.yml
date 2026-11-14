@@ -1,0 +1,78 @@
+name: Issue 137 actual K3 full-Q mu1 eight-shard certificate
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-real-Q-moment-20261114/mu1_shard.py'
+      - 'independent/y137-real-Q-moment-20261114/assemble_mu1.py'
+      - '.github/workflows/y137-realQ-mu1-all-shards.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: y137-actual-mu1-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  source-shard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7]
+    env:
+      Y137_MU1_SHARD: ${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Reconstruct original K3 and traverse one of eight full shell4 partitions
+        run: |
+          set -euo pipefail
+          ulimit -v 6291456
+          mkdir -p build/y137-mu1-part
+          python3 -I -B independent/y137-real-Q-moment-20261114/mu1_shard.py | tee build/y137-mu1-part/PART-${{ matrix.shard }}.hbp
+          test "$(grep -c '^Y137_MU1_PART|' build/y137-mu1-part/PART-${{ matrix.shard }}.hbp)" -eq 2
+          grep -Fq 'all_72_moves_per_row=PASS|' build/y137-mu1-part/PART-${{ matrix.shard }}.hbp
+          grep -Fq 'real_mu1_certified=NOT_UNTIL_ALL_SHARDS|actual_Wilson_weight=HOLD|' build/y137-mu1-part/PART-${{ matrix.shard }}.hbp
+          if test "${{ matrix.shard }}" = "0"; then
+            test "$(grep -c '^Y137_MU1_INNER|' build/y137-mu1-part/PART-0.hbp)" -eq 2
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-mu1-part-${{ matrix.shard }}
+          path: build/y137-mu1-part/PART-${{ matrix.shard }}.hbp
+          if-no-files-found: error
+          retention-days: 60
+  aggregate:
+    needs: source-shard
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-mu1-part-*
+          path: build/y137-all-mu1-parts
+          merge-multiple: true
+      - name: Accept all 1,985,218 original shell4 rows with exact Gram restoration and PSD
+        run: |
+          set -euo pipefail
+          test "$(find build/y137-all-mu1-parts -name 'PART-*.hbp' | wc -l)" -eq 8
+          mkdir -p build/y137-real-mu1
+          Y137_MU1_PART_DIR=build/y137-all-mu1-parts python3 -I -B independent/y137-real-Q-moment-20261114/assemble_mu1.py | tee build/y137-real-mu1/RESULT-MU1.hbp
+          test "$(grep -c '^Y137_MU1_COMPLETE_POINT|' build/y137-real-mu1/RESULT-MU1.hbp)" -eq 2
+          grep -Fq 'weighted_mu0_exact_match=1|wholeQ_lower_and_upper_255_PSD=1|complete_shell5_electric_destinations_counted=1|' build/y137-real-mu1/RESULT-MU1.hbp
+          grep -Fq 'real_K3_exact_moment_orders=0,1|real_K3_degree7_remaining_per_sample=12|' build/y137-real-mu1/RESULT-MU1.hbp
+          grep -Fq 'independent_transition_source=PENDING|actual_Schur_center=NOT_COMPUTED|actual_Wilson_weight=HOLD|' build/y137-real-mu1/RESULT-MU1.hbp
+      - name: Strict integer/no-float gates on source and assembler
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-real-Q-moment-20261114/mu1_shard.py
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-real-Q-moment-20261114/assemble_mu1.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-acceptedK3-fullQ-two-moments
+          path: build/y137-real-mu1/RESULT-MU1.hbp
+          if-no-files-found: ignore
+          retention-days: 60
