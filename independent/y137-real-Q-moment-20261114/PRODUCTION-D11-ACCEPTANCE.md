@@ -78,13 +78,13 @@ The actual accepted-source corrected variational centre is
 The complete Q residual is R11=P11(X)R/K11, and the resulting
 source-conditional Schur bounds are
 
-    U11 - (d/K11)^22 * mu0/g <= S(z) <= U11,
+    U11 - [d^22/(g * K11^2)] mu0 <= S(z) <= U11.
 
-where (d/K11)^22 denotes d^(22)/K11^2.
-Use only integer numerator/denominator arithmetic; parentheses
-must be explicit in code:
-
-    lower = U11 - [d^22 / (g * K11^2)] mu0.
+The bound is the **square** of the Chebyshev norm factor
+d^11/K11. Thus the residual-Gram contraction is d^22/K11^2;
+there must be exactly two powers of K11 in the denominator, not 22.
+Use only exact integer numerator/denominator arithmetic, with
+the grouping written explicitly in code.
 
 The global whole-Q floor and upper 468 bound remain the accepted
 conditional inputs. The norm-contraction factor d^11/K11 has a
