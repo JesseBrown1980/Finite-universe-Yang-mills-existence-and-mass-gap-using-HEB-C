@@ -44,12 +44,20 @@ jobs:
           set -euo pipefail
           python3 -I -B independent/y137-fullQ-chebyshev-20261114/independent_audit.py | tee build/y137-fullQ-chebyshev/RESULT-INDEPENDENT.hbp
           grep -Fq 'method=2x2_integer_matrix_power_not_source_polynomial|all_norm_and_Gram_ratios=PASS|modified_ratio_negative_control=REJECTED|' build/y137-fullQ-chebyshev/RESULT-INDEPENDENT.hbp
+      - name: Verify new Schur center from exactly 32 operator moments
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-fullQ-chebyshev-20261114/moment_center.py | tee build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
+          test "$(grep -c '^Y137_MOMENT_POINT|' build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp)" -eq 4
+          grep -Fq 'degree16_moments=32|Chebyshev_coefficients=INDEPENDENT_BINOMIAL_FORM|shell5_edge_omission=REJECTED|' build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
+          grep -Fq 'actual_3x4_fullQ_moments=NOT_COMPUTED|actual_Wilson_weight=HOLD|' build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
       - name: Strict integer-only and no-floating-point source audits
         run: |
           set -euo pipefail
           python3 -I -X utf8 native/scripts/no_float_gate.py .
           python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-fullQ-chebyshev-20261114/verify.py
           python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-fullQ-chebyshev-20261114/independent_audit.py
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-fullQ-chebyshev-20261114/moment_center.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -57,5 +65,6 @@ jobs:
           path: |
             build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
             build/y137-fullQ-chebyshev/RESULT-INDEPENDENT.hbp
+            build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
           if-no-files-found: ignore
           retention-days: 60
