@@ -176,6 +176,8 @@ def main():
     # Standalone import of original minimal model requires no arguments.
     import sys
     args=sys.argv[:]
+    from pathlib import Path
+    sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
     sys.argv=sys.argv[:1]
     import finite_s3_3x4_r9_first_gap as original
     sys.argv=args
