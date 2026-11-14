@@ -1,0 +1,39 @@
+name: Issue 137 accepted-K3 whole-Q mu1 shell4 raw moves pilot shard
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-real-Q-moment-20261114/**'
+      - '.github/workflows/y137-realQ-mu1-shard0.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-K3-mu1-shard0:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      Y137_MU1_SHARD: "0"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exhaustively count every shell4 outgoing move in shard 0 of 8
+        run: |
+          set -euo pipefail
+          ulimit -v 6291456
+          mkdir -p build/y137-real-mu1
+          python3 -I -B independent/y137-real-Q-moment-20261114/mu1_shard.py | tee build/y137-real-mu1/SHARD0.hbp
+          test "$(grep -c '^Y137_MU1_PART|' build/y137-real-mu1/SHARD0.hbp)" -eq 2
+          test "$(grep -c '^Y137_MU1_INNER|' build/y137-real-mu1/SHARD0.hbp)" -eq 2
+          grep -Fq 'shard=0|scope=REAL_COMPLETE_3x4_Q4_ROW_SOURCE|uncomputed_shards=7|' build/y137-real-mu1/SHARD0.hbp
+          grep -Fq 'real_mu1_certified=NOT_UNTIL_ALL_SHARDS|actual_Wilson_weight=HOLD|' build/y137-real-mu1/SHARD0.hbp
+      - name: No-float / integer-only source audits
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-real-Q-moment-20261114/mu1_shard.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-real-acceptedK3-mu1-8way-shard0
+          path: build/y137-real-mu1/SHARD0.hbp
+          retention-days: 60
+          if-no-files-found: ignore
