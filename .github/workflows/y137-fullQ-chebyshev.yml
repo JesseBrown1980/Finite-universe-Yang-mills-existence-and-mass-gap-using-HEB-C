@@ -52,6 +52,14 @@ jobs:
           cmp build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp independent/y137-fullQ-chebyshev-20261114/RESULT-MOMENT.hbp
           grep -Fq 'degree16_moments=32|Chebyshev_coefficients=INDEPENDENT_BINOMIAL_FORM|shell5_edge_omission=REJECTED|' build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
           grep -Fq 'actual_3x4_fullQ_moments=NOT_COMPUTED|actual_Wilson_weight=HOLD|' build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
+      - name: Independently reject truncated weighted operator and audit paired moments
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-fullQ-chebyshev-20261114/weighted_completeness.py | tee build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
+          test "$(grep -c '^Y137_COMPLETE_PAIR|' build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp)" -eq 5
+          grep -Fq 'full_states=5|flat_states=1|nonflat_states=4|raw_moves_per_state=72|all_destinations_resolved=1|every_weighted_edge_balanced=1|all_rowsum_72=1|' build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
+          grep -Fq 'fully_truncated_moment_identity=PASSES_BUT_IS_NOT_A_PROOF|truncated_operator_completeness=REJECTED|tampered_closed_graph=REJECTED_BY_INDEPENDENT_REFERENCE|unbalanced_edge=REJECTED|wrong_orbit_metric=REJECTED|' build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
+          grep -Fq 'real_3x4_orbit_closure=NOT_COMPUTED|real_moments=NOT_COMPUTED|actual_Wilson_weight=HOLD|issue_137=OPEN|' build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
       - name: Strict integer-only and no-floating-point source audits
         run: |
           set -euo pipefail
@@ -59,6 +67,7 @@ jobs:
           python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-fullQ-chebyshev-20261114/verify.py
           python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-fullQ-chebyshev-20261114/independent_audit.py
           python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-fullQ-chebyshev-20261114/moment_center.py
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-fullQ-chebyshev-20261114/weighted_completeness.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -67,5 +76,6 @@ jobs:
             build/y137-fullQ-chebyshev/RESULT-CHEB.hbp
             build/y137-fullQ-chebyshev/RESULT-INDEPENDENT.hbp
             build/y137-fullQ-chebyshev/RESULT-MOMENT.hbp
+            build/y137-fullQ-chebyshev/RESULT-COMPLETENESS.hbp
           if-no-files-found: ignore
           retention-days: 60
