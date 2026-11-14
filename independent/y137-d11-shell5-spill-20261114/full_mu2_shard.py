@@ -129,6 +129,7 @@ def run():
     back=0
     checked=0
     bucket_bytes=0
+    total_events=0
     indep_positions={lo,lo+1,lo+3,lo+7,lo+15,lo+127,lo+511,hi-1}
     for f in range(lo,hi):
         key=m.decode(ex["code4"][f])
@@ -184,9 +185,10 @@ def run():
             writers[bit].write(data)
             hashes[bit].update(data)
             counts[bit]+=1
+            total_events+=1
             to5+=cc
             bucket_bytes+=RECORD.size
-            need(sum(counts)<=MAX_EVENTS and
+            need(total_events<=MAX_EVENTS and
                  bucket_bytes<=MAX_BYTES,"hard_disk_event_budget")
         need(found==expected,"Q4_to_Q3_original_edge_integrity")
         back+=len(found)
@@ -211,12 +213,13 @@ def run():
             emit("Y137_D11_MU2_PROGRESS",shard=SHARD,
                  source_rows_done=f-lo,total=hi-lo,
                  raw_electric_moves=raw,
-                 shell5_edges=sum(counts))
+                 shell5_edges=total_events)
     for w in writers:
         w.close()
     need(raw==(hi-lo)*72 and raw==to3+to4+to5,
          "all_72_moves_partitioned")
-    need(bucket_bytes==sum(counts)*RECORD.size,
+    need(total_events==sum(counts) and
+         bucket_bytes==total_events*RECORD.size,
          "bin_length_census")
     with open(os.path.join(folder,"BUCKETS.hbp"),"w",encoding="utf-8") as f:
         for i,p in enumerate(paths):
@@ -239,7 +242,7 @@ def run():
                 outgoing_to_K3_moves=to3,
                 within_Q4_moves=to4,
                 outgoing_to_Q5_moves=to5,
-                recorded_Q5_edges=sum(counts),
+                recorded_Q5_edges=total_events,
                 spool_bytes=bucket_bytes,
                 exact_weighted_reverse_edges=back,
                 independently_authored_Q4_row_checks=checked,
