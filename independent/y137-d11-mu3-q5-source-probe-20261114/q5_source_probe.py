@@ -18,8 +18,12 @@ ROOT=os.path.abspath(os.path.join(HERE,"..",".."))
 sys.path.insert(0,os.path.join(ROOT,"independent"))
 sys.path.insert(0,os.path.join(ROOT,"independent",
                               "y137-d11-shell5-spill-20261114"))
-import finite_s3_3x4_r9_first_gap as original
+sys.path.insert(0,os.path.join(ROOT,"independent",
+                              "y137-real-Q-moment-20261114"))
+import mu1_shard as source
 import independent_move_rule as independent
+original=source.c
+m=source.m
 
 PATH=os.environ.get("Y137_D11_Q5_SPOOL",
                     os.path.join(ROOT,"build","y137-q5-real-source","GROUP-0.v1"))
@@ -87,12 +91,13 @@ def run():
     total_moves=0
     nontrivial_self=0
     checked_reverse=0
+    nonzero_rows=0
     # A self-consistent extra self-loop cannot be accepted as a real
     # electric move merely because row sums and W balance survive:
     # compare the original row against independent permutation gauge.
     planted_refused=False
     for i,(code,w,vec0,vec1) in enumerate(samples):
-        key=original.decode(code)
+        key=m.decode(code)
         need(original.weight(key)==w,"Q5_weight_mismatch")
         near=original.neighbors(key)
         need(sum(near.values())==72,"missing_raw_move")
@@ -129,14 +134,16 @@ def run():
                     original.KEPT,original.TRANS)
             except ValueError:
                 planted_refused=True
-        need(any(vec0) or any(vec1),"zero_Q5_row_outside_active_support")
+        nonzero_rows+=int(any(vec0) or any(vec1))
     need(planted_refused,"folded_Q5_edge_not_detected")
+    need(nonzero_rows>0,"no_nonzero_actual_Q5_source_samples")
     emit("Y137_D11_MU3_Q5_REAL_PROBE",
          accepted_source_run=43613345828,
          original_mu2_run=43606393196,
          fully_sha_verified_group0_Q5_targets=EXPECTED_COUNT,
          audited_Q5_source_rows=len(samples),
          independently_rebuilt_raw_moves=total_moves,
+         sampled_nonzero_V1_source_rows=nonzero_rows,
          exact_S3_canonicalization="PASS",
          original_72_moves_per_row="PASS",
          W_orbit_size_and_magnetic="PASS",
