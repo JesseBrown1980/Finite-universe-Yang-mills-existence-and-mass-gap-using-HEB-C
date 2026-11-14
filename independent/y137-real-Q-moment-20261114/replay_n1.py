@@ -8,7 +8,7 @@ Derives both *improved* degree-one Chebyshev Schur bounds, still conditional
 on accepted 94.0682 whole-Q spectral floor and raw source completeness.
 """
 import hashlib
-from fractions import Fraction
+from math import gcd
 from pathlib import Path
 
 HERE=Path(__file__).resolve().parent
@@ -88,34 +88,55 @@ def encode(a):
     return ";".join(",".join(str(x) for x in r) for r in a)
 
 
-def exact_psd(a):
-    """Exact rational Gram-Schmidt/LDL, independent of Bareiss minors.
+def rational(n,d=1):
+    insist(d!=0,"zero_rational_denominator")
+    if d<0:
+        n=-n
+        d=-d
+    v=gcd(abs(n),d)
+    return (n//v,d//v)
 
-    For PSD M, a zero pivot requires its entire remaining row to vanish.
-    Positive pivot permits exact symmetric Schur elimination.
+
+def rsub(x,y):
+    return rational(x[0]*y[1]-y[0]*x[1],x[1]*y[1])
+
+
+def rmul(x,y):
+    return rational(x[0]*y[0],x[1]*y[1])
+
+
+def rdiv(x,y):
+    insist(y[0]!=0,"rational_zero_pivot")
+    return rational(x[0]*y[1],x[1]*y[0])
+
+
+def exact_psd(a):
+    """Exact integer-pair rational LDL, not source Bareiss minors.
+
+    Each rational is a reduced (numerator,positive denominator) pair.
+    A zero pivot requires its entire remaining row to vanish.
     """
     insist(all(a[i][j]==a[j][i] for i in range(FLATS)
                for j in range(FLATS)),"non_symmetric_matrix")
-    b=[[Fraction(x) for x in r] for r in a]
+    b=[[rational(x) for x in row] for row in a]
     for k in range(FLATS):
         p=b[k][k]
-        if p<0:
+        if p[0]<0:
             return False
-        if p==0:
-            if any(b[k][j]!=0 for j in range(k+1,FLATS)):
+        if p[0]==0:
+            if any(b[k][j][0]!=0 for j in range(k+1,FLATS)):
                 return False
             continue
         for i in range(k+1,FLATS):
             u=b[i][k]
             for j in range(i,FLATS):
-                b[i][j]-=u*b[k][j]*Fraction(1,p)
+                b[i][j]=rsub(b[i][j],rdiv(rmul(u,b[k][j]),p))
         for i in range(k+1,FLATS):
-            b[i][k]=Fraction(0)
+            b[i][k]=rational(0)
         for i in range(k+1,FLATS):
             for j in range(k+1,i):
                 b[i][j]=b[j][i]
     return True
-
 
 def evidence():
     lines=readp("shards",SHARD_PATH)
@@ -275,7 +296,7 @@ def main():
           "|complete_shell4_states=1985218|source_shards=8"+
           "|raw_moves=142935696|two_energy_samples=2"+
           "|original_G_exactly_restored=1"+
-          "|PSD_method=INDEPENDENT_EXACT_FRACTION_LDL"+
+          "|PSD_method=INDEPENDENT_INTEGER_PAIR_LDL"+
           "|conditional_floor_num=94068200000"+
           "|whole_Q_upper_num=468000000000"+
           "|first_Wilson_weight=HOLD|json=0",flush=True)
