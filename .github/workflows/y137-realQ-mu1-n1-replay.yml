@@ -21,6 +21,7 @@ jobs:
           mkdir -p build/y137-mu1-n1
           python3 -I -B independent/y137-real-Q-moment-20261114/replay_n1.py | tee build/y137-mu1-n1/RESULT-N1.hbp
           test "$(grep -c '^Y137_N1_POINT|' build/y137-mu1-n1/RESULT-N1.hbp)" -eq 2
+          cmp build/y137-mu1-n1/RESULT-N1.hbp independent/y137-real-Q-moment-20261114/RESULT-N1.hbp
           grep -Fq 'strict_two_sided_improvement_PSD=1|new_corrected_schur_center=EXACT|' build/y137-mu1-n1/RESULT-N1.hbp
           grep -Fq 'actual_K3_corrected_Schur_degree=1|actual_wholeQ_mu0_mu1=EXACT|degree1_fullQ_two_sided_sandwich=PASS|' build/y137-mu1-n1/RESULT-N1.hbp
           grep -Fq 'independent_raw_move_source_review=PENDING|actual_Wilson_weight=HOLD|' build/y137-mu1-n1/RESULT-N1.hbp
