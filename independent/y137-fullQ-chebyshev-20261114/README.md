@@ -178,6 +178,23 @@ parameter-replay law in Matrix Law Essentials can reuse them without
 repeating the giant graph traversal. A cryptographic hash alone cannot
 replace any missing moment.
 
+**Important Q-projector control:** these are moments of
+`A_int=b(QHQ-zI_Q)` on the nonflat Q space. Each operator application
+must project away the eight flat states *before the next multiplication*.
+In general `Q H² Q = (QHQ)² + QHPHQ`, so raw full-H powers can
+spuriously count paths that visit a flat state and return. The toy
+`flat_reentry_projection_negative_control` rejects that omission.
+
+For the real two frozen energy/trial samples the moment requirement is
+**32 eight-by-eight matrices per sample (64 across both)**. A source
+certificate should also verify the block-Hankel Gram PSD constraints
+on `mu_(i+j)`, and the spectral localizers
+`mu_(i+j+1)-g_num*mu_(i+j)` and
+`h_num*mu_(i+j)-mu_(i+j+1)`, for block indices 0..15.
+These are necessary consequences of the accepted whole-Q
+`gI<=A_int<=hI` interval. They help detect omitted paths,
+an inconsistent Q projection or incorrect W weights.
+
 The **next actual source obligation** is to certify the complete
 moment matrices, ideally by a reduction or invariant-space technique
 that avoids materializing the whole shell20 state ball. There is no
