@@ -26,7 +26,10 @@ SHARD=int(os.environ.get("Y137_D11_MU2_SHARD","0"))
 BUCKETS=64
 RECORD=struct.Struct("<QIBB")
 MAX_ROWS=280000
-MAX_EVENTS=15500000
+# 72 outgoing electric moves per source is a proven absolute ceiling
+# on the number of distinct source->shell5 records. This cap follows
+# from the complete row rule rather than a guessed distribution.
+MAX_EVENTS=MAX_ROWS*72
 MAX_BYTES=RECORD.size*MAX_EVENTS
 OUT=os.path.join(ROOT,"build","y137-d11-mu2-full")
 
