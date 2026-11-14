@@ -1,0 +1,5 @@
+Y137_MOMENT_POINT|degree=1|complete_operator_moments=2|exact_center_matches_direct=1|fullQ_Schur_Loewner_bounds=1|json=0
+Y137_MOMENT_POINT|degree=4|complete_operator_moments=8|exact_center_matches_direct=1|fullQ_Schur_Loewner_bounds=1|json=0
+Y137_MOMENT_POINT|degree=8|complete_operator_moments=16|exact_center_matches_direct=1|fullQ_Schur_Loewner_bounds=1|json=0
+Y137_MOMENT_POINT|degree=16|complete_operator_moments=32|exact_center_matches_direct=1|fullQ_Schur_Loewner_bounds=1|json=0
+Y137_MOMENT_VERDICT|degree16_moments=32|Chebyshev_coefficients=INDEPENDENT_BINOMIAL_FORM|shell5_edge_omission=REJECTED|actual_3x4_fullQ_moments=NOT_COMPUTED|actual_Wilson_weight=HOLD|json=0
