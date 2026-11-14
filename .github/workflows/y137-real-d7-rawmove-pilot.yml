@@ -1,0 +1,36 @@
+name: Issue 137 real periodic S3 degree7 pilot bounded passes
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-real-d7-pilot-20261114/**'
+      - '.github/workflows/y137-real-d7-rawmove-pilot.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-3x4-wholeQ-source-and-two-full-passes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Real 72-move whole-Q source pilot, complete two steps, check bounds
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-degree7
+          python3 -I -B independent/y137-real-d7-pilot-20261114/pilot.py | tee build/y137-degree7/RESULT-D7-PILOT.hbp
+          test "$(grep -c '^Y137_D7_PASS|' build/y137-degree7/RESULT-D7-PILOT.hbp)" -eq 2
+          test "$(grep -c '^Y137_D7_MOMENT|' build/y137-degree7/RESULT-D7-PILOT.hbp)" -eq 8
+          grep -Fq 'completed_operator_passes=2|exact_real_model_source_moments_per_sample=4|degree7_requested_passes=7|' build/y137-degree7/RESULT-D7-PILOT.hbp
+          grep -Fq 'accepted_K3_residual_moments=NOT_COMPUTED|degree7_actual_source=HOLD_RESOURCE_BOUND|' build/y137-degree7/RESULT-D7-PILOT.hbp
+      - name: Strict no-float and integer-only audits
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-real-d7-pilot-20261114/pilot.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-real-3x4-degree7-source-pilot
+          path: build/y137-degree7/RESULT-D7-PILOT.hbp
+          retention-days: 60
+          if-no-files-found: ignore
