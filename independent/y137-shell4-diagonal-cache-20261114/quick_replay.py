@@ -39,7 +39,8 @@ def rowparse(line):
 
 def parse(path):
     text=open(path,"rb").read().decode("utf-8")
-    return [rowparse(line) for line in text.splitlines() if line.strip()]
+    return [rowparse(line) for line in text.splitlines()
+            if line.strip() and not line.startswith("#")]
 
 
 def matrix(code):
@@ -86,43 +87,25 @@ def psd(A):
 
 
 def inertia(A):
-    """Exact symmetric-congruence inertia, using positive integer scale at each pivot."""
-    A=[row[:] for row in A]
-    neg=0
-    zero=0
-    while A:
-        n=len(A)
-        k=next((i for i in range(n) if A[i][i]),None)
-        if k is None:
-            pair=next(((i,j) for i in range(n) for j in range(i+1,n)
-                       if A[i][j]),None)
-            if pair is None:
-                zero+=n
-                break
-            i,j=pair
-            # Congruence: e_i -> e_i + e_j, now A_ii = 2 A_ij != 0.
-            original_ij=A[i][j]
-            original_jj=A[j][j]
-            for t in range(n):
-                if t!=i:
-                    A[i][t]+=A[j][t]
-                    A[t][i]=A[i][t]
-            A[i][i]+=2*original_ij+original_jj
-            k=i
-        if k:
-            A[0],A[k]=A[k],A[0]
-            for row in A:
-                row[0],row[k]=row[k],row[0]
-        p=A[0][0]
-        require(p!=0,"zero_pivot")
-        neg+=int(p<0)
-        ap=abs(p)
-        sign=1 if p>0 else -1
-        b=A[0][1:]
-        A=[[ap*A[i+1][j+1]-sign*b[i]*b[j]
-            for j in range(n-1)] for i in range(n-1)]
-    return neg,zero
+    """Count negative eigenvalues by exact leading principal minors.
 
+    This is the Sylvester sign-variation rule for a symmetric matrix when
+    every leading minor is nonzero. A zero minor is explicitly a HOLD,
+    requiring an independent 2x2-pivot inertia route; it is not guessed.
+    """
+    require(len(A)==8 and all(len(r)==8 for r in A),
+            "inertia_matrix_shape")
+    require(all(A[i][j]==A[j][i] for i in range(8) for j in range(8)),
+            "inertia_matrix_symmetry")
+    neg=0
+    prev=1
+    for k in range(1,9):
+        nxt=det([r[:k] for r in A[:k]])
+        require(nxt!=0,"zero_leading_minor_requires_independent_inertia")
+        if (prev<0)!=(nxt<0):
+            neg+=1
+        prev=nxt
+    return neg,0
 
 def build_bucket_map(raw):
     d={}
