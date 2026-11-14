@@ -300,7 +300,7 @@ def reconstruct():
              exact_all_Q3_Q4_Q5_present=1,
              original_mu0_mu1_byte_reproduced=1,
              spectral_8x8_localizers="PASS",
-             16x16_block_Hankel_via_adjugate="PASS",
+             block_Hankel_16x16_via_adjugate="PASS",
              positive_mu0_determinant_digits=len(str(hankeld)),
              planted_zero_mu2="REJECTED",
              first_Wilson_weight="HOLD")
