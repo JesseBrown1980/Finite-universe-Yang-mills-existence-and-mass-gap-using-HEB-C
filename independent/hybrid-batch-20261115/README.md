@@ -24,3 +24,25 @@ Certified lower ends of E₉ − E₈ in J_E. Each certificate was recounted and
 **Run 1** stopped at the gate on all 20 cells because the vector program accepts at most 3 threads and the workflow passed 4; no point ran (`RUN1-INSTRUMENT-FAULT.hbp`).
 
 Each number is a statement about one finite torus. A number that falls with size at a fixed cut measures the method; the gap itself stays near 3r − 21/r on every torus where the cut is high enough.
+
+## The widened run (tori of 33 to 48 plaquettes)
+
+Run 43717787958, ten hosted cells, with the widened copies written by `widen.py`. Nine cells ended, each with
+`hybridcheck` verdict PASS; one (6x8 at r=12) was stopped at the six-hour limit. Rows: [`RESULT-WIDE.hbp`](RESULT-WIDE.hbp)
+and [`wide-rows/`](wide-rows/).
+
+Two new certified points:
+
+| torus | r | cut | E9 - E8 at least |
+|---|---|---|---|
+| 4x7 | 9 | 13 | 22.760421 |
+| 4x8 | 9 | 13 | 20.687246 |
+
+With the registered 4x4 (23.947629), 4x5 (23.618291) and 4x6 (23.305930), the 4xL floors at r=9 fall slowly with L.
+
+On 6x6, 5x7, 5x8 and 6x7 the certificate returned by this fitted-table method is the table floor (for example 80.0
+at cut 11 on 6x6): a valid lower bound that sits below E8. Those sizes are certified by the program in
+[Rust-program-for-large-tori](https://github.com/JesseBrown1980/Rust-program-for-large-tori) (6x6 at r=9: 16.904567).
+
+Predictions K5 and K8 to K11 are judged in `RESULT-WIDE.hbp`: K8 met for 4x7, missed for 4x8 by 0.81; K11 met;
+K5, K9 and K10 missed on the sizes above.

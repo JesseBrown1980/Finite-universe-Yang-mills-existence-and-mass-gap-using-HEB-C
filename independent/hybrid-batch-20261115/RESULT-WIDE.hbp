@@ -1,0 +1,14 @@
+HYBWIDEHDR|date=2026-11-15|run=github_actions_43717787958_(hybrid-batch-wide-cells.yml)|programs=the_widened_copies_written_by_widen.py_(u128_pattern)_of_ritz_and_hybridcheck|rows_of_each_cell=wide-rows/cell-N.hbp,_from_the_run_artifacts|cells=10:_9_ended_with_hybridcheck_verdict_PASS,_1_stopped_at_the_six-hour_limit|json=0
+HYBWIDE|torus=4x7|r=9|cut=13|E9_lower=186.579348|E8_upper_dressed=163.818927|gap_lower=22.760421|verdict=PASS|wall=1:33:40|json=0
+HYBWIDE|torus=4x8|r=9|cut=13|E9_lower=207.971613|E8_upper_dressed=187.284367|gap_lower=20.687246|verdict=PASS|wall=3:14:31|json=0
+HYBWIDE|torus=6x6|r=9|cut=13|E9_lower=172.200000|E8_upper_dressed=210.762100|gap_lower=-38.562100|verdict=PASS|wall=4:22:09|note=a_valid_lower_bound_below_zero|json=0
+HYBWIDE|torus=6x6|r=9|cut=11|E9_lower=80.000000|gap_lower=-130.762100|verdict=PASS|wall=1:16:08|json=0
+HYBWIDE|torus=6x6|r=10|cut=11|E9_lower=81.000000|gap_lower=-130.180653|verdict=PASS|wall=1:14:16|json=0
+HYBWIDE|torus=6x6|r=12|cut=11|E9_lower=-217.000000|gap_lower=-428.857506|verdict=PASS|wall=1:08:54|json=0
+HYBWIDE|torus=5x7|r=9|cut=11|E9_lower=135.000000|gap_lower=-69.891560|verdict=PASS|wall=1:21:11|json=0
+HYBWIDE|torus=5x8|r=9|cut=11|E9_lower=-402.000000|gap_lower=-636.251316|verdict=PASS|wall=3:10:51|max_rss_kb=13924464|json=0
+HYBWIDE|torus=6x7|r=12|cut=11|E9_lower=-324.000000|gap_lower=-571.225011|verdict=PASS|wall=3:58:32|max_rss_kb=15692316|json=0
+HYBWIDE|torus=6x8|r=12|cut=10|NOT_MEASURED|reason=the_cell_was_stopped_at_the_six-hour_limit_of_the_hosted_machine_(13:12:32_to_19:07:34)|json=0
+HYBWIDENEW|two_new_certified_points:_4x7_at_r=9_E9-E8>=22.760421_and_4x8_at_r=9_E9-E8>=20.687246|with_the_registered_4x4_23.947629,_4x5_23.618291,_4x6_23.305930_the_4xL_floors_at_r=9_fall_slowly_with_L|json=0
+HYBWIDEREAD|on_the_tori_of_35_to_42_plaquettes_at_cut_11_the_fitted_table_minimum_sits_at_a_lump_past_the_cut_(for_example_6x6_r=9:_min_table_80.0_at_lump_4,32);_the_certificate_is_then_the_table_floor_and_carries_no_information_on_the_gap;_the_large-tori_program_(Rust-program-for-large-tori)_certifies_6x6_at_r=9_at_16.904567_and_was_written_for_this|json=0
+HYBWIDEJUDGE|K5=cut_11_at_r=9_between_12_and_21:_MISSED_(-130.762100);_cut_13_above_cut_11:_MET_(-38.562100_against_-130.762100);_r=10_above_r=9_by_2_to_5:_MISSED_(by_0.581447);_r=12_between_27.0_and_33.5:_MISSED|K8=4x7_between_22.0_and_23.31_and_below_23.305930:_MET_(22.760421);_4x8_between_21.5_and_23.31:_MISSED_(20.687246,_0.812754_below_the_range),_below_23.305930:_MET|K9=5x7:_MISSED;_5x8:_MISSED|K10=6x7:_MISSED;_6x8:_NOT_MEASURED|K11=MET_(9_of_9_cells_that_ended_have_verdict_PASS_with_the_same_certificate)|json=0
