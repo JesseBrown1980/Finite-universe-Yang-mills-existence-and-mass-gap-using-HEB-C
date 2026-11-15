@@ -1,0 +1,6 @@
+BHM_GENERAL|family=even_squares_8_to_40|tori=17|regions=38352|regions_skipped_because_Bprime_would_wrap=0|failed=0|json=0
+BHM_GENERAL|family=odd_squares_9_to_29_three_at_every_x_position|tori=198|regions=211222|regions_skipped_because_Bprime_would_wrap=0|failed=0|json=0
+BHM_GENERAL|family=rectangles_8_to_22|tori=210|regions=50610|regions_skipped_because_Bprime_would_wrap=0|failed=0|json=0
+BHM_GENERAL|family=width_3_and_mixtures|tori=12|regions=3760|regions_skipped_because_Bprime_would_wrap=0|failed=0|json=0
+BHM_GENERAL_DONE|sabotage=none|regions=303944|failed=0|even_square_regions=38352|largest_site=3x3_cells_18_links|json=0
+CONTROL|BHM_GENERAL_DONE|sabotage=first_cell|regions=303944|failed=303944|even_square_regions=38352|largest_site=3x3_cells_18_links|json=0

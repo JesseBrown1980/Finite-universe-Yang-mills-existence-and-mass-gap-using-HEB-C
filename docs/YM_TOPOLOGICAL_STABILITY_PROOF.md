@@ -164,6 +164,8 @@ Open:
 - **Other finite groups.** Cui's theorem covers any finite group, so this route extends to Q8, 2T, 2O and 2I once each group's m_p, its local gap and its link norm replace S₃'s.
 - **Second reader.** GPT-6 read §3 and this section at `ea96c16`, with its own implementation of the geometry: 38,352 regions, 0 failures, geometry PASS, the matching supported, with the finite-size step above to correct. Its reports are on [#88](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/88). It works at the operator's direction and is a different model from this seat's. A reader outside the project is open.
 
+**November 15 note, beside the open list above.** [`STABILITY-ROUTE-CHECKS-20261115.md`](STABILITY-ROUTE-CHECKS-20261115.md): the dictionary checked on odd sides and rectangles (303,944 regions, 0 failures, sites of up to 3×3 cells, so J = 108 λ e^{μ} on an odd side); the hypotheses and the central lemma of BHM read for non-projector G_A (covered); and r₀ as a number found to need a proof redone with explicit constants, since both published proofs state their constants as existing.
+
 **Alternative: Michalakis–Zwolak**, *Stability of frustration-free
 Hamiltonians*, Commun. Math. Phys. 322, 277 (2013), arXiv:1109.1588. Its added
 generality is dropping commutativity, which H₀ does not need. It assumes
