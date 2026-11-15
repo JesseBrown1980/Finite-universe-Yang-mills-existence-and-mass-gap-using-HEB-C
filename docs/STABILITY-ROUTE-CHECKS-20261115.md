@@ -80,5 +80,5 @@ the long proof is the one to cite for this model.
 | The theorem on rectangles (Kx != Ky) | OPEN |
 | Non-projector terms | Covered by the stated hypotheses and the central lemma of the long proof; the rest of that proof not audited |
 | r0 as a number | Not available without redoing a proof with explicit constants |
-| A linear finite-size law r >= 1.5 L + c | OPEN, within reach |
+| A linear finite-size law | DERIVED later the same day: E9 - E8 > 0 for r >= 3L/2 + 6 on L x L, L >= 4 ([`LINEAR-FINITE-SIZE-LAW-20261115.md`](LINEAR-FINITE-SIZE-LAW-20261115.md)); draft for refutation |
 | A reader outside the project | OPEN |
