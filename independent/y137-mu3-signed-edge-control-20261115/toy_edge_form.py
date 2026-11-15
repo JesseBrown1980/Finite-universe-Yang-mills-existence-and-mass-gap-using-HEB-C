@@ -43,7 +43,7 @@ def need(ok, why):
 
 def mu2(v):
     return [[sum(W[i] * v[i][a] * v[i][k] for i in range(N))
-             for k in range(CHANNELS)) for a in range(CHANNELS)]
+             for k in range(CHANNELS)] for a in range(CHANNELS)]
 
 
 def mu3_by_rows(v):
@@ -56,7 +56,7 @@ def mu3_by_rows(v):
             x[i][j] -= B * EDGES[i][j]
     return [[sum(W[i] * v[i][a] * x[i][j] * v[j][k]
                  for i in range(N) for j in range(N))
-             for k in range(CHANNELS)) for a in range(CHANNELS)]
+             for k in range(CHANNELS)] for a in range(CHANNELS)]
 
 
 def mu3_by_pairs(v):
