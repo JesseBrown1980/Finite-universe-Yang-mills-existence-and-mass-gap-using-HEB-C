@@ -54,7 +54,7 @@ What is explicit and holds for every size today:
 The second row has not been proved as a formula in L; a proof that the two-number bound is positive for r >= 1.5 L + c on every L would replace the 4 L^2 of the finite-size step by a
 linear law (OPEN, and within reach: the bound is a minimum of a linear form over each lump's constraints).
 
-Why a product-form vector cannot give a size-independent r0 (DERIVED, short): with phi = eps^a eta^b positive on every configuration, the local energy at a flat configuration is
+Why a product-form vector is not expected to give a size-independent r0 (a sketch; Barta gives E1 >= e0, and the size of E1 - e0 growing in proportion to nl is CONJECTURE, in line with the measured growth of the least r with L): with phi = eps^a eta^b positive on every configuration, the local energy at a flat configuration is
 e0 = 3 nl (1 - eps^2) and at any other configuration it is e0 plus a positive excess that grows with the number of defects, so E9 >= e0 + gamma with gamma independent of size. But
 E8 >= E1 > e0 by an amount proportional to nl, because the product form is not the exact vacuum. The difference of the two extensive quantities is what a stability theorem controls and
 a few-number vector does not.
