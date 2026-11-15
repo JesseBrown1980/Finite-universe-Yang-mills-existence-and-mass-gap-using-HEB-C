@@ -2,8 +2,8 @@
 //! space (one group element per independent loop, reduced by the global conjugation).
 //!
 //! The two lowest levels are located by fixed-point subspace iteration (an estimate only) and then
-//! certified by inertia counts of W*(H - x) computed with outward-rounded integer intervals: a count is
-//! reported only when every pivot interval excludes zero. Integers only; no floating point.
+//! certified by counts from an approximate fixed-point factorisation of W*(H - x) whose residual is bounded
+//! rigorously with outward-rounded integer intervals. Integers only; no floating point.
 //!
 //! usage: open_grid A B RNUM [THREADS] [RDEN]
 //! With RDEN given the matrix is RDEN*(electric) + RNUM*(magnetic), that is RDEN times the model at
@@ -198,99 +198,67 @@ fn detailed_balance(m: &Model) -> bool {
     })
 }
 
-// ---------------------------------------------------------------- interval arithmetic, outward rounded
+// ---------------------------------------------------------------- certified counts
+//
+// For a shift x the matrix A = W*(H - x) is factored approximately in fixed point, P A P^T ~ L D L^T, with
+// diagonal pivoting. The residual E = P A P^T - L D L^T is then bounded entry by entry with outward-rounded
+// integers (one product chain per entry, so the widths do not compound), and eps is an upper bound of its
+// largest absolute row sum, hence of its spectral norm. L is unit lower triangular, so by Sylvester's law the
+// number of negative entries of D is the number of negative eigenvalues of A - E, and because W >= 1,
+//     #levels of H below x - eps  <=  neg(D)  <=  #levels of H below x + eps.
 
-#[derive(Clone, Copy)]
-struct Iv {
-    lo: i64,
-    hi: i64,
+fn shr_floor(p: i128) -> i128 {
+    p >> FP
 }
 
-fn shr_floor(p: i128) -> Option<i64> {
-    i64::try_from(p >> FP).ok()
+fn shr_ceil(p: i128) -> i128 {
+    -((-p) >> FP)
 }
 
-fn shr_ceil(p: i128) -> Option<i64> {
-    i64::try_from(-((-p) >> FP)).ok()
+struct Count {
+    neg: usize,
+    eps: i128, // in units of 1e-9, rounded up
 }
 
-fn iv_mul(a: Iv, b: Iv) -> Option<Iv> {
-    let c = [
-        i128::from(a.lo) * i128::from(b.lo),
-        i128::from(a.lo) * i128::from(b.hi),
-        i128::from(a.hi) * i128::from(b.lo),
-        i128::from(a.hi) * i128::from(b.hi),
-    ];
-    let lo = c.iter().copied().min()?;
-    let hi = c.iter().copied().max()?;
-    Some(Iv { lo: shr_floor(lo)?, hi: shr_ceil(hi)? })
-}
-
-fn iv_sub(a: Iv, b: Iv) -> Option<Iv> {
-    Some(Iv { lo: a.lo.checked_sub(b.hi)?, hi: a.hi.checked_sub(b.lo)? })
-}
-
-/// a / d for an interval d that excludes zero.
-fn iv_div(a: Iv, d: Iv) -> Option<Iv> {
-    if d.lo <= 0 && d.hi >= 0 {
-        return None;
-    }
-    let fl = |n: i64, q: i64| -> i128 { (i128::from(n) << FP).div_euclid(i128::from(q)) };
-    let floor = |n: i64, q: i64| -> i128 {
-        if q > 0 {
-            fl(n, q)
-        } else {
-            (-(i128::from(n) << FP)).div_euclid(-i128::from(q))
-        }
-    };
-    let ceil = |n: i64, q: i64| -> i128 {
-        if q > 0 {
-            -((-(i128::from(n) << FP)).div_euclid(i128::from(q)))
-        } else {
-            -((i128::from(n) << FP).div_euclid(-i128::from(q)))
-        }
-    };
-    let pairs = [(a.lo, d.lo), (a.lo, d.hi), (a.hi, d.lo), (a.hi, d.hi)];
-    let lo = pairs.iter().map(|&(n, q)| floor(n, q)).min()?;
-    let hi = pairs.iter().map(|&(n, q)| ceil(n, q)).max()?;
-    Some(Iv { lo: i64::try_from(lo).ok()?, hi: i64::try_from(hi).ok()? })
-}
-
-/// Number of levels below x = num/UNITS, or None when a pivot interval contains zero or a value overflows.
-fn count_below(m: &Model, num: i128, threads: usize) -> Result<usize, &'static str> {
+fn count_levels(m: &Model, num: i128, threads: usize) -> Result<Count, &'static str> {
     let n = m.w.len();
-    let x_lo = (num << FP).div_euclid(UNITS);
-    let x_hi = -((-(num << FP)).div_euclid(UNITS));
-    // lower triangle of A = W*(H - x), row i holds columns 0..=i
-    let mut a: Vec<Vec<Iv>> = (0..n).map(|i| vec![Iv { lo: 0, hi: 0 }; i + 1]).collect();
+    let x_fp = (num << FP).div_euclid(UNITS);
+    let mut a0: Vec<Vec<i64>> = vec![vec![0i64; n]; n];
     for (i, row) in m.rows.iter().enumerate() {
         for &(j, v) in row {
-            if j <= i {
-                let e = i128::from(m.w[i]) * i128::from(v);
-                let (mut lo, mut hi) = (e << FP, e << FP);
-                if i == j {
-                    lo -= i128::from(m.w[i]) * x_hi;
-                    hi -= i128::from(m.w[i]) * x_lo;
-                }
-                a[i][j] = Iv { lo: i64::try_from(lo).map_err(|_| "entry_overflow")?, hi: i64::try_from(hi).map_err(|_| "entry_overflow")? };
+            let mut e = (i128::from(m.w[i]) * i128::from(v)) << FP;
+            if i == j {
+                e -= i128::from(m.w[i]) * x_fp;
             }
+            a0[i][j] = i64::try_from(e).map_err(|_| "entry_overflow")?;
         }
     }
-    let mut negative = 0usize;
+    let mut a = a0.clone();
+    let mut perm: Vec<usize> = (0..n).collect();
+    let mut neg = 0usize;
     for k in 0..n {
+        let p = (k..n).max_by_key(|&q| a[q][q].unsigned_abs()).unwrap_or(k);
+        if p != k {
+            a.swap(k, p);
+            for row in a.iter_mut() {
+                row.swap(k, p);
+            }
+            perm.swap(k, p);
+        }
         let d = a[k][k];
-        if d.hi < 0 {
-            negative += 1;
-        } else if d.lo <= 0 {
-            return Err("pivot_interval_contains_zero");
+        if d == 0 {
+            return Err("zero_pivot");
+        }
+        if d < 0 {
+            neg += 1;
         }
         if k + 1 == n {
             break;
         }
-        let col: Vec<Iv> = (k + 1..n).map(|i| a[i][k]).collect();
+        let col: Vec<i64> = (k + 1..n).map(|i| a[i][k]).collect();
         let mut l = Vec::with_capacity(col.len());
         for &c in &col {
-            l.push(iv_div(c, d).ok_or("multiplier_overflow")?);
+            l.push(i64::try_from((i128::from(c) << FP) / i128::from(d)).map_err(|_| "multiplier_overflow")?);
         }
         let (_, tail) = a.split_at_mut(k + 1);
         let chunk = tail.len().div_ceil(threads.max(1)).max(1);
@@ -302,18 +270,14 @@ fn count_below(m: &Model, num: i128, threads: usize) -> Result<usize, &'static s
                     let (l, col) = (&l, &col);
                     s.spawn(move || {
                         for (ri, row) in rows.iter_mut().enumerate() {
-                            let i = ci * chunk + ri; // row index relative to k+1
-                            let li = l[i];
-                            if li.lo == 0 && li.hi == 0 {
+                            let li = l[ci * chunk + ri];
+                            row[k] = li;
+                            if li == 0 {
                                 continue;
                             }
-                            for j in 0..=i {
-                                let cj = col[j];
-                                if cj.lo == 0 && cj.hi == 0 {
-                                    continue;
-                                }
-                                let Some(prod) = iv_mul(li, cj) else { return false };
-                                let Some(next) = iv_sub(row[k + 1 + j], prod) else { return false };
+                            for (j, &cj) in col.iter().enumerate() {
+                                let prod = (i128::from(li) * i128::from(cj)) >> FP;
+                                let Ok(next) = i64::try_from(i128::from(row[k + 1 + j]) - prod) else { return false };
                                 row[k + 1 + j] = next;
                             }
                         }
@@ -327,33 +291,99 @@ fn count_below(m: &Model, num: i128, threads: usize) -> Result<usize, &'static s
             return Err("update_overflow");
         }
     }
-    Ok(negative)
-}
-
-fn count_nudged(m: &Model, num: i128, threads: usize) -> Option<(usize, i128)> {
-    let found = (0..4).find_map(|s| count_below(m, num + s, threads).ok().map(|c| (c, num + s)));
-    if found.is_none() {
-        let why = count_below(m, num, threads).err().unwrap_or("none");
-        println!("GRID_COUNT_UNCERTIFIED|x={num}|reason={why}|json=0");
+    // residual bound: for i >= j, R_ij = A0[perm i][perm j] - sum_{k<j} L_ik D_k L_jk - L_ij D_j   (L_jj = 1)
+    let rows_idx: Vec<usize> = (0..n).collect();
+    let chunk = n.div_ceil(threads.max(1)).max(1);
+    let (a, a0, perm) = (&a, &a0, &perm);
+    let partial: Vec<Vec<i128>> = thread::scope(|s| {
+        let handles: Vec<_> = rows_idx
+            .chunks(chunk)
+            .map(|rows| {
+                s.spawn(move || {
+                    let mut sums = vec![0i128; n];
+                    for &i in rows {
+                        for j in 0..=i {
+                            let (mut lo, mut hi) = (0i128, 0i128);
+                            for k in 0..j {
+                                let t = i128::from(a[i][k]) * i128::from(a[k][k]);
+                                let (t_lo, t_hi) = (shr_floor(t), shr_ceil(t));
+                                let ljk = i128::from(a[j][k]);
+                                let (u, v) = (t_lo * ljk, t_hi * ljk);
+                                lo += shr_floor(u.min(v));
+                                hi += shr_ceil(u.max(v));
+                            }
+                            if i == j {
+                                lo += i128::from(a[j][j]);
+                                hi += i128::from(a[j][j]);
+                            } else {
+                                let t = i128::from(a[i][j]) * i128::from(a[j][j]);
+                                lo += shr_floor(t);
+                                hi += shr_ceil(t);
+                            }
+                            let orig = i128::from(a0[perm[i]][perm[j]]);
+                            let r = (orig - lo).abs().max((orig - hi).abs());
+                            sums[i] += r;
+                            if i != j {
+                                sums[j] += r;
+                            }
+                        }
+                    }
+                    sums
+                })
+            })
+            .collect();
+        handles.into_iter().map(|h| h.join().unwrap_or_default()).collect()
+    });
+    if partial.iter().any(|v| v.len() != n) {
+        return Err("residual_thread_failed");
     }
-    found
+    let worst = (0..n).map(|i| partial.iter().map(|v| v[i]).sum::<i128>()).max().unwrap_or(0);
+    // + the difference between x and its fixed-point value (below 2^-FP), times W <= 6
+    let eps = -((-((worst + 6) * UNITS)) >> FP) + 1;
+    Ok(Count { neg, eps })
 }
 
-/// Bracket of the k-th level by bisection on certified counts; None when a count cannot be certified.
-fn bisect(m: &Model, k: usize, lo: i128, hi: i128, threads: usize) -> Option<(i128, i128)> {
+/// Bracket of the k-th level by bisection on certified counts, from lo (fewer than k levels below) to hi.
+fn bisect(m: &Model, k: usize, lo: i128, hi: i128, threads: usize) -> Result<(i128, i128), &'static str> {
     let (mut lo, mut hi) = (lo, hi);
-    if count_nudged(m, lo, threads)?.0 >= k || count_nudged(m, hi, threads)?.0 < k {
-        return None;
+    let c = count_levels(m, lo, threads)?;
+    if c.neg >= k {
+        return Err("lower_end_not_below_the_level");
     }
-    while hi - lo > 2000 {
-        let c = count_nudged(m, (lo + hi) / 2, threads)?;
-        if c.0 >= k {
-            hi = c.1;
-        } else {
-            lo = c.1;
+    lo -= c.eps;
+    let c = count_levels(m, hi, threads)?;
+    if c.neg < k {
+        return Err("upper_end_not_above_the_level");
+    }
+    hi += c.eps;
+    for _ in 0..80 {
+        if hi - lo <= 2000 {
+            break;
         }
+        let mid = (lo + hi) / 2;
+        let c = count_levels(m, mid, threads)?;
+        let (next_lo, next_hi) = if c.neg >= k { (lo, mid + c.eps) } else { (mid - c.eps, hi) };
+        if next_hi - next_lo >= hi - lo {
+            break; // the residual bound is as wide as the bracket: no further progress
+        }
+        lo = next_lo;
+        hi = next_hi;
     }
-    Some((lo, hi))
+    Ok((lo, hi))
+}
+
+/// Bracket of the k-th level around an estimate: two counts when the estimate is good.
+fn around(m: &Model, k: usize, est: i128, threads: usize) -> Option<(i128, i128)> {
+    let mut delta: i128 = 1000;
+    while delta <= 100_000_000 {
+        let below = count_levels(m, est - delta, threads).ok()?;
+        let above = count_levels(m, est + delta, threads).ok()?;
+        if below.neg < k && above.neg >= k {
+            return Some((est - delta - below.eps, est + delta + above.eps));
+        }
+        delta *= 10;
+    }
+    None
 }
 
 // ---------------------------------------------------------------- estimate by fixed-point subspace iteration
@@ -434,38 +464,24 @@ fn main() {
     let ceiling = 6 * grid.links.len() as i128 * i128::from(rden) + 3 * i128::from(r) * p as i128 + 1;
     let (e0, e1) = estimate(&model, ceiling, 1500);
     println!("GRID_ESTIMATE|E0_estimate={e0}|E1_estimate={e1}|units=1e-9|status=ESTIMATE_ONLY|json=0");
-    let mut delta: i128 = 1000;
-    while delta <= 100_000_000 {
-        let c = [
-            count_nudged(&model, e0 - delta, threads),
-            count_nudged(&model, e0 + delta, threads),
-            count_nudged(&model, e1 - delta, threads),
-            count_nudged(&model, e1 + delta, threads),
-        ];
-        if let [Some(c0), Some(c1), Some(c2), Some(c3)] = c {
-            if c0.0 == 0 && c1.0 == 1 && c2.0 == 1 && c3.0 >= 2 {
-                println!(
-                    "GRID_LEVELS|a={a}|b={b}|r={r}|rden={rden}|scaled_by_rden=1|gauge_orbits={n}|units=1e-9|E0_lo={}|E0_hi={}|E1_lo={}|E1_hi={}|gap_lo={}|gap_hi={}|levels_below_E1_hi={}|method=interval_inertia_counts|json=0",
-                    c0.1, c1.1, c2.1, c3.1, c2.1 - c1.1, c3.1 - c0.1, c3.0
-                );
-                return;
-            }
-            println!("GRID_COUNTS|delta={delta}|counts={},{},{},{}|status=bracket_not_separated|json=0", c0.0, c1.0, c2.0, c3.0);
-        } else {
-            println!("GRID_COUNTS|delta={delta}|status=a_pivot_interval_contains_zero|json=0");
-        }
-        delta *= 10;
-    }
-    // The estimate did not separate the levels (near-degenerate excited levels): bisect on certified counts.
     let top = ceiling * UNITS;
-    let b0 = bisect(&model, 1, -UNITS, top, threads);
-    let b1 = b0.and_then(|x| bisect(&model, 2, x.0, top, threads));
-    if let (Some(x), Some(y)) = (b0, b1) {
-        println!(
-            "GRID_LEVELS|a={a}|b={b}|r={r}|rden={rden}|scaled_by_rden=1|gauge_orbits={n}|units=1e-9|E0_lo={}|E0_hi={}|E1_lo={}|E1_hi={}|gap_lo={}|gap_hi={}|method=interval_inertia_bisection|json=0",
-            x.0, x.1, y.0, y.1, y.0 - x.1, y.1 - x.0
-        );
-        return;
+    let b0 = around(&model, 1, e0, threads).map_or_else(|| bisect(&model, 1, -UNITS, top, threads), Ok);
+    let b1 = around(&model, 2, e1, threads).map_or_else(|| bisect(&model, 2, -UNITS, top, threads), Ok);
+    match (b0, b1) {
+        (Ok(x), Ok(y)) => {
+            println!(
+                "GRID_LEVELS|a={a}|b={b}|r={r}|rden={rden}|scaled_by_rden=1|gauge_orbits={n}|units=1e-9|E0_lo={}|E0_hi={}|E1_lo={}|E1_hi={}|gap_lo={}|gap_hi={}|method=approximate_factor_with_certified_residual_bound|json=0",
+                x.0, x.1, y.0, y.1, y.0 - x.1, y.1 - x.0
+            );
+            return;
+        }
+        (x, y) => {
+            println!(
+                "GRID_UNCERTIFIED|level1={}|level2={}|json=0",
+                x.err().unwrap_or("ok"),
+                y.err().unwrap_or("ok")
+            );
+        }
     }
     println!("GRID_LEVELS|a={a}|b={b}|r={r}|status=NOT_CERTIFIED|json=0");
     std::process::exit(1);
