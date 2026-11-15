@@ -38,7 +38,7 @@ def lowest(rows, den):
                 return c
         og.need(False, "zero_pivot")
 
-    lo, hi = -1000 * S, 1000 * S
+    lo, hi = -100000 * S, 100000 * S  # was 1000: too small at r = 900 (run 1 of pt_scaling.py refused)
     og.need(cnt(lo) == 0 and cnt(hi) >= 1, "range")
     while hi - lo > 2:
         m = (lo + hi) // 2

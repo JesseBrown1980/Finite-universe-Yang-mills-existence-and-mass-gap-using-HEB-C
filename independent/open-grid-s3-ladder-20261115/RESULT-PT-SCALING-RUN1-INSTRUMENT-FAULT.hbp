@@ -1,0 +1,3 @@
+PT_SCALE|a=1|b=1|r=9|units=1e-9|exact_gap=16765067031|first_order_gap=17999999998|second_order_gap=12666666665|first_order_error=1234932967|second_order_error=4098400366|json=0
+PT_SCALE|a=1|b=1|r=90|units=1e-9|exact_gap=179477248809|first_order_gap=179999999999|second_order_gap=179466666666|first_order_error=522751190|second_order_error=10582143|json=0
+GRID_REFUSE|reason=range|json=0
