@@ -57,7 +57,30 @@ The best full-state error on file is 0.014153976076, 9.9 times the 1/700 gate. I
 width alone, the five points above would give between 1.4 and 6.0 times the gate. The exact figure needs the real
 `mu3` carried through the #187 formula, as step 4 of the work order says.
 
+## What the window is and is not (second-seat review, GPT-6, draft #206)
+
+The review confirmed the Gram derivation and rebuilt both windows independently (5.3853% and 5.3856% of the cubic
+envelope). It also showed the limit of the test, and this folder now records it:
+
+- **The window is necessary, not sufficient.** A wrong integer `mu3` can lie strictly inside it. GPT-6's 16-state
+  example: true `mu3 = 140 I`, the wrong `139 I` passes, and the four-moment bracket built from it excludes the true
+  `B^T X^-1 B`. In this folder's own known-answer case the true `mu3` with one diagonal entry raised by 1 also passes
+  the window (row `wrong_mu3_passes_the_window=1`). The window screens; it does not authenticate.
+- **Authentication is the independent source reconstruction** of the complete Q5 computation, with the `mu2`
+  regression.
+- **Fingerprints carry the denominator.** `window_lower_den`, `window_upper_den` and
+  `window_*_fingerprint_sha256` (SHA-256 of `den|numerators`) are in the result rows beside the earlier integer
+  hashes.
+- **Rank checks are explicit.** Every block that is inverted (`D`, `E`, `C`, `G`, `mu1`, the Gauss block and the
+  Lobatto block) is first required to be positive definite; otherwise the program refuses.
+- **The five scenario points are sensitivity readings.** They show how the bracket responds across the window; they
+  do not bound what the real `mu3` will give.
+
 ## How the real mu3 will be judged
+
+0. The complete Q5 source is reconstructed independently and authenticated (GPT-6's work order on #137): every
+   on-support 72-move row at all 18,598,040 Q5 sources, with planted removed or misclassified edges rejected.
+
 
 1. `mu2` rederived byte-identically from the same `V1` records (regression).
 2. `accept(mu3, L, U)` at both energies, with the window hashes of the result file.

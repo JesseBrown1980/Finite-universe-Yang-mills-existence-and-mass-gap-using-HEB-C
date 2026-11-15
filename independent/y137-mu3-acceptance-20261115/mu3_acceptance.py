@@ -31,6 +31,7 @@ S(z) = U0 - F.
 4. ON THE ARCHIVED mu0..mu2 at both energies: the window (against #197's cubic envelope), and the four-moment
    bracket evaluated at five scenario points of the window, as the range the real mu3 can produce.
 """
+import hashlib
 import os
 import sys
 from itertools import combinations
@@ -151,12 +152,24 @@ def symmetric(a):
     return all(a[i][j] == a[j][i] for i in range(n) for j in range(n))
 
 
-def to_int(a):
+def common_den(a):
     den = 1
     for r in a:
         for x in r:
             den = den * x.denominator // gcd(den, x.denominator)
+    return den
+
+
+def to_int(a):
+    den = common_den(a)
     return [[int(x * den) for x in r] for r in a]
+
+
+def fingerprint(a):
+    """SHA-256 of the exact rational matrix: its least common denominator, then the integer numerators."""
+    den = common_den(a)
+    text = str(den) + "|" + ";".join(",".join(str(int(x * den)) for x in r) for r in a)
+    return den, hashlib.sha256(text.encode("ascii")).hexdigest()
 
 
 def det_int(a):
@@ -233,6 +246,7 @@ def accept(cand, L, U):
 def bracket3(U0, mu0, mu1, mu2, g, h):
     D, C = sub(mu1, scale(mu0, g)), sub(mu2, scale(mu1, g))
     E, G = sub(scale(mu0, h), mu1), sub(scale(mu1, h), mu2)
+    need(pd(C) and pd(G), "three_moment_blocks_not_full_rank_positive")
     lo = sub(U0, scale(sub(mu0, mul(mul(D, inv(C)), D)), Ratio(1, g)))
     hi = sub(U0, scale(add(mu0, mul(mul(E, inv(G)), E)), Ratio(1, h)))
     return lo, hi
@@ -240,6 +254,7 @@ def bracket3(U0, mu0, mu1, mu2, g, h):
 
 def bracket4(U0, mu0, mu1, mu2, mu3, g, h):
     s, gh = g + h, g * h
+    need(pd(mu1), "mu1_not_full_rank_positive")      # every inverse below is of a block checked to be full rank
     a_inv = inv(mu1)
     P = sub(mu3, mul(mul(mu2, a_inv), mu2))
     need(pd(P), "Gauss_block_not_positive_definite")
@@ -297,11 +312,23 @@ def known_answer():
     down = [r[:] for r in big]; down[0][0] -= step
     skew = [r[:] for r in big]; skew[0][1] += 1
     r_up, r_down, r_skew = accept(up, L, U), accept(down, L, U), accept(skew, L, U)
+    # the limit of the window (found by the second seat's review): a WRONG integer mu3 can lie inside it.
+    forged, forged_row = None, ("none_found", 0, 0)
+    for delta in (1, -1, 2, -2, 3, -3):
+        cand = [r[:] for r in big]; cand[0][0] += delta
+        if accept(cand, L, U)[0]:
+            forged = cand
+            fl, fh = bracket4(U0, mu0, mu1, mu2, F(cand), g, h)
+            forged_row = (delta, 1, int(le(fl, S) and le(S, fh)))
+            break
     emit("Y137_MU3_KNOWN_ANSWER", states=n, columns=k, g=g, h=h, true_mu3_accepted=int(ok_true), reason=why,
          true_S_inside_three_moment_bracket=int(in3), true_S_inside_four_moment_bracket=int(in4),
          four_moment_inside_three_moment=int(nested),
          width_four_per_million_of_three=ppm(trace(sub(hi4, lo4)), trace(sub(hi3, lo3))),
-         tampered_above=r_up[1], tampered_below=r_down[1], tampered_asymmetric=r_skew[1])
+         tampered_above=r_up[1], tampered_below=r_down[1], tampered_asymmetric=r_skew[1],
+         wrong_mu3_inside_window_delta=forged_row[0], wrong_mu3_passes_the_window=forged_row[1],
+         bracket_from_wrong_mu3_contains_true_S=forged_row[2],
+         window_is="NECESSARY_NOT_SUFFICIENT", authentication="INDEPENDENT_SOURCE_RECONSTRUCTION")
     need(ok_true and in3 and in4 and nested, "known_answer_failed")
     need(not r_up[0] and not r_down[0] and not r_skew[0], "tampered_candidate_was_accepted")
 
@@ -331,6 +358,9 @@ def archived(index):
     emit("Y137_MU3_WINDOW", sample_num=z, window_nonempty=1, window_inside_197_cubic_envelope=int(inside_env),
          window_trace_per_million_of_197_envelope=ppm(w_win, w_env),
          window_lower_integer_sha256=mr.sha(to_int(L)), window_upper_integer_sha256=mr.sha(to_int(U)),
+         window_lower_den=fingerprint(L)[0], window_lower_fingerprint_sha256=fingerprint(L)[1],
+         window_upper_den=fingerprint(U)[0], window_upper_fingerprint_sha256=fingerprint(U)[1],
+         blocks_full_rank_positive=1,
          three_moment_width_per_million_of_original=ppm(w3, w_orig))
     target = index + 1
     rows = []
