@@ -1,0 +1,73 @@
+name: Hybrid no-store certificate, batch of torus points (hosted cells)
+
+on:
+  push:
+    branches: [local-fable52-hybrid-batch-20261115]
+    paths:
+      - independent/hybrid-batch-20261115/TRIGGER.txt
+
+permissions:
+  contents: read
+
+jobs:
+  point:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        args:
+          - "4 4 4 14"
+          - "4 4 5 14"
+          - "4 4 7 14"
+          - "4 4 8 14"
+          - "4 5 6 13"
+          - "4 5 7 13"
+          - "4 5 8 13"
+          - "5 5 6 11"
+          - "5 5 7 11"
+          - "5 5 8 11"
+          - "5 5 9 13"
+          - "4 6 9 13"
+          - "5 6 9 11"
+          - "6 6 9 11"
+          - "6 6 9 13"
+          - "6 6 10 11"
+          - "6 6 12 11"
+          - "7 7 12 10"
+          - "7 7 16 10"
+          - "8 8 16 10"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Rust 1.81 and the two programs
+        run: |
+          rustup toolchain install 1.81.0 --profile minimal --component clippy
+          V=native/ym/results/3x4_stream/perron/vector
+          sha256sum $V/review-opus55/review/src/bin/ritz.rs native/ym/crates/evolvers/src/bin/hybridcheck.rs $V/local_table.py independent/hybrid-batch-20261115/point.sh
+          # the reader's crate builds from a copy outside the workspace root, as its report says
+          cp -r $V/review-opus55/review /tmp/review
+          (cd /tmp/review && cargo +1.81.0 build --release --bin ritz)
+          (cd native/ym && cargo +1.81.0 build --release -p evolvers --bin hybridcheck)
+      - name: instrument gate, 4x4 at r = 9, cut 10
+        run: |
+          mkdir -p /tmp/gate && cd /tmp/gate
+          bash $GITHUB_WORKSPACE/independent/hybrid-batch-20261115/point.sh 4 4 9 10 3 /tmp/review/target/release/ritz $GITHUB_WORKSPACE/native/ym/target/release/hybridcheck $GITHUB_WORKSPACE/native/ym/results/3x4_stream/perron/vector/local_table.py | tee gate.txt
+          python3 -I - <<'PY'
+          row = [l for l in open('gate.txt') if l.startswith('POINT|')][-1]
+          d = dict(kv.split('=', 1) for kv in row.strip().split('|')[1:] if '=' in kv)
+          # registered: cut 10 certificate 115.534179 (py_hybrid_recheck), E9 <= 117.580284; this script measured 116.216456 before the batch
+          assert d['certificate_checked'] == '1' and 115534179 <= int(d['E9_lower_micro']) <= 117580284, d
+          print('GATE|4x4_r9_cut10_checked_and_between_the_registered_values=1|json=0')
+          PY
+      - name: the point
+        run: |
+          mkdir -p /tmp/run && cd /tmp/run
+          nproc; free -m | head -2
+          /usr/bin/time -v bash $GITHUB_WORKSPACE/independent/hybrid-batch-20261115/point.sh ${{ matrix.args }} 3 /tmp/review/target/release/ritz $GITHUB_WORKSPACE/native/ym/target/release/hybridcheck $GITHUB_WORKSPACE/native/ym/results/3x4_stream/perron/vector/local_table.py 2> time.txt | tee rows.hbp
+          grep -E "Elapsed|Maximum resident" time.txt | tee -a rows.hbp
+          grep -q "^POINT|" rows.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hybrid-${{ strategy.job-index }}
+          path: /tmp/run/rows.hbp

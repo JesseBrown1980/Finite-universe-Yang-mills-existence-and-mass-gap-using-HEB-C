@@ -1,0 +1,7 @@
+HYBRIDCHECK_INPUT|Lx=6|Ly=6|r=12|cut=11|reps=2257839|lumps_above=352|value_bits=90|symmetries=288|threads=3|sabotage=none|json=0
+HYBRIDCHECK_CLASSES|reps=2257839|classes_in_one_rep=0|outside_the_cut=0|not_positive=0|configs_in_model=3879671688|configs_expected=3879671688|configs_missing=0|lumps_with_a_wrong_count=0|wrong=-|secs=143|json=0
+HYBRIDCHECK_ROWS|min_exact_micro=240640618|at_key=12385003301180308592645533965|at_lump=0,1|moves=487693224|moves_to_flats=10|missing_moves=0|symmetry_samples=23277|symmetry_mismatches=0|secs=229|json=0
+HYBRIDCHECK_TABLE|rows=4460235|rows_past_cut=4460132|lumps_past_cut=352|bad_rows=0|min_table_micro=-217000000|at_lump=4,27|secs=231|json=0
+HYBRIDCHECK_UPPER|shift=50|A=3161007540778969641783668252112|B=11249165873166788774091266496|C=42360509605202189511321260160|flat_orbits=8|flat_weights=1,3,2,3,3,2,2,2|flat_sum=18|lambda1_upper_micro=280999283|E9_upper_micro=281057165|json=0
+HYBRIDCHECK|Lx=6|Ly=6|r=12|cut=11|cert_micro=-217000000|claim_micro=-217000000|same=1|counts_and_rows_clean=1|upper_at_or_above_cert=1|sabotage=none|secs=231|verdict=PASS|json=0
+POINT|Lx=6|Ly=6|r=12|cut=11|nl=72|ritz_exit=0|ritz_fine_exit=0|hybridcheck_exit=0|certificate_checked=1|E9_lower_micro=-217000000|E8_upper_dressed_micro=211857506|E8_upper_flat_micro=216000000|gap_lower_dressed_micro=-428857506|gap_lower_flat_micro=-433000000|dressed_formula_needs_min_L_ge_4=1|fit_seconds=3793|check_seconds=341|json=0
