@@ -5,7 +5,9 @@
 //! certified by inertia counts of W*(H - x) computed with outward-rounded integer intervals: a count is
 //! reported only when every pivot interval excludes zero. Integers only; no floating point.
 //!
-//! usage: open_grid A B R [THREADS]
+//! usage: open_grid A B RNUM [THREADS] [RDEN]
+//! With RDEN given the matrix is RDEN*(electric) + RNUM*(magnetic), that is RDEN times the model at
+//! r = RNUM/RDEN; the reported levels are those of the scaled matrix.
 
 use std::collections::{HashMap, VecDeque};
 use std::env;
@@ -132,7 +134,7 @@ struct Model {
     rows: Vec<Vec<(usize, i64)>>, // H in the orbit basis, row i: (j, value)
 }
 
-fn build(grid: &Grid, g: &Group, r: i64) -> Model {
+fn build(grid: &Grid, g: &Group, r: i64, e: i64) -> Model {
     let p = grid.kept.len();
     let raw = 6u64.pow(p as u32);
     let decode = |mut code: u64| -> Vec<usize> {
@@ -170,13 +172,13 @@ fn build(grid: &Grid, g: &Group, r: i64) -> Model {
             u[k] = key[slot];
         }
         let mut row: HashMap<usize, i64> = HashMap::new();
-        row.insert(i, 3 * nl as i64 + r * grid.magnetic(g, &u));
+        row.insert(i, e * 3 * nl as i64 + r * grid.magnetic(g, &u));
         for k in 0..nl {
             let old = u[k];
             for &t in &g.trans {
                 u[k] = g.mul[t][old];
                 let j = index[&grid.canonical(g, &u)];
-                *row.entry(j).or_insert(0) -= 1;
+                *row.entry(j).or_insert(0) -= e;
             }
             u[k] = old;
         }
@@ -383,7 +385,7 @@ fn estimate(m: &Model, ceiling: i128, sweeps: usize) -> (i128, i128) {
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
-        println!("GRID_REFUSE|reason=usage_open_grid_A_B_R_[THREADS]|json=0");
+        println!("GRID_REFUSE|reason=usage_open_grid_A_B_RNUM_[THREADS]_[RDEN]|json=0");
         std::process::exit(2);
     }
     let parse = |s: &String| s.parse::<i64>().unwrap_or(0);
@@ -392,13 +394,14 @@ fn main() {
     let g = Group::new();
     let grid = Grid::new(a, b);
     let p = a * b;
-    let model = build(&grid, &g, r);
+    let rden = args.get(5).map_or(1, |s| s.parse::<i64>().unwrap_or(1)).max(1);
+    let model = build(&grid, &g, r, rden);
     let n = model.w.len();
     let formula = (6u64.pow(p as u32) + 2 * 3u64.pow(p as u32) + 3 * 2u64.pow(p as u32)) / 6;
     let size_sum: i64 = model.w.iter().sum();
     let checks = n as u64 == formula && size_sum as u64 == 6u64.pow(p as u32) && detailed_balance(&model);
     println!(
-        "GRID_SPACE|a={a}|b={b}|plaquettes={p}|links={}|raw_link_states=6^{}|gauge_orbits={n}|r={r}|orbit_formula_and_detailed_balance={}|json=0",
+        "GRID_SPACE|a={a}|b={b}|plaquettes={p}|links={}|raw_link_states=6^{}|gauge_orbits={n}|r={r}|rden={rden}|orbit_formula_and_detailed_balance={}|json=0",
         grid.links.len(),
         grid.links.len(),
         i32::from(checks)
@@ -406,7 +409,7 @@ fn main() {
     if !checks {
         std::process::exit(1);
     }
-    let ceiling = 6 * grid.links.len() as i128 + 3 * i128::from(r) * p as i128 + 1;
+    let ceiling = 6 * grid.links.len() as i128 * i128::from(rden) + 3 * i128::from(r) * p as i128 + 1;
     let (e0, e1) = estimate(&model, ceiling, 1500);
     println!("GRID_ESTIMATE|E0_estimate={e0}|E1_estimate={e1}|units=1e-9|status=ESTIMATE_ONLY|json=0");
     let mut delta: i128 = 1000;
@@ -420,7 +423,7 @@ fn main() {
         if let [Some(c0), Some(c1), Some(c2), Some(c3)] = c {
             if c0.0 == 0 && c1.0 == 1 && c2.0 == 1 && c3.0 >= 2 {
                 println!(
-                    "GRID_LEVELS|a={a}|b={b}|r={r}|gauge_orbits={n}|units=1e-9|E0_lo={}|E0_hi={}|E1_lo={}|E1_hi={}|gap_lo={}|gap_hi={}|levels_below_E1_hi={}|method=interval_inertia_counts|json=0",
+                    "GRID_LEVELS|a={a}|b={b}|r={r}|rden={rden}|scaled_by_rden=1|gauge_orbits={n}|units=1e-9|E0_lo={}|E0_hi={}|E1_lo={}|E1_hi={}|gap_lo={}|gap_hi={}|levels_below_E1_hi={}|method=interval_inertia_counts|json=0",
                     c0.1, c1.1, c2.1, c3.1, c2.1 - c1.1, c3.1 - c0.1, c3.0
                 );
                 return;
