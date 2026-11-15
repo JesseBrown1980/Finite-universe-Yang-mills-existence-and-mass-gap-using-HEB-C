@@ -12,7 +12,7 @@ With `g <= X <= h`, `mu_k = B^T X^k B`, the Gram matrices of the pair `(B, XB)` 
     D = mu1 - g mu0,  C = mu2 - g mu1,  E = h mu0 - mu1,  G = h mu1 - mu2
 
 in the Loewner order. `accept(candidate, L, U)` takes a candidate only if it is an integer symmetric 8x8 matrix
-inside this window. Exact rational arithmetic; the archived `mu0, mu1, mu2` are read through the pinned loaders of
+inside this window. Exact rational arithmetic in integers (ratios kept as numerator and denominator); the archived `mu0, mu1, mu2` are read through the pinned loaders of
 `../y137-moment-radau-20261114/moment_radau.py`.
 
 Measured at both energies (`RESULT-MU3-ACCEPTANCE.hbp`):
@@ -63,4 +63,4 @@ width alone, the five points above would give between 1.4 and 6.0 times the gate
 2. `accept(mu3, L, U)` at both energies, with the window hashes of the result file.
 3. The four-moment bracket computed from the real `mu3` must lie inside the #198 bracket and keep inertia 1 and 2.
 
-Run: `python3 -I -B mu3_acceptance.py` (about 40 seconds).
+Run: `python3 -I -B mu3_acceptance.py` (about three minutes).

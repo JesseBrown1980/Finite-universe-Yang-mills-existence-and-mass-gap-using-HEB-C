@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """#137: the acceptance test for the real third moment, frozen before mu3 is computed.
 
-Exact rational arithmetic only (integers and fractions.Fraction; no float, no division operator on numbers).
+Exact rational arithmetic only: integers, and ratios of integers kept as (numerator, denominator) pairs.
 
 Setting (as in #197 and #198): X = b(QHQ - z) on Q, g <= X <= h, mu_k = B^T X^k B (8x8), F = B^T X^-1 B,
 S(z) = U0 - F.
@@ -33,7 +33,6 @@ S(z) = U0 - F.
 """
 import os
 import sys
-from fractions import Fraction
 from itertools import combinations
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -41,11 +40,64 @@ sys.path.insert(0, os.path.join(HERE, "..", "y137-moment-radau-20261114"))
 import moment_radau as mr  # the loaders, pins and integer helpers already on this branch
 
 need, emit = mr.need, mr.emit
-ONE = Fraction(1)
+
+
+def gcd(a, b):
+    while b:
+        a, b = b, a % b
+    return a
+
+
+class Ratio:
+    """a ratio of two integers in lowest terms with a positive denominator; integer operations only."""
+    __slots__ = ("numerator", "denominator")
+
+    def __init__(self, n, d=1):
+        if isinstance(n, Ratio):
+            n, d = n.numerator * (d.denominator if isinstance(d, Ratio) else 1), n.denominator * (d.numerator if isinstance(d, Ratio) else d)
+        need(d != 0, "zero_denominator")
+        if d < 0:
+            n, d = -n, -d
+        k = gcd(n if n >= 0 else -n, d)
+        self.numerator, self.denominator = n // k, d // k
+
+    @staticmethod
+    def of(x):
+        return x if isinstance(x, Ratio) else Ratio(x)
+
+    def __add__(self, o):
+        o = Ratio.of(o)
+        return Ratio(self.numerator * o.denominator + o.numerator * self.denominator, self.denominator * o.denominator)
+
+    __radd__ = __add__
+
+    def __sub__(self, o):
+        o = Ratio.of(o)
+        return Ratio(self.numerator * o.denominator - o.numerator * self.denominator, self.denominator * o.denominator)
+
+    def __mul__(self, o):
+        o = Ratio.of(o)
+        return Ratio(self.numerator * o.numerator, self.denominator * o.denominator)
+
+    __rmul__ = __mul__
+
+    def __eq__(self, o):
+        o = Ratio.of(o)
+        return self.numerator == o.numerator and self.denominator == o.denominator
+
+    def __ne__(self, o):
+        return not self.__eq__(o)
+
+    def __int__(self):
+        need(self.denominator == 1, "not_an_integer")
+        return self.numerator
+
+
+ONE = Ratio(1)
 
 
 def F(m):
-    return [[Fraction(x) for x in row] for row in m]
+    return [[Ratio(x) for x in row] for row in m]
 
 
 def n_of(m):
@@ -66,7 +118,7 @@ def scale(a, k):
 
 def mul(a, b):
     cols = list(zip(*b))
-    return [[sum(x * y for x, y in zip(r, c)) for c in cols] for r in a]
+    return [[sum((x * y for x, y in zip(r, c)), Ratio(0)) for c in cols] for r in a]
 
 
 def tr(a):
@@ -75,12 +127,12 @@ def tr(a):
 
 def recip(x):
     need(x != 0, "zero_pivot")
-    return Fraction(x.denominator, x.numerator)
+    return Ratio(x.denominator, x.numerator)
 
 
 def inv(a):
     n = n_of(a)
-    t = [list(r) + [ONE if i == j else Fraction(0) for j in range(n)] for i, r in enumerate(a)]
+    t = [list(r) + [ONE if i == j else Ratio(0) for j in range(n)] for i, r in enumerate(a)]
     for k in range(n):
         p = next((i for i in range(k, n) if t[i][k] != 0), None)
         need(p is not None, "singular_matrix")
@@ -105,12 +157,6 @@ def to_int(a):
         for x in r:
             den = den * x.denominator // gcd(den, x.denominator)
     return [[int(x * den) for x in r] for r in a]
-
-
-def gcd(a, b):
-    while b:
-        a, b = b, a % b
-    return a
 
 
 def det_int(a):
@@ -154,7 +200,7 @@ def le(a, b):
 
 
 def trace(a):
-    return sum(a[i][i] for i in range(n_of(a)))
+    return sum((a[i][i] for i in range(n_of(a))), Ratio(0))
 
 
 def window(mu0, mu1, mu2, g, h):
@@ -172,7 +218,7 @@ def accept(cand, L, U):
     n = n_of(L)
     if len(cand) != n or any(len(r) != n for r in cand):
         return False, "shape"
-    if any(Fraction(x).denominator != 1 for r in cand for x in r):
+    if any(not isinstance(x, int) for r in cand for x in r):
         return False, "not_integer"
     c = F(cand)
     if not symmetric(c):
@@ -187,8 +233,8 @@ def accept(cand, L, U):
 def bracket3(U0, mu0, mu1, mu2, g, h):
     D, C = sub(mu1, scale(mu0, g)), sub(mu2, scale(mu1, g))
     E, G = sub(scale(mu0, h), mu1), sub(scale(mu1, h), mu2)
-    lo = sub(U0, scale(sub(mu0, mul(mul(D, inv(C)), D)), Fraction(1, g)))
-    hi = sub(U0, scale(add(mu0, mul(mul(E, inv(G)), E)), Fraction(1, h)))
+    lo = sub(U0, scale(sub(mu0, mul(mul(D, inv(C)), D)), Ratio(1, g)))
+    hi = sub(U0, scale(add(mu0, mul(mul(E, inv(G)), E)), Ratio(1, h)))
     return lo, hi
 
 
@@ -202,12 +248,12 @@ def bracket4(U0, mu0, mu1, mu2, mu3, g, h):
     b = sub(sub(scale(mu1, s), mu2), scale(mu0, gh))
     c = sub(sub(scale(mu2, s), mu3), scale(mu1, gh))
     need(pd(c), "Lobatto_block_not_positive_definite")
-    f_lob = scale(sub(sub(scale(mu0, s), mu1), mul(mul(b, inv(c)), b)), Fraction(1, gh))
+    f_lob = scale(sub(sub(scale(mu0, s), mu1), mul(mul(b, inv(c)), b)), Ratio(1, gh))
     return sub(U0, f_lob), sub(U0, f_gauss)
 
 
 def ppm(x, y):
-    q = Fraction(x) * 1000000 * recip(Fraction(y))
+    q = Ratio(x) * 1000000 * recip(Ratio(y))
     return q.numerator // q.denominator
 
 
@@ -235,7 +281,7 @@ def known_answer():
     mu0, mu1 = mul(tr(Bf), Bf), mul(tr(Bf), V1)
     mu2, mu3 = mul(tr(V1), V1), mul(tr(V1), mul(Xf, V1))
     Ftrue = mul(tr(Bf), mul(inv(Xf), Bf))
-    U0 = scale(mu0, Fraction(1))
+    U0 = scale(mu0, Ratio(1))
     S = sub(U0, Ftrue)
     L, U = window(mu0, mu1, mu2, g, h)
     ok_true, why = accept([[int(x) for x in r] for r in mu3], L, U)
@@ -246,7 +292,7 @@ def known_answer():
     nested = le(lo3, lo4) and le(hi4, hi3)
     # tampered candidates
     big = [[int(x) for x in r] for r in mu3]
-    step = int(trace(sub(U, L))) + 1
+    w = trace(sub(U, L)); step = w.numerator // w.denominator + 1
     up = [r[:] for r in big]; up[0][0] += step
     down = [r[:] for r in big]; down[0][0] -= step
     skew = [r[:] for r in big]; skew[0][1] += 1
@@ -281,7 +327,7 @@ def archived(index):
     w_env, w_win = trace(sub(env_hi, env_lo)), trace(sub(U, L))
     lo3, hi3 = bracket3(U0, mu0, mu1, mu2, g, h)
     w3 = trace(sub(hi3, lo3))
-    w_orig = trace(scale(mu0, Fraction(1, g)))
+    w_orig = trace(scale(mu0, Ratio(1, g)))
     emit("Y137_MU3_WINDOW", sample_num=z, window_nonempty=1, window_inside_197_cubic_envelope=int(inside_env),
          window_trace_per_million_of_197_envelope=ppm(w_win, w_env),
          window_lower_integer_sha256=mr.sha(to_int(L)), window_upper_integer_sha256=mr.sha(to_int(U)),
@@ -289,7 +335,7 @@ def archived(index):
     target = index + 1
     rows = []
     for num in (1, 2, 4, 6, 7):                      # scenario points L + (num/8)(U - L)
-        t = Fraction(num, 8)
+        t = Ratio(num, 8)
         m3 = add(L, scale(sub(U, L), t))
         lo4, hi4 = bracket4(U0, mu0, mu1, mu2, m3, g, h)
         nested = le(lo3, lo4) and le(hi4, hi3) and le(lo4, hi4)
