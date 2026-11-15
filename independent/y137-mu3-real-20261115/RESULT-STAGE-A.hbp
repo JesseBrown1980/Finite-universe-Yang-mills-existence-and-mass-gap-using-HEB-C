@@ -1,0 +1,8 @@
+Y137_STAGE_A_SELECT|spool_sha256=3f561c26f3cf5b355ab769ae96e9da8ceaa141186fb5ecb80cc1ec4227e4c589|spool_records=435324|audit_rows=128|step=3000|first_address=2659392|last_address=3754366200|random_states=2000|wide_terms=1000|json=0
+Y137_STAGE_A_AUDIT128|rows=128|rows_equal_to_the_python_rule=128|orbit_weight_equal_to_the_spool=128|raw_moves=9216|genuine_self_loop_moves=0|frozen_196_audit=128_rows_9216_moves_0_self_loops|json=0
+Y137_STAGE_A_RANDOM|rows=2000|rows_equal_to_the_python_rule=2000|raw_moves=144000|genuine_self_loop_moves=0|rows_with_a_self_loop=0|json=0
+Y137_STAGE_A_TAMPER|move_folded_into_a_self_loop_with_72_kept=REFUSED|one_move_omitted=REFUSED|destination_changed=REFUSED|orbit_weight_changed=REFUSED|json=0
+Y137_STAGE_A_WIDE|terms=1000|sum_bits=271|accumulator_bits=320|sum_equal_to_python_integers=1|negated_sum_equal=1|json=0
+Y137_STAGE_A_VERDICT|audit128=PASS|random_states=PASS|tamper_controls=PASS|wide_integers=PASS|real_mu3=NOT_COMPUTED|Wilson_weight=HOLD|json=0
+BENCH|rows=2000000|moves=144000000|distinct_destinations=143988431|check=12677216919420813348|json=0
+Y137_STAGE_A_BENCH|rows=2000000|raw_moves=144000000|milliseconds=18418|machine=the_operator_laptop,_one_thread|full_pass_raw_moves=1339058880|json=0
