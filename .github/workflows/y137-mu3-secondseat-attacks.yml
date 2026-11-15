@@ -22,6 +22,7 @@ jobs:
           grep -Fq 'Gauss_block_pivot=ZERO|inverse_formula_undefined=YES|' /tmp/y137_mu3_secondseat.hbp
           grep -Fq 'real_large_Q_mu3=NOT_COMPUTED|Wilson_weight=HOLD|json=0' /tmp/y137_mu3_secondseat.hbp
           test "$(grep -c '^MU3_' /tmp/y137_mu3_secondseat.hbp)" -eq 4
+          cmp /tmp/y137_mu3_secondseat.hbp independent/y137-mu3-secondseat-20261115/RESULT-ADVERSARIAL.hbp
       - name: Strict source constraints
         run: |
           set -euo pipefail
