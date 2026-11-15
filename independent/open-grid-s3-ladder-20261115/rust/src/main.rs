@@ -257,7 +257,7 @@ fn iv_div(a: Iv, d: Iv) -> Option<Iv> {
 }
 
 /// Number of levels below x = num/UNITS, or None when a pivot interval contains zero or a value overflows.
-fn count_below(m: &Model, num: i128, threads: usize) -> Option<usize> {
+fn count_below(m: &Model, num: i128, threads: usize) -> Result<usize, &'static str> {
     let n = m.w.len();
     let x_lo = (num << FP).div_euclid(UNITS);
     let x_hi = -((-(num << FP)).div_euclid(UNITS));
@@ -272,7 +272,7 @@ fn count_below(m: &Model, num: i128, threads: usize) -> Option<usize> {
                     lo -= i128::from(m.w[i]) * x_hi;
                     hi -= i128::from(m.w[i]) * x_lo;
                 }
-                a[i][j] = Iv { lo: i64::try_from(lo).ok()?, hi: i64::try_from(hi).ok()? };
+                a[i][j] = Iv { lo: i64::try_from(lo).map_err(|_| "entry_overflow")?, hi: i64::try_from(hi).map_err(|_| "entry_overflow")? };
             }
         }
     }
@@ -282,7 +282,7 @@ fn count_below(m: &Model, num: i128, threads: usize) -> Option<usize> {
         if d.hi < 0 {
             negative += 1;
         } else if d.lo <= 0 {
-            return None;
+            return Err("pivot_interval_contains_zero");
         }
         if k + 1 == n {
             break;
@@ -290,7 +290,7 @@ fn count_below(m: &Model, num: i128, threads: usize) -> Option<usize> {
         let col: Vec<Iv> = (k + 1..n).map(|i| a[i][k]).collect();
         let mut l = Vec::with_capacity(col.len());
         for &c in &col {
-            l.push(iv_div(c, d)?);
+            l.push(iv_div(c, d).ok_or("multiplier_overflow")?);
         }
         let (_, tail) = a.split_at_mut(k + 1);
         let chunk = tail.len().div_ceil(threads.max(1)).max(1);
@@ -324,14 +324,36 @@ fn count_below(m: &Model, num: i128, threads: usize) -> Option<usize> {
             handles.into_iter().all(|h| h.join().unwrap_or(false))
         });
         if !ok {
-            return None;
+            return Err("update_overflow");
         }
     }
-    Some(negative)
+    Ok(negative)
 }
 
 fn count_nudged(m: &Model, num: i128, threads: usize) -> Option<(usize, i128)> {
-    (0..4).find_map(|s| count_below(m, num + s, threads).map(|c| (c, num + s)))
+    let found = (0..4).find_map(|s| count_below(m, num + s, threads).ok().map(|c| (c, num + s)));
+    if found.is_none() {
+        let why = count_below(m, num, threads).err().unwrap_or("none");
+        println!("GRID_COUNT_UNCERTIFIED|x={num}|reason={why}|json=0");
+    }
+    found
+}
+
+/// Bracket of the k-th level by bisection on certified counts; None when a count cannot be certified.
+fn bisect(m: &Model, k: usize, lo: i128, hi: i128, threads: usize) -> Option<(i128, i128)> {
+    let (mut lo, mut hi) = (lo, hi);
+    if count_nudged(m, lo, threads)?.0 >= k || count_nudged(m, hi, threads)?.0 < k {
+        return None;
+    }
+    while hi - lo > 2000 {
+        let c = count_nudged(m, (lo + hi) / 2, threads)?;
+        if c.0 >= k {
+            hi = c.1;
+        } else {
+            lo = c.1;
+        }
+    }
+    Some((lo, hi))
 }
 
 // ---------------------------------------------------------------- estimate by fixed-point subspace iteration
@@ -433,6 +455,17 @@ fn main() {
             println!("GRID_COUNTS|delta={delta}|status=a_pivot_interval_contains_zero|json=0");
         }
         delta *= 10;
+    }
+    // The estimate did not separate the levels (near-degenerate excited levels): bisect on certified counts.
+    let top = ceiling * UNITS;
+    let b0 = bisect(&model, 1, -UNITS, top, threads);
+    let b1 = b0.and_then(|x| bisect(&model, 2, x.0, top, threads));
+    if let (Some(x), Some(y)) = (b0, b1) {
+        println!(
+            "GRID_LEVELS|a={a}|b={b}|r={r}|rden={rden}|scaled_by_rden=1|gauge_orbits={n}|units=1e-9|E0_lo={}|E0_hi={}|E1_lo={}|E1_hi={}|gap_lo={}|gap_hi={}|method=interval_inertia_bisection|json=0",
+            x.0, x.1, y.0, y.1, y.0 - x.1, y.1 - x.0
+        );
+        return;
     }
     println!("GRID_LEVELS|a={a}|b={b}|r={r}|status=NOT_CERTIFIED|json=0");
     std::process::exit(1);
