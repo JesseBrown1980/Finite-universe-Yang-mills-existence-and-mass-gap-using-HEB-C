@@ -20,6 +20,13 @@ CONJ = tuple(tuple(MUL[MUL[g][a]][INV[g]] for a in range(6)) for g in range(6))
 S = 1000000000
 
 
+def ipow(base, e):
+    out = 1
+    for _ in range(e):
+        out *= base
+    return out
+
+
 def emit(label, **f):
     print(label + "|" + "|".join("%s=%s" % kv for kv in f.items()) + "|json=0", flush=True)
 
@@ -160,8 +167,8 @@ def main():
     P = a * b
     H, W = g.matrix(r)
     n = len(W)
-    need(6 * n == 6 ** P + 2 * 3 ** P + 3 * 2 ** P, "orbit_count_formula")
-    need(sum(W) == 6 ** P, "orbit_sizes_sum")
+    need(6 * n == ipow(6, P) + 2 * ipow(3, P) + 3 * ipow(2, P), "orbit_count_formula")
+    need(sum(W) == ipow(6, P), "orbit_sizes_sum")
     emit("GRID_SPACE", a=a, b=b, plaquettes=P, links=len(g.links), raw_link_states="6^%d" % len(g.links), gauge_orbits=n, r=r)
     if len(sys.argv) > 4 and sys.argv[4] == "charpoly":
         emit("GRID_CHARPOLY", a=a, b=b, r=r, charpoly=",".join(map(str, charpoly(dense(H, n)))))
