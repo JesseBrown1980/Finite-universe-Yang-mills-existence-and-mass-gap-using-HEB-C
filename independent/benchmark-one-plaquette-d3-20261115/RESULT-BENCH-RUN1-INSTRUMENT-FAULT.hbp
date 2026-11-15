@@ -1,0 +1,4 @@
+BENCH_ONE_PLAQUETTE|r=9|thesis_lE=1|thesis_lB=9/2|constant=18|orbit_sizes=216,432,648|brute_force_charpoly=1,-81,1854,-11016|charpoly_equals_thesis_matrix=1|levels_floor_per_billion=9259170151,26024237127,45716592721|gap_floor_per_billion=16765066976|json=0
+BENCH_ONE_PLAQUETTE|r=12|thesis_lE=1|thesis_lB=12/2|constant=24|orbit_sizes=216,432,648|brute_force_charpoly=1,-96,2592,-17280|charpoly_equals_thesis_matrix=1|levels_floor_per_billion=9958962160,32266706190,53774331649|gap_floor_per_billion=22307744030|json=0
+BENCH_LIMITS|electric_levels=-1,0,12,23,24|thesis_table_3_11_Gamma1=0,12,24|magnetic_levels_in_thesis_units=-4,0,2|thesis_table_3_12=-4,0,2|electric_match=0|magnetic_match=1|json=0
+BENCH_REFUSE|reason=limit_tables_mismatch|json=0

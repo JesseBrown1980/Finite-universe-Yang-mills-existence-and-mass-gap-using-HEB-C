@@ -140,7 +140,10 @@ def main():
         need(same, "thesis_matrix_mismatch")
     He, _, _ = orbit_matrix(0)
     Hm, _, chars = orbit_matrix(1, electric=0)
-    e_roots = sorted(x // 1000000000 for x in roots_per_billion(charpoly3(He)))
+    # run 1 used the grid root finder here; it counts an exact integer root twice (INSTRUMENT FAULT,
+    # RESULT-BENCH-RUN1-INSTRUMENT-FAULT.hbp). The electric levels are integers, so they are tested exactly.
+    pe = charpoly3(He)
+    e_roots = [x for x in range(-100, 101) if x ** 3 * pe[0] + x * x * pe[1] + x * pe[2] + pe[3] == 0]
     m_vals = sorted(2 * Hm[i][i] - 4 for i in range(3))
     emit("BENCH_LIMITS", electric_levels=",".join(map(str, e_roots)), thesis_table_3_11_Gamma1="0,12,24",
          magnetic_levels_in_thesis_units=",".join(map(str, m_vals)), thesis_table_3_12="-4,0,2",
