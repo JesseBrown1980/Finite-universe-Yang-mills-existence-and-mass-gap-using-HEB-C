@@ -1,0 +1,4 @@
+BENCHHDR|panel=benchmark-one-plaquette-d3-20261115|seat=ACER-CLAUDE-FABLE52|date=2026-11-15|directed_by=OP-JESSE("Yes_do_the_one-plaquette_benchmark")|written_and_pushed_before_the_program_is_run|json=0
+BENCHWHAT|this_repository's_S3_rule_(three_transposition_moves_per_link,_magnetic_r*(2-chi))_on_one_open_plaquette_by_brute_force_over_6^4_states,_reduced_to_the_gauge_orbits|against_the_published_D3_one-plaquette_matrix_(3.3.27)_and_tables_3.11,_3.12_of_the_Bologna_thesis_eprint_29471,_with_lE=1,_lB=r/2,_constant_2r|json=0
+BENCHPREDICT|P1=three_gauge_orbits_of_sizes_216,_432,_648|P2=the_characteristic_polynomial_of_the_brute-force_3x3_orbit_matrix_equals_that_of_the_thesis_matrix_at_r=9_and_r=12|P3=electric_limit_levels_0,12,24_and_magnetic_limit_levels_-4,0,2_in_thesis_units|json=0
+BENCHSCOPE|one_open_plaquette_only;_it_tests_the_rule_and_its_convention,_and_says_nothing_about_the_3x4_torus_numbers|json=0
