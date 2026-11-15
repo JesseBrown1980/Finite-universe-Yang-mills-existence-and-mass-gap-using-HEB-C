@@ -48,6 +48,7 @@ jobs:
           grep -Fq 'sample_num=69909875505|source_mu0_mu1_mu2=PINNED|window_inside_cubic=PASS|window_width_per_million=53853|' build/RESULT-SECONDSEAT-ARCHIVED-WINDOW.hbp
           grep -Fq 'sample_num=69949729820|source_mu0_mu1_mu2=PINNED|window_inside_cubic=PASS|window_width_per_million=53856|' build/RESULT-SECONDSEAT-ARCHIVED-WINDOW.hbp
           grep -Fq 'two_real_samples_independently_replayed=PASS|' build/RESULT-SECONDSEAT-ARCHIVED-WINDOW.hbp
+          cmp build/RESULT-SECONDSEAT-ARCHIVED-WINDOW.hbp independent/y137-mu3-secondseat-20261115/RESULT-ARCHIVED-8X8.hbp
       - uses: actions/upload-artifact@v4
         with:
           name: y137-independent-archived-8x8-moment-window
