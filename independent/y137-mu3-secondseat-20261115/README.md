@@ -15,6 +15,17 @@ For \`D,E>0\`, Schur complementation gives the submitted sharp window
 
 That is a valid **necessary** constraint on the true third moment. The four-moment Gauss bound on \`F=BᵀX^-1B\` and the Lobatto bound from \`(X-g)(h-X)\` are also algebraically correct, when the respective inverse blocks are positive definite. In the abstract truncated matrix-valued Hausdorff moment problem, the localizer inequalities characterize existence of **some representing measure**, subject to appropriate rank assumptions. They do not identify the moment of the **specific fixed finite operator** used for Yang–Mills.
 
+## Independent archived 8×8 arithmetic replay — PASS
+
+The separately authored `archived_window_replay.py` reads the original accepted-K3 whole-Q source/cache and μ1/μ2 files, pins their Git blob SHA-1 hashes, checks the original μ0/μ1/μ2 8×8 SHA-256 matrices, and independently calculates the matrix window and the #197 cubic envelope at both frozen energies. It uses **rational Gauss-Jordan inversion and symmetric Schur-elimination positivity checks**, rather than the original `moment_radau`/ `mu3_acceptance` helpers or principal-minor determinant enumeration.
+
+| Frozen z integer | Independent μ3 window trace width, per million of #197 envelope | Verification |
+|---|---:|---|
+| `69909875505` (E1) | **53,853** | Pin, positive pivots, interval nesting PASS |
+| `69949729820` (E2) | **53,856** | Pin, positive pivots, interval nesting PASS |
+
+The replayer independently reproduces the original numerator-only fingerprints **and additionally seals the exact rational boundaries**, including each fraction's reduced numerator and denominator, in `RESULT-ARCHIVED-8X8.hbp`. This independently confirms the ~18.6× contraction measured by the author. The source archive and the independent calculation do **not** contain a real μ3; no actual four-moment full-Q Wilson-weight claim follows from these width numbers.
+
 ## Three adversarial exact 8×8 probes
 
 Run \`python3 -I -B adversarial_mu3_check.py\`. It uses only standard-library exact fractions, defines a separate physical 16-state system \`X=diag(2I8,3I8)\`, \`B=[2I8;2I8]\`, and never imports the author's code.
