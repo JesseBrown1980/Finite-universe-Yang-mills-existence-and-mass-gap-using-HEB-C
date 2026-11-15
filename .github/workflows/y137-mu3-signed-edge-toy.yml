@@ -1,0 +1,24 @@
+name: Y137 signed mu3 edge form independent exact toy
+
+on:
+  push:
+    paths:
+      - 'independent/y137-mu3-signed-edge-control-20261115/**'
+      - '.github/workflows/y137-mu3-signed-edge-toy.yml'
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-signed-edge-control-20261115/**'
+      - '.github/workflows/y137-mu3-signed-edge-toy.yml'
+  workflow_dispatch:
+
+jobs:
+  exact-edge-form:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact signed mu3 row/pair and planted refusals
+        run: python3 -I -B independent/y137-mu3-signed-edge-control-20261115/toy_edge_form.py
