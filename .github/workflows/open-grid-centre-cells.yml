@@ -1,0 +1,50 @@
+name: Open-grid S3 centre scan, 6-plaquette grids (hosted cells)
+
+on:
+  push:
+    branches: [local-fable52-y137-moment-radau-20261114]
+    paths:
+      - independent/open-grid-s3-ladder-20261115/CELLS-TRIGGER.txt
+
+permissions:
+  contents: read
+
+jobs:
+  point:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        grid: ["3 2", "6 1"]
+        thirds: [8, 11, 14, 17, 20]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Rust 1.81, clippy and build
+        run: |
+          rustup toolchain install 1.81.0 --profile minimal --component clippy
+          cd independent/open-grid-s3-ladder-20261115/rust
+          sha256sum src/main.rs
+          cargo +1.81.0 clippy --release -- -D warnings
+          cargo +1.81.0 build --release
+      - name: instrument gate, values on file at r = 9
+        run: |
+          cd independent/open-grid-s3-ladder-20261115/rust
+          ./target/release/open_grid 2 2 9 4 1 | tee gate.txt
+          python3 -I - <<'PY'
+          row = [l for l in open('gate.txt') if l.startswith('GRID_LEVELS|')][-1]
+          d = dict(kv.split('=', 1) for kv in row.strip().split('|')[1:] if '=' in kv)
+          assert int(d['gap_lo']) <= 14801620035 and int(d['gap_hi']) >= 14801616035, d
+          print('GATE|2x2_r9_bracket_overlaps_the_value_on_file=1|json=0')
+          PY
+      - name: certified levels at this point
+        run: |
+          cd independent/open-grid-s3-ladder-20261115/rust
+          nproc; free -m | head -2
+          /usr/bin/time -v ./target/release/open_grid ${{ matrix.grid }} ${{ matrix.thirds }} 4 3 2> time.txt | tee rows.hbp
+          grep -E "Elapsed|Maximum resident" time.txt
+          grep -q "^GRID_LEVELS|" rows.hbp
+      - uses: actions/upload-artifact@v4
+        with:
+          name: centre-${{ strategy.job-index }}
+          path: independent/open-grid-s3-ladder-20261115/rust/rows.hbp
