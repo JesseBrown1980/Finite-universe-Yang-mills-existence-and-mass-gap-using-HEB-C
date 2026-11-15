@@ -58,15 +58,30 @@ Steps: ladder 0.149, 0.105, at least 0.075; two wide 0.874, at least 0.482. The 
 
 Predictions: C1, C2, C4 met, C3 missed (predicted between 4 and 8 on every grid; all six came in above 8, from 8.018 to 10.288); D1, D2, D3 met; F1, F4 met, F2 missed low (4x2 at 6.6624 against a predicted 7.0 to 8.018), F3 missed (the E0 bracket at r = 9 on 7x1 is 0.006 wide).
 
-## In progress (`PREDICTION-CHEB.hbp`, predictions H1 to H7 frozen at commit 78bdcb2)
+## Larger grids, upper ends (`RESULT-CHEB.hbp`; predictions H1 to H7 frozen at commit 78bdcb2)
 
-| Where | What |
-|---|---|
-| GitHub hosted cells, workflow `open-grid-cheb-cells.yml`, run 43707802823 | 4x2 at 11, 12, 13, 15, 16 thirds; 3x3 at 11 to 17 thirds; 8x1 at 12 to 15; 9x1 at 13 to 15; 10x1 at 14; 5x2 at 12 to 16; 3x2 and 6x1 at 13 and 15; 6x1 at r = 9 dense and certified |
-| this machine | 5x2 (10,097,891 states) at 14/3, then at r = 9 |
-| cloud container, routine `trig_01CcGXNi3TkY16SSUbmF33Xu` | second witness of 4x2 at 14/3, 3x3 at 14/3 and 15/3, 5x2 at 14/3 from the pushed source |
+Thirty hosted cells (run 43707802823), this machine, and a cloud container. Smallest certified upper end of the gap over the couplings run for each grid:
 
-Results are filed as `RESULT-CHEB.hbp` when the runs end.
+| Shape | Grid | States | Smallest upper end | at r | Couplings run (thirds) |
+|---|---|---|---|---|---|
+| ladder | 6x1 | 8,051 | 8.2273 | 13/3 | 13, 15 (and certified 8.3221 at 14) |
+| ladder | 8x1 | 282,251 | 8.1106 | 13/3 | 12 to 15 |
+| ladder | 9x1 | 1,686,433 | 8.0784 | 13/3 | 13 to 15 |
+| ladder | 10x1 | 10,097,891 | 8.1379 | 14/3 | 14 only |
+| two wide | 3x2 | 8,051 | 7.0743 | 13/3 | 13, 15 (and certified 7.1438 at 14) |
+| two wide | 4x2 | 282,251 | 6.5893 | 13/3 | 11 to 16 |
+| two wide | 5x2 | 10,097,891 | 6.3029 | 13/3 | 12 to 16 |
+| three wide | 3x3 | 1,686,433 | 6.0629 | 13/3 | 11 to 17 |
+
+Every minimum sits at 13/3, one scan step below the 14/3 used in the table above; the 14/3 values there are one step above the minimum. Two-wide steps at the minimum: 0.485, 0.286.
+
+Predictions: H1 met (5x2 at 14/3: 6.3799). H2 and H3: the value bands met, the location missed (13/3 against a predicted 14/3 or above). H4: 8x1 and 9x1 missed low, 10x1 met. H6 missed (the E0 bracket is wider than 0.001 scaled on 3x3 at 15 to 17 thirds, 5x2 at 14 to 16 thirds, and 10x1). H7 met: the 5x2 row at 14/3 from this machine (6 threads) and from a hosted cell (4 threads) is the same row byte for byte. H5 (6x1 at r = 9, dense and certified) and the cloud witness are filed when they end.
+
+## How this relates to the registered torus results
+
+The repository's main results are on the torus (periodic lattice), where a single transposition flux is forbidden (their number is even) and the gap above the eight flat states is about 3r: at r = 9 at least 24.04 on 3x4 and, with no store, at least 23.95, 23.62 and 21.79 on 4x4, 4x5 and 5x5 (`native/ym/results/3x4_stream/perron/vector/VECTOR-BOUND.md`). On an open grid one transposition flux is allowed, so the first gap here is about 2r - lam. The two sets of numbers are different quantities.
+
+The no-store hybrid certificate of that document gives a certified lower end in about a minute per point; it is the route to sizes beyond ten plaquettes, where the programs of this folder stop. The open two-plaquette matrix of this folder is the Stage 2B matrix of the repository (`STAGE2B_DOUBLE_PLAQUETTE_EXACT_SPECTRUM.md`), rebuilt.
 
 ## Perturbation theory in the electric term
 
@@ -80,6 +95,6 @@ Ground state: the flat orbit. First excited manifold: one reflection flux on one
 ## Reading (the seat's, tagged)
 
 - MEASURED: on every grid the gap is large on both sides and smallest near r* = (12 + lam)/3, about 14/3.
-- MEASURED: at that centre the ladder's smallest gap falls by shrinking steps (8.576, 8.427, 8.322, at most 8.247); the two-wide strip falls faster and lower (8.018, 7.144, at most 6.662).
-- CONJECTURE: a strip of fixed width is one-dimensional in its long direction, so each width keeps a positive smallest gap as it gets longer, and those limits fall as the width grows. Whether they fall to zero as the width grows is the open question; it is the finite-grid form of asking whether this S3 model has a phase transition between its two sides. The runs in progress add width 1 to length 10, width 2 to length 5, and one grid of width 3.
+- MEASURED: at the centre the ladder levels off near 8.1 (upper ends 8.227, 8.111, 8.078 for 6, 8, 9 plaquettes); the two-wide strip is lower with shrinking steps (upper ends 7.074, 6.589, 6.303); the one three-wide grid, 3x3, is lower again (6.063).
+- CONJECTURE: a strip of fixed width is one-dimensional in its long direction, so each width keeps a positive smallest gap as it gets longer, and those limits fall as the width grows. Whether they fall to zero as the width grows is the open question; it is the finite-grid form of asking whether this S3 model has a phase transition between its two sides. The repository cites a published first-order transition for this S3 model; whether this centre is that transition waits on mapping the couplings.
 - Open: a certified lower end for E1 beyond 8,051 states.
