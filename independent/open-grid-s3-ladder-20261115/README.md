@@ -1,40 +1,85 @@
-# Open grids of S3 plaquettes: certified gaps, a Rust route, and a perturbation-theory check
+# Open grids of S3 plaquettes: how the first gap moves with size and coupling
 
-Seat ACER-CLAUDE-FABLE52, 2026-11-15, at the operator's direction. Every prediction file was pushed before its run.
+Seat ACER-CLAUDE-FABLE52, 2026-11-15, at the operator's direction. Every prediction file was pushed before its run. Missed predictions are listed with the met ones.
 
-## Method
+## What is measured
 
-The gauge-invariant space of P open plaquettes is one group element per independent loop up to one global conjugation: (6^P + 2*3^P + 3*2^P)/6 orbits. For two plaquettes this reduced matrix has the same characteristic polynomial as the 6^7 brute force of `benchmark-two-plaquette-d3-20261115`.
+The S3 Kogut-Susskind rule of this repository on an open a x b grid of plaquettes, H = (electric) + r (magnetic). The gauge-invariant space of P plaquettes is one group element per loop up to one global conjugation: (6^P + 2*3^P + 3*2^P)/6 states (3, 11, 49, 251, 1,393, 8,051, 47,449, 282,251, 1,686,433, 10,097,891 for P = 1 to 10). The gap is E1 - E0, the two lowest levels.
 
-- `open_grid.py`: exact integer inertia counts (Python; practical to about 50 orbits).
-- `rust/src/main.rs`: Rust 1.81, clippy `-D warnings` exit 0, integers only. Fixed-point subspace iteration gives an estimate; inertia counts in outward-rounded integer intervals certify the brackets (a count is reported only when every pivot interval excludes zero). Rust and Python brackets overlap on 1x1, 2x1, 3x1.
+Scope: open-boundary grids. The 3x4 torus of the main result is a different system. A statement about the gap of an infinite grid is outside what these finite runs show; see "Reading".
 
-## Gaps at r = 9 (`RESULT-GRID-RUST.hbp`)
+## Methods, in the order they were built
 
-| Grid | Orbits | Gap E1 - E0 |
+| Program | What it certifies | Reach |
+|---|---|---|
+| `open_grid.py` | both levels, exact integer inertia counts | about 50 states |
+| `rust/src/main.rs`, default mode | both levels, two-sided: approximate fixed-point LDL^T with diagonal pivoting, then a rigorous entry-by-entry bound of the residual; `#levels below x - eps <= neg(D) <= #levels below x + eps` | 8,051 states (dense) |
+| same, `sparse` | E0 two-sided (Collatz-Wielandt on a positive integer vector), E1 from above (exact Ritz problem of two integer vectors, 256-bit products). **E1 from below is NOT_CERTIFIED**, so the gap has a certified upper end and an estimate | 282,251 states |
+| same, `cheb` | the same two certificates; matrix held as one u32 column per move, threads, vectors by Chebyshev-filtered subspace iteration (4x2 in 31 s against 758 s) | 10,097,891 states (10 plaquettes) |
+
+Rust 1.81, `cargo clippy --release -- -D warnings` exit 0, integers only. An earlier interval-elimination method is kept in the record (`RESULT-CENTRE-RUN1-PARTIAL.hbp`, `RESULT-CENTRE-RUN2-PARTIAL-NO-PIVOT.hbp`, `RUN-6x1.txt`): it stops when a pivot interval contains zero, which happens at small coupling and on 6x1 at r = 9.
+
+Twelve plaquettes (6x2, 4x3) need about 140 GB of columns and are out of reach of these programs.
+
+## Gaps at r = 9 (`RESULT-GRID-RUST.hbp`, `RESULT-SPARSE.hbp`)
+
+| Grid | States | Gap |
 |---|---|---|
 | 1x1 | 3 | 16.765065 .. 16.765069 |
 | 2x1 | 11 | 15.701569 .. 15.701573 |
 | 3x1 | 49 | 15.327304 .. 15.327308 |
 | 4x1 | 251 | 15.151157 .. 15.151197 |
 | 5x1 | 1,393 | 15.052328 .. 15.052368 |
+| 6x1 | 8,051 | estimate 14.9908 (interval method ended NOT_CERTIFIED; a certified run is in the hosted cells) |
+| 7x1 | 47,449 | upper end 14.9556 |
 | 2x2 | 251 | 14.801616 .. 14.801620 |
+| 3x2 | 8,051 | 14.562050 .. 14.562054 |
 
-Predictions L1 to L4 met. 3x2 and 6x1 (7,953 orbits) are filed in `RUN-3x2.txt` and `RUN-6x1.txt` when their run ends (addendum 1).
+Predictions L1 to L4 met; addendum 1: M3 met, M2 and M4 met through 5x1 certified, M1 missed (the state count of six plaquettes is 8,051; the prediction wrote 7,953).
+
+## The centre: where the gap is smallest (`RESULT-CENTRE.hbp`, `RESULT-CENTRE-CELLS.hbp`, `RESULT-SPARSE.hbp`)
+
+Coming from the magnetic side the gap is about 2r - lam (lam = largest adjacency eigenvalue of the plaquette graph); from the electric side about 12 - r. The two meet at r* = (12 + lam)/3, and the scan in steps of one third of r finds the smallest gap there on every grid.
+
+| Shape | Grid | States | Smallest gap on the scan | at r | Kind |
+|---|---|---|---|---|---|
+| ladder | 1x1 | 3 | 10.2880 | 3 | certified |
+| ladder | 2x1 | 11 | 9.4346 | 10/3 | certified |
+| ladder | 3x1 | 49 | 8.8579 | 13/3 | certified |
+| ladder | 4x1 | 251 | 8.5764 | 11/3 | certified |
+| ladder | 5x1 | 1,393 | 8.4270 | 11/3 | certified |
+| ladder | 6x1 | 8,051 | 8.3221 | 14/3 | certified (hosted cells) |
+| ladder | 7x1 | 47,449 | 8.2473 | 14/3 | upper end |
+| two wide | 2x2 | 251 | 8.0180 | 14/3 | certified |
+| two wide | 3x2 | 8,051 | 7.1438 | 14/3 | certified (hosted cells) |
+| two wide | 4x2 | 282,251 | 6.6624 | 14/3 (only point run) | upper end |
+
+Steps: ladder 0.149, 0.105, at least 0.075; two wide 0.874, at least 0.482. The scan is coarse, so each true minimum is at or below the listed value.
+
+Predictions: C1, C2, C4 met, C3 missed (predicted between 4 and 8 on every grid; all six came in above 8, from 8.018 to 10.288); D1, D2, D3 met; F1, F4 met, F2 missed low (4x2 at 6.6624 against a predicted 7.0 to 8.018), F3 missed (the E0 bracket at r = 9 on 7x1 is 0.006 wide).
+
+## In progress (`PREDICTION-CHEB.hbp`, predictions H1 to H7 frozen at commit 78bdcb2)
+
+| Where | What |
+|---|---|
+| GitHub hosted cells, workflow `open-grid-cheb-cells.yml`, run 43707802823 | 4x2 at 11, 12, 13, 15, 16 thirds; 3x3 at 11 to 17 thirds; 8x1 at 12 to 15; 9x1 at 13 to 15; 10x1 at 14; 5x2 at 12 to 16; 3x2 and 6x1 at 13 and 15; 6x1 at r = 9 dense and certified |
+| this machine | 5x2 (10,097,891 states) at 14/3, then at r = 9 |
+| cloud container, routine `trig_01CcGXNi3TkY16SSUbmF33Xu` | second witness of 4x2 at 14/3, 3x3 at 14/3 and 15/3, 5x2 at 14/3 from the pushed source |
+
+Results are filed as `RESULT-CHEB.hbp` when the runs end.
 
 ## Perturbation theory in the electric term
 
 Ground state: the flat orbit. First excited manifold: one reflection flux on one plaquette (cost 2r).
 
-- First order (`RESULT-PT.hbp`): gap = 2r - (largest adjacency eigenvalue of the plaquette graph): 18, 17, 16.586, 16.382, 16.268 for the ladders and 16 for 2x2, equal to the hand values. It lies 1.20 to 1.30 above the certified gap on all six grids (N2, N3 met).
+- First order (`RESULT-PT.hbp`): gap = 2r - lam: 18, 17, 16.586, 16.382, 16.268 for the ladders and 16 for 2x2, equal to the hand values. It lies 1.20 to 1.30 above the certified gap on all six grids (N2, N3 met).
 - Second order at r = 9: **missed** (N1). It lies 4.10, 1.69, 1.14, 0.89, 0.74 and 0.17 below the certified gap. The rotation flux (3r) is only r = 9 above the reflection flux and couples to it with strength of the same size.
-- Exploratory widened manifold (`pt_explore.py`, after the run): no better; it mixes orders (excited manifold at first order, ground level at second) and is kept only as a record.
-- Scaling test (`RESULT-PT-SCALING.hbp`), 1x1, 2x1, 3x1 at r = 9, 90, 900: the first-order error falls by 9.8, 10.1 and 10.2 from r = 90 to r = 900 (S1 met). The second-order error falls by 985, 44 and 66; the frozen band was 50 to 200, so S2 is **missed** as frozen (one grid falls faster, one slightly slower). At r = 900 the second-order gap is within 0.000011, 0.000053 and 0.000054 of the exact gap of about 1,799.
+- Exploratory widened manifold (`pt_explore.py`, after the run): no better; kept only as a record.
+- Scaling test (`RESULT-PT-SCALING.hbp`), 1x1, 2x1, 3x1 at r = 9, 90, 900: the first-order error falls by 9.8, 10.1 and 10.2 from r = 90 to r = 900 (S1 met). The second-order error falls by 985, 44 and 66; the frozen band was 50 to 200, so S2 is **missed** as frozen. At r = 900 the second-order gap is within 0.000011, 0.000053 and 0.000054 of the exact gap of about 1,799. Run 1 refused at r = 900 because the search range in `pt_check.py` was +-1000; it is kept as `RESULT-PT-SCALING-RUN1-INSTRUMENT-FAULT.hbp`.
 
-Reading: the lowest excitation is a reflection flux that hops between neighbouring plaquettes; the series in electric/magnetic converges to the exact gap as r grows, and at r = 9 it is outside the range where two orders are enough.
+## Reading (the seat's, tagged)
 
-Run 1 of the scaling test refused at r = 900 because the eigenvalue search range in `pt_check.py` was +-1000; it is kept as `RESULT-PT-SCALING-RUN1-INSTRUMENT-FAULT.hbp`, and the range is now +-100000.
-
-## Scope
-
-Open-boundary grids. The 3x4 torus of the main result is a different system.
+- MEASURED: on every grid the gap is large on both sides and smallest near r* = (12 + lam)/3, about 14/3.
+- MEASURED: at that centre the ladder's smallest gap falls by shrinking steps (8.576, 8.427, 8.322, at most 8.247); the two-wide strip falls faster and lower (8.018, 7.144, at most 6.662).
+- CONJECTURE: a strip of fixed width is one-dimensional in its long direction, so each width keeps a positive smallest gap as it gets longer, and those limits fall as the width grows. Whether they fall to zero as the width grows is the open question; it is the finite-grid form of asking whether this S3 model has a phase transition between its two sides. The runs in progress add width 1 to length 10, width 2 to length 5, and one grid of width 3.
+- Open: a certified lower end for E1 beyond 8,051 states.

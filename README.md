@@ -4,6 +4,16 @@
 
 **Data on Hugging Face:** [Jessedbrown/ym-3x4-room-store](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store) holds the 3×4 store, the certificate vectors and an evidence archive, the files too large for git. Its card maps every folder, and the status of each result is read here.
 
+## Where we stand, November 15, 2026 (draft PR #198, branch `local-fable52-y137-moment-radau-20261114`)
+
+The rows below are what this branch adds. The [November 12 map](#where-we-stand-november-12-2026) below still holds for every track that is absent here. Every result is a statement about one finite lattice; every prediction file was pushed before its run, and missed predictions are listed in each folder's README.
+
+| Track | Where it stands on November 15 | Next |
+|---|---|---|
+| **3×4, the first Wilson spectral weight** ([issue #137](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/137)) | The gate is a combined normalised full-state error below 1/700. From the moments already on file, sharp three-moment brackets of the Schur complement are 7.2 times narrower than the brackets of #197 and lie inside them (`independent/y137-moment-radau-20261114`). With the energy windows and the centre form the combined error went 0.1441 → 0.0305 → 0.0199 → 0.0152 → **0.01415, which is 9.9 times the gate** (was 100.9 times) (`y137-radau-recentred-angle-20261114`, `y137-radau-fullstate-windows-20261115`, `y137-radau-centre-20261115`, `y137-radau-three-ways-20261115`). | Two levers, neither launched: moments at a new energy centre, and the μ3 pass on the #195 spools. |
+| **Outside check of the S3 rule** | The one-plaquette matrix of this repository's rule has the characteristic polynomial printed in a published D3 thesis (Bologna eprint 29471) at r = 9 and r = 12 (`independent/benchmark-one-plaquette-d3-20261115`). The two-plaquette matrix agrees after two printed entries are changed; brute force over 6^7 link states gives integer electric levels where the printed block gives 21 ± 3√2 (`independent/benchmark-two-plaquette-d3-20261115`). A question about those two entries was sent to the thesis supervisor on November 15. | Her reply. |
+| **Open grids: how the gap moves with size and coupling** | New integer Rust programs certify both lowest levels up to 8,051 states and give a certified upper end of the gap up to 10,097,891 states (`independent/open-grid-s3-ladder-20261115`). At r = 9 the gap falls slowly with size (ladder 16.77 → 14.96 at seven plaquettes; 3×2 14.56). The gap is smallest where the magnetic-side and electric-side formulas meet, near r = 14/3. There the ladder levels off (8.576, 8.427, 8.322, at most 8.247) and the two-wide strip falls faster (8.018, 7.144, at most 6.662). First-order perturbation theory in the electric term lies 1.20 to 1.30 above every certified gap at r = 9. | In progress on GitHub cells, this machine and a cloud container: 4×2, 5×2, 3×3, and the ladder to ten plaquettes. Twelve plaquettes are out of reach of these programs. |
+
 ## Where we stand, November 12, 2026
 
 The rows below are what moved on November 11 and 12. The [November 11 map](#where-we-stood-november-11-2026) below still holds for every track it lists and that is absent here. Every result is a statement about one finite lattice.
