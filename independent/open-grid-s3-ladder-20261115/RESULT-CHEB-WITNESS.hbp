@@ -1,0 +1,7 @@
+CHEBWITNESS|beside=RESULT-CHEB.hbp|witness=cloud_container_(routine_trig_01CcGXNi3TkY16SSUbmF33Xu,_session_cse_015mpUd96f8LZ6La5qes6o38,_2026-11-15T11:18Z_to_11:37Z)|machine=Intel_Xeon_2.10GHz,_4_cores,_16087_MB|rustc=1.81.0|commit=78bdcb2|clippy_exit=0|G1_source_sha256=PASS|G2_2x2_r9_gap_upper_14801619476=PASS|values_below=as_reported_by_that_run|tag=MEASURED_by_the_cloud_machine|json=0
+CHEBWITNESS_POINT|id=A|grid=4x2|r=14/3|gap_upper=19987247583|wall_seconds=17|exit=0|json=0
+CHEBWITNESS_POINT|id=B|grid=3x3|r=14/3|gap_upper=18535745615|wall_seconds=117|exit=0|json=0
+CHEBWITNESS_POINT|id=C|grid=3x3|r=15/3|gap_upper=19484891239|wall_seconds=118|exit=0|json=0
+CHEBWITNESS_POINT|id=D|grid=5x2|r=14/3|gap_upper=19139841970|wall_seconds=850|exit=0|json=0
+CHEBWITNESS_JUDGE|A_equals_this_machine_(19987247583)|B_C_D_equal_the_hosted_cells|5x2_at_14/3_now_read_the_same_on_three_machines_(this_machine,_a_GitHub_cell,_the_cloud_container)|nothing_was_written_to_GitHub_by_that_run|json=0
+CHEBLOCAL_R9|5x2_at_r=9_on_this_machine_(RUN-CHEB-5x2-r9over1.txt,_1035_s):_E0_bracket_9.0..78.6,_gap_upper_80.467:_valid_and_uninformative;_the_vectors_did_not_converge_in_15_rounds_at_this_coupling;_not_rerun|json=0
