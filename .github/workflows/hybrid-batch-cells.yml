@@ -51,7 +51,7 @@ jobs:
       - name: instrument gate, 4x4 at r = 9, cut 10
         run: |
           mkdir -p /tmp/gate && cd /tmp/gate
-          bash $GITHUB_WORKSPACE/independent/hybrid-batch-20261115/point.sh 4 4 9 10 4 /tmp/review/target/release/ritz $GITHUB_WORKSPACE/native/ym/target/release/hybridcheck $GITHUB_WORKSPACE/native/ym/results/3x4_stream/perron/vector/local_table.py | tee gate.txt
+          bash $GITHUB_WORKSPACE/independent/hybrid-batch-20261115/point.sh 4 4 9 10 3 /tmp/review/target/release/ritz $GITHUB_WORKSPACE/native/ym/target/release/hybridcheck $GITHUB_WORKSPACE/native/ym/results/3x4_stream/perron/vector/local_table.py | tee gate.txt
           python3 -I - <<'PY'
           row = [l for l in open('gate.txt') if l.startswith('POINT|')][-1]
           d = dict(kv.split('=', 1) for kv in row.strip().split('|')[1:] if '=' in kv)
@@ -63,7 +63,7 @@ jobs:
         run: |
           mkdir -p /tmp/run && cd /tmp/run
           nproc; free -m | head -2
-          /usr/bin/time -v bash $GITHUB_WORKSPACE/independent/hybrid-batch-20261115/point.sh ${{ matrix.args }} 4 /tmp/review/target/release/ritz $GITHUB_WORKSPACE/native/ym/target/release/hybridcheck $GITHUB_WORKSPACE/native/ym/results/3x4_stream/perron/vector/local_table.py 2> time.txt | tee rows.hbp
+          /usr/bin/time -v bash $GITHUB_WORKSPACE/independent/hybrid-batch-20261115/point.sh ${{ matrix.args }} 3 /tmp/review/target/release/ritz $GITHUB_WORKSPACE/native/ym/target/release/hybridcheck $GITHUB_WORKSPACE/native/ym/results/3x4_stream/perron/vector/local_table.py 2> time.txt | tee rows.hbp
           grep -E "Elapsed|Maximum resident" time.txt | tee -a rows.hbp
           grep -q "^POINT|" rows.hbp
       - uses: actions/upload-artifact@v4
