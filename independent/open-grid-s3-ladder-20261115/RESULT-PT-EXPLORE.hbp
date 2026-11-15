@@ -1,0 +1,6 @@
+PT_EXPLORE|a=1|b=1|single_flux_orbits=2|units=1e-9|exact_gap_lo=16765064976|reflection_and_rotation_flux_gap=14384737339|minus_exact=-2380327637|json=0
+PT_EXPLORE|a=2|b=1|single_flux_orbits=4|units=1e-9|exact_gap_lo=15701568536|reflection_and_rotation_flux_gap=16195138915|minus_exact=493570379|json=0
+PT_EXPLORE|a=3|b=1|single_flux_orbits=6|units=1e-9|exact_gap_lo=15327304196|reflection_and_rotation_flux_gap=17184830326|minus_exact=1857526130|json=0
+PT_EXPLORE|a=4|b=1|single_flux_orbits=8|units=1e-9|exact_gap_lo=15151157432|reflection_and_rotation_flux_gap=18034893870|minus_exact=2883736438|json=0
+PT_EXPLORE|a=5|b=1|single_flux_orbits=10|units=1e-9|exact_gap_lo=15052327893|reflection_and_rotation_flux_gap=18831442709|minus_exact=3779114816|json=0
+PT_EXPLORE|a=2|b=2|single_flux_orbits=8|units=1e-9|exact_gap_lo=14801616035|reflection_and_rotation_flux_gap=17836500736|minus_exact=3034884701|json=0

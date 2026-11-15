@@ -1,0 +1,7 @@
+PT_GRID|a=1|b=1|plaquettes=1|links=4|units=1e-9|exact_gap_lo=16765064976|exact_gap_hi=16765068976|first_order_gap=17999999997|second_order_gap=12666666664|first_order_minus_exact=1234935021|second_order_minus_exact=-4098398312|json=0
+PT_GRID|a=2|b=1|plaquettes=2|links=7|units=1e-9|exact_gap_lo=15701568536|exact_gap_hi=15701572536|first_order_gap=16999999997|second_order_gap=14009259257|first_order_minus_exact=1298431461|second_order_minus_exact=-1692309279|json=0
+PT_GRID|a=3|b=1|plaquettes=3|links=10|units=1e-9|exact_gap_lo=15327304196|exact_gap_hi=15327308196|first_order_gap=16585786435|second_order_gap=14182378584|first_order_minus_exact=1258482239|second_order_minus_exact=-1144925612|json=0
+PT_GRID|a=4|b=1|plaquettes=4|links=13|units=1e-9|exact_gap_lo=15151157432|exact_gap_hi=15151197432|first_order_gap=16381966010|second_order_gap=14265304422|first_order_minus_exact=1230808578|second_order_minus_exact=-885853010|json=0
+PT_GRID|a=5|b=1|plaquettes=5|links=16|units=1e-9|exact_gap_lo=15052327893|exact_gap_hi=15052367893|first_order_gap=16267949190|second_order_gap=14311755940|first_order_minus_exact=1215621297|second_order_minus_exact=-740571953|json=0
+PT_GRID|a=2|b=2|plaquettes=4|links=12|units=1e-9|exact_gap_lo=14801616035|exact_gap_hi=14801620035|first_order_gap=15999999998|second_order_gap=14629629627|first_order_minus_exact=1198383963|second_order_minus_exact=-171986408|json=0
+PT_VERDICT|N1=0|N2=1|worst_first_order_distance=1298431469|worst_second_order_distance=4098402312|units=1e-9|json=0
