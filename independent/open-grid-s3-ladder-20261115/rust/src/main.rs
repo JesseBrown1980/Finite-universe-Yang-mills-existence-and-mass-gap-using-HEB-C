@@ -5,7 +5,7 @@
 //! certified by counts from an approximate fixed-point factorisation of W*(H - x) whose residual is bounded
 //! rigorously with outward-rounded integer intervals. Integers only; no floating point.
 //!
-//! usage: open_grid A B RNUM [THREADS] [RDEN]
+//! usage: open_grid A B RNUM [THREADS] [RDEN] [sparse [SWEEPS]]
 //! With RDEN given the matrix is RDEN*(electric) + RNUM*(magnetic), that is RDEN times the model at
 //! r = RNUM/RDEN; the reported levels are those of the scaled matrix.
 
@@ -405,11 +405,11 @@ fn rescale(v: &mut [i128]) {
     }
 }
 
-/// Rayleigh estimates of the two lowest levels, in units of 1e-9. An estimate, certified afterwards.
-fn estimate(m: &Model, ceiling: i128, sweeps: usize) -> (i128, i128) {
+/// Three vectors after shifted subspace iteration in fixed point (the first converges to the ground vector).
+fn iterate(m: &Model, ceiling: i128, sweeps: usize) -> Vec<Vec<i128>> {
     let n = m.w.len();
     let mut vs: Vec<Vec<i128>> = (0..3usize)
-        .map(|s| (0..n).map(|i| (((i * 7919 + s * 104_729 + 1) % 1009) as i128 - 504 * (s as i128).min(1)) << (EP - 10)).collect())
+        .map(|s| (0..n).map(|i| (((i * 7919 + s * 104_729 + 1) % 1009) as i128 + 1 - 504 * (s as i128).min(1)) << (EP - 10)).collect())
         .collect();
     for _ in 0..sweeps {
         for s in 0..3 {
@@ -427,11 +427,120 @@ fn estimate(m: &Model, ceiling: i128, sweeps: usize) -> (i128, i128) {
             vs[s] = next;
         }
     }
+    vs
+}
+
+/// Rayleigh estimates of the two lowest levels, in units of 1e-9. An estimate, certified afterwards.
+fn estimate(m: &Model, ceiling: i128, sweeps: usize) -> (i128, i128) {
+    let vs = iterate(m, ceiling, sweeps);
     let ray = |v: &[i128]| -> i128 {
         let hv = apply(m, v);
         (dot(m, v, &hv) * UNITS) / dot(m, v, v).max(1)
     };
     (ray(&vs[0]), ray(&vs[1]))
+}
+
+// ---------------------------------------------------------------- sparse mode (no dense matrix)
+//
+// What is certified here, with O(nonzeros) work and exact integers:
+//   E0: the off-diagonal entries of H are <= 0, so for any positive vector v (Collatz-Wielandt)
+//         min_i (Hv)_i / v_i  <=  E0  <=  max_i (Hv)_i / v_i.
+//   E1 from above: by min-max, E1 <= the larger Ritz value of any two-dimensional subspace; the Ritz
+//         problem is solved exactly for two integer vectors (256-bit products).
+// A certified lower end for E1 needs a full count of levels and is not produced in this mode.
+
+/// Sign of a*b - c*d for i128 inputs, by 256-bit products.
+fn cmp_products(a: i128, b: i128, c: i128, d: i128) -> std::cmp::Ordering {
+    fn wide(x: u128, y: u128) -> (u128, u128) {
+        let (x1, x0) = (x >> 64, x & u128::from(u64::MAX));
+        let (y1, y0) = (y >> 64, y & u128::from(u64::MAX));
+        let (p00, p01, p10, p11) = (x0 * y0, x0 * y1, x1 * y0, x1 * y1);
+        let mid = (p00 >> 64) + (p01 & u128::from(u64::MAX)) + (p10 & u128::from(u64::MAX));
+        let lo = (p00 & u128::from(u64::MAX)) | (mid << 64);
+        let hi = p11 + (p01 >> 64) + (p10 >> 64) + (mid >> 64);
+        (hi, lo)
+    }
+    let signed = |x: i128, y: i128| -> (bool, (u128, u128)) {
+        ((x < 0) != (y < 0) && x != 0 && y != 0, wide(x.unsigned_abs(), y.unsigned_abs()))
+    };
+    let (n1, m1) = signed(a, b);
+    let (n2, m2) = signed(c, d);
+    match (n1, n2) {
+        (false, false) => m1.cmp(&m2),
+        (true, true) => m2.cmp(&m1),
+        (false, true) => {
+            if m1 == (0, 0) && m2 == (0, 0) {
+                std::cmp::Ordering::Equal
+            } else {
+                std::cmp::Ordering::Greater
+            }
+        }
+        (true, false) => {
+            if m1 == (0, 0) && m2 == (0, 0) {
+                std::cmp::Ordering::Equal
+            } else {
+                std::cmp::Ordering::Less
+            }
+        }
+    }
+}
+
+struct SparseOut {
+    e0_lo: i128,
+    e0_hi: i128,
+    e1_estimate: i128,
+    e1_upper: i128,
+}
+
+fn sparse_levels(m: &Model, ceiling: i128, sweeps: usize) -> Result<SparseOut, &'static str> {
+    let n = m.w.len();
+    let vs = iterate(m, ceiling, sweeps);
+    let v0 = &vs[0];
+    if v0.iter().any(|&x| x <= 0) {
+        return Err("ground_vector_not_positive");
+    }
+    let hv = apply(m, v0);
+    let mut e0_lo = i128::MAX;
+    let mut e0_hi = i128::MIN;
+    for (h, v) in hv.iter().zip(v0) {
+        let num = h.checked_mul(UNITS).ok_or("ratio_overflow")?;
+        e0_lo = e0_lo.min(num.div_euclid(*v));
+        e0_hi = e0_hi.max(-((-num).div_euclid(*v)));
+    }
+    let e1_estimate = (dot(m, &vs[1], &apply(m, &vs[1])) * UNITS) / dot(m, &vs[1], &vs[1]).max(1);
+    // exact Ritz problem on two reduced integer vectors
+    let max_diag = m.rows.iter().enumerate().map(|(i, r)| r.iter().find(|e| e.0 == i).map_or(0, |e| e.1.abs())).max().unwrap_or(1);
+    let head = 128 - (n as u128 * 6 * max_diag.max(1) as u128).leading_zeros(); // bits of n*W*H
+    let bits = ((92u32.saturating_sub(head)) / 2).min(EP); // entries a_kl below 2^92 so that a*UNITS fits
+    let reduce = |v: &Vec<i128>| -> Vec<i128> { v.iter().map(|x| x >> (EP - bits)).collect() };
+    let u = [reduce(&vs[0]), reduce(&vs[1])];
+    let hu = [apply(m, &u[0]), apply(m, &u[1])];
+    let form = |x: &Vec<i128>, y: &Vec<i128>| -> i128 { x.iter().zip(y).zip(&m.w).map(|((p, q), w)| p * q * i128::from(*w)).sum() };
+    let a = [[form(&u[0], &hu[0]), form(&u[0], &hu[1])], [form(&u[1], &hu[0]), form(&u[1], &hu[1])]];
+    let b = [[form(&u[0], &u[0]), form(&u[0], &u[1])], [form(&u[1], &u[0]), form(&u[1], &u[1])]];
+    if a[0][1] != a[1][0] {
+        return Err("ritz_form_not_symmetric");
+    }
+    // larger Ritz value < t/UNITS  <=>  A*UNITS - t*B is negative definite
+    let below = |t: i128| -> bool {
+        let m11 = a[0][0] * UNITS - t * b[0][0];
+        let m22 = a[1][1] * UNITS - t * b[1][1];
+        let m12 = a[0][1] * UNITS - t * b[0][1];
+        m11 < 0 && m22 < 0 && cmp_products(m11, m22, m12, m12) == std::cmp::Ordering::Greater
+    };
+    let (mut lo, mut hi) = (e0_lo, ceiling * UNITS);
+    if !below(hi) {
+        return Err("ritz_upper_range");
+    }
+    while hi - lo > 1 {
+        let mid = lo + (hi - lo) / 2;
+        if below(mid) {
+            hi = mid;
+        } else {
+            lo = mid;
+        }
+    }
+    Ok(SparseOut { e0_lo, e0_hi, e1_estimate, e1_upper: hi })
 }
 
 fn main() {
@@ -462,6 +571,20 @@ fn main() {
         std::process::exit(1);
     }
     let ceiling = 6 * grid.links.len() as i128 * i128::from(rden) + 3 * i128::from(r) * p as i128 + 1;
+    if args.get(6).is_some_and(|x| x == "sparse") {
+        let sweeps = args.get(7).map_or(600, |x| x.parse::<usize>().unwrap_or(600));
+        match sparse_levels(&model, ceiling, sweeps) {
+            Ok(o) => println!(
+                "SPARSE_LEVELS|a={a}|b={b}|r={r}|rden={rden}|scaled_by_rden=1|gauge_orbits={n}|units=1e-9|sweeps={sweeps}|E0_lo={}|E0_hi={}|E0_method=Collatz_Wielandt_exact|E1_estimate={}|E1_upper={}|E1_upper_method=exact_two_vector_Ritz|E1_lower=NOT_CERTIFIED|gap_estimate={}|gap_upper={}|json=0",
+                o.e0_lo, o.e0_hi, o.e1_estimate, o.e1_upper, o.e1_estimate - (o.e0_lo + o.e0_hi) / 2, o.e1_upper - o.e0_lo
+            ),
+            Err(why) => {
+                println!("SPARSE_REFUSE|reason={why}|json=0");
+                std::process::exit(1);
+            }
+        }
+        return;
+    }
     let (e0, e1) = estimate(&model, ceiling, 1500);
     println!("GRID_ESTIMATE|E0_estimate={e0}|E1_estimate={e1}|units=1e-9|status=ESTIMATE_ONLY|json=0");
     let top = ceiling * UNITS;
