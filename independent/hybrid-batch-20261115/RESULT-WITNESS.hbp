@@ -1,0 +1,6 @@
+HYBWITNESSHDR|date=2026-11-15|witness=a_cloud_routine_(trig_01LrT7NPXgUnnef2wpguxQxB,_session_cse_015mpUdCwWajSmf4xv7UicYq)_on_a_separate_machine:_Intel_Xeon_2.10GHz,_4_cores,_16087_MB,_rustc_1.81.0,_commit_0c54ba4|programs=point.sh_(sha256_e1cdf9f0...)_and_the_widened_copies_from_widen.py_(sha256_63596204...),_both_hashes_checked_by_the_routine|the_routine_committed_and_pushed_nothing;_its_rows_are_copied_here_from_its_final_report|json=0
+HYBWITNESS|torus=4x4|r=9|cut=10|cert_micro=116216456|verdict=PASS|wall_seconds=17|hosted_or_local_value=116216456|same=1|json=0
+HYBWITNESS|torus=4x4|r=7|cut=14|cert_micro=109100643|verdict=PASS|wall_seconds=484|hosted_value=109100643|same=1|json=0
+HYBWITNESS|torus=5x5|r=9|cut=13|cert_micro=169561668|verdict=PASS|wall_seconds=2039|hosted_value=169561668|same=1|json=0
+HYBWITNESS|torus=6x6|r=9|cut=11|cert_micro=80000000|verdict=PASS|wall_seconds=6348|hosted_value=80000000|same=1|json=0
+HYBWITNESSSUM|four_of_four_points_give_the_same_certificate_to_the_last_digit_on_the_second_machine|json=0

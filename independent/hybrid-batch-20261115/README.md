@@ -46,3 +46,9 @@ at cut 11 on 6x6): a valid lower bound that sits below E8. Those sizes are certi
 
 Predictions K5 and K8 to K11 are judged in `RESULT-WIDE.hbp`: K8 met for 4x7, missed for 4x8 by 0.81; K11 met;
 K5, K9 and K10 missed on the sizes above.
+
+## Second witness
+
+A cloud routine on a separate machine repeated four points with the same programs (hashes checked) and returned the
+same certificate to the last digit on each: 4x4 at r=9 (116.216456), 4x4 at r=7 (109.100643), 5x5 at r=9 with cut 13
+(169.561668) and 6x6 at r=9 with cut 11 (80.000000). Rows: [`RESULT-WITNESS.hbp`](RESULT-WITNESS.hbp).
