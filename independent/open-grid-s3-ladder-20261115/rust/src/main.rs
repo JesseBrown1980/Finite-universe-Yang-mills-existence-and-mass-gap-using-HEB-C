@@ -5,7 +5,7 @@
 //! certified by counts from an approximate fixed-point factorisation of W*(H - x) whose residual is bounded
 //! rigorously with outward-rounded integer intervals. Integers only; no floating point.
 //!
-//! usage: open_grid A B RNUM [THREADS] [RDEN] [sparse [SWEEPS]]
+//! usage: open_grid A B RNUM [THREADS] [RDEN] [sparse [SWEEPS] | cheb [ROUNDS [DEGREE]]]
 //! With RDEN given the matrix is RDEN*(electric) + RNUM*(magnetic), that is RDEN times the model at
 //! r = RNUM/RDEN; the reported levels are those of the scaled matrix.
 
@@ -493,13 +493,25 @@ struct SparseOut {
 }
 
 fn sparse_levels(m: &Model, ceiling: i128, sweeps: usize) -> Result<SparseOut, &'static str> {
-    let n = m.w.len();
     let vs = iterate(m, ceiling, sweeps);
-    let v0 = &vs[0];
+    let max_diag = m.rows.iter().enumerate().map(|(i, r)| r.iter().find(|e| e.0 == i).map_or(0, |e| e.1.abs())).max().unwrap_or(1);
+    certify_pair(&|v: &[i128]| apply(m, v), &m.w, max_diag, ceiling, &vs[0], &vs[1])
+}
+
+/// The two certificates for a pair of vectors: E0 two-sided from v0 > 0, E1 from above from span(v0, v1).
+fn certify_pair<F: Fn(&[i128]) -> Vec<i128>>(
+    apply: &F,
+    w: &[i64],
+    max_diag: i64,
+    ceiling: i128,
+    v0: &[i128],
+    v1: &[i128],
+) -> Result<SparseOut, &'static str> {
+    let n = w.len();
     if v0.iter().any(|&x| x <= 0) {
         return Err("ground_vector_not_positive");
     }
-    let hv = apply(m, v0);
+    let hv = apply(v0);
     let mut e0_lo = i128::MAX;
     let mut e0_hi = i128::MIN;
     for (h, v) in hv.iter().zip(v0) {
@@ -507,15 +519,14 @@ fn sparse_levels(m: &Model, ceiling: i128, sweeps: usize) -> Result<SparseOut, &
         e0_lo = e0_lo.min(num.div_euclid(*v));
         e0_hi = e0_hi.max(-((-num).div_euclid(*v)));
     }
-    let e1_estimate = (dot(m, &vs[1], &apply(m, &vs[1])) * UNITS) / dot(m, &vs[1], &vs[1]).max(1);
+    let e1_estimate = (dot_w(w, v1, &apply(v1)) * UNITS) / dot_w(w, v1, v1).max(1);
     // exact Ritz problem on two reduced integer vectors
-    let max_diag = m.rows.iter().enumerate().map(|(i, r)| r.iter().find(|e| e.0 == i).map_or(0, |e| e.1.abs())).max().unwrap_or(1);
     let head = 128 - (n as u128 * 6 * max_diag.max(1) as u128).leading_zeros(); // bits of n*W*H
     let bits = ((92u32.saturating_sub(head)) / 2).min(EP); // entries a_kl below 2^92 so that a*UNITS fits
-    let reduce = |v: &Vec<i128>| -> Vec<i128> { v.iter().map(|x| x >> (EP - bits)).collect() };
-    let u = [reduce(&vs[0]), reduce(&vs[1])];
-    let hu = [apply(m, &u[0]), apply(m, &u[1])];
-    let form = |x: &Vec<i128>, y: &Vec<i128>| -> i128 { x.iter().zip(y).zip(&m.w).map(|((p, q), w)| p * q * i128::from(*w)).sum() };
+    let reduce = |v: &[i128]| -> Vec<i128> { v.iter().map(|x| x >> (EP - bits)).collect() };
+    let u = [reduce(v0), reduce(v1)];
+    let hu = [apply(&u[0]), apply(&u[1])];
+    let form = |x: &Vec<i128>, y: &Vec<i128>| -> i128 { x.iter().zip(y).zip(w).map(|((p, q), w)| p * q * i128::from(*w)).sum() };
     let a = [[form(&u[0], &hu[0]), form(&u[0], &hu[1])], [form(&u[1], &hu[0]), form(&u[1], &hu[1])]];
     let b = [[form(&u[0], &u[0]), form(&u[0], &u[1])], [form(&u[1], &u[0]), form(&u[1], &u[1])]];
     if a[0][1] != a[1][0] {
@@ -543,6 +554,256 @@ fn sparse_levels(m: &Model, ceiling: i128, sweeps: usize) -> Result<SparseOut, &
     Ok(SparseOut { e0_lo, e0_hi, e1_estimate, e1_upper: hi })
 }
 
+// ---------------------------------------------------------------- large grids: compact matrix, Chebyshev filter
+//
+// Every row of H has its diagonal and exactly 3*links moves of weight -e (repeats allowed), so the matrix is
+// held as one u32 column per move. The vectors come from Chebyshev-filtered subspace iteration; whatever the
+// vectors are, the two certificates of the sparse mode (Collatz-Wielandt for E0, exact Ritz for E1 from
+// above) hold for them, so the filter changes the tightness of the result and never its validity.
+
+struct Big {
+    w: Vec<i64>,
+    diag: Vec<i64>,
+    cols: Vec<u32>,
+    stride: usize,
+    e: i64,
+}
+
+fn canonical_fast(grid: &Grid, g: &Group, conj: &[[u8; 6]; 6], u: &[usize], h: &mut [usize]) -> u64 {
+    h[0] = 0;
+    for &(a, b, k, fwd) in &grid.tree {
+        h[b] = if fwd { g.mul[h[a]][u[k]] } else { g.mul[h[a]][g.inv[u[k]]] };
+    }
+    let mut images = [0u64; 6];
+    for &k in &grid.kept {
+        let x = g.mul[g.mul[h[grid.links[k].0]][u[k]]][g.inv[h[grid.links[k].1]]];
+        for (c, im) in images.iter_mut().enumerate() {
+            *im = *im * 6 + u64::from(conj[c][x]);
+        }
+    }
+    images.iter().copied().min().unwrap_or(0)
+}
+
+fn build_big(grid: &Grid, g: &Group, r: i64, e: i64, threads: usize) -> Option<Big> {
+    let p = grid.kept.len();
+    let nl = grid.links.len();
+    if p > 12 {
+        return None;
+    }
+    let raw = 6u64.pow(p as u32);
+    if raw >= u64::from(u32::MAX) {
+        return None;
+    }
+    let mut conj = [[0u8; 6]; 6];
+    for (c, row) in conj.iter_mut().enumerate() {
+        for (x, slot) in row.iter_mut().enumerate() {
+            *slot = g.conj(c, x) as u8;
+        }
+    }
+    let mut rank = vec![u32::MAX; raw as usize];
+    let mut reps: Vec<u32> = Vec::new();
+    let mut w: Vec<i64> = Vec::new();
+    for code in 0..raw {
+        let mut digits = [0usize; 12];
+        let mut c = code;
+        for slot in (0..p).rev() {
+            digits[slot] = (c % 6) as usize;
+            c /= 6;
+        }
+        let mut images = [0u64; 6];
+        for &d in &digits[..p] {
+            for (c, im) in images.iter_mut().enumerate() {
+                *im = *im * 6 + u64::from(conj[c][d]);
+            }
+        }
+        images.sort_unstable();
+        if images[0] == code {
+            let size = 1 + images.windows(2).filter(|x| x[0] != x[1]).count();
+            rank[code as usize] = reps.len() as u32;
+            reps.push(code as u32);
+            w.push(size as i64);
+        }
+    }
+    let n = reps.len();
+    let stride = 3 * nl;
+    let mut cols = vec![0u32; n * stride];
+    let mut diag = vec![0i64; n];
+    let chunk = n.div_ceil(threads.max(1)).max(1);
+    let (rank, conj) = (&rank, &conj);
+    let ok = thread::scope(|s| {
+        let handles: Vec<_> = cols
+            .chunks_mut(chunk * stride)
+            .zip(diag.chunks_mut(chunk))
+            .zip(reps.chunks(chunk))
+            .map(|((cols, diag), reps)| {
+                s.spawn(move || {
+                    let mut u = vec![0usize; nl];
+                    let mut h = vec![0usize; grid.nv];
+                    for (i, &code) in reps.iter().enumerate() {
+                        let mut c = u64::from(code);
+                        for &k in grid.kept.iter().rev() {
+                            u[k] = (c % 6) as usize;
+                            c /= 6;
+                        }
+                        diag[i] = e * 3 * nl as i64 + r * grid.magnetic(g, &u);
+                        let mut at = i * stride;
+                        for k in 0..nl {
+                            let old = u[k];
+                            for &t in &g.trans {
+                                u[k] = g.mul[t][old];
+                                let j = rank[canonical_fast(grid, g, conj, &u, &mut h) as usize];
+                                if j == u32::MAX {
+                                    return false;
+                                }
+                                cols[at] = j;
+                                at += 1;
+                            }
+                            u[k] = old;
+                        }
+                    }
+                    true
+                })
+            })
+            .collect();
+        handles.into_iter().all(|h| h.join().unwrap_or(false))
+    });
+    if !ok {
+        return None;
+    }
+    Some(Big { w, diag, cols, stride, e })
+}
+
+fn apply_big(b: &Big, v: &[i128], threads: usize) -> Vec<i128> {
+    let n = b.w.len();
+    let mut out = vec![0i128; n];
+    let chunk = n.div_ceil(threads.max(1)).max(1);
+    thread::scope(|s| {
+        for (ci, part) in out.chunks_mut(chunk).enumerate() {
+            s.spawn(move || {
+                for (ri, slot) in part.iter_mut().enumerate() {
+                    let i = ci * chunk + ri;
+                    let sum: i128 = b.cols[i * b.stride..(i + 1) * b.stride].iter().map(|&j| v[j as usize]).sum();
+                    *slot = i128::from(b.diag[i]) * v[i] - i128::from(b.e) * sum;
+                }
+            });
+        }
+    });
+    out
+}
+
+fn dot_w(w: &[i64], a: &[i128], b: &[i128]) -> i128 {
+    a.iter().zip(b).zip(w).map(|((x, y), w)| ((x * y) >> EP) * i128::from(*w)).sum()
+}
+
+/// Scale two vectors by the same factor so that the first has its largest entry at 2^EP.
+fn rescale_pair(lead: &mut [i128], other: &mut [i128]) {
+    let top = lead.iter().map(|x| x.abs()).max().unwrap_or(1).max(1);
+    for x in lead.iter_mut() {
+        *x = (*x << EP) / top;
+    }
+    for x in other.iter_mut() {
+        *x = (*x << EP) / top;
+    }
+}
+
+/// Three vectors after Chebyshev-filtered subspace iteration. The filter interval is [a, b] with b an upper
+/// bound of the spectrum and a the Rayleigh value of the third vector, renewed every round.
+fn cheb_vectors<F: Fn(&[i128]) -> Vec<i128>>(apply: &F, w: &[i64], ceiling: i128, rounds: usize, degree: usize) -> Vec<Vec<i128>> {
+    const Q: i128 = 1024;
+    let n = w.len();
+    let mut vs: Vec<Vec<i128>> = (0..3usize)
+        .map(|s| (0..n).map(|i| (((i * 7919 + s * 104_729 + 1) % 1009) as i128 + 1 - 504 * (s as i128).min(1)) << (EP - 10)).collect())
+        .collect();
+    let b_q = ceiling * Q;
+    for _ in 0..rounds {
+        let hv = apply(&vs[2]);
+        let ray_q = (dot_w(w, &vs[2], &hv) * Q) / dot_w(w, &vs[2], &vs[2]).max(1);
+        let a_q = (ray_q + 1).min(b_q - Q);
+        let (sum, diff) = (a_q + b_q, b_q - a_q);
+        for s in 0..3 {
+            let mut prev = vs[s].clone();
+            let hv = apply(&prev);
+            let mut cur: Vec<i128> = prev.iter().zip(&hv).map(|(y, h)| (2 * Q * h - sum * y) / diff).collect();
+            rescale_pair(&mut cur, &mut prev);
+            for _ in 1..degree {
+                let hv = apply(&cur);
+                let mut next: Vec<i128> =
+                    cur.iter().zip(&hv).zip(&prev).map(|((y, h), p)| (2 * (2 * Q * h - sum * y)) / diff - p).collect();
+                rescale_pair(&mut next, &mut cur);
+                prev = cur;
+                cur = next;
+            }
+            for lower in vs.iter().take(s) {
+                let c_num = dot_w(w, &cur, lower);
+                let c_den = dot_w(w, lower, lower).max(1);
+                for (x, y) in cur.iter_mut().zip(lower) {
+                    *x -= (c_num * y) / c_den;
+                }
+            }
+            rescale(&mut cur);
+            vs[s] = cur;
+        }
+    }
+    // two plain positive sweeps on the ground vector (ceiling - H has entries >= 0)
+    for _ in 0..2 {
+        let hv = apply(&vs[0]);
+        let mut next: Vec<i128> = vs[0].iter().zip(&hv).map(|(x, h)| ceiling * x - h).collect();
+        rescale(&mut next);
+        vs[0] = next;
+    }
+    if vs[0].iter().all(|&x| x <= 0) {
+        for x in vs[0].iter_mut() {
+            *x = -*x;
+        }
+    }
+    vs
+}
+
+#[allow(clippy::too_many_arguments)]
+fn run_big(a: usize, b: usize, r: i64, rden: i64, threads: usize, rounds: usize, degree: usize, grid: &Grid, g: &Group) -> bool {
+    let p = a * b;
+    let Some(big) = build_big(grid, g, r, rden, threads) else {
+        println!("SPARSE_REFUSE|reason=compact_build_failed_or_grid_too_large|json=0");
+        return false;
+    };
+    let n = big.w.len();
+    let formula = (6u64.pow(p as u32) + 2 * 3u64.pow(p as u32) + 3 * 2u64.pow(p as u32)) / 6;
+    let size_sum: i64 = big.w.iter().sum();
+    let applyf = |v: &[i128]| apply_big(&big, v, threads);
+    // W-symmetry probe with two exact integer vectors: <x, H y>_W = <H x, y>_W
+    let x: Vec<i128> = (0..n).map(|i| ((i * 7919 + 1) % 1009) as i128 + 1).collect();
+    let y: Vec<i128> = (0..n).map(|i| ((i * 104_729 + 5) % 997) as i128 + 1).collect();
+    let (hx, hy) = (applyf(&x), applyf(&y));
+    let left: i128 = x.iter().zip(&hy).zip(&big.w).map(|((p, q), w)| p * q * i128::from(*w)).sum();
+    let right: i128 = hx.iter().zip(&y).zip(&big.w).map(|((p, q), w)| p * q * i128::from(*w)).sum();
+    let checks = n as u64 == formula && size_sum as u64 == 6u64.pow(p as u32) && left == right;
+    println!(
+        "GRID_SPACE|a={a}|b={b}|plaquettes={p}|links={}|raw_link_states=6^{}|gauge_orbits={n}|r={r}|rden={rden}|matrix=compact_one_column_per_move|orbit_formula_and_weighted_symmetry_probe={}|json=0",
+        grid.links.len(),
+        grid.links.len(),
+        i32::from(checks)
+    );
+    if !checks {
+        return false;
+    }
+    let ceiling = 6 * grid.links.len() as i128 * i128::from(rden) + 3 * i128::from(r) * p as i128 + 1;
+    let vs = cheb_vectors(&applyf, &big.w, ceiling, rounds, degree);
+    let max_diag = big.diag.iter().map(|d| d.abs()).max().unwrap_or(1);
+    match certify_pair(&applyf, &big.w, max_diag, ceiling, &vs[0], &vs[1]) {
+        Ok(o) => {
+            println!(
+                "SPARSE_LEVELS|a={a}|b={b}|r={r}|rden={rden}|scaled_by_rden=1|gauge_orbits={n}|units=1e-9|vectors=chebyshev_filtered_subspace|rounds={rounds}|degree={degree}|E0_lo={}|E0_hi={}|E0_method=Collatz_Wielandt_exact|E1_estimate={}|E1_upper={}|E1_upper_method=exact_two_vector_Ritz|E1_lower=NOT_CERTIFIED|gap_estimate={}|gap_upper={}|json=0",
+                o.e0_lo, o.e0_hi, o.e1_estimate, o.e1_upper, o.e1_estimate - (o.e0_lo + o.e0_hi) / 2, o.e1_upper - o.e0_lo
+            );
+            true
+        }
+        Err(why) => {
+            println!("SPARSE_REFUSE|reason={why}|json=0");
+            false
+        }
+    }
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
@@ -556,6 +817,14 @@ fn main() {
     let grid = Grid::new(a, b);
     let p = a * b;
     let rden = args.get(5).map_or(1, |s| s.parse::<i64>().unwrap_or(1)).max(1);
+    if args.get(6).is_some_and(|x| x == "cheb") {
+        let rounds = args.get(7).map_or(15, |x| x.parse::<usize>().unwrap_or(15));
+        let degree = args.get(8).map_or(20, |x| x.parse::<usize>().unwrap_or(20)).max(2) / 2 * 2;
+        if !run_big(a, b, r, rden, threads, rounds, degree, &grid, &g) {
+            std::process::exit(1);
+        }
+        return;
+    }
     let model = build(&grid, &g, r, rden);
     let n = model.w.len();
     let formula = (6u64.pow(p as u32) + 2 * 3u64.pow(p as u32) + 3 * 2u64.pow(p as u32)) / 6;
