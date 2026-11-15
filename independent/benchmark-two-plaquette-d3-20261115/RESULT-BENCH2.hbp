@@ -1,0 +1,7 @@
+BENCH2_ORBITS|count=11|sizes=7776,15552,15552,15552,15552,23328,23328,23328,46656,46656,46656|json=0
+BENCH2_ELECTRIC|brute_force_charpoly_equals_thesis_H1E=0|json=0
+BENCH2_THESIS_HB|reading=AS_PRINTED|printed_matrix_symmetric=0|magnetic_spectrum_equals_text=0|full_charpoly_equal_r9=0|full_charpoly_equal_r12=0|json=0
+BENCH2_THESIS_HB|reading=SYMMETRISED_(8,5)=2|printed_matrix_symmetric=0|magnetic_spectrum_equals_text=1|full_charpoly_equal_r9=0|full_charpoly_equal_r12=0|json=0
+BENCH2_LIMITS|brute_force_magnetic_levels_thesis_units=-8,-4,-4,-2,-2,0,0,2,2,4,4|thesis_text=-8,-4,-4,-2,-2,0,0,2,2,4,4|match=1|json=0
+BENCH2_VERDICT|two_plaquette_rule_matches_published_D3=0|matching_reading=NONE|scope=two_open_plaquettes_only|json=0
+BENCH2_REFUSE|reason=two_plaquette_mismatch|json=0

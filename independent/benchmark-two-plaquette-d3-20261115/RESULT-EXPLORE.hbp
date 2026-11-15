@@ -1,0 +1,6 @@
+BENCH2_EXPLORE|electric_block_diagonal=18,24,21|offdiagonal_electric_entries=0|HB_entry_8_5=2|full_charpoly_equal_r9=1|full_charpoly_equal_r12=1|json=0
+BENCH2_EXPLORE|electric_block_diagonal=18,21,24|offdiagonal_electric_entries=0|HB_entry_8_5=2|full_charpoly_equal_r9=0|full_charpoly_equal_r12=0|json=0
+BENCH2_EXPLORE|electric_block_diagonal=24,18,21|offdiagonal_electric_entries=0|HB_entry_8_5=2|full_charpoly_equal_r9=1|full_charpoly_equal_r12=1|json=0
+BENCH2_EXPLORE|electric_block_diagonal=24,21,18|offdiagonal_electric_entries=0|HB_entry_8_5=2|full_charpoly_equal_r9=0|full_charpoly_equal_r12=0|json=0
+BENCH2_EXPLORE|electric_block_diagonal=21,18,24|offdiagonal_electric_entries=0|HB_entry_8_5=2|full_charpoly_equal_r9=0|full_charpoly_equal_r12=0|json=0
+BENCH2_EXPLORE|electric_block_diagonal=21,24,18|offdiagonal_electric_entries=0|HB_entry_8_5=2|full_charpoly_equal_r9=0|full_charpoly_equal_r12=0|json=0
