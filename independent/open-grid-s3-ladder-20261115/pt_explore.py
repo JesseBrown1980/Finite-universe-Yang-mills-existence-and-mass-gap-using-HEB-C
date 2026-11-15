@@ -7,6 +7,7 @@ or a rotation), the full matrix is restricted to it, and the ground level is tak
 Integers only."""
 import os
 import sys
+from itertools import product
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -22,7 +23,7 @@ for a, b in pt.GRIDS:
     Hm, _ = g.matrix(1, electric=0)
     M = [Hm[i].get(i, 0) for i in range(n)]
     keys = sorted({min(tuple(og.CONJ[c][x] for x in key) for c in range(6))
-                   for key in __import__("itertools").product(range(6), repeat=a * b)})
+                   for key in product(range(6), repeat=a * b)})
     single = [i for i, k in enumerate(keys) if sum(1 for x in k if x != 0) == 1]
     og.need(len(single) == 2 * a * b and len(keys) == n, "single_flux_orbits")
     f = M.index(0)
