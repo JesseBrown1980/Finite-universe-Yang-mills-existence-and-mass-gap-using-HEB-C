@@ -245,6 +245,12 @@ def selftest():
                     pieces[0] = record(g, p0=b"\x01" * (MAX_PACKED_BYTES + 1))
                 elif fault == "group":
                     pieces[0] = record(g + 1)
+                elif fault == "same_bucket_duplicate":
+                    pieces[0] = record(g) + record(g)
+                elif fault == "same_bucket_descending":
+                    pieces[0] = record(g + BUCKETS) + record(g)
+                elif fault == "noncanonical_rehashed":
+                    pieces[0] = record(2, w=3)
             data = b"".join(pieces)
             path = os.path.join(folder, "GROUP-" + str(g) + ".v1")
             with open(path, "wb") as f:
@@ -296,8 +302,26 @@ def selftest():
             refused += 1
         need(canonical_weight(1) == 3 and refused == 6,
              "planted_noncanonical_S3_orbit_accepted")
+        for flaw, expected_reason, check in (
+            ("same_bucket_duplicate", "bucket_address_nonascending_or_duplicate", False),
+            ("same_bucket_descending", "bucket_address_nonascending_or_duplicate", False),
+            ("noncanonical_rehashed", "noncanonical_source_address", True),
+        ):
+            m, total = sources(d, 2, flaw)
+            try:
+                verify(m, 2, os.path.join(d, "GROUP-2.v1"),
+                       os.path.join(d, "fault.hbp"), 64, total,
+                       check_canonical=check)
+            except Refuse as error:
+                need(str(error) == expected_reason,
+                     "wrong_fault_rejection_reason_" + flaw)
+                refused += 1
+        need(refused == 9, "same_bucket_or_rehashed_noncanonical_fault_accepted")
     return ("Y137_STAGE_B_SOURCE_TOY|groups=8|buckets=64|distinct_keys=64" +
-            "|faults_refused=6|B1_B2=TOY_ONLY|real_Q5=NOT_COMPUTED|json=0\n")
+            "|faults_refused=9|same_bucket_duplicate=REFUSED" +
+            "|same_bucket_descending=REFUSED" +
+            "|rehashed_noncanonical_source=REFUSED" +
+            "|B1_B2=TOY_ONLY|real_Q5=NOT_COMPUTED|json=0\n")
 
 
 def main(argv):
