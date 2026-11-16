@@ -17,6 +17,7 @@ jobs:
       GH_REPO: ${{ github.repository }}
       TAG: y137-stage-c-cross-pairs-20261116-sha-v1
       ORIGINAL_HEAD: edd330f3d93b83db50c0489e04f498c673ff074a
+      ORIGINAL_RUN_CHECKOUT: 584b75c63da0cd566f9225e601dbe0016d96e73e
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Download the original frozen 256 non-Q5/Q5 graph pair partitions
@@ -42,7 +43,7 @@ jobs:
             | tee build/y137-c-graph/results/DURABLE-ORIGINAL-256-VERIFIED.hbp
           test "$(grep -c ': OK$' build/y137-c-graph/results/DURABLE-ORIGINAL-256-VERIFIED.hbp)" -eq 256
           grep -Fq 'Y137_C_GRAPH_VERDICT|' build/y137-c-graph/results/RESULT-C-CROSS.hbp
-          test "$(cat build/y137-c-graph/results/COMMIT.txt)" = "${ORIGINAL_HEAD}"
+          test "$(cat build/y137-c-graph/results/COMMIT.txt)" = "${ORIGINAL_RUN_CHECKOUT}"
           df -h .
       - name: Create original-commit-pinned, UNPUBLISHED draft GitHub Release
         run: |
