@@ -663,17 +663,74 @@ fn selftest() -> Result<(),String> {
     println!("Y137_B5_TOY|packed_82bit_lanes=PASS|signed_320_cancellation=PASS|oversized_source=REFUSED|oversized_contraction=REFUSED|oversized_coefficient=REFUSED|electric_72_moves=PASS|real_mu3=NOT_COMPUTED|json=0");
     Ok(())
 }
+
+fn gram_encode(m: &[Wide; 36]) -> String {
+    let mut rows = Vec::with_capacity(8);
+    for i in 0usize..8 {
+        let mut cells = Vec::with_capacity(8);
+        for j in 0..8 {
+            // 0,1,2,3,4,5,6,7; 1,2,3...; 7
+            let (a,b) = if i<=j {(i,j)} else {(j,i)};
+            let slot = a*8 - a*(a.saturating_sub(1))/2 + (b-a);
+            cells.push(m[slot].decimal());
+        }
+        rows.push(cells.join(","));
+    }
+    rows.join(";")
+}
+fn gram_group(path: &Path, group: usize) -> Result<(),String> {
+    ensure(group < GROUPS, "B6_invalid_source_group")?;
+    let began=Instant::now();
+    let mut grams = [[Wide::ZERO;36];2];
+    let (count,bytes)=read_group(path,group,|source|{
+        for (energy,g) in grams.iter_mut().enumerate() {
+            let mut physical=[0u128;COLS];
+            for (c,v) in physical.iter_mut().enumerate() {
+                *v=mul_u128(source.amp[energy][c],B)?;
+                ensure(*v < LIMIT_A, "B6_physical_amplitude_bound")?;
+            }
+            let mut slot=0usize;
+            for i in 0..COLS {
+                for j in i..COLS {
+                    let term=Wide::product(physical[i],physical[j],
+                                          6u64*u64::from(source.weight));
+                    let mut checked=g[slot];
+                    checked.raw_checked_add(&term)?;
+                    ensure(!checked.negative() && checked.abs_lt_2pow304(),
+                           "B6_unsigned_gram_range_or_overflow")?;
+                    g[slot]=checked;
+                    slot+=1;
+                }
+            }
+            ensure(slot==36,"B6_upper_gram_term_count")?;
+        }
+        Ok(())
+    })?;
+    ensure(count==ROWS_BY_GROUP[group]&&bytes==BYTES_BY_GROUP[group],
+           "B6_source_census_changed")?;
+    for (energy,g) in grams.iter().enumerate() {
+        let text=gram_encode(g);
+        println!("Y137_B6_GRAM|group={group}|sample_num={}|quantity=Q5_mu2_six|encoding={text}|json=0",SAMPLES[energy]);
+    }
+    println!("Y137_B6_VERDICT|group={group}|rows={count}|bytes={bytes}|gram_energies=2|physical_factor_six=ONCE|millis={}|historic_hash_check=RUNNER_PENDING|whole_mu3=NOT_COMPUTED|Wilson_weight=HOLD|json=0",began.elapsed().as_millis());
+    Ok(())
+}
+
 fn main() {
     let args:Vec<String>=std::env::args().collect();
     let result=match args.as_slice() {
         [_,a] if a=="--selftest"=>selftest(),
         [_,a,root] if a=="--run"=>run(Path::new(root),None),
+        [_,a,group,path] if a=="--gram"=>match group.parse::<usize>() {
+            Ok(g)=>gram_group(Path::new(path),g),
+            Err(e)=>Err(format!("B6_invalid_group:{e}"))
+        },
         [_,a,root,limit] if a=="--bench"=>
             match limit.parse::<usize>() {
                 Ok(n)=>run(Path::new(root),Some(n)),
                 Err(e)=>Err(format!("B5_invalid_bench_count:{e}"))
             },
-        _=>Err("usage: b5_moments --selftest | --run SOURCE_DIR | --bench SOURCE_DIR N".to_string())
+        _=>Err("usage: b5_moments --selftest | --run SOURCE_DIR | --bench SOURCE_DIR N | --gram GROUP SOURCE_FILE".to_string())
     };
     if let Err(e)=result {
         eprintln!("Y137_B5_REFUSE|reason={e}|json=0");
