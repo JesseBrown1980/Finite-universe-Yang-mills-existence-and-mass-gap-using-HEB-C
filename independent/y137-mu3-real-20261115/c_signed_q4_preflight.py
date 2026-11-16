@@ -11,7 +11,12 @@ import sys
 
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),"..",".."))
 sys.path.insert(0,os.path.join(ROOT,"independent","y137-real-Q-moment-20261114"))
+# The pinned K3 loader refuses extra argv during import to prevent hidden
+# source changes. Preserve that source gate rather than modifying it.
+ORIGINAL_ARGS=sys.argv[:]
+sys.argv=sys.argv[:1]
 import mu1_shard as src
+sys.argv=ORIGINAL_ARGS
 
 B=1000000000
 ENERGIES=(69909875505,69949729820)
