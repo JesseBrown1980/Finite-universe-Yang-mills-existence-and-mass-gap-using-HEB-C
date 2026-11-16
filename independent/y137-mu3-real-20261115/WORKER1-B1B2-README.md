@@ -17,7 +17,7 @@ reader of `<Q B H H>` records, then `aggregate` accepts only all eight
 matching group receipts. The run checks:
 
 - Exact byte count, SHA-256 and target count from each original source receipt.
-- Every target in the base-6 13-link address range; orbit weight in 1/2/3/6.
+- Every target in the base-6 13-link address range; an independently constructed six-permutation S3 conjugation table proves that the stored 13-link tuple is the lexicographically least global-conjugation representative and its orbit weight exactly matches the stored 1/2/3/6 field. This source-key audit is performed on every actual row, not a sample.
 - Both unsigned 8-channel vector fields are minimally encoded and fit 82 bits
   per channel; a malformed record length or short payload refuses.
 - Buckets are exactly `group, group+8, ..., group+56` in increasing order,
@@ -27,14 +27,13 @@ matching group receipts. The run checks:
   18,598,040 records are present. **Distinctness is proved without a 150-MB
   global index:** any address belongs to exactly one residue class modulo 64;
   within that class, strict address ordering rejects duplicates.
-- Planted duplicate, bucket-order, out-of-range lane, wrong group and hash
-  corruptions all must be refused before accepting real artifacts.
+- Planted duplicate, bucket-order, out-of-range lane, wrong group, hash, and noncanonical S3 representative corruptions all must be refused before accepting real artifacts.
 - The jobs retain per-group source receipts and a final B1/B2 receipt as
   separate GitHub Actions artifacts.
 
-These checks establish **B1/B2** from the preregistered prediction.
+These checks establish **B1/B2**, including actual canonical S3 source keys and their orbit weights, from the preregistered prediction.
 They are an exact byte/layout/address-membership audit of Q5 spool records;
-canonicalization of all real keys, full magnetic and orbit-weight source checks,
+full magnetic and 72-move source checks,
 raw move/reciprocity, paired-vs-row matrices and exact `mu2` regression belong
 to the later B3–B8 implementation.
 
@@ -60,3 +59,5 @@ to the later B3–B8 implementation.
 **Status until subsequent checks:** `real_mu3=NOT_COMPUTED`;
 `Wilson_weight=HOLD`; issue #137 OPEN. No previous local work was recovered
 after the workstation was lost; this branch starts from the last remote commit.
+
+**Strengthened review:** the initial run 43833313938 proved SHA/size/record and strict radix-64 uniqueness. The second run adds the missing independent S3 canonicality and orbit-weight checks over every archived address. The second run is the full B2 acceptance gate; supersede the initial B2 claim only after its hosted PASS.
