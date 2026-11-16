@@ -25,6 +25,14 @@ jobs:
             tee /tmp/y137-h12-toy.hbp
           grep -Fq 'inertia_control=PASS|nonsymmetric_negative=REFUSED' /tmp/y137-h12-toy.hbp
           grep -Fq '|real_matrix=NOT_COMPUTED|Wilson_weight=HOLD|json=0' /tmp/y137-h12-toy.hbp
+      - name: Independent full 12x12 integer Sylvester replay of immutable matrix receipt
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-12x12-krylov-20261116/independent_h12_accept.py
+          python3 -I -B independent/y137-12x12-krylov-20261116/independent_h12_accept.py |
+            tee /tmp/y137-h12-independent.hbp
+          grep -Fq '|first_two_Ritz_brackets=4_OF_4|' /tmp/y137-h12-independent.hbp
+          grep -Fq '|Wilson_weight=HOLD|json=0' /tmp/y137-h12-independent.hbp
   h12-full-pinned-k2:
     runs-on: ubuntu-24.04
     needs: h12-source-controls
@@ -42,11 +50,16 @@ jobs:
           test "$(grep -c '^Y137_H12_RITZ|' build/y137-h12/RESULT-H12.hbp)" -eq 2
           test "$(grep -c '^Y137_H12_INERTIA|' build/y137-h12/RESULT-H12.hbp)" -eq 2
           grep -Fq '|original_Wilson_weight=HOLD|' build/y137-h12/RESULT-H12.hbp
+          grep '^Y137_H12_' build/y137-h12/RESULT-H12.hbp > build/y137-h12/REBUILT-FROZEN-ROWS.hbp
+          tail -n +2 independent/y137-12x12-krylov-20261116/RESULT-H12-20261116.hbp > build/y137-h12/PINNED-FROZEN-ROWS.hbp
+          cmp build/y137-h12/REBUILT-FROZEN-ROWS.hbp build/y137-h12/PINNED-FROZEN-ROWS.hbp
       - name: Commit and frozen-source input provenance
         if: always()
         run: |
           set -euo pipefail
           sha256sum independent/y137-12x12-krylov-20261116/exact_krylov_12.py > build/y137-h12/SCRIPT.sha256
+          sha256sum independent/y137-12x12-krylov-20261116/independent_h12_accept.py > build/y137-h12/INDEPENDENT-CHECKER.sha256
+          sha256sum independent/y137-12x12-krylov-20261116/RESULT-H12-20261116.hbp > build/y137-h12/FROZEN-RESULT.sha256
           sha256sum independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp > build/y137-h12/INPUT-PR180.sha256
           if test -f build/y137-h12/RESULT-H12.hbp; then
             sha256sum build/y137-h12/RESULT-H12.hbp > build/y137-h12/RESULT.sha256
