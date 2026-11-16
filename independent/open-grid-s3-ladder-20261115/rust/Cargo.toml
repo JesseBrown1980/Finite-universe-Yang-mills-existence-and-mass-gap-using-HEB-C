@@ -1,0 +1,13 @@
+[package]
+name = "open_grid"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.81"
+
+[workspace]
+
+[dependencies]
+
+[profile.release]
+opt-level = 3
+overflow-checks = true

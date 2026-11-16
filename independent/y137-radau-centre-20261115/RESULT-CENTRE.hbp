@@ -1,0 +1,4 @@
+Y137_CENTRE_POINT|sample_num=69909875505|centred_residual_about_centre=39298307|centred_residual_about_upper=31272838|half_width_action=72199175|one_sided_width_action=144398350|action_per_million_of_one_sided=500000|new_lo=69909429421|new_hi=69909586556|json=0
+Y137_CENTRE_POINT|sample_num=69949729820|centred_residual_about_centre=84419336|centred_residual_about_upper=66461984|half_width_action=71171383|one_sided_width_action=142342765|action_per_million_of_one_sided=500000|new_lo=69949264147|new_hi=69949433884|json=0
+Y137_CENTRE_TRANSFER|E1_sin=3928296717|E2_sin=10788632521|E1_error=4045966334|E2_error=11127489479|combined_fullstate_error_per_trillion=15173455813|one_sided=19880853054|gate_per_trillion=1428571429|json=0
+Y137_CENTRE_VERDICT|C1=1|C2=1|C3=1|Wilson_weight=HOLD|issue_137=OPEN|json=0

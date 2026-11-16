@@ -1,0 +1,2 @@
+GRID_SPACE|a=5|b=2|plaquettes=10|links=27|raw_link_states=6^27|gauge_orbits=10097891|r=9|rden=1|matrix=compact_one_column_per_move|orbit_formula_and_weighted_symmetry_probe=1|json=0
+SPARSE_LEVELS|a=5|b=2|r=9|rden=1|scaled_by_rden=1|gauge_orbits=10097891|units=1e-9|vectors=chebyshev_filtered_subspace|rounds=15|degree=20|E0_lo=9000000000|E0_hi=78600000000|E0_method=Collatz_Wielandt_exact|E1_estimate=89467163378|E1_upper=89466992992|E1_upper_method=exact_two_vector_Ritz|E1_lower=NOT_CERTIFIED|gap_estimate=45667163378|gap_upper=80466992992|json=0
