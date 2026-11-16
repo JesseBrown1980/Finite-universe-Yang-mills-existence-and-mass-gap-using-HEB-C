@@ -1,0 +1,4 @@
+MU3_ATTACK|states=16|channels=8|true_mu3=140|forged_mu3=139|window_lo=412/3|window_hi=428/3|forged_passes_symmetry_integer_and_window=YES|real_BtXinvB=10/3|forged_Gauss_lower=64/19|forged_Gauss_excludes_real_source=YES|json=0
+MU3_HASH_ATTACK|matrix_A=I8|matrix_B=I8_over_2|numerator_only_sha256=EQUAL|canonical_rational_sha256=DIFFERENT|recommend_canonical_num_den_pairs=YES|json=0
+MU3_RANK_ATTACK|valid_positive_X=2I8|real_mu3_equals_window_endpoint=YES|Gauss_block_pivot=ZERO|inverse_formula_undefined=YES|need_rank_aware_HOLD_or_pseudoinverse=YES|json=0
+MU3_REVIEW|spectral_window=NECESSARY_VALID|source_authentication_by_window=FAIL|rational_hash_fingerprint=AMBIGUOUS|boundary_inverse_formula=PARTIAL|real_large_Q_mu3=NOT_COMPUTED|Wilson_weight=HOLD|json=0

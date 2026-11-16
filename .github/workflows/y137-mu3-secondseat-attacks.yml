@@ -1,0 +1,57 @@
+name: Y137 GPT-6 independent mu3 acceptance adversarial proof
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-secondseat-20261115/**'
+      - '.github/workflows/y137-mu3-secondseat-attacks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  secondseat-source-and-hash-red-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Standard-library exact 8x8 adversarial source proof
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-mu3-secondseat-20261115/adversarial_mu3_check.py | tee /tmp/y137_mu3_secondseat.hbp
+          grep -Fq 'forged_passes_symmetry_integer_and_window=YES|real_BtXinvB=10/3|forged_Gauss_lower=64/19|forged_Gauss_excludes_real_source=YES|' /tmp/y137_mu3_secondseat.hbp
+          grep -Fq 'numerator_only_sha256=EQUAL|canonical_rational_sha256=DIFFERENT|' /tmp/y137_mu3_secondseat.hbp
+          grep -Fq 'Gauss_block_pivot=ZERO|inverse_formula_undefined=YES|' /tmp/y137_mu3_secondseat.hbp
+          grep -Fq 'real_large_Q_mu3=NOT_COMPUTED|Wilson_weight=HOLD|json=0' /tmp/y137_mu3_secondseat.hbp
+          test "$(grep -c '^MU3_' /tmp/y137_mu3_secondseat.hbp)" -eq 4
+          cmp /tmp/y137_mu3_secondseat.hbp independent/y137-mu3-secondseat-20261115/RESULT-ADVERSARIAL.hbp
+      - name: Strict source constraints
+        run: |
+          set -euo pipefail
+          python3 -m py_compile independent/y137-mu3-secondseat-20261115/adversarial_mu3_check.py
+          ! grep -Eq '^\s*(from|import) (moment_radau|mu3_acceptance|numpy|sympy)' independent/y137-mu3-secondseat-20261115/adversarial_mu3_check.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y137-independent-mu3-acceptance-adversarial-hbp
+          path: /tmp/y137_mu3_secondseat.hbp
+          if-no-files-found: error
+          retention-days: 90
+
+  independent-real-moment-window-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Separate exact-rational 8x8 replay on both archived real samples
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          python3 -I -B independent/y137-mu3-secondseat-20261115/archived_window_replay.py | tee build/RESULT-SECONDSEAT-ARCHIVED-WINDOW.hbp
+          grep -Fq 'sample_num=69909875505|source_mu0_mu1_mu2=PINNED|window_inside_cubic=PASS|window_width_per_million=53853|' build/RESULT-SECONDSEAT-ARCHIVED-WINDOW.hbp
+          grep -Fq 'sample_num=69949729820|source_mu0_mu1_mu2=PINNED|window_inside_cubic=PASS|window_width_per_million=53856|' build/RESULT-SECONDSEAT-ARCHIVED-WINDOW.hbp
+          grep -Fq 'two_real_samples_independently_replayed=PASS|' build/RESULT-SECONDSEAT-ARCHIVED-WINDOW.hbp
+          cmp build/RESULT-SECONDSEAT-ARCHIVED-WINDOW.hbp independent/y137-mu3-secondseat-20261115/RESULT-ARCHIVED-8X8.hbp
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y137-independent-archived-8x8-moment-window
+          path: build/RESULT-SECONDSEAT-ARCHIVED-WINDOW.hbp
+          if-no-files-found: error
+          retention-days: 90
