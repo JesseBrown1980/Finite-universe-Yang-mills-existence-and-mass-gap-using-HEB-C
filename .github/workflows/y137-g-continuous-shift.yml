@@ -43,11 +43,17 @@ jobs:
           grep -Fq '|outside_intervals=EXCLUDED_FOR_FROZEN_SUFFICIENT_TEST|' build/y137-g-continuous/RESULT-CONTINUOUS.hbp
           grep -Fq '|middle_interval=INCONCLUSIVE_NOT_CERTIFIED_POSITIVE|' build/y137-g-continuous/RESULT-CONTINUOUS.hbp
           grep -Fq '|new_actual_first_Wilson_weight=HOLD|' build/y137-g-continuous/RESULT-CONTINUOUS.hbp
+          grep '^Y137_G_CONT_' build/y137-g-continuous/RESULT-CONTINUOUS.hbp > build/y137-g-continuous/EXACT-NEW-ROWS.hbp
+          tail -n +2 independent/y137-stage-g-continuous-20261116/RESULT-G-CONTINUOUS-20261116.hbp > build/y137-g-continuous/FROZEN-ROWS.hbp
+          cmp build/y137-g-continuous/EXACT-NEW-ROWS.hbp build/y137-g-continuous/FROZEN-ROWS.hbp
       - name: Source and result integrity receipt
         if: always()
         run: |
           set -euo pipefail
+          git hash-object independent/y137-stage-g-continuous-20261116/continuous_shift.py |
+            grep -Fxq '0d4f8856469ca856c479233aa489821b6efe2ff5'
           sha256sum independent/y137-stage-g-continuous-20261116/continuous_shift.py > build/y137-g-continuous/SOURCE.sha256
+          sha256sum independent/y137-stage-g-continuous-20261116/RESULT-G-CONTINUOUS-20261116.hbp > build/y137-g-continuous/FROZEN-RESULT.sha256
           if test -f build/y137-g-continuous/RESULT-CONTINUOUS.hbp; then
             sha256sum build/y137-g-continuous/RESULT-CONTINUOUS.hbp > build/y137-g-continuous/RESULT.sha256
           fi
