@@ -1,6 +1,6 @@
 # Issue #137 Stage E — actual four-moment Schur-to-W-normalization test
 
-**Research draft, November 16, 2026.** This test is downstream of the accepted Stage C full signed moment and Stage D exact-rational four-moment Schur bracket. No numerical Stage E outcome is asserted until the dedicated hosted calculation succeeds.
+**Research draft, November 16, 2026 — numerically reviewed.** This test is downstream of the accepted Stage C full signed moment and Stage D exact-rational four-moment Schur bracket. The first hosted calculation correctly FAILED its historical centre regression because the centre interval had been given the full width instead of the half-width. Cloud GPT-6 corrected the exact centre enclosure at `fcfcd637`. [Corrected production run #43933360655](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43933360655) PASSed, including all four historical three-moment regressions and authentic signed-source controls. Independent scoped review [5925655169](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/234) confirms **best actual four-moment error `0.011911898006`**, down from **`0.014153976076`** (15.8406% reduction), yet **8.3383× above the strict `1/700` Wilson threshold**. **Wilson_weight=HOLD**, issue #137 OPEN, research PR DRAFT. The exact run receipt is `RESULT-CLOUD-STAGE-E-20261116.hbp`.
 
 ## Exact input and locked references
 
