@@ -911,7 +911,7 @@ fn c_read_signed(path: &Path, shell: u8, sample: usize,
         last=Some(addr);
         let mut source=[0i128;C_COLS];
         for e in 0..2 {
-            for ch in 0..C_COLS {
+            for slot in &mut source {
                 c_read_exact(&mut reader,&mut first,"C_short_signed_lane_prefix")?;
                 let n=(first[0]&127) as usize;
                 let neg=first[0]&128!=0;
@@ -924,7 +924,7 @@ fn c_read_signed(path: &Path, shell: u8, sample: usize,
                     padded[..n].copy_from_slice(&mag[..n]);
                     let x=u128::from_le_bytes(padded);
                     ensure(x < (1u128<<100),"C_full_signed_source_not_below_2pow100")?;
-                    source[ch]=if neg { -(x as i128) } else { x as i128 };
+                    *slot=if neg { -(x as i128) } else { x as i128 };
                 }
             }
         }
@@ -1113,16 +1113,16 @@ fn c_ordered_rows(input:&CInput,sample:usize,base:&CMatrix)
             let d=C_B*(72+9*i64::from(magnetic))-C_ENERGIES[sample];
             let coefficient=6*w*d;
             for a in 0..C_COLS {
-                for b in 0..C_COLS {
+                for (b,&sum_value) in summed.iter().enumerate() {
                     c_add_product(&mut matrix,a,b,state.v[a],state.v[b],coefficient)?;
-                    c_add_product(&mut matrix,a,b,state.v[a],summed[b],off_coefficient)?;
+                    c_add_product(&mut matrix,a,b,state.v[a],sum_value,off_coefficient)?;
                 }
             }
         } else {
             // B5 Q5->Q5 and its entire D diagonal are already present.
             for a in 0..C_COLS {
-                for b in 0..C_COLS {
-                    c_add_product(&mut matrix,a,b,state.v[a],summed[b],off_coefficient)?;
+                for (b,&sum_value) in summed.iter().enumerate() {
+                    c_add_product(&mut matrix,a,b,state.v[a],sum_value,off_coefficient)?;
                 }
             }
         }
