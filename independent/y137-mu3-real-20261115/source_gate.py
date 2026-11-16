@@ -21,6 +21,16 @@ WIDTH = 82
 CHANNELS = 8
 MAX_PACKED_BYTES = WIDTH * CHANNELS // 8
 MAX_ADDRESS = 6 ** 13
+# Independently rederive all six global-conjugation actions and orbit weights
+# from the public S3 permutation definition (Stage A Rust convention).
+PERMS = ((0, 1, 2), (0, 2, 1), (1, 0, 2),
+         (1, 2, 0), (2, 0, 1), (2, 1, 0))
+MUL = tuple(tuple(PERMS.index(tuple(a[b[i]] for i in range(3)))
+                  for b in PERMS) for a in PERMS)
+INV = tuple(PERMS.index(tuple(a.index(i) for i in range(3)))
+            for a in PERMS)
+CONJ = tuple(tuple(MUL[MUL[a][u]][INV[a]] for u in range(6))
+             for a in range(6))
 EXPECTED_TARGETS = 18598040
 EXPECTED_BYTES = 3140900108
 
@@ -73,7 +83,22 @@ def manifest(path, expected_targets=EXPECTED_TARGETS, expected_bytes=EXPECTED_BY
     return rows, hashlib.sha256(raw).hexdigest()
 
 
-def inspect(group, path, row):
+def canonical_weight(address):
+    digits = []
+    for _ in range(13):
+        address, digit = divmod(address, 6)
+        digits.append(digit)
+    need(address == 0, "source_address_out_of_range")
+    original = tuple(digits)
+    orbit = set()
+    for a in range(6):
+        conjugate = tuple(CONJ[a][u] for u in original)
+        need(conjugate >= original, "noncanonical_source_address")
+        orbit.add(conjugate)
+    return len(orbit)
+
+
+def inspect(group, path, row, check_canonical=True):
     size = os.path.getsize(path)
     need(size == int(row["bytes"]), "group_file_length")
     h = hashlib.sha256()
@@ -91,6 +116,9 @@ def inspect(group, path, row):
             code, weight, n0, n1 = HEADER.unpack(head)
             need(0 <= code < MAX_ADDRESS, "address_out_of_range")
             need(weight in (1, 2, 3, 6), "invalid_orbit_weight")
+            if check_canonical:
+                need(weight == canonical_weight(code),
+                     "stored_weight_disagrees_with_independent_S3_orbit")
             need(n0 <= MAX_PACKED_BYTES and n1 <= MAX_PACKED_BYTES,
                  "packed_amplitude_length")
             p0 = f.read(n0)
@@ -128,7 +156,8 @@ def inspect(group, path, row):
             "|packed_width=" + str(WIDTH) +
             "|max_packed_bytes=" + str(max_length) +
             "|all_eight_buckets_ordered=PASS|address_partition=PASS" +
-            "|packed_vectors=PASS|json=0\n")
+            "|packed_vectors=PASS|canonical_and_orbit_weights=" +
+            ("PASS" if check_canonical else "NOT_TESTED") + "|json=0\n")
 
 
 def write_receipt(path, content):
@@ -138,17 +167,19 @@ def write_receipt(path, content):
 
 
 def verify(manifest_path, group, spool_path, receipt_path,
-           expected_targets=EXPECTED_TARGETS, expected_bytes=EXPECTED_BYTES):
+           expected_targets=EXPECTED_TARGETS, expected_bytes=EXPECTED_BYTES,
+           check_canonical=True):
     rows, manifest_sha = manifest(manifest_path, expected_targets, expected_bytes)
     need(0 <= group < GROUPS, "invalid_group")
-    output = inspect(group, spool_path, rows[group])
+    output = inspect(group, spool_path, rows[group], check_canonical)
     output += "Y137_STAGE_B_GROUP_INPUT|manifest_sha256=" + manifest_sha + "|json=0\n"
     write_receipt(receipt_path, output)
     return output
 
 
 def aggregate(manifest_path, receipt_dir, output_path,
-              expected_targets=EXPECTED_TARGETS, expected_bytes=EXPECTED_BYTES):
+              expected_targets=EXPECTED_TARGETS, expected_bytes=EXPECTED_BYTES,
+              require_canonical=True):
     rows, manifest_sha = manifest(manifest_path, expected_targets, expected_bytes)
     targets = 0
     bytes_count = 0
@@ -169,6 +200,7 @@ def aggregate(manifest_path, receipt_dir, output_path,
         need(r["all_eight_buckets_ordered"] == "PASS" and
              r["address_partition"] == "PASS" and
              r["packed_vectors"] == "PASS" and
+             (not require_canonical or r["canonical_and_orbit_weights"] == "PASS") and
              int(r["packed_width"]) == WIDTH, "group_receipt_failed_control")
         bucket_counts = [int(x) for x in r["bucket_counts"].split(",")]
         need(len(bucket_counts) == 8 and all(x > 0 for x in bucket_counts) and
@@ -185,7 +217,10 @@ def aggregate(manifest_path, receipt_dir, output_path,
               "|unique_radix64_buckets=64|distinct_Q5_addresses=" + str(targets) +
               "|total_source_bytes=" + str(bytes_count) +
               "|source_manifest_sha256=" + manifest_sha +
-              "|prediction_B1=PASS|prediction_B2=PASS" +
+              "|prediction_B1=PASS|prediction_B2=" +
+              ("PASS" if require_canonical else "TOY_ONLY") +
+              "|canonical_S3_orbit_weights=" +
+              ("PASS" if require_canonical else "NOT_TESTED") +
               "|raw_moves=NOT_COMPUTED|mu3=NOT_COMPUTED" +
               "|Wilson_weight=HOLD|json=0\n")
     write_receipt(output_path, output)
@@ -230,15 +265,18 @@ def selftest():
         receipts = os.path.join(d, "receipts")
         for g in range(GROUPS):
             verify(m, g, os.path.join(d, "GROUP-" + str(g) + ".v1"),
-                   os.path.join(receipts, "GROUP-" + str(g) + ".hbp"), 64, total)
-        output = aggregate(m, receipts, os.path.join(d, "all.hbp"), 64, total)
-        need("prediction_B2=PASS" in output, "toy_aggregation_failed")
+                   os.path.join(receipts, "GROUP-" + str(g) + ".hbp"),
+                   64, total, check_canonical=False)
+        output = aggregate(m, receipts, os.path.join(d, "all.hbp"), 64, total,
+                           require_canonical=False)
+        need("prediction_B2=TOY_ONLY" in output, "toy_aggregation_failed")
         refused = 0
         for flaw in ("duplicate", "bucket_order", "lane", "group"):
             m, total = sources(d, 2, flaw)
             try:
                 verify(m, 2, os.path.join(d, "GROUP-2.v1"),
-                       os.path.join(d, "fault.hbp"), 64, total)
+                       os.path.join(d, "fault.hbp"), 64, total,
+                       check_canonical=False)
             except Refuse:
                 refused += 1
         need(refused == 4, "planted_structural_fault_accepted")
@@ -247,12 +285,19 @@ def selftest():
             f.write(b"\x00")
         try:
             verify(m, 2, os.path.join(d, "GROUP-2.v1"),
-                   os.path.join(d, "fault.hbp"), 64, total)
+                   os.path.join(d, "fault.hbp"), 64, total,
+                       check_canonical=False)
         except Refuse:
             refused += 1
         need(refused == 5, "planted_hash_fault_accepted")
+        try:
+            canonical_weight(2)  # transposition index 2 conjugates to index 1
+        except Refuse:
+            refused += 1
+        need(canonical_weight(1) == 3 and refused == 6,
+             "planted_noncanonical_S3_orbit_accepted")
     return ("Y137_STAGE_B_SOURCE_TOY|groups=8|buckets=64|distinct_keys=64" +
-            "|faults_refused=5|B1_B2=PASS|real_Q5=NOT_COMPUTED|json=0\n")
+            "|faults_refused=6|B1_B2=TOY_ONLY|real_Q5=NOT_COMPUTED|json=0\n")
 
 
 def main(argv):
