@@ -203,6 +203,10 @@ def rebuild_old_basis():
          "historical_S3_generator_source_sha")
     need(gitblob(os.path.join(PARENT, "sparse_h20736.py")) == PARENT_BLOB,
          "source_H20736_sha_changed")
+    sys.path.insert(0, os.path.join(ROOT, "independent",
+                                    "y137-h144-nested-20261116"))
+    sys.path.insert(0, os.path.join(ROOT, "independent",
+                                    "y137-12x12-krylov-20261116"))
     sys.path.insert(0, PARENT)
     import sparse_h20736 as h
     G, K, ball, states, cols, selected132, frozen = h.original144()
