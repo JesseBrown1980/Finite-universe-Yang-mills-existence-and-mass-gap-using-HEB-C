@@ -101,26 +101,6 @@ def three_moment_windows():
     return windows
 
 
-def evaluate(refs, windows, mode, iteration):
-    z, accepted_lo, accepted_hi, original = ra.ROWS[iteration][:4]
-    wlo, whi = windows[iteration]
-    gap1 = (windows[1][0] - windows[0][1]) * (UNIT // DEN)
-    gap2 = min(windows[1][0] - windows[0][1],
-               ra.E3_LO - windows[1][1]) * (UNIT // DEN)
-    gap = (gap1, gap2)[iteration]
-    need(gap > 0, "nonpositive_isolated_gap")
-    cn, cd, wn, wd = refs[mode]
-    trial = list(original)
-    qlo, qhi = fw.Q_NORMS[iteration]
-    added = 0
-    moved_distance = 0
-    if mode == "CENTRE_MOVED":
-        raise ValueError("unreachable_mode")
-    return_trial = (cn, cd, wn, wd, trial, qlo, qhi,
-                    added, moved_distance, gap, z, accepted_lo, accepted_hi, wlo, whi)
-    return return_trial
-
-
 def cell(refs, windows, i, way, moved):
     z, lo, hi, accepted = ra.ROWS[i][:4]
     cn, cd, wn, wd = refs[way]
