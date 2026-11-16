@@ -1,0 +1,81 @@
+name: "Y137 H12: independent exact 31-bit CRT and polynomial Berkowitz"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-h12-modular-berkowitz.yml'
+      - 'independent/y137-h12-modular-20261116/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  h12-modular-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Integer-only and source no-floating-point audit
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-h12-modular-20261116/modular_berkowitz.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Deterministic prime, finite-field pivot, CRT and Berkowitz toys
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-h12-modular-20261116/modular_berkowitz.py toy |
+            tee /tmp/y137-h12-modular-toy.hbp
+          grep -Fq '|Berkowitz_poly=PASS|deterministic_31bit_prime=PASS|Wilson_weight=HOLD|json=0' \
+            /tmp/y137-h12-modular-toy.hbp
+      - name: Verify exact original full-12 matrix receipt
+        run: |
+          set -euo pipefail
+          git hash-object independent/y137-12x12-krylov-20261116/RESULT-H12-20261116.hbp |
+            grep -Fxq '9876d083ecdbd91f81ddbd99ea311467d81a1ba7'
+  h12-modular-production:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    needs: h12-modular-controls
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Independently compute exact degree-12 and degree-eight polynomial identities
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h12-modular
+          /usr/bin/time -v python3 -I -B independent/y137-h12-modular-20261116/modular_berkowitz.py real |
+            tee build/y137-h12-modular/RESULT-MODULAR.hbp
+          grep -Fq '|full_vs_reduced_coefficients=13_OF_13_EXACT|' \
+            build/y137-h12-modular/RESULT-MODULAR.hbp
+          grep -Fq '|exact_lambda_72_multiplicity=4|' \
+            build/y137-h12-modular/RESULT-MODULAR.hbp
+          grep -Fq '|factorization=EXACT_72_POWER4_TIMES_DEGREE8|' \
+            build/y137-h12-modular/RESULT-MODULAR.hbp
+          grep -Fq '|Wilson_weight=HOLD|issue_137=OPEN|json=0' \
+            build/y137-h12-modular/RESULT-MODULAR.hbp
+          test "$(grep -c '^Y137_H12_MOD_INERTIA|' build/y137-h12-modular/RESULT-MODULAR.hbp)" -eq 6
+          test "$(grep -c '|full_det_CRT_matches_polynomial=PASS|' build/y137-h12-modular/RESULT-MODULAR.hbp)" -eq 6
+      - name: Exact reproducibility on a fresh second process
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-h12-modular-20261116/modular_berkowitz.py real \
+            > build/y137-h12-modular/RESULT-SECOND.hbp
+          cmp build/y137-h12-modular/RESULT-MODULAR.hbp \
+            build/y137-h12-modular/RESULT-SECOND.hbp
+      - name: Freeze numerical receipt and source fingerprints
+        if: always()
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > build/y137-h12-modular/COMMIT.txt
+          sha256sum independent/y137-h12-modular-20261116/modular_berkowitz.py \
+            > build/y137-h12-modular/EXACT-SOURCE.sha256
+          sha256sum independent/y137-12x12-krylov-20261116/RESULT-H12-20261116.hbp \
+            > build/y137-h12-modular/FROZEN-INPUT.sha256
+          if test -f build/y137-h12-modular/RESULT-MODULAR.hbp; then
+            sha256sum build/y137-h12-modular/RESULT-MODULAR.hbp \
+              > build/y137-h12-modular/RESULT.sha256
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-h12-exact-CRT-Berkowitz-polynomial-certificate
+          path: build/y137-h12-modular/
+          retention-days: 90
+          if-no-files-found: error
