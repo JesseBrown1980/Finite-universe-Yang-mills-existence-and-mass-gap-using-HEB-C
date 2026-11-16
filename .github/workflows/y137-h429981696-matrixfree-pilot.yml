@@ -1,0 +1,77 @@
+name: "Y137 H429M exact orbital index and original-operator pilot"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-h429981696-matrixfree-pilot.yml'
+      - 'independent/y137-h429981696-matrixfree-20261116/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  h429m-indexer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact integer and repository no-float gates
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-h429981696-matrixfree-20261116/orbit_unrank_pilot.py
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-h429981696-matrixfree-20261116/independent_accept.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          git hash-object independent/finite_s3_3x4_r9_first_gap.py |
+            grep -Fxq '91bd1e80cbfcfb76198966aa177d097ecfbe8143'
+          git hash-object independent/y137-h20736-shell3-20261116/sparse_h20736.py |
+            grep -Fxq 'd0d9d3d14d804450a31ed8e98c01a031b9a53596'
+      - name: Independent frozen 429M pilot receipt acceptance
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-h429981696-matrixfree-20261116/independent_accept.py |
+            tee /tmp/y137-h429m-independent.hbp
+          grep -Fq '|negative_mutations=2_OF_2_REJECTED|' /tmp/y137-h429m-independent.hbp
+      - name: Exact full orbit count and rank-unrank toy negatives
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-h429981696-matrixfree-20261116/orbit_unrank_pilot.py toy |
+            tee /tmp/h429m-toy.hbp
+          grep -Fq '|exact_Burnside=PASS|lex_minimal_canonical=PASS|' /tmp/h429m-toy.hbp
+          grep -Fq '|sampled_rows=NOT_COMPUTED|Wilson_weight=HOLD|json=0' /tmp/h429m-toy.hbp
+  h429m-physical-rows:
+    runs-on: ubuntu-24.04
+    needs: h429m-indexer
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Pinned 20736 support and original 72-move matrix-free pilot on 429m basis
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h429m
+          /usr/bin/time -v python3 -I -B independent/y137-h429981696-matrixfree-20261116/orbit_unrank_pilot.py pilot |
+            tee build/y137-h429m/RESULT-H429M-PILOT.hbp
+          grep -Fq '|exact_basis_dimension=429981696|' build/y137-h429m/RESULT-H429M-PILOT.hbp
+          grep -Fq '|strict_weighted_Gram_rank=PASS|' build/y137-h429m/RESULT-H429M-PILOT.hbp
+          grep -Fq '|real_original_operator_sampled_rows=PASS|' build/y137-h429m/RESULT-H429M-PILOT.hbp
+          grep -Fq '|full_429m_sweep=NOT_LAUNCHED|' build/y137-h429m/RESULT-H429M-PILOT.hbp
+          grep -Fq '|first_Wilson_excitation=HOLD|json=0' build/y137-h429m/RESULT-H429M-PILOT.hbp
+          tail -n +2 independent/y137-h429981696-matrixfree-20261116/RESULT-H429M-INDEX-PILOT-20261116.hbp > build/y137-h429m/FROZEN-ROWS.hbp
+          grep '^Y137_H429M_' build/y137-h429m/RESULT-H429M-PILOT.hbp > build/y137-h429m/CURRENT-ROWS.hbp
+          cmp build/y137-h429m/FROZEN-ROWS.hbp build/y137-h429m/CURRENT-ROWS.hbp
+      - name: Pin source, original generator and pilot receipt SHA
+        if: always()
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > build/y137-h429m/COMMIT.txt
+          sha256sum independent/y137-h429981696-matrixfree-20261116/orbit_unrank_pilot.py > build/y137-h429m/SOURCE.sha256
+          sha256sum independent/y137-h429981696-matrixfree-20261116/independent_accept.py > build/y137-h429m/INDEPENDENT-SOURCE.sha256
+          sha256sum independent/y137-h429981696-matrixfree-20261116/RESULT-H429M-INDEX-PILOT-20261116.hbp > build/y137-h429m/FROZEN-RESULT.sha256
+          sha256sum independent/finite_s3_3x4_r9_first_gap.py > build/y137-h429m/ORIGINAL-S3.sha256
+          if test -f build/y137-h429m/RESULT-H429M-PILOT.hbp; then
+            sha256sum build/y137-h429m/RESULT-H429M-PILOT.hbp > build/y137-h429m/RESULT.sha256
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-h429981696-matrixfree-index-and-source-pilot
+          path: build/y137-h429m/
+          retention-days: 90
+          if-no-files-found: error
