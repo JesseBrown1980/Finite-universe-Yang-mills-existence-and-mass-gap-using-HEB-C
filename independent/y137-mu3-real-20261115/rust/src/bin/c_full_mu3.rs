@@ -1064,12 +1064,235 @@ fn c_emit_matrix(method:&str,sample:usize,matrix:&CMatrix,
     Ok(())
 }
 
+
+// Method 1: independent actual 72-move S3 row construction over every one
+// of the 20,738,636 supported sources. Q5 principal is already B5,
+// so source Q5 contributes only Q5-to-K3/Q4 directed terms.
+fn c_ordered_rows(input:&CInput,sample:usize,base:&CMatrix)
+    ->Result<CMatrix,String>{
+    let started=Instant::now();
+    let rule=Rule::new();
+    let mut matrix=*base;
+    let mut block=[[0u64;4];3];
+    let mut selfloops=0u64;
+    for state in &input.states {
+        let source_shell=usize::from(state.shell-3);
+        let key=decode(state.address);
+        ensure(code(&rule.canonical(&rule.expand(&key)))==state.address,
+               "C_row_source_not_original_S3_canonical")?;
+        ensure(rule.weight(&key)==u32::from(state.weight),
+               "C_row_orbit_weight_mismatch")?;
+        let magnetic=rule.magnetic(&key);
+        ensure((0..=36).contains(&magnetic),"C_row_magnetic_range")?;
+        let neighbors=rule.row(&key);
+        let mut degree=0u32;
+        let mut summed=[0i128;C_COLS];
+        for (target,count) in neighbors {
+            degree+=count;
+            if target==state.address {selfloops+=u64::from(count);}
+            if let Some(&idx)=input.lookup.get(&target){
+                let other=&input.states[idx];
+                block[source_shell][usize::from(other.shell-3)]+=u64::from(count);
+                if source_shell<2 || other.shell<5 {
+                    for (b,total) in summed.iter_mut().enumerate(){
+                        let contribution=other.v[b].checked_mul(i128::from(count))
+                            .ok_or_else(||"C_raw_neighbor_i128_product_overflow".to_string())?;
+                        *total=total.checked_add(contribution)
+                            .ok_or_else(||"C_raw_neighbor_i128_accumulation_overflow".to_string())?;
+                    }
+                }
+            } else {block[source_shell][3]+=u64::from(count);}
+        }
+        ensure(degree==72,"C_row_actual_72_move_degree_not_preserved")?;
+        let w=i64::from(state.weight);
+        let off_coefficient=-6*w*C_B;
+        if source_shell<2 {
+            let d=C_B*(72+9*i64::from(magnetic))-C_ENERGIES[sample];
+            let coefficient=6*w*d;
+            for a in 0..C_COLS {
+                for b in 0..C_COLS {
+                    c_add_product(&mut matrix,a,b,state.v[a],state.v[b],coefficient)?;
+                    c_add_product(&mut matrix,a,b,state.v[a],summed[b],off_coefficient)?;
+                }
+            }
+        } else {
+            // B5 Q5->Q5 and its entire D diagonal are already present.
+            for a in 0..C_COLS {
+                for b in 0..C_COLS {
+                    c_add_product(&mut matrix,a,b,state.v[a],summed[b],off_coefficient)?;
+                }
+            }
+        }
+    }
+    let expected=[
+       [1_397_544,9_789_408,0,264],
+       [9_728_688,7_486_632,125_720_376,0],
+       [0,125_467_392,125_005_512,1_088_585_976]
+    ];
+    ensure(block==expected,"C_full_ordered_row_block_census_B3_C_regression")?;
+    ensure(selfloops==0,"C_full_ordered_row_true_selfloop_regression")?;
+    for (shell,row) in block.iter().enumerate(){
+        ensure(row.iter().sum::<u64>()==[11_187_216,142_935_696,1_339_058_880][shell],
+               "C_ordered_row_72_move_census_incomplete")?;
+        println!("Y137_C_MU3_ROW_BLOCK|shell={}|to_K3={}|to_Q4={}|to_Q5={}|outside={}|json=0",
+                 shell+3,row[0],row[1],row[2],row[3]);
+    }
+    c_emit_matrix("row",sample,&matrix,C_TOTAL as u64,0,started.elapsed().as_millis())?;
+    Ok(matrix)
+}
+
+fn c_record_field<'a>(line:&'a str,key:&str)->Result<&'a str,String>{
+    line.split('|').filter_map(|t|t.strip_prefix(key).and_then(|s|s.strip_prefix('=')))
+        .next().ok_or_else(||format!("C_missing_source_receipt_field_{key}"))
+}
+fn c_graph_partition_receipts(path:&Path)
+    ->Result<Vec<(u64,u64,u64,u64)>,String>{
+    let contents=fs::read_to_string(path).map_err(|e|e.to_string())?;
+    let mut expected=Vec::<(u64,u64,u64,u64)>::new();
+    for line in contents.lines().filter(|s|s.starts_with("Y137_C_GRAPH_PART|")) {
+        let id=c_record_field(line,"part")?.parse::<usize>()
+            .map_err(|_|"C_graph_receipt_part_bad".to_string())?;
+        ensure(id==expected.len() && id<PARTS,
+               "C_graph_receipt_original_partition_order_changed")?;
+        ensure(c_record_field(line,"exact_balance")?=="PASS",
+               "C_graph_original_pair_balance_receipt_not_accepted")?;
+        let directed=c_record_field(line,"directed")?.parse::<u64>()
+            .map_err(|_|"C_graph_original_directed_count".to_string())?;
+        let pairs=c_record_field(line,"unordered_pairs")?.parse::<u64>()
+            .map_err(|_|"C_graph_original_pair_count".to_string())?;
+        let flux=c_record_field(line,"positive_flux_sum")?.parse::<u64>()
+            .map_err(|_|"C_graph_original_pair_flux".to_string())?;
+        let digest=u64::from_str_radix(c_record_field(line,"pair_fnv64")?,16)
+            .map_err(|_|"C_graph_original_pair_digest".to_string())?;
+        ensure(directed==2*pairs,"C_graph_original_pair_receipt_unequal_directions")?;
+        expected.push((directed,pairs,flux,digest));
+    }
+    ensure(expected.len()==PARTS,"C_missing_original_256_graph_partitions")?;
+    Ok(expected)
+}
+fn c_weighted_sum(target:&mut [i128;C_COLS],source:&[i128;C_COLS],w:i128)
+   ->Result<(),String>{
+    for c in 0..C_COLS {
+        let term=source[c].checked_mul(w)
+            .ok_or_else(||"C_pair_signed_neighbor_product_overflow".to_string())?;
+        target[c]=target[c].checked_add(term)
+            .ok_or_else(||"C_pair_signed_neighbor_accumulation_overflow".to_string())?;
+        ensure(target[c].unsigned_abs() < (1u128<<123),
+               "C_pair_weighted_neighbor_sum_ge_2pow123")?;
+    }
+    Ok(())
+}
+// Method 2: independently re-read the immutable 256 original B4-format
+// partitions and exact two-direction weighted reverse controls.
+// Keep ONLY weighted neighbor sums on K3/Q4 (~550 MB), never a second
+// 18.6M-state array of full Q5 neighbor vectors.
+fn c_weighted_pairs(input:&CInput,sample:usize,base:&CMatrix,
+                    pairs_dir:&Path,graph_receipt:&Path)
+    ->Result<CMatrix,String>{
+    let started=Instant::now();
+    let expected=c_graph_partition_receipts(graph_receipt)?;
+    let mut neighbor=vec![[0i128;C_COLS];C_INNER];
+    let mut cross=vec![[0i128;C_COLS];C_INNER];
+    let mut total_pairs=0u64;
+    let mut total_directed=0u64;
+    let mut total_flux=0u64;
+    for (part,wanted) in expected.iter().enumerate(){
+        let bytes=fs::read(pairs_dir.join(format!("C-PAIR-{part:03}.bin")))
+            .map_err(|e|e.to_string())?;
+        ensure(bytes.len()%18==0 && bytes.len() as u64/18==wanted.0,
+               "C_pinned_pair_partition_byte_or_count_mismatch")?;
+        let mut entries=Vec::<PairEdge>::with_capacity(bytes.len()/18);
+        for chunk in bytes.chunks_exact(18){
+            let lo=u64::from_le_bytes(chunk[..8].try_into()
+                .map_err(|_|"C_pair_bad_lo".to_string())?);
+            let hi=u64::from_le_bytes(chunk[8..16].try_into()
+                .map_err(|_|"C_pair_bad_hi".to_string())?);
+            let signed_flux=i16::from_le_bytes([chunk[16],chunk[17]]);
+            ensure(pair_partition(lo,hi)==part,"C_pair_original_partition_routing_wrong")?;
+            entries.push(PairEdge{lo,hi,signed_flux});
+        }
+        let (pairs,directed,flux,digest)=verify_edge_pairs(&mut entries)?;
+        ensure((directed,pairs,flux,digest)==*wanted,
+               "C_pair_exact_original_partition_receipt_mismatch")?;
+        ensure(entries.len()%2==0,"C_pair_odd_number_of_directed_edges")?;
+        for two in entries.chunks_exact(2){
+            let lo=*input.lookup.get(&two[0].lo)
+                .ok_or_else(||"C_pair_destination_missing_from_complete_source".to_string())?;
+            let hi=*input.lookup.get(&two[0].hi)
+                .ok_or_else(||"C_pair_reverse_destination_missing".to_string())?;
+            let (a,b)=(&input.states[lo],&input.states[hi]);
+            let physical_flux=i128::from(i32::from(two[0].signed_flux)
+                 .max(i32::from(two[1].signed_flux)));
+            ensure(physical_flux>0,"C_unbalanced_or_zero_actual_weighted_flux")?;
+            if lo<C_INNER && hi<C_INNER{
+                c_weighted_sum(&mut neighbor[lo],&b.v,physical_flux)?;
+                c_weighted_sum(&mut neighbor[hi],&a.v,physical_flux)?;
+            }else{
+                ensure((lo<C_INNER)!=(hi<C_INNER),
+                       "C_Q5_Q5_principal_edge_double_counted")?;
+                let (inner,outer)=if lo<C_INNER{(lo,&b.v)}else{(hi,&a.v)};
+                c_weighted_sum(&mut neighbor[inner],outer,physical_flux)?;
+                c_weighted_sum(&mut cross[inner],outer,physical_flux)?;
+            }
+        }
+        total_pairs+=pairs;
+        total_directed+=directed;
+        total_flux+=flux;
+        println!("Y137_C_MU3_PAIR_PART|part={part}|unordered_pairs={pairs}|directed={directed}|flux={flux}|original_exact_pair_digest={digest:016x}|all_reverse_edges=PASS|json=0");
+    }
+    ensure(total_pairs==139_517_148 && total_directed==279_034_296 &&
+           total_flux==837_222_984,
+           "C_full_pair_census_not_original_authenticated_cross_graph")?;
+    let mut matrix=*base;
+    let rule=Rule::new();
+    for (i,state) in input.states[..C_INNER].iter().enumerate(){
+        let key=decode(state.address);
+        let magnetic=rule.magnetic(&key);
+        ensure((0..=36).contains(&magnetic),"C_pair_magnetic_range")?;
+        let w=i64::from(state.weight);
+        let diag=6*w*(C_B*(72+9*i64::from(magnetic))-C_ENERGIES[sample]);
+        // w_i c_ij is already incorporated into neighbor and cross.
+        let off=-6*C_B;
+        for a in 0..C_COLS{
+            for b in 0..C_COLS{
+                c_add_product(&mut matrix,a,b,state.v[a],state.v[b],diag)?;
+                c_add_product(&mut matrix,a,b,state.v[a],neighbor[i][b],off)?;
+                c_add_product(&mut matrix,a,b,cross[i][a],state.v[b],off)?;
+            }
+        }
+    }
+    c_emit_matrix("pair",sample,&matrix,0,total_pairs,started.elapsed().as_millis())?;
+    Ok(matrix)
+}
+fn c_full_mu3_run(args:&[String])->Result<(),String>{
+    ensure(args.len()==7,"C_MU3_usage_method_energy_signed_Q5_pairs_B5_graph")?;
+    let method=args[0].as_str();
+    ensure(matches!(method,"row"|"pair"),"C_MU3_unknown_method")?;
+    let sample=args[1].parse::<usize>().map_err(|e|e.to_string())?;
+    ensure(sample<2,"C_MU3_unfrozen_energy")?;
+    let signed=Path::new(&args[2]);
+    let q5=Path::new(&args[3]);
+    let pair_dir=Path::new(&args[4]);
+    let b5=Path::new(&args[5]);
+    let graph=Path::new(&args[6]);
+    let input=c_load_input(signed,q5,sample)?;
+    let baseline=c_baseline(b5,sample)?;
+    if method=="row"{
+        let _=c_ordered_rows(&input,sample,&baseline)?;
+    }else{
+        let _=c_weighted_pairs(&input,sample,&baseline,pair_dir,graph)?;
+    }
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let verdict = match args.as_slice() {
         [_, mode] if mode == "--selftest" => selftest(),
         [_, mode] if mode == "--b4-selftest" => b4_toy(),
         [_, mode] if mode == "--c-mu3-toy" => c_matrix_toy(),
+        [_, mode, sample, signed, q5, pairs, b5, graph] if mode == "--c-full" =>
+            c_full_mu3_run(&[mode.clone(),sample.clone(),signed.clone(),q5.clone(),pairs.clone(),b5.clone(),graph.clone()]),
         [_, mode, root] if mode == "--run" => run(Path::new(root)),
         [_, mode, root, spool] if mode == "--b4" =>
             reverse_from_source(Path::new(root), Path::new(spool)),
