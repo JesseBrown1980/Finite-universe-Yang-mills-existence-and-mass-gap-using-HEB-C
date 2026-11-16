@@ -1,0 +1,61 @@
+name: "Y137 GPT-6 H12: exact eight-flat plus four Q-Krylov"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-h12-exact-krylov.yml'
+      - 'independent/y137-12x12-krylov-20261116/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  h12-source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict integer and repository no-floating-point audits
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-12x12-krylov-20261116/exact_krylov_12.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Independent source and matrix negative controls
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-12x12-krylov-20261116/exact_krylov_12.py toy |
+            tee /tmp/y137-h12-toy.hbp
+          grep -Fq 'inertia_control=PASS|nonsymmetric_negative=REFUSED' /tmp/y137-h12-toy.hbp
+          grep -Fq '|real_matrix=NOT_COMPUTED|Wilson_weight=HOLD|json=0' /tmp/y137-h12-toy.hbp
+  h12-full-pinned-k2:
+    runs-on: ubuntu-24.04
+    needs: h12-source-controls
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact 12x12 K2 source graph, weighted row/pair contraction and Ritz brackets
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h12
+          /usr/bin/time -v python3 -I -B independent/y137-12x12-krylov-20261116/exact_krylov_12.py real |
+            tee build/y137-h12/RESULT-H12.hbp
+          grep -Fq '|weighted_row_vs_pair=16_OF_16_EXACT|' build/y137-h12/RESULT-H12.hbp
+          grep -Fq '|generalized_gram=STRICT_PD|full_K2_72_move_census=PASS|' build/y137-h12/RESULT-H12.hbp
+          test "$(grep -c '^Y137_H12_RITZ|' build/y137-h12/RESULT-H12.hbp)" -eq 2
+          test "$(grep -c '^Y137_H12_INERTIA|' build/y137-h12/RESULT-H12.hbp)" -eq 2
+          grep -Fq '|original_Wilson_weight=HOLD|' build/y137-h12/RESULT-H12.hbp
+      - name: Commit and frozen-source input provenance
+        if: always()
+        run: |
+          set -euo pipefail
+          sha256sum independent/y137-12x12-krylov-20261116/exact_krylov_12.py > build/y137-h12/SCRIPT.sha256
+          sha256sum independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp > build/y137-h12/INPUT-PR180.sha256
+          if test -f build/y137-h12/RESULT-H12.hbp; then
+            sha256sum build/y137-h12/RESULT-H12.hbp > build/y137-h12/RESULT.sha256
+          fi
+          git rev-parse HEAD > build/y137-h12/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-12x12-exact-source-generalized-pencil
+          path: build/y137-h12/
+          if-no-files-found: error
+          retention-days: 90
