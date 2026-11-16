@@ -1,0 +1,98 @@
+name: "Y137 Worker1 Stage B: exact Q5 source B1/B2 gate"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/source_gate.py'
+      - '.github/workflows/y137-stage-b-source-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  source-gate-negative-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Source-free exact fixture, corrupted source refusals
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-mu3-real-20261115/source_gate.py selftest | tee /tmp/y137-source-gate-toy.hbp
+          grep -Fq 'faults_refused=5|B1_B2=PASS|real_Q5=NOT_COMPUTED|' /tmp/y137-source-gate-toy.hbp
+      - name: No-float and integer-source audits
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-mu3-real-20261115/source_gate.py
+
+  verify-archived-q5-group:
+    needs: source-gate-negative-controls
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [0,1,2,3,4,5,6,7]
+    env:
+      Q5_GROUP: ${{ matrix.group }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Download the pinned accepted Q5 group (run 43615270310)
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43615270310
+          github-token: ${{ github.token }}
+          name: y137-d11-v1-actual-Q5-group${{ matrix.group }}
+          path: build/y137-stage-b-source
+      - name: Strict source authentication, all records and all eight radix buckets
+        run: |
+          set -euo pipefail
+          mapfile -t source_files < <(find build/y137-stage-b-source -type f -name "GROUP-${Q5_GROUP}.v1")
+          test "${#source_files[@]}" -eq 1
+          mkdir -p build/y137-stage-b-source-receipts
+          python3 -I -B independent/y137-mu3-real-20261115/source_gate.py verify \
+            independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp \
+            "${Q5_GROUP}" "${source_files[0]}" \
+            "build/y137-stage-b-source-receipts/GROUP-${Q5_GROUP}.hbp" \
+            | tee "build/y137-stage-b-source-receipts/LOG-${Q5_GROUP}.hbp"
+          grep -Fq 'all_eight_buckets_ordered=PASS|address_partition=PASS|packed_vectors=PASS|' \
+            "build/y137-stage-b-source-receipts/GROUP-${Q5_GROUP}.hbp"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-stage-b-source-group-${{ matrix.group }}
+          path: build/y137-stage-b-source-receipts/GROUP-${{ matrix.group }}.hbp
+          retention-days: 60
+          if-no-files-found: ignore
+
+  aggregate-eight-source-receipts:
+    needs: verify-archived-q5-group
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-stage-b-source-group-*
+          path: build/y137-stage-b-source-receipts
+          merge-multiple: true
+      - name: Globally unique 18,598,040-address census, B1 and B2
+        run: |
+          set -euo pipefail
+          test "$(find build/y137-stage-b-source-receipts -name 'GROUP-*.hbp' | wc -l)" -eq 8
+          mkdir -p build/y137-stage-b-source-accepted
+          python3 -I -B independent/y137-mu3-real-20261115/source_gate.py aggregate \
+            independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp \
+            build/y137-stage-b-source-receipts \
+            build/y137-stage-b-source-accepted/RESULT-SOURCE-GATE.hbp \
+            | tee build/y137-stage-b-source-accepted/CONSOLE.hbp
+          grep -Fq 'prediction_B1=PASS|prediction_B2=PASS|raw_moves=NOT_COMPUTED|mu3=NOT_COMPUTED|' \
+            build/y137-stage-b-source-accepted/RESULT-SOURCE-GATE.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-stage-b-source-b1-b2-accepted-receipt
+          path: build/y137-stage-b-source-accepted/RESULT-SOURCE-GATE.hbp
+          retention-days: 60
+          if-no-files-found: ignore
