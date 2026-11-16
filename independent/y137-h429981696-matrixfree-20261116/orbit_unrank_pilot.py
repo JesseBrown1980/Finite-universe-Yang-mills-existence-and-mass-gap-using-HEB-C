@@ -372,7 +372,7 @@ def pilot():
          real_original_operator_sampled_rows="PASS",
          new_to_old_cross_exact="PASS",
          full_429m_sweep="NOT_LAUNCHED",
-         429b_dimension="EXCEEDS_FINITE_PHYSICAL_SPACE",
+         literal_429b_dimension="EXCEEDS_FINITE_PHYSICAL_SPACE",
          first_Wilson_excitation="HOLD")
 
 
