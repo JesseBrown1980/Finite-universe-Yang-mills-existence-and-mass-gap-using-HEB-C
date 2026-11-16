@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""#137 Worker 1 full authentic signed V1 sources on K3 and Q4, two energies.
+"""#137 Worker 1 full authentic signed V1=X R sources on K3 and Q4.
 
-Reconstructs exactly the accepted frozen K3 trial's signed one-step residual
-V1=X R. K3: historical signed inner_residuals. Q4: NEGATIVE of the original
-positive packed exterior residual. Independently recalculates EVERY amplitude
-through the original adjacency/weighted electric edge lists, not merely a
-sample, and writes the strictly sorted, verified signed 192-bit spool.
+Reconstruct original residual R_K3=signed inner_residuals and R_Q4=negative
+positive packed exterior residual, THEN independently evaluates X R on every
+K3 and Q4 row. The emitted source is V1=X R (not the intermediate R).
+Writes the strictly sorted, verified signed 192-bit two-energy spool.
 
 A source-format and source-content gate; whole-Q mu3 is NOT_COMPUTED.
 """
@@ -63,15 +62,14 @@ def checked_key(key,address,weight,shell):
 def original_UG(items):
     return tuple((row[4],row[5]) for row,_,_,_ in items)
 
-def independently_rebuild_K3(ball,items,i):
-    sums=[]
+def original_k3_residual(ball,items,i):
+    """Rebuild the original R_K3 = X*Y, checking immutable old calculation."""
+    answer=[]
     for row,record,old_rs,positive_q4 in items:
         y=record["Y"]
         yi=y[i]
-        start=ball["rs"][i]
-        stop=ball["rs"][i+1]
         q=[0]*COLS
-        for e in range(start,stop):
+        for e in range(ball["rs"][i],ball["rs"][i+1]):
             coeff=ball["oc"][e]
             yj=y[ball["oj"][e]]
             for c in range(COLS):
@@ -81,14 +79,87 @@ def independently_rebuild_K3(ball,items,i):
         rebuilt=tuple(d*yi[c]-B*q[c]-
                       (B*src.SCALE*source[c] if source is not None else 0)
                       for c in range(COLS))
-        need(rebuilt==tuple(old_rs[i]),"C_K3_independent_contraction_disagreement")
-        sums.append(rebuilt)
-    return tuple(sums)
+        need(rebuilt==tuple(old_rs[i]),
+             "C_K3_original_R_independent_contraction_disagreement")
+        answer.append(rebuilt)
+    return tuple(answer)
 
-def independently_rebuild_Q4(ball,items,width,mask,f,weight):
+def k3_reverse_index(ball,ex):
+    """Original weighted Q4->K3 edges, independently transposed to K3->Q4."""
+    cross=[{} for _ in range(K3)]
+    for f,i,weighted in zip(ex["e4f"],ex["e4s"],ex["e4c"]):
+        need(0<=f<Q4 and 0<=i<K3,"C_K3_Q4_reverse_index_range")
+        w=ball["wq"][i]
+        need(weighted%w==0,"C_K3_Q4_weighted_reverse_integrality")
+        cc=weighted//w
+        need(f not in cross[i],"C_duplicate_K3_Q4_reverse_record")
+        cross[i][f]=cc
+    return cross
+
+def independently_rebuild_K3(ball,ex,inner,items,i,key,reverse):
+    """Two exact constructions of V1_K3 = X R at both frozen energies.
+
+    Original frozen K3 CSR and weighted Q4-reverse list versus independent
+    complete 72-move canonical electric enumerator. R_K3 is signed and
+    R_Q4 is NEGATIVE positive P. R outside K3+Q4 vanishes.
+    """
+    original_k3_residual(ball,items,i)
+    near=src.c.neighbors(key)
+    need(sum(near.values())==72,"C_full_K3_72_raw_moves")
+    actual_inner={}
+    actual_q4={}
+    for dst,cc in near.items():
+        j=inner.get(dst)
+        if j is not None:
+            actual_inner[j]=cc
+            continue
+        g=ex["s4"].get(src.m.code(dst))
+        if g is not None:
+            actual_q4[g]=cc
+    expected_inner={ball["oj"][p]:ball["oc"][p]
+                    for p in range(ball["rs"][i],ball["rs"][i+1])}
+    need(actual_inner==expected_inner,
+         "C_independent_K3_row_vs_original_CSR_disagreement")
+    need(actual_q4==reverse[i],
+         "C_independent_K3_Q4_row_vs_original_weighted_reverse_disagreement")
+    result=[]
+    for row,record,old_rs,positive_q4 in items:
+        ri=old_rs[i]
+        direct=[0]*COLS
+        for j,cc in actual_inner.items():
+            rj=old_rs[j]
+            for c in range(COLS):
+                direct[c]+=cc*rj[c]
+        for g,cc in actual_q4.items():
+            pf=src.unpack(positive_q4[g],width_global,mask_global)
+            for c in range(COLS):
+                direct[c]-=cc*pf[c]
+        historic=[0]*COLS
+        for p in range(ball["rs"][i],ball["rs"][i+1]):
+            cc=ball["oc"][p]
+            rj=old_rs[ball["oj"][p]]
+            for c in range(COLS):
+                historic[c]+=cc*rj[c]
+        for g,cc in reverse[i].items():
+            pf=src.unpack(positive_q4[g],width_global,mask_global)
+            for c in range(COLS):
+                historic[c]-=cc*pf[c]
+        d=B*ball["dbase"][i]-row[0]
+        actual=tuple(d*ri[c]-B*direct[c] for c in range(COLS))
+        expected=tuple(d*ri[c]-B*historic[c] for c in range(COLS))
+        need(actual==expected,
+             "C_K3_full_V1_independent_row_vs_weighted_CSR_disagreement")
+        result.append(actual)
+    return tuple(result)
+
+def independently_rebuild_Q4(ball,ex,inner,items,width,mask,f,weight,key):
+    """Rebuild R_Q4=-pf from original K3 Y, then compute V1_Q4=X R.
+
+    The original positive Q4 response must be negated. Cross-term signs
+    and all self loops are computed from the full 72-move row.
+    """
     start=ball["es"][f]
     stop=ball["es"][f+1]
-    result=[]
     for row,record,old_rs,positive_q4 in items:
         y=record["Y"]
         sums=[0]*COLS
@@ -97,14 +168,59 @@ def independently_rebuild_Q4(ball,items,width,mask,f,weight):
             source=y[ball["esrc"][e]]
             for c in range(COLS):
                 sums[c]+=wc*source[c]
-        full=[]
+        r=[]
         for value in sums:
-            need(value%weight==0,"C_Q4_weighted_boundary_division")
-            full.append(-B*(value//weight))
+            need(value%weight==0,"C_Q4_weighted_Y_source_division")
+            r.append(-B*(value//weight))
         original=src.unpack(positive_q4[f],width,mask)
-        need(tuple(full)==tuple(-val for val in original),
-             "C_Q4_full_independent_source_contraction_disagreement")
-        result.append(tuple(full))
+        need(tuple(r)==tuple(-v for v in original),
+             "C_Q4_original_negative_R_independent_contraction_disagreement")
+    near=src.c.neighbors(key)
+    need(sum(near.values())==72,"C_full_Q4_72_raw_moves")
+    expect_k3={}
+    for edge in range(start,stop):
+        weighted=ball["ewc"][edge]
+        need(weighted%weight==0,"C_Q4_K3_reverse_record_divisibility")
+        j=ball["esrc"][edge]
+        expect_k3[j]=expect_k3.get(j,0)+weighted//weight
+    actual_k3={}
+    actual_q4={}
+    for dst,cc in near.items():
+        j=inner.get(dst)
+        if j is not None:
+            actual_k3[j]=cc
+            continue
+        g=ex["s4"].get(src.m.code(dst))
+        if g is not None:
+            actual_q4[g]=cc
+    need(actual_k3==expect_k3,
+         "C_full_Q4_original_K3_reverse_row_census_mismatch")
+    magnetic=src.c.magnetic(src.c.from_key(key))
+    dbase=72+9*magnetic
+    result=[]
+    for row,record,old_rs,positive_q4 in items:
+        pf=src.unpack(positive_q4[f],width,mask)
+        incoming=[0]*COLS
+        sum4=[0]*COLS
+        for j,cc in actual_k3.items():
+            rj=old_rs[j]
+            for c in range(COLS):
+                incoming[c]+=cc*rj[c]
+        for g,cc in actual_q4.items():
+            pg=src.unpack(positive_q4[g],width,mask)
+            for c in range(COLS):
+                sum4[c]+=cc*pg[c]
+        d=B*dbase-row[0]
+        # Direct operator acting on R_K3=old_rs, R_Q4=-pf.
+        direct=tuple(-d*pf[c]-B*incoming[c]+B*sum4[c]
+                     for c in range(COLS))
+        # Independent algebraic replay of the original positive response,
+        # with its physical Q4 V1 sign reversed.
+        negative_response=tuple(-(d*pf[c]-B*sum4[c]+B*incoming[c])
+                                for c in range(COLS))
+        need(direct==negative_response,
+             "C_full_Q4_direct_signed_operator_vs_historic_response")
+        result.append(direct)
     return tuple(result)
 
 def spool(mode,group,filename):
@@ -125,7 +241,10 @@ def spool(mode,group,filename):
     buckets=[[] for _ in range(64)]
     q4_lookup=ex["s4"]
     original_hash=original_UG(items)
+    global width_global, mask_global
+    width_global, mask_global = width, mask
     if mode=="k3":
+        reverse=k3_reverse_index(ball,ex)
         keys=[None]*K3
         for key,i in inner.items():
             need(0<=i<K3 and keys[i] is None,"C_K3_invalid_inverse_index")
@@ -138,14 +257,14 @@ def spool(mode,group,filename):
             address=src.m.code(key)
             need(address not in q4_lookup,"C_K3_Q4_support_collision")
             weight=src.c.weight(key)
-            values=independently_rebuild_K3(ball,items,offset)
+            values=independently_rebuild_K3(ball,ex,inner,items,offset,key,reverse)
         else:
             address=ex["code4"][offset]
             need(q4_lookup.get(address)==offset,"C_Q4_original_index_mismatch")
             key=src.m.decode(address)
             need(key not in inner,"C_Q4_K3_support_collision")
             weight=ball["eW"][offset]
-            values=independently_rebuild_Q4(ball,items,width,mask,offset,weight)
+            values=independently_rebuild_Q4(ball,ex,inner,items,width,mask,offset,weight,key)
         magnetic=checked_key(key,address,weight,shell)
         minmag=min(minmag,magnetic)
         maxmag=max(maxmag,magnetic)
