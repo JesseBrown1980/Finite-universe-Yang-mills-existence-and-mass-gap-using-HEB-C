@@ -1033,7 +1033,10 @@ fn c_baseline(path:&Path,sample:usize)->Result<CMatrix,String>{
         if let Some(values)=line.strip_prefix(&needle){
             ensure(found.is_none(),"C_B5_duplicate_principal_energy_record")?;
             let mut matrix=[[CInt320::ZERO;C_COLS];C_COLS];
-            let rows:Vec<_>=values.split(';').collect();
+            ensure(values.ends_with("|all_64_entries_exact=PASS|json=0"),
+                   "C_original_B5_matrix_receipt_not_accepted")?;
+            let encoded=values.split('|').next().ok_or_else(||"C_original_B5_matrix_no_payload".to_string())?;
+            let rows:Vec<_>=encoded.split(';').collect();
             ensure(rows.len()==C_COLS,"C_original_Q5_baseline_8x8_rows")?;
             for (i,row) in rows.iter().enumerate(){
                 let terms:Vec<_>=row.split(',').collect();
