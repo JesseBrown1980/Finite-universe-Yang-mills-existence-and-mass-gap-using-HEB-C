@@ -426,7 +426,7 @@ def real():
          authentic_matrix="EXACT_WEIGHTED_G_AND_K",
          basis="EIGHT_FLATS_ORIGINAL_FOUR_KRYLOV_PLUS_132_ORBITS",
          every_nesting="STRICT_SUBSPACE_INCLUSION",
-         12_24_48_96_144="ALL_EXACT",
+         ladder_12_24_48_96_144="ALL_EXACT",
          exact_coordinate_selection="PAIRWISE_NONADJACENT",
          first_two_Ritz="EXACT_INTEGER_INERTIA_BRACKETS",
          full_space_residual="HOLD",
