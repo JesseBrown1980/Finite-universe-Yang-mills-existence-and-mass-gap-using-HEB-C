@@ -1,0 +1,100 @@
+name: "Y137 Worker1 B5: exact Q5 two-energy third moment"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/rust/src/bin/b5_moments.rs'
+      - 'independent/y137-mu3-real-20261115/rust/Cargo.lock'
+      - '.github/workflows/y137-stage-b5-moments.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-toy-and-rust81:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: dtolnay/rust-toolchain@1.81.0
+        with:
+          components: clippy
+      - name: Source-free B5 packed vector and wide-integer tests, strict clippy
+        run: |
+          set -euo pipefail
+          cd independent/y137-mu3-real-20261115/rust
+          cargo clippy --locked --release --bin b5_moments -- -D warnings
+          cargo build --locked --release --bin b5_moments
+          ./target/release/b5_moments --selftest | tee /tmp/y137-b5-toy.hbp
+          grep -Fq 'signed_320_cancellation=PASS|oversized_source=REFUSED|oversized_contraction=REFUSED|oversized_coefficient=REFUSED|electric_72_moves=PASS|' /tmp/y137-b5-toy.hbp
+      - name: Frozen lockfile reproduction and no-float audit
+        run: |
+          set -euo pipefail
+          cd independent/y137-mu3-real-20261115/rust
+          cp Cargo.lock /tmp/y137-b5-frozen.lock
+          cargo generate-lockfile --offline
+          cmp Cargo.lock /tmp/y137-b5-frozen.lock
+          cd ../../..
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-mu3-real-20261115/rust/src/bin/b5_moments.rs
+  real-q5-row-and-paired-edge:
+    needs: exact-toy-and-rust81
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - name: Download exact eight Q5 spool artifacts
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43615270310
+          github-token: \${{ github.token }}
+          pattern: y137-d11-v1-actual-Q5-group*
+          path: build/y137-b5-input
+          merge-multiple: true
+      - name: Independently validate all eight pinned SHA-256 source files
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-b5-receipts
+          for g in 0 1 2 3 4 5 6 7; do
+            test -f "build/y137-b5-input/GROUP-\${g}.v1"
+            python3 -I -B independent/y137-mu3-real-20261115/source_gate.py verify \
+              independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp \
+              "\${g}" "build/y137-b5-input/GROUP-\${g}.v1" \
+              "build/y137-b5-receipts/GROUP-\${g}.hbp"
+          done
+          python3 -I -B independent/y137-mu3-real-20261115/source_gate.py aggregate \
+            independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp \
+            build/y137-b5-receipts build/y137-b5-receipts/SOURCES.hbp
+      - name: Compile and record exact Rust binary
+        run: |
+          set -euo pipefail
+          cd independent/y137-mu3-real-20261115/rust
+          cargo build --locked --release --bin b5_moments
+          sha256sum target/release/b5_moments > ../../../build/y137-b5-receipts/EXECUTABLE.sha256
+          sha256sum Cargo.lock > ../../../build/y137-b5-receipts/LOCKFILE.sha256
+          rustc --version > ../../../build/y137-b5-receipts/TOOLCHAIN.txt
+      - name: Benchmark source lookup, complete operator assembly on 10000 rows
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v independent/y137-mu3-real-20261115/rust/target/release/b5_moments \
+            --bench build/y137-b5-input 10000 \
+            | tee build/y137-b5-receipts/BENCH.hbp
+          grep -Fq 'Y137_B5_BENCH|rows=10000|raw_moves=720000|' build/y137-b5-receipts/BENCH.hbp
+      - name: Full two-energy Q5 principal third moment, independent row/pair
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v independent/y137-mu3-real-20261115/rust/target/release/b5_moments \
+            --run build/y137-b5-input \
+            | tee build/y137-b5-receipts/RESULT-B5.hbp
+          test "$(grep -c '^Y137_B5_MATRIX|' build/y137-b5-receipts/RESULT-B5.hbp)" -eq 2
+          grep -Fq '|preregistered_B5=PASS|whole_mu3=NOT_COMPUTED|Wilson_weight=HOLD|' \
+            build/y137-b5-receipts/RESULT-B5.hbp
+          sha256sum build/y137-b5-receipts/RESULT-B5.hbp > \
+            build/y137-b5-receipts/RESULT-B5.hbp.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-b5-real-two-energy-matrix-receipts
+          path: build/y137-b5-receipts
+          retention-days: 60
+          if-no-files-found: ignore
