@@ -125,7 +125,7 @@ def process_group(group):
     need(sums["to_k3"]+sums["to_q4"]+sums["to_flat"]+
          sums["to_outside_signed_nonflat"]==sums["moves"],
          "C_PY_missing_outside_support_move_classification")
-    row="Y137_C_PY_BLOCK|shell="+mode+"|group="+str(group)+
+    row=("Y137_C_PY_BLOCK|shell="+mode+"|group="+str(group)+
         "|start="+str(lo)+"|stop="+str(hi)+"|rows="+str(sums["rows"])+
         "|raw_moves="+str(sums["moves"])+
         "|to_K3="+str(sums["to_k3"])+
@@ -143,7 +143,7 @@ def process_group(group):
                                  str(items[1][0][5])+
         "|original_Q4_K3_reverse=EXACT"+
         "|candidate_Q5_membership=CHECK_FULL_RUST_GRAPH"+
-        "|whole_mu3=NOT_COMPUTED|Wilson_weight=HOLD|json=0"
+        "|whole_mu3=NOT_COMPUTED|Wilson_weight=HOLD|json=0")
     print(row,flush=True)
 
 def parse(line):
