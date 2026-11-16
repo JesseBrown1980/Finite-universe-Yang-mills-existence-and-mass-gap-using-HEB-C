@@ -42,6 +42,8 @@ jobs:
           test "$(grep -c '^Y137_G_SHIFT_POINT|' build/y137-g-flat/SHIFT-7-OVER-2.hbp)" -eq 2
           grep -Fq 'raw_shifted_sufficient_inequality=NO_GO_WITH_ACCEPTED_D1_D2' build/y137-g-flat/SHIFT-7-OVER-2.hbp
           grep -Fq 'first_Wilson_weight=HOLD|issue_137=OPEN' build/y137-g-flat/SHIFT-7-OVER-2.hbp
+          tail -n +2 independent/y137-stage-g-eight-flat-20261116/RESULT-STAGE-G-SHIFT-20261116.hbp > build/y137-g-flat/FROZEN-SHIFT.hbp
+          cmp build/y137-g-flat/SHIFT-7-OVER-2.hbp build/y137-g-flat/FROZEN-SHIFT.hbp
       - name: Source-authenticated 29-cell rational Wilson shift screen
         run: |
           set -euo pipefail
@@ -51,6 +53,8 @@ jobs:
           grep -Fq 'grid=HALF_INTEGERS_ZERO_THROUGH_FOURTEEN|cells=29' build/y137-g-flat/SHIFT-GRID.hbp
           grep -Fq 'result_for_not_excluded=INCONCLUSIVE_NOT_POSITIVE' build/y137-g-flat/SHIFT-GRID.hbp
           grep -Fq 'actual_first_Wilson_weight=HOLD|issue_137=OPEN' build/y137-g-flat/SHIFT-GRID.hbp
+          tail -n +2 independent/y137-stage-g-eight-flat-20261116/RESULT-STAGE-G-SHIFT-GRID-20261116.hbp > build/y137-g-flat/FROZEN-GRID.hbp
+          cmp build/y137-g-flat/SHIFT-GRID.hbp build/y137-g-flat/FROZEN-GRID.hbp
       - name: Source and result SHA-256 receipts
         if: always()
         run: |
