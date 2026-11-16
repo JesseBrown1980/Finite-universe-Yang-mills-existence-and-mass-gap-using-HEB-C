@@ -2,6 +2,25 @@
 
 **Research draft, November 16, 2026.** Completely separate exact-integer verification of [PR #238](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/238). Input is its frozen eight-flat/four-Krylov 12×12 weighted Gram \(G\) and Hamiltonian \(K\), identified by Git object hash and their original independent SHA-256 records. No full-space Wilson positivity claim.
 
+## Hosted exact result — November 16, 2026
+
+[Original hosted run #43956875971](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43956875971) completed both source and real calculation jobs successfully. The entire original numerical output is pinned in [RESULT-H12-MODULAR-20261116.hbp](RESULT-H12-MODULAR-20261116.hbp), with independent source Git blob and original 12×12 matrix fingerprint. Its workflow must reproduce every numerical row byte-for-byte.
+
+| Verification | Exact result |
+| --- | --- |
+| Full generalized polynomial degree | 12 |
+| Reduced determinant polynomial degree | 8 |
+| Coefficient comparison, full vs reduced | **13/13 exact** |
+| Eigenvalue 72 (projected multiplicity) | **Exactly four** |
+| Full 12×12 Gram leading minors | **12/12 positive** |
+| Original fixed energy negative inertia | **0, 1** |
+| Ritz lower/upper boundary negative inertia | **0→1, 1→2** |
+| Maximum primes for a reconstructed leading determinant | **34** certified 31-bit primes |
+| Original Ritz intervals | **Unchanged, exact** |
+| Full-space residual / Wilson spectral weight | **NOT COMPUTED / HOLD** |
+
+The exact full degree-12 coefficient SHA-256 is `addfa148103001666e15805a976b565a90782b939e619d70319110e2f179d040`; the reduced degree-eight coefficient SHA-256 is `a5aa36775e079cd7d4c468c008108f582d10b30103c5062ac8a6fc61ae2721fd`. The polynomial identity is an **exact algebraic optimization**; no practical wall-clock speed advantage has yet been demonstrated. The original Ritz energy enclosures remain (69.924680131ldots69.924680132) and (69.963663574ldots69.963663575).
+
 ## New structural result: four exact flat Ritz values
 
 The original *physical-weighted generalized pencil* has block form
