@@ -1,0 +1,53 @@
+name: "Y137 Cloud GPT-6 Stage D: real exact four-moment Loewner and Schur"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-d-real-four-moment.yml'
+      - 'independent/y137-mu3-real-20261115/d_real_four_moment.py'
+      - 'independent/y137-mu3-real-20261115/RESULT-WORKER1-C-FULL-SIGNED-MU3-TWO-ENERGY-20261116.hbp'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-real-mu3-four-moment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Source-only integer and no-floating-point gates
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-mu3-real-20261115/d_real_four_moment.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+      - name: Exact authentication/forged-SHA/energy-swap source-free controls
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-d-four-moment
+          python3 -I -B independent/y137-mu3-real-20261115/d_real_four_moment.py toy |
+            tee build/y137-d-four-moment/TOY.hbp
+          grep -Fq 'forged_SHA=REFUSED|energy_swap=REFUSED' build/y137-d-four-moment/TOY.hbp
+      - name: Actual two-energy rational four-moment Schur and inertia evaluation
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-mu3-real-20261115/d_real_four_moment.py real |
+            tee build/y137-d-four-moment/RESULT.hbp
+          test "$(grep -c '^Y137_D_REAL_FOUR_MOMENT|sample_num=' build/y137-d-four-moment/RESULT.hbp)" -eq 2
+          grep -Fq '|real_mu3_windows=2_OF_2_PASS|' build/y137-d-four-moment/RESULT.hbp
+          grep -Fq '|both_original_inertia_targets=PASS|' build/y137-d-four-moment/RESULT.hbp
+      - name: Record source, frozen input and output SHA-256
+        if: always()
+        run: |
+          set -euo pipefail
+          sha256sum independent/y137-mu3-real-20261115/d_real_four_moment.py > build/y137-d-four-moment/SOURCE.sha256
+          sha256sum independent/y137-mu3-real-20261115/RESULT-WORKER1-C-FULL-SIGNED-MU3-TWO-ENERGY-20261116.hbp > build/y137-d-four-moment/MU3-SOURCE.sha256
+          if test -f build/y137-d-four-moment/RESULT.hbp; then
+            sha256sum build/y137-d-four-moment/RESULT.hbp > build/y137-d-four-moment/RESULT.sha256
+          fi
+          git rev-parse HEAD > build/y137-d-four-moment/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-cloud-stage-d-real-four-moment-exact-receipt
+          path: build/y137-d-four-moment
+          retention-days: 90
+          if-no-files-found: error
