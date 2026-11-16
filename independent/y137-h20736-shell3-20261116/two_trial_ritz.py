@@ -202,6 +202,13 @@ def main():
     new=augmented(samples,entries)
     W,K=gram_hamiltonian([values for z,values in new],entries)
     brackets=[bracket(W,K,k) for k in (1,2)]
+    emit("Y137_H20736_TWO_MATRIX",
+         gram_g11=W[0][0],gram_g12=W[0][1],gram_g22=W[1][1],
+         hamiltonian_k11=K[0][0],hamiltonian_k12=K[0][1],
+         hamiltonian_k22=K[1][1],
+         two_trial_G_sha256=signed_hash([W[0][0],W[0][1],W[1][1]]),
+         two_trial_K_sha256=signed_hash([K[0][0],K[0][1],K[1][1]]),
+         exact_arithmetic="PASS")
     emit("Y137_H20736_TWO_SOURCE",dimension=N,
          authenticated_sparse_sha256=digest,
          original_H144_two_trial_samples="EXACT_REBUILT",
