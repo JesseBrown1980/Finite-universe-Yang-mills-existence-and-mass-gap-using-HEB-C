@@ -1,0 +1,195 @@
+name: "Y137 Worker1 Stage C: full signed two-energy mu3 exact matrices"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/rust/src/bin/c_full_mu3.rs'
+      - 'independent/y137-mu3-real-20261115/c_full_mu3_accept.py'
+      - '.github/workflows/y137-stage-c-full-mu3.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  source-free-exact-signed-moment-toys:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: dtolnay/rust-toolchain@1.81.0
+        with:
+          components: clippy
+      - name: Frozen S3 electric operator and exact signed 320-bit arithmetic
+        run: |
+          set -euo pipefail
+          cd independent/y137-mu3-real-20261115/rust
+          cargo clippy --locked --release --bin c_full_mu3 -- -D warnings
+          cargo build --locked --release --bin c_full_mu3
+          ./target/release/c_full_mu3 --c-mu3-toy | tee /tmp/y137-full-mu3-toy.hbp
+          grep -Fq 'bound_2pow294_strict=PASS|coefficient_overflow=REFUSED|' /tmp/y137-full-mu3-toy.hbp
+      - name: Independent exact integer acceptance and planted-negative controls
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-mu3-real-20261115/c_full_mu3_accept.py toy \
+            | tee /tmp/y137-full-mu3-accept-toy.hbp
+          grep -Fq '|exact_8x8_integer=PASS|' /tmp/y137-full-mu3-accept-toy.hbp
+          python3 -I -X utf8 native/scripts/integer_only_audit.py \
+            independent/y137-mu3-real-20261115/c_full_mu3_accept.py
+      - name: Repository source-only floating-point gate
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+
+  whole-full-mu3-matrix:
+    needs: source-free-exact-signed-moment-toys
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        method: [row, pair]
+        sample: [0, 1]
+    env:
+      C_METHOD: ${{ matrix.method }}
+      C_SAMPLE: ${{ matrix.sample }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - name: Recover all nine original signed physical V1 spools
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43867088509
+          github-token: ${{ github.token }}
+          pattern: y137-stage-c-full-signed-*
+          path: build/y137-c-mu3/signed
+          merge-multiple: true
+      - name: Recover all eight original frozen Q5 packed V1/b spools
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43615270310
+          github-token: ${{ github.token }}
+          pattern: y137-d11-v1-actual-Q5-group*
+          path: build/y137-c-mu3/q5
+          merge-multiple: true
+      - name: Reauthenticate original all-source SHA and 20,738,636 disjoint addresses
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-c-mu3/receipts
+          /usr/bin/time -v python3 -I -B independent/y137-mu3-real-20261115/c_signed_q5_support_join.py \
+            run build/y137-c-mu3/signed build/y137-c-mu3/q5 \
+            independent/y137-mu3-real-20261115/RESULT-WORKER1-C-FULL-SIGNED-V1-20261116.hbp \
+            independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp \
+            | tee build/y137-c-mu3/receipts/SOURCE-IDENTITY.hbp
+          grep -Fq 'unique_K3_Q4_Q5_addresses=20738636|signed_Q5_overlaps=0|' \
+            build/y137-c-mu3/receipts/SOURCE-IDENTITY.hbp
+      - name: Retrieve immutable 256 weighted cross-pair partitions and their original hashes
+        if: matrix.method == 'pair'
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43873674889
+          github-token: ${{ github.token }}
+          name: y137-worker1-c-full-threeblock-256-pair-archives
+          path: build/y137-c-graph/pairs
+      - name: Retrieve immutable partition SHA256 manifest and original executable receipts
+        if: matrix.method == 'pair'
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43873674889
+          github-token: ${{ github.token }}
+          name: y137-worker1-c-full-threeblock-exact-graph-receipt
+          path: build/y137-c-graph/results
+      - name: Rehash every original cross-pair binary BEFORE numeric use
+        if: matrix.method == 'pair'
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' \
+            'dda57b417ecb0bd0dd51842013981ef483ede7ddc509066786ce861ef277c027' \
+            build/y137-c-graph/results/PAIR-PARTITIONS.sha256 | sha256sum -c -
+          test "$(find build/y137-c-graph/pairs -maxdepth 1 -name 'C-PAIR-*.bin' | wc -l)" -eq 256
+          sha256sum -c build/y137-c-graph/results/PAIR-PARTITIONS.sha256 \
+            | tee build/y137-c-mu3/receipts/PAIR-HASHES-VALIDATED.hbp
+          test "$(grep -c ': OK$' build/y137-c-mu3/receipts/PAIR-HASHES-VALIDATED.hbp)" -eq 256
+      - name: Compile exact Rust 1.81 signed 320-bit physical moment
+        run: |
+          set -euo pipefail
+          cd independent/y137-mu3-real-20261115/rust
+          cargo build --locked --release --bin c_full_mu3
+      - name: Real full 20.74M-state signed 8x8 moment, original energy and method
+        run: |
+          set -euo pipefail
+          if [ "${C_SAMPLE}" = "0" ]; then
+            Z=69909875505
+          else
+            Z=69949729820
+          fi
+          mkdir -p build/y137-c-mu3/receipts
+          /usr/bin/time -v independent/y137-mu3-real-20261115/rust/target/release/c_full_mu3 \
+            --c-full "${C_METHOD}" "${C_SAMPLE}" \
+            build/y137-c-mu3/signed build/y137-c-mu3/q5 \
+            build/y137-c-graph/pairs \
+            independent/y137-mu3-real-20261115/RESULT-WORKER1-B5-REAL-20261116.hbp \
+            independent/y137-mu3-real-20261115/RESULT-WORKER1-C-EXACT-CROSS-GRAPH-20261116.hbp \
+            | tee "build/y137-c-mu3/receipts/RESULT-${C_METHOD}-${Z}.hbp"
+          test "$(grep -c '^Y137_C_FULL_MU3_MATRIX|' build/y137-c-mu3/receipts/RESULT-${C_METHOD}-${Z}.hbp)" -eq 1
+          grep -Fq '|sample_num='${Z}'|quantity=whole_K3_Q4_Q5_mu3_six|' \
+            "build/y137-c-mu3/receipts/RESULT-${C_METHOD}-${Z}.hbp"
+      - name: Immutable source, lockfile, binary and matrix receipt SHA256
+        run: |
+          set -euo pipefail
+          sha256sum independent/y137-mu3-real-20261115/rust/src/bin/c_full_mu3.rs \
+            > build/y137-c-mu3/receipts/SOURCE-${C_METHOD}-${C_SAMPLE}.sha256
+          sha256sum independent/y137-mu3-real-20261115/rust/Cargo.lock \
+            > build/y137-c-mu3/receipts/LOCK-${C_METHOD}-${C_SAMPLE}.sha256
+          sha256sum independent/y137-mu3-real-20261115/rust/target/release/c_full_mu3 \
+            > build/y137-c-mu3/receipts/EXECUTABLE-${C_METHOD}-${C_SAMPLE}.sha256
+          git rev-parse HEAD > build/y137-c-mu3/receipts/COMMIT-${C_METHOD}-${C_SAMPLE}.txt
+          sha256sum build/y137-c-mu3/receipts/RESULT-${C_METHOD}-*.hbp \
+            > build/y137-c-mu3/receipts/MATRIX-${C_METHOD}-${C_SAMPLE}.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-full-mu3-${{ matrix.method }}-${{ matrix.sample }}
+          path: build/y137-c-mu3/receipts
+          retention-days: 60
+          if-no-files-found: ignore
+
+  exact-independent-fourway-matrix-acceptance:
+    needs: whole-full-mu3-matrix
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-worker1-full-mu3-*
+          path: build/y137-c-mu3/aggregate
+          merge-multiple: true
+      - name: Exact 128 signed matrix entries row-vs-pair and two energies
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-mu3-real-20261115/c_full_mu3_accept.py \
+            real build/y137-c-mu3/aggregate \
+            | tee build/y137-c-mu3/aggregate/RESULT-C-FULL-MU3.hbp
+          grep -Fq 'whole_space_mu3_two_energy_matrices=CALCULATED|row_vs_pair_exact_entries=128|' \
+            build/y137-c-mu3/aggregate/RESULT-C-FULL-MU3.hbp
+          grep -Fq '|whole_mu3_production=PASS|Wilson_first_excitation_weight=HOLD|' \
+            build/y137-c-mu3/aggregate/RESULT-C-FULL-MU3.hbp
+      - name: Seal exact production source and four-way matrix digests
+        run: |
+          set -euo pipefail
+          sha256sum build/y137-c-mu3/aggregate/RESULT-C-FULL-MU3.hbp \
+            > build/y137-c-mu3/aggregate/RESULT-C-FULL-MU3.hbp.sha256
+          sha256sum independent/y137-mu3-real-20261115/c_full_mu3_accept.py \
+            > build/y137-c-mu3/aggregate/ACCEPT-SOURCE.sha256
+          git rev-parse HEAD > build/y137-c-mu3/aggregate/FANIN-COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-full-mu3-two-energy-matrix-acceptance
+          path: |
+            build/y137-c-mu3/aggregate/RESULT-C-FULL-MU3.hbp
+            build/y137-c-mu3/aggregate/RESULT-C-FULL-MU3.hbp.sha256
+            build/y137-c-mu3/aggregate/ACCEPT-SOURCE.sha256
+            build/y137-c-mu3/aggregate/FANIN-COMMIT.txt
+          retention-days: 60
+          if-no-files-found: ignore

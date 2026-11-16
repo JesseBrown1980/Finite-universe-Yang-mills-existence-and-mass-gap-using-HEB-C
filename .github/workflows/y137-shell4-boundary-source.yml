@@ -1,0 +1,47 @@
+name: Issue 137 actual shell4 complete boundary-resolvent source measurement
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-shell4-resolvent-domination-20261113/**'
+      - '.github/workflows/y137-shell4-boundary-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-shell4-gram-and-weighted-fullQ-upper:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Freeze gate and accepted original inputs
+        run: |
+          set -euo pipefail
+          D=independent/y137-shell4-resolvent-domination-20261113
+          grep -Fq 'PREHOST_SOURCE_INPUTS_FROZEN' "$D/PREDICTION.hbp"
+          grep -Fq 'sample=69909875505/1000000000|' "$D/PREDICTION.hbp"
+          grep -Fq 'sample=69949729820/1000000000|' "$D/PREDICTION.hbp"
+          grep -Fq 'actual_E1E2_Wilson_weight=HOLD|' "$D/PREDICTION.hbp"
+          grep -Fq 'BstarB_exact_72_identity=1|' independent/y137-fullstate-Q-normalization-20261113/RESULT-FULL-W-NORM.hbp
+      - name: Rebuild 155378 Q, all 1985218 shell4 targets, complete weighted Gram
+        run: |
+          set -euo pipefail
+          D=independent/y137-shell4-resolvent-domination-20261113
+          mkdir -p build/y137-shell4-boundary
+          python3 -I -B "$D/source.py" | tee build/y137-shell4-boundary/source.stdout.txt
+          test "$(grep -c '^Y137_BDRY_POINT|' build/y137-shell4-boundary/source.stdout.txt)" -eq 2
+          grep -Fq 'fullQ_width_all_255_PSD=1|shell4_G_all_255_PSD=1|deleted_edge_negative_control=PASS|' build/y137-shell4-boundary/source.stdout.txt
+          grep -Fq 'source_schur_upper=STRICTLY_IMPROVED_ALONG_TWO_FROZEN_VECTORS|actual_E1E2_Wilson_spectral_weight=HOLD|' build/y137-shell4-boundary/source.stdout.txt
+          grep '^Y137_BDRY_' build/y137-shell4-boundary/source.stdout.txt > build/y137-shell4-boundary/RESULT-BOUNDARY-SOURCE.hbp
+          test "$(grep -c '^Y137_BDRY_' build/y137-shell4-boundary/RESULT-BOUNDARY-SOURCE.hbp)" -eq 5
+      - name: Enforce no floating point and pure integer source checker
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-shell4-resolvent-domination-20261113/source.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-actual-shell4-boundary-source
+          path: build/y137-shell4-boundary/source.stdout.txt
+          retention-days: 60
+          if-no-files-found: ignore

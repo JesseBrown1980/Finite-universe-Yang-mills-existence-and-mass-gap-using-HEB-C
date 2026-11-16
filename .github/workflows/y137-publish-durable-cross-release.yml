@@ -1,0 +1,64 @@
+name: "Y137 public verified 256-part cross-electric archive release"
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/y137-publish-durable-cross-release.yml'
+      - 'independent/y137-mu3-real-20261115/RESULT-WORKER1-C-FULL-SIGNED-MU3-TWO-ENERGY-20261116.hbp'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish-verified-archive:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: y137-stage-c-cross-pairs-20261116-sha-v1
+      ORIGINAL_TAG_COMMIT: edd330f3d93b83db50c0489e04f498c673ff074a
+      MANIFEST_SHA256: dda57b417ecb0bd0dd51842013981ef483ede7ddc509066786ce861ef277c027
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify original complete signed matrix and cross graph immutable receipts exist on public main
+        run: |
+          set -euo pipefail
+          test -f independent/y137-mu3-real-20261115/RESULT-WORKER1-C-FULL-SIGNED-MU3-TWO-ENERGY-20261116.hbp
+          test -f independent/y137-mu3-real-20261115/RESULT-WORKER1-C-EXACT-CROSS-GRAPH-20261116.hbp
+          grep -Fq '|row_vs_pair_exact_entries=128|' independent/y137-mu3-real-20261115/RESULT-WORKER1-C-FULL-SIGNED-MU3-TWO-ENERGY-20261116.hbp
+          grep -Fq '|weighted_reverse_mismatches=0|unmatched_reverse_records=0|' independent/y137-mu3-real-20261115/RESULT-WORKER1-C-EXACT-CROSS-GRAPH-20261116.hbp
+      - name: Verify original release tag, 260 assets and 256 pair file names before publication
+        run: |
+          set -euo pipefail
+          tag_target="$(gh release view "${TAG}" --repo "${GH_REPO}" --json targetCommitish --jq '.targetCommitish')"
+          test "${tag_target}" = "${ORIGINAL_TAG_COMMIT}"
+          actual_assets="$(gh release view "${TAG}" --repo "${GH_REPO}" --json assets --jq '.assets | length')"
+          test "${actual_assets}" = 260
+          gh release view "${TAG}" --repo "${GH_REPO}" --json assets \
+            --jq '.assets[].name' | sort > /tmp/y137-c-release-actual-assets.txt
+          for n in $(seq 0 255); do
+            printf 'C-PAIR-%03d.bin\n' "${n}"
+          done > /tmp/y137-c-release-expected-pairs.txt
+          while IFS= read -r filename; do
+            grep -Fxq "${filename}" /tmp/y137-c-release-actual-assets.txt
+          done < /tmp/y137-c-release-expected-pairs.txt
+          for f in PAIR-PARTITIONS.sha256 RESULT-C-CROSS.hbp COMMIT.txt README.txt; do
+            grep -Fxq "${f}" /tmp/y137-c-release-actual-assets.txt
+          done
+          mkdir -p /tmp/y137-c-release-manifest
+          gh release download "${TAG}" --repo "${GH_REPO}" \
+            --pattern 'PAIR-PARTITIONS.sha256' \
+            --dir /tmp/y137-c-release-manifest
+          printf '%s  %s\n' "${MANIFEST_SHA256}" \
+            /tmp/y137-c-release-manifest/PAIR-PARTITIONS.sha256 | sha256sum -c -
+          test "$(wc -l < /tmp/y137-c-release-manifest/PAIR-PARTITIONS.sha256)" -eq 256
+      - name: Publish verified original 5.02 GB archive, human authorized
+        run: |
+          set -euo pipefail
+          if [ "$(gh release view "${TAG}" --repo "${GH_REPO}" --json isDraft --jq '.isDraft')" = true ]; then
+            gh release edit "${TAG}" --repo "${GH_REPO}" --draft=false
+          fi
+          test "$(gh release view "${TAG}" --repo "${GH_REPO}" --json isDraft --jq '.isDraft')" = false
+          test "$(gh release view "${TAG}" --repo "${GH_REPO}" --json assets --jq '.assets | length')" = 260
+          echo "Y137_C_PUBLIC_RELEASE|tag=${TAG}|original_source_commit=${ORIGINAL_TAG_COMMIT}|pair_files=256|original_manifest_sha256=${MANIFEST_SHA256}|public_draft=false|full_mu3_128_exact=PASS|Wilson_weight=HOLD|json=0"

@@ -1,0 +1,47 @@
+name: Issue 137 graph-free cached Schur 13-threshold replay
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-shell4-diagonal-cache-20261114/**'
+      - '.github/workflows/y137-shell4-quick-replay.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-hash-keyed-small-matrix-inertia:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify complete hosted source receipt without rebuilding the graph
+        run: |
+          set -euo pipefail
+          D=independent/y137-shell4-diagonal-cache-20261114
+          grep -Fq 'original_job=FAIL_SYNTAX_GATE|' "$D/HOSTED-SOURCE-PIN.hbp"
+          test "$(git hash-object "$D/RESULT-MAGNETIC-CACHE.hbp")" = 6454216973b8e59d65174c7cadc4f22c7dcf0354
+          test "$(git hash-object "$D/source_cache.py")" = 42cea9b111330d948ca40ef34185e0785e63aa3c
+          test "$(grep -c '^Y137_CACHE_POINT|' "$D/RESULT-MAGNETIC-CACHE.hbp")" -eq 2
+          grep -Fq 'actual_first_Wilson_spectral_weight=HOLD|' "$D/RESULT-MAGNETIC-CACHE.hbp"
+      - name: Exact 13-energy inertia replay from two 8x8 cached sources
+        run: |
+          set -euo pipefail
+          D=independent/y137-shell4-diagonal-cache-20261114
+          mkdir -p build/y137-quick
+          python3 -I -B "$D/quick_replay.py" | tee build/y137-quick/RESULT-QUICK.hbp
+          test "$(grep -c '^Y137_QUICK_SOURCE|' build/y137-quick/RESULT-QUICK.hbp)" -eq 2
+          test "$(grep -c '^Y137_QUICK_GRID|' build/y137-quick/RESULT-QUICK.hbp)" -eq 13
+          cmp build/y137-quick/RESULT-QUICK.hbp "$D/RESULT-QUICK.hbp"
+          grep -Fq 'precomputed_shell4_graph_reused=1|source_records=2|energy_thresholds=13|integer_inertia_8x8=EXACT|' build/y137-quick/RESULT-QUICK.hbp
+          grep -Fq 'actual_Wilson_first_spectral_weight=HOLD|' build/y137-quick/RESULT-QUICK.hbp
+      - name: Strict source audits
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-shell4-diagonal-cache-20261114/quick_replay.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-13-threshold-exact-graphfree-replay
+          path: build/y137-quick/RESULT-QUICK.hbp
+          retention-days: 60
+          if-no-files-found: ignore

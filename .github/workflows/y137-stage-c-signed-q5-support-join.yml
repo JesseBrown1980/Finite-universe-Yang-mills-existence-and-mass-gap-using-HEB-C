@@ -1,0 +1,79 @@
+name: "Y137 Worker1 Stage C: signed K3/Q4 vs frozen Q5 disjoint support"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/c_signed_q5_support_join.py'
+      - '.github/workflows/y137-stage-c-signed-q5-support-join.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-join-toy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact source-collision and fake-file adversarial controls
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-mu3-real-20261115/c_signed_q5_support_join.py toy | tee /tmp/y137-c-join-toy.hbp
+          grep -Fq 'cross_source_collision=REFUSED|tampered_spool=REFUSED|forged_duplicate_address=REFUSED|' /tmp/y137-c-join-toy.hbp
+      - name: Integer only and repository no-float checks
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-mu3-real-20261115/c_signed_q5_support_join.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+
+  real-fully-authenticated-support-join:
+    needs: source-join-toy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Download exact accepted original nine signed-V1 K3/Q4 spools
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43867088509
+          github-token: ${{ github.token }}
+          pattern: y137-stage-c-full-signed-*
+          path: build/y137-c-source
+          merge-multiple: true
+      - name: Download the original eight frozen authentic Q5 spools
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43615270310
+          github-token: ${{ github.token }}
+          pattern: y137-d11-v1-actual-Q5-group*
+          path: build/y137-c-q5
+          merge-multiple: true
+      - name: Full global 20,738,636 source-key disjointness proof
+        run: |
+          set -euo pipefail
+          test "$(find build/y137-c-source -maxdepth 1 -name 'SIGNED-*.v1' | wc -l)" -eq 9
+          test "$(find build/y137-c-q5 -maxdepth 1 -name 'GROUP-*.v1' | wc -l)" -eq 8
+          mkdir -p build/y137-c-join-result
+          /usr/bin/time -v python3 -I -B independent/y137-mu3-real-20261115/c_signed_q5_support_join.py \
+            run build/y137-c-source build/y137-c-q5 \
+            independent/y137-mu3-real-20261115/RESULT-WORKER1-C-FULL-SIGNED-V1-20261116.hbp \
+            independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp \
+            | tee build/y137-c-join-result/RESULT-C-SUPPORT.hbp
+          grep -Fq 'unique_K3_Q4_Q5_addresses=20738636|signed_Q5_overlaps=0|' \
+            build/y137-c-join-result/RESULT-C-SUPPORT.hbp
+          grep -Fq '|complete_source_support=PASS|all_source_physical_amplitude_upper_bits=112|' \
+            build/y137-c-join-result/RESULT-C-SUPPORT.hbp
+      - name: Freeze original executable/source provenance and results
+        run: |
+          set -euo pipefail
+          sha256sum independent/y137-mu3-real-20261115/c_signed_q5_support_join.py > build/y137-c-join-result/WORKER.sha256
+          sha256sum independent/y137-mu3-real-20261115/RESULT-WORKER1-C-FULL-SIGNED-V1-20261116.hbp > build/y137-c-join-result/SIGNED-MANIFEST.sha256
+          sha256sum independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp > build/y137-c-join-result/FROZEN-Q5-MANIFEST.sha256
+          sha256sum build/y137-c-join-result/RESULT-C-SUPPORT.hbp > build/y137-c-join-result/RESULT-C-SUPPORT.hbp.sha256
+          git rev-parse HEAD > build/y137-c-join-result/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-stage-c-full-20m-support-join-receipt
+          path: build/y137-c-join-result
+          retention-days: 60
+          if-no-files-found: ignore
