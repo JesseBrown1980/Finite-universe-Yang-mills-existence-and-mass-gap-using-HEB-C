@@ -42,12 +42,21 @@ jobs:
           test "$(grep -c '^Y137_G_SHIFT_POINT|' build/y137-g-flat/SHIFT-7-OVER-2.hbp)" -eq 2
           grep -Fq 'raw_shifted_sufficient_inequality=NO_GO_WITH_ACCEPTED_D1_D2' build/y137-g-flat/SHIFT-7-OVER-2.hbp
           grep -Fq 'first_Wilson_weight=HOLD|issue_137=OPEN' build/y137-g-flat/SHIFT-7-OVER-2.hbp
+      - name: Source-authenticated 29-cell rational Wilson shift screen
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-stage-g-eight-flat-20261116/rational_shift_grid.py
+          python3 -I -B independent/y137-stage-g-eight-flat-20261116/rational_shift_grid.py | tee build/y137-g-flat/SHIFT-GRID.hbp
+          test "$(grep -c '^Y137_G_ALPHA|' build/y137-g-flat/SHIFT-GRID.hbp)" -eq 29
+          grep -Fq 'grid=HALF_INTEGERS_ZERO_THROUGH_FOURTEEN|cells=29' build/y137-g-flat/SHIFT-GRID.hbp
+          grep -Fq 'result_for_not_excluded=INCONCLUSIVE_NOT_POSITIVE' build/y137-g-flat/SHIFT-GRID.hbp
+          grep -Fq 'actual_first_Wilson_weight=HOLD|issue_137=OPEN' build/y137-g-flat/SHIFT-GRID.hbp
       - name: Source and result SHA-256 receipts
         if: always()
         run: |
           set -euo pipefail
           mkdir -p build/y137-g-flat
-          sha256sum independent/y137-stage-g-eight-flat-20261116/flat_action_gate.py independent/y137-stage-g-eight-flat-20261116/shifted_7over2_gate.py > build/y137-g-flat/SOURCE.sha256
+          sha256sum independent/y137-stage-g-eight-flat-20261116/flat_action_gate.py independent/y137-stage-g-eight-flat-20261116/shifted_7over2_gate.py independent/y137-stage-g-eight-flat-20261116/rational_shift_grid.py > build/y137-g-flat/SOURCE.sha256
           sha256sum independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp > build/y137-g-flat/ORIGINAL-WILSON.sha256
           sha256sum independent/y137-fullstate-Q-normalization-20261113/RESULT-FULL-W-NORM.hbp > build/y137-g-flat/ORIGINAL-FULL-W.sha256
           if test -f build/y137-g-flat/RESULT.hbp; then
@@ -55,6 +64,9 @@ jobs:
           fi
           if test -f build/y137-g-flat/SHIFT-7-OVER-2.hbp; then
             sha256sum build/y137-g-flat/SHIFT-7-OVER-2.hbp > build/y137-g-flat/SHIFT-7-OVER-2.sha256
+          fi
+          if test -f build/y137-g-flat/SHIFT-GRID.hbp; then
+            sha256sum build/y137-g-flat/SHIFT-GRID.hbp > build/y137-g-flat/SHIFT-GRID.sha256
           fi
           git rev-parse HEAD > build/y137-g-flat/COMMIT.txt
       - uses: actions/upload-artifact@v4
