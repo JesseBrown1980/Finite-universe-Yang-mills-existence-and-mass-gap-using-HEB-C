@@ -33,6 +33,10 @@ CONJ = tuple(tuple(MUL[MUL[a][u]][INV[a]] for u in range(6))
              for a in range(6))
 EXPECTED_TARGETS = 18598040
 EXPECTED_BYTES = 3140900108
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
+WORKFLOW = os.path.join(ROOT, ".github", "workflows",
+                        "y137-stage-b-source-gate.yml")
 
 
 class Refuse(Exception):
@@ -166,6 +170,17 @@ def write_receipt(path, content):
         f.write(content)
 
 
+def code_provenance():
+    with open(__file__, "rb") as f:
+        exe_sha = hashlib.sha256(f.read()).hexdigest()
+    with open(WORKFLOW, "rb") as f:
+        workflow_sha = hashlib.sha256(f.read()).hexdigest()
+    sha = os.environ.get("GITHUB_SHA", "LOCAL")
+    run = os.environ.get("GITHUB_RUN_ID", "LOCAL")
+    need(bool(sha) and bool(run), "missing_executable_provenance")
+    return exe_sha, workflow_sha, sha, run
+
+
 def verify(manifest_path, group, spool_path, receipt_path,
            expected_targets=EXPECTED_TARGETS, expected_bytes=EXPECTED_BYTES,
            check_canonical=True):
@@ -173,6 +188,10 @@ def verify(manifest_path, group, spool_path, receipt_path,
     need(0 <= group < GROUPS, "invalid_group")
     output = inspect(group, spool_path, rows[group], check_canonical)
     output += "Y137_STAGE_B_GROUP_INPUT|manifest_sha256=" + manifest_sha + "|json=0\n"
+    exe, workflow, sha, run = code_provenance()
+    output += ("Y137_STAGE_B_GROUP_PROVENANCE|code_sha256=" + exe +
+               "|workflow_sha256=" + workflow +
+               "|github_sha=" + sha + "|github_run_id=" + run + "|json=0\n")
     write_receipt(receipt_path, output)
     return output
 
@@ -184,13 +203,22 @@ def aggregate(manifest_path, receipt_dir, output_path,
     targets = 0
     bytes_count = 0
     all_buckets = 0
+    exe, workflow, sha, run = code_provenance()
+    receipts_hash = hashlib.sha256()
     for g in range(GROUPS):
         receipt_path = os.path.join(receipt_dir, "GROUP-" + str(g) + ".hbp")
-        with open(receipt_path, encoding="ascii") as f:
-            lines = f.read().splitlines()
-        need(len(lines) == 2, "unexpected_group_receipt_rows")
+        with open(receipt_path, "rb") as f:
+            raw_receipt = f.read()
+        receipts_hash.update(raw_receipt)
+        lines = raw_receipt.decode("ascii").splitlines()
+        need(len(lines) == 3, "unexpected_group_receipt_rows")
         r = fields(lines[0], "Y137_STAGE_B_SOURCE_GROUP")
         m = fields(lines[1], "Y137_STAGE_B_GROUP_INPUT")
+        p = fields(lines[2], "Y137_STAGE_B_GROUP_PROVENANCE")
+        need(p["code_sha256"] == exe and
+             p["workflow_sha256"] == workflow and
+             p["github_sha"] == sha and p["github_run_id"] == run,
+             "forged_or_stale_group_provenance")
         need(int(r["group"]) == g and m["manifest_sha256"] == manifest_sha,
              "group_receipt_provenance")
         need(r["sha256"] == rows[g]["sha256"] and
@@ -217,6 +245,9 @@ def aggregate(manifest_path, receipt_dir, output_path,
               "|unique_radix64_buckets=64|distinct_Q5_addresses=" + str(targets) +
               "|total_source_bytes=" + str(bytes_count) +
               "|source_manifest_sha256=" + manifest_sha +
+              "|code_sha256=" + exe + "|workflow_sha256=" + workflow +
+              "|github_sha=" + sha + "|github_run_id=" + run +
+              "|group_receipts_sha256=" + receipts_hash.hexdigest() +
               "|prediction_B1=PASS|prediction_B2=" +
               ("PASS" if require_canonical else "TOY_ONLY") +
               "|canonical_S3_orbit_weights=" +
@@ -241,6 +272,22 @@ def selftest():
                     pieces[1] = pieces[0]
                 elif fault == "bucket_order":
                     pieces[0], pieces[1] = pieces[1], pieces[0]
+                elif fault == "same_bucket_reverse":
+                    # Two distinct addresses with the same mod-64 residue,
+                    # deliberately in descending order (rehashed manifest).
+                    pieces[0] = record(g + 64)
+                    pieces[1] = record(g)
+                elif fault == "noncanonical_file":
+                    need(g == 0, "toy_noncanonical_group_must_be_zero")
+                    bad = None
+                    for candidate in range(64, 8192, 64):
+                        try:
+                            canonical_weight(candidate)
+                        except Refuse:
+                            bad = candidate
+                            break
+                    need(bad is not None, "toy_noncanonical_address_missing")
+                    pieces[0] = record(bad)
                 elif fault == "lane":
                     pieces[0] = record(g, p0=b"\x01" * (MAX_PACKED_BYTES + 1))
                 elif fault == "group":
@@ -271,15 +318,18 @@ def selftest():
                            require_canonical=False)
         need("prediction_B2=TOY_ONLY" in output, "toy_aggregation_failed")
         refused = 0
-        for flaw in ("duplicate", "bucket_order", "lane", "group"):
+        for flaw in ("duplicate", "same_bucket_reverse", "bucket_order", "lane", "group"):
             m, total = sources(d, 2, flaw)
             try:
                 verify(m, 2, os.path.join(d, "GROUP-2.v1"),
                        os.path.join(d, "fault.hbp"), 64, total,
                        check_canonical=False)
-            except Refuse:
+            except Refuse as exc:
+                if flaw in ("duplicate", "same_bucket_reverse"):
+                    need(str(exc) == "bucket_address_nonascending_or_duplicate",
+                         "wrong_same_bucket_refusal_reason")
                 refused += 1
-        need(refused == 4, "planted_structural_fault_accepted")
+        need(refused == 5, "planted_structural_fault_accepted")
         m, total = sources(d)
         with open(os.path.join(d, "GROUP-2.v1"), "ab") as f:
             f.write(b"\x00")
@@ -289,15 +339,49 @@ def selftest():
                        check_canonical=False)
         except Refuse:
             refused += 1
-        need(refused == 5, "planted_hash_fault_accepted")
+        need(refused == 6, "planted_hash_fault_accepted")
         try:
             canonical_weight(2)  # transposition index 2 conjugates to index 1
         except Refuse:
             refused += 1
-        need(canonical_weight(1) == 3 and refused == 6,
+        need(canonical_weight(1) == 3 and refused == 7,
              "planted_noncanonical_S3_orbit_accepted")
+        # Attack the on-disk file, recomputing its manifest hash.
+        # Canonicality must fail independently of the SHA verifier.
+        m, total = sources(d, 0, "noncanonical_file")
+        try:
+            verify(m, 0, os.path.join(d, "GROUP-0.v1"),
+                   os.path.join(d, "fault.hbp"), 64, total,
+                   check_canonical=True)
+        except Refuse as exc:
+            need(str(exc) == "noncanonical_source_address",
+                 "wrong_on_disk_noncanonical_refusal_reason")
+            refused += 1
+        need(refused == 8, "planted_rehashed_noncanonical_file_accepted")
+        # Spoof a PASS receipt while retaining genuine content hashes:
+        # aggregate must independently bind it to the current code and job.
+        m, total = sources(d)
+        for g in range(GROUPS):
+            verify(m, g, os.path.join(d, "GROUP-" + str(g) + ".v1"),
+                   os.path.join(receipts, "GROUP-" + str(g) + ".hbp"),
+                   64, total, check_canonical=False)
+        forged_path = os.path.join(receipts, "GROUP-0.hbp")
+        with open(forged_path, encoding="ascii") as f:
+            legitimate = f.read()
+        with open(forged_path, "w", encoding="ascii") as f:
+            f.write(legitimate.replace(
+                "code_sha256=" + code_provenance()[0],
+                "code_sha256=" + "0" * 64))
+        try:
+            aggregate(m, receipts, os.path.join(d, "forged.hbp"), 64, total,
+                      require_canonical=False)
+        except Refuse as exc:
+            need(str(exc) == "forged_or_stale_group_provenance",
+                 "wrong_forged_receipt_refusal_reason")
+            refused += 1
+        need(refused == 9, "planted_forged_PASS_receipt_accepted")
     return ("Y137_STAGE_B_SOURCE_TOY|groups=8|buckets=64|distinct_keys=64" +
-            "|faults_refused=6|B1_B2=TOY_ONLY|real_Q5=NOT_COMPUTED|json=0\n")
+            "|faults_refused=9|B1_B2=TOY_ONLY|real_Q5=NOT_COMPUTED|json=0\n")
 
 
 def main(argv):
