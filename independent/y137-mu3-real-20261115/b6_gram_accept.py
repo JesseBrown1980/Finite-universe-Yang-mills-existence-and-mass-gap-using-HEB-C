@@ -77,21 +77,36 @@ def validate(manifest, group, receipt):
 
 def aggregate(manifest, folder):
     accepted=original(manifest)
+    source_manifest_bytes=open(manifest,"rb").read()
+    manifest_sha=hashlib.sha256(source_manifest_bytes).hexdigest()
     total=0
     for group in range(8):
         file=os.path.join(folder, "GROUP-"+str(group)+".hbp")
+        gram=os.path.join(folder, "GRAM-"+str(group)+".hbp")
+        source_receipt=os.path.join(folder,"SOURCE-"+str(group)+".hbp")
         with open(file, encoding="ascii") as src:
-            lines=src.read().splitlines()
-        need(len(lines)==2, "B6_missing_or_extra_group_receipt")
-        for index,line in enumerate(lines):
-            r=fields(line,"Y137_B6_ACCEPT")
-            z=SAMPLES[index]
-            need(int(r["group"])==group and int(r["sample_num"])==z,
-                 "B6_wrong_group_or_energy_order")
-            need(r["frozen_Gram"]=="EXACT" and
-                 r["sha256"]==accepted[group]["sample_E"+str(index+1)+"_sha256"],
-                 "B6_forged_or_stale_Gram_receipt")
-            total+=1
+            recorded=src.read()
+        # Reconstruct each claim from full numeric 8x8 matrix text, not
+        # from an untrusted self-reported PASS or hash claim.
+        independently_calculated=validate(manifest,group,gram)
+        need(recorded==independently_calculated,
+             "B6_forged_or_stale_PASS_receipt_numeric_matrix")
+        with open(source_receipt,encoding="ascii") as src:
+            source_lines=src.read().splitlines()
+        need(len(source_lines)==2,"B6_missing_or_extra_source_provenance")
+        orig=accepted[group]
+        actual=fields(source_lines[0],"Y137_STAGE_B_SOURCE_GROUP")
+        pin=fields(source_lines[1],"Y137_STAGE_B_GROUP_INPUT")
+        need(int(actual["group"])==group and
+             int(actual["targets"])==int(orig["targets"]) and
+             int(actual["bytes"])==int(orig["bytes"]) and
+             actual["sha256"]==orig["sha256"] and
+             actual["packed_vectors"]=="PASS" and
+             actual["canonical_and_orbit_weights"]=="PASS" and
+             actual["address_partition"]=="PASS" and
+             pin["manifest_sha256"]==manifest_sha,
+             "B6_wrong_source_provenance_or_forged_PASS")
+        total+=2
     need(total==16,"B6_incomplete_16_fingerprints")
     return ("Y137_B6_VERDICT|source_groups=8|energy_samples=2"+
             "|frozen_Gram_fingerprints=16|matches=16|mismatches=0"+
