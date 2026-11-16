@@ -16,7 +16,7 @@
 
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{BufReader, Read, Write};
+use std::io::{BufReader, Read};
 use std::path::Path;
 use std::time::Instant;
 
