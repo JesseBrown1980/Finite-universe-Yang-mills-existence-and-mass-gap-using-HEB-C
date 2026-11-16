@@ -110,7 +110,9 @@ def toy():
     altered=mat.replace(str(6*w*b*b*q[0]*q[0]),str(36*w*b*b*q[0]*q[0]),1)
     refused=0
     try:
-        matrix_encoding(altered)
+        need(hashlib.sha256(matrix_encoding(altered)).hexdigest()==
+             hashlib.sha256(canonical).hexdigest(),
+             "B6_wrong_factor_six_accepted")
     except ValueError:
         refused+=1
     noncanonical=mat.replace(str(6*w*b*b*q[0]*q[0]),"0"+str(6*w*b*b*q[0]*q[0]),1)
