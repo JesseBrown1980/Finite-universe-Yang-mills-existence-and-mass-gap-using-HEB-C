@@ -774,7 +774,6 @@ fn c_load_support(signed: &Path, q5: &Path) -> Result<HashMap<u64, SourceCell>, 
     Ok(support)
 }
 
-#[derive(Default)]
 struct CGraphTotals {
     rows: [u64; 3],
     raw_moves: [u64; 3],
@@ -786,6 +785,22 @@ struct CGraphTotals {
     partitions: [u64; PARTS],
     directed: u64,
     all_weighted: u64,
+}
+impl Default for CGraphTotals {
+    fn default() -> Self {
+        Self {
+            rows: [0; 3],
+            raw_moves: [0; 3],
+            on: [[0; 3]; 3],
+            flux: [[0; 3]; 3],
+            off: [0; 3],
+            off_unique: [0; 3],
+            selfloops: [0; 3],
+            partitions: [0; PARTS],
+            directed: 0,
+            all_weighted: 0,
+        }
+    }
 }
 
 fn c_process_row(
