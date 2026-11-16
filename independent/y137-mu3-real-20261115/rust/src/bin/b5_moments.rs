@@ -339,3 +339,140 @@ impl Wide {
         mag.0[4] < MAGNITUDE_TOP_LIMIT
     }
 }
+
+
+#[derive(Clone, Copy)]
+struct CheckedMoment { total: Wide, terms: u64 }
+impl CheckedMoment {
+    fn zero() -> Self { Self { total: Wide::ZERO, terms: 0 } }
+    // a is a physical single Q5 source amplitude; b is a contracted
+    // physical row or paired-edge component. Bounds:
+    // a<2^112, b<2^123, |c|<2^37, terms<2^31 => |partial|<2^303.
+    fn add_contracted(&mut self, a: u128, b: u128, coefficient: i64)
+        -> Result<(), String> {
+        ensure(a < LIMIT_A, "B5_physical_Q5_amplitude_bound")?;
+        ensure(b < LIMIT_B, "B5_contracted_Q5_amplitude_bound")?;
+        ensure(coefficient.unsigned_abs() < LIMIT_COEFF,
+               "B5_weighted_coefficient_bound")?;
+        ensure(self.terms < MAX_TERMS, "B5_max_terms_exceeded")?;
+        let mut term = Wide::product(a, b, coefficient.unsigned_abs());
+        if coefficient < 0 {
+            let mut neg = Wide::ZERO;
+            neg.sub(&term);
+            term = neg;
+        }
+        let mut candidate = self.total;
+        candidate.raw_checked_add(&term)?;
+        ensure(candidate.abs_lt_2pow304(), "B5_partial_sum_exceeds_2pow304")?;
+        self.total = candidate;
+        self.terms += 1;
+        Ok(())
+    }
+}
+
+struct Source {
+    address: u64,
+    weight: u8,
+    amp: [[u128; COLS]; 2],
+}
+fn decode_lanes(encoded: &[u8]) -> Result<[u128; COLS], String> {
+    ensure(encoded.len() <= 82, "B5_invalid_packed_length")?;
+    ensure(encoded.is_empty() || encoded[encoded.len() - 1] != 0,
+           "B5_nonminimal_unsigned_packed_vector")?;
+    let mut padded = [0u8; 96];
+    padded[..encoded.len()].copy_from_slice(encoded);
+    let mut values = [0u128; COLS];
+    let mask = (1u128 << 82) - 1;
+    for (i, val) in values.iter_mut().enumerate() {
+        let bit = 82 * i;
+        let start = bit / 8;
+        let shift = bit % 8;
+        let mut chunk = [0u8; 16];
+        chunk.copy_from_slice(&padded[start..start + 16]);
+        *val = (u128::from_le_bytes(chunk) >> shift) & mask;
+    }
+    Ok(values)
+}
+fn read_group<F: FnMut(Source) -> Result<(), String>>(
+    path: &Path, group: usize, mut accept: F
+) -> Result<(usize, u64), String> {
+    let file = File::open(path).map_err(|x| format!("B5_open_source_{group}:{x}"))?;
+    let mut reader = BufReader::with_capacity(1_048_576, file);
+    let mut head = [0u8; 13];
+    let mut n = 0usize;
+    let mut bytes = 0u64;
+    let mut last_bucket: Option<u64> = None;
+    let mut previous: Option<u64> = None;
+    loop {
+        let count = reader.read(&mut head[..1]).map_err(|x| x.to_string())?;
+        if count == 0 { break; }
+        reader.read_exact(&mut head[1..]).map_err(|x| format!("B5_truncated_header:{x}"))?;
+        let address = u64::from_le_bytes(head[..8].try_into()
+                 .map_err(|_|"B5_address_header")?);
+        let weight = head[8];
+        let n0 = usize::from(u16::from_le_bytes([head[9], head[10]]));
+        let n1 = usize::from(u16::from_le_bytes([head[11], head[12]]));
+        ensure(n0<=82 && n1<=82, "B5_packed_length_overflow")?;
+        ensure(matches!(weight, 1|2|3|6), "B5_invalid_orbit_weight")?;
+        let bucket = address%64;
+        ensure(bucket%8==group as u64, "B5_group_partition")?;
+        if let Some(old) = last_bucket {
+            if bucket!=old {
+                ensure(bucket==old+8, "B5_bucket_order_or_missing")?;
+                previous=None;
+            }
+        } else {
+            ensure(bucket==group as u64, "B5_wrong_first_bucket")?;
+        }
+        if let Some(last) = previous {
+            ensure(address>last, "B5_source_not_strictly_sorted_in_bucket")?;
+        }
+        previous=Some(address);
+        last_bucket=Some(bucket);
+        let mut buf0 = [0u8;82];
+        let mut buf1 = [0u8;82];
+        reader.read_exact(&mut buf0[..n0]).map_err(|x|format!("B5_truncated_E1:{x}"))?;
+        reader.read_exact(&mut buf1[..n1]).map_err(|x|format!("B5_truncated_E2:{x}"))?;
+        let a0=decode_lanes(&buf0[..n0])?;
+        let a1=decode_lanes(&buf1[..n1])?;
+        accept(Source{address,weight,amp:[a0,a1]})?;
+        n+=1;
+        bytes+=(13+n0+n1) as u64;
+    }
+    ensure(last_bucket==Some((group+56) as u64), "B5_missing_last_bucket")?;
+    Ok((n,bytes))
+}
+fn mul_u128(a: u128, b: u128) -> Result<u128,String> {
+    a.checked_mul(b).ok_or_else(||"B5_contraction_product_overflow".to_string())
+}
+fn add_u128(dst: &mut u128, value: u128) -> Result<(),String> {
+    *dst=dst.checked_add(value).ok_or_else(||"B5_contraction_sum_overflow".to_string())?;
+    Ok(())
+}
+fn new_matrices() -> [[CheckedMoment;64];2] {
+    [[CheckedMoment::zero();64];2]
+}
+fn matrix_text(matrix: &[CheckedMoment;64], symmetric:bool) -> String {
+    let mut rows=Vec::with_capacity(8);
+    for i in 0..COLS {
+        let mut cells=Vec::with_capacity(8);
+        for j in 0..COLS {
+            let k=if symmetric && j<i {j*8+i} else {i*8+j};
+            cells.push(matrix[k].total.decimal());
+        }
+        rows.push(cells.join(","));
+    }
+    rows.join(";")
+}
+fn check_matrix(row: &[CheckedMoment;64], pair: &[CheckedMoment;64])
+    -> Result<(),String> {
+    for i in 0..COLS {
+        for j in 0..COLS {
+            let k=i*8+j;
+            let p=if j<i {j*8+i} else {k};
+            ensure(row[k].total==pair[p].total,
+                   "B5_ordered_row_disagrees_with_unordered_pair")?;
+        }
+    }
+    Ok(())
+}
