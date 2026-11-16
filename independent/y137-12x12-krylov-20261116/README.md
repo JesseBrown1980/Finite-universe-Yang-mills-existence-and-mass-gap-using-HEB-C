@@ -2,6 +2,31 @@
 
 **Research draft, November 16, 2026.** A separate experiment on the original finite periodic 3×4 \(S_3\), \(r=9\), designed to give two low Ritz eigenvalues and a basis for sharper full-space residual and Wilson-sample tests. All original Stage B–G source data and certificates remain unchanged.
 
+## First authenticated hosted result
+
+Original hosted [run #43950206871](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43950206871) completed **both jobs successfully**. The original result is frozen byte-for-byte in [RESULT-H12-20261116.hbp](RESULT-H12-20261116.hbp) and independently checked by [independent_h12_accept.py](independent_h12_accept.py), which uses the full 12×12 determinant sequence rather than the builder's 4×4 Schur complement.
+
+| Exact gate | Accepted result |
+| --- | --- |
+| Full physical Gram / Hamiltonian | 12×12 integer, symmetric |
+| Four added Q-Krylov directions | Strictly linearly independent |
+| Q Krylov support for (Bv_1,Bv_2) | 264 states each |
+| Q Krylov support for (ABv_1,ABv_2) | 8,034 states each |
+| K2 internal weighted unordered edges | 20,736 |
+| K2-to-exterior weighted source records | 500,664 |
+| Actual self loops | 0 |
+| Independent Q-block row vs pair matches | 16/16 exact |
+| Original (B^* B=72I) physical identity | PASS |
+
+**Variational Ritz brackets, exact to one-billionth of the energy unit:**
+
+[
+69.924680131 < lambda_1^{(12)} < 69.924680132,qquad
+69.963663574 < lambda_2^{(12)} < 69.963663575.
+]
+
+At the two original frozen samples (z_1=69.909875505, z_2=69.949729820), the *full 12×12 generalized* matrix inertia counts are respectively **0** and **1**. The Ritz bounds sit above those original sample energies and establish **no improved full-space spectral isolation** on their own. The full-space residual norm and lower complement bound are the explicit next acceptance gates; the actual first Wilson excitation weight remains **HOLD**.
+
 ## Frozen basis and provenance
 
 Let \(P\) be the original **eight gauge-flat canonical orbits** in the physical \(W\)-metric; \(Q=I-P\). Let the two original fixed-sample flat column vectors \(v_1,v_2\) be read **byte-for-byte from the SHA-pinned merged PR #180 receipt** (not from a newly optimized or moved trial). Set \(B=QHP\), \(A=QHQ\) and four nonflat vectors
