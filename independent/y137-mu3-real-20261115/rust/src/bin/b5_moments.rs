@@ -580,10 +580,10 @@ fn run(root: &Path, limit: Option<usize>) -> Result<(),String> {
             let diag_coefficient=6*i64::from(state.weight)*1_000_000_000i64;
             let pair_off_coefficient=-(6i64*1_000_000_000);
             let mut pair_diag=[0u128;COLS];
-            for c in 0..COLS {
-                pair_diag[c]=mul_u128(state.amp[energy][c],
-                                      u128::from(dself.unsigned_abs()))?;
-                ensure(pair_diag[c]<LIMIT_B,"B5_paired_diagonal_bound")?;
+            for (c, value) in pair_diag.iter_mut().enumerate() {
+                *value=mul_u128(state.amp[energy][c],
+                                u128::from(dself.unsigned_abs()))?;
+                ensure(*value<LIMIT_B,"B5_paired_diagonal_bound")?;
             }
             for a in 0..COLS {
                 for b in 0..COLS {
