@@ -276,7 +276,6 @@ where F: FnMut(u64, u8) -> Result<(), String> {
     Ok(total)
 }
 
-#[derive(Default)]
 struct RowCensus {
     rows: u64,
     raw_moves: u64,
@@ -291,6 +290,26 @@ struct RowCensus {
     q5_group_moves: [u64; GROUPS],
     boundary_bucket_moves: [u64; BUCKETS],
     boundary_fnv64: u64,
+}
+
+impl Default for RowCensus {
+    fn default() -> Self {
+        Self {
+            rows: 0,
+            raw_moves: 0,
+            distinct_destinations: 0,
+            on_q5_moves: 0,
+            on_q5_destinations: 0,
+            outside_q5_moves: 0,
+            outside_q5_destinations: 0,
+            true_selfloop_moves: 0,
+            magnetic_sum: 0,
+            max_magnetic: 0,
+            q5_group_moves: [0; GROUPS],
+            boundary_bucket_moves: [0; BUCKETS],
+            boundary_fnv64: 0,
+        }
+    }
 }
 
 fn mix_fnv64(state: &mut u64, v: u64) {
