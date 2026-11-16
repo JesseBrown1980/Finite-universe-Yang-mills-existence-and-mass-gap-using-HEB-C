@@ -18,7 +18,7 @@ import tempfile
 HERE=os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0,HERE)
 from c_signed_source_codec import decode, encode, Refuse
-from source_gate import canonical_weight
+from source_gate import canonical_weight, Refuse as SourceRefuse
 
 K3=155378
 Q4=1985218
@@ -183,7 +183,7 @@ def toy():
     for a in (2,):
         try:
             canonical_weight(a)  # noncanonical S3 transposition
-        except Refuse:
+        except SourceRefuse:
             refused+=1
     need(refused==1,"C_accept_noncanonical_attack_not_rejected")
     need(155378+1985218+18598040==20738636,"C_accept_support_count")
@@ -201,7 +201,7 @@ def main(argv):
             print(aggregate(argv[1],argv[2]),end="")
         else:
             raise Refuse("C_signed_source_aggregate_usage")
-    except (Refuse,ValueError,KeyError,OSError) as exc:
+    except (Refuse,SourceRefuse,ValueError,KeyError,OSError) as exc:
         print("Y137_C_SIGNED_ACCEPT_REFUSE|reason="+str(exc)+"|json=0",flush=True)
         raise SystemExit(1) from None
 
