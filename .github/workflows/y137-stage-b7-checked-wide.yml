@@ -1,0 +1,89 @@
+name: "Y137 Worker1 B7: checked 320-bit signed moment arithmetic"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/rust/src/bin/b7_checked.rs'
+      - '.github/workflows/y137-stage-b7-checked-wide.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  signed-wide-exact-negative-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Rust 1.81 strict no-float, clippy and build
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal --component clippy
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          cd independent/y137-mu3-real-20261115/rust
+          cargo +1.81.0 clippy --release --bin b7_checked -- -D warnings
+          cargo +1.81.0 build --release --bin b7_checked
+      - name: Boundary and overflow negative controls
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-b7-checked
+          independent/y137-mu3-real-20261115/rust/target/release/b7_checked --selftest \
+            | tee build/y137-b7-checked/TOY.hbp
+          grep -Fq 'signed_320_overflow=REFUSED|signed_320_underflow=REFUSED|positive_2pow304=REFUSED|negative_2pow304=REFUSED|near_boundary_cancellation=PASS|' build/y137-b7-checked/TOY.hbp
+          grep -Fq 'bad_amplitude=REFUSED|bad_coefficient=REFUSED|overlarge_term_count=REFUSED|large_signed_product=PASS|' build/y137-b7-checked/TOY.hbp
+      - name: Independent Python exact signed product comparison, 5000 terms
+        run: |
+          set -euo pipefail
+          python3 -I - <<'PY'
+          import random
+          from pathlib import Path
+          rng = random.Random(20261116)
+          root = Path('build/y137-b7-checked')
+          terms = []
+          total = 0
+          for i in range(5000):
+              a = rng.randrange(1 << 112)
+              b = rng.randrange(1 << 112)
+              c = rng.randrange(1 << 42)
+              if i % 2:
+                  c = -c
+              terms.append(f'{a} {b} {c}')
+              total += a*b*c
+          (root/'TERMS.txt').write_text('\n'.join(terms)+'\n', encoding='ascii')
+          (root/'EXPECTED.txt').write_text(str(total)+'\n', encoding='ascii')
+          PY
+          independent/y137-mu3-real-20261115/rust/target/release/b7_checked --evaluate \
+            < build/y137-b7-checked/TERMS.txt | tee build/y137-b7-checked/RESULT.hbp
+          python3 -I - <<'PY'
+          from pathlib import Path
+          root = Path('build/y137-b7-checked')
+          expected = int((root/'EXPECTED.txt').read_text().strip())
+          row = (root/'RESULT.hbp').read_text().strip().split('|')
+          assert row[0] == 'Y137_B7_EVAL', row[0]
+          fields = dict(x.split('=', 1) for x in row[1:] if '=' in x)
+          assert int(fields['terms']) == 5000
+          assert int(fields['sum']) == expected
+          assert int(fields['negative_sum']) == -expected
+          assert fields['bounded_signed_320'] == 'PASS'
+          print('Y137_B7_PYTHON_COMPARE|terms=5000|all_signed_products=EXACT|negative_sum=EXACT|overflow_controls=REFUSED|json=0')
+          PY
+      - name: Fingerprint exact executable, source, outputs
+        run: |
+          set -euo pipefail
+          {
+            sha256sum independent/y137-mu3-real-20261115/rust/src/bin/b7_checked.rs
+            sha256sum independent/y137-mu3-real-20261115/rust/target/release/b7_checked
+            sha256sum build/y137-b7-checked/TOY.hbp
+            sha256sum build/y137-b7-checked/RESULT.hbp
+            printf 'GITHUB_SHA=%s\n' "$GITHUB_SHA"
+            rustc +1.81.0 --version
+          } | tee build/y137-b7-checked/SHA256SUMS.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-b7-checked-wide-5000
+          path: |
+            build/y137-b7-checked/TOY.hbp
+            build/y137-b7-checked/RESULT.hbp
+            build/y137-b7-checked/SHA256SUMS.hbp
+          retention-days: 60
+          if-no-files-found: ignore
