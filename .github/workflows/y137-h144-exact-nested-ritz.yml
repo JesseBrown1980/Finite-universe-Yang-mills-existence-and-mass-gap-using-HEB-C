@@ -17,6 +17,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -I -B native/scripts/integer_only_audit.py independent/y137-h144-nested-20261116/nested_ritz.py
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-h144-nested-20261116/full_residual.py
           python3 -I -B native/scripts/no_float_gate.py .
           python3 -I -B independent/y137-h144-nested-20261116/nested_ritz.py toy |
             tee /tmp/y137-h144-toy.hbp
@@ -68,3 +69,35 @@ jobs:
           path: build/y137-h144/
           if-no-files-found: error
           retention-days: 90
+
+  h144-full-state-residual:
+    runs-on: ubuntu-24.04
+    needs: h144-source-production
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact full K2 source and all K3-exterior residuals of 10 rational Ritz trials
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h144-residual
+          /usr/bin/time -v python3 -I -B independent/y137-h144-nested-20261116/full_residual.py real |
+            tee build/y137-h144-residual/RESULT-EXACT-TRIAL-RESIDUAL.hbp
+          test "$(grep -c '^Y137_H144_FULL_RESIDUAL|' build/y137-h144-residual/RESULT-EXACT-TRIAL-RESIDUAL.hbp)" -eq 10
+          grep -Fq '|full_support_trial_residuals=10_OF_10_EXACT|' build/y137-h144-residual/RESULT-EXACT-TRIAL-RESIDUAL.hbp
+          grep -Fq '|true_eigenspace_angle=HOLD|positive_Wilson_first_weight=HOLD|issue_137=OPEN|json=0' build/y137-h144-residual/RESULT-EXACT-TRIAL-RESIDUAL.hbp
+      - name: Exact full source and result SHA
+        if: always()
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > build/y137-h144-residual/COMMIT.txt
+          sha256sum independent/y137-h144-nested-20261116/full_residual.py > build/y137-h144-residual/SOURCE.sha256
+          if test -f build/y137-h144-residual/RESULT-EXACT-TRIAL-RESIDUAL.hbp; then
+            sha256sum build/y137-h144-residual/RESULT-EXACT-TRIAL-RESIDUAL.hbp > build/y137-h144-residual/RESULT.sha256
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-h144-full-support-rational-Ritz-residuals
+          path: build/y137-h144-residual/
+          retention-days: 90
+          if-no-files-found: error
