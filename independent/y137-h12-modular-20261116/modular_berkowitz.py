@@ -22,7 +22,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
-INPUT = os.path.join(ROOT, "y137-12x12-krylov-20261116",
+INPUT = os.path.join(ROOT, "independent", "y137-12x12-krylov-20261116",
                      "RESULT-H12-20261116.hbp")
 ORIGINAL_BLOB = "9876d083ecdbd91f81ddbd99ea311467d81a1ba7"
 G_SHA = "f77d8d060eb779574bb40d918e8886de333e0d0afdbdfba67639cb104fd4484f"
