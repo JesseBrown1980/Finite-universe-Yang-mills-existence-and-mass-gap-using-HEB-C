@@ -27,8 +27,9 @@ def main():
     expected = g.source_blob("independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp")
     budgets = g.records(expected, "Y137_QDUAL_BUDGET")
     shifted_weight = g.records(expected, "Y137_QDUAL_FIXED_SAMPLE_WEIGHT")
-    g.need(len(budgets) == len(shifted_weight) == 1,
-           "missing_original_shifted_Wilson_dual_budget")
+    raw_overlap = g.records(expected, "Y137_QDUAL_UNSHIFTED")
+    g.need(len(budgets) == len(shifted_weight) == len(raw_overlap) == 1,
+           "missing_original_Wilson_dual_or_overlap_budget")
     b = budgets[0]
     g.need(b["fixed_sample_sign_certified"] == "1" and
            b["exact_E1E2_projectors"] == "NOT_ENCLOSED" and
@@ -76,6 +77,24 @@ def main():
     linear_lower_per_trillion = 5 * g.D2 + 2 * g.D1
     g.need(linear_lower_per_trillion > amplitude_upper_per_trillion,
            "shifted_seven_over_two_no_go_not_proved")
+    # The same exact #180 receipt also bounds the *original unshifted*
+    # fixed sample amplitude. Since O = (2O-7)/2 + (7/2)I,
+    # add seven times the rigorous #180 full-Q sample overlap upper in the
+    # identical integer scale *before* dividing by 2 and normalizing.
+    g.need(raw_overlap[0]["fixed_sample_unshifted_sign_certified"] == "1" and
+           raw_overlap[0]["exact_E1E2_projectors"] == "NOT_ENCLOSED",
+           "original_raw_sample_overlap_missing")
+    overlap_abs_upper = int(raw_overlap[0]["overlap_abs_upper_scaled"])
+    g.need(overlap_abs_upper > 0 and
+           int(raw_overlap[0]["raw_margin_scaled"]) > 0,
+           "original_overlap_bound_invalid")
+    raw_amplitude_upper_per_trillion = ceil_div(
+        (centre + err + 7 * overlap_abs_upper) * g.UNIT,
+        2 * int(b["center_den"]) * g.UNIT * g.UNIT *
+        product_flat_norm_lower)
+    raw_linear_lower_per_trillion = 8 * g.D2 + 4 * g.D1
+    g.need(raw_linear_lower_per_trillion > raw_amplitude_upper_per_trillion,
+           "raw_amplitude_upper_not_enough_for_no_go")
     g.emit("Y137_G_SHIFT_VERDICT",
            shift_num=7, shift_den=2,
            source_fixed_sample_amplitude_upper_per_trillion=
@@ -83,6 +102,11 @@ def main():
            source_shifted_sample_weight_lower_ppb=1059210,
            conservative_linear_error_lower_per_trillion=
                linear_lower_per_trillion,
+           raw_sample_amplitude_upper_per_trillion=
+               raw_amplitude_upper_per_trillion,
+           raw_conservative_linear_error_lower_per_trillion=
+               raw_linear_lower_per_trillion,
+           raw_original_amplitude_transfer="NO_GO_EVEN_WITH_ACTUAL_SAMPLE_AMP",
            shifted_second_order_cost="OMITTED_FOR_STRONGER_OBSTRUCTION",
            original_full_E1_E2_sample_identity="PASS",
            original_dual_source_SHA="PASS",
