@@ -1,0 +1,53 @@
+name: "Y137 Stage G: exact eight-flat Wilson feasibility"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-g-eight-flat-action-feasibility.yml'
+      - 'independent/y137-stage-g-eight-flat-20261116/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  eight-flat-original-Wilson-action:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict integer and no-floating-point controls
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-stage-g-eight-flat-20261116/flat_action_gate.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+      - name: Original signed Stage D forged-source and swapped energy negative tests
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-g-flat
+          python3 -I -B independent/y137-mu3-real-20261115/d_real_four_moment.py toy | tee build/y137-g-flat/STAGE-D-TOY.hbp
+          grep -Fq 'forged_SHA=REFUSED|energy_swap=REFUSED' build/y137-g-flat/STAGE-D-TOY.hbp
+      - name: Full eight-flat independent exact source-pinned no-go certificate
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-stage-g-eight-flat-20261116/flat_action_gate.py | tee build/y137-g-flat/RESULT.hbp
+          test "$(grep -c '^Y137_G_POINT|' build/y137-g-flat/RESULT.hbp)" -eq 2
+          grep -Fq 'source_blob_pins=4_OF_4_PASS|negative_controls=REFUSED' build/y137-g-flat/RESULT.hbp
+          grep -Fq 'raw_unshifted_specific_inequality=NO_GO_WITH_ACCEPTED_D1_D2' build/y137-g-flat/RESULT.hbp
+          grep -Fq 'original_first_Wilson_weight=HOLD|issue_137=OPEN' build/y137-g-flat/RESULT.hbp
+      - name: Source and result SHA-256 receipts
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-g-flat
+          sha256sum independent/y137-stage-g-eight-flat-20261116/flat_action_gate.py > build/y137-g-flat/SOURCE.sha256
+          sha256sum independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp > build/y137-g-flat/ORIGINAL-WILSON.sha256
+          sha256sum independent/y137-fullstate-Q-normalization-20261113/RESULT-FULL-W-NORM.hbp > build/y137-g-flat/ORIGINAL-FULL-W.sha256
+          if test -f build/y137-g-flat/RESULT.hbp; then
+            sha256sum build/y137-g-flat/RESULT.hbp > build/y137-g-flat/RESULT.sha256
+          fi
+          git rev-parse HEAD > build/y137-g-flat/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-stage-g-original-flat-Wilson-action-no-go
+          path: build/y137-g-flat
+          retention-days: 90
+          if-no-files-found: error
