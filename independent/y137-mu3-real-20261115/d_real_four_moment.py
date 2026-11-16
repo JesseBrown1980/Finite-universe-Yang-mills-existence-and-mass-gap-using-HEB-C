@@ -11,14 +11,13 @@ Scientific gates kept distinct: actual Wilson first-excitation weight = HOLD.
 import hashlib
 import os
 import sys
-from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent / "y137-mu3-acceptance-20261115"))
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(os.path.dirname(HERE), "y137-mu3-acceptance-20261115"))
 import mu3_acceptance as test
 mr = test.mr
 
-MU3_FILE = HERE / "RESULT-WORKER1-C-FULL-SIGNED-MU3-TWO-ENERGY-20261116.hbp"
+MU3_FILE = os.path.join(HERE, "RESULT-WORKER1-C-FULL-SIGNED-MU3-TWO-ENERGY-20261116.hbp")
 FROZEN = (69909875505, 69949729820)
 EXPECTED_MU3_SIX_SHA = {
     69909875505: "62787ba280050e598323eddcc67e0cd6234b8e2cfcb7b7bc65e6275fdfae4763",
@@ -99,7 +98,8 @@ def accepted_old_moments(index):
 
 
 def calculate():
-    mu3 = parse_pinned_mu3(MU3_FILE.read_text(encoding="ascii"))
+    with open(MU3_FILE, encoding="ascii") as f:
+        mu3 = parse_pinned_mu3(f.read())
     accepted = 0
     for index, z in enumerate(FROZEN):
         U0, m0, m1, m2 = accepted_old_moments(index)
@@ -149,7 +149,8 @@ def calculate():
 
 
 def toy():
-    raw = MU3_FILE.read_text(encoding="ascii")
+    with open(MU3_FILE, encoding="ascii") as f:
+        raw = f.read()
     m = parse_pinned_mu3(raw)
     need(set(m) == set(FROZEN), "missing_frozen_matrices")
     original = EXPECTED_MU3_SIX_SHA[FROZEN[0]]
