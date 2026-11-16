@@ -1,0 +1,140 @@
+name: "Y137 Worker1 Stage C: full signed K3/Q4 sources and global amplitude bound"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/c_full_signed_sources.py'
+      - 'independent/y137-mu3-real-20261115/c_full_signed_accept.py'
+      - '.github/workflows/y137-stage-c-full-signed.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  signed-source-toys:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Independent frozen signed-source derivation and complete-support acceptance fixtures
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-mu3-real-20261115/c_full_signed_sources.py toy | tee /tmp/y137-c-full-toy.hbp
+          python3 -I -B independent/y137-mu3-real-20261115/c_full_signed_accept.py toy | tee /tmp/y137-c-accept-toy.hbp
+          grep -Fq 'global_partial_sum_limit_bits=304|real_K3_Q4_sources=NOT_COMPUTED|' /tmp/y137-c-full-toy.hbp
+          grep -Fq 'S3_noncanonical_key=REFUSED|total_support_upper_count=20738636|' /tmp/y137-c-accept-toy.hbp
+      - name: Python exact integer audit and repository no-float
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-mu3-real-20261115/c_full_signed_sources.py
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-mu3-real-20261115/c_full_signed_accept.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+
+  full-signed-q4:
+    needs: signed-source-toys
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [0,1,2,3,4,5,6,7]
+    env:
+      C_GROUP: ${{ matrix.group }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Independently reconstruct every signed Q4 physical source amplitude
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-c-full-signed
+          /usr/bin/time -v python3 -I -B independent/y137-mu3-real-20261115/c_full_signed_sources.py \
+            write q4 "${C_GROUP}" "build/y137-c-full-signed/SIGNED-Q4-${C_GROUP}.v1" \
+            | tee "build/y137-c-full-signed/GROUP-${C_GROUP}.hbp"
+          test "$(grep -c '^Y137_C_SIGNED_SOURCE|' build/y137-c-full-signed/GROUP-${C_GROUP}.hbp)" -eq 1
+          grep -Fq '|independent_all_source_contractions=EXACT|roundtrip_SHA_and_sorted_keys=PASS|' \
+            "build/y137-c-full-signed/GROUP-${C_GROUP}.hbp"
+      - name: Record exact script, immutable input source, and output hashes
+        run: |
+          set -euo pipefail
+          sha256sum independent/y137-mu3-real-20261115/c_full_signed_sources.py \
+            > build/y137-c-full-signed/WORKER-${C_GROUP}.sha256
+          sha256sum build/y137-c-full-signed/SIGNED-Q4-${C_GROUP}.v1 \
+            > build/y137-c-full-signed/FILE-${C_GROUP}.sha256
+          git rev-parse HEAD > build/y137-c-full-signed/COMMIT-${C_GROUP}.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-stage-c-full-signed-Q4-${{ matrix.group }}
+          path: build/y137-c-full-signed
+          retention-days: 60
+          if-no-files-found: ignore
+
+  full-signed-k3:
+    needs: signed-source-toys
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Independently reconstruct every signed K3 physical source amplitude
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-c-full-signed
+          /usr/bin/time -v python3 -I -B independent/y137-mu3-real-20261115/c_full_signed_sources.py \
+            write-k3 build/y137-c-full-signed/SIGNED-K3.v1 \
+            | tee build/y137-c-full-signed/GROUP-8.hbp
+          test "$(grep -c '^Y137_C_SIGNED_SOURCE|' build/y137-c-full-signed/GROUP-8.hbp)" -eq 1
+          grep -Fq '|independent_all_source_contractions=EXACT|roundtrip_SHA_and_sorted_keys=PASS|' \
+            build/y137-c-full-signed/GROUP-8.hbp
+      - name: Record source and output hashes
+        run: |
+          set -euo pipefail
+          sha256sum independent/y137-mu3-real-20261115/c_full_signed_sources.py \
+            > build/y137-c-full-signed/WORKER-8.sha256
+          sha256sum build/y137-c-full-signed/SIGNED-K3.v1 \
+            > build/y137-c-full-signed/FILE-8.sha256
+          git rev-parse HEAD > build/y137-c-full-signed/COMMIT-8.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-stage-c-full-signed-K3
+          path: build/y137-c-full-signed
+          retention-days: 60
+          if-no-files-found: ignore
+
+  independent-full-source-fanin:
+    needs: [full-signed-q4,full-signed-k3]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Retrieve all nine source/receipt pairs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: y137-stage-c-full-signed-*
+          path: build/y137-c-full-signed
+          merge-multiple: true
+      - name: Independent sorted global source join, SHA/weight checks, maxima
+        run: |
+          set -euo pipefail
+          test "$(find build/y137-c-full-signed -maxdepth 1 -name 'SIGNED-*.v1' | wc -l)" -eq 9
+          python3 -I -B independent/y137-mu3-real-20261115/c_full_signed_accept.py \
+            aggregate build/y137-c-full-signed build/y137-c-full-signed \
+            | tee build/y137-c-full-signed/RESULT-C-FULL.hbp
+          grep -Fq '|K3_Q4_unique_canonical_states=2140596|Q5_verified_packed_lane_bits=82|' \
+            build/y137-c-full-signed/RESULT-C-FULL.hbp
+          grep -Fq '|amplitude_under_2pow117=PASS|' \
+            build/y137-c-full-signed/RESULT-C-FULL.hbp
+      - name: Immutable provenance and result fingerprint
+        run: |
+          set -euo pipefail
+          sha256sum build/y137-c-full-signed/RESULT-C-FULL.hbp \
+            > build/y137-c-full-signed/RESULT-C-FULL.hbp.sha256
+          git rev-parse HEAD > build/y137-c-full-signed/FANIN-COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-stage-c-full-signed-aggregate-receipt
+          path: |
+            build/y137-c-full-signed/RESULT-C-FULL.hbp
+            build/y137-c-full-signed/RESULT-C-FULL.hbp.sha256
+            build/y137-c-full-signed/FANIN-COMMIT.txt
+          retention-days: 60
+          if-no-files-found: ignore
