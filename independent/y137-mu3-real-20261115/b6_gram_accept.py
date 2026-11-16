@@ -7,6 +7,7 @@ against all sixteen *previously frozen* SHA fingerprints. Integer/ASCII only.
 import hashlib
 import os
 import sys
+import tempfile
 
 SAMPLES=(69909875505, 69949729820)
 ROWS=(435324,4439918,988399,2812763,822474,3973928,1612450,3512784)
@@ -139,10 +140,126 @@ def toy():
     print("Y137_B6_TOY|unsigned_8x8_symmetric=PASS|double_factor_six=REFUSED"+
           "|noncanonical_integer=REFUSED|frozen_real_Grams=NOT_COMPUTED|json=0")
 
+
+def receipt_attack_selftest():
+    """Attack the exact *real production verifier* with self-consistent toy files.
+
+    All eight groups first satisfy original(), validate(), aggregate(). Then
+    forge plausible PASS receipts while independently tampering numeric Gram
+    source, energy identity, source provenance, and claimed digest.
+    """
+    refusal = {}
+
+    def expect_refuse(label,action):
+        try:
+            action()
+        except (ValueError, KeyError) as error:
+            refusal[label] = str(error)
+        else:
+            raise ValueError("B8_forged_" + label + "_PASS_accepted")
+
+    with tempfile.TemporaryDirectory() as root:
+        manifest_path=os.path.join(root,"FROZEN.hbp")
+        metadata=[]
+        matrices={}
+        for group in range(8):
+            tags={}
+            for index,z in enumerate(SAMPLES):
+                q=[(group+1)*(c+2)+index for c in range(8)]
+                gram=";".join(",".join(str(6*(group+1)*q[i]*q[j])
+                                   for j in range(8)) for i in range(8))
+                matrices[(group,z)]=gram
+                tags["sample_E"+str(index+1)+"_sha256"]=hashlib.sha256(
+                    gram.encode("ascii")).hexdigest()
+            source_sha=hashlib.sha256(("B6-fixture-source-"+str(group)).encode()).hexdigest()
+            metadata.append("Y137_D11_V1_ALL_GROUP|group="+str(group)+
+                            "|targets=3|bytes=128|sha256="+source_sha+
+                            "|sample_E1_sha256="+tags["sample_E1_sha256"]+
+                            "|sample_E2_sha256="+tags["sample_E2_sha256"]+
+                            "|json=0")
+        with open(manifest_path,"w",encoding="ascii") as f:
+            f.write("\n".join(metadata)+"\n")
+        manifest_sha=hashlib.sha256(open(manifest_path,"rb").read()).hexdigest()
+
+        for group in range(8):
+            gram_lines=[]
+            for z in SAMPLES:
+                gram_lines.append("Y137_B6_GRAM|group="+str(group)+
+                                  "|sample_num="+str(z)+
+                                  "|quantity=Q5_mu2_six|encoding="+matrices[(group,z)]+
+                                  "|json=0")
+            with open(os.path.join(root,"GRAM-"+str(group)+".hbp"),
+                      "w",encoding="ascii") as f:
+                f.write("\n".join(gram_lines)+"\n")
+            with open(os.path.join(root,"GROUP-"+str(group)+".hbp"),
+                      "w",encoding="ascii") as f:
+                f.write(validate(manifest_path,group,
+                                 os.path.join(root,"GRAM-"+str(group)+".hbp")))
+            orig=fields(metadata[group],"Y137_D11_V1_ALL_GROUP")
+            receipt=("Y137_STAGE_B_SOURCE_GROUP|group="+str(group)+
+                     "|targets=3|bytes=128|sha256="+orig["sha256"]+
+                     "|packed_vectors=PASS|canonical_and_orbit_weights=PASS"+
+                     "|address_partition=PASS|json=0\n"+
+                     "Y137_STAGE_B_GROUP_INPUT|manifest_sha256="+manifest_sha+
+                     "|json=0\n")
+            with open(os.path.join(root,"SOURCE-"+str(group)+".hbp"),
+                      "w",encoding="ascii") as f:f.write(receipt)
+        original_verdict=aggregate(manifest_path,root)
+        need("frozen_Gram_fingerprints=16|matches=16|mismatches=0" in original_verdict,
+             "B8_valid_source_control_not_accepted")
+
+        def mutate(filename,replacer,action):
+            path=os.path.join(root,filename)
+            with open(path,encoding="ascii") as f:
+                original_content=f.read()
+            corrupted=replacer(original_content)
+            need(corrupted!=original_content,"B8_mutation_did_not_change_fixture")
+            with open(path,"w",encoding="ascii") as f:f.write(corrupted)
+            try:
+                expect_refuse(action,lambda:aggregate(manifest_path,root))
+            finally:
+                with open(path,"w",encoding="ascii") as f:f.write(original_content)
+            need(aggregate(manifest_path,root)==original_verdict,
+                 "B8_verifier_restore_after_forgery")
+
+        g=0
+        z=SAMPLES[0]
+        original_num=str(6*1*(2)*(2))
+        mutate("GRAM-0.hbp",lambda v:v.replace(
+            original_num+","+str(6*1*(2)*(3)),
+            str(int(original_num)+1)+","+str(6*1*(2)*(3)),1),
+            "altered_numeric_Gram")
+        mutate("GROUP-0.hbp",lambda v:v.replace(
+            "frozen_Gram=EXACT","frozen_Gram=PASS",1),
+            "plausible_false_PASS")
+        mutate("GROUP-0.hbp",lambda v:v.replace(
+            "sha256=","sha256="+("0"*64),1),"forged_SHA_claim")
+        mutate("SOURCE-0.hbp",lambda v:v.replace(
+            "canonical_and_orbit_weights=PASS",
+            "canonical_and_orbit_weights=FAIL",1),"false_canonical_source_receipt")
+        mutate("SOURCE-0.hbp",lambda v:v.replace(
+            "manifest_sha256="+manifest_sha,
+            "manifest_sha256="+("0"*64),1),"wrong_manifest_provenance")
+        mutate("GRAM-0.hbp",lambda v:v.replace(
+            "sample_num="+str(z),"sample_num="+str(SAMPLES[1]),1),
+            "swapped_energy_identifiers")
+        need(len(refusal)==6 and all(refusal.values()),
+             "B8_not_all_plausible_forgeries_refused")
+        print("Y137_B8_VERIFIER_ATTACK|real_production_verifier=aggregate" +
+              "|valid_8group_toy=ACCEPTED|altered_numeric_Gram=REFUSED" +
+              "|plausible_false_PASS=REFUSED|forged_SHA_claim=REFUSED" +
+              "|false_canonical_source_receipt=REFUSED" +
+              "|wrong_manifest_provenance=REFUSED" +
+              "|swapped_energy_identifiers=REFUSED|forgeries_refused=6" +
+              "|live_B6_16_of_16=UNAFFECTED|json=0")
+
+
 def main(argv):
     try:
         if argv==["toy"]:
             toy()
+        elif argv==["attack-toy"]:
+            receipt_attack_selftest()
         elif len(argv)==5 and argv[0]=="verify":
             _,manifest,group,source,out=argv
             g=int(group)
