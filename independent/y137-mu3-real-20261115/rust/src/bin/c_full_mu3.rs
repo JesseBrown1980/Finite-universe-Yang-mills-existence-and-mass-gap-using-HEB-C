@@ -1291,8 +1291,8 @@ fn main() {
         [_, mode] if mode == "--selftest" => selftest(),
         [_, mode] if mode == "--b4-selftest" => b4_toy(),
         [_, mode] if mode == "--c-mu3-toy" => c_matrix_toy(),
-        [_, mode, sample, signed, q5, pairs, b5, graph] if mode == "--c-full" =>
-            c_full_mu3_run(&[mode.clone(),sample.clone(),signed.clone(),q5.clone(),pairs.clone(),b5.clone(),graph.clone()]),
+        [_, mode, method, sample, signed, q5, pairs, b5, graph] if mode == "--c-full" =>
+            c_full_mu3_run(&[method.clone(),sample.clone(),signed.clone(),q5.clone(),pairs.clone(),b5.clone(),graph.clone()]),
         [_, mode, root] if mode == "--run" => run(Path::new(root)),
         [_, mode, root, spool] if mode == "--b4" =>
             reverse_from_source(Path::new(root), Path::new(spool)),
