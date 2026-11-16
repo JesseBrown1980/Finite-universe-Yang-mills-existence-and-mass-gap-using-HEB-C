@@ -1,0 +1,70 @@
+name: "Y137 H144: nested exact 12 24 48 96 144 Ritz matrices"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-h144-exact-nested-ritz.yml'
+      - 'independent/y137-h144-nested-20261116/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  h144-source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact integer source and no-floating-point audits
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-h144-nested-20261116/nested_ritz.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          python3 -I -B independent/y137-h144-nested-20261116/nested_ritz.py toy |
+            tee /tmp/y137-h144-toy.hbp
+          grep -Fq '|real_144=NOT_COMPUTED|Wilson_weight=HOLD|json=0' /tmp/y137-h144-toy.hbp
+      - name: Frozen original H12 code and 144-entry receipt
+        run: |
+          set -euo pipefail
+          git hash-object independent/y137-12x12-krylov-20261116/exact_krylov_12.py |
+            grep -Fxq '2bb1c89a53b701e5d3e6b369662a10effcc7e9dc'
+          git hash-object independent/y137-12x12-krylov-20261116/RESULT-H12-20261116.hbp |
+            grep -Fxq '9876d083ecdbd91f81ddbd99ea311467d81a1ba7'
+  h144-source-production:
+    runs-on: ubuntu-24.04
+    needs: h144-source-controls
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Original K2 source plus five nested dense weighted G/K matrices
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h144
+          /usr/bin/time -v python3 -I -B independent/y137-h144-nested-20261116/nested_ritz.py real |
+            tee build/y137-h144/RESULT-H144.hbp
+          test "$(grep -c '^Y137_H144_STAGE|' build/y137-h144/RESULT-H144.hbp)" -eq 5
+          grep -Fq '|dimension=144|authentic_matrix=EXACT_WEIGHTED_G_AND_K|' build/y137-h144/RESULT-H144.hbp
+          grep -Fq '|full_space_residual=HOLD|first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-h144/RESULT-H144.hbp
+          for n in 12 24 48 96 144; do
+            test -s build/y137-h144/H$n-GRAM.csv
+            test -s build/y137-h144/H$n-HAMILTONIAN.csv
+          done
+      - name: Exact source and result fingerprints
+        if: always()
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > build/y137-h144/COMMIT.txt
+          sha256sum independent/y137-h144-nested-20261116/nested_ritz.py \
+            > build/y137-h144/SOURCE.sha256
+          if test -f build/y137-h144/RESULT-H144.hbp; then
+            sha256sum build/y137-h144/RESULT-H144.hbp > build/y137-h144/RESULT.sha256
+          fi
+          if test -f build/y137-h144/H144-HAMILTONIAN.csv; then
+            sha256sum build/y137-h144/H*-GRAM.csv build/y137-h144/H*-HAMILTONIAN.csv \
+              > build/y137-h144/ALL-MATRICES.sha256
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-h144-exact-144x144-and-nested-ritz
+          path: build/y137-h144/
+          if-no-files-found: error
+          retention-days: 90
