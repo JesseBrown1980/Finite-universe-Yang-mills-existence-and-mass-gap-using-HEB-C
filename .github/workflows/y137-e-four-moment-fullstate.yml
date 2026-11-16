@@ -1,0 +1,54 @@
+name: "Y137 Stage E: exact four-moment full W state transfer"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-e-four-moment-fullstate.yml'
+      - 'independent/y137-four-moment-fullstate-20261116/**'
+      - 'independent/y137-mu3-real-20261115/d_real_four_moment.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-four-moment-fullstate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict exact integer-source and no-floating-point checks
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-four-moment-fullstate-20261116/four_moment_transfer.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+      - name: Original Stage D forged-SHA and energy-swap negative controls
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-e-four-moment-fullstate
+          python3 -I -B independent/y137-mu3-real-20261115/d_real_four_moment.py toy | tee build/y137-e-four-moment-fullstate/TOY.hbp
+          grep -Fq 'forged_SHA=REFUSED|energy_swap=REFUSED' build/y137-e-four-moment-fullstate/TOY.hbp
+      - name: Actual exact four-moment to full-state normalization certificate
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-four-moment-fullstate-20261116/four_moment_transfer.py | tee build/y137-e-four-moment-fullstate/RESULT.hbp
+          test "$(grep -c '^Y137_E_SOURCE|' build/y137-e-four-moment-fullstate/RESULT.hbp)" -eq 2
+          test "$(grep -c '^Y137_E_CELL|' build/y137-e-four-moment-fullstate/RESULT.hbp)" -eq 4
+          grep -Fq 'three_moment_best_regression=PASS' build/y137-e-four-moment-fullstate/RESULT.hbp
+          grep -Fq 'stage_D_width_regression=PASS' build/y137-e-four-moment-fullstate/RESULT.hbp
+          grep -Fq 'negative_controls=PASS' build/y137-e-four-moment-fullstate/RESULT.hbp
+      - name: Preserve reproducible SHA-256 receipts and commit
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-e-four-moment-fullstate
+          sha256sum independent/y137-four-moment-fullstate-20261116/four_moment_transfer.py > build/y137-e-four-moment-fullstate/SCRIPT.sha256
+          sha256sum independent/y137-mu3-real-20261115/RESULT-WORKER1-C-FULL-SIGNED-MU3-TWO-ENERGY-20261116.hbp > build/y137-e-four-moment-fullstate/MU3.sha256
+          if test -f build/y137-e-four-moment-fullstate/RESULT.hbp; then
+            sha256sum build/y137-e-four-moment-fullstate/RESULT.hbp > build/y137-e-four-moment-fullstate/RESULT.sha256
+          fi
+          git rev-parse HEAD > build/y137-e-four-moment-fullstate/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-e-exact-four-moment-fullstate-receipt
+          path: build/y137-e-four-moment-fullstate
+          retention-days: 90
+          if-no-files-found: error
