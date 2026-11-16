@@ -47,7 +47,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           run-id: 43615270310
-          github-token: \${{ github.token }}
+          github-token: ${{ github.token }}
           pattern: y137-d11-v1-actual-Q5-group*
           path: build/y137-b5-input
           merge-multiple: true
