@@ -32,6 +32,8 @@ jobs:
           grep -Fq 'source_blob_pins=4_OF_4_PASS|negative_controls=REFUSED' build/y137-g-flat/RESULT.hbp
           grep -Fq 'raw_unshifted_specific_inequality=NO_GO_WITH_ACCEPTED_D1_D2' build/y137-g-flat/RESULT.hbp
           grep -Fq 'original_first_Wilson_weight=HOLD|issue_137=OPEN' build/y137-g-flat/RESULT.hbp
+          tail -n +2 independent/y137-stage-g-eight-flat-20261116/RESULT-STAGE-G-FLAT-20261116.hbp > build/y137-g-flat/FROZEN.hbp
+          cmp build/y137-g-flat/RESULT.hbp build/y137-g-flat/FROZEN.hbp
       - name: Source and result SHA-256 receipts
         if: always()
         run: |
