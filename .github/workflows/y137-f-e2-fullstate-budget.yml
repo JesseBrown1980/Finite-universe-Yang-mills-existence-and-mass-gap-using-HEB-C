@@ -1,0 +1,53 @@
+name: "Y137 Stage F: exact E2 full-state budget"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-f-e2-fullstate-budget.yml'
+      - 'independent/y137-stage-f-budget-20261116/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-E2-budget:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Source integer-only and repository no-floating-point controls
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-stage-f-budget-20261116/stage_f_budget.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+      - name: Original signed Stage D adversarial checks
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-stage-f
+          python3 -I -B independent/y137-mu3-real-20261115/d_real_four_moment.py toy | tee build/y137-stage-f/TOY.hbp
+          grep -Fq 'forged_SHA=REFUSED|energy_swap=REFUSED' build/y137-stage-f/TOY.hbp
+      - name: Exact Stage F decomposition and frozen line search
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-stage-f-budget-20261116/stage_f_budget.py | tee build/y137-stage-f/RESULT.hbp
+          test "$(grep -c '^Y137_F_ROW|' build/y137-stage-f/RESULT.hbp)" -eq 18
+          grep -Fq 'stage_E_exact_reproduction=PASS' build/y137-stage-f/RESULT.hbp
+          grep -Fq 'independent_error_identity=PASS' build/y137-stage-f/RESULT.hbp
+          grep -Fq 'stage_E_move_route_alone_blocks_1_over_700=PROVED' build/y137-stage-f/RESULT.hbp
+      - name: Source and original evidence hashes
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-stage-f
+          sha256sum independent/y137-stage-f-budget-20261116/stage_f_budget.py > build/y137-stage-f/SOURCE.sha256
+          sha256sum independent/y137-four-moment-fullstate-20261116/RESULT-CLOUD-STAGE-E-20261116.hbp > build/y137-stage-f/STAGE-E-SOURCE.sha256
+          sha256sum independent/y137-mu3-real-20261115/RESULT-WORKER1-C-FULL-SIGNED-MU3-TWO-ENERGY-20261116.hbp > build/y137-stage-f/MU3-SOURCE.sha256
+          if test -f build/y137-stage-f/RESULT.hbp; then
+            sha256sum build/y137-stage-f/RESULT.hbp > build/y137-stage-f/RESULT.sha256
+          fi
+          git rev-parse HEAD > build/y137-stage-f/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-stage-f-exact-budget-and-interpolation
+          path: build/y137-stage-f
+          retention-days: 90
+          if-no-files-found: error
