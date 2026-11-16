@@ -858,13 +858,20 @@ IR_MUST_PASS = (
 MIR_MUST_FLAG = ("let _1: f64;", "fn f(_1: f32) -> u8 {", "_0 = const 5e-1_f64;", "_2 = const 1f32;", "static X: f64 = {", "_3 = <f64 as Display>::fmt(move _4) -> [return: bb1, unwind: bb2];")
 MIR_MUST_PASS = ('_1 = const "f64 0.5";', "let _1: u64;", "_2 = foo_f64() -> [return: bb1, unwind: bb2];", "let _1: myf32;")
 CPP_MUST_FLAG = ("\tdivsd\t%xmm1, %xmm0\n", "\tmovsd\t-8(%rbp), %xmm0\n", "\tcvtsi2sdq\t%rax, %xmm0\n", "\tfldt\t16(%rbp)\n", "\taddss\t%xmm1, %xmm0\n", "\tcall\tsqrt\n", "\tcall\t__divtf3\n", "\tcall\t__bid_divdd3\n", "\tcall\tsqrt@PLT\n", "\tvaddsd\t%xmm1, %xmm0, %xmm0\n", "\tpxor\t%xmm0, %xmm0\n\tmovsd\t%xmm0, -8(%rbp)\n")
-CPP_MUST_PASS = ("\tpxor\t%xmm1, %xmm1\n\tmovq\t%xmm0, -8(%rbp)\n", "\tmovd\t%xmm0, %eax\n", "\tvmovd\t%eax, %xmm0\n", "\tmovq\t%xmm0, %rax\n", "\tvmovq\t%rax, %xmm0\n", "\tmovaps\t%xmm0, -32(%rbp)\n", "\tmovdqa\t-48(%rbp), %xmm0\n", "\tcall\t__divti3\n", "\tcall\t__udivti3\n", "\tcall\t__modti3\n", "\tcall\t__multi3\n", "\tmovq\t%rax, %rdx\n", "\tcall\t_Z4sqrti\n", "\t.file\t\"float.cpp\"\n", "\tmovl\t$0, %r8d\n", "\tpxor\t%xmm0, %xmm0\n\tmovaps\t%xmm0, -240(%rbp)\n\tmovq\t%xmm0, -224(%rbp)\n")
+CPP_MUST_PASS = ("\tmovaps\t%xmm0, -32(%rbp)\n", "\tmovdqa\t-48(%rbp), %xmm0\n", "\tcall\t__divti3\n", "\tcall\t__udivti3\n", "\tcall\t__modti3\n", "\tcall\t__multi3\n", "\tmovq\t%rax, %rdx\n", "\tcall\t_Z4sqrti\n", "\t.file\t\"float.cpp\"\n", "\tmovl\t$0, %r8d\n", "\tpxor\t%xmm0, %xmm0\n\tmovaps\t%xmm0, -240(%rbp)\n\tmovq\t%xmm0, -224(%rbp)\n")
 
 
 # Explicit integer-zero controls and scalar-floating instruction controls.
 # Keep the register sigil as a character to avoid interpreting the fixtures
 # as Python percent formatting by the strict source audit.
 _ASM_REG_SIGIL = chr(37)
+CPP_MUST_PASS += (
+    f"\tpxor\t{_ASM_REG_SIGIL}xmm1, {_ASM_REG_SIGIL}xmm1\n\tmovq\t{_ASM_REG_SIGIL}xmm0, -8({_ASM_REG_SIGIL}rbp)\n",
+    f"\tmovd\t{_ASM_REG_SIGIL}xmm0, {_ASM_REG_SIGIL}eax\n",
+    f"\tvmovd\t{_ASM_REG_SIGIL}eax, {_ASM_REG_SIGIL}xmm0\n",
+    f"\tmovq\t{_ASM_REG_SIGIL}xmm0, {_ASM_REG_SIGIL}rax\n",
+    f"\tvmovq\t{_ASM_REG_SIGIL}rax, {_ASM_REG_SIGIL}xmm0\n",
+)
 CPP_MUST_PASS += (
     f"\tpxor\t{_ASM_REG_SIGIL}xmm0, {_ASM_REG_SIGIL}xmm0\n\tmovups\t{_ASM_REG_SIGIL}xmm0, ({_ASM_REG_SIGIL}rax)\n\tmovd\t{_ASM_REG_SIGIL}xmm0, {_ASM_REG_SIGIL}ecx\n",
     f"\tpxor\t{_ASM_REG_SIGIL}xmm0, {_ASM_REG_SIGIL}xmm0\n\tmovups\t{_ASM_REG_SIGIL}xmm0, 18({_ASM_REG_SIGIL}rax)\n\tmovups\t{_ASM_REG_SIGIL}xmm0, 34({_ASM_REG_SIGIL}rax)\n\tmovd\t{_ASM_REG_SIGIL}xmm0, 50({_ASM_REG_SIGIL}rax)\n",
