@@ -22,7 +22,7 @@ from math import gcd, isqrt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
-GATE = os.path.join(ROOT, "y137-stage-g-eight-flat-20261116")
+GATE = os.path.join(ROOT, "independent", "y137-stage-g-eight-flat-20261116")
 sys.path.insert(0, GATE)
 import flat_action_gate as g
 
