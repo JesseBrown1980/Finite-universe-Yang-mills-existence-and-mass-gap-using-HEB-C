@@ -1,0 +1,63 @@
+name: "Y137 H20736: exact weighted sparse shell3 Hamiltonian"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-h20736-sparse.yml'
+      - 'independent/y137-h20736-shell3-20261116/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  h20736-source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Repository no-floating-point and integer-only source audits
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-h20736-shell3-20261116/sparse_h20736.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Pinned original 144 source
+        run: |
+          set -euo pipefail
+          git hash-object independent/y137-h144-nested-20261116/nested_ritz.py |
+            grep -Fxq '9d2f80f1d062b9b9f01e65ff9a1334e1045a51a3'
+  h20736-real-source-matrix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    needs: h20736-source-controls
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Build full original source and sparse 20,736-dimensional physical W-projected operator
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h20736
+          /usr/bin/time -v python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real |
+            tee build/y137-h20736/RESULT-H20736.hbp
+          grep -Fq '|matrix=EXACT_SPARSE_PHYSICAL_W_GALERKIN|dimension=20736|' \
+            build/y137-h20736/RESULT-H20736.hbp
+          grep -Fq '|Ritz_20736=HOLD|full_support_residual=NOT_COMPUTED|true_eigenspace_angle=HOLD|first_Wilson_weight=HOLD|issue_137=OPEN|json=0' \
+            build/y137-h20736/RESULT-H20736.hbp
+          test -s build/y137-h20736/H20736-SPARSE-UPPER.tsv
+          grep -Fq '|source_consistency=K2_TO_SHELL3_WEIGHTED_REVERSE_PASS|' \
+            build/y137-h20736/RESULT-H20736.hbp
+      - name: Freeze source and exact sparse matrix fingerprints
+        if: always()
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > build/y137-h20736/COMMIT.txt
+          sha256sum independent/y137-h20736-shell3-20261116/sparse_h20736.py > build/y137-h20736/SOURCE.sha256
+          if test -f build/y137-h20736/RESULT-H20736.hbp; then
+            sha256sum build/y137-h20736/RESULT-H20736.hbp > build/y137-h20736/RESULT.sha256
+          fi
+          if test -f build/y137-h20736/H20736-SPARSE-UPPER.tsv; then
+            sha256sum build/y137-h20736/H20736-SPARSE-UPPER.tsv > build/y137-h20736/SPARSE-MATRIX.sha256
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-h20736-original-s3-exact-sparse-matrix
+          path: build/y137-h20736/
+          retention-days: 90
+          if-no-files-found: error
