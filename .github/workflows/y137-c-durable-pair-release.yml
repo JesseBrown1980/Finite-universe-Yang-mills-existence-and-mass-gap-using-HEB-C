@@ -1,0 +1,112 @@
+name: "Y137 Worker1 Stage C: permanent SHA-verified draft release of 256 cross-pair binaries"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-c-durable-pair-release.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  original-pair-archive-to-durable-draft-release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      TAG: y137-stage-c-cross-pairs-20261116-sha-v1
+      ORIGINAL_HEAD: edd330f3d93b83db50c0489e04f498c673ff074a
+      ORIGINAL_RUN_CHECKOUT: 584b75c63da0cd566f9225e601dbe0016d96e73e
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Download the original frozen 256 non-Q5/Q5 graph pair partitions
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43873674889
+          github-token: ${{ github.token }}
+          name: y137-worker1-c-full-threeblock-256-pair-archives
+          path: build/y137-c-graph/pairs
+      - name: Recover immutable original 256-SHA manifest and production receipts
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43873674889
+          github-token: ${{ github.token }}
+          name: y137-worker1-c-full-threeblock-exact-graph-receipt
+          path: build/y137-c-graph/results
+      - name: Rehash every original byte before any durable upload
+        run: |
+          set -euo pipefail
+          test "$(find build/y137-c-graph/pairs -maxdepth 1 -name 'C-PAIR-*.bin' | wc -l)" -eq 256
+          echo 'dda57b417ecb0bd0dd51842013981ef483ede7ddc509066786ce861ef277c027  build/y137-c-graph/results/PAIR-PARTITIONS.sha256' | sha256sum -c -
+          sha256sum -c build/y137-c-graph/results/PAIR-PARTITIONS.sha256 \
+            | tee build/y137-c-graph/results/DURABLE-ORIGINAL-256-VERIFIED.hbp
+          test "$(grep -c ': OK$' build/y137-c-graph/results/DURABLE-ORIGINAL-256-VERIFIED.hbp)" -eq 256
+          grep -Fq 'Y137_C_GRAPH_VERDICT|' build/y137-c-graph/results/RESULT-C-CROSS.hbp
+          test "$(cat build/y137-c-graph/results/COMMIT.txt)" = "${ORIGINAL_RUN_CHECKOUT}"
+          df -h .
+      - name: Create original-commit-pinned, UNPUBLISHED draft GitHub Release
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-c-durable
+          cat > build/y137-c-durable/README.txt <<'DOC'
+          Issue #137 Stage C finite Yang-Mills research archive.
+          Original accepted full graph: workflow 43873674889 at commit edd330f3d93b83db50c0489e04f498c673ff074a.
+          Exactly 256 C-PAIR-000.bin through C-PAIR-255.bin, 18 bytes per directed weighted edge.
+          Original SHA-256 manifest: dda57b417ecb0bd0dd51842013981ef483ede7ddc509066786ce861ef277c027.
+          New cross graph: 139517148 unordered reciprocal pairs, 279034296 directed records.
+          Combined with original B4 Q5 principal graph: 201994944 supported unordered reciprocal pairs.
+          Purpose: immutable numerical research provenance, retained past the expiry of the original Actions artifact.
+          This is a DRAFT release and does not assert first Wilson spectral-weight certification.
+          DOC
+          if gh release view "${TAG}" --repo "${GH_REPO}" >/dev/null 2>&1; then
+            echo 'Existing draft tag detected; verify original target and draft flag before reuse'
+            test "$(gh release view "${TAG}" --repo "${GH_REPO}" --json isDraft --jq '.isDraft')" = true
+          else
+            gh release create "${TAG}" --repo "${GH_REPO}" --draft \
+              --target "${ORIGINAL_HEAD}" \
+              --title 'Y137 Stage C 256-pair exact graph archive — draft' \
+              --notes-file build/y137-c-durable/README.txt
+          fi
+          test "$(gh release view "${TAG}" --repo "${GH_REPO}" --json isDraft --jq '.isDraft')" = true
+      - name: Upload 256 original verified binary partition files as permanent draft-release assets
+        run: |
+          set -euo pipefail
+          gh release upload "${TAG}" build/y137-c-graph/pairs/C-PAIR-*.bin \
+            --repo "${GH_REPO}"
+          gh release upload "${TAG}" \
+            build/y137-c-graph/results/PAIR-PARTITIONS.sha256 \
+            build/y137-c-graph/results/RESULT-C-CROSS.hbp \
+            build/y137-c-graph/results/COMMIT.txt \
+            build/y137-c-durable/README.txt \
+            --repo "${GH_REPO}"
+          test "$(gh release view "${TAG}" --repo "${GH_REPO}" --json assets --jq '.assets | length')" -eq 260
+      - name: Fresh authenticated release DOWNLOAD — independently rehash all 5 GB of durable bytes
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-c-durable/fresh
+          gh release download "${TAG}" --repo "${GH_REPO}" \
+            --pattern 'C-PAIR-*.bin' --dir build/y137-c-durable/fresh
+          test "$(find build/y137-c-durable/fresh -maxdepth 1 -name 'C-PAIR-*.bin' | wc -l)" -eq 256
+          count=0
+          while read -r expected original; do
+            filename="${original##*/}"
+            test -f "build/y137-c-durable/fresh/${filename}"
+            actual="$(sha256sum "build/y137-c-durable/fresh/${filename}" | cut -d ' ' -f 1)"
+            test "${actual}" = "${expected}"
+            count=$((count+1))
+          done < build/y137-c-graph/results/PAIR-PARTITIONS.sha256
+          test "${count}" -eq 256
+          echo "Y137_C_DURABLE_VERDICT|released_assets=260|binary_partition_files=256|fresh_download_SHA256=256_OF_256_PASS|original_pair_manifest_sha256=dda57b417ecb0bd0dd51842013981ef483ede7ddc509066786ce861ef277c027|release_draft=true|complete_full_mu3=NOT_COMPUTED|Wilson_weight=HOLD|json=0" \
+            | tee build/y137-c-graph/results/DURABLE-VERDICT.hbp
+          df -h .
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-c-durable-archive-preservation-receipt
+          path: |
+            build/y137-c-graph/results/DURABLE-VERDICT.hbp
+            build/y137-c-graph/results/DURABLE-ORIGINAL-256-VERIFIED.hbp
+            build/y137-c-durable/README.txt
+          retention-days: 90
+          if-no-files-found: ignore
