@@ -17,6 +17,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -I -B native/scripts/integer_only_audit.py independent/y137-h20736-shell3-20261116/sparse_h20736.py
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-h20736-shell3-20261116/two_trial_ritz.py
           python3 -I -B native/scripts/no_float_gate.py .
       - name: Pinned original 144 source
         run: |
@@ -42,12 +43,24 @@ jobs:
           test -s build/y137-h20736/H20736-SPARSE-UPPER.tsv
           grep -Fq '|source_consistency=K2_TO_SHELL3_WEIGHTED_REVERSE_PASS|' \
             build/y137-h20736/RESULT-H20736.hbp
+      - name: Exact two-state Rayleigh minmax inside 20736-dimensional trial space
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-h20736-shell3-20261116/two_trial_ritz.py real |
+            tee build/y137-h20736/RESULT-TWO-TRIAL-RITZ.hbp
+          test "$(grep -c '^Y137_H20736_TWO_RITZ|' build/y137-h20736/RESULT-TWO-TRIAL-RITZ.hbp)" -eq 2
+          grep -Fq '|certified_two_trial_subspace_Ritz_upper=PASS|' build/y137-h20736/RESULT-TWO-TRIAL-RITZ.hbp
+          grep -Fq '|Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-h20736/RESULT-TWO-TRIAL-RITZ.hbp
       - name: Freeze source and exact sparse matrix fingerprints
         if: always()
         run: |
           set -euo pipefail
           git rev-parse HEAD > build/y137-h20736/COMMIT.txt
           sha256sum independent/y137-h20736-shell3-20261116/sparse_h20736.py > build/y137-h20736/SOURCE.sha256
+          sha256sum independent/y137-h20736-shell3-20261116/two_trial_ritz.py > build/y137-h20736/TWO-TRIAL-SOURCE.sha256
+          if test -f build/y137-h20736/RESULT-TWO-TRIAL-RITZ.hbp; then
+            sha256sum build/y137-h20736/RESULT-TWO-TRIAL-RITZ.hbp > build/y137-h20736/TWO-TRIAL-RESULT.sha256
+          fi
           if test -f build/y137-h20736/RESULT-H20736.hbp; then
             sha256sum build/y137-h20736/RESULT-H20736.hbp > build/y137-h20736/RESULT.sha256
           fi
