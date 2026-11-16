@@ -84,10 +84,12 @@ def load_h12():
     need(matrix_sha(G) == G12_SHA == data["gram_sha256"]
          and matrix_sha(H) == K12_SHA == data["hamiltonian_sha256"],
          "original_H12_matrix_hash")
-    return old, G, H
+    return G, H
 
 
-def sources(old):
+def sources():
+    sys.path.insert(0, os.path.dirname(H12_PATH))
+    import exact_krylov_12 as old
     v1, v2 = old.read_original_samples()
     mod = old.source_module()
     ball, magnetic = old.raw_graph(mod)
@@ -358,8 +360,8 @@ def test_small():
 
 
 def real():
-    old,G12,K12=load_h12()
-    ball,states,cols,actions=sources(old)
+    G12,K12=load_h12()
+    ball,states,cols,actions=sources()
     chosen,scores=select(ball,cols,actions)
     addr_rows=[]
     for i in chosen:
