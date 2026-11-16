@@ -100,3 +100,25 @@ The proposed exact comparisons are:
 - Original raw actual sample amplitude **upper** is approximately `0.050347150`; the raw linear transfer cost alone exceeds `8d2+4d1=0.082354179628`.
 
 If the hosted comparisons PASS, **both the raw and the specific already-certified 7/2-shifted first-order action-norm sufficient inequalities are excluded with the present frozen E/F conservative state errors**, even allowing each original sample's actual amplitude instead of only its previously certified lower amplitude. The original #180 *fixed-sample amplitudes remain positive*; the obstruction concerns the cost of transferring them to the true eigenstates with the present general norm bounds. Other shifts, improved eigendirection bounds or direct Wilson-specific projector estimates remain open.
+
+## Second hosted production and exact shift screen — scoped computational PASS
+
+[Run #43944079644](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43944079644) certified the additional original `O-7/2 I` sample comparison using the exact original #180 signed O2 dual centre, residual upper, and corrected **complete-Q** overlap upper. These values are preserved in [RESULT-STAGE-G-SHIFT-20261116.hbp](RESULT-STAGE-G-SHIFT-20261116.hbp). The source #180 fixed-sample shifted and raw Wilson amplitudes remain positive; their **upper** action-amplitude bounds are compared against the current Stage E/F error ceilings as follows:
+
+| Original fixed-sample observable | Upper normalized amplitude | Strict lower *linear* transfer error |
+|---|---:|---:|
+| Raw `O` | 0.050347149198 | 0.082354179628 |
+| `O-7/2 I` | 0.037261135801 | 0.049853736715 |
+
+The amplitude ceilings are rounded **up**; the transfer error floors are conservative. Each lower error is already strictly larger than its **upper** fixed-sample amplitude, with even the nonnegative quadratic transfer term omitted. Hence the specific global Cauchy action-norm transfer method fails for both of these fixed observable choices with the current accepted `d1,d2`. This is stronger than merely comparing to the original `1/50` lower amplitude.
+
+**A third, inexpensive hosted screen** at [run #43944832046](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43944832046) completed **SUCCESS**. It covers the 29 exact rational shifts `alpha=a/2` for `a=0,...,28`, using the original source-normalized eight-flat action-norm lower bound and original #180 shifted-amplitude upper interval. All 29 exact rows and production provenance are in [RESULT-STAGE-G-SHIFT-GRID-20261116.hbp](RESULT-STAGE-G-SHIFT-GRID-20261116.hbp).
+
+- **17 excluded** shifts in the registered grid: `alpha=0,0.5,...,5.5` and `alpha=12,12.5,...,14`.
+- **12 not excluded** shifts in the registered grid: `alpha=6,6.5,...,11.5`.
+
+A not-excluded value is **inconclusive**, not a positive sample-to-eigenstate transition certificate. The source lower action norms might be substantially smaller than the actual full-Q action norms, and the upper sample amplitudes might be substantially larger than their true values. The grid is a fixed half-unit search, not a theorem about arbitrary real shifts.
+
+**Most promising next bounded calculation:** obtain original #180 source-authenticated *two-sided signed fixed-sample transition intervals* and **upper** action norms for one or more preregistered rational shifts inside `6..11.5`, with exact original full-Q normalization and overlap correction, then test the full sufficient inequality including the shifted global `||O-alpha I||` quadratic remainder. Alternatively, construct a direct Wilson spectral-projector transfer. Preserve all source hashes, the sampled original trial identity, and existing E/F conclusions.
+
+**Review boundary:** both new computations returned hosted exact numerical PASS; independent mathematical review of PR #237 remains pending. The original Wilson first-excitation spectral weight remains **HOLD**, #137 and #236 **OPEN**, all new research **DRAFT**.
