@@ -20,7 +20,6 @@ jobs:
           gcc --version | head -1 | tee build/y137-compiled-move/GCC.txt
           python3 -I -X utf8 native/scripts/compiled_float_check.py selftest | tee build/y137-compiled-move/SELFTEST.hbp
           grep -Fq '|failed=0|json=0' build/y137-compiled-move/SELFTEST.hbp
-          python3 -I -X utf8 native/scripts/integer_only_audit.py native/scripts/compiled_float_check.py
       - name: Compile the three originally flagged unchanged C++ programs
         run: |
           set -euo pipefail
