@@ -1,0 +1,75 @@
+name: "Y137 Worker1 Stage B3: complete Q5 72-move census"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/rust/src/bin/b3_census.rs'
+      - '.github/workflows/y137-stage-b3-row-census.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  b3-toy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Rust 1.81 toolchain
+        uses: dtolnay/rust-toolchain@1.81.0
+        with:
+          components: clippy
+      - name: Clippy strict and source-free exact row fixture
+        working-directory: independent/y137-mu3-real-20261115/rust
+        run: |
+          set -euo pipefail
+          cargo clippy --release --bin b3_census -- -D warnings
+          cargo build --release --bin b3_census
+          ./target/release/b3_census --selftest | tee /tmp/b3-toy.hbp
+          grep -Fq 'bad_orbit_weight=REFUSED|real_rows=NOT_COMPUTED|' /tmp/b3-toy.hbp
+  b3-production:
+    needs: b3-toy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Rust 1.81 toolchain
+        uses: dtolnay/rust-toolchain@1.81.0
+      - name: Download all eight frozen Q5 spools
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43615270310
+          github-token: ${{ github.token }}
+          pattern: y137-d11-v1-actual-Q5-group*
+          path: build/y137-stage-b3-input
+          merge-multiple: true
+      - name: Verify eight real source hashes and global source canonicality before B3
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-stage-b3-receipts
+          for group in 0 1 2 3 4 5 6 7; do
+            test -f "build/y137-stage-b3-input/GROUP-${group}.v1"
+            python3 -I -B independent/y137-mu3-real-20261115/source_gate.py verify \
+              independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp \
+              "${group}" "build/y137-stage-b3-input/GROUP-${group}.v1" \
+              "build/y137-stage-b3-receipts/GROUP-${group}.hbp"
+          done
+          python3 -I -B independent/y137-mu3-real-20261115/source_gate.py aggregate \
+            independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp \
+            build/y137-stage-b3-receipts build/y137-stage-b3-receipts/RESULT-SOURCE.hbp
+      - name: Run complete 18.6M-row Rust B3 global lookup and boundary census
+        working-directory: independent/y137-mu3-real-20261115/rust
+        run: |
+          set -euo pipefail
+          cargo build --release --bin b3_census
+          mkdir -p ../../../build/y137-stage-b3-receipts
+          /usr/bin/time -v ./target/release/b3_census --run ../../../build/y137-stage-b3-input \
+            | tee ../../../build/y137-stage-b3-receipts/RESULT-B3.hbp
+          grep -Fq 'source_rows=18598040|raw_moves=1339058880|' ../../../build/y137-stage-b3-receipts/RESULT-B3.hbp
+          grep -Fq '|preregistered_B3=PASS|B4_B8=PENDING|real_mu3=NOT_COMPUTED|' ../../../build/y137-stage-b3-receipts/RESULT-B3.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-stage-b3-census-receipts
+          path: build/y137-stage-b3-receipts
+          retention-days: 60
+          if-no-files-found: ignore
