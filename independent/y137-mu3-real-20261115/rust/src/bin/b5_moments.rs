@@ -666,7 +666,7 @@ fn selftest() -> Result<(),String> {
 
 fn gram_encode(m: &[Wide; 36]) -> String {
     let mut rows = Vec::with_capacity(8);
-    for i in 0..8 {
+    for i in 0usize..8 {
         let mut cells = Vec::with_capacity(8);
         for j in 0..8 {
             // 0,1,2,3,4,5,6,7; 1,2,3...; 7
