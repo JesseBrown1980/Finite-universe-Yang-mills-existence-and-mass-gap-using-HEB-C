@@ -161,7 +161,8 @@ def toy():
         pass
     else:
         raise ValueError("forged_SHA_accepted")
-    bad = raw.replace("69909875505", "69949729820", 1)
+    bad = raw.replace("Y137_C_MU3_ACCEPT_MATRIX|sample_num=69909875505",
+                      "Y137_C_MU3_ACCEPT_MATRIX|sample_num=69949729820", 1)
     try:
         parse_pinned_mu3(bad)
     except ValueError:
