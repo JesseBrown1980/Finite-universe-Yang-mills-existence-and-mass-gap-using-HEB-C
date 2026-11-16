@@ -64,7 +64,12 @@ def sha(s):
 def original_conj():
     """Historical tracked S3 group action, not a newly guessed presentation."""
     sys.path.insert(0, os.path.dirname(ORIGINAL))
-    import finite_s3_3x4_r9_first_gap as c
+    old_args = sys.argv[:]
+    sys.argv = sys.argv[:1]
+    try:
+        import finite_s3_3x4_r9_first_gap as c
+    finally:
+        sys.argv = old_args
     return tuple(tuple(x) for x in c.CONJ)
 
 
@@ -252,8 +257,8 @@ def old_row_cross(canonical_key, weight, moves, states, cols,
 
 
 def pilot():
-    import finite_s3_3x4_r9_first_gap as c
     ind = CanonicalIndex(original_conj())
+    import finite_s3_3x4_r9_first_gap as c
     need(ind.total == FULL
          and FULL == (6**13 + 3 * 2**13 + 2 * 3**13) // 6,
          "original_Burnside_orbit_census_disagreement")
