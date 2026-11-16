@@ -1,0 +1,111 @@
+name: "Y137 Worker1 Stage C: complete 1.493B move cross-block electric reciprocity"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/rust/src/bin/c_cross_graph.rs'
+      - '.github/workflows/y137-stage-c-cross-electric.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-s3-exact-cross-toys:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: dtolnay/rust-toolchain@1.81.0
+        with:
+          components: clippy
+      - name: Locked original S3 operator and strict Rust 1.81 check
+        run: |
+          set -euo pipefail
+          cd independent/y137-mu3-real-20261115/rust
+          cargo clippy --locked --release --bin c_cross_graph -- -D warnings
+          cargo build --locked --release --bin c_cross_graph
+          ./target/release/c_cross_graph --c-selftest | tee /tmp/y137-c-cross-toy.hbp
+          grep -Fq 'wrong_weighted_reverse=REFUSED|missing_reverse=REFUSED|duplicate_reverse=REFUSED|' /tmp/y137-c-cross-toy.hbp
+      - name: Repository source-level no-floating-point verification
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+
+  complete-real-three-block-graph:
+    needs: original-s3-exact-cross-toys
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - name: Recover all nine original frozen signed physical V1 spools
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43867088509
+          github-token: ${{ github.token }}
+          pattern: y137-stage-c-full-signed-*
+          path: build/y137-c-graph/signed
+          merge-multiple: true
+      - name: Recover all eight original Q5 V1/b spools
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43615270310
+          github-token: ${{ github.token }}
+          pattern: y137-d11-v1-actual-Q5-group*
+          path: build/y137-c-graph/q5
+          merge-multiple: true
+      - name: Independently reauthenticate all 20,738,636 disjoint source addresses
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-c-graph/results
+          df -h . | tee build/y137-c-graph/results/DISK-BEFORE.txt
+          python3 -I -B independent/y137-mu3-real-20261115/c_signed_q5_support_join.py \
+            run build/y137-c-graph/signed build/y137-c-graph/q5 \
+            independent/y137-mu3-real-20261115/RESULT-WORKER1-C-FULL-SIGNED-V1-20261116.hbp \
+            independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp \
+            | tee build/y137-c-graph/results/SOURCE-JOIN.hbp
+          grep -Fq 'unique_K3_Q4_Q5_addresses=20738636|signed_Q5_overlaps=0|' \
+            build/y137-c-graph/results/SOURCE-JOIN.hbp
+      - name: Compile and run every actual electric move with exact reverse-pair sorting
+        run: |
+          set -euo pipefail
+          cd independent/y137-mu3-real-20261115/rust
+          cargo build --locked --release --bin c_cross_graph
+          cd ../../..
+          mkdir -p build/y137-c-graph/pairs
+          /usr/bin/time -v independent/y137-mu3-real-20261115/rust/target/release/c_cross_graph \
+            --c-cross build/y137-c-graph/signed build/y137-c-graph/q5 build/y137-c-graph/pairs \
+            | tee build/y137-c-graph/results/RESULT-C-CROSS.hbp
+          grep -Fq 'weighted_reverse_mismatches=0|unmatched_reverse_records=0|' \
+            build/y137-c-graph/results/RESULT-C-CROSS.hbp
+          grep -Fq 'all_raw_moves=1493181792|Q5_Q5_raw_moves=125005512|' \
+            build/y137-c-graph/results/RESULT-C-CROSS.hbp
+          test "$(find build/y137-c-graph/pairs -maxdepth 1 -name 'C-PAIR-*.bin' | wc -l)" -eq 256
+      - name: Authenticate and preserve all 256 exact weighted cross-pair partitions
+        run: |
+          set -euo pipefail
+          sha256sum build/y137-c-graph/pairs/C-PAIR-*.bin \
+            > build/y137-c-graph/results/PAIR-PARTITIONS.sha256
+          sha256sum build/y137-c-graph/results/RESULT-C-CROSS.hbp \
+            > build/y137-c-graph/results/RESULT-C-CROSS.hbp.sha256
+          sha256sum independent/y137-mu3-real-20261115/rust/target/release/c_cross_graph \
+            > build/y137-c-graph/results/EXECUTABLE.sha256
+          sha256sum independent/y137-mu3-real-20261115/rust/Cargo.lock \
+            > build/y137-c-graph/results/LOCKFILE.sha256
+          git rev-parse HEAD > build/y137-c-graph/results/COMMIT.txt
+          df -h . | tee build/y137-c-graph/results/DISK-AFTER.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-c-full-threeblock-exact-graph-receipt
+          path: build/y137-c-graph/results
+          retention-days: 60
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: y137-worker1-c-full-threeblock-256-pair-archives
+          path: build/y137-c-graph/pairs/C-PAIR-*.bin
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
