@@ -1,0 +1,83 @@
+name: Open-grid S3, large grids by the compact Chebyshev mode (hosted cells)
+
+on:
+  push:
+    branches: [local-fable52-y137-moment-radau-20261114]
+    paths:
+      - independent/open-grid-s3-ladder-20261115/CHEB-TRIGGER.txt
+
+permissions:
+  contents: read
+
+jobs:
+  point:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        args:
+          - "4 2 11 4 3 cheb 15 20"
+          - "4 2 12 4 3 cheb 15 20"
+          - "4 2 13 4 3 cheb 15 20"
+          - "4 2 15 4 3 cheb 15 20"
+          - "4 2 16 4 3 cheb 15 20"
+          - "3 3 11 4 3 cheb 15 20"
+          - "3 3 12 4 3 cheb 15 20"
+          - "3 3 13 4 3 cheb 15 20"
+          - "3 3 14 4 3 cheb 15 20"
+          - "3 3 15 4 3 cheb 15 20"
+          - "3 3 16 4 3 cheb 15 20"
+          - "3 3 17 4 3 cheb 15 20"
+          - "8 1 12 4 3 cheb 15 20"
+          - "8 1 13 4 3 cheb 15 20"
+          - "8 1 14 4 3 cheb 15 20"
+          - "8 1 15 4 3 cheb 15 20"
+          - "9 1 13 4 3 cheb 15 20"
+          - "9 1 14 4 3 cheb 15 20"
+          - "9 1 15 4 3 cheb 15 20"
+          - "10 1 14 4 3 cheb 15 20"
+          - "5 2 12 4 3 cheb 15 20"
+          - "5 2 13 4 3 cheb 15 20"
+          - "5 2 14 4 3 cheb 15 20"
+          - "5 2 15 4 3 cheb 15 20"
+          - "5 2 16 4 3 cheb 15 20"
+          - "3 2 13 4 3 cheb 15 20"
+          - "3 2 15 4 3 cheb 15 20"
+          - "6 1 13 4 3 cheb 15 20"
+          - "6 1 15 4 3 cheb 15 20"
+          - "6 1 9 4 1"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Rust 1.81, clippy and build
+        run: |
+          rustup toolchain install 1.81.0 --profile minimal --component clippy
+          cd independent/open-grid-s3-ladder-20261115/rust
+          sha256sum src/main.rs
+          cargo +1.81.0 clippy --release -- -D warnings
+          cargo +1.81.0 build --release
+      - name: instrument gate, values on file
+        run: |
+          cd independent/open-grid-s3-ladder-20261115/rust
+          ./target/release/open_grid 2 2 9 4 1 cheb 15 20 | tee gate.txt
+          ./target/release/open_grid 3 2 14 4 3 cheb 15 20 | tee -a gate.txt
+          python3 -I - <<'PY'
+          rows = [l for l in open('gate.txt') if l.startswith('SPARSE_LEVELS|')]
+          d = [dict(kv.split('=', 1) for kv in r.strip().split('|')[1:] if '=' in kv) for r in rows]
+          # 2x2 at r=9: dense certified gap 14.801616035..14.801620035
+          assert 14801616035 <= int(d[0]['gap_upper']) <= 14801622035, d[0]
+          # 3x2 at 14/3: dense certified scaled gap 21.431455282..21.432917794
+          assert 21431455282 <= int(d[1]['gap_upper']) <= 21433500000, d[1]
+          print('GATE|cheb_gap_upper_agrees_with_dense_certified_2x2_r9_and_3x2_14over3=1|json=0')
+          PY
+      - name: levels at this point
+        run: |
+          cd independent/open-grid-s3-ladder-20261115/rust
+          nproc; free -m | head -2
+          /usr/bin/time -v ./target/release/open_grid ${{ matrix.args }} 2> time.txt | tee rows.hbp
+          grep -E "Elapsed|Maximum resident" time.txt | tee -a rows.hbp
+          grep -q -E "^(SPARSE_LEVELS|GRID_LEVELS)\|.*E0_lo" rows.hbp
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cheb-${{ strategy.job-index }}
+          path: independent/open-grid-s3-ladder-20261115/rust/rows.hbp

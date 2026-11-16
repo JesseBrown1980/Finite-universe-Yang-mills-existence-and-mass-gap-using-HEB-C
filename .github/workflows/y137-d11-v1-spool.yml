@@ -1,0 +1,107 @@
+name: Issue 137 degree11 replay original mu2 artifacts to exact V1 shell5
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-d11-v1-spool-odd-mu3-20261114/**'
+      - '.github/workflows/y137-d11-v1-spool.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-record-and-source-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact binary target record and cross-origin Gram negative controls
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-d11-v1-spool-odd-mu3-20261114/v1_spool.py --toy | tee /tmp/y137-v1-spool-toy.hbp
+          grep -Fq 'tampered_length=REFUSED|oversized_lane=REFUSED|premerge_outer_product=REJECTED|real_V1=NOT_COMPUTED|' /tmp/y137-v1-spool-toy.hbp
+      - name: Strict integer/no-float audit for exact V1 replay program
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-d11-v1-spool-odd-mu3-20261114/v1_spool.py
+  archived-mu2-groups-to-v1:
+    needs: exact-record-and-source-gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [0,1,2,3,4,5,6,7]
+    env:
+      Y137_D11_MU2_GROUP: ${{ matrix.group }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 43606393196
+          github-token: ${{ github.token }}
+          pattern: y137-mu2-shard-*-group-${{ matrix.group }}
+          path: build/y137-d11-mu2-download
+          merge-multiple: false
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 43606393196
+          github-token: ${{ github.token }}
+          name: y137-mu2-reduced-group-${{ matrix.group }}
+          path: build/y137-d11-mu2-previous-group
+      - name: Reassemble all eight accepted source contributions per true shell5 target
+        run: |
+          set -euo pipefail
+          ulimit -v 6291456
+          test "$(find build/y137-d11-mu2-download -name 'BUCKETS.hbp' | wc -l)" -eq 8
+          mkdir -p build/y137-d11-v1
+          python3 -I -B independent/y137-d11-v1-spool-odd-mu3-20261114/v1_spool.py | tee build/y137-d11-v1/RESULT-V1-GROUP${{ matrix.group }}.hbp
+          test "$(grep -c '^Y137_D11_V1_POINT|' build/y137-d11-v1/RESULT-V1-GROUP${{ matrix.group }}.hbp)" -eq 2
+          test "$(grep -c '^Y137_D11_V1_BUCKET|' build/y137-d11-v1/RESULT-V1-GROUP${{ matrix.group }}.hbp)" -eq 8
+          grep -Fq 'all_target_Grams_match_original_mu2=PASS|outward_operator_passes_completed=1|degree11_total_outward_passes=10|real_mu3=NOT_COMPUTED|' build/y137-d11-v1/RESULT-V1-GROUP${{ matrix.group }}.hbp
+          test -s build/y137-d11-v1/GROUP-${{ matrix.group }}.v1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-d11-v1-actual-Q5-group${{ matrix.group }}
+          path: |
+            build/y137-d11-v1/GROUP-${{ matrix.group }}.v1
+            build/y137-d11-v1/RESULT-V1-GROUP${{ matrix.group }}.hbp
+          retention-days: 60
+          compression-level: 1
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-d11-v1-receipt-${{ matrix.group }}
+          path: build/y137-d11-v1/RESULT-V1-GROUP${{ matrix.group }}.hbp
+          retention-days: 60
+          if-no-files-found: ignore
+  aggregate-all-eight-V1-groups:
+    needs: archived-mu2-groups-to-v1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-d11-v1-receipt-*
+          path: build/y137-d11-v1-receipts
+          merge-multiple: true
+      - name: Validate all 18,598,040 Q5 destinations with original full-Q Gram receipts
+        run: |
+          set -euo pipefail
+          test "$(find build/y137-d11-v1-receipts -name 'RESULT-V1-GROUP*.hbp' | wc -l)" -eq 8
+          mkdir -p build/y137-d11-v1-accepted
+          python3 -I -B independent/y137-d11-v1-spool-odd-mu3-20261114/aggregate_v1.py | tee build/y137-d11-v1-accepted/RESULT-V1-ALL.hbp
+          test "$(grep -c '^Y137_D11_V1_ALL_GROUP|' build/y137-d11-v1-accepted/RESULT-V1-ALL.hbp)" -eq 8
+          grep -Fq 'complete_Q5_support_targets=18598040|complete_Q4_to_Q5_edge_records=125426880|' build/y137-d11-v1-accepted/RESULT-V1-ALL.hbp
+          grep -Fq 'both_sample_Q5_Grams_reproduced_exactly=1|source_record_hashes_verified_per_group=1|remaining_outward_operator_passes=9|' build/y137-d11-v1-accepted/RESULT-V1-ALL.hbp
+          grep -Fq 'raw_Q5_72_move_source_review=NOT_COMPLETED|real_mu3=NOT_COMPUTED|degree11_center=HOLD|' build/y137-d11-v1-accepted/RESULT-V1-ALL.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-d11-all-complete-Q5-V1-receipt
+          path: build/y137-d11-v1-accepted/RESULT-V1-ALL.hbp
+          retention-days: 60
+          if-no-files-found: ignore

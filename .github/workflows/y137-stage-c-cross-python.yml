@@ -1,0 +1,91 @@
+name: "Y137 Worker1 Stage C: independent Python complete K3/Q4 electric census"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/c_cross_independent_py.py'
+      - '.github/workflows/y137-stage-c-cross-python.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-python-s3-reciprocity-toy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Independent original Python S3 gauge-orbit generator, actual weighted reverse examples
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-mu3-real-20261115/c_cross_independent_py.py toy | tee /tmp/y137-c-py-toy.hbp
+          grep -Fq '|weighted_reverse_identity=PASS|' /tmp/y137-c-py-toy.hbp
+      - name: Exact integer and no-floating-point source gates
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-mu3-real-20261115/c_cross_independent_py.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+
+  original-python-real-k3-q4:
+    needs: original-python-s3-reciprocity-toy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [0,1,2,3,4,5,6,7,8]
+    env:
+      C_GROUP: ${{ matrix.group }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: All real 72-move electric rows on frozen original K3/Q4 geometry
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-c-py-${C_GROUP}
+          /usr/bin/time -v python3 -I -B independent/y137-mu3-real-20261115/c_cross_independent_py.py \
+            group "${C_GROUP}" | tee "build/y137-c-py-${C_GROUP}/GROUP-${C_GROUP}.hbp"
+          test "$(grep -c '^Y137_C_PY_BLOCK|' build/y137-c-py-${C_GROUP}/GROUP-${C_GROUP}.hbp)" -eq 1
+          grep -Fq '|original_Q4_K3_reverse=EXACT|' "build/y137-c-py-${C_GROUP}/GROUP-${C_GROUP}.hbp"
+      - name: Exact source and executable environment receipts
+        run: |
+          set -euo pipefail
+          sha256sum independent/y137-mu3-real-20261115/c_cross_independent_py.py \
+            > build/y137-c-py-${C_GROUP}/SOURCE.sha256
+          git rev-parse HEAD > build/y137-c-py-${C_GROUP}/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-c-independent-python-group-${{ matrix.group }}
+          path: build/y137-c-py-${{ matrix.group }}
+          retention-days: 60
+          if-no-files-found: ignore
+
+  aggregate-independent-original-python-census:
+    needs: original-python-real-k3-q4
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-worker1-c-independent-python-group-*
+          path: build/y137-c-original-python
+          merge-multiple: true
+      - name: Full independent K3/Q4 154,122,912-move integer census and weighted block flux
+        run: |
+          set -euo pipefail
+          test "$(find build/y137-c-original-python -name 'GROUP-*.hbp' | wc -l)" -eq 9
+          python3 -I -B independent/y137-mu3-real-20261115/c_cross_independent_py.py \
+            aggregate build/y137-c-original-python \
+            | tee build/y137-c-original-python/RESULT-C-PY-CROSS.hbp
+          grep -Fq 'K3_Q4_rows=2140596|K3_Q4_raw_moves=154122912|' \
+            build/y137-c-original-python/RESULT-C-PY-CROSS.hbp
+          grep -Fq '|full_K3_Q4_flux_balance=PASS|' \
+            build/y137-c-original-python/RESULT-C-PY-CROSS.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-c-original-python-full-block-census
+          path: |
+            build/y137-c-original-python/RESULT-C-PY-CROSS.hbp
+            build/y137-c-original-python/GROUP-*.hbp
+          retention-days: 60
+          if-no-files-found: ignore

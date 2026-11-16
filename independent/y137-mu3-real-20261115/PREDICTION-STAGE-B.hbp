@@ -1,0 +1,11 @@
+Y137_STAGE_B_PREDICTION|date=2026-11-16|seat=LOCAL_CODEX|predecessor=CLAUDE_STAGE_A|base=42bbf383d45ab208434f519b1987adc2564195b2|status=PREDICTION_BEFORE_PRODUCTION|json=0
+PREDICT|id=B1|quantity=authenticated_groups|expected=8|falsifier=any_hash_length_count_or_bucket_mismatch|json=0
+PREDICT|id=B2|quantity=distinct_Q5_addresses|expected=18598040|falsifier=missing_duplicate_or_noncanonical_address|json=0
+PREDICT|id=B3|quantity=raw_electric_moves|expected=1339058880|falsifier=any_row_has_other_than_72_moves_or_total_differs|json=0
+PREDICT|id=B4|quantity=weighted_reverse_edge_mismatches|expected=0|falsifier=missing_reverse_or_unequal_weighted_multiplicity|json=0
+PREDICT|id=B5|quantity=row_vs_pair_matrix_disagreements|expected=0|samples=69909875505,69949729820|falsifier=any_exact_entry_differs|json=0
+PREDICT|id=B6|quantity=Q5_mu2_Gram_fingerprints|expected=all_16_frozen_hashes_match|falsifier=any_group_energy_hash_differs|json=0
+PREDICT|id=B7|quantity=arithmetic_bound|expected=every_partial_sum_abs_lt_2pow304|falsifier=bound_or_overflow_check_fails|json=0
+PREDICT|id=B8|quantity=planted_faults|expected=all_rejected|falsifier=malformed_source_missing_reverse_or_corrupted_edge_accepted|json=0
+OPEN|quantity=Q5_mu3_numeric_entries|status=TO_MEASURE|runtime=TO_BENCHMARK_WITH_JOINS_AND_ARITHMETIC|json=0
+SCOPE|whole_space_mu3=PENDING_STAGES_C_D|signed_source_authentication=SEPARATE_GATE|Wilson_weight=HOLD|json=0

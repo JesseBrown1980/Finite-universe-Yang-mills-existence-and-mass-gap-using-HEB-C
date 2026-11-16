@@ -1,0 +1,9 @@
+GRID_SPACE|a=6|b=1|plaquettes=6|links=19|raw_link_states=6^19|gauge_orbits=8051|r=9|orbit_formula_and_detailed_balance=1|json=0
+GRID_ESTIMATE|E0_estimate=49714266453|E1_estimate=64705099728|units=1e-9|status=ESTIMATE_ONLY|json=0
+GRID_COUNTS|delta=1000|status=a_pivot_interval_contains_zero|json=0
+GRID_COUNTS|delta=10000|status=a_pivot_interval_contains_zero|json=0
+GRID_COUNTS|delta=100000|status=a_pivot_interval_contains_zero|json=0
+GRID_COUNTS|delta=1000000|status=a_pivot_interval_contains_zero|json=0
+GRID_COUNTS|delta=10000000|status=a_pivot_interval_contains_zero|json=0
+GRID_COUNTS|delta=100000000|status=a_pivot_interval_contains_zero|json=0
+GRID_LEVELS|a=6|b=1|r=9|status=NOT_CERTIFIED|json=0

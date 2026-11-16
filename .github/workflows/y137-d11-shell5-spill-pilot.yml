@@ -1,0 +1,57 @@
+name: Issue 137 degree11 exact accepted-K3 shell5 spill pilot
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-d11-shell5-spill-20261114/**'
+      - '.github/workflows/y137-d11-shell5-spill-pilot.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  spill-algebra-and-faults:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact weighted toy; refuse premature per-shard Gram squaring
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-d11-shell5
+          python3 -I -B independent/y137-d11-shell5-spill-20261114/source_spill.py --toy | tee build/y137-d11-shell5/TOY.hbp
+          grep -Fq 'cross_partition_square_before_reduction=REJECTED|corrupted_edge=REJECTED|missing_outgoing_move=DETECTED_BY_CENSUS|zero_reverse=REJECTED|duplicate_source_edge=REJECTED|' build/y137-d11-shell5/TOY.hbp
+          grep -Fq 'fullQ_moment=NOT_COMPUTED|json=0' build/y137-d11-shell5/TOY.hbp
+          grep -Fq 'group_permutation_reconstructed=PASS|spanning_tree_gauge_reconstructed=PASS|magnetic_and_orbit_weight=PASS|source_missing_move=REJECTED|' build/y137-d11-shell5/TOY.hbp
+      - name: Enforce no-float/integer source gates
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-d11-shell5-spill-20261114/source_spill.py
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-d11-shell5-spill-20261114/independent_move_rule.py
+  real-boundary-pilot:
+    needs: spill-algebra-and-faults
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Complete 72 moves on first 1024 REAL accepted-K3 Q4 source rows; exact shell5 spill
+        run: |
+          set -euo pipefail
+          ulimit -v 6291456
+          mkdir -p build/y137-d11-shell5
+          python3 -I -B independent/y137-d11-shell5-spill-20261114/source_spill.py --real | tee build/y137-d11-shell5/RESULT-PILOT.hbp
+          grep -Fq 'target_degree=11|total_required_moments_per_sample=22|accepted_K3_mu0_mu1=PRESERVED|' build/y137-d11-shell5/RESULT-PILOT.hbp
+          grep -Fq 'actual_source_rows=1024|raw_electric_moves=73728|' build/y137-d11-shell5/RESULT-PILOT.hbp
+          grep -Fq 'original_vs_independent_72_move_rows=PASS|exact_72_move_accounting=PASS|exact_weighted_flux=PASS|second_sorted_reduction=PASS|' build/y137-d11-shell5/RESULT-PILOT.hbp
+          test "$(grep -c '^Y137_D11_S5_SAMPLE|' build/y137-d11-shell5/RESULT-PILOT.hbp)" -eq 2
+          grep -Fq 'remaining_degree11_moments_per_sample=20|separate_canonicalizer_review=PENDING|first_Wilson_weight=HOLD|issue_137=OPEN|' build/y137-d11-shell5/RESULT-PILOT.hbp
+          test -s build/y137-d11-shell5/REAL-SHELL5-PILOT.bin
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-degree11-real-shell5-out-of-core-pilot
+          path: |
+            build/y137-d11-shell5/TOY.hbp
+            build/y137-d11-shell5/RESULT-PILOT.hbp
+            build/y137-d11-shell5/REAL-SHELL5-PILOT.bin
+          retention-days: 60
+          if-no-files-found: ignore

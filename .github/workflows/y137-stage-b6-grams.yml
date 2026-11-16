@@ -1,0 +1,146 @@
+name: "Y137 Worker1 B6: all sixteen authentic Q5 Gram fingerprints"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/rust/src/bin/b5_moments.rs'
+      - 'independent/y137-mu3-real-20261115/b6_gram_accept.py'
+      - '.github/workflows/y137-stage-b6-grams.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  toy-no-float:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: dtolnay/rust-toolchain@1.81.0
+        with:
+          components: clippy
+      - name: Toy and strict integer-source guard
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-mu3-real-20261115/b6_gram_accept.py toy | tee /tmp/b6-toy.hbp
+          python3 -I -B independent/y137-mu3-real-20261115/b6_gram_accept.py attack-toy | tee /tmp/b6-attack.hbp
+          grep -Fq 'forgeries_refused=6|live_B6_16_of_16=UNAFFECTED|' /tmp/b6-attack.hbp
+          grep -Fq 'double_factor_six=REFUSED|noncanonical_integer=REFUSED|' /tmp/b6-toy.hbp
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-mu3-real-20261115/b6_gram_accept.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          cd independent/y137-mu3-real-20261115/rust
+          cargo clippy --locked --release --bin b5_moments -- -D warnings
+          cargo build --locked --release --bin b5_moments
+  gram-group:
+    needs: toy-no-float
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [0,1,2,3,4,5,6,7]
+    env:
+      Q5_GROUP: ${{ matrix.group }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - name: Download exactly one original Q5 source artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43615270310
+          github-token: ${{ github.token }}
+          name: y137-d11-v1-actual-Q5-group${{ matrix.group }}
+          path: build/y137-b6-input
+      - name: Verify original fingerprint and canonical S3 source
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-b6-accepted
+          test -s "build/y137-b6-input/GROUP-${Q5_GROUP}.v1"
+          python3 -I -B independent/y137-mu3-real-20261115/source_gate.py verify \
+            independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp \
+            "${Q5_GROUP}" "build/y137-b6-input/GROUP-${Q5_GROUP}.v1" \
+            "build/y137-b6-accepted/SOURCE-${Q5_GROUP}.hbp"
+      - name: Exact Rust Gram calculation, unmodified physical scale
+        run: |
+          set -euo pipefail
+          cd independent/y137-mu3-real-20261115/rust
+          cargo build --release --locked --bin b5_moments
+          cd ../../..
+          /usr/bin/time -v independent/y137-mu3-real-20261115/rust/target/release/b5_moments \
+            --gram "${Q5_GROUP}" "build/y137-b6-input/GROUP-${Q5_GROUP}.v1" \
+            | tee "build/y137-b6-accepted/GRAM-${Q5_GROUP}.hbp"
+      - name: Compare against the two independently frozen original Gram SHA256
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-mu3-real-20261115/b6_gram_accept.py verify \
+            independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp \
+            "${Q5_GROUP}" "build/y137-b6-accepted/GRAM-${Q5_GROUP}.hbp" \
+            "build/y137-b6-accepted/GROUP-${Q5_GROUP}.hbp"
+          sha256sum "build/y137-b6-accepted/GROUP-${Q5_GROUP}.hbp"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-b6-frozen-Gram-group-${{ matrix.group }}
+          path: |
+            build/y137-b6-accepted/GROUP-${{ matrix.group }}.hbp
+            build/y137-b6-accepted/GRAM-${{ matrix.group }}.hbp
+            build/y137-b6-accepted/SOURCE-${{ matrix.group }}.hbp
+          retention-days: 60
+          if-no-files-found: ignore
+
+  aggregate-sixteen-original-hashes:
+    needs: gram-group
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-b6-frozen-Gram-group-*
+          path: build/y137-b6-all
+          merge-multiple: true
+      - name: Accept only sixteen original exact second-moment Gram hashes
+        run: |
+          set -euo pipefail
+          test "$(find build/y137-b6-all -name 'GROUP-*.hbp' | wc -l)" -eq 8
+          mkdir -p build/y137-b6-final
+          python3 -I -B independent/y137-mu3-real-20261115/b6_gram_accept.py aggregate \
+            independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp \
+            build/y137-b6-all | tee build/y137-b6-final/RESULT-B6.hbp
+          grep -Fq 'frozen_Gram_fingerprints=16|matches=16|mismatches=0|preregistered_B6=PASS|' \
+            build/y137-b6-final/RESULT-B6.hbp
+      - name: Reattach pinned B5 executable and matrix provenance
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43850680079
+          github-token: ${{ github.token }}
+          name: y137-worker1-b5-real-two-energy-matrix-receipts
+          path: build/y137-b5-archived
+      - name: Validate B5 historical receipt matches committed matrices
+        run: |
+          set -euo pipefail
+          test -s build/y137-b5-archived/EXECUTABLE.sha256
+          test -s build/y137-b5-archived/RESULT-B5.hbp.sha256
+          cd build/y137-b5-archived
+          sed 's#build/y137-b5-receipts/##' RESULT-B5.hbp.sha256 | sha256sum -c -
+          cat EXECUTABLE.sha256
+          cat LOCKFILE.sha256
+          cd ../..
+          python3 -I -B - <<'PY'
+          from pathlib import Path
+          frozen=Path("independent/y137-mu3-real-20261115/RESULT-WORKER1-B5-REAL-20261116.hbp")
+          archived=Path("build/y137-b5-archived/RESULT-B5.hbp")
+          left=[x for x in frozen.read_text().splitlines() if x.startswith(("Y137_B5_MATRIX|","Y137_B5_VERDICT|"))]
+          right=[x for x in archived.read_text().splitlines() if x.startswith(("Y137_B5_MATRIX|","Y137_B5_VERDICT|"))]
+          assert len(left)==3 and left==right, "original B5 receipt does not match committed result"
+          print("Y137_B5_PROVENANCE|original_run=43850680079|receipt_matched=EXACT|matrix_lines=2|verdict_lines=1|executable_sha_record_present=PASS|json=0")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-b6-16-grams-final
+          path: |
+            build/y137-b6-final
+            build/y137-b5-archived/EXECUTABLE.sha256
+            build/y137-b5-archived/RESULT-B5.hbp.sha256
+          retention-days: 60
+          if-no-files-found: ignore

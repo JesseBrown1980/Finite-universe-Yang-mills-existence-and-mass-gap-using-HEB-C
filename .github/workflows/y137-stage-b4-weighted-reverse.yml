@@ -1,0 +1,88 @@
+name: "Y137 Worker1 B4: exact Q5 reverse pairs"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/rust/src/bin/b4_reverse.rs'
+      - '.github/workflows/y137-stage-b4-weighted-reverse.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  complete-real-q5-weighted-reverse:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Freeze Rust toolchain with clippy
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal --component clippy
+          rustc +1.81.0 --version
+      - name: Strict no-float gate, Rust clippy and source-free negative control
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          cd independent/y137-mu3-real-20261115/rust
+          cargo +1.81.0 clippy --release --bin b4_reverse -- -D warnings
+          cargo +1.81.0 build --release --bin b4_reverse
+          ./target/release/b4_reverse --b4-selftest | tee /tmp/Y137_B4_TOY.hbp
+          grep -Fq 'wrong_weight=REFUSED|missing_reverse=REFUSED|duplicate_reverse=REFUSED|wrong_direction=REFUSED|real_Q5=NOT_COMPUTED|' /tmp/Y137_B4_TOY.hbp
+      - name: Download eight original accepted Q5 source artifacts
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43615270310
+          github-token: ${{ github.token }}
+          pattern: y137-d11-v1-actual-Q5-group*
+          path: build/y137-stage-b4-q5-source
+          merge-multiple: true
+      - name: Verify all eight immutable input hashes
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-stage-b4-receipts
+          python3 - <<'PY' > build/y137-stage-b4-receipts/INPUT-SHA256SUMS
+          from pathlib import Path
+          base = Path('build/y137-stage-b4-q5-source')
+          m = Path('independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp')
+          rows = [r for r in m.read_text().splitlines() if r.startswith('Y137_D11_V1_ALL_GROUP|')]
+          assert len(rows) == 8
+          for r in rows:
+              d = dict(piece.split('=', 1) for piece in r.split('|')[1:])
+              group = int(d['group'])
+              target = base / f'GROUP-{group}.v1'
+              assert target.is_file(), target
+              assert target.stat().st_size == int(d['bytes'])
+              print(f"{d['sha256']}  {target}")
+          PY
+          sha256sum --check build/y137-stage-b4-receipts/INPUT-SHA256SUMS
+          test "$(find build/y137-stage-b4-q5-source -name 'GROUP-*.v1' | wc -l)" -eq 8
+      - name: Enumerate all S3 rows with verified global Q5 membership
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v \
+            independent/y137-mu3-real-20261115/rust/target/release/b4_reverse \
+            --b4 build/y137-stage-b4-q5-source build/y137-stage-b4-partitions \
+            | tee build/y137-stage-b4-receipts/RESULT-B4-REVERSE.hbp
+          test "$(grep -c '^Y137_STAGE_B4_GROUP|' build/y137-stage-b4-receipts/RESULT-B4-REVERSE.hbp)" -eq 8
+          test "$(grep -c '^Y137_STAGE_B4_PART|' build/y137-stage-b4-receipts/RESULT-B4-REVERSE.hbp)" -eq 256
+          grep -Fq 'raw_moves=1339058880|' build/y137-stage-b4-receipts/RESULT-B4-REVERSE.hbp
+          grep -Fq 'preregistered_B4=PASS|B5_B8=PENDING|real_mu3=NOT_COMPUTED|Wilson_weight=HOLD|' build/y137-stage-b4-receipts/RESULT-B4-REVERSE.hbp
+      - name: Fingerprint exact receipt, source, and toolchain
+        run: |
+          set -euo pipefail
+          {
+            sha256sum independent/y137-mu3-real-20261115/rust/src/bin/b4_reverse.rs
+            sha256sum independent/y137-mu3-real-20261115/rust/target/release/b4_reverse
+            sha256sum independent/y137-mu3-real-20261115/SOURCES-STAGE-B.hbp
+            sha256sum build/y137-stage-b4-receipts/RESULT-B4-REVERSE.hbp
+            printf 'GITHUB_SHA=%s\n' "$GITHUB_SHA"
+            rustc +1.81.0 --version
+          } | tee build/y137-stage-b4-receipts/EXECUTION-RECEIPT.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-b4-full-real-reverse
+          path: build/y137-stage-b4-receipts/*
+          retention-days: 60
+          if-no-files-found: ignore

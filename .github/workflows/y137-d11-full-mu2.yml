@@ -1,0 +1,180 @@
+name: Issue 137 full-Q accepted K3 mu2 eight-shard exact certificate
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-d11-shell5-spill-20261114/**'
+      - '.github/workflows/y137-d11-full-mu2.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: y137-d11-full-mu2-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  exact-instrument-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Require independent S3 raw move and exact shell5 target coalescence control
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-d11-shell5-spill-20261114/source_spill.py --toy | tee /tmp/d11-source-toy.hbp
+          python3 -I -B independent/y137-d11-shell5-spill-20261114/reduce_full_mu2.py --self-test | tee /tmp/d11-reduce-toy.hbp
+          python3 -I -B independent/y137-d11-shell5-spill-20261114/assemble_full_mu2.py --self-test | tee /tmp/d11-assemble-toy.hbp
+          grep -Fq 'cross_partition_square_before_reduction=REJECTED|' /tmp/d11-source-toy.hbp
+          grep -Fq 'source_shard_Gram_premature_squaring=REJECTED|' /tmp/d11-reduce-toy.hbp
+          grep -Fq 'full_16x16_block_Hankel=PASS|invalid_mu2_zero=REJECTED|' /tmp/d11-assemble-toy.hbp
+      - name: Strict no-float / integer-only gate before any full-Q expansion
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          for f in independent/y137-d11-shell5-spill-20261114/{full_mu2_shard.py,reduce_full_mu2.py,assemble_full_mu2.py,independent_move_rule.py,source_spill.py}; do
+            python3 -I -X utf8 native/scripts/integer_only_audit.py "$f"
+          done
+  source-shard:
+    needs: exact-instrument-gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7]
+    env:
+      Y137_D11_MU2_SHARD: ${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Complete all 72 raw moves on one disjoint accepted K3 shell4 source shard
+        run: |
+          set -euo pipefail
+          ulimit -v 6291456
+          mkdir -p build/y137-d11-mu2-full
+          python3 -I -B independent/y137-d11-shell5-spill-20261114/full_mu2_shard.py | tee build/y137-d11-mu2-full/SOURCE-${{ matrix.shard }}.hbp
+          D=build/y137-d11-mu2-full/PART-${{ matrix.shard }}
+          test "$(grep -c '^Y137_D11_MU2_PART|' "$D/PART.hbp")" -eq 2
+          test "$(grep -c '^Y137_D11_MU2_BUCKET|' "$D/BUCKETS.hbp")" -eq 64
+          grep -Fq 'exact_prior_mu0_mu1_shard_match=1|' "$D/PART.hbp"
+          grep -Fq 'shell5_spill=FROZEN_BUCKETED|actual_mu2=HOLD_ALL_EIGHT_SHARDS_AND_GLOBAL_TARGET_REDUCTION|' "$D/PART.hbp"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y137-mu2-shard-${{ matrix.shard }}-group-0
+          path: build/y137-d11-mu2-full/PART-${{ matrix.shard }}/GROUP-0/
+          if-no-files-found: error
+          compression-level: 1
+          retention-days: 45
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y137-mu2-shard-${{ matrix.shard }}-group-1
+          path: build/y137-d11-mu2-full/PART-${{ matrix.shard }}/GROUP-1/
+          if-no-files-found: error
+          compression-level: 1
+          retention-days: 45
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y137-mu2-shard-${{ matrix.shard }}-group-2
+          path: build/y137-d11-mu2-full/PART-${{ matrix.shard }}/GROUP-2/
+          if-no-files-found: error
+          compression-level: 1
+          retention-days: 45
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y137-mu2-shard-${{ matrix.shard }}-group-3
+          path: build/y137-d11-mu2-full/PART-${{ matrix.shard }}/GROUP-3/
+          if-no-files-found: error
+          compression-level: 1
+          retention-days: 45
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y137-mu2-shard-${{ matrix.shard }}-group-4
+          path: build/y137-d11-mu2-full/PART-${{ matrix.shard }}/GROUP-4/
+          if-no-files-found: error
+          compression-level: 1
+          retention-days: 45
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y137-mu2-shard-${{ matrix.shard }}-group-5
+          path: build/y137-d11-mu2-full/PART-${{ matrix.shard }}/GROUP-5/
+          if-no-files-found: error
+          compression-level: 1
+          retention-days: 45
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y137-mu2-shard-${{ matrix.shard }}-group-6
+          path: build/y137-d11-mu2-full/PART-${{ matrix.shard }}/GROUP-6/
+          if-no-files-found: error
+          compression-level: 1
+          retention-days: 45
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y137-mu2-shard-${{ matrix.shard }}-group-7
+          path: build/y137-d11-mu2-full/PART-${{ matrix.shard }}/GROUP-7/
+          if-no-files-found: error
+          compression-level: 1
+          retention-days: 45
+
+  reduce-group:
+    needs: source-shard
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [0,1,2,3,4,5,6,7]
+    env:
+      Y137_D11_MU2_GROUP: ${{ matrix.group }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-mu2-shard-*-group-${{ matrix.group }}
+          path: build/y137-d11-mu2-download
+          merge-multiple: false
+      - name: Merge all eight origin shards per shell5 target before weighted Gram
+        run: |
+          set -euo pipefail
+          ulimit -v 6291456
+          mkdir -p build/y137-d11-mu2-reduced
+          python3 -I -B independent/y137-d11-shell5-spill-20261114/reduce_full_mu2.py | tee build/y137-d11-mu2-reduced/GROUP-${{ matrix.group }}.hbp
+          test "$(grep -c '^Y137_D11_MU2_Q5_PART|' build/y137-d11-mu2-reduced/GROUP-${{ matrix.group }}.hbp)" -eq 2
+          test "$(grep -c '^Y137_D11_MU2_BUCKET_PASS|' build/y137-d11-mu2-reduced/GROUP-${{ matrix.group }}.hbp)" -eq 8
+          grep -Fq 'exact_target_merge_before_square=PASS|' build/y137-d11-mu2-reduced/GROUP-${{ matrix.group }}.hbp
+          grep -Fq 'exact_Q5_reduction=PASS_FOR_GROUP|real_mu2=HOLD_UNTIL_GROUP_SUM_AND_K3_Q4|' build/y137-d11-mu2-reduced/GROUP-${{ matrix.group }}.hbp
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y137-mu2-reduced-group-${{ matrix.group }}
+          path: build/y137-d11-mu2-reduced/GROUP-${{ matrix.group }}.hbp
+          if-no-files-found: error
+          retention-days: 45
+  aggregate:
+    needs: reduce-group
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-mu2-reduced-group-*
+          path: build/y137-d11-mu2-group-results
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-mu2-shard-*-group-0
+          path: build/y137-d11-mu2-part-metadata
+          merge-multiple: false
+      - name: Restore original mu0/mu1, aggregate real mu2 and certify block Hankel
+        run: |
+          set -euo pipefail
+          test "$(find build/y137-d11-mu2-group-results -name 'GROUP-*.hbp' | wc -l)" -eq 8
+          mkdir -p build/y137-d11-mu2-accepted
+          python3 -I -B independent/y137-d11-shell5-spill-20261114/assemble_full_mu2.py | tee build/y137-d11-mu2-accepted/RESULT-MU2.hbp
+          test "$(grep -c '^Y137_D11_MU2_POINT|' build/y137-d11-mu2-accepted/RESULT-MU2.hbp)" -eq 2
+          grep -Fq 'original_mu0_mu1_byte_reproduced=1|spectral_8x8_localizers=PASS|block_Hankel_16x16_via_adjugate=PASS|' build/y137-d11-mu2-accepted/RESULT-MU2.hbp
+          grep -Fq 'exact_real_K3_moments_per_sample=3|exact_moment_orders=0,1,2|degree11_remaining_moments_per_sample=19|' build/y137-d11-mu2-accepted/RESULT-MU2.hbp
+          grep -Fq 'degree11_corrected_Schur=NOT_COMPUTED|original_first_Wilson_weight=HOLD|' build/y137-d11-mu2-accepted/RESULT-MU2.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-real-acceptedK3-wholeQ-mu2
+          path: build/y137-d11-mu2-accepted/RESULT-MU2.hbp
+          if-no-files-found: ignore
+          retention-days: 60
