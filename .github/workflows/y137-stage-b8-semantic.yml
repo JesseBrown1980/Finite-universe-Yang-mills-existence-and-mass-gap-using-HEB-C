@@ -1,0 +1,45 @@
+name: "Y137 Worker1 B8: exact semantic fault injection"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/b8_semantic_attacks.py'
+      - '.github/workflows/y137-stage-b8-semantic.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  semantic-red-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Independent exact row/pair two-energy semantic attack corpus
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-b8-semantic
+          python3 -I -B independent/y137-mu3-real-20261115/b8_semantic_attacks.py toy \
+            | tee build/y137-b8-semantic/RESULT-B8-TOY.hbp
+          grep -Fq 'reference_row_pair=EXACT|magnetic_and_exterior_diagonal=PASS|selfloop_omission=REFUSED|' \
+            build/y137-b8-semantic/RESULT-B8-TOY.hbp
+          grep -Fq 'tampered_amplitude=REFUSED|sample_swap=REFUSED|Q4_sign_flip_mu2_invariant_mu3_changed=PASS|' \
+            build/y137-b8-semantic/RESULT-B8-TOY.hbp
+      - name: Python integer arithmetic and repository floating point guards
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py \
+            independent/y137-mu3-real-20261115/b8_semantic_attacks.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+      - name: Produce source and toolchain SHA receipt
+        run: |
+          set -euo pipefail
+          sha256sum independent/y137-mu3-real-20261115/b8_semantic_attacks.py > \
+            build/y137-b8-semantic/SOURCE.sha256
+          python3 --version > build/y137-b8-semantic/PYTHON.txt
+          git rev-parse HEAD > build/y137-b8-semantic/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-b8-semantic-toy-receipts
+          path: build/y137-b8-semantic
+          retention-days: 60
+          if-no-files-found: ignore
