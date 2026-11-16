@@ -28,6 +28,8 @@ jobs:
       - name: Verify exact original full-12 matrix receipt
         run: |
           set -euo pipefail
+          git hash-object independent/y137-h12-modular-20261116/modular_berkowitz.py |
+            grep -Fxq '61b8b9a9fb76802d401e832c10ed6e54d28ab863'
           git hash-object independent/y137-12x12-krylov-20261116/RESULT-H12-20261116.hbp |
             grep -Fxq '9876d083ecdbd91f81ddbd99ea311467d81a1ba7'
   h12-modular-production:
@@ -52,6 +54,8 @@ jobs:
             build/y137-h12-modular/RESULT-MODULAR.hbp
           test "$(grep -c '^Y137_H12_MOD_INERTIA|' build/y137-h12-modular/RESULT-MODULAR.hbp)" -eq 6
           test "$(grep -c '|full_det_CRT_matches_polynomial=PASS|' build/y137-h12-modular/RESULT-MODULAR.hbp)" -eq 6
+          tail -n +2 independent/y137-h12-modular-20261116/RESULT-H12-MODULAR-20261116.hbp > build/y137-h12-modular/FROZEN-RESULT-ROWS.hbp
+          cmp build/y137-h12-modular/RESULT-MODULAR.hbp build/y137-h12-modular/FROZEN-RESULT-ROWS.hbp
       - name: Exact reproducibility on a fresh second process
         run: |
           set -euo pipefail
@@ -66,6 +70,7 @@ jobs:
           git rev-parse HEAD > build/y137-h12-modular/COMMIT.txt
           sha256sum independent/y137-h12-modular-20261116/modular_berkowitz.py \
             > build/y137-h12-modular/EXACT-SOURCE.sha256
+          sha256sum independent/y137-h12-modular-20261116/RESULT-H12-MODULAR-20261116.hbp             > build/y137-h12-modular/FROZEN-CRT-RESULT.sha256
           sha256sum independent/y137-12x12-krylov-20261116/RESULT-H12-20261116.hbp \
             > build/y137-h12-modular/FROZEN-INPUT.sha256
           if test -f build/y137-h12-modular/RESULT-MODULAR.hbp; then
