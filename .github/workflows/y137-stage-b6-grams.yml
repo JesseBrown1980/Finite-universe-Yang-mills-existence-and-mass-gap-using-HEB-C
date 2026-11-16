@@ -119,7 +119,7 @@ jobs:
           test -s build/y137-b5-archived/EXECUTABLE.sha256
           test -s build/y137-b5-archived/RESULT-B5.hbp.sha256
           cd build/y137-b5-archived
-          sha256sum -c RESULT-B5.hbp.sha256
+          sed 's#build/y137-b5-receipts/##' RESULT-B5.hbp.sha256 | sha256sum -c -
           cat EXECUTABLE.sha256
           cat LOCKFILE.sha256
           cd ../..
