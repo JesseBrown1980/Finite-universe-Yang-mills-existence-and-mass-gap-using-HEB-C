@@ -23,6 +23,13 @@ jobs:
             build/y137-b8-semantic/RESULT-B8-TOY.hbp
           grep -Fq 'tampered_amplitude=REFUSED|sample_swap=REFUSED|Q4_sign_flip_mu2_invariant_mu3_changed=PASS|' \
             build/y137-b8-semantic/RESULT-B8-TOY.hbp
+      - name: Forged PASS attack against actual B6 receipt verifier
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-mu3-real-20261115/b6_gram_accept.py attack-toy |
+            tee build/y137-b8-semantic/RESULT-B8-VERIFIER-ATTACK.hbp
+          grep -Fq 'real_production_verifier=aggregate|valid_8group_toy=ACCEPTED|altered_numeric_Gram=REFUSED|' build/y137-b8-semantic/RESULT-B8-VERIFIER-ATTACK.hbp
+          grep -Fq 'swapped_energy_identifiers=REFUSED|forgeries_refused=6|' build/y137-b8-semantic/RESULT-B8-VERIFIER-ATTACK.hbp
       - name: Python integer arithmetic and repository floating point guards
         run: |
           set -euo pipefail
