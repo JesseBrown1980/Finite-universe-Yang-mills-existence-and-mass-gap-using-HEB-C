@@ -149,7 +149,7 @@ def raw_graph(mod):
     ball = mod.ball_from_checker(w, magnetic, adjacency, q_flat, exterior)
     need(ball["n"] == 8034 and ball["nf"] == 147344 and
          len(ball["C"]) == ball["n"], "original_Q_K2_source")
-    return ball
+    return ball, magnetic
 
 
 def act(ball, v):
@@ -169,32 +169,7 @@ def dot(w, x, y):
     return sum(w[i] * x[i] * y[i] for i in range(len(w)))
 
 
-def k2_graph_census(ball, fcols):
-    """Check all 72 raw electric moves, K2 weighted reverses, Q exterior."""
-    q = ball["n"]
-    rs, oj, oc, wq = ball["rs"], ball["oj"], ball["oc"], ball["wq"]
-    out = [0] * q
-    for e in range(len(ball["esrc"])):
-        i = ball["esrc"][e]
-        wc = ball["ewc"][e]
-        need(wc % wq[i] == 0, "weighted_Q_exterior_noninteger")
-        out[i] += wc // wq[i]
-        # The first Krylov vectors have no shell3 exterior support.
-        need(fcols[0][i] == 0 and fcols[1][i] == 0,
-             "first_Krylov_action_reaches_unmaterialized_Q_shell")
-    rows = []
-    paircount = 0
-    for i in range(q):
-        source = ball["C"][i]
-        inflat = sum(source) if source is not None else 0
-        diag_self = 72 + 9 * (ball["dbase"][i] - 72) // 9 - ball["dbase"][i]
-        # Self loops are computed from an independent magnetic source below.
-        inside = sum(oc[e] for e in range(rs[i], rs[i + 1]))
-        rows.append((inside, inflat, out[i]))
-    return rows, out
-
-
-def exact_pencil(ball, V):
+def exact_pencil(ball, V, magnetic):
     """Build 8+4 basis; independent row and unordered-pair H contractions."""
     q = ball["n"]
     wf, wq = ball["wf"], ball["wq"]
@@ -276,13 +251,10 @@ def exact_pencil(ball, V):
         need(wc % wq[i] == 0, "bad_weighted_exterior")
         ext_moves[i] += wc // wq[i]
     # The diagonal stores 72+9m-selfloop. Reconstruct m by Q source.
-    mod = source_module()
-    c = mod.c
-    _, mags, _, _, _ = c.graph()
     selfloops = 0
     for i in range(q):
-        magnetic = mags[8+i]
-        selfc = 72 + 9 * magnetic - ball["dbase"][i]
+        m_i = magnetic[8+i]
+        selfc = 72 + 9 * m_i - ball["dbase"][i]
         need(selfc >= 0, "negative_selfloop")
         inflat = sum(C[i]) if C[i] is not None else 0
         inside = sum(oc[e] for e in range(rs[i], rs[i+1]))
@@ -358,12 +330,12 @@ def toy():
 def real():
     V = read_original_samples()
     mod = source_module()
-    ball = raw_graph(mod)
-    g, h, checks = exact_pencil(ball, V)
+    ball, magnetic = raw_graph(mod)
+    g, h, checks = exact_pencil(ball, V, magnetic)
     emit("Y137_H12_SOURCE", model="3x4_S3_r9",
          base="eight_physical_flats_plus_Bv1_Bv2_A_Bv1_A_Bv2",
          basis_dim=N, **checks,
-         weighted_row_vs_pair="128_OF_128_EXACT",
+         weighted_row_vs_pair="16_OF_16_EXACT",
          original_BstarB_72="PASS",
          source_180_gitblob=DUAL_BLOB)
     emit("Y137_H12_MATRIX", gram=flatten(g), hamiltonian=flatten(h),
