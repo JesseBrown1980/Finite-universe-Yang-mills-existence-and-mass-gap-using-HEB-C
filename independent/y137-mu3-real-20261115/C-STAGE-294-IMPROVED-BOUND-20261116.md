@@ -34,7 +34,7 @@ This improves the cloud reviewer's sufficient M<2^117 condition by five exponent
 
 The same strict bound applies to **every prefix partial sum** by the triangle inequality, independent of row order.
 
-For the unordered weighted-edge calculation, under independently verified W_i c_ij = W_j c_ji, the sum of absolute offdiagonal pair terms is <=36 N (72b) M^2. The diagonal/self-loop terms contribute <=36 N M^2 max_i(|D_i|+b c_ii); since c_ii+sum_{j!=i}c_ij=72, their combined absolute bound is also <2^294. This independently covers all pair-order prefix partial sums.
+For unordered weighted edges, first retain the *uncoarsened* degree at each source. Under independently verified W_i c_ij = W_j c_ji, the absolute total of all paired offdiagonal terms is at most 6b M² sum_i w_i sum_{j!=i}c_ij. The diagonal and true-self-loop terms are at most 6 M² sum_i w_i (|D_i|+b c_ii). Adding these **before replacing any degree by 72** gives the strict overall bound 6 M² sum_i w_i (|D_i|+b[c_ii+sum_{j!=i}c_ij]) = 6 M² sum_i w_i (|D_i|+72b) <=36 N M² max_i(|D_i|+72b) <2^294. This covers every pair-order prefix partial sum as the total of absolute contributions.
 
 **Scope:** The actual full-source K3/Q4 R maxima are measured exactly and their signed residual hashes are sealed. The full physical V1 signed source files, independently complete K3/Q4/Q5 support joins, all cross-block weighted reciprocity, two full signed 8x8 mu3 matrices, and exact Wilson normalization are separate HOLD gates. A physical V1 <2^112 bound does not itself compute a third moment. Every future 320-bit accumulator must still refuse signed overflow and enforce the runtime 2^294 absolute-sum cap.
 
