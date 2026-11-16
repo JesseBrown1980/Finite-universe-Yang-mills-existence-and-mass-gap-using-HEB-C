@@ -1,0 +1,32 @@
+name: "Y137 Worker1 Stage C: full signed two-energy mu3 exact matrices"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/rust/src/bin/c_full_mu3.rs'
+      - 'independent/y137-mu3-real-20261115/c_full_mu3_accept.py'
+      - '.github/workflows/y137-stage-c-full-mu3.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-free-exact-signed-moment-toys:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: dtolnay/rust-toolchain@1.81.0
+        with:
+          components: clippy
+      - name: Frozen S3 electric operator and exact signed 320-bit arithmetic
+        run: |
+          set -euo pipefail
+          cd independent/y137-mu3-real-20261115/rust
+          cargo clippy --locked --release --bin c_full_mu3 -- -D warnings
+          cargo build --locked --release --bin c_full_mu3
+          ./target/release/c_full_mu3 --c-mu3-toy | tee /tmp/y137-full-mu3-toy.hbp
+          grep -Fq 'bound_2pow294_strict=PASS|coefficient_overflow=REFUSED|' /tmp/y137-full-mu3-toy.hbp
+      - name: Source only floating-point gate
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
