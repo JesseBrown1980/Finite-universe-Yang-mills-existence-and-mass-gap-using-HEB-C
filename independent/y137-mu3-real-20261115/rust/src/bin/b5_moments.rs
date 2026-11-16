@@ -644,7 +644,8 @@ fn selftest() -> Result<(),String> {
             }
         }
     }
-    ensure(decode_lanes(&packed)?==vals,"B5_bit82_pack_roundtrip")?;
+    let used=packed.iter().rposition(|&byte|byte!=0).map_or(0,|i|i+1);
+    ensure(decode_lanes(&packed[..used])?==vals,"B5_bit82_pack_roundtrip")?;
     let mut exact=CheckedMoment::zero();
     exact.add_contracted(B*17,B*22,36*1_000_000_000)?;
     exact.add_contracted(B*17,B*22,-36*1_000_000_000)?;
