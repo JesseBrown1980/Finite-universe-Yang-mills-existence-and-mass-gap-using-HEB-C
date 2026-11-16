@@ -476,3 +476,206 @@ fn check_matrix(row: &[CheckedMoment;64], pair: &[CheckedMoment;64])
     }
     Ok(())
 }
+
+
+fn run(root: &Path, limit: Option<usize>) -> Result<(),String> {
+    let begin=Instant::now();
+    let mut index=HashMap::<u64,u32>::with_capacity(STATES);
+    let mut states=Vec::<Source>::with_capacity(STATES);
+    for group in 0..GROUPS {
+        let name=root.join(format!("GROUP-{group}.v1"));
+        let (rows,bytes)=read_group(&name,group,|state|{
+            let pos=u32::try_from(states.len())
+                .map_err(|_|"B5_u32_index_capacity".to_string())?;
+            ensure(index.insert(state.address,pos).is_none(),
+                   "B5_duplicate_global_source")?;
+            states.push(state);
+            Ok(())
+        })?;
+        ensure(rows==ROWS_BY_GROUP[group] && bytes==BYTES_BY_GROUP[group],
+               "B5_original_group_census_regression")?;
+        println!("Y137_B5_INDEX_GROUP|group={group}|rows={rows}|bytes={bytes}|json=0");
+    }
+    ensure(states.len()==STATES && index.len()==STATES, "B5_global_index_count")?;
+    println!("Y137_B5_INDEX|states={}|samples=2|eight_packed_lanes=PASS|json=0",
+             states.len());
+    let mut ordered=new_matrices();
+    let mut paired=new_matrices();
+    let rule=Rule::new();
+    let mut rows=0usize;
+    let mut raw_moves=0u64;
+    let mut on_q5_moves=0u64;
+    let mut directed=0u64;
+    let mut pairs=0u64;
+    let mut self_moves=0u64;
+    for state in &states {
+        if let Some(stop)=limit {
+            if rows>=stop {break;}
+        }
+        let key=decode(state.address);
+        ensure(code(&rule.canonical(&rule.expand(&key)))==state.address,
+               "B5_independent_canonical_replay")?;
+        ensure(rule.weight(&key)==u32::from(state.weight),
+               "B5_independent_weight_replay")?;
+        let magnetic=rule.magnetic(&key);
+        ensure((0..=36).contains(&magnetic),"B5_independent_magnetic_range")?;
+        let neighbors=rule.row(&key);
+        let degree=neighbors.iter().map(|(_,count)|u64::from(*count)).sum::<u64>();
+        ensure(degree==72,"B5_row_degree_not_72")?;
+        raw_moves+=degree;
+        let mut complete=[[0u128;COLS];2];
+        let mut upper=[[0u128;COLS];2];
+        let mut self_count=0u32;
+        for (dest,multiplicity) in neighbors {
+            if dest==state.address { self_count+=multiplicity; }
+            if let Some(&id)=index.get(&dest) {
+                on_q5_moves+=u64::from(multiplicity);
+                directed+=1;
+                if dest!=state.address {
+                    let next=&states[id as usize];
+                    if dest>state.address {pairs+=1;}
+                    for e in 0..2 {
+                        for c in 0..COLS {
+                            add_u128(&mut complete[e][c],
+                                     mul_u128(next.amp[e][c],u128::from(multiplicity))?)?;
+                            if dest>state.address {
+                                let flux=u128::from(multiplicity)
+                                    *u128::from(state.weight);
+                                add_u128(&mut upper[e][c],
+                                         mul_u128(next.amp[e][c],flux)?)?;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        self_moves+=u64::from(self_count);
+        for energy in 0..2 {
+            let diag=(1_000_000_000i64)
+                .checked_mul(i64::from(72+9*magnetic))
+                .and_then(|x|x.checked_sub(SAMPLES[energy]))
+                .ok_or_else(||"B5_operator_diagonal_overflow".to_string())?;
+            let dself=diag
+                .checked_sub(1_000_000_000i64*i64::from(self_count))
+                .ok_or_else(||"B5_selfloop_diagonal_overflow".to_string())?;
+            let mut v=[0u128;COLS];
+            let mut t=[0i128;COLS];
+            let mut flux=[0u128;COLS];
+            for c in 0..COLS {
+                let q=state.amp[energy][c];
+                v[c]=mul_u128(q,B)?;
+                ensure(v[c]<LIMIT_A,"B5_source_physical_amplitude")?;
+                let diagonal=i128::from(dself)
+                    .checked_mul(i128::try_from(q)
+                                 .map_err(|_|"B5_source_to_i128")?)
+                    .ok_or_else(||"B5_operator_diagonal_term_overflow".to_string())?;
+                let neighbors=mul_u128(complete[energy][c],B)?;
+                t[c]=diagonal.checked_sub(
+                    i128::try_from(neighbors).map_err(|_|"B5_neighbor_to_i128")?)
+                    .ok_or_else(||"B5_signed_contracted_vector_overflow".to_string())?;
+                flux[c]=mul_u128(upper[energy][c],B)?;
+                ensure(t[c].unsigned_abs()<LIMIT_B && flux[c]<LIMIT_B,
+                       "B5_contracted_physical_vector_range")?;
+            }
+            let diag_coefficient=6*i64::from(state.weight)*1_000_000_000i64;
+            let pair_off_coefficient=-(6i64*1_000_000_000);
+            let mut pair_diag=[0u128;COLS];
+            for c in 0..COLS {
+                pair_diag[c]=mul_u128(state.amp[energy][c],
+                                      u128::from(dself.unsigned_abs()))?;
+                ensure(pair_diag[c]<LIMIT_B,"B5_paired_diagonal_bound")?;
+            }
+            for a in 0..COLS {
+                for b in 0..COLS {
+                    let k=a*COLS+b;
+                    ordered[energy][k].add_contracted(
+                        v[a],t[b].unsigned_abs(),
+                        if t[b]<0 {-diag_coefficient} else {diag_coefficient}
+                    )?;
+                    if a<=b {
+                        paired[energy][k].add_contracted(
+                            v[a],pair_diag[b],
+                            if dself<0 {-diag_coefficient} else {diag_coefficient}
+                        )?;
+                        paired[energy][k].add_contracted(
+                            v[a],flux[b],pair_off_coefficient
+                        )?;
+                        paired[energy][k].add_contracted(
+                            v[b],flux[a],pair_off_coefficient
+                        )?;
+                    }
+                }
+            }
+        }
+        rows+=1;
+        if rows%1_000_000==0 {
+            println!("Y137_B5_PROGRESS|rows={rows}|raw_moves={raw_moves}|Q5_moves={on_q5_moves}|paired_upper_edges={pairs}|json=0");
+        }
+    }
+    if limit.is_some() {
+        println!("Y137_B5_BENCH|rows={rows}|raw_moves={raw_moves}|Q5_moves={on_q5_moves}|paired_upper_edges={pairs}|millis={}|real_mu3=NOT_COMPUTED|json=0",
+                 begin.elapsed().as_millis());
+        return Ok(());
+    }
+    ensure(rows==STATES && raw_moves==RAW_MOVES && on_q5_moves==Q5_MOVES &&
+           directed==Q5_DIRECTED && pairs==Q5_PAIRS && self_moves==0,
+           "B5_frozen_B3_B4_graph_count_regression")?;
+    for energy in 0..2 {
+        check_matrix(&ordered[energy],&paired[energy])?;
+        let row_text=matrix_text(&ordered[energy],false);
+        let pair_text=matrix_text(&paired[energy],true);
+        ensure(row_text==pair_text,"B5_matrix_encoding_disagreement")?;
+        println!("Y137_B5_MATRIX|sample_num={}|quantity=Q5_principal_mu3_six|row={row_text}|paired={pair_text}|all_64_entries_exact=PASS|json=0",
+                 SAMPLES[energy]);
+    }
+    println!("Y137_B5_VERDICT|source_states={rows}|raw_moves={raw_moves}|Q5_raw_moves={on_q5_moves}|directed_Q5_records={directed}|unordered_Q5_pairs={pairs}|genuine_selfloop_moves={self_moves}|samples=2|matrix_entries_checked=128|preregistered_B5=PASS|whole_mu3=NOT_COMPUTED|Wilson_weight=HOLD|millis={}|json=0",
+             begin.elapsed().as_millis());
+    Ok(())
+}
+
+fn selftest() -> Result<(),String> {
+    let vals=[0u128,1,17,(1u128<<82)-1,4,99,1024,8192];
+    let mut packed=[0u8;82];
+    for (lane,&value) in vals.iter().enumerate() {
+        for b in 0..82 {
+            if ((value>>b)&1)!=0 {
+                let bit=lane*82+b;
+                packed[bit/8]|=1<<(bit%8);
+            }
+        }
+    }
+    ensure(decode_lanes(&packed)?==vals,"B5_bit82_pack_roundtrip")?;
+    let mut exact=CheckedMoment::zero();
+    exact.add_contracted(B*17,B*22,36*1_000_000_000)?;
+    exact.add_contracted(B*17,B*22,-36*1_000_000_000)?;
+    ensure(exact.total==Wide::ZERO,"B5_signed_wide_cancellation")?;
+    let mut bad=CheckedMoment::zero();
+    ensure(bad.add_contracted(LIMIT_A,1,1).is_err(),"B5_oversized_src_accepted")?;
+    ensure(bad.add_contracted(1,LIMIT_B,1).is_err(),"B5_oversized_contraction_accepted")?;
+    ensure(bad.add_contracted(1,1,LIMIT_COEFF as i64).is_err(),
+           "B5_oversized_coefficient_accepted")?;
+    let rule=Rule::new();
+    let zero=[0u8;KEPT];
+    ensure(rule.magnetic(&zero)==0 &&
+           rule.row(&zero).iter().map(|(_,c)|*c).sum::<u32>()==72,
+           "B5_original_rule_replay")?;
+    println!("Y137_B5_TOY|packed_82bit_lanes=PASS|signed_320_cancellation=PASS|oversized_source=REFUSED|oversized_contraction=REFUSED|oversized_coefficient=REFUSED|electric_72_moves=PASS|real_mu3=NOT_COMPUTED|json=0");
+    Ok(())
+}
+fn main() {
+    let args:Vec<String>=std::env::args().collect();
+    let result=match args.as_slice() {
+        [_,a] if a=="--selftest"=>selftest(),
+        [_,a,root] if a=="--run"=>run(Path::new(root),None),
+        [_,a,root,limit] if a=="--bench"=>
+            match limit.parse::<usize>() {
+                Ok(n)=>run(Path::new(root),Some(n)),
+                Err(e)=>Err(format!("B5_invalid_bench_count:{e}"))
+            },
+        _=>Err("usage: b5_moments --selftest | --run SOURCE_DIR | --bench SOURCE_DIR N".to_string())
+    };
+    if let Err(e)=result {
+        eprintln!("Y137_B5_REFUSE|reason={e}|json=0");
+        std::process::exit(1);
+    }
+}
