@@ -68,7 +68,7 @@ def all_refs(lo, hi):
     mn, md = cross_pair(hn, hd, ln, ld)
     return {"UPPER": (hn, hd, wn, wd),
             "LOWER": (ln, ld, wn, wd),
-            "CENTRE": (mn, 2 * md, wn, wd)}
+            "CENTRE": (mn, 2 * md, wn, 2 * wd)}
 
 
 def flat_distance(v0, v1):
@@ -170,6 +170,8 @@ def main():
                 four_E2_width_action=b[1]["action"],
                 four_E1_moved_distance=b[0]["moved_distance"],
                 four_E2_moved_distance=b[1]["moved_distance"])
+    need(old["CENTRE_KEPT"] == 15173455813,
+         "accepted_three_moment_centre_kept_not_reproduced")
     need(old["CENTRE_MOVED"] == EXPECTED_OLD_BEST,
          "accepted_three_moment_best_not_reproduced")
     best = min(now.values())
