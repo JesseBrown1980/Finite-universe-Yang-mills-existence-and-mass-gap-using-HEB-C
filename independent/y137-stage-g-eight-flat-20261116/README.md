@@ -54,3 +54,28 @@ The script rejects changed original Git-blob hashes (#180 original Wilson receip
 The hosted workflow runs the repository's strict integer-only and no-floating-point gates, independently checks the negative controls, verifies the exact cross-multiplied inequality and stores all SHA-256 receipt digests and the complete test output. Keep this research **DRAFT** for independent review, with #137 **OPEN/HOLD**.
 
 Follow-on candidates are a source-authenticated shifted observable `O-alpha I` with corrected fixed-sample overlap and action norms, or an operator-specific transition bound avoiding the global triangle inequality. Do not launch a costly full-Q unshifted action computation once this cheap no-go is independently accepted.
+
+## Hosted production result — scoped exact PASS
+
+[Run #43942690259](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43942690259), job `133564075990`, **SUCCESS**. Strict integer-only/no-FP source audit, original Stage D forged-SHA/energy-swap refusal, four pinned Git source blobs, matched original #180/#185 samples, exact eight-flat enumeration, negative controls, exact inequality comparisons and SHA artifact upload PASS. The four original result lines are preserved verbatim, with run/source provenance, in [RESULT-STAGE-G-FLAT-20261116.hbp](RESULT-STAGE-G-FLAT-20261116.hbp). Independent scientific review remains pending.
+
+The exact squared W-action lower fractions emitted for the original *unshifted* observable are:
+
+| Original sample | Certified lower endpoint, strictly greater than | Simpler exact lower |
+|---|---:|---:|
+| `||O U1||_W` | 8.271659711561 | 8 |
+| `||O* U2||_W` | 4.176870452630 | 4 |
+
+The decimal endpoints are **downward-rounded to 12 places**; the source uses the exact integer squared fractions and comparison. The two denominator/Q norm identities and eight physical flat weights were checked against pinned receipts.
+
+With the accepted Stage E/F error *ceilings*, even the conservative lower numbers yield an LHS **strictly greater than**
+
+```
+(8*d2 + 4*d1 + 14*d1*d2)
+= 82747175468638171058470 / 10^24
+= 0.082747175468638171058470 > 0.02 = 1/50.
+```
+
+Thus the present **raw, unshifted original-sample action-specific sufficient test** fails by more than fourfold before examining any nonflat Wilson action. Improving the conservative eigendirection error bounds or using a different, correctly re-certified observable/sample remains a possible mathematical route. This numerical obstruction does **not** establish that the true Wilson spectral weight vanishes.
+
+**Disposition:** scoped small exact test PASS, raw-unshifted Stage G norm route **NO-GO with current d1/d2**, full-Q action norm **not computed**, shifted observable **not tested**, Wilson first-excitation spectral weight **HOLD**, issue #137 **OPEN**, PR **DRAFT** pending independent review.
