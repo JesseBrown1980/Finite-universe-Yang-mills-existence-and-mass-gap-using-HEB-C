@@ -19,7 +19,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -I -B independent/y137-mu3-real-20261115/source_gate.py selftest | tee /tmp/y137-source-gate-toy.hbp
-          grep -Fq 'faults_refused=6|B1_B2=TOY_ONLY|real_Q5=NOT_COMPUTED|' /tmp/y137-source-gate-toy.hbp
+          grep -Fq 'faults_refused=9|B1_B2=TOY_ONLY|real_Q5=NOT_COMPUTED|' /tmp/y137-source-gate-toy.hbp
       - name: No-float and integer-source audits
         run: |
           set -euo pipefail
