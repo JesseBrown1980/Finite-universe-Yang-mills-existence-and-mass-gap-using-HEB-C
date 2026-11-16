@@ -1,0 +1,54 @@
+name: "Y137 Worker1 Stage C: full residual envelope to V1<2^117"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/c_residual_envelope.py'
+      - '.github/workflows/y137-stage-c-residual-envelope.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pure-source-bound:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Check exact symbolic support count and sufficient exponent budget
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-mu3-real-20261115/c_residual_envelope.py toy | tee /tmp/y137-r-envelope-toy.hbp
+          grep -Fq 'R_limit_bits=78|V1_sufficient_limit_bits=117|partial_sum_limit_bits=304|' /tmp/y137-r-envelope-toy.hbp
+      - name: Source-only no-float and integer-only gates
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-mu3-real-20261115/c_residual_envelope.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+
+  original-K3-Q4-real-R:
+    needs: pure-source-bound
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Rebuild ALL authentic frozen K3/Q4 signed source residuals and exact maxima
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-c-r-envelope
+          /usr/bin/time -v python3 -I -B independent/y137-mu3-real-20261115/c_residual_envelope.py real \
+            | tee build/y137-c-r-envelope/RESULT.hbp
+          test "$(grep -c '^Y137_C_R_ENVELOPE|sample_num=' build/y137-c-r-envelope/RESULT.hbp)" -eq 2
+          grep -Fq 'global_physical_V1_under_2pow117=PROVED_FROM_R_ENVELOPE|' build/y137-c-r-envelope/RESULT.hbp
+      - name: Commit-pinned source and result receipt hashes
+        run: |
+          set -euo pipefail
+          sha256sum independent/y137-mu3-real-20261115/c_residual_envelope.py \
+            > build/y137-c-r-envelope/SOURCE.sha256
+          sha256sum build/y137-c-r-envelope/RESULT.hbp > build/y137-c-r-envelope/RESULT.hbp.sha256
+          git rev-parse HEAD > build/y137-c-r-envelope/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-c-complete-real-R-residual-envelope-receipts
+          path: build/y137-c-r-envelope
+          retention-days: 60
+          if-no-files-found: ignore
