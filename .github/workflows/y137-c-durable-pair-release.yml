@@ -72,15 +72,34 @@ jobs:
       - name: Upload 256 original verified binary partition files as permanent draft-release assets
         run: |
           set -euo pipefail
-          gh release upload "${TAG}" build/y137-c-graph/pairs/C-PAIR-*.bin \
-            --repo "${GH_REPO}"
-          gh release upload "${TAG}" \
-            build/y137-c-graph/results/PAIR-PARTITIONS.sha256 \
-            build/y137-c-graph/results/RESULT-C-CROSS.hbp \
-            build/y137-c-graph/results/COMMIT.txt \
-            build/y137-c-durable/README.txt \
-            --repo "${GH_REPO}"
-          test "$(gh release view "${TAG}" --repo "${GH_REPO}" --json assets --jq '.assets | length')" -eq 260
+          existing="$(gh release view "${TAG}" --repo "${GH_REPO}" --json assets --jq '.assets | length')"
+          if [ "${existing}" -eq 0 ]; then
+            gh release upload "${TAG}" build/y137-c-graph/pairs/C-PAIR-*.bin \
+              --repo "${GH_REPO}"
+            gh release upload "${TAG}" \
+              build/y137-c-graph/results/PAIR-PARTITIONS.sha256 \
+              build/y137-c-graph/results/RESULT-C-CROSS.hbp \
+              build/y137-c-graph/results/COMMIT.txt \
+              build/y137-c-durable/README.txt \
+              --repo "${GH_REPO}"
+          elif [ "${existing}" -eq 260 ]; then
+            echo 'Existing 260-asset draft archive detected; do not overwrite verified assets'
+          else
+            echo "REFUSE incomplete or unexpected draft release: ${existing} assets" >&2
+            exit 1
+          fi
+          gh release view "${TAG}" --repo "${GH_REPO}" --json assets --jq '.assets[].name' |
+            sort > build/y137-c-durable/ACTUAL-ASSETS.txt
+          for n in $(seq 0 255); do
+            printf 'C-PAIR-%03d.bin\n' "${n}"
+          done > build/y137-c-durable/EXPECTED-PAIRS.txt
+          while IFS= read -r filename; do
+            grep -Fxq "${filename}" build/y137-c-durable/ACTUAL-ASSETS.txt
+          done < build/y137-c-durable/EXPECTED-PAIRS.txt
+          for name in PAIR-PARTITIONS.sha256 RESULT-C-CROSS.hbp COMMIT.txt README.txt; do
+            grep -Fxq "${name}" build/y137-c-durable/ACTUAL-ASSETS.txt
+          done
+          test "$(wc -l < build/y137-c-durable/ACTUAL-ASSETS.txt)" -eq 260
       - name: Fresh authenticated release DOWNLOAD — independently rehash all 5 GB of durable bytes
         run: |
           set -euo pipefail
