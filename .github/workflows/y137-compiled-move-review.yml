@@ -1,0 +1,52 @@
+name: "Y137 Worker1: compiled integer-move classifier adversarial review"
+on:
+  pull_request:
+    paths:
+      - 'native/scripts/compiled_float_check.py'
+      - '.github/workflows/y137-compiled-move-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-asm-opcode-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Compiler and strict integer-only source selftest
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-compiled-move
+          gcc --version | head -1 | tee build/y137-compiled-move/GCC.txt
+          python3 -I -X utf8 native/scripts/compiled_float_check.py selftest | tee build/y137-compiled-move/SELFTEST.hbp
+          grep -Fq '|failed=0|json=0' build/y137-compiled-move/SELFTEST.hbp
+          python3 -I -X utf8 native/scripts/integer_only_audit.py native/scripts/compiled_float_check.py
+      - name: Compile the three originally flagged unchanged C++ programs
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/compiled_float_check.py cpp . \
+            --only independent/gpt6_http0_symmetry_rows.cpp \
+            --only independent/seat_sturm_biginterval.cpp \
+            --only independent/seat_sturm_exact_gmp.cpp \
+            | tee build/y137-compiled-move/ORIGINAL-THREE.hbp
+          test "$(grep -c '^COMPILED_CPP|.*|fp_ops=0|' build/y137-compiled-move/ORIGINAL-THREE.hbp)" -eq 3
+          grep -Fq '|measured=3|not_measured=0|failed=0|' build/y137-compiled-move/ORIGINAL-THREE.hbp
+      - name: Existing red/green hostile scalar floating-point source plants
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/compiled_float_check.py plants . cpp \
+            | tee build/y137-compiled-move/PLANTS.hbp
+          grep -Fq '|failed=0|json=0' build/y137-compiled-move/PLANTS.hbp
+      - name: No float scanner and source SHA provenance
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          sha256sum native/scripts/compiled_float_check.py > build/y137-compiled-move/SCANNER.sha256
+          git rev-parse HEAD > build/y137-compiled-move/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-compiled-integer-move-regression
+          path: build/y137-compiled-move
+          retention-days: 60
+          if-no-files-found: ignore
