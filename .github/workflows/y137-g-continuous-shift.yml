@@ -1,0 +1,67 @@
+name: "Y137 Stage G: exact continuous Wilson-shift interval bounds"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-g-continuous-shift.yml'
+      - 'independent/y137-stage-g-continuous-20261116/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  continuous-source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Integer arithmetic and repository source no-float
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-stage-g-continuous-20261116/continuous_shift.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Pin original staged exact data
+        run: |
+          set -euo pipefail
+          git hash-object independent/y137-stage-g-eight-flat-20261116/flat_action_gate.py |
+            grep -Fxq '3856180144eeb69b1361bc9ae341d5a6b45b80dd'
+          git hash-object independent/y137-stage-g-eight-flat-20261116/RESULT-STAGE-G-SHIFT-GRID-20261116.hbp |
+            grep -Fxq '903cbe1e9dd01e0052f60b6b350094368d58d67f'
+          git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp |
+            grep -Fxq '40762ceb865829156e4765b720f52d39a8be9b6f'
+  continuous-real:
+    runs-on: ubuntu-24.04
+    needs: continuous-source-controls
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact continuous rational interval partition
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-g-continuous
+          /usr/bin/time -v python3 -I -B independent/y137-stage-g-continuous-20261116/continuous_shift.py |
+            tee build/y137-g-continuous/RESULT-CONTINUOUS.hbp
+          test "$(grep -c '^Y137_G_CONT_VERTEX|' build/y137-g-continuous/RESULT-CONTINUOUS.hbp)" -eq 2
+          grep -Fq '|outside_intervals=EXCLUDED_FOR_FROZEN_SUFFICIENT_TEST|' build/y137-g-continuous/RESULT-CONTINUOUS.hbp
+          grep -Fq '|middle_interval=INCONCLUSIVE_NOT_CERTIFIED_POSITIVE|' build/y137-g-continuous/RESULT-CONTINUOUS.hbp
+          grep -Fq '|new_actual_first_Wilson_weight=HOLD|' build/y137-g-continuous/RESULT-CONTINUOUS.hbp
+          grep '^Y137_G_CONT_' build/y137-g-continuous/RESULT-CONTINUOUS.hbp > build/y137-g-continuous/EXACT-NEW-ROWS.hbp
+          tail -n +2 independent/y137-stage-g-continuous-20261116/RESULT-G-CONTINUOUS-20261116.hbp > build/y137-g-continuous/FROZEN-ROWS.hbp
+          cmp build/y137-g-continuous/EXACT-NEW-ROWS.hbp build/y137-g-continuous/FROZEN-ROWS.hbp
+      - name: Source and result integrity receipt
+        if: always()
+        run: |
+          set -euo pipefail
+          git hash-object independent/y137-stage-g-continuous-20261116/continuous_shift.py |
+            grep -Fxq '0d4f8856469ca856c479233aa489821b6efe2ff5'
+          sha256sum independent/y137-stage-g-continuous-20261116/continuous_shift.py > build/y137-g-continuous/SOURCE.sha256
+          sha256sum independent/y137-stage-g-continuous-20261116/RESULT-G-CONTINUOUS-20261116.hbp > build/y137-g-continuous/FROZEN-RESULT.sha256
+          if test -f build/y137-g-continuous/RESULT-CONTINUOUS.hbp; then
+            sha256sum build/y137-g-continuous/RESULT-CONTINUOUS.hbp > build/y137-g-continuous/RESULT.sha256
+          fi
+          git rev-parse HEAD > build/y137-g-continuous/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-stage-g-continuous-exact-intervals
+          path: build/y137-g-continuous/
+          retention-days: 90
+          if-no-files-found: error
