@@ -12,7 +12,6 @@ strict-rank certificates and all first-two Ritz brackets. Full-space residual
 and Wilson spectral weight are separate gates; never infer them from Ritz alone.
 """
 import hashlib
-import importlib.util
 import os
 import sys
 
@@ -67,9 +66,8 @@ def load_h12():
          "original_H12_source_changed")
     need(blob(open(H12_RESULT, "rb").read()) == H12_RESULT_BLOB,
          "original_H12_result_changed")
-    spec = importlib.util.spec_from_file_location("h12_original", H12_PATH)
-    old = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(old)
+    sys.path.insert(0, os.path.dirname(H12_PATH))
+    import exact_krylov_12 as old
     lines = open(H12_RESULT, encoding="ascii").read().splitlines()
     need(len(lines) == 8, "original_H12_receipt_length")
     x = lines[2]
