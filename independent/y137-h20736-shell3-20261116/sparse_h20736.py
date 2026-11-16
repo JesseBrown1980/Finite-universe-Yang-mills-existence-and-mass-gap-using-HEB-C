@@ -53,8 +53,9 @@ def gitblob(path):
                         b"\x00"+raw).hexdigest()
 
 
-def canonical_shell3(c, states, old_ball):
+def canonical_shell3(states, old_ball):
     """Recreate the exact original K2 exterior target ORDER and reciprocity."""
+    import finite_s3_3x4_r9_first_gap as c
     where={key:i for i,key in enumerate(states)}
     n2=old_ball["n"]
     es=old_ball["es"]
@@ -109,7 +110,8 @@ def source_score(ball, cols):
     return scores[:SHELL3_ADDED]
 
 
-def original144(m):
+def original144():
+    import nested_ritz as m
     G12,K12=m.load_h12()
     ball,states,cols,actions=m.sources()
     selected,score=m.select(ball,cols,actions)
@@ -124,8 +126,9 @@ def original144(m):
     return G,K,ball,states,cols,selected,brackets
 
 
-def selected_row_graph(c,keys,index,where,chosen,ball):
+def selected_row_graph(keys,index,where,chosen,ball):
     """Independent physical 72-move shell3 rows plus all reverse controls."""
+    import finite_s3_3x4_r9_first_gap as c
     selidx={f:t for t,f in enumerate(chosen)}
     wE=ball["eW"]
     wq=ball["wq"]
@@ -271,16 +274,14 @@ def main():
          "original_H144_code_pin")
     sys.path.insert(0,H144)
     import nested_ritz as m
-    G,K,ball,states,cols,selected,brackets=original144(m)
-    c=m.sources.__globals__.get("old",None)
+    G,K,ball,states,cols,selected,brackets=original144()
     # Resolve original original K2 checker through the authenticated H12
     # pinned loader rather than using a new gauge/neighbor implementation.
     sys.path.insert(0,os.path.join(ROOT,"independent",
                                     "y137-12x12-krylov-20261116"))
     import exact_krylov_12 as h12
-    mod=h12.source_module()
-    c=mod.c
-    keys,index,where=canonical_shell3(c,states,ball)
+    h12.source_module()
+    keys,index,where=canonical_shell3(states,ball)
     score=source_score(ball,cols)
     chosen=[f for strong,total,f in score]
     need(len(set(chosen))==SHELL3_ADDED,
@@ -296,7 +297,7 @@ def main():
          selection="DESCENDING_EXACT_KRYLOV_FLUX",
          full_Ritz_level2_upper_source="H144")
     diag,qcross,edge_upper,moves,reverse,selfc,boundary=selected_row_graph(
-        c,keys,index,where,chosen,ball)
+        keys,index,where,chosen,ball)
     entries,digest,cross=emit_sparse(
         G,K,ball,cols,selected,chosen,diag,qcross,edge_upper)
     emit("Y137_H20736_MATRIX",basis_dim=RANK,
