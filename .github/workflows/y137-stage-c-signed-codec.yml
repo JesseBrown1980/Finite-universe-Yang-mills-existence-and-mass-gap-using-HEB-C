@@ -1,0 +1,36 @@
+name: "Y137 Worker1 Stage C signed source codec"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/c_signed_source_codec.py'
+      - '.github/workflows/y137-stage-c-signed-codec.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-source-codec:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Signed 192-bit physical Q4/K3 spool exact fixture and corruption refusals
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-c-signed-codec
+          python3 -I -B independent/y137-mu3-real-20261115/c_signed_source_codec.py toy \
+            | tee build/y137-c-signed-codec/TOY.hbp
+          grep -Fq 'signed_192bit=PASS|exact_roundtrip=PASS|source_SHA=PASS|' build/y137-c-signed-codec/TOY.hbp
+          grep -Fq 'negative_controls=9|real_K3_Q4_spool=NOT_COMPUTED|' build/y137-c-signed-codec/TOY.hbp
+      - name: Standalone integer-only and repository no-float controls
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-mu3-real-20261115/c_signed_source_codec.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          sha256sum independent/y137-mu3-real-20261115/c_signed_source_codec.py > build/y137-c-signed-codec/SOURCE.sha256
+          git rev-parse HEAD > build/y137-c-signed-codec/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-worker1-c-signed-192bit-codec-toy
+          path: build/y137-c-signed-codec
+          retention-days: 60
