@@ -2,6 +2,23 @@
 
 **Research draft, 2026-11-16.** Reuses the original certified PR #180 unshifted Wilson sample, original #185 full-Q source norm enclosures, accepted Stage E/F per-state error limits and verified Stage G 29-point rational-shift test.
 
+## Hosted result — exact rational intervals
+
+[Original hosted run #43954615820](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43954615820) passed source controls and the real interval calculation. Its entire numerical output is frozen byte-for-byte in [RESULT-G-CONTINUOUS-20261116.hbp](RESULT-G-CONTINUOUS-20261116.hbp). A separate exact-integer replay of its original flat-norm and signed-sample formulas reproduced the two endpoints, all 29 original point classifications and the counts:
+
+| Gate | Exact result |
+| --- | --- |
+| Shift domain | ([0,14]) |
+| Binary split depth | 13 |
+| Entire intervals excluded by the existing sufficient test | 20 |
+| Unresolved final leaf cells | 3,533 |
+| Left outside interval | ([0,5663/1024]) excluded |
+| Middle candidate band | ([5663/1024,47383/4096]) inconclusive |
+| Right outside interval | ([47383/4096,14]) excluded |
+| Actual first Wilson spectral weight | **HOLD** |
+
+The closed middle band is an **overapproximation of remaining candidates**: shared boundary points may also have independent exclusion witnesses. No real shift strictly outside that band in ([0,14]) can close the *existing frozen sufficient test*. No claim is made for shifts outside the tested domain, for a stronger transfer inequality, or for a different Wilson sample.
+
 ## What this proves
 
 The original Stage G screening enumerated 29 half-unit shifts of the same physical seven-loop Wilson observable \(O\), from \(\alpha=0\) through \(14\). This extension covers **every real** rational-interval position on \([0,14]\) by a finite union of exact closed dyadic intervals. In each excluded cell it certifies that even the **minimal** accepted lower bound on the old observable-specific linear transfer cost exceeds the **maximal** source-certified shifted Wilson sample-amplitude upper bound over the entire cell.
