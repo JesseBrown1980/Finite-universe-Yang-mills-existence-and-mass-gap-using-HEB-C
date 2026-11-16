@@ -22,6 +22,8 @@ jobs:
         run: |
           set -euo pipefail
           python3 -I -B independent/y137-mu3-real-20261115/b6_gram_accept.py toy | tee /tmp/b6-toy.hbp
+          python3 -I -B independent/y137-mu3-real-20261115/b6_gram_accept.py attack-toy | tee /tmp/b6-attack.hbp
+          grep -Fq 'forgeries_refused=6|live_B6_16_of_16=UNAFFECTED|' /tmp/b6-attack.hbp
           grep -Fq 'double_factor_six=REFUSED|noncanonical_integer=REFUSED|' /tmp/b6-toy.hbp
           python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-mu3-real-20261115/b6_gram_accept.py
           python3 -I -X utf8 native/scripts/no_float_gate.py .
