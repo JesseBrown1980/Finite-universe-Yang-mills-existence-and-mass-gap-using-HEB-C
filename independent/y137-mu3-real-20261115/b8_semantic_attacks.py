@@ -150,10 +150,8 @@ def selftest():
         need(gram(energy)==gram(energy,signed),"B8_sign_flip_changes_mu2")
         need(not identical(row_matrix(energy),row_matrix(energy,amps=signed)),
              "B8_missing_signed_mu3_cross_sensitivity")
-    # A self-attested PASS label never substitutes for actual numeric replay.
-    fake="Y137_B8|verdict=PASS|json=0"
-    need(hashlib.sha256(fake.encode()).hexdigest()!=original,
-         "B8_forged_pass_receipt_not_rejected")
+    # Live production receipt verifier attacks run separately using
+    # b6_gram_accept.py attack-toy; string-only hashes do not certify refusal.
     print("Y137_B8_TOY|energies=2|entries_checked=128|reference_row_pair=EXACT"+
           "|magnetic_and_exterior_diagonal=PASS|selfloop_omission=REFUSED"+
           "|wrong_electric_sign=REFUSED|double_factor_six=REFUSED"+
@@ -161,7 +159,7 @@ def selftest():
           "|weighted_multiplicity=REFUSED|wrong_orbit_weight=REFUSED"+
           "|tampered_amplitude=REFUSED|sample_swap=REFUSED"+
           "|Q4_sign_flip_mu2_invariant_mu3_changed=PASS"+
-          "|forged_PASS_receipt=REFUSED|real_Q5_mu3=UNCHANGED"+
+          "|forged_PASS_receipt=SEPARATE_B6_VERIFIER_ATTACK|real_Q5_mu3=UNCHANGED"+
           "|signed_Q4_K3=HOLD|Wilson_weight=HOLD|json=0")
 
 if __name__=="__main__":
