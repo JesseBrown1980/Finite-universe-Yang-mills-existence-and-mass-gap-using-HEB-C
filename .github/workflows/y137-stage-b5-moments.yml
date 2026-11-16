@@ -35,7 +35,7 @@ jobs:
           cmp Cargo.lock /tmp/y137-b5-frozen.lock
           cd ../../..
           python3 -I -X utf8 native/scripts/no_float_gate.py .
-          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-mu3-real-20261115/rust/src/bin/b5_moments.rs
+          # integer_only_audit.py parses Python AST; Rust is audited by rustc/clippy plus no_float_gate.
   real-q5-row-and-paired-edge:
     needs: exact-toy-and-rust81
     runs-on: ubuntu-24.04
