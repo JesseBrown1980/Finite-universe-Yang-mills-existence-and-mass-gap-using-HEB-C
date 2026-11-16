@@ -307,7 +307,7 @@ impl Default for RowCensus {
             max_magnetic: 0,
             q5_group_moves: [0; GROUPS],
             boundary_bucket_moves: [0; BUCKETS],
-            boundary_fnv64: 0,
+            boundary_fnv64: 14_695_981_039_346_656_037,
         }
     }
 }
@@ -377,7 +377,6 @@ fn selftest() -> Result<(), String> {
     let mut support = HashMap::new();
     support.insert(0u64, 1u8);
     let mut counts = RowCensus::default();
-    counts.boundary_fnv64 = 14_695_981_039_346_656_037;
     process_row(&rule, 0, 1, &support, &mut counts)?;
     ensure(counts.rows == 1 && counts.raw_moves == 72 &&
            counts.on_q5_moves == 0 && counts.outside_q5_moves == 72,
@@ -412,15 +411,13 @@ fn run(root: &Path) -> Result<(), String> {
              support.len());
     let rule = Rule::new();
     let mut whole = RowCensus::default();
-    whole.boundary_fnv64 = 14_695_981_039_346_656_037;
-    for g in 0..GROUPS {
+    for (g, expected_rows) in ROWS_BY_GROUP.iter().enumerate() {
         let name = root.join(format!("GROUP-{g}.v1"));
         let mut local = RowCensus::default();
-        local.boundary_fnv64 = 14_695_981_039_346_656_037;
         let summary = visit_group(&name, g, |address, weight| {
             process_row(&rule, address, weight, &support, &mut local)
         })?;
-        ensure(summary.rows == ROWS_BY_GROUP[g], "replayed_group_row_count")?;
+        ensure(summary.rows == *expected_rows, "replayed_group_row_count")?;
         ensure(local.rows == summary.rows && local.raw_moves == 72 * summary.rows,
                "replayed_group_electric_degree")?;
         println!("Y137_STAGE_B3_GROUP|group={g}|rows={}|raw_moves={}|on_Q5_moves={}|off_Q5_moves={}|on_Q5_unique_dests={}|off_Q5_unique_dests={}|selfloop_moves={}|magnetic_sum={}|magnetic_max={}|on_group_moves={}|off_bucket_moves={}|boundary_fnv64={:016x}|json=0",
