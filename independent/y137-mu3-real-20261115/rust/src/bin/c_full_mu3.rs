@@ -850,6 +850,220 @@ fn c_matrix_toy() -> Result<(), String> {
     Ok(())
 }
 
+
+// Authenticate the original two-energy physical source on precisely one
+// frozen energy at a time. The separate production source verifier rechecks
+// the complete SHA256 against the original immutable source manifest.
+#[derive(Clone, Copy)]
+struct CState {
+    address: u64,
+    weight: u8,
+    shell: u8,
+    v: [i128; C_COLS],
+}
+struct CInput {
+    states: Vec<CState>,
+    lookup: HashMap<u64, usize>,
+}
+
+fn c_insert(input: &mut CInput, state: CState) -> Result<(), String> {
+    ensure(state.address < MAX_ADDR &&
+           matches!(state.weight, 1 | 2 | 3 | 6) &&
+           (3..=5).contains(&state.shell),
+           "C_invalid_full_source_address_weight_or_shell")?;
+    for value in state.v {
+        ensure(value.unsigned_abs() < C_MAX_V, "C_signed_physical_source_ge_2pow112")?;
+        if state.shell <= 4 {
+            ensure(value.unsigned_abs() < (1u128 << 100),
+                   "C_K3_Q4_source_exceeds_independent_R_envelope")?;
+        }
+    }
+    let index = input.states.len();
+    ensure(input.lookup.insert(state.address, index).is_none(),
+           "C_duplicate_or_colliding_physical_source")?;
+    input.states.push(state);
+    Ok(())
+}
+fn c_read_exact(reader: &mut BufReader<File>, data: &mut [u8],
+                why: &str) -> Result<(), String> {
+    reader.read_exact(data).map_err(|_| why.to_string())
+}
+fn c_read_signed(path: &Path, shell: u8, sample: usize,
+                 input: &mut CInput) -> Result<u64, String> {
+    let mut reader=BufReader::with_capacity(1_048_576,
+        File::open(path).map_err(|e| e.to_string())?);
+    let mut header=[0u8;11];
+    let mut first=[0u8;1];
+    let mut mag=[0u8;24];
+    let mut rows=0u64;
+    let mut last=None;
+    loop {
+        if reader.read(&mut first).map_err(|e| e.to_string())? == 0 {break;}
+        header[0]=first[0];
+        c_read_exact(&mut reader,&mut header[1..],"C_short_original_signed_header")?;
+        let addr=u64::from_le_bytes(header[..8].try_into().map_err(|_|"C_addr")?);
+        let weight=header[8];
+        ensure(header[9]==shell && header[10]==2,
+               "C_original_signed_sample_count_or_shell_changed")?;
+        if let Some(prior)=last {
+            ensure(addr>prior,"C_original_signed_shard_not_strictly_sorted")?;
+        }
+        last=Some(addr);
+        let mut source=[0i128;C_COLS];
+        for e in 0..2 {
+            for ch in 0..C_COLS {
+                c_read_exact(&mut reader,&mut first,"C_short_signed_lane_prefix")?;
+                let n=(first[0]&127) as usize;
+                let neg=first[0]&128!=0;
+                ensure(n<=24 && (!neg || n>0), "C_signed_length_or_negative_zero")?;
+                c_read_exact(&mut reader,&mut mag[..n],"C_short_signed_lane_magnitude")?;
+                ensure(n==0 || mag[n-1]!=0,"C_nonminimal_signed_lane")?;
+                if e==sample {
+                    ensure(n<=16,"C_original_signed_source_does_not_fit_i128")?;
+                    let mut padded=[0u8;16];
+                    padded[..n].copy_from_slice(&mag[..n]);
+                    let x=u128::from_le_bytes(padded);
+                    ensure(x < (1u128<<100),"C_full_signed_source_not_below_2pow100")?;
+                    source[ch]=if neg { -(x as i128) } else { x as i128 };
+                }
+            }
+        }
+        c_insert(input,CState{address:addr,weight,shell,v:source})?;
+        rows+=1;
+    }
+    Ok(rows)
+}
+fn c_packed_q5_lanes(encoded:&[u8]) -> Result<[i128;C_COLS],String> {
+    ensure(encoded.len()<=82 && (encoded.is_empty() || encoded[encoded.len()-1]!=0),
+           "C_original_Q5_nonminimal_82_byte_sample")?;
+    let mut padded=[0u8;98];
+    padded[..encoded.len()].copy_from_slice(encoded);
+    let mut out=[0i128;C_COLS];
+    for (channel, value) in out.iter_mut().enumerate(){
+        let start=82*channel;
+        let start_byte=start/8;
+        let subshift=start%8;
+        let mut word=[0u8;16];
+        word.copy_from_slice(&padded[start_byte..start_byte+16]);
+        let packed=(u128::from_le_bytes(word)>>subshift)&((1u128<<82)-1);
+        let physical=packed * C_B as u128;
+        ensure(physical<C_MAX_V,"C_Q5_physical_source_under_2pow112_failed")?;
+        *value=physical as i128;
+    }
+    Ok(out)
+}
+fn c_read_q5(path:&Path, group:usize, sample:usize,
+              input:&mut CInput) -> Result<(u64,u64),String>{
+    let mut reader=BufReader::with_capacity(1_048_576,
+        File::open(path).map_err(|e|e.to_string())?);
+    let mut first=[0u8;1];
+    let mut header=[0u8;13];
+    let mut packed=[0u8;164];
+    let mut rows=0u64;
+    let mut bytes=0u64;
+    let mut bucket_index=0usize;
+    let mut last=None;
+    loop {
+        if reader.read(&mut first).map_err(|e|e.to_string())? == 0{break;}
+        header[0]=first[0];
+        c_read_exact(&mut reader,&mut header[1..],"C_original_Q5_truncated_header")?;
+        let addr=u64::from_le_bytes(header[..8].try_into().map_err(|_|"C_Q5_addr")?);
+        let weight=header[8];
+        let n0=u16::from_le_bytes([header[9],header[10]]) as usize;
+        let n1=u16::from_le_bytes([header[11],header[12]]) as usize;
+        ensure(n0<=82 && n1<=82 && addr<MAX_ADDR,
+               "C_original_Q5_address_or_packed_lane_width")?;
+        c_read_exact(&mut reader,&mut packed[..n0+n1],"C_original_Q5_short_packed_source")?;
+        let bucket=(addr % BUCKETS as u64) as usize;
+        ensure(bucket % GROUPS == group,"C_Q5_wrong_group_bucket")?;
+        if bucket != group+bucket_index*GROUPS {
+            ensure(bucket_index<7 && bucket==group+(bucket_index+1)*GROUPS,
+                   "C_Q5_missing_or_reordered_bucket")?;
+            bucket_index+=1;last=None;
+        }
+        if let Some(prior)=last{ensure(addr>prior,"C_Q5_unsorted_or_duplicate_in_bucket")?;}
+        last=Some(addr);
+        let amplitude=if sample==0{
+            c_packed_q5_lanes(&packed[..n0])?
+        }else{
+            c_packed_q5_lanes(&packed[n0..n0+n1])?
+        };
+        c_insert(input,CState{address:addr,weight,shell:5,v:amplitude})?;
+        rows+=1;
+        bytes+=(13+n0+n1) as u64;
+    }
+    ensure(bucket_index==7,"C_Q5_incomplete_8_bucket_source")?;
+    Ok((rows,bytes))
+}
+fn c_load_input(signed:&Path,q5:&Path,sample:usize)->Result<CInput,String>{
+    ensure(sample<2,"C_unknown_frozen_energy")?;
+    let start=Instant::now();
+    let mut input=CInput{
+        states:Vec::with_capacity(C_TOTAL),
+        lookup:HashMap::<u64,usize>::with_capacity(C_TOTAL),
+    };
+    let count=c_read_signed(&signed.join("SIGNED-K3.v1"),3,sample,&mut input)?;
+    ensure(count==C_K3 as u64,"C_original_complete_K3_count_changed")?;
+    println!("Y137_C_MU3_SOURCE|shell=K3|rows={count}|json=0");
+    for group in 0..8 {
+        let count=c_read_signed(
+           &signed.join(format!("SIGNED-Q4-{group}.v1")),4,sample,&mut input)?;
+        let expected=(C_Q4*(group+1)/8-C_Q4*group/8) as u64;
+        ensure(count==expected,"C_original_Q4_partition_count_changed")?;
+        println!("Y137_C_MU3_SOURCE|shell=Q4|group={group}|rows={count}|json=0");
+    }
+    ensure(input.states.len()==C_INNER,"C_original_signed_source_count_changed")?;
+    for(group,&expected)in ROWS_BY_GROUP.iter().enumerate(){
+        let (count,bytes)=c_read_q5(&q5.join(format!("GROUP-{group}.v1")),group,sample,&mut input)?;
+        ensure(count==expected && bytes==BYTES_BY_GROUP[group],
+               "C_original_Q5_group_source_count_or_bytes_changed")?;
+        println!("Y137_C_MU3_SOURCE|shell=Q5|group={group}|rows={count}|bytes={bytes}|json=0");
+    }
+    ensure(input.states.len()==C_TOTAL && input.lookup.len()==C_TOTAL,
+           "C_complete_threeblock_source_count_or_duplicate")?;
+    println!("Y137_C_MU3_SOURCE_VERDICT|states={}|sample_num={}|K3_Q4_original=PASS|Q5_original=PASS|unique_full_support=PASS|milliseconds={}|json=0",
+        input.states.len(),C_ENERGIES[sample],start.elapsed().as_millis());
+    Ok(input)
+}
+fn c_baseline(path:&Path,sample:usize)->Result<CMatrix,String>{
+    let contents=fs::read_to_string(path).map_err(|e|e.to_string())?;
+    let needle=format!("Y137_B5_MATRIX|sample_num={}|quantity=Q5_principal_mu3_six|row=",C_ENERGIES[sample]);
+    let mut found=None;
+    for line in contents.lines(){
+        if let Some(values)=line.strip_prefix(&needle){
+            ensure(found.is_none(),"C_B5_duplicate_principal_energy_record")?;
+            let mut matrix=[[CInt320::ZERO;C_COLS];C_COLS];
+            let rows:Vec<_>=values.split(';').collect();
+            ensure(rows.len()==C_COLS,"C_original_Q5_baseline_8x8_rows")?;
+            for (i,row) in rows.iter().enumerate(){
+                let terms:Vec<_>=row.split(',').collect();
+                ensure(terms.len()==C_COLS,"C_original_Q5_baseline_8_columns")?;
+                for(j,cell)in terms.iter().enumerate(){
+                    matrix[i][j]=CInt320::from_decimal(cell)?;
+                }
+            }
+            for i in 0..C_COLS{for j in 0..C_COLS{
+                ensure(matrix[i][j]==matrix[j][i],
+                       "C_original_B5_principal_not_symmetric")?;
+            }}
+            found=Some(matrix);
+        }
+    }
+    found.ok_or_else(||"C_missing_original_B5_exact_Q5_principal_matrix".to_string())
+}
+fn c_emit_matrix(method:&str,sample:usize,matrix:&CMatrix,
+                 rows:u64,pairs:u64,elapsed:u128)->Result<(),String>{
+    let mut parts=Vec::<String>::with_capacity(C_COLS);
+    for row in matrix {
+        parts.push(row.iter().map(CInt320::decimal).collect::<Vec<_>>().join(","));
+    }
+    let symmetric=(0..C_COLS).all(|i|(0..C_COLS).all(|j|matrix[i][j]==matrix[j][i]));
+    ensure(symmetric,"C_full_mu3_symmetric_matrix_disagreement")?;
+    println!("Y137_C_FULL_MU3_MATRIX|method={method}|sample_num={}|quantity=whole_K3_Q4_Q5_mu3_six|rows=8|columns=8|source_states={C_TOTAL}|raw_rows={rows}|new_unordered_pairs={pairs}|exact_symmetric=PASS|source_signs=PHYSICAL_V1_EQUALS_XR|original_Q5_B5_principal=ONCE|absolute_partial_bound_bits=294|row={}|milliseconds={elapsed}|json=0",
+       C_ENERGIES[sample],parts.join(";"));
+    Ok(())
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let verdict = match args.as_slice() {
