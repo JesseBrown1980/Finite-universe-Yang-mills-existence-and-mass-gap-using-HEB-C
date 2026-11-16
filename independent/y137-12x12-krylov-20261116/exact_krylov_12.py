@@ -16,7 +16,7 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+ROOT = os.path.dirname(os.path.dirname(HERE))
 DUAL = os.path.join(ROOT, "independent", "y137-q-dual-weight-20261113",
                     "RESULT-WILSON-Q-DUAL.hbp")
 DUAL_BLOB = "40762ceb865829156e4765b720f52d39a8be9b6f"
@@ -359,7 +359,7 @@ def real():
          two_Ritz_levels="EXACT_ONE_BILLIONTH_BRACKETS",
          original_Wilson_weight="HOLD",
          full_complement_gap="NOT_CERTIFIED",
-         issue_137="OPEN", json=0)
+         issue_137="OPEN")
 
 
 def main(argv):
