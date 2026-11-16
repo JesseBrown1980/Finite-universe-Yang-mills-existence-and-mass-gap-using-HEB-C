@@ -10,6 +10,7 @@ The original Q5 source already has <2^82 packed unsigned lanes and b<2^30,
 so Q5 physical V1<2^112. Whole-Q mu3 is not yet computed.
 """
 import hashlib
+import io
 import heapq
 import os
 import sys
@@ -176,7 +177,7 @@ def toy():
     good=tuple(tuple((-1)**(e+i)*(e+2)*(i+1) for i in range(8))
                for e in range(2))
     t=encode(0,1,3,good)
-    need(decode(__import__("io").BytesIO(t))==(0,1,3,good),
+    need(decode(io.BytesIO(t))==(0,1,3,good),
          "C_accept_toy_signed_code")
     need(canonical_weight(0)==1,"C_accept_toy_zero_weight")
     refused=0
