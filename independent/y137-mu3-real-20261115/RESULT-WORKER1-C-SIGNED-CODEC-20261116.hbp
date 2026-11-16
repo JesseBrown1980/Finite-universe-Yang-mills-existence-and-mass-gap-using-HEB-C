@@ -1,0 +1,2 @@
+Y137_C_CODEC_HOSTED|run_id=43862188318|workflow=Y137_Worker1_Stage_C_signed_source_codec|source_commit=fbb7c437f7ac5130e55ca67161b4ed0476122b80|hosted_jobs=1|no_float=PASS|json=0
+Y137_C_CODEC_TOY|samples=2|lanes_per_sample=8|signed_192bit=PASS|exact_roundtrip=PASS|source_SHA=PASS|bad_header_short_lane_negative_zero_length_shell_weight_samples=REFUSED|oversized_lane=REFUSED|signed_flip_wrong_SHA=REFUSED|negative_controls=9|real_K3_Q4_spool=NOT_COMPUTED|whole_mu3=NOT_COMPUTED|Wilson_weight=HOLD|json=0
