@@ -1,0 +1,3 @@
+Y137_B8_SOURCE_HARDENING|hosted_run=43856730343|input_archives=8|real_source_canonical_checks=PASS|synthetic_source_red_controls=9|hosted_jobs=10|json=0
+Y137_STAGE_B_SOURCE_TOY|groups=8|buckets=64|distinct_keys=64|faults_refused=9|same_bucket_duplicate=REFUSED|same_bucket_descending=REFUSED|rehashed_noncanonical_source=REFUSED|B1_B2=TOY_ONLY|real_Q5=NOT_COMPUTED|json=0
+Y137_B8_SCOPE|signed_K3_Q4=HOLD|whole_mu3=NOT_COMPUTED|Wilson_weight=HOLD|json=0

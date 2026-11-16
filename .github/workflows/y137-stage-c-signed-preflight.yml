@@ -1,0 +1,66 @@
+name: "Y137 Worker1 Stage C: authentic signed Q4 source preflight"
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mu3-real-20261115/c_signed_q4_preflight.py'
+      - '.github/workflows/y137-stage-c-signed-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  signed-source-toy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact integer toy with Q4 minus sign and omitted-cross controls
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-c-preflight
+          python3 -I -B independent/y137-mu3-real-20261115/c_signed_q4_preflight.py toy | tee build/y137-c-preflight/TOY.hbp
+          grep -Fq 'wrong_Q4_sign=REFUSED|omitted_Q4_neighbors=REFUSED|omitted_K3_neighbors=REFUSED|swapped_energy=REFUSED|' build/y137-c-preflight/TOY.hbp
+      - name: Strict source-only integer and no-float audit
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-mu3-real-20261115/c_signed_q4_preflight.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-c-signed-toy-receipt
+          path: build/y137-c-preflight
+          retention-days: 60
+
+  real-signed-q4-samples:
+    needs: signed-source-toy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7]
+    env:
+      C_SHARD: ${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Rebuild frozen original signed K3/Q4 sources and independent Q4 rows
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-c-preflight
+          /usr/bin/time -v python3 -I -B independent/y137-mu3-real-20261115/c_signed_q4_preflight.py real-shard "${C_SHARD}" \
+            | tee "build/y137-c-preflight/SIGNED-Q4-${C_SHARD}.hbp"
+          test "$(grep -c '^Y137_C_SIGNED_Q4_SAMPLE|' build/y137-c-preflight/SIGNED-Q4-${C_SHARD}.hbp)" -eq 2
+          grep -Fq '|original_K3_Q4_source_fingerprints=PASS|signed_Q4_two_energies=EXACT|' \
+            "build/y137-c-preflight/SIGNED-Q4-${C_SHARD}.hbp"
+      - name: Freeze exact original SHA and source fingerprint receipts
+        run: |
+          set -euo pipefail
+          sha256sum independent/y137-mu3-real-20261115/c_signed_q4_preflight.py > build/y137-c-preflight/WORKER-SOURCE.sha256
+          git rev-parse HEAD > build/y137-c-preflight/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-c-signed-real-Q4-shard-${{ matrix.shard }}
+          path: build/y137-c-preflight
+          retention-days: 60
+          if-no-files-found: ignore

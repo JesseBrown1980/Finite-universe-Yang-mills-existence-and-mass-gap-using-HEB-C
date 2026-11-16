@@ -1,0 +1,46 @@
+name: Issue 137 shell4 exact magnetic Gram cache and fixed-trial polynomial
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-shell4-diagonal-cache-20261114/**'
+      - '.github/workflows/y137-shell4-diagonal-cache.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  magnetic-weighted-source-and-cache:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Ensure registered pre-run input and two separate frozen energies
+        run: |
+          set -euo pipefail
+          D=independent/y137-shell4-diagonal-cache-20261114
+          grep -Fq 'status=PREHOST_FREEZE|' "$D/PREDICTION.hbp"
+          grep -Fq 'frozen_source_samples=69909875505,69949729820|' "$D/PREDICTION.hbp"
+          grep -Fq 'actual_first_Wilson_weight=HOLD|' "$D/PREDICTION.hbp"
+          test "$(git hash-object "$D/source_cache.py")" = "$(sed -n 's/^Y137_CACHE_PREHOST_FREEZE|.*source_script_git_blob=\([0-9a-f]*\)|.*/\1/p' "$D/PREDICTION.hbp")"
+          grep -Fq 'outer_fraction_floor_per_trillion=999999999999|' independent/y137-shell4-resolvent-domination-20261113/README.md || true
+      - name: Generate full shell4 per-magnetic 8x8 Gram and polynomial moments
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-diagonal-cache
+          python3 -I -B independent/y137-shell4-diagonal-cache-20261114/source_cache.py | tee build/y137-diagonal-cache/source.stdout.txt
+          test "$(grep -c '^Y137_CACHE_POINT|' build/y137-diagonal-cache/source.stdout.txt)" -eq 2
+          grep -Fq 'all_255_minors_diagonal_width_PSD=1|all_255_minors_diagonal_gain_over_uniform_PSD=1|' build/y137-diagonal-cache/source.stdout.txt
+          grep -Fq 'magnetic_bucket_psd=PASS|fixed_trial_energy_polynomial=EXACT|' build/y137-diagonal-cache/source.stdout.txt
+          grep '^Y137_CACHE_' build/y137-diagonal-cache/source.stdout.txt > build/y137-diagonal-cache/RESULT-MAGNETIC-CACHE.hbp
+          test "$(grep -c '^Y137_CACHE_' build/y137-diagonal-cache/RESULT-MAGNETIC-CACHE.hbp)" -eq 5
+      - name: No-float and exact integer source audit
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-shell4-diagonal-cache-20261114/source_cache.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-shell4-magnetic-gram-cache
+          path: build/y137-diagonal-cache/source.stdout.txt
+          if-no-files-found: ignore
+          retention-days: 60

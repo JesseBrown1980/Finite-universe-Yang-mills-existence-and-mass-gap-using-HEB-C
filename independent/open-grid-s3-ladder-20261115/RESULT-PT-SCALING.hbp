@@ -1,0 +1,13 @@
+PT_SCALE|a=1|b=1|r=9|units=1e-9|exact_gap=16765067031|first_order_gap=17999999998|second_order_gap=12666666665|first_order_error=1234932967|second_order_error=4098400366|json=0
+PT_SCALE|a=1|b=1|r=90|units=1e-9|exact_gap=179477248809|first_order_gap=179999999998|second_order_gap=179466666666|first_order_error=522751189|second_order_error=10582143|json=0
+PT_SCALE|a=1|b=1|r=900|units=1e-9|exact_gap=1799946677408|first_order_gap=1799999999999|second_order_gap=1799946666666|first_order_error=53322591|second_order_error=10742|json=0
+PT_SCALE_RATIO|a=1|b=1|first_order_error_r90_over_r900_per_thousand=9803|second_order_error_r90_over_r900_per_thousand=985118|json=0
+PT_SCALE|a=2|b=1|r=9|units=1e-9|exact_gap=15701570548|first_order_gap=16999999999|second_order_gap=14009259259|first_order_error=1298429451|second_order_error=1692311289|json=0
+PT_SCALE|a=2|b=1|r=90|units=1e-9|exact_gap=178698615401|first_order_gap=178999999999|second_order_gap=178700925926|first_order_error=301384598|second_order_error=2310525|json=0
+PT_SCALE|a=2|b=1|r=900|units=1e-9|exact_gap=1798970039993|first_order_gap=1798999999998|second_order_gap=1798970092593|first_order_error=29960005|second_order_error=52600|json=0
+PT_SCALE_RATIO|a=2|b=1|first_order_error_r90_over_r900_per_thousand=10059|second_order_error_r90_over_r900_per_thousand=43926|json=0
+PT_SCALE|a=3|b=1|r=9|units=1e-9|exact_gap=15327306188|first_order_gap=16585786437|second_order_gap=14182378586|first_order_error=1258480249|second_order_error=1144927602|json=0
+PT_SCALE|a=3|b=1|r=90|units=1e-9|exact_gap=178363003367|first_order_gap=178585786436|second_order_gap=178366556527|first_order_error=222783069|second_order_error=3553160|json=0
+PT_SCALE|a=3|b=1|r=900|units=1e-9|exact_gap=1798564040438|first_order_gap=1798585786437|second_order_gap=1798564094116|first_order_error=21745999|second_order_error=53678|json=0
+PT_SCALE_RATIO|a=3|b=1|first_order_error_r90_over_r900_per_thousand=10244|second_order_error_r90_over_r900_per_thousand=66193|json=0
+PT_SCALE_VERDICT|S1_first_order_error_falls_like_1_over_r=1|S2_second_order_error_falls_like_1_over_r_squared=0|json=0
