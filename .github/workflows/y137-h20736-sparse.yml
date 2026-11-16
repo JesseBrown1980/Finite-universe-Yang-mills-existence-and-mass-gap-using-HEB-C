@@ -18,6 +18,7 @@ jobs:
           set -euo pipefail
           python3 -I -B native/scripts/integer_only_audit.py independent/y137-h20736-shell3-20261116/sparse_h20736.py
           python3 -I -B native/scripts/integer_only_audit.py independent/y137-h20736-shell3-20261116/two_trial_ritz.py
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-h20736-shell3-20261116/full_trial_residual.py
           python3 -I -B native/scripts/no_float_gate.py .
       - name: Pinned original 144 source
         run: |
@@ -72,5 +73,42 @@ jobs:
         with:
           name: y137-h20736-original-s3-exact-sparse-matrix
           path: build/y137-h20736/
+          retention-days: 90
+          if-no-files-found: error
+
+  h20736-exact-full-support-residual:
+    runs-on: ubuntu-24.04
+    needs: h20736-real-source-matrix
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Fetch original exact sparse matrix and its SHA-pinned receipt
+        uses: actions/download-artifact@v4
+        with:
+          name: y137-h20736-original-s3-exact-sparse-matrix
+          path: build/y137-h20736
+      - name: Reconstruct independent full physical residual including K3 unselected and shell4
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h20736-full
+          /usr/bin/time -v python3 -I -B independent/y137-h20736-shell3-20261116/full_trial_residual.py real |
+            tee build/y137-h20736-full/RESULT-H20736-FULL.hbp
+          test "$(grep -c '^Y137_H20736_FULL_RESIDUAL|' build/y137-h20736-full/RESULT-H20736-FULL.hbp)" -eq 2
+          grep -Fq '|full_trials=2_OF_2_EXACT_W_RESIDUAL|' build/y137-h20736-full/RESULT-H20736-FULL.hbp
+          grep -Fq '|first_excitation_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-h20736-full/RESULT-H20736-FULL.hbp
+      - name: Freeze independent full physical residual receipts
+        if: always()
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > build/y137-h20736-full/COMMIT.txt
+          sha256sum independent/y137-h20736-shell3-20261116/full_trial_residual.py > build/y137-h20736-full/SOURCE.sha256
+          if test -f build/y137-h20736-full/RESULT-H20736-FULL.hbp; then
+            sha256sum build/y137-h20736-full/RESULT-H20736-FULL.hbp > build/y137-h20736-full/RESULT.sha256
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-h20736-exact-whole-physical-K3-shell4-residuals
+          path: build/y137-h20736-full/
           retention-days: 90
           if-no-files-found: error
