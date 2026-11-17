@@ -26,8 +26,11 @@ The planted parity family uses clauses encoding triples `(i, i+1, i+n/3)` plus a
 | Generic globally linked / 21 | 42 | **9,183 solutions** | 16 | Conventional exact factor elimination: 32,768 peak intermediate entries, 193,022 branch scans, 779,326 factor lookups |
 | Generic globally linked / 24 | 48 | **HOLD** | 18 | Projected 131,072 entries exceed 32,768 cap; 32,768 maximum actually allocated |
 | Generic globally linked / 72 | 144 | **HOLD** | 50 | No false XOR recognition; projected intermediate table would contain 2^49 entries under the tested elimination order |
-| Mixed parity + ordinary / 12 | 30 | **36** by independent truth-vector oracle | — | Parity-only relaxation permits 64, so declaring 64 for the original mixed problem would be wrong |
-| Mixed parity + ordinary / 72 | 180 | **HOLD** | — | 36 parity equations compiled, 36 ordinary groups remain unresolved |
+| Mixed parity + ordinary / 12 | 30 | **36 exact** | — | Enumerated 64 free assignments; parity-only relaxation permits 64 |
+| Mixed parity + ordinary / 24 | 60 | **848 exact** | — | Enumerated 4,096 free assignments; independent full 2^24-assignment truth-vector oracle confirms |
+| Mixed parity + ordinary / 36 | 90 | **31,472 exact** | — | Enumerated 262,144 free assignments; clean-room alternative-pivot residual solver independently agrees |
+| Mixed parity + ordinary / 48 | 120 | **HOLD** | — | Would require 16,777,216 free assignments, exceeding explicit 262,144 cap |
+| Mixed parity + ordinary / 72 | 180 | **HOLD** | — | 36 parity equations compiled; residual free search would require 68,719,476,736 branches |
 
 The `naive_factor_peak_projected_entries` figure is a symbolic prediction for **one specific** variable-elimination ordering. It is neither actually allocated nor a worst-case lower bound for every algorithm: parity-aware Gaussian elimination processes these exact examples compactly. Even a conventional, non-MTP parity recognizer could obtain the same compression.
 
@@ -35,18 +38,18 @@ The `naive_factor_peak_projected_entries` figure is a symbolic prediction for **
 
 The pilot reports, per instance, source serialization bytes, clause insertion count, literal truth-table checks, motif assignment evaluations, local/global/forward-flat/reverse-flat binary row-XOR counts, an explicit conservative per-XOR bit-work counter, the scope-preflight work, exact verification literal checks, wall-clock nanoseconds measured **from source generation through verification**, and estimated compact representation payload bits. Linux `/proc/self/status` also reports the whole Python process high-water RSS, around 100 MiB on the local run; this includes the interpreter and is not a direct compact-table allocation measurement. The logical-payload estimate excludes Python object overhead and is labeled accordingly. The independent verifier deliberately allocates up to 2^21 truth bits for the small generic oracle; that exponential work is explicitly identified as a *control*, not solver preprocessing.
 
-The reported total metered work unit is a defined combination of checked logical operations rather than a complete CPU instruction count. Consequently, the evidence supports compactness for these parity-structured input families, while **neither the benchmark nor a few measured timings establish polynomial worst-case bounds for arbitrary SAT**.
+For mixed instances the receipt also records all 2^(n-rank) projected branches, all branches actually enumerated, and the number of ordinary clauses actually tested. The reported total metered work unit is a defined combination of checked logical operations rather than a complete CPU instruction count. Consequently, the evidence supports compactness for these parity-structured input families, while **neither the benchmark nor a few measured timings establish polynomial worst-case bounds for arbitrary SAT**.
 
 ### Negative controls
 
 - Conflicting parity gadgets on one triple yield **exact UNSAT**; a missing clause never gets falsely compiled into XOR.
 - In each structured case, one lower-shell parity misprediction is detected and corrected by independently recomputing the eight-entry truth table.
 - Generic cross-coupled clauses yield zero false XOR motif recognitions and exceed the fixed table cap beginning at n=24, with a truthful HOLD instead of a fabricated count.
-- Mixed formulas demonstrate why compressing some constraints does not certify the rest; the independent oracle finds 36 solutions at n=12 compared with the parity-only upper bound of 64.
+- Mixed formulas demonstrate why compressing some constraints does not certify the rest; the independent oracle finds 36 solutions at n=12 compared with the parity-only upper bound of 64. The measured residual search resolves n=12,24,36 with explicitly exponential work, then correctly HOLDs n=48,72 at its declared cap.
 - Source/result SHA256 authenticates the executed input and witness but does not invert an unknown preimage or solve generic SAT.
 
 ### Relation to prior research
 
 The baseline generic factor-table method and its earlier n=21 complexity evidence are in research PR #292. The MTP-style freeze/evaluate/play design appears in PR #290. The optical pilot in #294 tests forward-only causal MTP corrections; it provides no NP-complete complexity claim. The accepted source-conditional original 3×4 S3 finite mass-gap theorem is unchanged; actual first-excitation Wilson spectral weight **HOLD**, 4D continuum OPEN.
 
-**Mathematical verdict:** polynomially manageable structured parity constraints, precise error catching, and cheap source-verifiable witnesses in this tested family; no evidence of a uniform polynomial-time solver for unrestricted 3-SAT, and **P=NP remains unresolved**. The next genuine performance challenge is a *mixed* compiler that substitutes recognized parity constraints into residual arbitrary clauses and exactly accounts for its remaining work, competing against modern SAT/SMT solvers rather than only naïve factor tables.
+**Mathematical verdict:** polynomially manageable structured parity constraints, precise error catching, and source-verifiable witnesses in this tested family; some mixed instances can be counted exactly by explicitly exponential bounded residual enumeration, with a hard HOLD when the budget is exceeded. There is no evidence of a uniform polynomial-time solver for unrestricted 3-SAT, and **P=NP remains unresolved**. The next genuine performance challenge is a *mixed* compiler that substitutes recognized parity constraints into residual arbitrary clauses and exactly accounts for its remaining work, competing against modern SAT/SMT solvers rather than only naïve factor tables.
