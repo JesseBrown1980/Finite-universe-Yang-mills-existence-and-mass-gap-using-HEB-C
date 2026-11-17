@@ -401,5 +401,185 @@ def main():
           "P_equals_NP=NOT_ESTABLISHED|original_Wilson_first_weight=HOLD|status=RESEARCH_PILOT")
 
 
+
+
+# Held-out, source-frozen decision and exact-count evaluation.
+# Separate seeds from the earlier generated #295 fixtures.
+def heldout_bit(seed, *parts):
+    label = "heldout-v1:" + seed + ":" + ":".join(str(part) for part in parts)
+    return int.from_bytes(hashlib.sha256(label.encode("ascii")).digest()[:8], "big")
+
+
+def dimacs(variables, clauses):
+    validate_source(variables, clauses)
+    lines = ["c heldout-v1 exact source", "p cnf " + str(variables) + " " + str(len(clauses))]
+    lines.extend(" ".join(str(lit) for lit in clause) + " 0" for clause in clauses)
+    return "\n".join(lines) + "\n"
+
+
+def parse_dimacs(raw):
+    header = None
+    clauses = []
+    current = []
+    for line in raw.splitlines():
+        line = line.strip()
+        if not line or line.startswith("c ") or line == "c":
+            continue
+        if line.startswith("p "):
+            parts = line.split()
+            assert header is None and len(parts) == 4 and parts[1] == "cnf"
+            n, expected = int(parts[2]), int(parts[3])
+            assert n > 0 and expected >= 0 and not current
+            header = (n, expected)
+            continue
+        assert header is not None
+        for token in line.split():
+            literal = int(token)
+            if literal == 0:
+                assert len(current) == 3 and len({abs(x) for x in current}) == 3
+                assert all(1 <= abs(x) <= header[0] for x in current)
+                clauses.append(tuple(current))
+                current = []
+            else:
+                assert 1 <= abs(literal) <= header[0]
+                current.append(literal)
+                assert len(current) <= 3
+    assert header is not None and not current and len(clauses) == header[1]
+    return header[0], tuple(clauses)
+
+
+def heldout_source(kind, n, seed):
+    assert n >= 12
+    original = sum((heldout_bit(seed, "truth", i) & 1) << i for i in range(n))
+    if kind in ("xor", "mixed"):
+        assert n % 3 == 0
+        triples = [(i + 1, (i + 1) % n + 1, (i + n // 3) % n + 1)
+                   for i in range(n)]
+        if kind == "mixed":
+            triples = triples[:n // 2]
+        clauses = []
+        for tr in triples:
+            rhs = sum((original >> (v - 1)) & 1 for v in tr) & 1
+            clauses.extend(xor_clauses(tr, rhs))
+        if kind == "xor":
+            return tuple(clauses)
+        avoid = {tuple(sorted(abs(x) for x in c)) for c in clauses}
+    else:
+        clauses = []
+        avoid = set()
+    if kind in ("mixed", "planted", "random", "hub", "unsat"):
+        target = n if kind == "mixed" else (17 * n + 3) // 4
+        for index in range(target):
+            scope = []
+            attempt = 0
+            while len(scope) < 3:
+                value = heldout_bit(seed, kind, "var", index, attempt)
+                attempt += 1
+                variable = 1 + (value % (min(4, n) if kind == "hub" and not scope else n))
+                if variable not in scope:
+                    scope.append(variable)
+            if tuple(sorted(scope)) in avoid:
+                # A residual clause is still valid but must not complete or
+                # interfere with a recognized XOR gadget.
+                while tuple(sorted(scope)) in avoid:
+                    index2 = heldout_bit(seed, "avoid", index, attempt) % n + 1
+                    attempt += 1
+                    scope[-1] = index2
+                    if len(set(scope)) != 3:
+                        scope[-1] = (scope[-1] % n) + 1
+                assert tuple(sorted(scope)) not in avoid
+            clause = tuple(v if heldout_bit(seed, kind, "sign", index, slot) & 1
+                           else -v for slot, v in enumerate(scope))
+            if kind != "random" and not clauses_hold((clause,), original):
+                clause = (-clause[0],) + clause[1:]
+            clauses.append(clause)
+    if kind == "unsat":
+        # Source-level known UNSAT negative: all eight 3-variable assignments
+        # are forbidden explicitly; no claimed hard random UNSAT instance.
+        for mask in range(8):
+            clauses.append(tuple(-v if (mask >> j) & 1 else v
+                                 for j, v in enumerate((1, 2, 3))))
+    return tuple(clauses)
+
+
+def heldout_cases():
+    for kind, ns in (
+        ("xor", (24, 48, 96)),
+        ("mixed", (12, 24, 36)),
+        ("planted", (12, 18, 24, 30)),
+        ("random", (12, 18, 24, 30)),
+        ("hub", (12, 18, 24, 30)),
+        ("unsat", (12, 24, 36)),
+    ):
+        for n in ns:
+            yield kind, n, "frozen-" + kind + "-" + str(n) + "-v1"
+
+
+def heldout_controls():
+    base = dimacs(12, heldout_source("random", 12, "frozen-random-12-v1"))
+    assert parse_dimacs(base)[1] == heldout_source("random", 12, "frozen-random-12-v1")
+    assert parse_dimacs(base.replace(" 0\n", "\n0\n"))[1] == parse_dimacs(base)[1]
+    for corrupt in (
+        base.replace("p cnf 12 ", "p cnf 11 "),
+        base.replace("p cnf 12 ", "p cnf 13 "),
+        base.replace(" 0\n", " 0 0\n", 1),
+        base.replace("p cnf 12 ", "p cna 12 "),
+        base + "1 2 3 0\n",
+        base.replace("p cnf 12 ", "p cnf 12 999 "),
+    ):
+        try:
+            parse_dimacs(corrupt)
+        except (AssertionError, ValueError):
+            pass
+        else:
+            raise AssertionError("invalid DIMACS accepted")
+    altered = base.replace("p cnf 12", "p cnf 13")
+    assert hashlib.sha256(altered.encode("ascii")).hexdigest() != hashlib.sha256(base.encode("ascii")).hexdigest()
+    print("SAT_HELDOUT_CONTROL|roundtrip=PASS|split_clauses=PASS|invalid_DIMACS_rejected=6|"
+          "raw_byte_tamper_sha=PASS|status=PASS", flush=True)
+
+
+def heldout_main():
+    from pathlib import Path
+    import sys
+    assert len(sys.argv) == 3 and sys.argv[1] == "--heldout"
+    outdir = Path(sys.argv[2])
+    outdir.mkdir(parents=True, exist_ok=True)
+    heldout_controls()
+    states = []
+    for kind, n, seed in heldout_cases():
+        started = monotonic_ns()
+        source = heldout_source(kind, n, seed)
+        raw = dimacs(n, source)
+        parsed_n, parsed_clauses = parse_dimacs(raw)
+        assert (parsed_n, parsed_clauses) == (n, source)
+        source_generation_ns = monotonic_ns() - started
+        name = kind + "-" + str(n)
+        with open(outdir.joinpath(name + ".cnf"), "w", encoding="ascii") as handle:
+            handle.write(raw)
+        # Limit includes all counted decision-tree nodes for each ordering;
+        # large unconstrained formulas are permitted to return HOLD.
+        r = execute(kind, n, parsed_clauses, limit=20000, injected=True)
+        r["fixture_seed"] = seed
+        r["dimacs_sha256"] = hashlib.sha256(raw.encode("ascii")).hexdigest()
+        r["source_generation_ns"] = source_generation_ns
+        r["source_generation_bytes"] = len(raw.encode("ascii"))
+        r["elapsed_ns"] += source_generation_ns
+        r["total_metered_units"] += len(raw)
+        states.append(r["status"])
+        print("SAT_HELDOUT|" + "|".join(str(k) + "=" + str(v)
+              for k, v in r.items()) + "|json=0", flush=True)
+    assert len(states) == 21
+    print("SAT_HELDOUT_FINAL|cases=21|exact=" + str(states.count("EXACT")) +
+          "|unsat=" + str(states.count("EXACT_UNSAT")) +
+          "|hold=" + str(states.count("HOLD_BUDGET")) +
+          "|frozen_DIMACS=PASS|independent_count_verifier=REQUIRED|"
+          "external_SAT_verdict=REQUIRED|P_equals_NP=NOT_ESTABLISHED|"
+          "original_Wilson_first_weight=HOLD|status=RESEARCH_PILOT", flush=True)
+
 if __name__ == "__main__":
-    main()
+    import sys
+    if len(sys.argv) > 1:
+        heldout_main()
+    else:
+        main()
