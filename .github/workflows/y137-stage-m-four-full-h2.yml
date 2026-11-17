@@ -1,0 +1,97 @@
+name: "Y137 Stage M exact physical H2 for four Ritz witnesses"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-stage-m-four-full-h2.yml'
+      - 'independent/y137-stage-m-four-witness-physical-h2-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-four-physical-H2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Integer-only source audit and independent toy
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-stage-m-four-witness-physical-h2-20261117/exact_four_full_h2.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          python3 -I -B independent/y137-stage-m-four-witness-physical-h2-20261117/exact_four_full_h2.py toy | tee /tmp/y137-stage-m-toy.hbp
+          grep -Fq '|exact_adjugate=PASS|outward_rational_root=PASS|' /tmp/y137-stage-m-toy.hbp
+          grep -Fq '|first_Wilson_weight=HOLD|json=0' /tmp/y137-stage-m-toy.hbp
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = '91bd1e80cbfcfb76198966aa177d097ecfbe8143'
+          test "$(git hash-object independent/y137-h20736-shell3-20261116/sparse_h20736.py)" = 'd0d9d3d14d804450a31ed8e98c01a031b9a53596'
+          test "$(git hash-object independent/y137-two-residual-krylov-20261116/RESULT-TWO-RESIDUAL-AND-FOUR-ENVELOPE-20261116.hbp)" = '90f9c002f6fe8df2ecd4b5e725de3f9153fbab10'
+      - name: Original old H20736 sparse G/K
+        uses: actions/download-artifact@v4
+        with:
+          name: y137-h20736-original-s3-exact-sparse-matrix
+          run-id: 43965854242
+          github-token: ${{ github.token }}
+          path: build/y137-stage-m/old
+      - name: Original full 20736x2 C coupling
+        uses: actions/download-artifact@v4
+        with:
+          name: y137-full-20736x2-cross-coupling-exact-fanin
+          run-id: 43997180450
+          github-token: ${{ github.token }}
+          path: build/y137-stage-m/cross
+      - name: Original rank-two residual Gram
+        uses: actions/download-artifact@v4
+        with:
+          name: y137-two-residual-original-full-H-2x2-Krylov-rank
+          run-id: 43988576357
+          github-token: ${{ github.token }}
+          path: build/y137-stage-m/residual
+      - name: Original residual Htt
+        uses: actions/download-artifact@v4
+        with:
+          name: y137-exact-htt-original-physical-sharded-fanin
+          run-id: 43992456055
+          github-token: ${{ github.token }}
+          path: build/y137-stage-m/htt
+      - name: Accepted K5 full physical H2
+        uses: actions/download-artifact@v4
+        with:
+          name: y137-L-K5-full-physical-H2-accepted-fanin
+          run-id: 44075401340
+          github-token: ${{ github.token }}
+          path: build/y137-stage-m/h2
+      - name: Recreate original 144 rational vectors and authenticated old sparse matrix
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h20736
+          python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real \
+            > build/y137-h20736/RESULT-H20736.hbp
+          test -s build/y137-h20736/H20736-SPARSE-UPPER.tsv
+          sha256sum build/y137-h20736/H20736-SPARSE-UPPER.tsv
+      - name: Certify exact four-space physical H2 and rational witness residuals
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-stage-m/accept
+          /usr/bin/time -v python3 -I -B independent/y137-stage-m-four-witness-physical-h2-20261117/exact_four_full_h2.py real \
+            build/y137-stage-m/old \
+            build/y137-stage-m/cross \
+            build/y137-stage-m/residual \
+            build/y137-stage-m/htt \
+            build/y137-stage-m/h2 | tee build/y137-stage-m/accept/ALL.hbp
+          grep '^Y137_M_FOUR_H2|' build/y137-stage-m/accept/ALL.hbp > build/y137-stage-m/accept/CERTIFICATE.hbp
+          grep '^Y137_M_WITNESS|' build/y137-stage-m/accept/ALL.hbp >> build/y137-stage-m/accept/CERTIFICATE.hbp
+          grep '^Y137_M_VERDICT|' build/y137-stage-m/accept/ALL.hbp >> build/y137-stage-m/accept/CERTIFICATE.hbp
+          grep -Fq '|original_full_H2_PSD=PASS|full_468_squared_ceiling=PASS|exterior_projection_residual_PSD=PASS|' build/y137-stage-m/accept/CERTIFICATE.hbp
+          grep -Fq '|full_physical_W_squared_residuals=2_OF_2_RATIONAL|' build/y137-stage-m/accept/CERTIFICATE.hbp
+          grep -Fq '|physical_eigendirection=HOLD|Wilson_first_weight=HOLD|issue_137=OPEN|json=0' build/y137-stage-m/accept/CERTIFICATE.hbp
+          test "$(grep -c '^Y137_M_WITNESS|' build/y137-stage-m/accept/CERTIFICATE.hbp)" -eq 2
+          git rev-parse HEAD > build/y137-stage-m/accept/COMMIT.txt
+          sha256sum independent/y137-stage-m-four-witness-physical-h2-20261117/exact_four_full_h2.py > build/y137-stage-m/accept/SOURCE.sha256
+          sha256sum build/y137-stage-m/accept/CERTIFICATE.hbp > build/y137-stage-m/accept/CERTIFICATE.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-stage-m-full-physical-four-rational-witnesses
+          path: build/y137-stage-m/accept/
+          retention-days: 90
+          if-no-files-found: warn
