@@ -4,6 +4,31 @@
 
 **Data on Hugging Face:** [Jessedbrown/ym-3x4-room-store](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store) holds the 3×4 store, the certificate vectors and an evidence archive, the files too large for git. Its card maps every folder, and the status of each result is read here.
 
+## November 17, 2026 — Stage L original physical H² and K5-inclusive source: PASS
+
+**New exact original-S₃ full-physical H² result for the two residual Krylov directions.** [Draft research PR #261](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/261) completed [hosted run #44075401340](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44075401340), **18/18 jobs PASS**: authenticated physical-source pilot, eight original Hamiltonian source shards, eight target-owned weighted-flux reducers and an exact integer fan-in. All source rows use the original 72-move S₃ Hamiltonian, exact physical orbit weights and nine-times-magnetic diagonal. Weighted incoming electric flux was combined from all source shards **before squaring**, including every reached exterior K5 target.
+
+| Stage L full-physical source metric | Accepted integer result |
+|---|---:|
+| Physical input source orbits | **633,919** |
+| Original electric moves | **45,642,168** |
+| Directed orbit-transition records | **45,352,392** |
+| Distinct original physical output target orbits | **8,805,188** |
+| Output targets outside the residual-vector support | **8,174,575** |
+| Three exact physical H² Gram entries for the two scaled residuals | **3/3 accepted** |
+| Original independently frozen Htt regression | **4/4 entries, exact symmetry PASS** |
+| Exact H² Gram PSD; original 468² operator ceiling; Htt-inverse-Gram lower bound | **PASS** |
+
+The exact W-weighted source moments are S_ij = <H v_i,H v_j>_W for two **previously certified scaled residual directions** v1,v2. They are three original-physical numbers with decimal lengths **859, 850 and 844 digits**. The [final original production artifact](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44075401340/artifacts/14324333878) preserves their original signed integer numerators and SHA-256 seals:
+
+- S11 SHA-256: 39f311edee0b609c305b2a6b6640c9547dbba44fe7069851143d3600cfd7d50f
+- S12 SHA-256: 96f009c49891c65b8671564d5438494e90e1e9675a4c543e79dc84e03ac44521
+- S22 SHA-256: 3e32ffa25a63406397a4efcf010c03df876e76c3f8ebad4fb349995dbcf17064
+
+[Independent scientific review #5937824259](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/261#pullrequestreview-5937824259) retrieved the exact accepted artifact and independently recomputed all three signed-integer SHA-256 values, the result-file SHA, positive-semidefiniteness, original 468² ceiling, and projected Htt lower bound against the separate original Gram and Htt frozen archives. It independently reassembled 4/4 old Htt matrix entries from the corrected source-shard receipts and verified that the eight physical source-bucket hashes were unchanged by a bookkeeping-only Htt regression fix. The first initial run correctly rejected an incorrect magnetic-weighted mixed-term Htt check; final acceptance uses **separate undiagonalized electric Htt and diagonal-weighted H² terms**. This correction changed no original physical Hamiltonian or accepted historical source matrix.
+
+**Scope and next gate:** This three-entry full-physical H² certificate enables exact full-physical residual norms of signed-rational **four-vector** Ritz witnesses using the previously accepted old G, K, C, Htt, and rank-two residual Gram. It is distinct from a complete 20,738-dimensional Ritz eigendirection and does not establish normalized first-excitation summed-winding Wilson spectral weight. The output targets outside support are not independently classified as exclusively K5 shell states; their entire flux is included regardless of shell. The existing tighter source-conditional whole-physical first-gap interval remains **0.039677591 < (E2−E1)/J_E < 0.040004463**, separate from Stage K's projected Ritz separation. **[Issue #137](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/137) OPEN, Wilson spectral weight HOLD; four-dimensional continuum Yang–Mills OPEN.** Research PR #261 remains draft for full independent scientific acceptance.
+
 ## November 17, 2026 — full 20,738-dimensional exact Ritz inertia: Stage K PASS
 
 **Current finite 3×4 periodic S₃ at r=9 (research draft).** [PR #257](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/257) uses the accepted exact original S₃ weighted 20,738-dimensional Galerkin matrix from #242, #249, #251, #254 and #255. Its [hosted production run #44062923639](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44062923639) passed source controls, **four distinct degree-six exact-integer endpoint jobs and a four-of-four acceptance fan-in**. [Independent mathematical review #5936690681](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/257#pullrequestreview-5936690681) checked the two-sided Schur/error enclosure algebra and identified the independent-review boundary.
