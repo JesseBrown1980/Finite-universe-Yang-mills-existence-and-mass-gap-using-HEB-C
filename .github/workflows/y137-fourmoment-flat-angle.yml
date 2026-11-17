@@ -1,0 +1,51 @@
+name: "Y137 Stage E four-moment to original Wilson flat projector"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-fourmoment-flat-angle.yml'
+      - 'independent/y137-parallel-flat-angle-fourmoment-20261117/**'
+      - 'independent/y137-parallel-flat-projector-contraction-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  four-moment-source-to-true-flat-angle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Source authentication exact integer and negative controls
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-parallel-flat-angle-fourmoment-20261117/angle_transfer.py
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-parallel-flat-projector-contraction-20261117/flat_wilson_gate.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-parallel-flat-angle-fourmoment-20261117/INPUT-PR234-STAGE-E.hbp)" = 'daf746ca35e44005406be18a872b38a3257e83ff'
+          test "$(git hash-object independent/y137-centered-schur-transfer-20261113/RESULT-CENTERED-PROJECTOR.hbp)" = '3a147c8a750dae490882702307f8ec795a3c1f51'
+          mkdir -p build/y137-fourmoment-flat-angle
+          python3 -I -B independent/y137-parallel-flat-angle-fourmoment-20261117/angle_transfer.py toy \
+            | tee build/y137-fourmoment-flat-angle/TOY.hbp
+          grep -Fq '|normalized_direction=GEOMETRIC_MEAN_BOUND|outward_integer=PASS|' build/y137-fourmoment-flat-angle/TOY.hbp
+      - name: Actual original Wilson and source-conditional Stage E flat eigendirection contraction
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-parallel-flat-angle-fourmoment-20261117/angle_transfer.py real \
+            | tee build/y137-fourmoment-flat-angle/ALL.hbp
+          grep '^Y137_FLAT_FOURMOMENT_SOURCE|' build/y137-fourmoment-flat-angle/ALL.hbp > build/y137-fourmoment-flat-angle/RESULT.hbp
+          grep '^Y137_FLAT_WILSON_INPUT|' build/y137-fourmoment-flat-angle/ALL.hbp >> build/y137-fourmoment-flat-angle/RESULT.hbp
+          grep '^Y137_FLAT_WILSON_BENCHMARK|' build/y137-fourmoment-flat-angle/ALL.hbp >> build/y137-fourmoment-flat-angle/RESULT.hbp
+          grep '^Y137_FLAT_WILSON_GATE|' build/y137-fourmoment-flat-angle/ALL.hbp >> build/y137-fourmoment-flat-angle/RESULT.hbp
+          grep '^Y137_FLAT_FOURMOMENT_VERDICT|' build/y137-fourmoment-flat-angle/ALL.hbp >> build/y137-fourmoment-flat-angle/RESULT.hbp
+          test "$(wc -l < build/y137-fourmoment-flat-angle/RESULT.hbp)" -eq 5
+          grep -Fq '|original_QOQ_bounds=STILL_ENTRYWISE|' build/y137-fourmoment-flat-angle/RESULT.hbp
+          grep -Fq '|actual_true_first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-fourmoment-flat-angle/RESULT.hbp
+          git rev-parse HEAD > build/y137-fourmoment-flat-angle/COMMIT.txt
+          sha256sum independent/y137-parallel-flat-angle-fourmoment-20261117/angle_transfer.py > build/y137-fourmoment-flat-angle/SOURCE.sha256
+          sha256sum build/y137-fourmoment-flat-angle/RESULT.hbp > build/y137-fourmoment-flat-angle/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-wilson-fourmoment-flat-angle
+          path: build/y137-fourmoment-flat-angle/
+          retention-days: 90
+          if-no-files-found: warn
