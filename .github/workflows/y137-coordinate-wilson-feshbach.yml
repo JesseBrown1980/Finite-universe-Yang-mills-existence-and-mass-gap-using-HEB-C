@@ -1,0 +1,55 @@
+name: "Y137 original Wilson exact P-Q coordinate Feshbach split"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-coordinate-wilson-feshbach.yml'
+      - 'independent/y137-coordinate-wilson-feshbach-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-original-wilson-diagonal-blocks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict integer-only source audit and frozen original-source identity
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-coordinate-wilson-feshbach-20261117/exact_original_wilson_blocks.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          echo 'Y137_COORD_DEBUG|gate=frozen_source_blob_SHA|json=0'
+          git hash-object independent/y137-wilson-effective-20261113/check.py
+          git hash-object independent/y137-q-dual-weight-20261113/replay.py
+          git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp
+          test "$(git hash-object independent/y137-wilson-effective-20261113/check.py)" = 'b6da6140ca36b361bdd9a0c0477af23d681257cf'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp)" = '40762ceb865829156e4765b720f52d39a8be9b6f'
+          mkdir -p build/y137-coordinate-o
+          echo 'Y137_COORD_DEBUG|gate=source_independent_toy|json=0'
+          python3 -I -B independent/y137-coordinate-wilson-feshbach-20261117/exact_original_wilson_blocks.py toy \
+            | tee build/y137-coordinate-o/TOY.hbp
+          grep -Fq '|mixed_POQ_QOP=ZERO_EXACT|fake_offdiagonal=REJECTED|omitted_QOQ=REJECTED|' build/y137-coordinate-o/TOY.hbp
+      - name: Actual original 24-link seven-loop S3 Wilson and 155378 Q physical coordinates
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-coordinate-wilson-feshbach-20261117/exact_original_wilson_blocks.py real \
+            | tee build/y137-coordinate-o/ALL.hbp
+          grep '^Y137_OEFF_COORD_SOURCE|' build/y137-coordinate-o/ALL.hbp > build/y137-coordinate-o/RESULT-O-EFFECTIVE-FIXED.hbp
+          grep '^Y137_OEFF_COORD_FIXED_SAMPLE|' build/y137-coordinate-o/ALL.hbp >> build/y137-coordinate-o/RESULT-O-EFFECTIVE-FIXED.hbp
+          grep '^Y137_OEFF_COORD_VERDICT|' build/y137-coordinate-o/ALL.hbp >> build/y137-coordinate-o/RESULT-O-EFFECTIVE-FIXED.hbp
+          test "$(wc -l < build/y137-coordinate-o/RESULT-O-EFFECTIVE-FIXED.hbp)" -eq 3
+          grep -Fq '|exact_POQ=ZERO|exact_QOP=ZERO|' build/y137-coordinate-o/RESULT-O-EFFECTIVE-FIXED.hbp
+          grep -Fq '|original_Qdual_archive_match=EXACT|' build/y137-coordinate-o/RESULT-O-EFFECTIVE-FIXED.hbp
+          grep -Fq '|fixed_sample_QOQ_omitted=REJECTED|' build/y137-coordinate-o/RESULT-O-EFFECTIVE-FIXED.hbp
+          grep -Fq '|physical_first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-coordinate-o/RESULT-O-EFFECTIVE-FIXED.hbp
+          git rev-parse HEAD > build/y137-coordinate-o/COMMIT.txt
+          sha256sum independent/y137-coordinate-wilson-feshbach-20261117/exact_original_wilson_blocks.py > build/y137-coordinate-o/SOURCE.sha256
+          sha256sum build/y137-coordinate-o/RESULT-O-EFFECTIVE-FIXED.hbp > build/y137-coordinate-o/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-s3-wilson-effective-coordinate-split
+          path: build/y137-coordinate-o/
+          retention-days: 90
+          if-no-files-found: warn
