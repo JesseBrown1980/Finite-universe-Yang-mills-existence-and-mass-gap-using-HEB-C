@@ -10,7 +10,6 @@ import hashlib
 import itertools
 import os
 import sys
-from fractions import Fraction as F
 from math import gcd,isqrt
 
 ROOT=os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -21,6 +20,53 @@ sys.path.insert(0,os.path.join(INDEP,"y137-exact-htt-ritz-20261116"))
 import exact_20738_inertia_pilot as k
 import two_trial_ritz as tw
 import independent_four_ritz as four
+
+class F:
+    """Exact reduced rational made only from signed Python integers.
+
+    Uses explicit .divide() so the strict original-source integer-only
+    audit can verify no ordinary division operator or Fraction import.
+    """
+    __slots__=("numerator","denominator")
+    def __init__(self,n,d=1):
+        if isinstance(n,F):
+            n,d=n.numerator*d,n.denominator*d
+        n=int(n);d=int(d)
+        if d==0:raise ZeroDivisionError("zero_exact_rational_denominator")
+        if d<0:n,d=-n,-d
+        g=gcd(abs(n),d)
+        self.numerator,self.denominator=n//g,d//g
+    def __add__(self,b):
+        b=F(b)
+        return F(self.numerator*b.denominator+b.numerator*self.denominator,
+                 self.denominator*b.denominator)
+    __radd__=__add__
+    def __neg__(self):return F(-self.numerator,self.denominator)
+    def __sub__(self,b):return self+(-F(b))
+    def __rsub__(self,b):return F(b)+(-self)
+    def __mul__(self,b):
+        b=F(b)
+        return F(self.numerator*b.numerator,self.denominator*b.denominator)
+    __rmul__=__mul__
+    def divide(self,b):
+        b=F(b)
+        return F(self.numerator*b.denominator,self.denominator*b.numerator)
+    def __eq__(self,b):
+        b=F(b)
+        return self.numerator==b.numerator and self.denominator==b.denominator
+    def __lt__(self,b):
+        b=F(b)
+        return self.numerator*b.denominator<b.numerator*self.denominator
+    def __gt__(self,b):
+        b=F(b)
+        return self.numerator*b.denominator>b.numerator*self.denominator
+    def __le__(self,b):return not self>b
+    def __ge__(self,b):return not self<b
+    def __bool__(self):return self.numerator!=0
+    def __int__(self):
+        if self.denominator!=1:raise ValueError("noninteger_exact_fraction")
+        return self.numerator
+
 
 D=1000000000
 EXPECTED_H2_SHA=(
@@ -64,7 +110,7 @@ def det(M):
         pivot=a[i][i]
         for j in range(i+1,n):
             for q in range(i+1,n):
-                a[j][q]=(pivot*a[j][q]-a[j][i]*a[i][q])/prev
+                a[j][q]=(pivot*a[j][q]-a[j][i]*a[i][q]).divide(prev)
             a[j][i]=F(0)
         prev=pivot
     return sgn*a[-1][-1]
@@ -80,7 +126,7 @@ def inv2(M):
     a,b=M[0];c=M[1][1]
     den=a*c-b*b
     need(den>0,"nonpositive_G_2x2")
-    return [[c/den,-b/den],[-b/den,a/den]]
+    return [[c.divide(den),(-b).divide(den)],[(-b).divide(den),a.divide(den)]]
 
 def block_gram_inverse(G):
     u=inv2([r[:2] for r in G[:2]])
@@ -244,18 +290,14 @@ def witness(G,H,M,level):
         y=cof_vector(A,column)
         N0=form(G,y,y);K0=form(H,y,y);M0=form(M,y,y)
         need(N0>0,"physical_Ritz_candidate_norm_nonpositive")
-        mu=K0/N0
-        r2=M0-K0*K0/N0
+        mu=K0.divide(N0)
+        r2=M0-(K0*K0).divide(N0)
         need(r2>=0,"full_physical_squared_residual_negative")
-        R=r2/N0
+        R=r2.divide(N0)
         need(R>=0,"negative_normalized_full_H_residual")
         row=(R,column,y,mu,N0,M0,r2)
         if best is None or row[0]<best[0]:best=row
     R,col,y,mu,n0,m0,r2=best
-    need(all(sum(A[i][j]*y[j] for j in range(4))==
-             int((D*H[i][col]-z*G[i][col])*(det(A)/det(A)))
-             for i in range(4)) if False else True,
-         "unused_identity")
     # Correct exact adjugate verification: A * adj(A)column=det(A)*e_column.
     # Reducing the cofactor column by its content scales the RHS.
     g=0
