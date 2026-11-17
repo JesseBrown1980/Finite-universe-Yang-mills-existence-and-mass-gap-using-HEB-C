@@ -1,0 +1,50 @@
+name: "Y137 inverse Wilson dark endpoint outside-in and center Schur pulse"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-reverse-dark-pulse.yml'
+      - 'independent/y137-reverse-dark-pulse-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-dark-endpoint-source-pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict original-source integer math and exact dark toy
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-reverse-dark-pulse-20261117/reverse.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-reverse-dark-pulse-20261117/INPUT-CENTERED-O8-64.hbp)" = '61b9d1359f5cae2d19c3b4827ee942ca7dd085ea'
+          mkdir -p build/y137-reverse
+          python3 -I -B independent/y137-reverse-dark-pulse-20261117/reverse.py toy |
+            tee build/y137-reverse/TOY.hbp
+          grep -Fq '|inverse_weighted_dark=PASS|exact_damping_endpoint=ZERO|' build/y137-reverse/TOY.hbp
+      - name: Original Wilson zero-target reverse scan, physical Schur residual and center pulse
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-reverse-dark-pulse-20261117/reverse.py real |
+            tee build/y137-reverse/ALL.hbp
+          grep '^Y137_REVERSE_ROBUST_TARGET|' build/y137-reverse/ALL.hbp > build/y137-reverse/RESULT.hbp
+          grep '^Y137_REVERSE_DARK_HYPERPLANE|' build/y137-reverse/ALL.hbp >> build/y137-reverse/RESULT.hbp
+          grep '^Y137_REVERSE_PATH|' build/y137-reverse/ALL.hbp >> build/y137-reverse/RESULT.hbp
+          grep '^Y137_REVERSE_SOURCE|' build/y137-reverse/ALL.hbp >> build/y137-reverse/RESULT.hbp
+          grep '^Y137_REVERSE_VERDICT|' build/y137-reverse/ALL.hbp >> build/y137-reverse/RESULT.hbp
+          test "$(grep -c '^Y137_REVERSE_PATH|' build/y137-reverse/RESULT.hbp)" -eq 19
+          grep -Fq '|exact_dark_source_end=PASS|inward_path_count=9|center_pulse_count=9|' build/y137-reverse/RESULT.hbp
+          grep -Fq '|original_source_rational_full_Q_all_64_entries=INCLUDED|' build/y137-reverse/RESULT.hbp
+          grep -Fq '|full_true_centered_Wilson_K_errors=NOT_BOUNDED_HERE|true_E1_projector_error=NOT_BOUNDED_HERE|' build/y137-reverse/RESULT.hbp
+          grep -Fq '|global_dark_state_physical_exclusion=NOT_PROVED|original_first_Wilson_spectral_weight=HOLD|' build/y137-reverse/RESULT.hbp
+          git rev-parse HEAD > build/y137-reverse/COMMIT.txt
+          sha256sum independent/y137-reverse-dark-pulse-20261117/reverse.py > build/y137-reverse/SOURCE.sha256
+          sha256sum build/y137-reverse/RESULT.hbp > build/y137-reverse/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-inverse-dark-target-outside-in-center-pulse
+          path: build/y137-reverse/
+          retention-days: 90
+          if-no-files-found: warn
