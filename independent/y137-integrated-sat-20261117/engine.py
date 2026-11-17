@@ -304,6 +304,7 @@ def execute(kind, n, clauses, limit=20000, injected=False):
                   metrics["watcher_expression_checks"],
                   search_nodes=metrics["search_nodes"], baseline_nodes=baseline["search_nodes"],
                   baseline_status=baseline_status, witness_sha256=sha(witness),
+                  witness_integer=witness if witness is not None else "NONE",
                   peak_rss_kib=peak_kib(), elapsed_ns=monotonic_ns() - start)
     return record
 
