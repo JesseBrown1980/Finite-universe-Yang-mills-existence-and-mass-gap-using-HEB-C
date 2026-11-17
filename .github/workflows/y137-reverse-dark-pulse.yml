@@ -28,12 +28,14 @@ jobs:
           set -euo pipefail
           /usr/bin/time -v python3 -I -B independent/y137-reverse-dark-pulse-20261117/reverse.py real |
             tee build/y137-reverse/ALL.hbp
-          grep '^Y137_REVERSE_DARK_HYPERPLANE|' build/y137-reverse/ALL.hbp > build/y137-reverse/RESULT.hbp
+          grep '^Y137_REVERSE_ROBUST_TARGET|' build/y137-reverse/ALL.hbp > build/y137-reverse/RESULT.hbp
+          grep '^Y137_REVERSE_DARK_HYPERPLANE|' build/y137-reverse/ALL.hbp >> build/y137-reverse/RESULT.hbp
           grep '^Y137_REVERSE_PATH|' build/y137-reverse/ALL.hbp >> build/y137-reverse/RESULT.hbp
           grep '^Y137_REVERSE_SOURCE|' build/y137-reverse/ALL.hbp >> build/y137-reverse/RESULT.hbp
           grep '^Y137_REVERSE_VERDICT|' build/y137-reverse/ALL.hbp >> build/y137-reverse/RESULT.hbp
           test "$(grep -c '^Y137_REVERSE_PATH|' build/y137-reverse/RESULT.hbp)" -eq 19
           grep -Fq '|exact_dark_source_end=PASS|inward_path_count=9|center_pulse_count=9|' build/y137-reverse/RESULT.hbp
+          grep -Fq '|original_source_rational_full_Q_all_64_entries=INCLUDED|' build/y137-reverse/RESULT.hbp
           grep -Fq '|full_true_centered_Wilson_K_errors=NOT_BOUNDED_HERE|true_E1_projector_error=NOT_BOUNDED_HERE|' build/y137-reverse/RESULT.hbp
           grep -Fq '|global_dark_state_physical_exclusion=NOT_PROVED|original_first_Wilson_spectral_weight=HOLD|' build/y137-reverse/RESULT.hbp
           git rev-parse HEAD > build/y137-reverse/COMMIT.txt
