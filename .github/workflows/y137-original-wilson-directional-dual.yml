@@ -1,0 +1,49 @@
+name: "Y137 original Wilson directional dual over true E windows"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-original-wilson-directional-dual.yml'
+      - 'independent/y137-directional-original-wilson-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-full-Q-observable-specific-dual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict no-float and source-authentic toy controls
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-directional-original-wilson-20261117/dual_endpoints.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-wilson-effective-20261113/check.py)" = 'b6da6140ca36b361bdd9a0c0477af23d681257cf'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp)" = '40762ceb865829156e4765b720f52d39a8be9b6f'
+          test "$(git hash-object independent/y137-fullstate-Q-normalization-20261113/RESULT-FULL-W-NORM.hbp)" = '48c02e1e80112e5d758b403f41d07079d9fcb064'
+          mkdir -p build/y137-directional-dual
+          python3 -I -B independent/y137-directional-original-wilson-20261117/dual_endpoints.py toy \
+            | tee build/y137-directional-dual/TOY.hbp
+          grep -Fq '|signed_dual_identity=PASS|quadratic_error_term=RETAINED|' build/y137-directional-dual/TOY.hbp
+      - name: Full original S3 K3 and shell4 true-energy directional duals
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-directional-original-wilson-20261117/dual_endpoints.py real \
+            | tee build/y137-directional-dual/ALL.hbp
+          grep '^Y137_DUAL_WINDOW_SOURCE|' build/y137-directional-dual/ALL.hbp > build/y137-directional-dual/RESULT.hbp
+          grep '^Y137_DUAL_WINDOW_SIGNED|' build/y137-directional-dual/ALL.hbp >> build/y137-directional-dual/RESULT.hbp
+          grep '^Y137_DUAL_WINDOW_VERDICT|' build/y137-directional-dual/ALL.hbp >> build/y137-directional-dual/RESULT.hbp
+          test "$(wc -l < build/y137-directional-dual/RESULT.hbp)" -eq 3
+          grep -Fq '|two_source_duals=EXACT_ORIGINAL_JACOBI_WITH_SHELL4_RESIDUAL|' build/y137-directional-dual/RESULT.hbp
+          grep -Fq '|actual_first_excitation_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-directional-dual/RESULT.hbp
+          git rev-parse HEAD > build/y137-directional-dual/COMMIT.txt
+          sha256sum independent/y137-directional-original-wilson-20261117/dual_endpoints.py > build/y137-directional-dual/SOURCE.sha256
+          sha256sum build/y137-directional-dual/RESULT.hbp > build/y137-directional-dual/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-Wilson-fullQ-true-window-directional-dual
+          path: build/y137-directional-dual/
+          retention-days: 90
+          if-no-files-found: warn
