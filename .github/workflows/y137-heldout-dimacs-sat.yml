@@ -55,7 +55,7 @@ jobs:
             end=$(date +%s%N)
             mini_ns=$((end-start))
             test "$mini_rc" -eq 10 -o "$mini_rc" -eq 20
-            mini_mem=$(cat "$OUT/mini-mem.txt")
+            mini_mem=$(tail -n 1 "$OUT/mini-mem.txt")
             start=$(date +%s%N)
             set +e
             /usr/bin/time -f '%M' -o "$OUT/pico-mem.txt" picosat "$file" > "$OUT/pico.log" 2>&1
@@ -64,7 +64,7 @@ jobs:
             end=$(date +%s%N)
             pico_ns=$((end-start))
             test "$pico_rc" -eq 10 -o "$pico_rc" -eq 20
-            pico_mem=$(cat "$OUT/pico-mem.txt")
+            pico_mem=$(tail -n 1 "$OUT/pico-mem.txt")
             printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$case_id" "$mini_rc" "$pico_rc" "$mini_ns" "$pico_ns" "$mini_mem" "$pico_mem" >> "$OUT/EXTERNAL.tsv"
           done
           test "$(grep -c -v '^#' "$OUT/EXTERNAL.tsv")" -eq 21
