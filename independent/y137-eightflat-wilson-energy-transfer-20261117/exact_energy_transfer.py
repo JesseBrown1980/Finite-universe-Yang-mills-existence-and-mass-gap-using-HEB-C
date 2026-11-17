@@ -79,6 +79,35 @@ def gram_pinned():
     need(all(T[i][j]==T[j][i] for i in range(8) for j in range(8)),
          "weighted_BdagB_symmetric")
     need(all(T[i][i]>0 for i in range(8)),"nonzero_flat_coupling")
+    # Independent reverse-orientation reconstruction: regenerate only the
+    # 72 original electric moves of each flat coordinate directly from
+    # canonical keys, not the q_flat list built by graph(). This also
+    # checks every weighted detailed-balance divisibility in reverse.
+    states,flats,sizes=k.mod.rebuild_states()
+    need(len(states)==8042 and sizes==[8,264,7770],
+         "independent_original_flat_state_order")
+    neighbors=[c.neighbors(states[i]) for i in range(8)]
+    endpoints=set()
+    for nn in neighbors:
+        endpoints.update(nn)
+    need(len(endpoints)==264,"all_first_shell_keys_from_flat")
+    T2=[[0]*8 for _ in range(8)]
+    for key in endpoints:
+        ww=c.weight(key)
+        rev=[]
+        for i in range(8):
+            forward=neighbors[i].get(key,0)
+            need((pw[i]*forward)%ww==0,
+                 "independent_weighted_reverse_edge_divisibility")
+            rev.append(pw[i]*forward//ww)
+        for i in range(8):
+            for j in range(8):
+                T2[i][j]+=ww*rev[i]*rev[j]
+    need(all(T2[i][j]==T[i][j] for i in range(8) for j in range(8)),
+         "all_64_independent_reversed_BdagB_entries")
+    need(all(T[i][j]==(72*pw[i] if i==j else 0)
+             for i in range(8) for j in range(8)),
+         "exact_original_BdagB_equals_72_identity")
     # T is B^dag W_Q B in coordinate matrix form. Normalized P metric is
     # diag(pw); B's squared operator norm is bounded by trace(D^-1*T).
     den=1
@@ -146,6 +175,7 @@ def main():
          Perron_B_norm2_upper_num=perron[0],Perron_B_norm2_upper_den=perron[1],
          offdiagonal_nonzero=sum(1 for i in range(8) for j in range(8) if i!=j and T[i][j]),
          diagonal_W_ratios=",".join(str(T[i][i])+"/"+str(pw[i]) for i in range(8)),
+         independent_64_reverse_edges="PASS",BdagB_exact_norm2=72,
          source_scope="ORIGINAL_FULL_PHYSICAL_Q_COUPLING")
     emit("Y137_WILSON_INTERVAL_ENERGIES",sample_E1=S1,sample_E2=S2,
          true_E1_lo=E1LO,true_E1_hi=E1HI,true_E2_lo=E2LO,true_E2_hi=E2HI,
@@ -164,7 +194,8 @@ def main():
          E2_metric_shift_upper_den=metric2[1],
          exact_normalization="P_PLUS_Q_RESOLVENT_NORM")
     emit("Y137_WILSON_INTERVAL_VERDICT",BdagB_source="PASS",
-         source_trace_bound="PASS",source_Perron_bound="PASS",energy_window="PASS",
+         source_trace_bound="PASS",source_Perron_bound="PASS",
+         independent_reverse_64="PASS",exact_BdagB_72I="PASS",energy_window="PASS",
          fake_energy_shift="REJECTED",
          actual_effective_8x8_Wilson_matrix="NOT_COMPUTED",
          actual_true_flat_projectors="NOT_COMPUTED",
