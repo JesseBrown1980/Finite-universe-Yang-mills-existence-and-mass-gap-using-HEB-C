@@ -2,6 +2,20 @@
 
 **Source:** Complete `README.md`, frozen `main` commit `98c39fbaa1e6ecf9e6454062e90801f385356063` (2026-11-17). Retrieved through the connected GitHub source and processed in full: **865 of 865 lines**, **166,833 characters**, **35 headings**. The source includes historical checkpoints; later statements supersede earlier administrative HOLD wording. [Open the exact README](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/98c39fbaa1e6ecf9e6454062e90801f385356063/README.md).
 
+## November 17, 2026 — original Wilson source resolves two Feshbach blocks exactly
+
+[Scientific draft #269](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/269) passed its [original-source hosted test #44098587193](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44098587193). The original faithful-character sum over the **seven noncontractible winding loops** is a gauge-invariant **diagonal multiplication operator** in the weighted canonical physical S₃ orbit basis. The eight-flat Feshbach projector P selects eight orbit **coordinate states** and Q=I−P selects all other orbit coordinates, so **POQ=QOP=0 exactly**, by disjoint coordinate support. This is specific to the original Wilson multiplication observable and this coordinate projector; it does not follow for an arbitrary Wilson-like matrix or Ritz/Krylov projection.
+
+Consequently, the physical original seven-loop effective observable simplifies from the general four-term expression below to
+
+\[
+O_{\mathrm{eff}}(E_2,E_1)=POP+B^\dagger R_2\,QOQ\,R_1 B,\qquad R_i=(QHQ-E_i)^{-1}.
+\]
+
+The hosted source replay reconstructed the actual 24-link Wilson values, eight flat and 155,378 nonflat K3 coordinates, and both archived 20-step fixed-sample Q trials. It recorded the *signed original unshifted* fixed-trial terms `POP=208705615476647104000000000000000000000000` and `QOQ=8232562954387472001525446876257519879344`, with both mixed terms zero. Their exact sum `216938178431034576001525446876257519879344` reproduced the frozen raw #180 Wilson sample and its normalized squared value (floor 1,158,787 parts per billion). The omitted-QOQ negative control was rejected, and nonorthogonal fixed-sample overlap was correctly retained under O→O+3I. The earlier source-certified full-Q-dressed **fixed-sample** conventional Wilson lower squared weight >416,300 parts per billion is a separate, unchanged #180 result.
+
+**Scientific boundary:** These are fixed flat trial vectors at historical sampled energies 69.909875505 and 69.949729820 J_E, not the certified true E₁/E₂ energies or true eigendirections. The two-resolvent QOQ physical **8×8 effective matrix**, strict true-energy projector intervals and full-state normalization remain uncomputed. This simplifies the next source acceptance from four numerical terms to two, but **does not** convert the atlas's degree-15 theoretical inverse-residual bound into a Wilson-transfer error or prove a positive true first-excitation spectral weight. Issue #137 **HOLD**, continuum **OPEN**.
+
 ## November 17, 2026 — executable exact-integer hypothesis tests
 
 [Research PR #268](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/268) completed [hosted run #44094490381](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44094490381), **PASS**, with the repository's strict integer-only source audit finding **zero violations**. The [13-row exact receipt](RESULT-ATLAS-PREDICTIONS-20261117.hbp) matches the hosted [SHA-256-sealed artifact](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44094490381/artifacts/14332877885) byte-for-byte; receipt SHA-256 `d775f3c3689ae298eef7f2eedaca0e9194f9113ad203047b058a58452ebb635a`.
@@ -92,7 +106,7 @@ The physical overlap is \(\langle x_2,O_{eff}(E_2,E_1)x_1\rangle_W\) when the *f
 
 ### Four registered predictions / falsifiers
 
-1. Source-authenticate the four terms of \(O_{eff}\) separately, including the two mixed Q terms and the double-resolvent QOQ term. Any omitted term invalidates a positive claim.
+1. For the **original seven-loop multiplication observable with the eight-flat coordinate projector**, authenticate the exact structural zeros POQ=QOP=0, and independently source-certify the remaining **POP** and **double-resolvent QOQ** terms. For more general projectors or observables, retain the full four-term formula. Omitting QOQ invalidates the source claim.
 2. Produce two-sided exact rational enclosures for the flat 8×8 (or a symmetry-reduced) source-specific effective Wilson matrix with the lift-free Q floor and current E1/E2 spectral windows. A nonpositive lower overlap is a valid HOLD, not a falsification of physical Wilson visibility.
 3. Compare cost and sharpness of increasing Q-block inverse degree 6→11→16 with full-band polynomial filter degrees ~216 and ~381, without equating a generic contraction factor to a measured actual error. If Q-block intervals do not contract as the exact residual bound predicts, reject this implementation or its pinning.
 4. Recompute the third-order strong-magnetic high-cluster coefficient at 3×3, 3×4 and 4×4. The 3×3 width-three wrap prediction and leading 21-coefficient locality hypothesis may be refuted with exact coefficient extraction.
