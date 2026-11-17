@@ -93,7 +93,8 @@ def original_centered_matrix():
          and mat["original_E1_window"]=="69909429421:69909586556"
          and mat["original_E2_window"]=="69949264147:69949433884",
          "original_QOQ_scope_or_true_E_window")
-    A=[[0]*N for _ in range(N)]; seen=set()
+    A=[[0]*N for _ in range(N)]
+    R=[[0]*N for _ in range(N)]; seen=set()
     for row in rows[3:67]:
         need(row.startswith("Y137_O8_ENTRY|"),
              "original_O2_matrix_missing_entry")
@@ -103,13 +104,19 @@ def original_centered_matrix():
              "original_O2_source_denominator")
         seen.add((i,j))
         A[i][j]=int(x["approx_signed_num"])
+        radius=int(x["Q_residual_radius_num"])+int(x["energy_band_radius_num"])
+        need(radius>=0 and
+             int(x["lower_signed_num"])==A[i][j]-radius and
+             int(x["upper_signed_num"])==A[i][j]+radius,
+             "original_full_Q_centered_interval_invalid")
+        R[i][j]=radius
     need(len(seen)==64,"source_64_entries_missing")
     result=parse(rows[67])
     need(result["entire_true_original_Oeff_8x8"]==
          "64_CENTERED_RATIONAL_ENTRY_INTERVALS"
          and result["true_normalized_first_Wilson_weight"]=="HOLD",
          "wrong_source_true_Wilson_scope")
-    return A
+    return A,R
 
 def moment_center():
     with open(e.source.MU3_FILE,encoding="ascii") as f:
@@ -226,7 +233,7 @@ def sigmas(A,Cn,Sden,eps,v1,v2,vrec,k,p,kind,src,original_amp):
     return amplitude,residual_hi,angle_sine,excluded,matched_angle_lower,matched_dark_excluded
 
 def main():
-    A=original_centered_matrix()
+    A,R=original_centered_matrix()
     Cn,Sden,eps,eps_width,eps_drift,vrec=moment_center()
     v1,v2=[list(e.ra.ROWS[i][3]) for i in (0,1)]
     row=[sum(A[i][j]*v1[j] for j in range(N)) for i in range(N)]
@@ -258,6 +265,49 @@ def main():
     required_min_sine_hi=sqrtup(ar*ar,nrec*ss)
     source_dark_all_excluded=int(ar*ar*UNIT*UNIT>
                                  MATCHED_E2_SINE*MATCHED_E2_SINE*nrec*ss)
+    # Inverse robustness target: quantify the greatest total source
+    # perturbation eta=||K_true*x1 - Kstar*v1||_W (for unit flats)
+    # which is SUFFICIENT to exclude every dark E2 vector within
+    # the matched E2 cone. If:
+    #   a0-eta > sine2*(||sstar||+eta)
+    # then no admissible dark direction is possible. The goal is to
+    # compare the REQUIRED eta against the EXISTING independent original
+    # 64-entry true-energy source bound and E1 projector uncertainty.
+    n1=wnorm(v1)
+    source_a_lo=sqrtlow(ar*ar,36*UNIT*UNIT*UNIT*UNIT*nrec*n1)
+    source_s_hi=sqrtup(ss,36*UNIT*UNIT*UNIT*UNIT*n1)
+    needed=source_a_lo*UNIT-MATCHED_E2_SINE*source_s_hi
+    tolerance=max(0,needed//(UNIT+MATCHED_E2_SINE))
+    need(source_a_lo>0 and source_s_hi>0,
+         "inverse_source_brightness_zero")
+    rvec=[sum(abs(v1[j])*R[i][j] for j in range(N))
+          for i in range(N)]
+    source_r6=sum((6//WF[i])*rvec[i]*rvec[i] for i in range(N))
+    full_Q_M_action_err=sqrtup(source_r6,
+                               6*UNIT*UNIT*UNIT*UNIT*n1)
+    E1_SINE=3429010525
+    c1=isqrt(UNIT*UNIT-E1_SINE*E1_SINE)
+    E1_chord=E1_SINE+(UNIT-c1)
+    g1=FLOOR_NUM-69909586556
+    g2=FLOOR_NUM-69949433884
+    need(g1>0 and g2>0,"source_true_E1_E2_below_floor")
+    M_op=21*UNIT+ceildiv(21*72*DEN*DEN*UNIT,g1*g2)
+    E1_source_err=ceildiv(M_op*E1_chord,UNIT)
+    total_eta=full_Q_M_action_err+E1_source_err
+    robust_exclusion=int(total_eta<tolerance and tolerance>0)
+    emit("Y137_REVERSE_ROBUST_TARGET",
+         matched_E2_max_sine_per_trillion=MATCHED_E2_SINE,
+         frozen_source_abs_rec_amplitude_lo_per_trillion=source_a_lo,
+         frozen_source_Wilson_action_norm_hi_per_trillion=source_s_hi,
+         sufficient_full_source_action_error_strict_max_per_trillion=tolerance,
+         original_full_Q_true_energy_directional_box_error_per_trillion=
+              full_Q_M_action_err,
+         true_E1_projector_contribution_per_trillion=E1_source_err,
+         certified_total_source_action_error_per_trillion=total_eta,
+         original_source_rational_full_Q_all_64_entries="INCLUDED",
+         exact_original_E1_sine=E1_SINE,
+         true_Wilson_dark_excluded_by_this_sufficient_gate=robust_exclusion,
+         actual_original_first_Wilson_weight="HOLD")
     # Reverse endpoint MUST be compared to certified matched flat
     # state angle and with FULL source K and E1 errors still open.
     emit("Y137_REVERSE_DARK_HYPERPLANE",
