@@ -36,7 +36,7 @@ The source-pinned centered **trial** Wilson state is \(v=(\langle\phi,\phi\rangl
 | Source trial | 8 flats + 155,378 original K3 nonflat coordinates |
 | Signed centered trial moment | **NEGATIVE** |
 | \(M_{\rm trial}/(J_E\langle v,v\rangle_W)\) | approximately **−0.644753** (exact rational recorded) |
-| Exact signed-moment SHA-256 | \`a0c7be50e5302d0aa59f64a4af6cf0c3ecb1180c40a9a81e9953cc0c9b3b5aca\` |
+| Exact signed-moment SHA-256 | `a0c7be50e5302d0aa59f64a4af6cf0c3ecb1180c40a9a81e9953cc0c9b3b5aca` |
 | Original physical \(OHO\) first moment | **Exact fixed-sample calculation PASS** |
 | Actual true-ground projector error | **NOT BOUNDED** |
 | First physical Wilson spectral weight | **HOLD** |
@@ -65,7 +65,7 @@ A complementary [Rust 1.81 exact two-state/deflated-Wilson theorem checker in dr
 \,|\omega_{21}|_{\rm lower}^2>C^2,
 \]
 
-where \(m_i\) control two-state mixing, \(\varepsilon_i\) control exact-eigenstate trial-complement leakage, and \(C\) includes diagonal/off-diagonal Wilson contamination, deflated action norms and quadratic leakage. **All thirteen source-specific numerical inputs must still be certified for the same original S₃ Hamiltonian and observable.** The current Rust implementation certifies only the *conditional algebra* and deliberately reports \`source_authenticated=NO\` and \`actual_Wilson_weight=HOLD\`.
+where \(m_i\) control two-state mixing, \(\varepsilon_i\) control exact-eigenstate trial-complement leakage, and \(C\) includes diagonal/off-diagonal Wilson contamination, deflated action norms and quadratic leakage. **All thirteen source-specific numerical inputs must still be certified for the same original S₃ Hamiltonian and observable.** The current Rust implementation certifies only the *conditional algebra* and deliberately reports `source_authenticated=NO` and `actual_Wilson_weight=HOLD`.
 
 ### Present finite-model verdict
 
