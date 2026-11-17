@@ -1,0 +1,135 @@
+name: Y137 heldout DIMACS SAT decision and exact counting baseline
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-integrated-sat-20261117/**'
+      - '.github/workflows/y137-heldout-dimacs-sat.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-frozen-heldout:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Repository exact integer / no-float gates
+        run: |
+          set -euo pipefail
+          D=independent/y137-integrated-sat-20261117
+          python3 -I -B native/scripts/integer_only_audit.py "$D/engine.py" "$D/verify.py" "$D/verify_heldout.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Original 11-case integrated acceptance regression
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-heldout
+          python3 -I -B independent/y137-integrated-sat-20261117/engine.py > build/y137-heldout/PARENT.hbp
+          python3 -I -B independent/y137-integrated-sat-20261117/verify.py build/y137-heldout/PARENT.hbp > build/y137-heldout/PARENT-VERIFY.hbp
+          grep -Fq 'SAT_INTEGRATED_INDEPENDENT|cases=11|exact=7|hold=4|' build/y137-heldout/PARENT-VERIFY.hbp
+      - name: New blind source-frozen 21-case DIMACS benchmark
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-heldout/cnf
+          python3 -I -B independent/y137-integrated-sat-20261117/engine.py --heldout build/y137-heldout/cnf | tee build/y137-heldout/HELDOUT.hbp
+          grep -Fq 'SAT_HELDOUT_CONTROL|roundtrip=PASS|split_clauses=PASS|invalid_DIMACS_rejected=6|' build/y137-heldout/HELDOUT.hbp
+          test "$(grep -c '^SAT_HELDOUT|' build/y137-heldout/HELDOUT.hbp)" -eq 21
+          grep -Fq 'SAT_HELDOUT_FINAL|cases=21|' build/y137-heldout/HELDOUT.hbp
+      - name: Install release-pinned established SAT decision baselines
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends 'minisat=1:2.2.1-8build1' 'picosat=965-2' time
+          dpkg-query -W minisat picosat | tee build/y137-heldout/SOLVERS.txt
+      - name: Meter and preserve MiniSat / PicoSAT outputs for every source
+        run: |
+          set -euo pipefail
+          OUT=build/y137-heldout
+          mkdir -p "$OUT/solver-transcripts"
+          printf '#case\tminisat_exit\tpicosat_exit\tminisat_ns\tpicosat_ns\tminisat_maxrss_kib\tpicosat_maxrss_kib\n' > "$OUT/EXTERNAL.tsv"
+          for file in "$OUT"/cnf/*.cnf; do
+            case_id=$(basename "$file" .cnf)
+            DIR="$OUT/solver-transcripts"
+            start=$(date +%s%N)
+            set +e
+            /usr/bin/time -f '%M' -o "$DIR/$case_id.mini-mem.txt" minisat -verb=0 "$file" "$DIR/$case_id.mini.sol" > "$DIR/$case_id.mini.log" 2>&1
+            mini_rc=$?
+            set -e
+            end=$(date +%s%N)
+            mini_ns=$((end-start))
+            test "$mini_rc" -eq 10 -o "$mini_rc" -eq 20
+            test -s "$DIR/$case_id.mini.sol"
+            test -s "$DIR/$case_id.mini.log"
+            mini_mem=$(tail -n 1 "$DIR/$case_id.mini-mem.txt")
+            start=$(date +%s%N)
+            set +e
+            /usr/bin/time -f '%M' -o "$DIR/$case_id.pico-mem.txt" picosat "$file" > "$DIR/$case_id.pico.log" 2>&1
+            pico_rc=$?
+            set -e
+            end=$(date +%s%N)
+            pico_ns=$((end-start))
+            test "$pico_rc" -eq 10 -o "$pico_rc" -eq 20
+            test -s "$DIR/$case_id.pico.log"
+            pico_mem=$(tail -n 1 "$DIR/$case_id.pico-mem.txt")
+            printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$case_id" "$mini_rc" "$pico_rc" "$mini_ns" "$pico_ns" "$mini_mem" "$pico_mem" >> "$OUT/EXTERNAL.tsv"
+          done
+          test "$(grep -c -v '^#' "$OUT/EXTERNAL.tsv")" -eq 21
+          for suffix in mini.sol mini.log pico.log mini-mem.txt pico-mem.txt; do
+            test "$(find "$OUT/solver-transcripts" -name "*.$suffix" -type f | wc -l)" -eq 21
+          done
+      - name: Clean-room all SHA receipts, exact 20/1 distribution, external models and tamper controls
+        run: |
+          set -euo pipefail
+          OUT=build/y137-heldout
+          python3 -I -B independent/y137-integrated-sat-20261117/verify_heldout.py "$OUT/HELDOUT.hbp" "$OUT/cnf" "$OUT/EXTERNAL.tsv" | tee "$OUT/INDEPENDENT.hbp"
+          grep -Fq 'SAT_HELDOUT_INDEPENDENT|cases=21|exact=20|hold=1|' "$OUT/INDEPENDENT.hbp"
+          grep -Fq '|hold_planted30_witness=PASS|proof_result_witness_hash_replay=PASS|' "$OUT/INDEPENDENT.hbp"
+          grep -Fq '|receipt_tamper_rejection=PASS|exact_counts_checked=PASS|' "$OUT/INDEPENDENT.hbp"
+          test "$(grep -c '^SAT_HELDOUT|' "$OUT/HELDOUT.hbp")" -eq 21
+          test "$(find "$OUT/cnf" -maxdepth 1 -type f -name '*.cnf' | wc -l)" -eq 21
+          mkdir -p "$OUT/source"
+          cp independent/y137-integrated-sat-20261117/engine.py "$OUT/source/"
+          cp independent/y137-integrated-sat-20261117/verify.py "$OUT/source/"
+          cp independent/y137-integrated-sat-20261117/verify_heldout.py "$OUT/source/"
+          cp independent/y137-integrated-sat-20261117/HELDOUT.md "$OUT/source/"
+          cp .github/workflows/y137-heldout-dimacs-sat.yml "$OUT/source/"
+          ( cd "$OUT" && sha256sum cnf/*.cnf *.hbp EXTERNAL.tsv SOLVERS.txt solver-transcripts/* source/* > OUTPUTS.sha256 )
+          ( cd "$OUT" && sha256sum -c OUTPUTS.sha256 > /dev/null )
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y137-heldout-21-dimacs-sat-decision-count
+          path: build/y137-heldout/
+          retention-days: 90
+          if-no-files-found: error
+  archived-evidence-acceptance:
+    needs: source-frozen-heldout
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Download the published evidence bundle, not the ephemeral workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: y137-heldout-21-dimacs-sat-decision-count
+          path: archive
+      - name: Recheck every archived transcript, source and receipt SHA
+        run: |
+          set -euo pipefail
+          cd archive
+          test -s OUTPUTS.sha256
+          test -s HELDOUT.hbp
+          test -s INDEPENDENT.hbp
+          test -s PARENT.hbp
+          test -s PARENT-VERIFY.hbp
+          test -s EXTERNAL.tsv
+          test -s SOLVERS.txt
+          test -s source/engine.py
+          test -s source/verify_heldout.py
+          test -s source/y137-heldout-dimacs-sat.yml
+          test "$(find cnf -maxdepth 1 -type f -name '*.cnf' | wc -l)" -eq 21
+          for suffix in mini.sol mini.log pico.log mini-mem.txt pico-mem.txt; do
+            test "$(find solver-transcripts -maxdepth 1 -type f -name "*.$suffix" | wc -l)" -eq 21
+          done
+          grep -Fq 'SAT_HELDOUT_INDEPENDENT|cases=21|exact=20|hold=1|' INDEPENDENT.hbp
+          grep -Fq '|hold_planted30_witness=PASS|proof_result_witness_hash_replay=PASS|' INDEPENDENT.hbp
+          grep -Fq 'SAT_HELDOUT_TAMPER|field_mutations_rejected=13|' INDEPENDENT.hbp
+          sha256sum -c OUTPUTS.sha256
+          echo 'SAT_HELDOUT_ARCHIVE|published=PASS|source_and_manifest_sha=PASS|all_21_solver_transcripts=PASS|witness_and_tamper=PASS'
