@@ -1,0 +1,41 @@
+name: "Y137 exact Rust two-state Wilson-deflation inequality"
+on:
+  pull_request:
+    paths:
+      - 'native/ym/crates/sturmrs/src/bin/y137_deflated_wilson_gate.rs'
+      - 'independent/y137-deflated-two-state-gate-20261117/**'
+      - '.github/workflows/y137-two-state-deflated-wilson-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  strict-bigint-theorem:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Rust 1.81 exact BigInt tests and clippy
+        run: |
+          set -euo pipefail
+          cd native/ym
+          cargo --version
+          cargo test --offline --locked --package sturmrs --bin y137_deflated_wilson_gate
+          cargo clippy --offline --locked --package sturmrs --bin y137_deflated_wilson_gate -- -D warnings
+          mkdir -p ../../build/y137-two-state
+          cargo run --offline --locked --quiet --package sturmrs --bin y137_deflated_wilson_gate -- toy \
+            | tee ../../build/y137-two-state/RESULT-TOY.hbp
+          grep -Fq '|algebraic_gate=PASS_CONDITIONAL|source_authenticated=NO|actual_Wilson_weight=HOLD|json=0' ../../build/y137-two-state/RESULT-TOY.hbp
+          printf 'mix_psi1_u2_max=1/10\n' > ../../build/y137-two-state/FORGED.txt
+          if cargo run --offline --locked --quiet --package sturmrs --bin y137_deflated_wilson_gate -- verify ../../build/y137-two-state/FORGED.txt; then
+            echo 'Y137_GATE_FAIL|missing_source_fields_accepted=YES'; exit 1
+          fi
+          git rev-parse HEAD > ../../build/y137-two-state/COMMIT.txt
+          sha256sum crates/sturmrs/src/bin/y137_deflated_wilson_gate.rs > ../../build/y137-two-state/SOURCE.sha256
+          sha256sum ../../build/y137-two-state/RESULT-TOY.hbp > ../../build/y137-two-state/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-two-state-deflated-exact-bigint-toy
+          path: build/y137-two-state/
+          retention-days: 90
+          if-no-files-found: warn
