@@ -1,0 +1,118 @@
+name: "Y137 exact two-residual full-H 2x2 Gram and Krylov rank"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-two-residual-krylov.yml'
+      - 'independent/y137-two-residual-krylov-20261116/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  two-residual-source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict integer-only and no-floating-point source audit
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-two-residual-krylov-20261116/exact_residual_gram.py
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-two-residual-krylov-20261116/independent_accept.py
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-two-residual-krylov-20261116/loewner_four_witness.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Frozen original PR247 source and exact two-residual receipt
+        run: |
+          set -euo pipefail
+          git hash-object independent/y137-h429m-residual-projection-20261116/residual_projection.py |
+            grep -Fxq '1a174c7ff47d944370bf3c35ecc8557dfcc3bb17'
+          git hash-object independent/y137-h429m-residual-projection-20261116/RESULT-H429M-FULL-RESIDUAL-PROJECTION-20261116.hbp |
+            grep -Fxq 'a7af4f4eb556ff60ca98f31dc9c73b2715b5032f'
+      - name: Exact small two-vector cross-Schur negative controls
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-two-residual-krylov-20261116/exact_residual_gram.py toy |
+            tee /tmp/y137-two-residual-toy.hbp
+          grep -Fq '|rank2_discriminator=PASS|' /tmp/y137-two-residual-toy.hbp
+          grep -Fq '|Wilson_weight=HOLD|json=0' /tmp/y137-two-residual-toy.hbp
+          python3 -I -B independent/y137-two-residual-krylov-20261116/loewner_four_witness.py toy |
+            tee /tmp/y137-four-witness-toy.hbp
+          grep -Fq '|exact_upper_envelope_inertia=PASS|' /tmp/y137-four-witness-toy.hbp
+  two-residual-real-production:
+    runs-on: ubuntu-24.04
+    needs: two-residual-source-controls
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Rebuild exact original H20736 sparse source and SHA
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h20736 build/y137-two-residual
+          /usr/bin/time -v python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real |
+            tee build/y137-h20736/RESULT-H20736.hbp
+          grep -Fq '|matrix=EXACT_SPARSE_PHYSICAL_W_GALERKIN|dimension=20736|' build/y137-h20736/RESULT-H20736.hbp
+          test -s build/y137-h20736/H20736-SPARSE-UPPER.tsv
+      - name: Exact full-physical W Gram of both projected Krylov residual directions
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-two-residual-krylov-20261116/exact_residual_gram.py real |
+            tee build/y137-two-residual/RESULT-TWO-RESIDUAL.hbp
+          grep -Fq '|old_to_new_metric_orthogonality=EXACT|' build/y137-two-residual/RESULT-TWO-RESIDUAL.hbp
+          grep -Fq '|original_self_full_H_checks=2_OF_2_EXACT|' build/y137-two-residual/RESULT-TWO-RESIDUAL.hbp
+          grep -Fq '|new_residual_to_residual_H=NOT_COMPUTED|' build/y137-two-residual/RESULT-TWO-RESIDUAL.hbp
+          grep -Fq '|first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-two-residual/RESULT-TWO-RESIDUAL.hbp
+      - name: Independent exact 2x2 determinant, source-pinning and negative controls
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-two-residual-krylov-20261116/independent_accept.py real |
+            tee build/y137-two-residual/INDEPENDENT-ACCEPT.hbp
+          grep -Fq '|independent_2x2_determinant=POSITIVE|' build/y137-two-residual/INDEPENDENT-ACCEPT.hbp
+          grep -Fq '|negative_controls=2_OF_2_REJECTED|' build/y137-two-residual/INDEPENDENT-ACCEPT.hbp
+          grep -Fq '|Wilson_weight=HOLD|json=0' build/y137-two-residual/INDEPENDENT-ACCEPT.hbp
+      - name: Certified Loewner H<=468 and four-vector 2D Ritz upper envelope
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-two-residual-krylov-20261116/loewner_four_witness.py real |
+            tee build/y137-two-residual/RESULT-FOUR-WITNESS-LOEWNER.hbp
+          test "$(grep -c '^Y137_FOUR_ENVELOPE_RITZ|' build/y137-two-residual/RESULT-FOUR-WITNESS-LOEWNER.hbp)" -eq 2
+          grep -Fq '|universal_H_Loewner_ceiling=468|' build/y137-two-residual/RESULT-FOUR-WITNESS-LOEWNER.hbp
+          grep -Fq '|Wilson_first_excitation_weight=HOLD|issue_137=OPEN|json=0' build/y137-two-residual/RESULT-FOUR-WITNESS-LOEWNER.hbp
+      - name: Byte-identical exact certificate replay against frozen hosted original
+        run: |
+          set -euo pipefail
+          frozen=independent/y137-two-residual-krylov-20261116/RESULT-TWO-RESIDUAL-AND-FOUR-ENVELOPE-20261116.hbp
+          grep -E '^(S3_3X4_CENSUS|Y137_TWO_RESIDUAL_(SOURCE|MATRIX|GRAM|HBLOCK|VERDICT))[|]' "$frozen" > /tmp/frozen-two.hbp
+          grep -E '^(S3_3X4_CENSUS|Y137_TWO_RESIDUAL_(SOURCE|MATRIX|GRAM|HBLOCK|VERDICT))[|]' build/y137-two-residual/RESULT-TWO-RESIDUAL.hbp > /tmp/current-two.hbp
+          cmp /tmp/frozen-two.hbp /tmp/current-two.hbp
+          grep '^Y137_TWO_RESIDUAL_INDEPENDENT|' "$frozen" > /tmp/frozen-independent.hbp
+          cmp /tmp/frozen-independent.hbp build/y137-two-residual/INDEPENDENT-ACCEPT.hbp
+          grep '^Y137_FOUR_ENVELOPE_' "$frozen" > /tmp/frozen-four.hbp
+          cmp /tmp/frozen-four.hbp build/y137-two-residual/RESULT-FOUR-WITNESS-LOEWNER.hbp
+          test "$(wc -l < /tmp/frozen-two.hbp)" -eq 7
+          test "$(wc -l < /tmp/frozen-four.hbp)" -eq 3
+      - name: Source, original sparse matrix and new 2x2 Gram fingerprints
+        if: always()
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > build/y137-two-residual/COMMIT.txt
+          sha256sum independent/y137-two-residual-krylov-20261116/exact_residual_gram.py > build/y137-two-residual/SOURCE.sha256
+          sha256sum independent/y137-two-residual-krylov-20261116/independent_accept.py > build/y137-two-residual/INDEPENDENT-SOURCE.sha256
+          sha256sum independent/y137-two-residual-krylov-20261116/loewner_four_witness.py > build/y137-two-residual/FOUR-WITNESS-SOURCE.sha256
+          if test -f build/y137-two-residual/RESULT-FOUR-WITNESS-LOEWNER.hbp; then
+            sha256sum build/y137-two-residual/RESULT-FOUR-WITNESS-LOEWNER.hbp > build/y137-two-residual/FOUR-WITNESS-RESULT.sha256
+          fi
+          if test -f build/y137-two-residual/INDEPENDENT-ACCEPT.hbp; then
+            sha256sum build/y137-two-residual/INDEPENDENT-ACCEPT.hbp > build/y137-two-residual/INDEPENDENT-RESULT.sha256
+          fi
+          if test -f build/y137-h20736/H20736-SPARSE-UPPER.tsv; then
+            sha256sum build/y137-h20736/H20736-SPARSE-UPPER.tsv > build/y137-two-residual/ORIGINAL-SPARSE.sha256
+          fi
+          if test -f build/y137-two-residual/RESULT-TWO-RESIDUAL.hbp; then
+            sha256sum build/y137-two-residual/RESULT-TWO-RESIDUAL.hbp > build/y137-two-residual/RESULT.sha256
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-two-residual-original-full-H-2x2-Krylov-rank
+          path: build/y137-two-residual/
+          retention-days: 90
+          if-no-files-found: error
