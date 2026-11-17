@@ -1,0 +1,136 @@
+name: "Y137 exact full-20738 inertia via interval Schur"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-full-ritz-inertia.yml'
+      - 'independent/y137-full-ritz-inertia-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  integer-source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict no-floating-point, source audit, and mathematical toy
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-full-ritz-inertia-20261117/exact_20738_inertia_pilot.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          python3 -I -B independent/y137-full-ritz-inertia-20261117/exact_20738_inertia_pilot.py toy | tee /tmp/y137-stage-k-toy.hbp
+          grep -Fq '|exact_integer_inertia=PASS|' /tmp/y137-stage-k-toy.hbp
+          grep -Fq '|full_Ritz=NOT_COMPUTED|Wilson_weight=HOLD|json=0' /tmp/y137-stage-k-toy.hbp
+          test "$(git hash-object independent/y137-two-residual-krylov-20261116/RESULT-TWO-RESIDUAL-AND-FOUR-ENVELOPE-20261116.hbp)" = '90f9c002f6fe8df2ecd4b5e725de3f9153fbab10'
+          test "$(git hash-object native/ym/results/3x4_stream/perron/PERRON-RESULT.hbp)" = 'cbd428014a4d440732a5c0a541ed57a9041becee'
+
+  exact-full-inertia-endpoints:
+    needs: integer-source-controls
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {label: first-lower, z: 69890000000, negative: 0}
+          - {label: first-upper, z: 69913037770, negative: 1}
+          - {label: second-lower, z: 69930000000, negative: 1}
+          - {label: second-upper, z: 69960000000, negative: 2}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Frozen original H20736 sparse physical matrix
+        uses: actions/download-artifact@v4
+        with:
+          name: y137-h20736-original-s3-exact-sparse-matrix
+          run-id: 43965854242
+          github-token: ${{ github.token }}
+          path: build/y137-stage-k/old
+      - name: Frozen original complete 20736x2 cross-coupling
+        uses: actions/download-artifact@v4
+        with:
+          name: y137-full-20736x2-cross-coupling-exact-fanin
+          run-id: 43997180450
+          github-token: ${{ github.token }}
+          path: build/y137-stage-k/cross
+      - name: Frozen full physical two-residual Gram
+        uses: actions/download-artifact@v4
+        with:
+          name: y137-two-residual-original-full-H-2x2-Krylov-rank
+          run-id: 43988576357
+          github-token: ${{ github.token }}
+          path: build/y137-stage-k/residual
+      - name: Frozen 633919-row exact original physical Htt
+        uses: actions/download-artifact@v4
+        with:
+          name: y137-exact-htt-original-physical-sharded-fanin
+          run-id: 43992456055
+          github-token: ${{ github.token }}
+          path: build/y137-stage-k/htt
+      - name: Certified Chebyshev residual and two-sided 10x10 integer inertia
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-stage-k/results
+          /usr/bin/time -v python3 -I -B independent/y137-full-ritz-inertia-20261117/exact_20738_inertia_pilot.py pilot \
+            build/y137-stage-k/old \
+            build/y137-stage-k/cross \
+            build/y137-stage-k/residual \
+            build/y137-stage-k/htt \
+            ${{ matrix.z }} 6 ${{ matrix.negative }} | tee build/y137-stage-k/results/ALL.hbp
+          grep '^Y137_K_SOURCE|' build/y137-stage-k/results/ALL.hbp > build/y137-stage-k/results/SOURCE.hbp
+          grep '^Y137_K_PILOT|' build/y137-stage-k/results/ALL.hbp > build/y137-stage-k/results/CERTIFICATE.hbp
+          grep -Fq '|interval_certified=True|' build/y137-stage-k/results/CERTIFICATE.hbp
+          grep -Fq '|full_Ritz=NEGATIVE_INERTIA_CERTIFIED|Wilson_weight=HOLD|json=0' build/y137-stage-k/results/CERTIFICATE.hbp
+          git rev-parse HEAD > build/y137-stage-k/results/COMMIT.txt
+          sha256sum independent/y137-full-ritz-inertia-20261117/exact_20738_inertia_pilot.py > build/y137-stage-k/results/SOURCE.sha256
+          sha256sum build/y137-stage-k/results/CERTIFICATE.hbp > build/y137-stage-k/results/CERTIFICATE.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-full-inertia-${{ matrix.label }}
+          path: build/y137-stage-k/results/
+          retention-days: 90
+          if-no-files-found: warn
+
+  four-endpoint-exact-acceptance:
+    needs: exact-full-inertia-endpoints
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-full-inertia-*
+          path: build/y137-stage-k/accept/
+          merge-multiple: false
+      - name: Exact four-of-four inertia witness and Ritz separation
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-stage-k/acceptance
+          python3 -I -B - <<'PY' | tee build/y137-stage-k/acceptance/VERDICT.hbp
+          import os
+          root='build/y137-stage-k/accept'
+          expected={'first-lower':(69890000000,0),
+                    'first-upper':(69913037770,1),
+                    'second-lower':(69930000000,1),
+                    'second-upper':(69960000000,2)}
+          for name,(z,want) in expected.items():
+              p=os.path.join(root,'y137-full-inertia-'+name,'CERTIFICATE.hbp')
+              with open(p,encoding='ascii') as f:lines=f.read().splitlines()
+              assert len(lines)==1 and lines[0].startswith('Y137_K_PILOT|')
+              items=dict(x.split('=',1) for x in lines[0].split('|')[1:] if '=' in x)
+              assert int(items['z'])==z and int(items['degree'])==6
+              assert items['interval_certified']=='True'
+              assert int(items['low_neg'])==want and int(items['upper_neg'])==want
+              assert items['full_Ritz']=='NEGATIVE_INERTIA_CERTIFIED'
+              assert items['Wilson_weight']=='HOLD'
+              print('Y137_K_ACCEPTED_ENDPOINT|case='+name+'|z='+str(z)+'|negative_inertia='+str(want)+'|PASS=1|json=0')
+          print('Y137_K_FULL_RITZ_VERDICT|full_projected_dimension=20738|accepted_endpoints=4_OF_4|first_lower_num=69890000000|first_upper_num=69913037770|second_lower_num=69930000000|second_upper_num=69960000000|four_vector_second_upper_num=69952639135|projected_first_gap_lower_num=16962230|gap_den=1000000000|physical_full_gap=NOT_COMPUTED|Wilson_weight=HOLD|issue_137=OPEN|json=0')
+          PY
+          grep -Fq '|accepted_endpoints=4_OF_4|' build/y137-stage-k/acceptance/VERDICT.hbp
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y137-full-inertia-four-endpoint-accepted
+          path: build/y137-stage-k/acceptance/
+          retention-days: 90
