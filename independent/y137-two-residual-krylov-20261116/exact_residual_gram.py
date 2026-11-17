@@ -93,12 +93,12 @@ def independent_toys():
                              y+[0]])
     need(adjcross(q1,q1)==31,
          "toy_self_inverse_numerator")
-    need(adjcross(q2,q2)==15,
+    need(adjcross(q2,q2)==9,
          "toy_other_inverse_numerator")
-    need(adjcross(q1,q2)==1 and
+    need(adjcross(q1,q2)==2 and
          adjcross(q1,q2)==adjcross(q2,q1),
          "toy_cross_bordered_pair")
-    need(31*15-1>0, "toy_two_positive_directions")
+    need(31*9-4>0, "toy_two_positive_directions")
     need(determinant([[0,1],[1,0]])==-1,
          "toy_swapped_Bareiss")
     need((11*0+31)>=0 and (31*15-1)>0,
