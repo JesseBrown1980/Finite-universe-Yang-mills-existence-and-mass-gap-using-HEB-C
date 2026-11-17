@@ -1,0 +1,50 @@
+name: Y137 table-governed nested MTP slice replay
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mtp-table-driven-play-20261117/**'
+      - '.github/workflows/y137-mtp-table-driven-play.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-table-driven-evaluation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Integer-only and full repository policy
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-mtp-table-driven-play-20261117/pilot.py independent/y137-pixel-cloud-freeze-edit-play-20261117/pilot.py independent/y137-metatag-shell-overlap-20261117/pilot.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Reproduce original S3 shell certificate and previous frozen-operator control
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-table-mtp
+          python3 -I -B independent/y137-metatag-shell-overlap-20261117/pilot.py > build/y137-table-mtp/ORIGINAL-S3.hbp
+          python3 -I -B independent/y137-pixel-cloud-freeze-edit-play-20261117/pilot.py > build/y137-table-mtp/PREVIOUS-FROZEN.hbp
+          grep -Fq 'META_S3_FINAL|' build/y137-table-mtp/ORIGINAL-S3.hbp
+          grep -Fq '|result=EXACT_TOY_NOSIGNALLING_PASS|' build/y137-table-mtp/PREVIOUS-FROZEN.hbp
+          grep -Fq '|original_Wilson_first_weight=HOLD|' build/y137-table-mtp/ORIGINAL-S3.hbp
+      - name: Recompute physical transfer from edited metatag table and replay atomically
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-mtp-table-driven-play-20261117/pilot.py | tee build/y137-table-mtp/NEW-TABLE-DRIVEN.hbp
+          test "$(grep -c '^MTP_TABLE_DRIVEN_PLAY|' build/y137-table-mtp/NEW-TABLE-DRIVEN.hbp)" -eq 5
+          test "$(grep -c '^MTP_CLOUD_BELL|' build/y137-table-mtp/NEW-TABLE-DRIVEN.hbp)" -eq 5
+          grep -Fq 'MTP_NEGATIVES|missing_pulse=HELD|unpaired_identity=HELD|identity_collision=HELD|duplicate_instruction=HELD|' build/y137-table-mtp/NEW-TABLE-DRIVEN.hbp
+          grep -Fq '|B0_one_after=1/1|excitation_total_before=1|excitation_total_after=1|' build/y137-table-mtp/NEW-TABLE-DRIVEN.hbp
+          grep -Fq '|local_shell_pair_visible=NONE|local_B0_one_after=0/1|' build/y137-table-mtp/NEW-TABLE-DRIVEN.hbp
+          grep -Fq '|entangled_B0_Bell_pair=YES_BY_EXPLICIT_NONLOCAL_SWAP|' build/y137-table-mtp/NEW-TABLE-DRIVEN.hbp
+          grep -Fq 'MTP_FINAL|all_distances=1:8:64:1024:65536|metatag_drives_next_unitary=PASS|all_shells_globally_agree=PASS|' build/y137-table-mtp/NEW-TABLE-DRIVEN.hbp
+          grep -Fq '|original_S3_Wilson_weight=HOLD|continuum=OPEN|physical_superluminal_signal=NOT_ESTABLISHED|status=EXACT_TOY_PASS|' build/y137-table-mtp/NEW-TABLE-DRIVEN.hbp
+          sha256sum independent/y137-mtp-table-driven-play-20261117/pilot.py independent/y137-mtp-table-driven-play-20261117/README.md > build/y137-table-mtp/SOURCE.sha256
+          sha256sum build/y137-table-mtp/*.hbp > build/y137-table-mtp/OUTPUT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-mtp-table-governed-next-slice-exact-replay
+          path: build/y137-table-mtp/
+          if-no-files-found: ignore
+          retention-days: 90
