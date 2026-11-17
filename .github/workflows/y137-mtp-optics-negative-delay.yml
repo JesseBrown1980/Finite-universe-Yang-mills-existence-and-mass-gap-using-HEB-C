@@ -1,0 +1,57 @@
+name: Y137 MTP shell negative apparent delay causal optics experiment
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-mtp-optics-negative-delay-20261117/**'
+      - '.github/workflows/y137-mtp-optics-negative-delay.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-causal-optics-and-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Integer only and repository wide no float
+        run: |
+          set -euo pipefail
+          D=independent/y137-mtp-optics-negative-delay-20261117
+          python3 -I -B native/scripts/integer_only_audit.py "$D/pilot.py" "$D/verify.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Rerun earlier source conditional S3 and density MTP controls
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-mtp-optics
+          python3 -I -B independent/y137-metatag-shell-overlap-20261117/pilot.py > build/y137-mtp-optics/PARENT-S3.hbp
+          python3 -I -B independent/y137-finite-density-mtp-20261117/pilot.py > build/y137-mtp-optics/PARENT-DENSITY.hbp
+          grep -Fq 'META_S3_FINAL|' build/y137-mtp-optics/PARENT-S3.hbp
+          grep -Fq 'original_Wilson_first_weight=HOLD|' build/y137-mtp-optics/PARENT-S3.hbp
+          grep -Fq 'DENSITY_FINAL|slices=48|initial_pixel_count=96|' build/y137-mtp-optics/PARENT-DENSITY.hbp
+          grep -Fq '|spontaneous_loop=NO|' build/y137-mtp-optics/PARENT-DENSITY.hbp
+      - name: Frozen six cell MTP corrected optics and negative controls
+        run: |
+          set -euo pipefail
+          D=independent/y137-mtp-optics-negative-delay-20261117
+          python3 -I -B "$D/pilot.py" | tee build/y137-mtp-optics/OPTICS.hbp
+          test "$(grep -c '^MTP_OPTICS_RESULT|' build/y137-mtp-optics/OPTICS.hbp)" -eq 9
+          grep -Fq 'MTP_OPTICS_CONTROL|pre_post_quantum_weak_value=-9/7|' build/y137-mtp-optics/OPTICS.hbp
+          grep -Fq 'optical_density_token=1|pulse_half_width_slices=3|path_length_cells=6|' build/y137-mtp-optics/OPTICS.hbp
+          grep -Fq '|MTP_corrected_group_delay=-1/2|' build/y137-mtp-optics/OPTICS.hbp
+          grep -Fq '|MTP_corrected_group_delay=-2/3|' build/y137-mtp-optics/OPTICS.hbp
+          grep -Fq '|MTP_corrected_group_delay=-4/5|' build/y137-mtp-optics/OPTICS.hbp
+          grep -Fq 'MTP_OPTICS_NEGATIVES|phase_sign_narrow=NEGATIVE|measured_positive_broad_weak_value_fit=FAIL|' build/y137-mtp-optics/OPTICS.hbp
+          grep -Fq 'MTP_OPTICS_FINAL|all_width_depth_cases=9|first_arrival_causal_checks=9|strict_global_frame_order=PASS|' build/y137-mtp-optics/OPTICS.hbp
+          grep -Fq '|full_PRL2026_observable_match=HOLD|' build/y137-mtp-optics/OPTICS.hbp
+          python3 -I -B "$D/verify.py" build/y137-mtp-optics/OPTICS.hbp | tee build/y137-mtp-optics/INDEPENDENT.hbp
+          grep -Fq 'MTP_OPTICS_INDEPENDENT|cases=9|source_and_result_sha256=PASS|six_step_causality=PASS|' build/y137-mtp-optics/INDEPENDENT.hbp
+          grep -Fq '|positive_broad_observation_fit=FAIL_AS_EXPECTED|no_superluminal_signal=PASS|status=PASS|' build/y137-mtp-optics/INDEPENDENT.hbp
+          sha256sum "$D/pilot.py" "$D/verify.py" "$D/README.md" > build/y137-mtp-optics/SOURCES.sha256
+          sha256sum build/y137-mtp-optics/*.hbp > build/y137-mtp-optics/RESULTS.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-mtp-optics-frozen-causal-negative-delay-exact
+          path: build/y137-mtp-optics/
+          if-no-files-found: ignore
+          retention-days: 90
