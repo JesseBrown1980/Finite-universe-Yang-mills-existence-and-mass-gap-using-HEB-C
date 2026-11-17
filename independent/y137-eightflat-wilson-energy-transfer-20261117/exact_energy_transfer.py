@@ -87,14 +87,25 @@ def gram_pinned():
     num=sum(T[i][i]*(den//pw[i]) for i in range(8))
     tau=reduced(num,den)
     need(tau[0]>0,"positive_B_trace")
+    # W^-1*T is entrywise nonnegative and similar to the symmetric
+    # positive semidefinite W^-1/2*T*W^-1/2. The Perron row-sum
+    # bound is therefore an operator-2-norm bound in the W metric.
+    rows=[reduced(sum(T[i]),pw[i]) for i in range(8)]
+    perron=rows[0]
+    for candidate in rows[1:]:
+        if candidate[0]*perron[1]>perron[0]*candidate[1]:
+            perron=candidate
+    need(perron[0]*tau[1]<=tau[0]*perron[1],
+         "Perron_row_bound_not_worse_than_trace")
+    need(perron[0]>0,"positive_Perron_coupling")
     raw=";".join(",".join(str(x) for x in row) for row in T)
-    return tau,pw,T,nonzero_q,hashlib.sha256(raw.encode("ascii")).hexdigest()
+    return tau,perron,pw,T,nonzero_q,hashlib.sha256(raw.encode("ascii")).hexdigest()
 
 def main():
     need(sys.argv[1:] in ([],["real"]),"usage_real")
     need(k.SCRIPT_SHA=="f3461aa8a50cfa9efb4a1bbdc2d7be44ec1d4a13c80c47fd55fa07de60be28ff","original_script_sha")
     need(k.OLD_G==94070673 and k.NEW_G==94068200,"original_Q_floor_source")
-    tau,pw,T,n,sha=gram_pinned()
+    tau,perron,pw,T,n,sha=gram_pinned()
     need(G>S2>E2HI>E2LO and G>S1>E1HI>E1LO,"energy_windows_order")
     # All energies and lower floor are numerators on denominator D.
     d1=max(S1-E1LO,S1-E1HI)
@@ -105,23 +116,24 @@ def main():
     # B^dag (R(E2)-R(s2)) O_Q R(E1) B +
     # B^dag R(s2) O_Q (R(E1)-R(s1)) B.
     #
-    # For each term use the original 8-flat ||B||^2<=Tr_P(B^dag B),
-    # ||O_Q||<=14, and the certified lower Q gap. Bounds are exact rational.
+    # For each term use the sharper exact Collatz/Perron upper bound on
+    # ||B||^2 (itself no greater than trace). All source entries nonnegative.
+    # ||O_Q||<=14 and certified lower Q gap. Integer rational bounds.
     term2=reduced(d2*D*D,(G-E2HI)*(G-S2)*(G-E1HI))
     term1=reduced(d1*D*D,(G-S2)*(G-E1HI)*(G-S1))
     wiggle=plus(term1,term2)
-    bound=times(reduced(MAX_ABS_WILSON*tau[0],tau[1]),wiggle)
+    bound=times(reduced(MAX_ABS_WILSON*perron[0],perron[1]),wiggle)
     universal=times(reduced(MAX_ABS_WILSON*MAX_H*MAX_H,1),wiggle)
     need(bound[0]*universal[1]<universal[0]*bound[1],
-         "source_trace_improves_universal_bound")
+         "source_Perron_improves_universal_bound")
     # Extra metric derivative: Gnorm(E)=I+B^dag R(E)^2 B.
     # By dR^2/dE=2R^3, on the whole true-energy window E<=S,
     # ||Gnorm(E)-Gnorm(S)|| <= 2 ||B||^2*delta/(G-S)^3.
-    metric1=times(tau,reduced(2*d1*D*D,(G-S1)*(G-S1)*(G-S1)))
-    metric2=times(tau,reduced(2*d2*D*D,(G-S2)*(G-S2)*(G-S2)))
+    metric1=times(perron,reduced(2*d1*D*D,(G-S1)*(G-S1)*(G-S1)))
+    metric2=times(perron,reduced(2*d2*D*D,(G-S2)*(G-S2)*(G-S2)))
     # A forged shift outside the certified interval must enlarge the bound.
     fake=plus(reduced((d1+100000)*D*D,(G-S2)*(G-E1HI)*(G-S1)),term2)
-    fake_bound=times(reduced(MAX_ABS_WILSON*tau[0],tau[1]),fake)
+    fake_bound=times(reduced(MAX_ABS_WILSON*perron[0],perron[1]),fake)
     need(fake_bound[0]*bound[1]>bound[0]*fake_bound[1],
          "energy_shift_negative_control")
     # Re-encoding a coupling sign must leave T unchanged, whereas
@@ -131,6 +143,9 @@ def main():
          flat=8,first_shell=n,q_p_operator="ORIGINAL_WEIGHTED_H",
          Q_floor_num=G,energy_den=D,flat_weights=",".join(str(w) for w in pw),
          BdagB_gram_sha256=sha,trace_BdagB_num=tau[0],trace_BdagB_den=tau[1],
+         Perron_B_norm2_upper_num=perron[0],Perron_B_norm2_upper_den=perron[1],
+         offdiagonal_nonzero=sum(1 for i in range(8) for j in range(8) if i!=j and T[i][j]),
+         diagonal_W_ratios=",".join(str(T[i][i])+"/"+str(pw[i]) for i in range(8)),
          source_scope="ORIGINAL_FULL_PHYSICAL_Q_COUPLING")
     emit("Y137_WILSON_INTERVAL_ENERGIES",sample_E1=S1,sample_E2=S2,
          true_E1_lo=E1LO,true_E1_hi=E1HI,true_E2_lo=E2LO,true_E2_hi=E2HI,
@@ -149,7 +164,7 @@ def main():
          E2_metric_shift_upper_den=metric2[1],
          exact_normalization="P_PLUS_Q_RESOLVENT_NORM")
     emit("Y137_WILSON_INTERVAL_VERDICT",BdagB_source="PASS",
-         source_trace_bound="PASS",energy_window="PASS",
+         source_trace_bound="PASS",source_Perron_bound="PASS",energy_window="PASS",
          fake_energy_shift="REJECTED",
          actual_effective_8x8_Wilson_matrix="NOT_COMPUTED",
          actual_true_flat_projectors="NOT_COMPUTED",
