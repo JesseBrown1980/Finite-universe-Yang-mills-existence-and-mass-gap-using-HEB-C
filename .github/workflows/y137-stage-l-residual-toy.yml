@@ -1,0 +1,46 @@
+name: "Y137 Stage L weighted full-physical residual and exterior flux toy"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-stage-l-residual-toy.yml'
+      - 'independent/y137-stage-l-physical-residual-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  stage-l-residual-method-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Preserve exact source pins and integer-only policy
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-stage-l-physical-residual-20261117/exact_residual_toy.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = '91bd1e80cbfcfb76198966aa177d097ecfbe8143'
+          test "$(git hash-object independent/y137-two-residual-krylov-20261116/RESULT-TWO-RESIDUAL-AND-FOUR-ENVELOPE-20261116.hbp)" = '90f9c002f6fe8df2ecd4b5e725de3f9153fbab10'
+          test "$(git hash-object native/ym/results/3x4_stream/perron/PERRON-RESULT.hbp)" = 'cbd428014a4d440732a5c0a541ed57a9041becee'
+      - name: Five-state original-H reciprocal/residual/exterior toy
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-stage-l-toy
+          python3 -I -B independent/y137-stage-l-physical-residual-20261117/exact_residual_toy.py toy \
+            | tee build/y137-stage-l-toy/ALL.hbp
+          grep '^Y137_L_TOY|' build/y137-stage-l-toy/ALL.hbp > build/y137-stage-l-toy/RESULT-TOY.hbp
+          grep '^Y137_L_VERDICT|' build/y137-stage-l-toy/ALL.hbp > build/y137-stage-l-toy/RESULT-VERDICT.hbp
+          test "$(wc -l < build/y137-stage-l-toy/RESULT-TOY.hbp)" -eq 1
+          grep -Fq '|full_H_residual_moment=EXACT|projected_vs_full_residual=POSITIVE_EXTERIOR|' build/y137-stage-l-toy/RESULT-TOY.hbp
+          grep -Fq '|omitted_exterior_negative_control=REJECTED|forged_weighted_edge=REJECTED|' build/y137-stage-l-toy/RESULT-TOY.hbp
+          grep -Fq '|toy=PASS|exact_3x4_physical_source=NEXT_GATE|' build/y137-stage-l-toy/RESULT-VERDICT.hbp
+          grep -Fq '|first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-stage-l-toy/RESULT-VERDICT.hbp
+          git rev-parse HEAD > build/y137-stage-l-toy/COMMIT.txt
+          sha256sum independent/y137-stage-l-physical-residual-20261117/exact_residual_toy.py > build/y137-stage-l-toy/SOURCE.sha256
+          sha256sum build/y137-stage-l-toy/RESULT-TOY.hbp > build/y137-stage-l-toy/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-stage-l-original-H-residual-exterior-toy
+          path: build/y137-stage-l-toy/
+          retention-days: 90
+          if-no-files-found: warn
