@@ -240,6 +240,36 @@ def main():
          "inverse_dark_original_Wilson_bilinear_not_zero")
     need(wnorm(vrec)>0 and wdot(v2,vrec)>0,
          "source_recentred_E2_not_certified")
+    # Here is the INVERSE-dark lower bound independent of any
+    # particular path: among ALL Wflat unit directions x with
+    # <x,s>_W=0, their least possible Wflat sine from vrec is
+    # |<vrec,s>|/(||vrec||_W ||s||_W). Both are original source
+    # integers. This tests the ENTIRE source-dark hyperplane,
+    # rather than merely the one endpoint closest to old v2.
+    ar=wdot(vrec,s)
+    nrec=wnorm(vrec)
+    need(nrec>0 and ar!=0 and ar*ar<=nrec*ss,
+         "inverse_dark_hyperplane_geometry")
+    closest_to_recentered=[ss*vrec[i]-ar*s[i]
+                           for i in range(N)]
+    need(wdot(closest_to_recentered,s)==0,
+         "inverse_hyperplane_projector_not_exact")
+    required_min_sine_lo=sqrtlow(ar*ar,nrec*ss)
+    required_min_sine_hi=sqrtup(ar*ar,nrec*ss)
+    source_dark_all_excluded=int(ar*ar*UNIT*UNIT>
+                                 MATCHED_E2_SINE*MATCHED_E2_SINE*nrec*ss)
+    # Reverse endpoint MUST be compared to certified matched flat
+    # state angle and with FULL source K and E1 errors still open.
+    emit("Y137_REVERSE_DARK_HYPERPLANE",
+         closest_dark_to_recentered_sine_lo_per_trillion=required_min_sine_lo,
+         closest_dark_to_recentered_sine_hi_per_trillion=required_min_sine_hi,
+         certified_matched_E2_sine_ceiling_per_trillion=MATCHED_E2_SINE,
+         all_dark_directions_for_fixed_original_centered_M_excluded=
+              source_dark_all_excluded,
+         exact_integer_strict_cross_product="PASS",
+         full_true_centered_Wilson_K_errors="NOT_BOUNDED_HERE",
+         true_E1_projector_error="NOT_BOUNDED_HERE",
+         actual_original_first_Wilson_weight="HOLD")
     noQ=sigmas(A,Cn,Sden,eps,v1,v2,vrec,8,0,
                 "DARK_ENDPOINT",vd,None)
     results=[]
@@ -286,6 +316,10 @@ def main():
          dark_source_excluded_by_current_Schur_only=noQ[3],
          dark_source_excluded_by_matched_E2_sine_only=noQ[5],
          dark_source_to_matched_sine_lower_per_trillion=noQ[4],
+         all_source_dark_hyperplane_excluded_under_matched_E2_cone=
+              source_dark_all_excluded,
+         best_possible_dark_from_matched_sine_lo_per_trillion=
+              required_min_sine_lo,
          independently_verified_true_wilson_M="NOT_CONSTRAINED_TO_SOURCE_CENTRE",
          true_E1_projector_angle="NOT_USED",
          global_dark_state_physical_exclusion="NOT_PROVED",
