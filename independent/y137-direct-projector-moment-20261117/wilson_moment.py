@@ -100,7 +100,7 @@ def toy():
 
 def real():
     toy()
-    previous.need(previous.k.SCRIPT_SHA=="f3461aa8a50cfa9efb4a1bbdc2d7be44ec1d4a13c80c47fd55fa07de60be28ff",
+    need(previous.k.SCRIPT_SHA=="f3461aa8a50cfa9efb4a1bbdc2d7be44ec1d4a13c80c47fd55fa07de60be28ff",
                   "original_K3_graph_SHA_drift")
     ball,obs=previous.build()
     source=previous.mod.threshold_ball(previous.A1,previous.DEN,
