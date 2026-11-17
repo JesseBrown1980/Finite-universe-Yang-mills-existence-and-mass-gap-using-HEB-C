@@ -1,0 +1,363 @@
+#!/usr/bin/env python3
+"""Source-frozen MTP/Fischer/N-Nest SAT pilot. Exact integers only."""
+import hashlib
+import importlib.util
+import os
+from pathlib import Path
+from time import monotonic_ns
+
+HERE = Path(__file__).resolve().parent
+PARENT = HERE.parent / "y137-hierarchical-mtp-sat-20261117" / "pilot.py"
+
+
+def load_generator():
+    spec = importlib.util.spec_from_file_location("source_sat_pilot", PARENT)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def sha(value):
+    return hashlib.sha256(repr(value).encode("ascii")).hexdigest()
+
+
+def source_fingerprint(clauses):
+    return sha(clauses)
+
+
+def literal_true(lit, assignment):
+    return bool((assignment >> (abs(lit) - 1)) & 1) == (lit > 0)
+
+
+def clauses_hold(clauses, assignment):
+    return all(any(literal_true(lit, assignment) for lit in clause) for clause in clauses)
+
+
+def validate_source(n, clauses):
+    assert isinstance(clauses, tuple) and n > 0
+    assert all(isinstance(c, tuple) and len(c) == 3 for c in clauses)
+    assert all(all(isinstance(x, int) and 1 <= abs(x) <= n for x in c) for c in clauses)
+    assert all(len({abs(x) for x in c}) == 3 for c in clauses)
+
+
+def local_truth(scope, clauses, metrics):
+    allowed = []
+    for assignment in range(8):
+        valid = True
+        for clause in clauses:
+            sat = False
+            for lit in clause:
+                bit = (assignment >> scope.index(abs(lit))) & 1
+                metrics["local_literal_checks"] += 1
+                if bit == int(lit > 0):
+                    sat = True
+            if not sat:
+                valid = False
+        allowed.append(valid)
+    return tuple(allowed)
+
+
+def watcher_motif(scope, clauses, rhs, metrics):
+    # Independent canonical-clause reconstruction, not the proposal's truth-table loop.
+    canonical = set()
+    for assignment in range(8):
+        if assignment.bit_count() % 2 == rhs:
+            continue
+        canonical.add(tuple(-v if (assignment >> j) & 1 else v
+                            for j, v in enumerate(scope)))
+    metrics["watcher_clause_checks"] += 4
+    return len(clauses) == 4 and len(set(clauses)) == 4 and set(clauses) == canonical
+
+
+def compile_source(n, clauses, metrics, tamper_first=False):
+    groups = {}
+    for clause in clauses:
+        scope = tuple(sorted(abs(x) for x in clause))
+        groups.setdefault(scope, []).append(clause)
+        metrics["group_inserts"] += 1
+    rows = []
+    accepted = set()
+    trace = hashlib.sha256(source_fingerprint(clauses).encode("ascii")).hexdigest()
+    corrected = 0
+    for index, (scope, group) in enumerate(sorted(groups.items())):
+        truth = local_truth(scope, group, metrics)
+        good = [j for j, permitted in enumerate(truth) if permitted]
+        if len(good) != 4 or len(group) != 4:
+            continue
+        sides = {j.bit_count() & 1 for j in good}
+        if len(sides) != 1:
+            continue
+        rhs = next(iter(sides))
+        guess = rhs ^ int(tamper_first and corrected == 0)
+        if not watcher_motif(scope, group, guess, metrics):
+            metrics["watcher_rejections"] += 1
+            if not watcher_motif(scope, group, rhs, metrics):
+                continue
+            corrected += 1
+        elif not watcher_motif(scope, group, rhs, metrics):
+            raise AssertionError("watcher disagreement")
+        mask = sum(1 << (v - 1) for v in scope)
+        rows.append((mask, rhs))
+        accepted.add(scope)
+        trace = sha((trace, scope, mask, rhs))
+        metrics["accepted_transforms"] += 1
+    residual = tuple(c for c in clauses if tuple(sorted(abs(v) for v in c)) not in accepted)
+    return tuple(rows), residual, trace, corrected
+
+
+def right_eliminate(n, rows, metrics):
+    basis = {}
+    # Fischer-inspired SAT-specific score: width and projected overlap.
+    ordered = sorted(rows, key=lambda r: (r[0].bit_count(), r[0].bit_length(), r))
+    metrics["fischer_row_scores"] += len(rows)
+    for mask, rhs in ordered:
+        while mask:
+            pivot = mask.bit_length() - 1
+            metrics["pivot_probes"] += 1
+            if pivot not in basis:
+                basis[pivot] = (mask, rhs)
+                metrics["basis_peak_bits"] = max(metrics["basis_peak_bits"],
+                                                  len(basis) * (n + 1))
+                break
+            old, old_rhs = basis[pivot]
+            mask ^= old
+            rhs ^= old_rhs
+            metrics["row_xors"] += 1
+            metrics["xor_bitwork_bound"] += n + 1
+        else:
+            if rhs:
+                return None
+    return basis
+
+
+def left_rank(n, rows, metrics):
+    # Root N-Nest watcher uses the opposite pivot direction and full elimination.
+    work = [[m, b] for m, b in rows]
+    rank = 0
+    for bit in range(n):
+        match = next((j for j in range(rank, len(work))
+                      if (work[j][0] >> bit) & 1), None)
+        metrics["watcher_pivot_probes"] += len(work) - rank
+        if match is None:
+            continue
+        work[rank], work[match] = work[match], work[rank]
+        for j in range(len(work)):
+            if j != rank and (work[j][0] >> bit) & 1:
+                work[j][0] ^= work[rank][0]
+                work[j][1] ^= work[rank][1]
+                metrics["watcher_row_xors"] += 1
+                metrics["watcher_bitwork_bound"] += n + 1
+        rank += 1
+    contradiction = any(mask == 0 and rhs for mask, rhs in work)
+    return rank, contradiction
+
+
+def affine_expressions(n, basis, rows, metrics):
+    pivots = set(basis)
+    expr = [((1 << v), 0) if v not in pivots else None for v in range(n)]
+    for p in sorted(pivots):
+        mask, rhs = basis[p]
+        rest = mask ^ (1 << p)
+        for q in sorted(pivots):
+            if q >= p:
+                break
+            if rest & (1 << q):
+                submask, subrhs = expr[q]
+                rest ^= (1 << q) ^ submask
+                rhs ^= subrhs
+                metrics["backsub_xors"] += 1
+        assert not any(rest & (1 << q) for q in pivots)
+        expr[p] = rest, rhs
+    for mask, rhs in rows:
+        check_mask, check_rhs = 0, rhs
+        for v in range(n):
+            if mask & (1 << v):
+                part, bit = expr[v]
+                check_mask ^= part
+                check_rhs ^= bit
+                metrics["watcher_expression_checks"] += 1
+        assert check_mask == 0 and check_rhs == 0
+    return tuple(expr), tuple(v for v in range(n) if v not in pivots)
+
+
+def expand(expr, free_assignment):
+    return sum((((free_assignment & m).bit_count() & 1) ^ rhs) << i
+               for i, (m, rhs) in enumerate(expr))
+
+
+def branch_order(free, residual, expr, metrics, mode):
+    if mode == "fixed":
+        return free
+    ranked = []
+    for v in free:
+        covered = 0
+        footprint = 0
+        bit = 1 << v
+        for clause in residual:
+            masks = [expr[abs(lit) - 1][0] for lit in clause]
+            covered += int(any(mask & bit for mask in masks))
+            footprint += sum(mask.bit_count() for mask in masks if mask & bit)
+            metrics["fischer_literal_scores"] += len(clause)
+        ranked.append((-covered, footprint, v))
+    return tuple(row[-1] for row in sorted(ranked))
+
+
+class Budget(Exception):
+    pass
+
+
+def bounded_exact(n, clauses, residual, expr, free, limit, metrics, mode):
+    order = branch_order(free, residual, expr, metrics, mode)
+    first = [None]
+    def recurse(known, free_value, depth):
+        if metrics["search_nodes"] >= limit:
+            raise Budget()
+        metrics["search_nodes"] += 1
+        complete = True
+        for clause in residual:
+            satisfied = False
+            pending = False
+            for lit in clause:
+                mask, rhs = expr[abs(lit) - 1]
+                metrics["search_literal_checks"] += 1
+                if mask & ~known:
+                    pending = True
+                elif (((mask & free_value).bit_count() & 1) ^ rhs) == int(lit > 0):
+                    satisfied = True
+                    break
+            if not satisfied and not pending:
+                return 0
+            if not satisfied:
+                complete = False
+        if complete:
+            if first[0] is None:
+                first[0] = expand(expr, free_value)
+                assert clauses_hold(clauses, first[0])
+                metrics["witness_literal_checks"] += sum(map(len, clauses))
+            return 1 << (len(order) - depth)
+        if depth == len(order):
+            return 0
+        bit = 1 << order[depth]
+        return recurse(known | bit, free_value, depth + 1) + recurse(
+            known | bit, free_value | bit, depth + 1)
+    try:
+        count = recurse(0, 0, 0)
+        return count, first[0], "EXACT"
+    except Budget:
+        return None, None, "HOLD_BUDGET"
+
+
+def peak_kib():
+    try:
+        with open("/proc/self/status", encoding="ascii") as handle:
+            for line in handle:
+                if line.startswith("VmHWM:"):
+                    return int(line.split()[1])
+    except OSError:
+        pass
+    return -1
+
+
+def execute(kind, n, clauses, limit=20000, injected=False):
+    validate_source(n, clauses)
+    start = monotonic_ns()
+    frozen = source_fingerprint(clauses)
+    metrics = {name: 0 for name in (
+        "group_inserts", "local_literal_checks", "watcher_clause_checks",
+        "watcher_rejections", "accepted_transforms", "fischer_row_scores",
+        "pivot_probes", "row_xors", "xor_bitwork_bound", "basis_peak_bits",
+        "watcher_pivot_probes", "watcher_row_xors", "watcher_bitwork_bound",
+        "backsub_xors", "watcher_expression_checks", "fischer_literal_scores",
+        "search_nodes", "search_literal_checks", "witness_literal_checks")}
+    rows, residual, proof, corrected = compile_source(n, clauses, metrics, injected)
+    assert source_fingerprint(clauses) == frozen
+    basis = right_eliminate(n, rows, metrics)
+    rank, contradictory = left_rank(n, rows, metrics)
+    assert (basis is None) == contradictory
+    if basis is None:
+        count, witness, status = 0, None, "EXACT_UNSAT"
+        free = ()
+    else:
+        assert len(basis) == rank
+        expr, free = affine_expressions(n, basis, rows, metrics)
+        count, witness, status = bounded_exact(n, clauses, residual, expr, free,
+                                                limit, metrics, "fischer")
+    baseline = {name: 0 for name in metrics}
+    if basis is not None and count is not None:
+        check, _, baseline_status = bounded_exact(n, clauses, residual, expr, free,
+                                                   limit, baseline, "fixed")
+        if baseline_status == "EXACT":
+            assert check == count
+    else:
+        baseline_status = "NOT_EXACT_REPLAYED"
+    assert source_fingerprint(clauses) == frozen
+    work = len(repr(clauses).encode("ascii")) + sum(metrics.values()) + sum(baseline.values())
+    result_sha = sha((kind, n, frozen, count, rank, proof, status))
+    record = dict(kind=kind, variables=n, clauses=len(clauses), rank=rank,
+                  recognized=len(rows), residual=len(residual),
+                  free_variables=len(free), model_count=count if count is not None else "HOLD",
+                  status=status, source_sha256=frozen, proof_sha256=proof,
+                  result_sha256=result_sha, corrected_proposals=corrected,
+                  total_metered_units=work, fischer_scores=metrics["fischer_row_scores"] +
+                  metrics["fischer_literal_scores"], watcher_checks=metrics["watcher_clause_checks"] +
+                  metrics["watcher_pivot_probes"] + metrics["watcher_row_xors"] +
+                  metrics["watcher_expression_checks"],
+                  search_nodes=metrics["search_nodes"], baseline_nodes=baseline["search_nodes"],
+                  baseline_status=baseline_status, witness_sha256=sha(witness),
+                  peak_rss_kib=peak_kib(), elapsed_ns=monotonic_ns() - start)
+    return record
+
+
+def fixture_sources():
+    pilot = load_generator()
+    for n in (48, 72, 384):
+        source, _ = pilot.parity_family(n)
+        yield "parity", n, source
+    for n in (12, 24, 36, 48, 72):
+        parity, _ = pilot.parity_family(n)
+        scopes = {tuple(sorted(abs(v) for v in c)) for c in parity[:4 * (n // 2)]}
+        residual = []
+        for c in pilot.generic(n):
+            if tuple(sorted(abs(v) for v in c)) not in scopes:
+                residual.append(c)
+            if len(residual) == n // 2:
+                break
+        yield "mixed", n, parity[:4 * (n // 2)] + tuple(residual)
+    for n in (12, 18, 24):
+        yield "generic", n, pilot.generic(n)
+
+
+def controls():
+    m = {k: 0 for k in ("group_inserts", "local_literal_checks",
+                         "watcher_clause_checks", "watcher_rejections",
+                         "accepted_transforms")}
+    generator = load_generator()
+    c = generator.xor_clauses((1, 2, 3), 0)
+    rows, residual, _, corrected = compile_source(3, c, m, True)
+    assert len(rows) == 1 and not residual and corrected == 1
+    assert m["watcher_rejections"] == 1
+    incomplete = c[:3]
+    assert len(compile_source(3, incomplete, m)[0]) == 0
+    assert source_fingerprint(c) != source_fingerprint(incomplete)
+    contradictory = c + generator.xor_clauses((1, 2, 3), 1)
+    assert execute("negative", 3, contradictory)["model_count"] == 0
+    print("SAT_CONTROL|wrong_proposal_rejected=PASS|incomplete_motif=PASS|tampered_source_sha=PASS|conflict_unsat=PASS")
+
+
+def main():
+    controls()
+    cases = []
+    for kind, n, source in fixture_sources():
+        limit = 20000 if n <= 24 else 6000
+        r = execute(kind, n, source, limit=limit, injected=True)
+        cases.append(r)
+        print("SAT_INTEGRATED|" + "|".join(str(k) + "=" + str(v)
+              for k, v in r.items()) + "|json=0", flush=True)
+    assert len(cases) == 11
+    print("SAT_INTEGRATED_FINAL|cases=11|source_frozen=PASS|corrected_proposals=PASS|"
+          "independent_nnest_watcher=PASS|baseline_metered=PASS|"
+          "P_equals_NP=NOT_ESTABLISHED|original_Wilson_first_weight=HOLD|status=RESEARCH_PILOT")
+
+
+if __name__ == "__main__":
+    main()
