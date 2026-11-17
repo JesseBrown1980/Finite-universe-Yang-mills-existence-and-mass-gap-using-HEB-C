@@ -96,7 +96,8 @@ def watcher_motif(scope, clauses, rhs, metrics):
         canonical.add(tuple(-v if (assignment >> j) & 1 else v
                             for j, v in enumerate(scope)))
     metrics["watcher_clause_checks"] += 4
-    return len(clauses) == 4 and len(set(clauses)) == 4 and set(clauses) == canonical
+    normalized = {tuple(sorted(clause, key=abs)) for clause in clauses}
+    return len(clauses) == 4 and len(normalized) == 4 and normalized == canonical
 
 
 def compile_source(n, clauses, metrics, tamper_first=False):
