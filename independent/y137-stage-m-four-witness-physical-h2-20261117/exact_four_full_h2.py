@@ -17,7 +17,7 @@ INDEP=os.path.join(ROOT,"independent")
 sys.path.insert(0,os.path.join(INDEP,"y137-full-ritz-inertia-20261117"))
 sys.path.insert(0,os.path.join(INDEP,"y137-h20736-shell3-20261116"))
 sys.path.insert(0,os.path.join(INDEP,"y137-exact-htt-ritz-20261116"))
-import exact_20738_inertia_pilot as k
+import exact_20738_inertia_pilot as stage_k_source
 import two_trial_ritz as tw
 import independent_four_ritz as four
 
@@ -149,11 +149,11 @@ def matvec(entries,x,tag):
     return out
 
 def load_H2(folder):
-    file=k.read_artifact(folder,"RESULT-H2-EXACT.hbp")
+    file=stage_k_source.read_artifact(folder,"RESULT-H2-EXACT.hbp")
     ls=file.decode("ascii").splitlines()
     need(len(ls)==2,"original_H2_receipt_two_rows")
-    x=k.fields(ls[0])
-    y=k.fields(ls[1])
+    x=stage_k_source.fields(ls[0])
+    y=stage_k_source.fields(ls[1])
     need(ls[0].startswith("Y137_L_H2_MATRIX|") and
          ls[1].startswith("Y137_L_H2_VERDICT|"),
          "original_H2_receipt_labels")
@@ -175,13 +175,13 @@ def load_H2(folder):
     return [[values[0],values[1]],[values[1],values[2]]]
 
 def assemble(old_dir,cross_dir,res_dir,htt_dir,h2_dir):
-    s=k.Source(old_dir,cross_dir,res_dir,htt_dir)
+    s=stage_k_source.Source(old_dir,cross_dir,res_dir,htt_dir)
     need(s.N>0 and s.det==s.schurden,"source_Gram_det")
     newH2=load_H2(h2_dir)
-    need(k.SHA_OLD==EXPECTED_OLD_SHA and k.SHA_C==EXPECTED_C_SHA,
+    need(stage_k_source.SHA_OLD==EXPECTED_OLD_SHA and stage_k_source.SHA_C==EXPECTED_C_SHA,
          "original_source_PIN_mismatch")
     entries=[]
-    for line in k.read_artifact(old_dir,"H20736-SPARSE-UPPER.tsv").splitlines():
+    for line in stage_k_source.read_artifact(old_dir,"H20736-SPARSE-UPPER.tsv").splitlines():
         tag,i,j,v=line.decode("ascii").split("\t")
         entries.append((tag,int(i),int(j),int(v)))
     # tw.source() independently authenticates the locally rebuilt old matrix.
@@ -197,7 +197,7 @@ def assemble(old_dir,cross_dir,res_dir,htt_dir,h2_dir):
     kx=[matvec(entries,x,"K") for x in xs]
     oldG=[[dot(xs[i],gx[j]) for j in range(2)] for i in range(2)]
     oldK=[[dot(xs[i],kx[j]) for j in range(2)] for i in range(2)]
-    m=k.record(res_dir,"RESULT-TWO-RESIDUAL.hbp","Y137_TWO_RESIDUAL_MATRIX")
+    m=stage_k_source.record(res_dir,"RESULT-TWO-RESIDUAL.hbp","Y137_TWO_RESIDUAL_MATRIX")
     need([oldG[0][0],oldG[0][1],oldG[1][1]]==
          [int(m[t]) for t in ("old_source_G11","old_source_G12","old_source_G22")],
          "original_oldsource_Gram_regression")
