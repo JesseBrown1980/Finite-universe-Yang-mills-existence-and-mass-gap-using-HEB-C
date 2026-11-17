@@ -1,0 +1,7 @@
+# #137 — original QOQ full-Q numerical tightening, independent CI branches
+
+This research draft branches off source-authenticated Stage P PR #273. Both the original physical E1/E2 energy-window 8×8 Wilson matrix calculation and its exact proof remain unchanged; only the number of Jacobi iterations for the original Q inverse trial changes.
+
+Two production jobs run separately and concurrently at **40** and **60** iterations (vs frozen 20). Each regenerates all original 155,378 K3 nonflat source coordinates, the complete 1,985,218 exterior shell4 targets, all eight signed Jacobi inverse columns at both actual physical energy upper bounds, and the source-authenticated original seven-loop Wilson 8×8 QOQ entries. Both recompute the full inverse-residual Gram and all 64 signed physical matrix intervals. Each job reports the measured largest entrywise error radius and checks it against the actual 20-step hosted bound **147048109574 parts per trillion**. This is an experimental optimization, so either GAIN or NO_GAIN is a valid outcome; a changed source, lost exterior, invalid rational norm or fabricated Wilson result is a hard failure.
+
+No true flat Schur eigendirection is constructed by this branch. The first Wilson weight stays HOLD even after an improvement. A second independent branch certifies projector transfer/contraction; combine the separate frozen receipts in a final witness with no assumption about which source refinement wins.
