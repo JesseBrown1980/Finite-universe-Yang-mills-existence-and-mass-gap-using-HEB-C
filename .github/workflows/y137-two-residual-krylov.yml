@@ -17,6 +17,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -I -B native/scripts/integer_only_audit.py independent/y137-two-residual-krylov-20261116/exact_residual_gram.py
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-two-residual-krylov-20261116/independent_accept.py
           python3 -I -B native/scripts/no_float_gate.py .
       - name: Frozen original PR247 source and exact two-residual receipt
         run: |
@@ -55,12 +56,24 @@ jobs:
           grep -Fq '|original_self_full_H_checks=2_OF_2_EXACT|' build/y137-two-residual/RESULT-TWO-RESIDUAL.hbp
           grep -Fq '|new_residual_to_residual_H=NOT_COMPUTED|' build/y137-two-residual/RESULT-TWO-RESIDUAL.hbp
           grep -Fq '|first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-two-residual/RESULT-TWO-RESIDUAL.hbp
+      - name: Independent exact 2x2 determinant, source-pinning and negative controls
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-two-residual-krylov-20261116/independent_accept.py real |
+            tee build/y137-two-residual/INDEPENDENT-ACCEPT.hbp
+          grep -Fq '|independent_2x2_determinant=POSITIVE|' build/y137-two-residual/INDEPENDENT-ACCEPT.hbp
+          grep -Fq '|negative_controls=2_OF_2_REJECTED|' build/y137-two-residual/INDEPENDENT-ACCEPT.hbp
+          grep -Fq '|Wilson_weight=HOLD|json=0' build/y137-two-residual/INDEPENDENT-ACCEPT.hbp
       - name: Source, original sparse matrix and new 2x2 Gram fingerprints
         if: always()
         run: |
           set -euo pipefail
           git rev-parse HEAD > build/y137-two-residual/COMMIT.txt
           sha256sum independent/y137-two-residual-krylov-20261116/exact_residual_gram.py > build/y137-two-residual/SOURCE.sha256
+          sha256sum independent/y137-two-residual-krylov-20261116/independent_accept.py > build/y137-two-residual/INDEPENDENT-SOURCE.sha256
+          if test -f build/y137-two-residual/INDEPENDENT-ACCEPT.hbp; then
+            sha256sum build/y137-two-residual/INDEPENDENT-ACCEPT.hbp > build/y137-two-residual/INDEPENDENT-RESULT.sha256
+          fi
           if test -f build/y137-h20736/H20736-SPARSE-UPPER.tsv; then
             sha256sum build/y137-h20736/H20736-SPARSE-UPPER.tsv > build/y137-two-residual/ORIGINAL-SPARSE.sha256
           fi
