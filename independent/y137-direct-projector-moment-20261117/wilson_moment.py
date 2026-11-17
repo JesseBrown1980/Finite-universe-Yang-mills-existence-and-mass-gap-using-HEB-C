@@ -20,7 +20,15 @@ from math import isqrt
 HERE=os.path.dirname(os.path.abspath(__file__))
 INDEP=os.path.dirname(HERE)
 sys.path.insert(0,os.path.join(INDEP,"y137-q-dual-weight-20261113"))
-import replay as previous
+# Original pinned k3_common.py deliberately refuses command-line arguments at
+# import time. Keep that unchanged and present its expected no-argument import
+# context, then restore Stage N's toy/real command arguments for our own main.
+_STAGE_N_ARGV=sys.argv[:]
+try:
+    sys.argv=sys.argv[:1]
+    import replay as previous
+finally:
+    sys.argv=_STAGE_N_ARGV
 
 D=1000000000
 E3_LO_NUM=69968699300
