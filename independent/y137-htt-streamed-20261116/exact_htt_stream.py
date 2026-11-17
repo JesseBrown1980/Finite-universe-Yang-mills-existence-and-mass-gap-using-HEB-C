@@ -38,7 +38,13 @@ sys.path.insert(0,H20736DIR)
 sys.path.insert(0,os.path.join(ROOT,"independent"))
 import exact_residual_gram
 import residual_projection
+# Original S3 certificate module guards its own command line (for source
+# sabotage tests). Import its exact physical functions with a neutral argv.
+# Restore our requested shard/toy/pilot mode immediately after import.
+original_args=sys.argv[:]
+sys.argv=[sys.argv[0]]
 import finite_s3_3x4_r9_first_gap
+sys.argv=original_args
 import full_trial_residual
 
 D=1000000000
