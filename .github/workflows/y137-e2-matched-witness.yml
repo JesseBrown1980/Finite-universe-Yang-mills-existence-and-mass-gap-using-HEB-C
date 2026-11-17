@@ -1,0 +1,44 @@
+name: "Y137 exact E2 Schur matched witness angle, original four moments"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-e2-matched-witness.yml'
+      - 'independent/y137-e2-matched-witness-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-E2-4moment-matched-direction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Source-only integer audit and negative source identity controls
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-e2-matched-witness-20261117/matched.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          mkdir -p build/y137-E2-matched
+          python3 -I -B independent/y137-e2-matched-witness-20261117/matched.py toy \
+            | tee build/y137-E2-matched/TOY.hbp
+          grep -Fq '|moving_witness_requires_new_Wilson_source=PASS|' build/y137-E2-matched/TOY.hbp
+      - name: Original 8x8 real signed mu3, fourth moment, six matched Schur directions
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-e2-matched-witness-20261117/matched.py real \
+            | tee build/y137-E2-matched/ALL.hbp
+          grep '^Y137_E2_DIRECT_POINT|' build/y137-E2-matched/ALL.hbp > build/y137-E2-matched/RESULT.hbp
+          grep '^Y137_E2_DIRECT_VERDICT|' build/y137-E2-matched/ALL.hbp >> build/y137-E2-matched/RESULT.hbp
+          test "$(grep -c '^Y137_E2_DIRECT_POINT|' build/y137-E2-matched/RESULT.hbp)" -eq 6
+          grep -Fq '|original_fixed_Wilson_dual_not_reused=PASS|' build/y137-E2-matched/RESULT.hbp
+          grep -Fq '|actual_original_first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-E2-matched/RESULT.hbp
+          sha256sum independent/y137-e2-matched-witness-20261117/matched.py > build/y137-E2-matched/SOURCE.sha256
+          sha256sum build/y137-E2-matched/RESULT.hbp > build/y137-E2-matched/RESULT.sha256
+          git rev-parse HEAD > build/y137-E2-matched/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-source-conditional-E2-matched-4moment
+          path: build/y137-E2-matched/
+          retention-days: 90
+          if-no-files-found: warn
