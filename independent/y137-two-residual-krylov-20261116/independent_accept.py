@@ -41,8 +41,18 @@ def decode(line, prefix):
 
 def exact():
     need(os.path.isfile(ART),"real_full_H_receipt_missing")
-    lines=open(ART,encoding="ascii").read().splitlines()
-    labels=[s.split("|",1)[0] for s in lines]
+    all_lines=open(ART,encoding="ascii").read().splitlines()
+    # The original pinned S3 builder also prints two independent source-
+    # census provenance records. Restrict the five-row exact new certificate
+    # while separately asserting the historical full-orbit census.
+    source_census=[line for line in all_lines
+                   if line.startswith("S3_3X4_CENSUS|")]
+    need(len(source_census)==2 and all(
+         "orbit_dimension_full=2177317873|" in line
+         for line in source_census), "original_S3_source_census_missing")
+    lines=[line for line in all_lines
+           if line.startswith("Y137_TWO_RESIDUAL_")]
+    labels=[line.split("|",1)[0] for line in lines]
     need(labels==["Y137_TWO_RESIDUAL_SOURCE",
                   "Y137_TWO_RESIDUAL_MATRIX",
                   "Y137_TWO_RESIDUAL_GRAM",
