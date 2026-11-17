@@ -157,6 +157,7 @@ def shard(slot):
          frozen_original_E12_SHA=meta["original_frozen_Gram_E12_SHA"],
          frozen_original_E22_SHA=meta["original_frozen_Gram_E22_SHA"],
          file_sha256=sha256_file(name),
+         source_code_sha256=sha256_file(__file__),
          old_to_new_H="SHARD_EXACT",
          Wilson_weight="HOLD")
 
@@ -198,6 +199,14 @@ def fanin(folder):
             source_sha=q["source_support_sha256"]
         need(q["source_support_sha256"]==source_sha,
              "physical_residual_source_shas_disagree")
+        need(q["source_code_sha256"]==sha256_file(__file__),
+             "source_code_SHA_across_shards_changed")
+        for provenance,expected in (("COMMIT.txt",None),("SOURCE.sha256",None)):
+            need(os.path.isfile(os.path.join(local,provenance)),
+                 "missing_shard_source_provenance_"+provenance)
+        expected_source=open(os.path.join(local,"SOURCE.sha256"),encoding="ascii").read().split()[0]
+        need(expected_source==q["source_code_sha256"],
+             "shard_source_provenance_checksum_mismatch")
         need(sha256_file(path)==q["file_sha256"],
              "source_shard_file_checksum_mismatch")
         with open(path,encoding="ascii") as fd:
@@ -240,8 +249,8 @@ def fanin(folder):
          "frozen_trial_vectors_missing")
     need([t[0] for t in trials]==[69924497999,69963565334],
          "frozen_trial_z_changed")
-    need(s132==[i for i in s132] and
-         len(s3)==20592,"original_basis_selection_changed")
+    need(len(s132)==132 and len(s3)==20592,
+         "original_basis_selection_changed")
     # Four independent frozen exact bilinear identities, no rounding:
     # <u_i,H v_j> = <(D H-z_i)u_i, v_j>/D
     #              = <t_i, d t_j>/D = E_num[i,j]/D.
