@@ -1,0 +1,49 @@
+name: "Y137 independent original Wilson true-flat projector contraction"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-parallel-flat-projector-contraction.yml'
+      - 'independent/y137-parallel-flat-projector-contraction-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-flat-Schur-Wilson-transition-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact-only source controls and independent toy
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-parallel-flat-projector-contraction-20261117/flat_wilson_gate.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-centered-schur-transfer-20261113/RESULT-CENTERED-PROJECTOR.hbp)" = '3a147c8a750dae490882702307f8ec795a3c1f51'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp)" = '40762ceb865829156e4765b720f52d39a8be9b6f'
+          test "$(git hash-object independent/y137-fullstate-Q-normalization-20261113/RESULT-FULL-W-NORM.hbp)" = '48c02e1e80112e5d758b403f41d07079d9fcb064'
+          mkdir -p build/y137-parallel-flat
+          python3 -I -B independent/y137-parallel-flat-projector-contraction-20261117/flat_wilson_gate.py toy \
+            | tee build/y137-parallel-flat/TOY.hbp
+          grep -Fq '|outward_sqrt=PASS|real_first_Wilson_weight=HOLD|json=0' build/y137-parallel-flat/TOY.hbp
+      - name: Actual old-source two true flat Schur directions versus hosted O8 interval
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-parallel-flat-projector-contraction-20261117/flat_wilson_gate.py real \
+            | tee build/y137-parallel-flat/ALL.hbp
+          grep '^Y137_FLAT_WILSON_INPUT|' build/y137-parallel-flat/ALL.hbp > build/y137-parallel-flat/RESULT.hbp
+          grep '^Y137_FLAT_WILSON_BENCHMARK|' build/y137-parallel-flat/ALL.hbp >> build/y137-parallel-flat/RESULT.hbp
+          grep '^Y137_FLAT_WILSON_GATE|' build/y137-parallel-flat/ALL.hbp >> build/y137-parallel-flat/RESULT.hbp
+          test "$(wc -l < build/y137-parallel-flat/RESULT.hbp)" -eq 3
+          grep -Fq '|original_Wilson_matrix=PR273_HOSTED_64_SIGNED_ENTRIES|' build/y137-parallel-flat/RESULT.hbp
+          grep -Fq '|physical_first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-parallel-flat/RESULT.hbp
+          git rev-parse HEAD > build/y137-parallel-flat/COMMIT.txt
+          sha256sum independent/y137-parallel-flat-projector-contraction-20261117/flat_wilson_gate.py > build/y137-parallel-flat/SOURCE.sha256
+          sha256sum independent/y137-parallel-flat-projector-contraction-20261117/INPUT-ORIGINAL-O8-64.hbp > build/y137-parallel-flat/INPUT.sha256
+          sha256sum build/y137-parallel-flat/RESULT.hbp > build/y137-parallel-flat/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-true-flat-original-Wilson-64-contraction
+          path: build/y137-parallel-flat/
+          retention-days: 90
+          if-no-files-found: warn
