@@ -19,6 +19,12 @@ This collection has **80 curated records from all 865 lines** of the frozen READ
 3. Algorithmic record axes include size/support, reported work count and mathematical operation order. Mixed units (rows, electric moves, moment entries, verifier checks) must not be interpreted as measurements of elapsed runtime or universal complexity.
 4. The gap mesh and filter curves are **mathematical models**, not additional accepted numerical source certificates.
 
+## Exact hypothesis tests, November 17, 2026
+
+[Source verifier](predictions.py) · [13-row exact result](RESULT-ATLAS-PREDICTIONS-20261117.hbp) · [hosted PASS run #44094490381](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44094490381) · [full interpretation](HYPOTHESIS.md).
+
+The strong-magnetic 3×3 model `3r−21/r−43/r²` matches all three existing high-coupling certified intervals at 27, 81 and 243, **fails the r=9 interval**, and rejects coefficient 44 at r=27. The exact Q-inverse filter's theoretical bound falls below `1/700` at polynomial degree **15**, but it is not a Wilson-transition error. A 5×5 rational Feshbach observable/normalization identity and a deliberately omitted-`QOQ` control also pass. These results **validate the arithmetic and constrain the hypothesis**; they do not prove a positive first Wilson spectral weight. The coefficient pattern at high r was already noted in the original `zgap2` research, so the test is a reproducible replay rather than a new physical determination.
+
 ## Main testable hypothesis
 
 Large-scale enumeration provides authenticated operator information, while spectral deflation and Schur/moment methods can yield much stronger low-energy evidence at smaller reduced dimension. For the isolated 3×4 finite source problem, the lift-free high-sector floor `g_Q=94.0682 J_E` is more than `24 J_E` above the upper bound for `E₂`, but the source-conditional third-to-second physical gap is just `>0.019265416 J_E`. This suggests testing whether a **Feshbach-deflated, source-specific effective Wilson observable** can provide an independently certified strictly positive first-excitation transition weight with less conservative leakage than the earlier generic error transfer.
