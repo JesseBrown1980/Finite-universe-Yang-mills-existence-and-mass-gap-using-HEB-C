@@ -1,0 +1,50 @@
+name: "Y137 original Wilson centered full-Q directional dual"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-original-centered-wilson-dual.yml'
+      - 'independent/y137-original-centered-wilson-dual-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-centered-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict exact source control and integer-only centering toy
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-original-centered-wilson-dual-20261117/dual_centered.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-wilson-effective-20261113/check.py)" = 'b6da6140ca36b361bdd9a0c0477af23d681257cf'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp)" = '40762ceb865829156e4765b720f52d39a8be9b6f'
+          mkdir -p build/y137-centered-dual
+          python3 -I -B independent/y137-original-centered-wilson-dual-20261117/dual_centered.py toy \
+            | tee build/y137-centered-dual/TOY.hbp
+          grep -Fq '|signed_dual_identity=PASS|quadratic_error_term=RETAINED|' build/y137-centered-dual/TOY.hbp
+      - name: Original S3 centered seven-loop Wilson full-Q source
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-original-centered-wilson-dual-20261117/dual_centered.py centered \
+            | tee build/y137-centered-dual/ALL.hbp
+          grep '^Y137_DUAL_WINDOW_SOURCE|' build/y137-centered-dual/ALL.hbp > build/y137-centered-dual/RESULT.hbp
+          grep '^Y137_DUAL_WINDOW_SIGNED|' build/y137-centered-dual/ALL.hbp >> build/y137-centered-dual/RESULT.hbp
+          grep '^Y137_DUAL_WINDOW_VERDICT|' build/y137-centered-dual/ALL.hbp >> build/y137-centered-dual/RESULT.hbp
+          test "$(wc -l < build/y137-centered-dual/RESULT.hbp)" -eq 3
+          grep -Fq '|centered_rational_mu=7/2|' build/y137-centered-dual/RESULT.hbp
+          grep -Fq '|original_observable_shift_defect=EXACT_RETAINED|' build/y137-centered-dual/RESULT.hbp
+          grep -Fq '|true_eigenstate_centering_invariant=YES_EXACT_ORTHOGONALITY|' build/y137-centered-dual/RESULT.hbp
+          grep -Fq '|actual_first_excitation_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-centered-dual/RESULT.hbp
+          git rev-parse HEAD > build/y137-centered-dual/COMMIT.txt
+          sha256sum independent/y137-original-centered-wilson-dual-20261117/dual_centered.py > build/y137-centered-dual/SOURCE.sha256
+          sha256sum build/y137-centered-dual/RESULT.hbp > build/y137-centered-dual/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-centered-wilson-fullQ-dual
+          path: build/y137-centered-dual/
+          retention-days: 90
+          if-no-files-found: warn
