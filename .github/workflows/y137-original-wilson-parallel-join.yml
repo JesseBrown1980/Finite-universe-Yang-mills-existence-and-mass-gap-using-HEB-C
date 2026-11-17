@@ -33,8 +33,10 @@ jobs:
             | tee build/y137-wilson-join/ALL.hbp
           grep '^Y137_WILSON_JOIN_INPUT|' build/y137-wilson-join/ALL.hbp > build/y137-wilson-join/RESULT.hbp
           grep '^Y137_WILSON_JOIN_BUDGET|' build/y137-wilson-join/ALL.hbp >> build/y137-wilson-join/RESULT.hbp
+          grep '^Y137_WILSON_JOIN_FRONTIER|' build/y137-wilson-join/ALL.hbp >> build/y137-wilson-join/RESULT.hbp
           grep '^Y137_WILSON_JOIN_VERDICT|' build/y137-wilson-join/ALL.hbp >> build/y137-wilson-join/RESULT.hbp
-          test "$(wc -l < build/y137-wilson-join/RESULT.hbp)" -eq 3
+          test "$(wc -l < build/y137-wilson-join/RESULT.hbp)" -eq 4
+          grep -Fq '|numerical_frontier=EXACT_INTEGER_ROOT_BISECTION|' build/y137-wilson-join/RESULT.hbp
           grep -Fq '|original_fixed_flat_transition=POSITIVE_SOURCE_CONDITIONAL|' build/y137-wilson-join/RESULT.hbp
           grep -Fq '|actual_first_excitation_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-wilson-join/RESULT.hbp
           git rev-parse HEAD > build/y137-wilson-join/COMMIT.txt
