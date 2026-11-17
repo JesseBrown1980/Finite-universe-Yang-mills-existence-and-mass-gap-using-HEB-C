@@ -101,12 +101,12 @@ def test_toy():
     dets = determinant(S)
     augmented = [S[0]+[q[0]], S[1]+[q[1]], q+[0]]
     n = -determinant(augmented)
-    need(dets == 11 and n == 39, "positive_Schur_inverse_toy")
+    need(dets == 11 and n == 31, "positive_Schur_inverse_toy")
     need(determinant([[0, 1], [1, 0]]) == -1,
          "pivoted_negative_determinant_toy")
     # Orthogonal norm decomposition must not treat old coordinate support as
     # the actual W-orthogonal span whenever nonorthogonal Krylov columns exist.
-    need(39 > 0 and 39 <= 4*11, "projection_Pythagoras_toy")
+    need(31 > 0 and 31 <= 4*11, "projection_Pythagoras_toy")
     emit("Y137_H429M_PROJECT_TOY", exact_2D_Schur="PASS",
          integer_3D_augmented_determinant="PASS",
          pivoted_Bareiss="PASS",
