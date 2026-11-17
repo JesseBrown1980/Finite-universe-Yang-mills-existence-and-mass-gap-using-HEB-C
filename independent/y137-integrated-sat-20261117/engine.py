@@ -479,15 +479,12 @@ def heldout_source(kind, n, seed):
                 if variable not in scope:
                     scope.append(variable)
             if tuple(sorted(scope)) in avoid:
-                # A residual clause is still valid but must not complete or
-                # interfere with a recognized XOR gadget.
-                while tuple(sorted(scope)) in avoid:
-                    index2 = heldout_bit(seed, "avoid", index, attempt) % n + 1
-                    attempt += 1
-                    scope[-1] = index2
-                    if len(set(scope)) != 3:
-                        scope[-1] = (scope[-1] % n) + 1
-                assert tuple(sorted(scope)) not in avoid
+                # Explicitly avoid every source-XOR triple without collisions.
+                choices = [v for v in range(1, n + 1)
+                           if v not in scope[:2] and
+                           tuple(sorted(scope[:2] + [v])) not in avoid]
+                assert choices
+                scope[-1] = choices[heldout_bit(seed, "avoid", index) % len(choices)]
             clause = tuple(v if heldout_bit(seed, kind, "sign", index, slot) & 1
                            else -v for slot, v in enumerate(scope))
             if kind != "random" and not clauses_hold((clause,), original):
@@ -521,7 +518,7 @@ def heldout_controls():
     assert parse_dimacs(base.replace(" 0\n", "\n0\n"))[1] == parse_dimacs(base)[1]
     for corrupt in (
         base.replace("p cnf 12 ", "p cnf 11 "),
-        base.replace("p cnf 12 ", "p cnf 13 "),
+        base.replace("p cnf 12 ", "p cnf 0 "),
         base.replace(" 0\n", " 0 0\n", 1),
         base.replace("p cnf 12 ", "p cna 12 "),
         base + "1 2 3 0\n",
