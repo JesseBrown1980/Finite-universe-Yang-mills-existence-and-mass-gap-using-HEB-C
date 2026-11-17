@@ -184,75 +184,332 @@ def counted_dpll(n, clauses, node_limit):
     return visit(0, 0, 0)
 
 
+def sha(value):
+    return hashlib.sha256(repr(value).encode("ascii")).hexdigest()
+
+
 def parse_receipt(line):
-    return dict(item.split("=", 1) for item in line.strip().split("|")[1:]
-                if "=" in item)
+    fields = line.strip().split("|")[1:]
+    result = {}
+    for item in fields:
+        if "=" not in item:
+            continue
+        key, value = item.split("=", 1)
+        assert key not in result
+        result[key] = value
+    assert result.get("json") == "0"
+    return result
+
+
+def independent_reductions(n, clauses, source_sha):
+    """Independent truth-table motif construction and opposite-pivot rank."""
+    groups = {}
+    for clause in clauses:
+        key = tuple(sorted(abs(lit) for lit in clause))
+        groups.setdefault(key, []).append(clause)
+    rows = []
+    accepted = set()
+    proof = hashlib.sha256(source_sha.encode("ascii")).hexdigest()
+    for scope, group in sorted(groups.items()):
+        if len(group) != 4:
+            continue
+        canonical = {tuple(sorted(clause, key=abs)) for clause in group}
+        if len(canonical) != 4:
+            continue
+        allowed = []
+        for pattern in range(8):
+            truth = {scope[j]: (pattern >> j) & 1 for j in range(3)}
+            if all(any(truth[abs(lit)] == int(lit > 0)
+                       for lit in clause) for clause in group):
+                allowed.append(pattern)
+        if len(allowed) != 4:
+            continue
+        parity = {pattern.bit_count() & 1 for pattern in allowed}
+        if len(parity) != 1:
+            continue
+        rhs = next(iter(parity))
+        forbidden = {tuple(-v if (pattern >> j) & 1 else v
+                           for j, v in enumerate(scope))
+                     for pattern in range(8)
+                     if (pattern.bit_count() & 1) != rhs}
+        if forbidden != canonical:
+            continue
+        mask = sum(1 << (v - 1) for v in scope)
+        rows.append((mask, rhs))
+        accepted.add(scope)
+        proof = sha((proof, scope, mask, rhs))
+    # Independently reduce the equations from their smallest pivots,
+    # unlike the engine's rightmost-pivot incremental elimination.
+    reduced = [[mask, rhs] for mask, rhs in rows]
+    rank = 0
+    for bit in range(n):
+        selected = next((i for i in range(rank, len(reduced))
+                         if reduced[i][0] & (1 << bit)), None)
+        if selected is None:
+            continue
+        reduced[rank], reduced[selected] = reduced[selected], reduced[rank]
+        for i in range(rank + 1, len(reduced)):
+            if reduced[i][0] & (1 << bit):
+                reduced[i][0] ^= reduced[rank][0]
+                reduced[i][1] ^= reduced[rank][1]
+        rank += 1
+    inconsistent = any(mask == 0 and rhs for mask, rhs in reduced[rank:])
+    residual = sum(1 for clause in clauses
+                   if tuple(sorted(abs(v) for v in clause)) not in accepted)
+    return proof, len(rows), residual, rank, inconsistent
+
+
+def receipt_fields(receipt, n, clauses, raw_bytes):
+    """All accepted proof, model, normalization, and source receipt fields."""
+    kind = receipt["kind"]
+    source_sha = sha(clauses)
+    assert int(receipt["variables"]) == n
+    assert receipt["fixture_seed"] == "frozen-" + kind + "-" + str(n) + "-v1"
+    assert int(receipt["clauses"]) == len(clauses)
+    assert receipt["source_sha256"] == source_sha
+    assert receipt["dimacs_sha256"] == hashlib.sha256(raw_bytes).hexdigest()
+    proof, accepted, residual, rank, inconsistent = independent_reductions(
+        n, clauses, source_sha)
+    assert receipt["proof_sha256"] == proof
+    assert int(receipt["recognized"]) == accepted
+    assert int(receipt["residual"]) == residual
+    assert int(receipt["rank"]) == rank
+    assert int(receipt["free_variables"]) == (0 if inconsistent else n - rank)
+    status = receipt["status"]
+    assert status in ("EXACT", "EXACT_UNSAT", "HOLD_BUDGET")
+    if status == "HOLD_BUDGET":
+        assert receipt["model_count"] == "HOLD"
+        assert receipt["witness_integer"] == "NONE"
+        assert int(receipt["search_nodes"]) == 20000
+        count = None
+        witness = None
+    else:
+        count = int(receipt["model_count"])
+        assert count >= 0
+        assert (status == "EXACT_UNSAT") == inconsistent
+        if count == 0:
+            assert receipt["witness_integer"] == "NONE"
+            witness = None
+        else:
+            assert status == "EXACT"
+            witness = int(receipt["witness_integer"])
+            assert 0 <= witness < (1 << n)
+            assert all(check(clause, witness) for clause in clauses)
+    assert receipt["witness_sha256"] == sha(witness)
+    assert receipt["result_sha256"] == sha((
+        kind, n, source_sha, count, rank, proof, status))
+    assert int(receipt["total_metered_units"]) > 0
+    assert int(receipt["source_generation_ns"]) >= 0
+    assert int(receipt["source_generation_bytes"]) == len(raw_bytes)
+    assert int(receipt["elapsed_ns"]) >= int(receipt["source_generation_ns"])
+    assert int(receipt["watcher_checks"]) >= 0
+    assert int(receipt["fischer_scores"]) >= 0
+    assert int(receipt["baseline_nodes"]) >= 0
+    assert receipt["baseline_status"] in ("EXACT", "HOLD_BUDGET", "NOT_EXACT_REPLAYED")
+    return count
 
 
 def verify(receipt, directory):
-    kind = receipt["kind"]
-    n = int(receipt["variables"])
-    seed = receipt["fixture_seed"]
+    kind, n = receipt["kind"], int(receipt["variables"])
     name = kind + "-" + str(n)
     raw_bytes = directory.joinpath(name + ".cnf").read_bytes()
-    raw = raw_bytes.decode("ascii")
-    assert hashlib.sha256(raw_bytes).hexdigest() == receipt["dimacs_sha256"]
-    got_n, clauses = independent_dimacs(raw)
-    assert got_n == n
-    assert clauses == expected_fixture(kind, n, seed)
-    assert len(clauses) == int(receipt["clauses"])
-    assert hashlib.sha256(repr(clauses).encode("ascii")).hexdigest() == receipt["source_sha256"]
-    status, models = receipt["status"], receipt["model_count"]
+    parsed_n, clauses = independent_dimacs(raw_bytes.decode("ascii"))
+    assert parsed_n == n
+    assert clauses == expected_fixture(kind, n, receipt["fixture_seed"])
+    declared_count = receipt_fields(receipt, n, clauses, raw_bytes)
     if kind == "xor":
         actual = independent_xor_count(n, clauses)
         assert actual is not None
     elif kind == "unsat":
-        # The eight last 3-clauses forbid all 2^3 assignments.
+        # All eight independent three-variable configurations excluded.
         assert len({tuple(c) for c in clauses[-8:]}) == 8
         actual = 0
     else:
         actual = counted_dpll(n, clauses, 3000000)
-    if status == "EXACT":
-        assert actual is not None and actual == int(models)
-        if actual:
-            witness = int(receipt["witness_integer"])
-            assert all(check(c, witness) for c in clauses)
-        else:
-            assert receipt["witness_integer"] == "NONE"
-    elif status == "EXACT_UNSAT":
-        assert actual == 0 and models == "0"
-    else:
-        assert status == "HOLD_BUDGET" and models == "HOLD"
-    assert int(receipt["total_metered_units"]) > 0
-    assert int(receipt["source_generation_ns"]) >= 0
+    if receipt["status"] != "HOLD_BUDGET":
+        assert actual is not None and actual == declared_count
+    elif actual is not None:
+        # A HOLD may be independently resolved; it never claims the answer.
+        assert actual >= 0
     return ("UNSAT" if actual == 0 else "SAT" if actual is not None else "UNKNOWN"), actual
+
+
+def assignment_from_tokens(tokens, n):
+    assert tokens
+    values = {}
+    terminated = False
+    for token in tokens:
+        assert not terminated, "literals after end marker"
+        value = int(token)
+        if value == 0:
+            terminated = True
+            continue
+        assert 1 <= abs(value) <= n
+        assert abs(value) not in values
+        values[abs(value)] = value > 0
+    assert terminated and values
+    return values
+
+
+def model_satisfies_partial(clauses, assignments):
+    # All clauses must have an assigned true literal; unknown variables
+    # are never optimistically treated as satisfying a clause.
+    return all(any(assignments.get(abs(lit)) == (lit > 0)
+                   for lit in clause if abs(lit) in assignments)
+               for clause in clauses)
+
+
+def verify_external_model(name, n, clauses, root, minisat_exit, picosat_exit):
+    transcripts = root.joinpath("solver-transcripts")
+    mini_sol = transcripts.joinpath(name + ".mini.sol").read_text(encoding="ascii")
+    mini_log = transcripts.joinpath(name + ".mini.log").read_text(encoding="ascii")
+    pico_log = transcripts.joinpath(name + ".pico.log").read_text(encoding="ascii")
+    assert mini_log.strip() and pico_log.strip()
+    assert transcripts.joinpath(name + ".mini-mem.txt").is_file()
+    assert transcripts.joinpath(name + ".pico-mem.txt").is_file()
+    mini = mini_sol.split()
+    assert mini
+    assert mini[0] == ("SAT" if minisat_exit == "10" else "UNSAT")
+    pico_statuses = [line.split()[1] for line in pico_log.splitlines()
+                     if line.startswith("s ") and len(line.split()) >= 2]
+    assert pico_statuses == (["SATISFIABLE"] if picosat_exit == "10"
+                             else ["UNSATISFIABLE"])
+    pico_tokens = [token for line in pico_log.splitlines()
+                   if line.startswith("v ")
+                   for token in line.split()[1:]]
+    if minisat_exit == "20":
+        assert mini == ["UNSAT"] and not pico_tokens
+        return "UNSAT"
+    mini_values = assignment_from_tokens(mini[1:], n)
+    pico_values = assignment_from_tokens(pico_tokens, n)
+    assert model_satisfies_partial(clauses, mini_values)
+    assert model_satisfies_partial(clauses, pico_values)
+    return "SAT"
+
+
+def corruption_controls(receipts, folder):
+    seed_row = next(row for row in receipts if row["kind"] == "xor")
+    name = seed_row["kind"] + "-" + seed_row["variables"]
+    source_bytes = folder.joinpath(name + ".cnf").read_bytes()
+    n, clauses = independent_dimacs(source_bytes.decode("ascii"))
+    assert receipt_fields(seed_row, n, clauses, source_bytes) == int(seed_row["model_count"])
+    mutations = {
+        "source_sha256": "0" * 64,
+        "dimacs_sha256": "0" * 64,
+        "proof_sha256": "0" * 64,
+        "result_sha256": "0" * 64,
+        "witness_sha256": "0" * 64,
+        "rank": str(int(seed_row["rank"]) + 1),
+        "recognized": str(int(seed_row["recognized"]) + 1),
+        "residual": str(int(seed_row["residual"]) + 1),
+        "free_variables": str(int(seed_row["free_variables"]) + 1),
+        "model_count": str(int(seed_row["model_count"]) + 1),
+        "witness_integer": str(int(seed_row["witness_integer"]) ^ 1),
+        "fixture_seed": seed_row["fixture_seed"] + "-tamper",
+        "status": "HOLD_BUDGET",
+    }
+    for key, replacement in mutations.items():
+        changed = dict(seed_row)
+        changed[key] = replacement
+        try:
+            receipt_fields(changed, n, clauses, source_bytes)
+        except (AssertionError, ValueError):
+            pass
+        else:
+            raise AssertionError("tampered receipt accepted: " + key)
+    hold_row = next(row for row in receipts if row["status"] == "HOLD_BUDGET")
+    assert hold_row["kind"] == "planted" and hold_row["variables"] == "30"
+    changed = dict(hold_row)
+    changed["status"] = "EXACT"
+    changed["model_count"] = "1"
+    changed["witness_integer"] = "0"
+    hb = folder.joinpath("planted-30.cnf").read_bytes()
+    hn, hc = independent_dimacs(hb.decode("ascii"))
+    try:
+        receipt_fields(changed, hn, hc, hb)
+    except (AssertionError, ValueError):
+        pass
+    else:
+        raise AssertionError("forged HOLD-to-EXACT accepted")
+    # Corrupted external SAT assignments must also be rejected.
+    try:
+        assignment_from_tokens(["1", "-1", "0"], 3)
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError("contradictory model accepted")
+    try:
+        assignment_from_tokens(["1"], 3)
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError("unterminated model accepted")
+    print("SAT_HELDOUT_TAMPER|field_mutations_rejected=13|"
+          "forged_hold_to_exact_rejected=PASS|"
+          "bad_external_models_rejected=2|status=PASS")
 
 
 def main(receipts, folder, baseline):
     root = Path(folder)
-    rows = [parse_receipt(line) for line in Path(receipts).read_text(encoding="ascii").splitlines()
+    lines = Path(receipts).read_text(encoding="ascii").splitlines()
+    assert any(line.startswith("SAT_HELDOUT_CONTROL|") for line in lines)
+    expected_final = ("SAT_HELDOUT_FINAL|cases=21|exact=20|unsat=0|hold=1|"
+                      "frozen_DIMACS=PASS|")
+    assert any(line.startswith(expected_final) for line in lines)
+    rows = [parse_receipt(line) for line in lines
             if line.startswith("SAT_HELDOUT|")]
-    assert len(rows) == 21
+    expected_keys = (
+        [("xor", n) for n in (24, 48, 96)] +
+        [("mixed", n) for n in (12, 24, 36)] +
+        [("planted", n) for n in (12, 18, 24, 30)] +
+        [("random", n) for n in (12, 18, 24, 30)] +
+        [("hub", n) for n in (12, 18, 24, 30)] +
+        [("unsat", n) for n in (12, 24, 36)])
+    assert len(rows) == len(expected_keys) == 21
+    assert [(row["kind"], int(row["variables"])) for row in rows] == expected_keys
+    assert sum(row["status"] == "EXACT" for row in rows) == 20
+    assert sum(row["status"] == "HOLD_BUDGET" for row in rows) == 1
+    assert sum(row["status"] == "EXACT_UNSAT" for row in rows) == 0
+    assert [(row["kind"], row["variables"]) for row in rows
+            if row["status"] == "HOLD_BUDGET"] == [("planted", "30")]
+    corruption_controls(rows, root)
     found = {}
     for row in rows:
         key = row["kind"] + "-" + row["variables"]
         assert key not in found
         found[key] = verify(row, root)
-    baseline_rows = [line.split("\t") for line in Path(baseline).read_text(encoding="ascii").splitlines()
+    lines = Path(baseline).read_text(encoding="ascii").splitlines()
+    external_rows = [line.split("\t") for line in lines
                      if line and not line.startswith("#")]
-    assert len(baseline_rows) == 21
-    for cols in baseline_rows:
+    assert len(external_rows) == 21
+    external_keys = set()
+    decision_count = {"SAT": 0, "UNSAT": 0}
+    for cols in external_rows:
         assert len(cols) == 7
         key, minisat_exit, picosat_exit, mini_ns, pico_ns, mini_rss, pico_rss = cols
-        assert key in found
+        assert key in found and key not in external_keys
+        external_keys.add(key)
         assert minisat_exit in ("10", "20") and picosat_exit in ("10", "20")
         assert minisat_exit == picosat_exit
-        assert all(int(x) >= 0 for x in (mini_ns, pico_ns, mini_rss, pico_rss))
-        expected_decision = found[key][0]
-        if expected_decision != "UNKNOWN":
-            assert ("SAT" if minisat_exit == "10" else "UNSAT") == expected_decision
-    print("SAT_HELDOUT_INDEPENDENT|cases=21|source_frozen=PASS|"
-          "two_independent_SAT_decision_baselines=AGREE|exact_counts_checked=PASS|"
+        assert all(int(value) >= 0 for value in
+                   (mini_ns, pico_ns, mini_rss, pico_rss))
+        # Read the original input independently, not the engine's model.
+        n, clauses = independent_dimacs(
+            root.joinpath(key + ".cnf").read_text(encoding="ascii"))
+        external_decision = verify_external_model(
+            key, n, clauses, root.parent, minisat_exit, picosat_exit)
+        decision_count[external_decision] += 1
+        if found[key][0] != "UNKNOWN":
+            assert found[key][0] == external_decision
+        elif key == "planted-30":
+            assert external_decision == "SAT"
+    assert len(external_keys) == 21
+    assert decision_count == {"SAT": 17, "UNSAT": 4}
+    print("SAT_HELDOUT_INDEPENDENT|cases=21|exact=20|hold=1|"
+          "source_frozen=PASS|two_independent_SAT_decision_baselines=AGREE|"
+          "external_sat_assignments=ALL_VERIFIED|hold_planted30_witness=PASS|"
+          "proof_result_witness_hash_replay=PASS|rank_residual_free_replay=PASS|"
+          "receipt_tamper_rejection=PASS|exact_counts_checked=PASS|"
           "source_sha_and_raw_DIMACS_sha=PASS|bounded_hold_preserved=PASS|status=PASS")
 
 
