@@ -1,0 +1,56 @@
+name: "Y137 parallel original Wilson QOQ inverse residual tightening"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-qoq-source-contraction.yml'
+      - 'independent/y137-qoq-source-contraction-20261117/**'
+      - 'independent/y137-eight-wilson-full-q-interval-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-full-Q-inverse-depth:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        steps: [40, 60]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict exact-source and no-floating-point controls
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-qoq-source-contraction-20261117/sweep.py
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-eight-wilson-full-q-interval-20261117/physical_wilson_matrix.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-wilson-effective-20261113/check.py)" = 'b6da6140ca36b361bdd9a0c0477af23d681257cf'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
+          test "$(git hash-object independent/y137-fullstate-Q-normalization-20261113/RESULT-FULL-W-NORM.hbp)" = '48c02e1e80112e5d758b403f41d07079d9fcb064'
+      - name: Original 155378 Q and shell4 complete signed Wilson 8x8
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-qoq-depth-${{ matrix.steps }}
+          /usr/bin/time -v python3 -I -B independent/y137-qoq-source-contraction-20261117/sweep.py ${{ matrix.steps }} \
+            | tee build/y137-qoq-depth-${{ matrix.steps }}/ALL.hbp
+          grep '^Y137_O8_SOURCE|' build/y137-qoq-depth-${{ matrix.steps }}/ALL.hbp > build/y137-qoq-depth-${{ matrix.steps }}/RESULT.hbp
+          grep '^Y137_O8_MATRIX|' build/y137-qoq-depth-${{ matrix.steps }}/ALL.hbp >> build/y137-qoq-depth-${{ matrix.steps }}/RESULT.hbp
+          grep '^Y137_O8_ENTRY|' build/y137-qoq-depth-${{ matrix.steps }}/ALL.hbp >> build/y137-qoq-depth-${{ matrix.steps }}/RESULT.hbp
+          grep '^Y137_O8_VERDICT|' build/y137-qoq-depth-${{ matrix.steps }}/ALL.hbp >> build/y137-qoq-depth-${{ matrix.steps }}/RESULT.hbp
+          test "$(grep -c '^Y137_O8_ENTRY|' build/y137-qoq-depth-${{ matrix.steps }}/RESULT.hbp)" -eq 64
+          grep -Fq '|true_normalized_first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-qoq-depth-${{ matrix.steps }}/RESULT.hbp
+          old=147048109574
+          actual="$(sed -n 's/.*|max_radius_per_trillion=\([0-9]*\)|flat_sector.*/\1/p' build/y137-qoq-depth-${{ matrix.steps }}/RESULT.hbp)"
+          test -n "$actual"
+          if test "$actual" -lt "$old"; then verdict=GAIN; else verdict=NO_GAIN; fi
+          printf 'Y137_QOQ_DEPTH_COMPARISON|steps=%s|old_20_step_max_radius=%s|actual_max_radius=%s|comparison=%s|source_weight=HOLD|json=0\n' '${{ matrix.steps }}' "$old" "$actual" "$verdict" | tee build/y137-qoq-depth-${{ matrix.steps }}/COMPARISON.hbp
+          git rev-parse HEAD > build/y137-qoq-depth-${{ matrix.steps }}/COMMIT.txt
+          sha256sum independent/y137-qoq-source-contraction-20261117/sweep.py > build/y137-qoq-depth-${{ matrix.steps }}/SOURCE.sha256
+          sha256sum build/y137-qoq-depth-${{ matrix.steps }}/RESULT.hbp > build/y137-qoq-depth-${{ matrix.steps }}/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-QOQ-fullQ-depth-${{ matrix.steps }}
+          path: build/y137-qoq-depth-${{ matrix.steps }}/
+          retention-days: 90
+          if-no-files-found: warn
