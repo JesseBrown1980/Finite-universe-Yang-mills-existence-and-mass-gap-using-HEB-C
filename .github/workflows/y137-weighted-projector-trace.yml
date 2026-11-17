@@ -1,0 +1,47 @@
+name: "Y137 actual original centered Wilson weighted projector trace"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-weighted-projector-trace.yml'
+      - 'independent/y137-weighted-projector-trace-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  true-flat-weighted-projector-trace:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Original source and weighted-nonnormal toy
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-weighted-projector-trace-20261117/projector_trace.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          mkdir -p build/y137-weighted-trace
+          python3 -I -B independent/y137-weighted-projector-trace-20261117/projector_trace.py toy \
+            | tee build/y137-weighted-trace/TOY.hbp
+          grep -Fq '|Euclidean_transpose_negative_control=REJECTED|exact_rank_one_trace=PASS|' build/y137-weighted-trace/TOY.hbp
+      - name: Exact full original centered Wilson 8flat trace and two-energy Gram source correlations
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-weighted-projector-trace-20261117/projector_trace.py real \
+            | tee build/y137-weighted-trace/ALL.hbp
+          grep '^Y137_PROJECTOR_TRACE_SOURCE|' build/y137-weighted-trace/ALL.hbp > build/y137-weighted-trace/RESULT.hbp
+          grep '^Y137_PROJECTOR_TRACE_GRAM|' build/y137-weighted-trace/ALL.hbp >> build/y137-weighted-trace/RESULT.hbp
+          grep '^Y137_PROJECTOR_TRACE_BOUNDS|' build/y137-weighted-trace/ALL.hbp >> build/y137-weighted-trace/RESULT.hbp
+          grep '^Y137_PROJECTOR_TRACE_VERDICT|' build/y137-weighted-trace/ALL.hbp >> build/y137-weighted-trace/RESULT.hbp
+          test "$(wc -l < build/y137-weighted-trace/RESULT.hbp)" -eq 4
+          grep -Fq '|same_Q_trial_U_G_hashes=4_OF_4_PASS|' build/y137-weighted-trace/RESULT.hbp
+          grep -Fq '|first_excitation_original_Wilson_projector_trace=' build/y137-weighted-trace/RESULT.hbp
+          grep -Fq '|quantitative_normalized_original_Wilson_weight=NOT_CERTIFIED|issue_137=OPEN|json=0' build/y137-weighted-trace/RESULT.hbp
+          sha256sum independent/y137-weighted-projector-trace-20261117/projector_trace.py > build/y137-weighted-trace/SOURCE.sha256
+          sha256sum build/y137-weighted-trace/RESULT.hbp > build/y137-weighted-trace/RESULT.sha256
+          git rev-parse HEAD > build/y137-weighted-trace/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-Wilson-weighted-flat-projector-trace
+          path: build/y137-weighted-trace/
+          retention-days: 90
+          if-no-files-found: warn
