@@ -18,10 +18,15 @@ jobs:
           set -euo pipefail
           python3 -I -B native/scripts/integer_only_audit.py independent/y137-coordinate-wilson-feshbach-20261117/exact_original_wilson_blocks.py
           python3 -I -B native/scripts/no_float_gate.py .
+          echo 'Y137_COORD_DEBUG|gate=frozen_source_blob_SHA|json=0'
+          git hash-object independent/y137-wilson-effective-20261113/check.py
+          git hash-object independent/y137-q-dual-weight-20261113/replay.py
+          git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp
           test "$(git hash-object independent/y137-wilson-effective-20261113/check.py)" = 'b6da6140ca36b361bdd9a0c0477af23d681257cf'
           test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
           test "$(git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp)" = '40762ceb865829156e4765b720f52d39a8be9b6f'
           mkdir -p build/y137-coordinate-o
+          echo 'Y137_COORD_DEBUG|gate=source_independent_toy|json=0'
           python3 -I -B independent/y137-coordinate-wilson-feshbach-20261117/exact_original_wilson_blocks.py toy \
             | tee build/y137-coordinate-o/TOY.hbp
           grep -Fq '|mixed_POQ_QOP=ZERO_EXACT|fake_offdiagonal=REJECTED|omitted_QOQ=REJECTED|' build/y137-coordinate-o/TOY.hbp
