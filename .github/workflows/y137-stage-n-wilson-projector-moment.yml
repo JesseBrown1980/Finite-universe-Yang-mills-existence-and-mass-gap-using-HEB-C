@@ -1,0 +1,45 @@
+name: "Y137 Stage N direct original-Wilson spectral-projector moment"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-stage-n-wilson-projector-moment.yml'
+      - 'independent/y137-direct-projector-moment-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-original-wilson-moment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict integer-only source policy and one-sided spectral-projector toys
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-direct-projector-moment-20261117/wilson_moment.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp)" = '40762ceb865829156e4765b720f52d39a8be9b6f'
+          python3 -I -B independent/y137-direct-projector-moment-20261117/wilson_moment.py toy \
+            | tee /tmp/y137-stage-n-toy.hbp
+          grep -Fq '|positive_visible_E2=PASS|negative_high_sector=REJECTED|ground_leakage=SUBTRACTED_EXACT|' /tmp/y137-stage-n-toy.hbp
+      - name: Exact original seven-loop Wilson O, physical original-S3 H first moment
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-stage-n
+          /usr/bin/time -v python3 -I -B independent/y137-direct-projector-moment-20261117/wilson_moment.py real \
+            | tee build/y137-stage-n/ALL.hbp
+          grep '^Y137_N_REAL|' build/y137-stage-n/ALL.hbp > build/y137-stage-n/RESULT-MOMENT.hbp
+          grep '^Y137_N_VERDICT|' build/y137-stage-n/ALL.hbp >> build/y137-stage-n/RESULT-MOMENT.hbp
+          grep -Fq '|original_physical_O_H_O_moment=EXACT_FIXED_SAMPLE|eigenvector_transfer=NOT_COMPUTED|' build/y137-stage-n/RESULT-MOMENT.hbp
+          grep -Fq '|actual_first_Wilson_weight=HOLD|' build/y137-stage-n/RESULT-MOMENT.hbp
+          sha256sum independent/y137-direct-projector-moment-20261117/wilson_moment.py > build/y137-stage-n/SOURCE.sha256
+          sha256sum build/y137-stage-n/RESULT-MOMENT.hbp > build/y137-stage-n/RESULT.sha256
+          git rev-parse HEAD > build/y137-stage-n/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-stage-n-direct-wilson-projector-moment
+          path: build/y137-stage-n/
+          retention-days: 90
+          if-no-files-found: warn
