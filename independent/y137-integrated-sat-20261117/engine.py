@@ -274,22 +274,24 @@ def execute(kind, n, clauses, limit=20000, injected=False):
     basis = right_eliminate(n, rows, metrics)
     rank, contradictory = left_rank(n, rows, metrics)
     assert (basis is None) == contradictory
+    baseline = {name: 0 for name in metrics}
+    selected = "fischer"
     if basis is None:
         count, witness, status = 0, None, "EXACT_UNSAT"
         free = ()
+        baseline_status = "NOT_EXACT_REPLAYED"
     else:
         assert len(basis) == rank
         expr, free = affine_expressions(n, basis, rows, metrics)
         count, witness, status = bounded_exact(n, clauses, residual, expr, free,
                                                 limit, metrics, "fischer")
-    baseline = {name: 0 for name in metrics}
-    if basis is not None and count is not None:
-        check, _, baseline_status = bounded_exact(n, clauses, residual, expr, free,
-                                                   limit, baseline, "fixed")
+        check, fixed_witness, baseline_status = bounded_exact(
+            n, clauses, residual, expr, free, limit, baseline, "fixed")
         if baseline_status == "EXACT":
-            assert check == count
-    else:
-        baseline_status = "NOT_EXACT_REPLAYED"
+            if status == "EXACT":
+                assert check == count
+            else:
+                count, witness, status, selected = check, fixed_witness, "EXACT", "fixed"
     assert source_fingerprint(clauses) == frozen
     work = len(repr(clauses).encode("ascii")) + sum(metrics.values()) + sum(baseline.values())
     result_sha = sha((kind, n, frozen, count, rank, proof, status))
@@ -303,7 +305,8 @@ def execute(kind, n, clauses, limit=20000, injected=False):
                   metrics["watcher_pivot_probes"] + metrics["watcher_row_xors"] +
                   metrics["watcher_expression_checks"],
                   search_nodes=metrics["search_nodes"], baseline_nodes=baseline["search_nodes"],
-                  baseline_status=baseline_status, witness_sha256=sha(witness),
+                  baseline_status=baseline_status, selected_order=selected,
+                  witness_sha256=sha(witness),
                   witness_integer=witness if witness is not None else "NONE",
                   peak_rss_kib=peak_kib(), elapsed_ns=monotonic_ns() - start)
     return record
@@ -312,9 +315,11 @@ def execute(kind, n, clauses, limit=20000, injected=False):
 def fixture_sources():
     pilot = load_generator()
     for n in (48, 72, 384):
+        start = monotonic_ns()
         source, _ = pilot.parity_family(n)
-        yield "parity", n, source
+        yield "parity", n, source, monotonic_ns() - start
     for n in (12, 24, 36, 48, 72):
+        start = monotonic_ns()
         parity, _ = pilot.parity_family(n)
         scopes = {tuple(sorted(abs(v) for v in c)) for c in parity[:4 * (n // 2)]}
         residual = []
@@ -323,9 +328,11 @@ def fixture_sources():
                 residual.append(c)
             if len(residual) == n // 2:
                 break
-        yield "mixed", n, parity[:4 * (n // 2)] + tuple(residual)
+        yield "mixed", n, parity[:4 * (n // 2)] + tuple(residual), monotonic_ns() - start
     for n in (12, 18, 24):
-        yield "generic", n, pilot.generic(n)
+        start = monotonic_ns()
+        source = pilot.generic(n)
+        yield "generic", n, source, monotonic_ns() - start
 
 
 def controls():
@@ -348,9 +355,13 @@ def controls():
 def main():
     controls()
     cases = []
-    for kind, n, source in fixture_sources():
+    for kind, n, source, generator_ns in fixture_sources():
         limit = 20000 if n <= 24 else 6000
         r = execute(kind, n, source, limit=limit, injected=True)
+        r["source_generation_ns"] = generator_ns
+        r["source_generation_clause_writes"] = len(source)
+        r["elapsed_ns"] += generator_ns
+        r["total_metered_units"] += len(source)
         cases.append(r)
         print("SAT_INTEGRATED|" + "|".join(str(k) + "=" + str(v)
               for k, v in r.items()) + "|json=0", flush=True)
