@@ -997,7 +997,8 @@
       "unit": "independent H\u00b2 entries",
       "order": 2,
       "scope": "4 rational witnesses",
-      "readme_line": 50,      "source": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/98c39fbaa1e6ecf9e6454062e90801f385356063/README.md#L50",
+      "readme_line": 50,
+      "source": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/98c39fbaa1e6ecf9e6454062e90801f385356063/README.md#L50",
       "description": "10 entries; residual upper 0.416071/0.407236 J_E",
       "status": "PASS",
       "related": null
