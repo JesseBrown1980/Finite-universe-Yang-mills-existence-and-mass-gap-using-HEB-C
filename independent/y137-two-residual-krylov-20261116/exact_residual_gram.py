@@ -317,12 +317,12 @@ def raw_full_residuals(samples,ball,keys3,index3,where,s3):
 def real():
     frozen=precheck()
     sys.path.insert(0,PR247)
-    import residual_projection as p
+    import residual_projection
     (entries,original_sha,trials,ball,states,cols,s132,
-     keys3,index3,where,s3,indexer,nested)=p.pinned()
+     keys3,index3,where,s3,indexer,nested)=residual_projection.pinned()
     samples=[]
     for z,x in trials:
-        pp,qq,ee=p.oldr.physical_amplitudes(ball,cols,s132,s3,x)
+        pp,qq,ee=residual_projection.oldr.physical_amplitudes(ball,cols,s132,s3,x)
         samples.append((z,x,pp,qq,ee))
     full,inside,out4,out3,moves=raw_full_residuals(
         samples,ball,keys3,index3,where,s3)
