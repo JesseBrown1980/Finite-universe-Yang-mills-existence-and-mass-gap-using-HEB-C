@@ -135,6 +135,50 @@ def derived(A,R,s1,s2,ppb):
     margin=signal-C
     need(C>=0 and signal>0 and sample_lo<=14*U,
          "strict_original_Wilson_sample_source_bound_invalid")
+    # Exact monotone feasibility frontier at this FROZEN source matrix
+    # and dual signal. It is a diagnostic of how much angle improvement
+    # would make this particular sufficient inequality positive.
+    def conditional_margin(x,y):
+        cx=isqrt(U*U-x*x)
+        cy=isqrt(U*U-y*y)
+        lo=sample_lo*cx*cy//(U*U)
+        penalty=old.ceildiv(x*(z2+err),U)
+        penalty+=old.ceildiv(y*(z1+err),U)
+        penalty+=old.ceildiv(x*y*op,U*U)
+        return lo-penalty
+    need(conditional_margin(s1,s2)==margin,
+         "independent_monotone_margin_formula_mismatch")
+    need(conditional_margin(s1,0)>0 and margin<=0,
+         "finite_E2_angle_frontier_not_bracketed")
+    low,high=0,s2
+    while high-low>1:
+        mid=(low+high)//2
+        if conditional_margin(s1,mid)>0:
+            low=mid
+        else:
+            high=mid
+    need(conditional_margin(s1,low)>0
+         and conditional_margin(s1,low+1)<=0,
+         "E2_strict_frontier_not_isolated")
+    joint_lo,joint_hi=0,U
+    while joint_hi-joint_lo>1:
+        mid=(joint_hi+joint_lo)//2
+        if conditional_margin(s1*mid//U,s2*mid//U)>0:
+            joint_lo=mid
+        else:
+            joint_hi=mid
+    need(conditional_margin(s1*joint_lo//U,s2*joint_lo//U)>0
+         and conditional_margin(s1*(joint_lo+1)//U,
+                                s2*(joint_lo+1)//U)<=0,
+         "joint_strict_angle_frontier_not_isolated")
+    emit("Y137_WILSON_JOIN_FRONTIER",
+         fixed_E1_sine_upper_per_trillion=s1,
+         current_E2_sine_upper_per_trillion=s2,
+         sufficient_E2_sine_if_E1_unchanged_per_trillion=low,
+         sufficient_equal_sine_scale_per_trillion=joint_lo,
+         condition="STRONGER_EIGENDIRECTION_BOUND_REQUIRED",
+         numerical_frontier="EXACT_INTEGER_ROOT_BISECTION",
+         actual_first_excitation_Wilson_weight="HOLD")
     # The signed margin must decrease if the E2 angular upper bound
     # increases while all fixed source terms are unchanged.
     s2_big=s2+1
