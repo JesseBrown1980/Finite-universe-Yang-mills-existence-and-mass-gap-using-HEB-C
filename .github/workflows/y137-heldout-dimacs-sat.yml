@@ -1,0 +1,85 @@
+name: Y137 heldout DIMACS SAT decision and exact counting baseline
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-integrated-sat-20261117/**'
+      - '.github/workflows/y137-heldout-dimacs-sat.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-frozen-heldout:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Repository exact integer / no-float gates
+        run: |
+          set -euo pipefail
+          D=independent/y137-integrated-sat-20261117
+          python3 -I -B native/scripts/integer_only_audit.py "$D/engine.py" "$D/verify.py" "$D/verify_heldout.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Original 11-case integrated acceptance regression
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-heldout
+          python3 -I -B independent/y137-integrated-sat-20261117/engine.py > build/y137-heldout/PARENT.hbp
+          python3 -I -B independent/y137-integrated-sat-20261117/verify.py build/y137-heldout/PARENT.hbp > build/y137-heldout/PARENT-VERIFY.hbp
+          grep -Fq 'SAT_INTEGRATED_INDEPENDENT|cases=11|exact=7|hold=4|' build/y137-heldout/PARENT-VERIFY.hbp
+      - name: New blind source-frozen 21-case DIMACS benchmark
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-heldout/cnf
+          python3 -I -B independent/y137-integrated-sat-20261117/engine.py --heldout build/y137-heldout/cnf | tee build/y137-heldout/HELDOUT.hbp
+          grep -Fq 'SAT_HELDOUT_CONTROL|roundtrip=PASS|split_clauses=PASS|invalid_DIMACS_rejected=6|' build/y137-heldout/HELDOUT.hbp
+          test "$(grep -c '^SAT_HELDOUT|' build/y137-heldout/HELDOUT.hbp)" -eq 21
+          grep -Fq 'SAT_HELDOUT_FINAL|cases=21|' build/y137-heldout/HELDOUT.hbp
+      - name: Install release-pinned established SAT decision baselines
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends 'minisat=1:2.2.1-8build1' 'picosat=965-2' time
+          dpkg-query -W minisat picosat | tee build/y137-heldout/SOLVERS.txt
+      - name: Meter MiniSat and PicoSAT independently on identical frozen CNFs
+        run: |
+          set -euo pipefail
+          OUT=build/y137-heldout
+          printf '#case\tminisat_exit\tpicosat_exit\tminisat_ns\tpicosat_ns\tminisat_maxrss_kib\tpicosat_maxrss_kib\n' > "$OUT/EXTERNAL.tsv"
+          for file in "$OUT"/cnf/*.cnf; do
+            case_id=$(basename "$file" .cnf)
+            start=$(date +%s%N)
+            set +e
+            /usr/bin/time -f '%M' -o "$OUT/mini-mem.txt" minisat -verb=0 "$file" "$OUT/mini.sol" > "$OUT/mini.log" 2>&1
+            mini_rc=$?
+            set -e
+            end=$(date +%s%N)
+            mini_ns=$((end-start))
+            test "$mini_rc" -eq 10 -o "$mini_rc" -eq 20
+            mini_mem=$(cat "$OUT/mini-mem.txt")
+            start=$(date +%s%N)
+            set +e
+            /usr/bin/time -f '%M' -o "$OUT/pico-mem.txt" picosat "$file" > "$OUT/pico.log" 2>&1
+            pico_rc=$?
+            set -e
+            end=$(date +%s%N)
+            pico_ns=$((end-start))
+            test "$pico_rc" -eq 10 -o "$pico_rc" -eq 20
+            pico_mem=$(cat "$OUT/pico-mem.txt")
+            printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$case_id" "$mini_rc" "$pico_rc" "$mini_ns" "$pico_ns" "$mini_mem" "$pico_mem" >> "$OUT/EXTERNAL.tsv"
+          done
+          test "$(grep -c -v '^#' "$OUT/EXTERNAL.tsv")" -eq 21
+      - name: Cleanroom source, exact #SAT, all external SAT verdicts, receipt SHA
+        run: |
+          set -euo pipefail
+          OUT=build/y137-heldout
+          python3 -I -B independent/y137-integrated-sat-20261117/verify_heldout.py "$OUT/HELDOUT.hbp" "$OUT/cnf" "$OUT/EXTERNAL.tsv" | tee "$OUT/INDEPENDENT.hbp"
+          grep -Fq 'SAT_HELDOUT_INDEPENDENT|cases=21|source_frozen=PASS|two_independent_SAT_decision_baselines=AGREE|' "$OUT/INDEPENDENT.hbp"
+          sha256sum independent/y137-integrated-sat-20261117/*.py > "$OUT/SOURCES.sha256"
+          sha256sum "$OUT"/cnf/*.cnf "$OUT"/*.hbp "$OUT"/EXTERNAL.tsv > "$OUT/OUTPUTS.sha256"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-heldout-21-dimacs-sat-decision-count
+          path: build/y137-heldout/
+          retention-days: 90
+          if-no-files-found: ignore
