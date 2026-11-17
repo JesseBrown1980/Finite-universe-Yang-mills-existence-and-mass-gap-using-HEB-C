@@ -150,7 +150,7 @@ def freeze():
     need(meta["source_matrix_SHA256"]==ORIGINAL_HASH
          and meta["interval_matrix_SHA256"]==INTERVAL_HASH
          and meta["source_entries"]=="64_OF_64"
-         and meta["original_full_Q_shell4_residuals"]=="INCLUDED"
+         and meta["full_original_Q_shell4_residuals"]=="INCLUDED"
          and meta["BstarB_exact_72"]=="PASS"
          and meta["original_P_Q_wilson_mixed"]=="ZERO_EXACT"
          and meta["original_E1_window"]==str(E1_LO)+":"+str(E1_HI)
@@ -193,6 +193,9 @@ def exact_margin(A,R,s1,s2):
                    for i in range(8) for j in range(8))
     sample_lower=max(0,abs(amplitude)-sample_err)
     lower_sample_amp=sample_lower*U//(T*T*normroot)
+    # The original O_eff source matrix is in the raw W-flat bilinear
+    # coordinates, not a Euclidean 8x8 action. The W^-1 factors below
+    # are obligatory; all eight original weights are 1, 2, or 3.
     # Exact deflation norm squared in original W P-coordinates.
     # A's entries represent W_P Oeff in raw integer/T^2 form.
     denom=6*n1*n2*T*T*T*T
