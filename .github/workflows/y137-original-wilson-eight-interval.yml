@@ -1,0 +1,51 @@
+name: "Y137 original Wilson complete eight-flat effective matrix intervals"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-original-wilson-eight-interval.yml'
+      - 'independent/y137-eight-wilson-full-q-interval-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  eight-by-eight-original-wilson:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Source policy audit and source-free exact tests
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-eight-wilson-full-q-interval-20261117/physical_wilson_matrix.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-wilson-effective-20261113/check.py)" = 'b6da6140ca36b361bdd9a0c0477af23d681257cf'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
+          test "$(git hash-object independent/y137-fullstate-Q-normalization-20261113/RESULT-FULL-W-NORM.hbp)" = '48c02e1e80112e5d758b403f41d07079d9fcb064'
+          mkdir -p build/y137-eight-original-o
+          python3 -I -B independent/y137-eight-wilson-full-q-interval-20261117/physical_wilson_matrix.py toy \
+            | tee build/y137-eight-original-o/TOY.hbp
+          grep -Fq '|rational_outward=PASS|actual_first_Wilson_weight=HOLD|' build/y137-eight-original-o/TOY.hbp
+      - name: Calculate source-authenticated original Q inverse and Wilson 8x8 signed intervals
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-eight-wilson-full-q-interval-20261117/physical_wilson_matrix.py real \
+            | tee build/y137-eight-original-o/ALL.hbp
+          grep '^Y137_O8_SOURCE|' build/y137-eight-original-o/ALL.hbp > build/y137-eight-original-o/RESULT.hbp
+          grep '^Y137_O8_MATRIX|' build/y137-eight-original-o/ALL.hbp >> build/y137-eight-original-o/RESULT.hbp
+          grep '^Y137_O8_ENTRY|' build/y137-eight-original-o/ALL.hbp >> build/y137-eight-original-o/RESULT.hbp
+          grep '^Y137_O8_VERDICT|' build/y137-eight-original-o/ALL.hbp >> build/y137-eight-original-o/RESULT.hbp
+          test "$(grep -c '^Y137_O8_ENTRY|' build/y137-eight-original-o/RESULT.hbp)" -eq 64
+          grep -Fq '|original_POQ=ZERO|original_QOP=ZERO|' build/y137-eight-original-o/RESULT.hbp
+          grep -Fq '|full_original_Q_shell4_residuals=INCLUDED|' build/y137-eight-original-o/RESULT.hbp
+          grep -Fq '|entire_true_original_Oeff_8x8=64_RATIONAL_ENTRY_INTERVALS|' build/y137-eight-original-o/RESULT.hbp
+          grep -Fq '|true_normalized_first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-eight-original-o/RESULT.hbp
+          sha256sum independent/y137-eight-wilson-full-q-interval-20261117/physical_wilson_matrix.py > build/y137-eight-original-o/SOURCE.sha256
+          sha256sum build/y137-eight-original-o/RESULT.hbp > build/y137-eight-original-o/RESULT.sha256
+          git rev-parse HEAD > build/y137-eight-original-o/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-eight-flat-wilson-physical-energy-intervals
+          path: build/y137-eight-original-o/
+          retention-days: 90
+          if-no-files-found: warn
