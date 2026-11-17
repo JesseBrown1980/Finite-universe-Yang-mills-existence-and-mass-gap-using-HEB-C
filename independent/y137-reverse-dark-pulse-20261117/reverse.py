@@ -37,6 +37,8 @@ SOURCE_RUN="44120602178"
 SOURCE_JOB="134170606705"
 FLOOR_NUM=94068200000
 ORIGINAL_SINE2=9197961975
+MATCHED_E2_SINE=5047836049
+MATCHED_E2_FULL_DISTANCE=4761738647
 D=e.ra.D
 E2_LO,E2_HI=e.EXPECTED_WINDOWS[1]
 
@@ -139,6 +141,30 @@ def moment_center():
     vrec=e.ra.recentre(Cn,list(v2))
     need(sum(WF[i]*v2[i]*vrec[i] for i in range(N))>0,
          "center_pulse_wrong_orientation")
+    # Reproduce the independent hosted PR284 E2 source-matched
+    # four-moment and normalized full-W projector receipt. The
+    # historical original Wilson source is NOT this recentered vector.
+    moved=e.flat_distance(list(v2),vrec)
+    need(moved==3693022069,"hosted_PR284_E2_direction_regression")
+    qlo,qhi=e.fw.Q_NORMS[1]
+    spread=ceildiv(e.fw.B_NORM_UP*moved*DEN,
+                   UNIT*(e.FLOOR-z))
+    qlo=max(0,qlo-spread)
+    qhi+=spread
+    ang=e.ra.angle(Cn,Cd,Wn,Wd,vrec,z,lo,hi,gap)
+    ee=max(z-lo,hi-z)
+    mu0=ang["mu"]-ang["extra"]-ceildiv(ee*UNIT,DEN)
+    gap2=min(E2_LO-e.EXPECTED_WINDOWS[0][1],
+             e.ra.E3_LO-E2_HI)*(UNIT//DEN)
+    matched=e.fw.compose(ang["Hcenter"]+ang["action"],
+                         mu0,gap2,z,E2_LO,E2_HI,qlo,qhi)
+    need(matched["error"]==MATCHED_E2_FULL_DISTANCE,
+         "hosted_PR284_E2_matched_physical_distance")
+    factor=sqrtup(graw*graw+72*DEN*DEN,graw*graw)
+    matched_flat=ceildiv(matched["error"]*factor,UNIT)
+    need(matched_flat==MATCHED_E2_SINE and
+         MATCHED_E2_SINE<ORIGINAL_SINE2,
+         "hosted_PR284_E2_matched_Wflat_sine")
     return Cn,Cd*D,eps,eps_width,eps_drift,vrec
 
 def wnorm(v):
@@ -147,7 +173,7 @@ def wnorm(v):
 def wdot(v,w):
     return sum(WF[i]*v[i]*w[i] for i in range(N))
 
-def sigmas(A,Cn,Sden,eps,v1,v2,k,p,kind,src,original_amp):
+def sigmas(A,Cn,Sden,eps,v1,v2,vrec,k,p,kind,src,original_amp):
     n1=wnorm(v1);n2=wnorm(v2)
     nv=wnorm(src)
     need(n1>0 and n2>0 and nv>0,
@@ -174,6 +200,13 @@ def sigmas(A,Cn,Sden,eps,v1,v2,k,p,kind,src,original_amp):
     excluded=int(residual_lo>eps_limit)
     # Else it merely remains feasible with respect to this ONE test.
     within_angle=int(angle_sine<=ORIGINAL_SINE2)
+    matchnorm=wnorm(vrec)
+    dm=wdot(vrec,src)
+    need(dm*dm<=matchnorm*nv,"matched_center_Cauchy")
+    match_sq=matchnorm*nv-dm*dm
+    matched_angle_lower=sqrtlow(match_sq,matchnorm*nv)
+    matched_angle_upper=sqrtup(match_sq,matchnorm*nv)
+    matched_dark_excluded=int(matched_angle_lower>MATCHED_E2_SINE)
     emit("Y137_REVERSE_PATH",
          kind=kind,outside_step=k,center_pulse_step=p,
          source_fixed_O2_signed_amplitude_sign=(a>0)-(a<0),
@@ -183,10 +216,14 @@ def sigmas(A,Cn,Sden,eps,v1,v2,k,p,kind,src,original_amp):
          source_Schur_residual_hi_per_trillion=residual_hi,
          complete_Schur_uncertainty_up_per_trillion=eps_limit,
          original_E2_angle_cone_feasible=within_angle,
+         matched_E2_source_angle_sine_lo_per_trillion=matched_angle_lower,
+         matched_E2_source_angle_sine_hi_per_trillion=matched_angle_upper,
+         matched_E2_sine_certified_upper_per_trillion=MATCHED_E2_SINE,
+         matched_direction_excluded_by_angle=matched_dark_excluded,
          actual_Schur_null_excluded_for_fixed_direction=excluded,
          true_O2_amplitude_certified="NO_SOURCE_MATRIX_UNCERTAINTY",
          actual_first_Wilson_weight="HOLD")
-    return amplitude,residual_hi,angle_sine,excluded
+    return amplitude,residual_hi,angle_sine,excluded,matched_angle_lower,matched_dark_excluded
 
 def main():
     A=original_centered_matrix()
@@ -203,12 +240,12 @@ def main():
          "inverse_dark_original_Wilson_bilinear_not_zero")
     need(wnorm(vrec)>0 and wdot(v2,vrec)>0,
          "source_recentred_E2_not_certified")
-    noQ=sigmas(A,Cn,Sden,eps,v1,v2,8,0,
+    noQ=sigmas(A,Cn,Sden,eps,v1,v2,vrec,8,0,
                 "DARK_ENDPOINT",vd,None)
     results=[]
     for k in range(8,-1,-1):
         v=[8*ss*v2[i]-k*a*s[i] for i in range(N)]
-        res=sigmas(A,Cn,Sden,eps,v1,v2,k,0,
+        res=sigmas(A,Cn,Sden,eps,v1,v2,vrec,k,0,
                    "OUTSIDE_IN",v,None)
         results.append((k,res))
     need(results[0][1][0]==0 and
@@ -217,7 +254,7 @@ def main():
     pulse=[]
     for p in range(0,9):
         v=[(8-p)*vd[i]+p*ss*vrec[i] for i in range(N)]
-        res=sigmas(A,Cn,Sden,eps,v1,v2,8,p,
+        res=sigmas(A,Cn,Sden,eps,v1,v2,vrec,8,p,
                    "CENTER_PULSE",v,None)
         pulse.append((p,res))
     need(pulse[0][1]==noQ and pulse[-1][1][0]>0,
@@ -235,6 +272,8 @@ def main():
          source_M_sqrt_bound="APPROXIMATE_ONLY",
          source_Schur_loewner_width="CERTIFIED_CONDITIONAL",
          original_E2_sine_bound_per_trillion=ORIGINAL_SINE2,
+         matched_E2_sine_bound_per_trillion=MATCHED_E2_SINE,
+         matched_source_PR284_hosted_replay="EXACT_PASS",
          source_uncertainty_width_up_per_trillion=
              ceildiv(eps_width.numerator*UNIT,eps_width.denominator),
          energy_drift_up_per_trillion=
@@ -245,6 +284,8 @@ def main():
          inward_path_count=len(results),
          center_pulse_count=len(pulse),
          dark_source_excluded_by_current_Schur_only=noQ[3],
+         dark_source_excluded_by_matched_E2_sine_only=noQ[5],
+         dark_source_to_matched_sine_lower_per_trillion=noQ[4],
          independently_verified_true_wilson_M="NOT_CONSTRAINED_TO_SOURCE_CENTRE",
          true_E1_projector_angle="NOT_USED",
          global_dark_state_physical_exclusion="NOT_PROVED",
