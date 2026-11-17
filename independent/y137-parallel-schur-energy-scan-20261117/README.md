@@ -12,3 +12,10 @@ After all frozen threshold tests, the script recomputes the existing signed μ3 
 The workflow requires exact original frozen source hashes, the integer-only policy, original source true physical intervals and complete shell4, and a strict HOLD for the first Wilson weight pending a positive joined inequality and independent acceptance. If neither energy window tightens sufficiently, it records the negative result rather than increasing basis size or inventing a positive theorem.
 
 The source-conditional finite physical energy gap remains established. First-excitation original Wilson spectral weight HOLD. Four-dimensional continuum Yang–Mills theorem OPEN.
+
+
+## Hosted retrospective outcome: two independent source jobs PASS, no tightened brackets
+
+[Hosted run #44117718782](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44117718782) completed **both** original full-S3 source jobs successfully. The E2_ONLY job tested seven predeclared 1/8-step interior thresholds: every full physical Schur inertia was interval [1,2], INCONCLUSIVE. The BOTH job tested three predeclared interior E1 quartile thresholds (counts [0,1], all INCONCLUSIVE) and three E2 quartile thresholds (counts [1,2], all INCONCLUSIVE). **Zero of thirteen cutoffs tightened either original accepted physical energy bracket**. The source Stage E four-moment error/true W-flat sine ceilings therefore reproduced the current accepted source-conditional bounds exactly: full-state errors 0.003235251105 and 0.008676646901; flat sine ceilings 0.003429010525 and 0.009197961975.
+
+This fails both frozen proposed eigendirection improvements while preserving all original physical finite gap certificates. It demonstrates a limitation of the existing 20-step original-Q Schur inertia enclosure, not a claim that either true eigendirection cannot be certified more sharply by another method. The parallel **centered original Wilson observable** route is independently tested in PRs #281, #282 and the joined #283 result, with all true first Wilson spectral-weight verdicts still HOLD.
