@@ -47,7 +47,13 @@ jobs:
           grep -Fq 'MTP_GENERIC|variables=24|clauses=48|' build/y137-mtp-global-sat/MTP-SAT.hbp
           grep -Fq '|actual_exact_model_count=HOLD|' build/y137-mtp-global-sat/MTP-SAT.hbp
           grep -Fq 'MTP_HYBRID|variables=12|clauses=30|' build/y137-mtp-global-sat/MTP-SAT.hbp
-          grep -Fq '|exact_brute_model_count=36|full_problem_model_count=HOLD_RESIDUAL_GENERIC|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq '|exact_brute_model_count=36|full_problem_model_count=36|enumerated_free_assignments=64|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq 'MTP_HYBRID|variables=24|clauses=60|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq '|full_problem_model_count=848|enumerated_free_assignments=4096|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq 'MTP_HYBRID|variables=36|clauses=90|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq '|full_problem_model_count=31472|enumerated_free_assignments=262144|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq 'MTP_HYBRID|variables=48|clauses=120|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq '|full_problem_model_count=HOLD|enumerated_free_assignments=0|residual_clause_checks=0|' build/y137-mtp-global-sat/MTP-SAT.hbp
           grep -Fq 'MTP_GLOBAL_FINAL|parity_cases=14|generic_cases=12|hybrid_cases=5|' build/y137-mtp-global-sat/MTP-SAT.hbp
           grep -Fq '|P_equals_NP=NOT_ESTABLISHED|' build/y137-mtp-global-sat/MTP-SAT.hbp
       - name: Cleanroom source, rank, exact count and exponential oracle verification
@@ -57,7 +63,7 @@ jobs:
           python3 -I -B "$D/verify.py" build/y137-mtp-global-sat/MTP-SAT.hbp | tee build/y137-mtp-global-sat/INDEPENDENT.hbp
           grep -Fq 'MTP_GLOBAL_INDEPENDENT|parity_families_reconstructed=14|' build/y137-mtp-global-sat/INDEPENDENT.hbp
           grep -Fq '|generic_full_2powN_oracles=6|generic_max_oracle_assignments=2097152|' build/y137-mtp-global-sat/INDEPENDENT.hbp
-          grep -Fq '|hybrid_12_full_oracle=PASS|original_3CNF_clause_witness_check=PASS|' build/y137-mtp-global-sat/INDEPENDENT.hbp
+          grep -Fq '|hybrid_12_and_24_full_oracles=PASS|hybrid_36_independent_free_oracle=PASS|original_3CNF_clause_witness_check=PASS|' build/y137-mtp-global-sat/INDEPENDENT.hbp
           grep -Fq '|P_equals_NP=NOT_CLAIMED|status=PASS|' build/y137-mtp-global-sat/INDEPENDENT.hbp
           sha256sum "$D/pilot.py" "$D/verify.py" "$D/README.md" > build/y137-mtp-global-sat/SOURCES.sha256
           sha256sum build/y137-mtp-global-sat/*.hbp > build/y137-mtp-global-sat/OUTPUTS.sha256
