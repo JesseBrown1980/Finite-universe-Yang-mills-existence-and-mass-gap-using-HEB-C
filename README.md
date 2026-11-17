@@ -23,7 +23,13 @@ The original 20,728-dimensional old nonflat block is strictly positive below the
 - Second projected level: **69.930000000 < lambda2^(20738) < 69.952639135**, where the tighter second upper bound comes from the separately accepted four-vector variational result.
 - Consequently **lambda2^(20738) − lambda1^(20738) > 0.016962230 J_E**.
 
-**Separately derived full finite-PHYSICAL gap corollary (cross-certificate review):** The original [whole-physical first-gap PR #136](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/136) established \`E1/J_E > 69.89\` and \`E2/J_E > 69.93\` for the complete 2,177,317,873-orbit 3×4 finite S₃ Hamiltonian, conditional on the historical whole-nonflat Perron lift. The accepted *four-vector variational upper bounds* from #252 apply to the full physical eigenvalues by min–max: \`E1/J_E < 69.913037770\`, \`E2/J_E < 69.952639135\`. Combining ONLY these source-conditional whole-H lower endpoints with valid Ritz upper endpoints gives the improved **full finite-model first-gap interval** \`0.016962230 < (E2-E1)/J_E < 0.062639135\`. This is distinct from the Stage K 20,738D Ritz difference even though the numerical lower bound coincides. [The cross-certificate derivation is recorded in issue #137](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/137#issuecomment-6945359974); independent review of this conjunction remains a separate acceptance step. This finite physical gap does not certify Wilson spectral weight.
+**Full finite-PHYSICAL first-gap bound — accepted source hierarchy.** The original [whole-H certificate #136](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/136) established the coarse conditional interval 0.01 < (E2−E1)/J_E < 0.07. The later [Stage E whole-physical three-moment energy windows, preserved in PR #234](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/234), already provide tighter source-conditional bounds on the complete 2,177,317,873-orbit 3×4 finite S₃ Hamiltonian:
+
+- 69.909429421 < E1/J_E < 69.909586556.
+- 69.949264147 < E2/J_E < 69.949433884.
+- Consequently **0.039677591 < (E2−E1)/J_E < 0.040004463**.
+
+An independent #136+#252 min–max conjunction also gives the coarser valid interval 0.016962230 < (E2−E1)/J_E < 0.062639135; **it does not improve on the existing Stage E result**. This corrected distinction is [recorded in issue #137](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/137#issuecomment-6945503387). Stage K's new 0.016962230 Ritz-separation lower bound concerns the entire **20,738-dimensional projected** problem and is separate from the earlier tighter full-physical gap. All full-physical windows remain conditional on the original accepted nonflat Perron lift and source certificates; no Wilson first-excitation weight follows from an energy gap alone.
 
 This is the complete **20,738-dimensional projected/Galerkin separation**, conditional on its original matrix source and whole-nonflat spectral floor. It is a distinct mathematical claim from the accepted full *physical* finite S₃ first gap. In particular, Galerkin lower Ritz endpoints alone cannot be used as physical full-H eigenvalue lower bounds. Neither a full-physical normalized eigendirection nor first-excitation summed-winding Wilson spectral weight is certified here.
 
@@ -44,13 +50,13 @@ The [accepted fan-in artifact](https://github.com/JesseBrown1980/Finite-universe
 | Frozen original bilinear identities, D u_i^T C_j = E_ij | **4/4 PASS** |
 | Whole-block exact fan-in | **PASS** |
 
-[Source production run #43997180450](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43997180450) preserves the source-accepted matrix file, SHA-256: \`fafdd16b524af6e0f8aea96fcda5699fb89968c498e406792a1ed576a0226b7f\`.
+[Source production run #43997180450](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43997180450) preserves the source-accepted matrix file, SHA-256: `fafdd16b524af6e0f8aea96fcda5699fb89968c498e406792a1ed576a0226b7f`.
 
 [Draft independent PR #255](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/255) checked all 41,472 original cross entries against the exact whole-operator norm condition with two integer inverse routes (4×4 adjugate and 5×5 bordered Bareiss), including **3/3 identical inverse-Gram bilinears** and the exact 2×2 positive-semidefinite matrix inequality:
 
-\`\`\`text
+```text
 468^2 * G_new - C^T * G_old^(-1) * C >= 0   (positive semidefinite)
-\`\`\`
+```
 
 [Independent acceptance run #43998446113](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43998446113) passed. All source matrices and research implementations remain separate draft PRs. The subsequent full 20,738-dimensional Ritz inertia is now recorded in the newer Stage K section above.
 
