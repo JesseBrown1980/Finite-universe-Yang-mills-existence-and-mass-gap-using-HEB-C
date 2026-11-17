@@ -152,6 +152,7 @@ def shard(slot):
     diag1=[0,0,0,0]
     diag2=[0,0,0]
     mixed=[0,0,0,0]
+    edge=[0,0,0,0]
     total=0
     records=0
     sum_a=sum_b=0
@@ -192,6 +193,10 @@ def shard(slot):
             mixed[1]+=w*d*a*n2
             mixed[2]+=w*d*b*n1
             mixed[3]+=w*d*b*n2
+            edge[0]+=w*a*n1
+            edge[1]+=w*a*n2
+            edge[2]+=w*b*n1
+            edge[3]+=w*b*n2
             sum_a+=72*w*a
             sum_b+=72*w*b
             total+=72
@@ -215,6 +220,7 @@ def shard(slot):
                d11=diag1[0],d12=diag1[1],d21=diag1[2],d22=diag1[3],
                t11=diag2[0],t12=diag2[1],t22=diag2[2],
                m11=mixed[0],m12=mixed[1],m21=mixed[2],m22=mixed[3],
+               e11=edge[0],e12=edge[1],e21=edge[2],e22=edge[3],
                fluxsum1=sum_a,fluxsum2=sum_b,
                first_Wilson_weight="HOLD")
     print(open(entry,encoding="ascii").read().strip(),flush=True)
@@ -301,6 +307,7 @@ def fanin(source_base,reduce_base):
     ds=[0]*4
     t=[0]*3
     m=[0]*4
+    edge=[0]*4
     sum_a=sum_b=0
     rows=moves=records=0
     sha_list=[]
@@ -314,7 +321,8 @@ def fanin(source_base,reduce_base):
              "source_shard_receipt_mismatch")
         for arr,keys in ((ds,("d11","d12","d21","d22")),
                          (t,("t11","t12","t22")),
-                         (m,("m11","m12","m21","m22"))):
+                         (m,("m11","m12","m21","m22")),
+                         (edge,("e11","e12","e21","e22"))):
             for i,key in enumerate(keys):arr[i]+=int(x[key])
         rows+=int(x["source_rows"])
         moves+=int(x["raw_electric_moves"])
@@ -325,8 +333,10 @@ def fanin(source_base,reduce_base):
     need(rows==ROWS and moves==ROWS*72,
          "incomplete_original_physical_support")
     need(ds[1]==ds[2],"diagonal_weighted_moment_symmetry")
-    k=(ds[0]-m[0],ds[1]-m[1],ds[3]-m[3])
-    need(k==KT and ds[1]-m[1]==ds[2]-m[2],
+    # Htt uses the electric edge bilinear WITHOUT magnetic diagonal factor.
+    # The separately retained d-weighted mixed term belongs only in H^2.
+    k=(ds[0]-edge[0],ds[1]-edge[1],ds[3]-edge[3])
+    need(k==KT and ds[1]-edge[1]==ds[2]-edge[2],
          "original_8_shard_Htt_regression")
     f=[0,0,0]
     targets=outside=records2=moves2=0
