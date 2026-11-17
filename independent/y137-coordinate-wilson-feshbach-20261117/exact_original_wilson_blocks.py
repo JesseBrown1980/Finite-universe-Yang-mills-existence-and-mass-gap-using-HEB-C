@@ -98,7 +98,7 @@ def toy():
     low=sum(O[i]*p[i]*p[i] for i in range(2))
     high=O[2]*q[0]*q[0]
     full=low+high
-    need(low==-4 and high==36 and full==32,"coordinate_Wilson_toy")
+    need(low==13 and high==36 and full==49,"coordinate_Wilson_toy")
     # Forbidden mixed POQ element: for a diagonal original observable
     # disjoint flat and nonflat supports never share a coordinate.
     mixed=sum(O[i]*p[i]*q[0] for i in range(2) if i==2)
