@@ -52,3 +52,22 @@ A **zero** projector-trace lower is a valid numerical HOLD. It does not disprove
 All exact-integer arithmetic is covered by the repository no-float and immutable source hashes. Source conditional finite 3×4 spectral gap remains established, actual first Wilson spectral-weight certificate remains HOLD absent strict positivity and independent review, continuum theorem OPEN.
 
 Reproduce with .github/workflows/y137-weighted-projector-trace.yml and projector_trace.py real.
+
+
+## Source-hosted numerical result
+
+[Hosted run #44126514338](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44126514338) completed all source and integer/no-float checks successfully.
+
+- The original source weighted 8x8 rank-one trace matches the squared Wflat signed matrix contraction by **exact rational equality**. Its distinct original Q inverse U and G hashes match between original unshifted and original centered receipts **4 of 4**.
+- The original old noncentered 8x8 source and integer O2=2O−7I centered 8x8 source reconstruct the same-trial two-energy overlap Gram exactly, with 64 integer entries. Its conservative independent box enclosure contains zero for the original sample Gram bilinear, and the exact true projector orthogonality feasibility control passes. This **does not** further restrict the true projector angular uncertainty.
+- The direct 64-entry Wilson source bilinear interval also contains zero. The separate source-correlated directional dual retains a positive fixed source trace floor **0.004232581** in the integer O2 observable. The source-specific dual result must not be replaced by a naive sum of 64 independent Wilson interval radii.
+- Source-conditional true flat-angle signal lower = **0.065055154676** (O2 units).
+- Projector first linear contamination upper = **0.023930840782**.
+- Projector second linear contamination upper = **0.109897347373**.
+- Projector quadratic contamination upper = **0.000744181753**.
+- Complete contamination upper = **0.134572369908**; strict signed amplitude margin = **−0.069517215232** (O2 units). The certified original physical O−7/2 true transition trace interval consequently has lower **zero**.
+- Accounting for both exact phase-cosine factors improves the earlier joined signed O2 margin by only about **0.000001658466**. The literal projector-trace rewriting is algebraically correct, but alone does **not** remove enough uncertainty to prove the physical Wilson weight.
+
+The source Gram interval was built conservatively from separate original O and centered O2 matrix-box radii. A tighter *correlated original-Q Gram residual or directional Gram-dual* certificate could restrict the true two-energy orthogonality geometry in a future test. Such additional source data has not yet been certified here.
+
+First physical Wilson spectral-weight certificate remains HOLD; conditional finite first energy gap established, four-dimensional continuum mass-gap theorem OPEN. No numerical false positive or theorem promotion.
