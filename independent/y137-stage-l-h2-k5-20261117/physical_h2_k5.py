@@ -62,7 +62,7 @@ def hmatrix():
          x["physical_rows"]==str(ROWS) and
          x["exact_raw_electric_moves"]==str(ROWS*72) and
          x["exact_PSD"]=="PASS" and
-         x["first_Wilson_weight"]=="HOLD",
+         x["Wilson_weight"]=="HOLD",
          "original_8_shard_Htt_receipt")
     return (int(x["K11"]),int(x["K12"]),int(x["K22"]))
 
