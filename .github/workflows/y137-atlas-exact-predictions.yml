@@ -14,12 +14,12 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Check frozen README data SHA and verify zero-float source
+      - name: Check frozen README data SHA and verify repository no-float source gate
         shell: bash
         run: |
           set -euo pipefail
           test "$(sha256sum docs/certificate-atlas/certificates.json | cut -d' ' -f1)" = "a40c19559ac9739610abd4241d1ec9585f23c509f1dfbdfa04e0daa08cb7e0f5"
-          python3 -I -B native/scripts/integer_only_audit.py docs/certificate-atlas/predictions.py
+          python3 -I -B native/scripts/no_float_gate.py .
       - name: Test four 3x3 intervals, exact Chebyshev enclosure and Feshbach identity
         shell: bash
         run: |
