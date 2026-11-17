@@ -210,7 +210,8 @@ def derived(A,R,s1,s2,ppb):
          original_fixed_flat_transition="POSITIVE_SOURCE_CONDITIONAL",
          projector_transfer=
            "CANDIDATE_FOR_INDEPENDENT_REVIEW" if margin>0 else "HOLD",
-         physical_full_state_normalization="NEEDS_INDEPENDENT_ACCEPTANCE",
+         exact_full_state_normalizations="POSITIVE_FINITE_BY_Q_FLOOR",
+         quantitative_normalized_weight_lower="NOT_COMPUTED",
          actual_first_excitation_Wilson_weight="HOLD",
          issue_137="OPEN")
     return margin
