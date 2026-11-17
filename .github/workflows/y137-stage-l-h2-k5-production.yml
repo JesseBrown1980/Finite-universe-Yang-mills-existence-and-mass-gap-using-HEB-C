@@ -29,7 +29,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p build/y137-h20736 build/y137-l-h2-pilot
-          python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real > build/y137-h20736/RESULT.hbp
+          python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real > build/y137-h20736/RESULT-H20736.hbp
           test -s build/y137-h20736/H20736-SPARSE-UPPER.tsv
           python3 -I -B independent/y137-stage-l-physical-residual-20261117/exact_residual_toy.py toy > build/y137-l-h2-pilot/TOY-ORIGINAL.hbp
           python3 -I -B independent/y137-stage-l-h2-k5-20261117/physical_h2_k5.py toy | tee build/y137-l-h2-pilot/TOY-NEW.hbp
@@ -61,7 +61,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p build/y137-h20736
-          python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real > build/y137-h20736/RESULT.hbp
+          python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real > build/y137-h20736/RESULT-H20736.hbp
       - name: Exact S3 directed electric record pass
         run: |
           set -euo pipefail
@@ -103,7 +103,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p build/y137-h20736
-          python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real > build/y137-h20736/RESULT.hbp
+          python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real > build/y137-h20736/RESULT-H20736.hbp
       - name: Aggregate ALL K5 and interior incoming source flux before squaring
         run: |
           set -euo pipefail
