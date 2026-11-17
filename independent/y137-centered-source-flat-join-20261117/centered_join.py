@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
-"""#137: exact join of two INDEPENDENT original Wilson source lanes.
+"""#137: source-original centred Wilson dual and true-flat exact join.
 
-Input A: hosted #276 (run 44112781443) strict source-certified lower
-squared ORIGINAL unshifted Wilson transition for the two exact-Q-dressed
-fixed flat vectors uniformly over true physical E1/E2 energy windows.
-Input B: hosted #277 (stacked on #275) Stage E source-conditional true
-flat eigendirection sine bounds, and #273 full original 64-entry signed
-Wilson matrix interval to bound the deflated action on two samples.
+Input A: hosted PR #281 (run 44119924916) strict full-Q source
+lower squared transition for INTEGER O2=2*O-7I on the two
+original fixed flat directions, uniformly over physical E1/E2 windows.
+Input B: hosted PR #277 Stage E source-conditional true flat
+eigendirection sine bounds, and PR #282's original 64-entry
+CENTERED O8 signed source intervals (denominator 2*T*T).
+This verifier multiplies those interval values by TWO and contracts
+the integer O2 matrix with its matched O2 dual source; no mixed
+unshifted/centered observable quantities are permitted.
 
 The directional-dual source lower bound is for NORMALIZED full states
 with the fixed flat vectors and exact Q resolvents. Because the actual
@@ -40,7 +43,7 @@ CENTERED=os.path.join(HERE,"INPUT-CENTERED-O8-64.hbp")
 
 def need(ok,reason):
     if not ok:
-        print("Y137_WILSON_JOIN_REFUSE|reason="+reason+"|json=0",flush=True)
+        print("Y137_CENTERED_JOIN_REFUSE|reason="+reason+"|json=0",flush=True)
         raise SystemExit(1)
 
 def emit(tag,**items):
