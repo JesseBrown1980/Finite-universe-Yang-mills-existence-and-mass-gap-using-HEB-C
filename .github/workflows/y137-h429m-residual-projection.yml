@@ -1,0 +1,78 @@
+name: "Y137 H429M: exact full-H residual orthogonal projections"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-h429m-residual-projection.yml'
+      - 'independent/y137-h429m-residual-projection-20261116/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  h429m-residual-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact integer source and repository no-floating-point audit
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-h429m-residual-projection-20261116/residual_projection.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Original S3, H20736 and H429M source pins
+        run: |
+          set -euo pipefail
+          git hash-object independent/finite_s3_3x4_r9_first_gap.py |
+            grep -Fxq '91bd1e80cbfcfb76198966aa177d097ecfbe8143'
+          git hash-object independent/y137-h20736-shell3-20261116/sparse_h20736.py |
+            grep -Fxq 'd0d9d3d14d804450a31ed8e98c01a031b9a53596'
+          git hash-object independent/y137-h429981696-matrixfree-20261116/orbit_unrank_pilot.py |
+            grep -Fxq 'a23467d5aad5cad968bea1b854d4388878dc5536'
+      - name: Toy integer Schur determinant and exact orthogonal-projector tests
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-h429m-residual-projection-20261116/residual_projection.py toy |
+            tee /tmp/y137-h429m-residual-toy.hbp
+          grep -Fq '|pivoted_Bareiss=PASS|old_support_not_equal_old_projector=PASS|' /tmp/y137-h429m-residual-toy.hbp
+          grep -Fq '|Wilson_weight=HOLD|json=0' /tmp/y137-h429m-residual-toy.hbp
+  h429m-residual-production:
+    runs-on: ubuntu-24.04
+    needs: h429m-residual-controls
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Rebuild authenticated exact 20,736-dimensional source and sparse matrix
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h20736 build/y137-h429m-projection
+          /usr/bin/time -v python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real |
+            tee build/y137-h20736/RESULT-H20736.hbp
+          grep -Fq '|matrix=EXACT_SPARSE_PHYSICAL_W_GALERKIN|dimension=20736|' build/y137-h20736/RESULT-H20736.hbp
+          test -s build/y137-h20736/H20736-SPARSE-UPPER.tsv
+      - name: Exact two-source full-H residual projection across old, new and exterior
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-h429m-residual-projection-20261116/residual_projection.py real |
+            tee build/y137-h429m-projection/RESULT-H429M-RESIDUAL-PROJECTION.hbp
+          test "$(grep -c '^Y137_H429M_RESIDUAL_SPLIT|' build/y137-h429m-projection/RESULT-H429M-RESIDUAL-PROJECTION.hbp)" -eq 2
+          test "$(grep -c '^Y137_H429M_RESIDUAL_CENSUS|' build/y137-h429m-projection/RESULT-H429M-RESIDUAL-PROJECTION.hbp)" -eq 2
+          grep -Fq '|Pythagoras_three_way=EXACT|' build/y137-h429m-projection/RESULT-H429M-RESIDUAL-PROJECTION.hbp
+          grep -Fq '|Wilson_first_excitation_weight=HOLD|issue_137=OPEN|json=0' build/y137-h429m-projection/RESULT-H429M-RESIDUAL-PROJECTION.hbp
+      - name: Freeze source and result fingerprints
+        if: always()
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > build/y137-h429m-projection/COMMIT.txt
+          sha256sum independent/y137-h429m-residual-projection-20261116/residual_projection.py > build/y137-h429m-projection/SOURCE.sha256
+          if test -f build/y137-h20736/H20736-SPARSE-UPPER.tsv; then
+            sha256sum build/y137-h20736/H20736-SPARSE-UPPER.tsv > build/y137-h429m-projection/ORIGINAL-SPARSE.sha256
+          fi
+          if test -f build/y137-h429m-projection/RESULT-H429M-RESIDUAL-PROJECTION.hbp; then
+            sha256sum build/y137-h429m-projection/RESULT-H429M-RESIDUAL-PROJECTION.hbp > build/y137-h429m-projection/RESULT.sha256
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-h429m-exact-physical-residual-old-new-exterior
+          path: build/y137-h429m-projection/
+          retention-days: 90
+          if-no-files-found: error
