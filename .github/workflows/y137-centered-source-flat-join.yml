@@ -1,0 +1,46 @@
+name: "Y137 true-flat original Wilson centered source final gate"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-centered-source-flat-join.yml'
+      - 'independent/y137-centered-source-flat-join-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-centered-flat-join:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Integer-only mathematical source, source pins, and false controls
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-centered-source-flat-join-20261117/centered_join.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          mkdir -p build/y137-centered-join
+          python3 -I -B independent/y137-centered-source-flat-join-20261117/centered_join.py toy \
+            | tee build/y137-centered-join/TOY.hbp
+          grep -Fq '|positive_small_angle=PASS|false_positive_at_real_source=NOT_ASSUMED|' build/y137-centered-join/TOY.hbp
+      - name: Exact true E1 E2 original centered Wilson projector-source inequality
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-centered-source-flat-join-20261117/centered_join.py real \
+            | tee build/y137-centered-join/ALL.hbp
+          grep '^Y137_CENTERED_JOIN_INPUT|' build/y137-centered-join/ALL.hbp > build/y137-centered-join/RESULT.hbp
+          grep '^Y137_CENTERED_JOIN_BUDGET|' build/y137-centered-join/ALL.hbp >> build/y137-centered-join/RESULT.hbp
+          grep '^Y137_CENTERED_JOIN_FRONTIER|' build/y137-centered-join/ALL.hbp >> build/y137-centered-join/RESULT.hbp
+          grep '^Y137_CENTERED_JOIN_VERDICT|' build/y137-centered-join/ALL.hbp >> build/y137-centered-join/RESULT.hbp
+          test "$(wc -l < build/y137-centered-join/RESULT.hbp)" -eq 4
+          grep -Fq '|source_original_M=PR282_CENTERED_HOSTED_64_ENTRIES_AS_INTEGER_O2|' build/y137-centered-join/RESULT.hbp
+          grep -Fq '|actual_first_excitation_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-centered-join/RESULT.hbp
+          git rev-parse HEAD > build/y137-centered-join/COMMIT.txt
+          sha256sum independent/y137-centered-source-flat-join-20261117/centered_join.py > build/y137-centered-join/SOURCE.sha256
+          sha256sum build/y137-centered-join/RESULT.hbp > build/y137-centered-join/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-centered-Wilson-true-flat-source-join
+          path: build/y137-centered-join/
+          retention-days: 90
+          if-no-files-found: warn
