@@ -383,6 +383,15 @@ def real():
          nonzero_exterior_K3_states=out3,
          actual_original_K3_raw_electric_moves=moves,
          D=D,arithmetic="INTEGER_ONLY")
+    emit("Y137_TWO_RESIDUAL_MATRIX",
+         energy_den=D,old_Gram_det_den=den,
+         E11_num=e[0][0],E12_num=e[0][1],E22_num=e[1][1],
+         E_determinant_num=disc,
+         old_source_G11=ugram[0][0],old_source_G12=ugram[0][1],
+         old_source_G22=ugram[1][1],
+         old_source_H11=uk[0][0],old_source_H12=uk[0][1],
+         old_source_H22=uk[1][1],
+         new_to_new_H="NOT_COMPUTED",Wilson_weight="HOLD")
     emit("Y137_TWO_RESIDUAL_GRAM",
          rank=rank,nested_dimension=NOLD+rank,
          source1_seed_z_num=samples[0][0],
