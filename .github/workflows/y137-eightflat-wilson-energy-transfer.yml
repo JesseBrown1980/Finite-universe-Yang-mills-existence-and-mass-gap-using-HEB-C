@@ -1,0 +1,38 @@
+name: "Y137 8-flat original Wilson two-energy transfer"
+on:
+  pull_request:
+    paths:
+      - "independent/y137-eightflat-wilson-energy-transfer-20261117/**"
+      - ".github/workflows/y137-eightflat-wilson-energy-transfer.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-physical-eightflat-coupling:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Original source reconstitution and exact 8x8 energy-bound calculation
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-wilson-energy-transfer
+          python3 -I -B independent/y137-eightflat-wilson-energy-transfer-20261117/exact_energy_transfer.py real |
+            tee build/y137-wilson-energy-transfer/RESULT-WILSON-ENERGY-TRANSFER.hbp
+          grep -Fq "Y137_WILSON_INTERVAL_SOURCE|original_source=PINNED_S3_3X4|flat=8|first_shell=264" build/y137-wilson-energy-transfer/RESULT-WILSON-ENERGY-TRANSFER.hbp
+          grep -Fq "source_trace_bound=PASS|energy_window=PASS|fake_energy_shift=REJECTED" build/y137-wilson-energy-transfer/RESULT-WILSON-ENERGY-TRANSFER.hbp
+          grep -Fq "actual_true_flat_projectors=NOT_COMPUTED|actual_first_Wilson_weight=HOLD|issue_137=OPEN" build/y137-wilson-energy-transfer/RESULT-WILSON-ENERGY-TRANSFER.hbp
+          test "$(wc -l < build/y137-wilson-energy-transfer/RESULT-WILSON-ENERGY-TRANSFER.hbp)" -eq 5
+          sha256sum \
+            independent/y137-eightflat-wilson-energy-transfer-20261117/exact_energy_transfer.py \
+            build/y137-wilson-energy-transfer/RESULT-WILSON-ENERGY-TRANSFER.hbp \
+            > build/y137-wilson-energy-transfer/SHA256SUMS
+          git rev-parse HEAD > build/y137-wilson-energy-transfer/COMMIT
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-8flat-Wilson-energy-transfer
+          path: build/y137-wilson-energy-transfer/
+          retention-days: 90
+          if-no-files-found: warn
