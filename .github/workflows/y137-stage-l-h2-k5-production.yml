@@ -1,0 +1,154 @@
+name: "Y137 Stage L exact K5-inclusive original physical H2"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-stage-l-h2-k5-production.yml'
+      - 'independent/y137-stage-l-h2-k5-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact source pins and no-floating-point controls
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-stage-l-h2-k5-20261117/physical_h2_k5.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = '91bd1e80cbfcfb76198966aa177d097ecfbe8143'
+          test "$(git hash-object independent/y137-h20736-shell3-20261116/sparse_h20736.py)" = 'd0d9d3d14d804450a31ed8e98c01a031b9a53596'
+          test "$(git hash-object independent/y137-htt-streamed-20261116/exact_htt_stream.py)" = '8565677fab0f4ebba46d54e9dd19162aea3469c3'
+          test "$(git hash-object independent/y137-exact-htt-ritz-20261116/RESULT-HTT-FULL-20261116.hbp)" = '11e29b07aa910800731266bf1bd8fc50a6cf36fe'
+          test "$(git hash-object independent/y137-two-residual-krylov-20261116/RESULT-TWO-RESIDUAL-AND-FOUR-ENVELOPE-20261116.hbp)" = '90f9c002f6fe8df2ecd4b5e725de3f9153fbab10'
+      - name: Rebuild original physical source, original toy, K5 pilot and negatives
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h20736 build/y137-l-h2-pilot
+          python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real > build/y137-h20736/RESULT-H20736.hbp
+          test -s build/y137-h20736/H20736-SPARSE-UPPER.tsv
+          python3 -I -B independent/y137-stage-l-physical-residual-20261117/exact_residual_toy.py toy > build/y137-l-h2-pilot/TOY-ORIGINAL.hbp
+          python3 -I -B independent/y137-stage-l-h2-k5-20261117/physical_h2_k5.py toy | tee build/y137-l-h2-pilot/TOY-NEW.hbp
+          python3 -I -B independent/y137-stage-l-h2-k5-20261117/physical_h2_k5.py pilot | tee build/y137-l-h2-pilot/PILOT.hbp
+          grep -Fq '|cross_shard_flux_sum=PASS|premature_square=REJECTED|' build/y137-l-h2-pilot/TOY-NEW.hbp
+          grep -Fq '|full_3x4_H2=NOT_COMPUTED|Wilson_weight=HOLD|json=0' build/y137-l-h2-pilot/PILOT.hbp
+          git rev-parse HEAD > build/y137-l-h2-pilot/COMMIT.txt
+          sha256sum independent/y137-stage-l-h2-k5-20261117/physical_h2_k5.py > build/y137-l-h2-pilot/SOURCE.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h2-original-source-K5-pilot
+          path: build/y137-l-h2-pilot/
+          retention-days: 90
+          if-no-files-found: warn
+
+  source:
+    needs: pilot
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        slot: [0,1,2,3,4,5,6,7]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Reconstruct original H20736 sparse source
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h20736
+          python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real > build/y137-h20736/RESULT-H20736.hbp
+      - name: Exact S3 directed electric record pass
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-stage-l-h2-k5-20261117/physical_h2_k5.py shard ${{ matrix.slot }} | tee source-${{ matrix.slot }}.log
+          grep -Fq '|first_Wilson_weight=HOLD|json=0' source-${{ matrix.slot }}.log
+          test "$(find build/y137-l-h2-source-${{ matrix.slot }} -name 'bucket-*.bin.gz' | wc -l)" -eq 128
+          test "$(wc -l < build/y137-l-h2-source-${{ matrix.slot }}/RESULT-SHARD.hbp)" -eq 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h2-source-${{ matrix.slot }}
+          path: build/y137-l-h2-source-${{ matrix.slot }}/bucket-*.bin.gz
+          retention-days: 90
+          compression-level: 0
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h2-receipt-${{ matrix.slot }}
+          path: build/y137-l-h2-source-${{ matrix.slot }}/RESULT-SHARD.hbp
+          retention-days: 90
+          if-no-files-found: error
+
+  target:
+    needs: source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        group: [0,1,2,3,4,5,6,7]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: h2-source-*
+          path: build/y137-l-h2-sources/
+          merge-multiple: false
+      - name: Rebuild original S3 source and target owner
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h20736
+          python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real > build/y137-h20736/RESULT-H20736.hbp
+      - name: Aggregate ALL K5 and interior incoming source flux before squaring
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-stage-l-h2-k5-20261117/physical_h2_k5.py reduce ${{ matrix.group }} build/y137-l-h2-sources/ | tee reduce-${{ matrix.group }}.log
+          grep -Fq '|first_Wilson_weight=HOLD|json=0' reduce-${{ matrix.group }}.log
+          test "$(wc -l < build/y137-l-h2-reduce-${{ matrix.group }}/RESULT-REDUCE.hbp)" -eq 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h2-reduce-${{ matrix.group }}
+          path: build/y137-l-h2-reduce-${{ matrix.group }}/RESULT-REDUCE.hbp
+          retention-days: 90
+          if-no-files-found: error
+
+  fanin:
+    needs: target
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: h2-receipt-*
+          path: build/y137-l-h2-original-receipts/
+          merge-multiple: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: h2-reduce-*
+          path: build/y137-l-h2-target-receipts/
+          merge-multiple: false
+      - name: Exact all-physical H2 Gram, original Htt replay and operator ceiling
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-l-h2-final
+          python3 -I -B independent/y137-stage-l-h2-k5-20261117/physical_h2_k5.py fanin build/y137-l-h2-original-receipts/ build/y137-l-h2-target-receipts/ | tee build/y137-l-h2-final/ALL.hbp
+          grep '^Y137_L_H2_MATRIX|' build/y137-l-h2-final/ALL.hbp > build/y137-l-h2-final/RESULT-H2-EXACT.hbp
+          grep '^Y137_L_H2_VERDICT|' build/y137-l-h2-final/ALL.hbp >> build/y137-l-h2-final/RESULT-H2-EXACT.hbp
+          grep -Fq '|original_Htt_reproduced=3_OF_3_EXACT|weighted_physical_H2_PSD=PASS|original_468_squared_ceiling=PASS|residual_projection_Htt_lower=PASS|K5_boundary_targets=INCLUDED_EXACT|' build/y137-l-h2-final/RESULT-H2-EXACT.hbp
+          grep -Fq '|first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-l-h2-final/RESULT-H2-EXACT.hbp
+          git rev-parse HEAD > build/y137-l-h2-final/COMMIT.txt
+          sha256sum independent/y137-stage-l-h2-k5-20261117/physical_h2_k5.py > build/y137-l-h2-final/SOURCE.sha256
+          sha256sum build/y137-l-h2-final/RESULT-H2-EXACT.hbp > build/y137-l-h2-final/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-L-K5-full-physical-H2-accepted-fanin
+          path: build/y137-l-h2-final/
+          retention-days: 90
+          if-no-files-found: warn
