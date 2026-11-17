@@ -94,7 +94,7 @@ def bitparallel_count(n, clauses):
     """Independent complete 2^n-assignment truth vector, n<=21 only.
     This oracle deliberately allocates exponential bits and is NOT the solver.
     """
-    assert n<=21
+    assert n<=24
     count=1<<n
     everything=(1<<count)-1
     masks={}
@@ -134,6 +134,63 @@ def generic_source(n):
                 c[0]=-c[0]
             result.append(tuple(c))
     return tuple(result)
+
+
+def hybrid_source(n):
+    clauses, equations = fixture(n)
+    selected=clauses[:4*(n//2)]
+    known={tuple(sorted(set(abs(v) for v in c))) for c in selected}
+    extra=[]
+    for c in generic_source(n):
+        if tuple(sorted(set(abs(v) for v in c))) not in known:
+            extra.append(c)
+        if len(extra)==n//2:
+            break
+    assert len(extra)==n//2
+    return selected+tuple(extra), equations[:n//2], tuple(extra)
+
+
+def hybrid_count_via_left_pivot(n, parity_equations, residual, cap):
+    # Independent leftmost-pivot triangular solver, explicit bounded
+    # enumeration of every remaining free assignment.
+    rows=[[mask,rhs] for mask,rhs in parity_equations]
+    pivots=[]
+    rank=0
+    for var in range(n):
+        choice=next((k for k in range(rank,len(rows)) if (rows[k][0]>>var)&1),None)
+        if choice is None:
+            continue
+        rows[rank],rows[choice]=rows[choice],rows[rank]
+        for k in range(rank+1,len(rows)):
+            if (rows[k][0]>>var)&1:
+                rows[k][0]^=rows[rank][0]
+                rows[k][1]^=rows[rank][1]
+        pivots.append(var)
+        rank+=1
+    assert all((mask or not rhs) for mask,rhs in rows[rank:])
+    pset=set(pivots)
+    free=[i for i in range(n) if i not in pset]
+    total=1<<len(free)
+    if total>cap:
+        return None,total,0
+    accepted=0
+    checked=0
+    for fmask in range(total):
+        assignment=sum(((fmask>>k)&1)<<v for k,v in enumerate(free))
+        for j in range(rank-1,-1,-1):
+            mask,rhs=rows[j]
+            pivot=pivots[j]
+            bit=rhs ^ ((mask & assignment).bit_count()&1)
+            assignment |= bit<<pivot
+        okay=True
+        for c in residual:
+            checked+=1
+            if not check_clause(c,assignment):
+                okay=False
+                break
+        if okay:
+            accepted+=1
+    return accepted,total,checked
 
 
 def main(path):
@@ -178,22 +235,27 @@ def main(path):
         assert generic[n]['after_preflight']=='HOLD_TABLE_LIMIT'
         assert generic[n]['actual_exact_model_count']=='HOLD'
         assert int(generic[n]['actual_allocated_peak_factor_slots'])<=32768
-    hcl,hrows=fixture(12)
-    assert len(hcl)>=24
-    hybrid_source=hcl[:24]
-    for c in generic_source(12):
-        scope=tuple(sorted(set(abs(v) for v in c)))
-        seen={tuple(sorted(set(abs(v) for v in z))) for z in hybrid_source}
-        if scope not in seen:
-            hybrid_source+=(c,)
-        if len(hybrid_source)==30:
-            break
-    assert sha_repr(hybrid_source)==hybrid[12]['source_sha256']
-    assert bitparallel_count(12,hybrid_source)==36
+    for n in (12,24,36,48,72):
+        mixed,parity_eqs,residual=hybrid_source(n)
+        assert sha_repr(mixed)==hybrid[n]['source_sha256']
+        actual,branches,check=hybrid_count_via_left_pivot(n,parity_eqs,residual,262144)
+        assert branches==int(hybrid[n]['projected_free_assignments'])
+        if n<=36:
+            assert actual==int(hybrid[n]['full_problem_model_count'])
+            assert hybrid[n]['residual_solver_status']=='EXACT_BOUNDED_RESIDUAL'
+            if n<=24:
+                assert bitparallel_count(n,mixed)==actual
+        else:
+            assert actual is None
+            assert hybrid[n]['full_problem_model_count']=='HOLD'
+            assert hybrid[n]['residual_solver_status']=='HOLD_RESIDUAL_ENUMERATION_BUDGET'
+    assert int(hybrid[12]['full_problem_model_count'])==36
+    assert int(hybrid[24]['full_problem_model_count'])==848
+    assert int(hybrid[36]['full_problem_model_count'])==31472
     assert generic[72]['after_preflight']=='HOLD_TABLE_LIMIT'
     assert hybrid[12]['exact_brute_model_count']=='36'
-    assert hybrid[12]['full_problem_model_count']=='HOLD_RESIDUAL_GENERIC'
-    print('MTP_GLOBAL_INDEPENDENT|parity_families_reconstructed=14|cleanroom_left_pivot_rank_and_counts=PASS|parity_full_2powN_oracles=2|generic_full_2powN_oracles=6|generic_max_oracle_assignments=2097152|hybrid_12_full_oracle=PASS|original_3CNF_clause_witness_check=PASS|source_sha256=PASS|large_max_variables=1152|generic_table_cap_abstention=PASS|P_equals_NP=NOT_CLAIMED|status=PASS|json=0')
+    assert hybrid[12]['full_problem_model_count']=='36'
+    print('MTP_GLOBAL_INDEPENDENT|parity_families_reconstructed=14|cleanroom_left_pivot_rank_and_counts=PASS|parity_full_2powN_oracles=2|generic_full_2powN_oracles=6|generic_max_oracle_assignments=2097152|hybrid_12_and_24_full_oracles=PASS|hybrid_36_independent_free_oracle=PASS|original_3CNF_clause_witness_check=PASS|source_sha256=PASS|large_max_variables=1152|generic_table_cap_abstention=PASS|P_equals_NP=NOT_CLAIMED|status=PASS|json=0')
 
 
 if __name__=='__main__':
