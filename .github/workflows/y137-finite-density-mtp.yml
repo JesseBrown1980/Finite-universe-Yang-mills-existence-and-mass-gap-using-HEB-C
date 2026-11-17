@@ -1,0 +1,56 @@
+name: Y137 2024 finite density papers MTP binding and energy/pressure acceptance
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-finite-density-mtp-20261117/**'
+      - '.github/workflows/y137-finite-density-mtp.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-dynamical-binding:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Integer-only and repository-wide no-float gates
+        run: |
+          set -euo pipefail
+          D=independent/y137-finite-density-mtp-20261117
+          python3 -I -B native/scripts/integer_only_audit.py "$D/pilot.py" "$D/verify.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Preserve previous S3, Big Bang, and exact thermal evidence
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-finite-density-mtp
+          python3 -I -B independent/y137-metatag-shell-overlap-20261117/pilot.py > build/y137-finite-density-mtp/PARENT-S3.hbp
+          python3 -I -B independent/y137-finite-bigbang-mtp-20261117/pilot.py > build/y137-finite-density-mtp/PARENT-BIGBANG.hbp
+          python3 -I -B independent/y137-finite-thermal-sat-20261117/derive_binding.py > build/y137-finite-density-mtp/PARENT-THERMAL.hbp
+          grep -Fq 'META_S3_FINAL|' build/y137-finite-density-mtp/PARENT-S3.hbp
+          grep -Fq 'original_Wilson_first_weight=HOLD|' build/y137-finite-density-mtp/PARENT-S3.hbp
+          grep -Fq 'BANG_MAIN|ticks=48|final_R=6|active_cells=2197|' build/y137-finite-density-mtp/PARENT-BIGBANG.hbp
+          grep -Fq 'THERMAL_ORACLE|enumerated_cases=192|' build/y137-finite-density-mtp/PARENT-THERMAL.hbp
+      - name: Actual bonds, EoS-driven MTP watches, conservation and no spontaneous Big Loop
+        run: |
+          set -euo pipefail
+          D=independent/y137-finite-density-mtp-20261117
+          python3 -I -B "$D/pilot.py" | tee build/y137-finite-density-mtp/PILOT.hbp
+          grep -Fq 'DENSITY_PAPERS|EoSv2_density=RHO0_DIV_1_PLUS_R_OVER_R0_POWER_N|' build/y137-finite-density-mtp/PILOT.hbp
+          grep -Fq '|eq5_vs_eq8_anisotropy=KEPT_SEPARATE|SEC_3pressure_vs_2pressure=KEPT_SEPARATE|' build/y137-finite-density-mtp/PILOT.hbp
+          grep -Fq 'DENSITY_FINAL|slices=48|initial_pixel_count=96|max_cold_core=0|preset_core_trigger=72|spontaneous_loop=NO|bonds_total_created=136|bonds_total_released=109|bonds_final=27|' build/y137-finite-density-mtp/PILOT.hbp
+          grep -Fq '|anisotropic_EoS_motion_brakes=3576|sampled_pair_transitions=361|final_address_cells=3375|' build/y137-finite-density-mtp/PILOT.hbp
+          grep -Fq '|energy_exact=PASS|total_angular_momentum=0:0:0|local_speed=C_LE_1_PASS|pair_exclusivity=PASS|' build/y137-finite-density-mtp/PILOT.hbp
+          grep -Fq 'DENSITY_COMPARISON|with_pressure_max_cold_core=0|without_pressure_max_cold_core=62|with_pressure_final_bonds=27|without_pressure_final_bonds=45|with_pressure_brakes=3576|without_pressure_brakes=0|' build/y137-finite-density-mtp/PILOT.hbp
+          grep -Fq 'DENSITY_REPLAY|independent_recompute=IDENTICAL_SHA_AND_METRICS|source_hash_receipts=48|status=PASS|' build/y137-finite-density-mtp/PILOT.hbp
+          python3 -I -B "$D/verify.py" build/y137-finite-density-mtp/PILOT.hbp | tee build/y137-finite-density-mtp/INDEPENDENT.hbp
+          grep -Fq '|rational_EoS_3components_and_2anisotropies=PASS|' build/y137-finite-density-mtp/INDEPENDENT.hbp
+          grep -Fq '|pressure_arm_independently_crosschecked=PASS|spontaneous_loop=NO|status=PASS|' build/y137-finite-density-mtp/INDEPENDENT.hbp
+          sha256sum "$D/pilot.py" "$D/verify.py" "$D/README.md" > build/y137-finite-density-mtp/SOURCE.sha256
+          sha256sum build/y137-finite-density-mtp/*.hbp > build/y137-finite-density-mtp/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-finite-density-mtp-real-binding-2024-source
+          path: build/y137-finite-density-mtp/
+          if-no-files-found: ignore
+          retention-days: 90
