@@ -69,8 +69,8 @@ def atlas_gap():
          physical_wilson="HOLD")
 
 def rho_exact():
-    Q=a.decimal("94.0682")
-    E=a.decimal("69.949433884")
+    Q=rat(940682,10000)
+    E=rat(69949433884,1000000000)
     CAP=rat(468)
     kappa=div(sub(CAP,E),sub(Q,E))
     # rho=(sqrt(kappa)-1)/(sqrt(kappa)+1)<49/81
