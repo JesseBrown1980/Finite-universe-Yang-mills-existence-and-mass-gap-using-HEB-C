@@ -1,0 +1,55 @@
+name: Y137 six-pyramid finite Big Bang temperature cooling and MTP Big Loop pilot
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-finite-bigbang-mtp-20261117/**'
+      - '.github/workflows/y137-finite-bigbang-mtp.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-finite-bang:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Integer-only and repository-wide no-float gate
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-finite-bigbang-mtp-20261117/pilot.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Original S3 certificate-scoped interaction and preceding MTP replay
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-bigbang
+          python3 -I -B independent/y137-metatag-shell-overlap-20261117/pilot.py > build/y137-bigbang/PARENT-S3.hbp
+          python3 -I -B independent/y137-pixel-cloud-freeze-edit-play-20261117/pilot.py > build/y137-bigbang/PARENT-FROZEN.hbp
+          python3 -I -B independent/y137-mtp-table-driven-play-20261117/pilot.py > build/y137-bigbang/PARENT-MTP.hbp
+          grep -Fq 'META_S3_FINAL|' build/y137-bigbang/PARENT-S3.hbp
+          grep -Fq 'original_Wilson_first_weight=HOLD|' build/y137-bigbang/PARENT-S3.hbp
+          grep -Fq '|result=EXACT_TOY_NOSIGNALLING_PASS|' build/y137-bigbang/PARENT-FROZEN.hbp
+          grep -Fq 'MTP_FINAL|' build/y137-bigbang/PARENT-MTP.hbp
+      - name: Run seeded Big Bang, six sectors, cooling, Hilbert isometry and conditional Big Loop
+        run: |
+          set -euo pipefail
+          D=independent/y137-finite-bigbang-mtp-20261117
+          python3 -I -B "$D/pilot.py" | tee build/y137-bigbang/BIG-BANG.hbp
+          grep -Fq 'BANG_INIT|pixels=96|initial_temp=18|seed_xyz=0:0:0|six_pyramids=PLUS_MINUS_X_Y_Z|' build/y137-bigbang/BIG-BANG.hbp
+          grep -Fq '|tuple_equivalence=3200_BYTES_TO_2560_BASE1024_SYMBOLS|hilbert_injection_isometric=EXACT_TOY_PASS|' build/y137-bigbang/BIG-BANG.hbp
+          grep -Fq 'BANG_MAIN|ticks=48|final_R=6|active_cells=2197|added_addressed_vacuum_cells=2072|physical_pixels=96|errors_planted=84|errors_corrected=77|errors_escaped=7|' build/y137-bigbang/BIG-BANG.hbp
+          grep -Fq '|max_cold_core_count=61|' build/y137-bigbang/BIG-BANG.hbp
+          grep -Fq '|total_energy=1728|final_vacuum_energy=1728|' build/y137-bigbang/BIG-BANG.hbp
+          grep -Fq '|per_pixel_max_speed=C_EQ_1_PASS|' build/y137-bigbang/BIG-BANG.hbp
+          grep -Fq '|spontaneous_global_recollapse=NOT_DERIVED|' build/y137-bigbang/BIG-BANG.hbp
+          grep -Fq 'BANG_COMPLEXITY|one_global_state=FINITE|forward_hash=REPLAYABLE_FROM_FULL_STATE_AND_RULE|' build/y137-bigbang/BIG-BANG.hbp
+          grep -Fq '|P_equals_NP=NOT_IMPLIED|full_quantum_dynamics=NOT_PROVED|' build/y137-bigbang/BIG-BANG.hbp
+          grep -Fq '|S3_Wilson_first_weight=HOLD|continuum=OPEN|status=EXACT_INTEGER_MODEL_PASS|' build/y137-bigbang/BIG-BANG.hbp
+          sha256sum "$D/pilot.py" "$D/README.md" > build/y137-bigbang/SOURCES.sha256
+          sha256sum build/y137-bigbang/*.hbp > build/y137-bigbang/RESULTS.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-finite-bigbang-six-pyramid-exact-int
+          path: build/y137-bigbang/
+          if-no-files-found: ignore
+          retention-days: 90
