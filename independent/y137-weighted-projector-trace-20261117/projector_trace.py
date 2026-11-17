@@ -237,7 +237,7 @@ def actual():
          two_energy_Gram_center="EXACT_2_ORIGINAL_MINUS_CENTERED_DIV_7",
          same_Q_trial_U_G_hashes="4_OF_4_PASS")
     emit("Y137_PROJECTOR_TRACE_GRAM",
-         source_signed_Gram_sample_sha256=old.blob(old.MATRIX),
+         source_original_O8_Git_blob_SHA1=old.blob(old.MATRIX),
          source_Gram_abs_lower_per_trillion=gram_lower,
          exact_orthogonality_sample_cap_per_trillion=admissible,
          original_truncated_Gram_asymmetry_max_num=
