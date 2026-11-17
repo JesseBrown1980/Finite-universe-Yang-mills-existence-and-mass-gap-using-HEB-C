@@ -19,7 +19,6 @@ not to assert that a changed digest physically updates all matrix cells.
 from hashlib import sha1, sha256
 from itertools import permutations
 from math import gcd
-import json
 
 LX, LY, V = 3, 4, 12
 GROUP = tuple(permutations(range(3)))
@@ -247,7 +246,7 @@ def main():
      'literature_EOS_imported':'NO',
      'full_source_recomputed':'NO',
      'perron_floor_source_conditional':'YES'}
-    receipt=sha256(json.dumps(summary,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+    receipt=sha256(repr(sorted(summary.items())).encode('ascii')).hexdigest()
     emit('META_S3_FINAL',summary_sha256=receipt,
          group_and_overlap='PASS',gauge_and_orbit_hash='PASS',
          bounded_density_gap='PASS_CONDITIONAL',
