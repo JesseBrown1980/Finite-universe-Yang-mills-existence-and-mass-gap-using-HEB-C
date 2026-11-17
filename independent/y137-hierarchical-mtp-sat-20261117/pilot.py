@@ -400,6 +400,36 @@ def benchmark_generic(n):
     return n,width,projected,outcome
 
 
+def bounded_hybrid_count(n, source, basis, recognized_scopes, max_free_branches):
+    pivots=set(basis)
+    free=[i for i in range(n) if i not in pivots]
+    search_branches=1<<len(free)
+    if search_branches>max_free_branches:
+        return None,0,0,search_branches,'HOLD_RESIDUAL_ENUMERATION_BUDGET'
+    residual=tuple(c for c in source if frozenset(abs(l) for l in c) not in recognized_scopes)
+    full_models=0
+    clause_checks=0
+    original_witness_checked=0
+    for seed in range(search_branches):
+        candidate=sum(((seed>>j)&1)<<v for j,v in enumerate(free))
+        for pivot in sorted(pivots):
+            mask,rhs=basis[pivot]
+            value=rhs ^ ((mask & candidate).bit_count() & 1)
+            candidate |= value<<pivot
+        valid=True
+        for clause in residual:
+            clause_checks+=1
+            if not sat_clause(clause,candidate):
+                valid=False
+                break
+        if valid:
+            full_models+=1
+            if not original_witness_checked:
+                assert all(sat_clause(c,candidate) for c in source)
+                original_witness_checked+=1
+    return full_models,search_branches,clause_checks,search_branches,'EXACT_BOUNDED_RESIDUAL'
+
+
 def benchmark_hybrid(n):
     assert n in (12, 24, 36, 48, 72)
     allparity, _ = parity_family(n)
@@ -420,22 +450,33 @@ def benchmark_hybrid(n):
     basis, local, global_ops, logical_bits = hierarchical(n,rows)
     assert basis is not None
     xor_upper_bound = 1 << (n-len(basis))
+    recognized_scopes={frozenset(v for v in range(1,n+1) if (mask>>(v-1))&1)
+                       for mask,rhs in rows}
+    exact_count, searched, residual_checks, branch_budget, outcome = bounded_hybrid_count(
+        n,mixed,basis,recognized_scopes,262144)
     oracle='NOT_RUN'
     if n<=12:
         exact = brute_count(n,mixed)
-        assert 0 < exact < xor_upper_bound
+        assert exact_count==exact and 0 < exact < xor_upper_bound
         oracle=str(exact)
+    if exact_count is not None:
+        assert 0 < exact_count <= xor_upper_bound
     emit('MTP_HYBRID', variables=n, clauses=len(mixed),
          recognized_xor_groups=recognized,
          unrecognized_generic_clause_groups=rejected,
          compiled_parity_rank=len(basis),
          naive_parity_only_model_upper_bound=xor_upper_bound,
          exact_brute_model_count=oracle,
-         full_problem_model_count='HOLD_RESIDUAL_GENERIC',
+         full_problem_model_count=exact_count if exact_count is not None else 'HOLD',
+         enumerated_free_assignments=searched,
+         residual_clause_checks=residual_checks,
+         residual_search_cap=262144,
+         projected_free_assignments=branch_budget,
+         residual_solver_status=outcome,
          local_agent_does_not_launder_uncertain_parity_as_exact='PASS',
          source_sha256=digest(mixed),
-         status='PARTIAL_COMPRESSION_FAIL_CLOSED')
-    return n,recognized,rejected,len(basis),xor_upper_bound
+         status='EXACT_MIXED_COUNT_PASS' if exact_count is not None else 'PARTIAL_COMPRESSION_FAIL_CLOSED')
+    return n,recognized,rejected,len(basis),xor_upper_bound,exact_count,outcome
 
 
 def negative_controls():
