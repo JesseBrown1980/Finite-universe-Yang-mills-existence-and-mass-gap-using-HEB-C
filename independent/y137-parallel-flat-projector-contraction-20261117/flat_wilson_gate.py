@@ -122,9 +122,7 @@ def freeze():
     s1=int(sr[0]["selected_sin_upper_per_trillion"])
     s2=int(sr[1]["selected_sin_upper_per_trillion"])
     need(sr[0]["sample_num"]=="69909875505"
-         and sr[1]["sample_num"]=="69949729820"
-         and sr[0]["null_branch_identified"]=="1"
-         if "null_branch_identified" in sr[0] else True,
+         and sr[1]["sample_num"]=="69949729820",
          "wrong_accepted_original_null_branch")
     # Check the original null angle certificates are for windows strictly
     # wider than the later accepted Stage E actual energy windows.
