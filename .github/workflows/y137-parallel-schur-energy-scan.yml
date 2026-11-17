@@ -1,0 +1,51 @@
+name: "Y137 parallel physical E2-only versus both Schur eigendirections"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-parallel-schur-energy-scan.yml'
+      - 'independent/y137-parallel-schur-energy-scan-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-full-physical-inertia:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        track: [E2_ONLY, BOTH]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Frozen original source and zero-floating-point audit
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-parallel-schur-energy-scan-20261117/scan.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
+          test "$(git hash-object independent/y137-wilson-effective-20261113/check.py)" = 'b6da6140ca36b361bdd9a0c0477af23d681257cf'
+          mkdir -p build/y137-parallel-schur-${{ matrix.track }}
+          python3 -I -B independent/y137-parallel-schur-energy-scan-20261117/scan.py toy \
+            | tee build/y137-parallel-schur-${{ matrix.track }}/TOY.hbp
+          grep -Fq '|exact_8flat_count_logic=PASS|inconclusive_source=HOLD|' build/y137-parallel-schur-${{ matrix.track }}/TOY.hbp
+      - name: Exact full 3x4 S3 eight-flat Schur whole-Q inertia and Stage E transfer
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-parallel-schur-energy-scan-20261117/scan.py ${{ matrix.track }} \
+            | tee build/y137-parallel-schur-${{ matrix.track }}/ALL.hbp
+          grep '^Y137_SCHUR_SCAN_SOURCE|' build/y137-parallel-schur-${{ matrix.track }}/ALL.hbp > build/y137-parallel-schur-${{ matrix.track }}/RESULT.hbp
+          grep '^Y137_SCHUR_SCAN_POINT|' build/y137-parallel-schur-${{ matrix.track }}/ALL.hbp >> build/y137-parallel-schur-${{ matrix.track }}/RESULT.hbp
+          grep '^Y137_SCHUR_SCAN_TRANSFER|' build/y137-parallel-schur-${{ matrix.track }}/ALL.hbp >> build/y137-parallel-schur-${{ matrix.track }}/RESULT.hbp
+          grep '^Y137_SCHUR_SCAN_VERDICT|' build/y137-parallel-schur-${{ matrix.track }}/ALL.hbp >> build/y137-parallel-schur-${{ matrix.track }}/RESULT.hbp
+          grep -Fq '|original_Wilson_first_excitation_weight=HOLD|' build/y137-parallel-schur-${{ matrix.track }}/RESULT.hbp
+          test "$(grep -c '^Y137_SCHUR_SCAN_POINT|' build/y137-parallel-schur-${{ matrix.track }}/RESULT.hbp)" -eq 7 -o "$(grep -c '^Y137_SCHUR_SCAN_POINT|' build/y137-parallel-schur-${{ matrix.track }}/RESULT.hbp)" -eq 6
+          git rev-parse HEAD > build/y137-parallel-schur-${{ matrix.track }}/COMMIT.txt
+          sha256sum independent/y137-parallel-schur-energy-scan-20261117/scan.py > build/y137-parallel-schur-${{ matrix.track }}/SOURCE.sha256
+          sha256sum build/y137-parallel-schur-${{ matrix.track }}/RESULT.hbp > build/y137-parallel-schur-${{ matrix.track }}/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-parallel-physical-Schur-${{ matrix.track }}
+          path: build/y137-parallel-schur-${{ matrix.track }}/
+          retention-days: 90
+          if-no-files-found: warn
