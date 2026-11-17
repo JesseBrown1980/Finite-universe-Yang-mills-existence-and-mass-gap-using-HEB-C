@@ -20,12 +20,12 @@ import hashlib
 import os
 import sys
 from math import isqrt
-from fractions import Fraction as Q
 
 HERE=os.path.dirname(os.path.abspath(__file__))
 INDEP=os.path.dirname(HERE)
 sys.path.insert(0,os.path.join(INDEP,"y137-four-moment-fullstate-20261116"))
 import four_moment_transfer as e
+Q=e.exact.F
 
 UNIT=1000000000000
 DEN=1000000000
