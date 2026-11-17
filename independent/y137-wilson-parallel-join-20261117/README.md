@@ -20,3 +20,19 @@ The two deflated action norms are bounded by the exact 64-entry source central m
 This is the **first exact arithmetic join of the independent true-energy original O dual and the true E1/E2 flat Schur projector estimates**, not a rerun of a toy test. If the margin is nonpositive, it quantitatively identifies the remaining source-specific uncertainty: the deflated signed action bounds or the true flat-sine estimates. The finite physical first excitation gap remains source-conditionally certified. Physical first Wilson weight HOLD until accepted strict positive margin. 4D continuum theorem OPEN.
 
 Hosted source run: `.github/workflows/y137-original-wilson-parallel-join.yml`.
+
+## Hosted independent parallel join and remaining numerical frontier
+
+[Run #44114964115](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44114964115) passed the full exact source and no-float checks for the joined fixed-direction/true-flat sufficient inequality:
+
+- original full-Q directional dual fixed-direction squared Wilson transition >1,027,970 parts per billion, giving a conservative *flat-normalized* amplitude lower **0.032061971243**;
+- source-conditional Stage E true flat sine ceilings **0.003429010525** and **0.009197961975**;
+- source certified signal lower **0.032060426466** after cosine factors;
+- deflated matrix-action + spectral projector contamination upper **0.103852473556**;
+- exact strict margin **−0.071792047090**, so the physical first Wilson transition stays **HOLD**.
+
+The rational verifier also bisected two **method-specific** sufficient frontiers using the frozen source matrix and signed dual bound. Keeping the first-state sine at 0.003429010525, the second-state sine would need to be at most **0.001608523803** to pass this particular inequality. Alternatively both source-conditional flat sine ceilings scaled by no more than **0.309746069093** would pass. These are falsifiable *sufficient targets*, not necessary conditions for Wilson visibility and not claims that the physical states actually satisfy them. The 40- and 60-step ordinary Jacobi trials in PR #274 did not improve the source maximum entry radius. The directional Q-dual source in PR #276 does certify a positive fixed-direction signal, so the remaining dominant error in this joined method is the low-eigendirection transfer, especially E2.
+
+**Normalization logic:** The source whole-Q floor guarantees that the true Feshbach state norms `N_i=sqrt(1+||R_i B x_i||²)` for W-flat unit x_i are positive and finite. Consequently **a strictly positive lower bound on the true unnormalized flat transition would already imply positive normalized Wilson spectral weight**, without a separate high-precision normalization computation. Explicit norm enclosures are required only for a *quantitative numerical lower bound on the normalized weight*. The current signed margin is negative, and the physical Wilson positivity claim remains HOLD regardless.
+
+Full acceptance requires independent mathematical review of the directional dual source (draft #276), the four-moment full-state angle derivation (draft #277), and this joined inequality (draft #278), plus a strictly positive original-source signed margin. The finite physical E2−E1 spectral gap is already source-conditionally enclosed; the 4D continuum problem is separate.
