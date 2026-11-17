@@ -30,6 +30,26 @@ using the physically weighted full residual cross action. Evaluate each old-spac
 
 The source stage is designed to fail closed on frozen source/receipt changes, noninteger original weighted-flux divisions, nonpositive old Schur minors, missing reciprocal source actions, or disagreement with independent full-H self norms. No float calculations or unreviewed spectrum substitutions are allowed.
 
+## Four-vector Loewner upper envelope: an exact upper bound without computing H_tt
+
+The physical S₃ source itself supplies an unconditional **global Hamiltonian upper bound**. Its electric term is the sum of 72 positive operators I−U_t (three involutive transpositions on each of 24 links, compressed to gauge invariants); each original unitary involution has spectrum ±1, hence 0 ≤ electric ≤ 144I. Each of 12 plaquette terms is 2−CHAR and the original S₃ character lies between −1 and 2; multiplying by the frozen magnetic coupling nine yields 0 ≤ magnetic ≤ 324I. Thus the original physical Hamiltonian satisfies the exact operator inequality
+
+**0 ≤ H ≤ 468 I** (in original electric-energy units, at r=9).
+
+Let E=([⟨t_i,t_j⟩_W]) be the exact positive definite 2×2 residual Gram. The source-to-residual Hamiltonian block is exactly K_{u,t}=E/D with D=10^9. The still-uncomputed residual-to-residual Hamiltonian block obeys **K_tt ≤ 468 E**, without any new shell-4 graph enumeration.
+
+Rescale the new physical residual trial directions τ_i=den·t_i, where E has denominator den and integer numerator E_num. For any integer energy numerator z, the **integer symmetric upper-envelope pencil** is
+
+```
+Q_upper(z) =
+  [ D*K_uu - z*G_uu,              E_num             ]
+  [ E_num,                 (D*468-z)*den*E_num     ]
+```
+
+with Gram metric G_upper=diag(G_uu, den·E_num), which is strictly positive definite. The real four-vector Hamiltonian pencil lies below Q_upper(z) in Loewner order. Exact rational inertia at consecutive one-billionth endpoints yields **rigorous upper bounds on the first two four-vector Ritz levels**. These bounds are not *exact* Ritz eigenvalues of the actual 20,738-dimensional Galerkin Hamiltonian: the exact K_tt block, improved true eigenvectors, full residuals and Wilson transfer remain to be computed.
+
+The implementation `loewner_four_witness.py` uses only integer Bareiss determinants and source-pinned exact 2×2 coefficients, an independent symmetry/permutation inertia fallback and the original physical operator's 468 ceiling. Any numerical result must pass the hosted workflow before acceptance.
+
 ## Reproduce
 
 ```sh
