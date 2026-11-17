@@ -2,6 +2,31 @@
 
 **Source:** Complete `README.md`, frozen `main` commit `98c39fbaa1e6ecf9e6454062e90801f385356063` (2026-11-17). Retrieved through the connected GitHub source and processed in full: **865 of 865 lines**, **166,833 characters**, **35 headings**. The source includes historical checkpoints; later statements supersede earlier administrative HOLD wording. [Open the exact README](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/98c39fbaa1e6ecf9e6454062e90801f385356063/README.md).
 
+## November 17, 2026 — Stage O tests the deflated-Wilson energy-sensitivity hypothesis
+
+The actual original S₃ physical source now verifies a stronger **8×8 flat-to-nonflat coupling identity** than the atlas's original generic bound. [Research PR #271](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/271) completed [hosted run #44101975588](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44101975588), with [independent review #5940182340](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/271#pullrequestreview-5940182340).
+
+For \(B=QHP\), where P is the eight original flat-orbit coordinate projector and Q includes every nonflat orbit, independent Q-row and P-column original 72-move enumerations agree **64/64** on the weighted \(B^\dagger B\). The source-defined matrix is exactly
+
+\[
+B^\dagger B=72I_8.
+\]
+
+Hence \(\|B\|_{W_P\to W_Q}^2=72J_E^2\) **exactly**; the older trace estimate 576 and Hamiltonian ceiling \(468^2\) are no longer necessary for this bound. The full coefficient matrix, with eight flat weights \(1,3,2,3,3,2,2,2\), has SHA256 `b1e1c2a4eac79a1e465d3b7d5b6dd67b18b6b46895fc82df5761fd10942ff073`.
+
+With the exact original source-specific simplification \(POQ=QOP=0\), physical Q floor \(QHQ\ge94.0682J_E\), \(\|O_Q\|\le14\), historical fixed sample energy arguments \(s_1=69.909875505\), \(s_2=69.949729820\), and the accepted true Stage E \((E_1,E_2)\) intervals, the standard resolvent identity and an exact two-term telescoping product yield
+
+\[
+\|O_{\mathrm{eff}}(E_2,E_1)-O_{\mathrm{eff}}(s_2,s_1)\|
+\le \frac{31441250152356970000000000000000}
+{481155092337074428422956051257220319}
+<0.000065346.
+\]
+
+The exact full-state flat-coordinate normalization metric \(G(E)=I+B^\dagger(QHQ-E)^{-2}B\) changes by less than \(0.000004556\) at E1 and \(0.000004780\) at E2. The six-row archived exact HBP receipt has SHA256 `f57ffd07b29b545f13746af3fa49ff83b5baad06406430e0e1503dcb8ccea3db` and is available from hosted artifact #14335408888.
+
+**What was tested:** the original weighted S₃ 8-flat/first-shell coupling and *exact-energy-argument dependence of the exact, untruncated* original Wilson effective operator. **What remains:** the uncomputed actual source-specific 8×8 \(O_{\rm eff}\) at the two true energies, rigorous Q-resolvent approximation tails, eight-flat true-eigenspace spectral projectors and full normalized transition. The smaller value \(0.000065346\) must **not** be substituted for the old Wilson transfer error or treated as sufficient \(1/700\) positivity evidence. First original Wilson spectral weight **HOLD**, continuum theorem **OPEN**.
+
 ## November 17, 2026 — original Wilson source resolves two Feshbach blocks exactly
 
 [Scientific draft #269](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/269) passed its [original-source hosted test #44098587193](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44098587193). The original faithful-character sum over the **seven noncontractible winding loops** is a gauge-invariant **diagonal multiplication operator** in the weighted canonical physical S₃ orbit basis. The eight-flat Feshbach projector P selects eight orbit **coordinate states** and Q=I−P selects all other orbit coordinates, so **POQ=QOP=0 exactly**, by disjoint coordinate support. This is specific to the original Wilson multiplication observable and this coordinate projector; it does not follow for an arbitrary Wilson-like matrix or Ritz/Krylov projection.
