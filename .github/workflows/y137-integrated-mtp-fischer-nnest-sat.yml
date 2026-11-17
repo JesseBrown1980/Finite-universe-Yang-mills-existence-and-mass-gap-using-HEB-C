@@ -1,0 +1,44 @@
+name: Y137 integrated MTP Fischer N-Nest SAT independent acceptance
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-integrated-sat-20261117/**'
+      - '.github/workflows/y137-integrated-mtp-fischer-nnest-sat.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integrated-sat-independent:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact-integer and repository-wide no-float gates
+        run: |
+          set -euo pipefail
+          D=independent/y137-integrated-sat-20261117
+          python3 -I -B native/scripts/integer_only_audit.py "$D/engine.py" "$D/verify.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Run all structured mixed and generic benchmark cases with injected errors
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-integrated-sat
+          python3 -I -B independent/y137-integrated-sat-20261117/engine.py | tee build/y137-integrated-sat/INTEGRATED.hbp
+          grep -Fq 'SAT_CONTROL|wrong_proposal_rejected=PASS|incomplete_motif=PASS|tampered_source_sha=PASS|conflict_unsat=PASS' build/y137-integrated-sat/INTEGRATED.hbp
+          test "$(grep -c '^SAT_INTEGRATED|' build/y137-integrated-sat/INTEGRATED.hbp)" -eq 11
+          grep -Fq 'SAT_INTEGRATED_FINAL|cases=11|source_frozen=PASS|corrected_proposals=PASS|independent_nnest_watcher=PASS|' build/y137-integrated-sat/INTEGRATED.hbp
+      - name: Clean-room generator and alternate Gaussian rank verification
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-integrated-sat-20261117/verify.py build/y137-integrated-sat/INTEGRATED.hbp | tee build/y137-integrated-sat/INDEPENDENT.hbp
+          grep -Fq 'SAT_INTEGRATED_INDEPENDENT|cases=11|' build/y137-integrated-sat/INDEPENDENT.hbp
+          grep -Fq '|original_CNF_witnesses=PASS|status=PASS' build/y137-integrated-sat/INDEPENDENT.hbp
+          sha256sum independent/y137-integrated-sat-20261117/*.py independent/y137-integrated-sat-20261117/README.md > build/y137-integrated-sat/SOURCES.sha256
+          sha256sum build/y137-integrated-sat/*.hbp > build/y137-integrated-sat/OUTPUTS.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-integrated-mtp-fischer-nnest-sat
+          path: build/y137-integrated-sat/
+          retention-days: 90
+          if-no-files-found: ignore
