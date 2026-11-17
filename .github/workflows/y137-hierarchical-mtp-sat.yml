@@ -1,0 +1,76 @@
+name: Y137 exact hierarchical MTP global SAT cost and correctness benchmark
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-hierarchical-mtp-sat-20261117/**'
+      - '.github/workflows/y137-hierarchical-mtp-sat.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  hierarchy-work-memory-and-exactness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact-integer and repository-wide policy audits
+        run: |
+          set -euo pipefail
+          D=independent/y137-hierarchical-mtp-sat-20261117
+          python3 -I -B native/scripts/integer_only_audit.py "$D/pilot.py" "$D/verify.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Reproduce prior source S3, factor-width and MTP optics controls
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-mtp-global-sat
+          python3 -I -B independent/y137-metatag-shell-overlap-20261117/pilot.py > build/y137-mtp-global-sat/PARENT-S3.hbp
+          python3 -I -B independent/y137-finite-thermal-sat-20261117/sat_scaling.py > build/y137-mtp-global-sat/PARENT-3SAT.hbp
+          python3 -I -B independent/y137-mtp-optics-negative-delay-20261117/pilot.py > build/y137-mtp-global-sat/PARENT-OPTICS.hbp
+          grep -Fq 'META_S3_FINAL|' build/y137-mtp-global-sat/PARENT-S3.hbp
+          grep -Fq 'original_Wilson_first_weight=HOLD|' build/y137-mtp-global-sat/PARENT-S3.hbp
+          grep -Fq 'SAT_FINAL|families=2|' build/y137-mtp-global-sat/PARENT-3SAT.hbp
+          grep -Fq 'MTP_OPTICS_FINAL|all_width_depth_cases=9|' build/y137-mtp-global-sat/PARENT-OPTICS.hbp
+      - name: Hierarchical MTP parity, generic, mixed and budgeted exact tests
+        run: |
+          set -euo pipefail
+          D=independent/y137-hierarchical-mtp-sat-20261117
+          python3 -I -B "$D/pilot.py" | tee build/y137-mtp-global-sat/MTP-SAT.hbp
+          test "$(grep -c '^MTP_PARITY|' build/y137-mtp-global-sat/MTP-SAT.hbp)" -eq 14
+          test "$(grep -c '^MTP_GENERIC|' build/y137-mtp-global-sat/MTP-SAT.hbp)" -eq 12
+          test "$(grep -c '^MTP_HYBRID|' build/y137-mtp-global-sat/MTP-SAT.hbp)" -eq 5
+          grep -Fq 'MTP_PARITY|variables=384|clauses=2048|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq '|rank=383|exact_model_count=2|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq 'MTP_PARITY|variables=1152|clauses=6144|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq '|rank=1152|exact_model_count=1|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq 'MTP_GENERIC|variables=21|clauses=42|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq '|actual_exact_model_count=9183|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq 'MTP_GENERIC|variables=24|clauses=48|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq '|actual_exact_model_count=HOLD|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq 'MTP_HYBRID|variables=12|clauses=30|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq '|exact_brute_model_count=36|full_problem_model_count=36|enumerated_free_assignments=64|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq 'MTP_HYBRID|variables=24|clauses=60|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq '|full_problem_model_count=848|enumerated_free_assignments=4096|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq 'MTP_HYBRID|variables=36|clauses=90|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq '|full_problem_model_count=31472|enumerated_free_assignments=262144|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq 'MTP_HYBRID|variables=48|clauses=120|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq '|full_problem_model_count=HOLD|enumerated_free_assignments=0|residual_clause_checks=0|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq 'MTP_GLOBAL_FINAL|parity_cases=14|generic_cases=12|hybrid_cases=5|' build/y137-mtp-global-sat/MTP-SAT.hbp
+          grep -Fq '|P_equals_NP=NOT_ESTABLISHED|' build/y137-mtp-global-sat/MTP-SAT.hbp
+      - name: Cleanroom source, rank, exact count and exponential oracle verification
+        run: |
+          set -euo pipefail
+          D=independent/y137-hierarchical-mtp-sat-20261117
+          python3 -I -B "$D/verify.py" build/y137-mtp-global-sat/MTP-SAT.hbp | tee build/y137-mtp-global-sat/INDEPENDENT.hbp
+          grep -Fq 'MTP_GLOBAL_INDEPENDENT|parity_families_reconstructed=14|' build/y137-mtp-global-sat/INDEPENDENT.hbp
+          grep -Fq '|generic_full_2powN_oracles=6|generic_max_oracle_assignments=2097152|' build/y137-mtp-global-sat/INDEPENDENT.hbp
+          grep -Fq '|hybrid_12_and_24_full_oracles=PASS|hybrid_36_independent_free_oracle=PASS|original_3CNF_clause_witness_check=PASS|' build/y137-mtp-global-sat/INDEPENDENT.hbp
+          grep -Fq '|P_equals_NP=NOT_CLAIMED|status=PASS|' build/y137-mtp-global-sat/INDEPENDENT.hbp
+          sha256sum "$D/pilot.py" "$D/verify.py" "$D/README.md" > build/y137-mtp-global-sat/SOURCES.sha256
+          sha256sum build/y137-mtp-global-sat/*.hbp > build/y137-mtp-global-sat/OUTPUTS.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-mtp-global-sat-hierarchy-exact-cost
+          path: build/y137-mtp-global-sat/
+          if-no-files-found: ignore
+          retention-days: 90
