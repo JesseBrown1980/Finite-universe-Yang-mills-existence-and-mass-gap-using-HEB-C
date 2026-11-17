@@ -35,3 +35,34 @@ A positive strict margin would imply nonzero true O2 transition in the simple E1
 The calculation must emit true source signal, contamination, strict signed margin, exact E2-only and joint-sine feasibility frontiers, and negative control under increased E2 angle. Even if a candidate margin is positive, the original physical Wilson weight remains HOLD pending independent source and proof review. The whole finite 3x4 S3 spectral E2-E1 gap remains conditionally certified, while the continuum mass-gap theorem remains OPEN.
 
 Reproduce with the dedicated hosted workflow y137-centered-source-flat-join.yml.
+
+
+## Hosted original-source acceptance result
+
+[Hosted run #44121731435](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44121731435) completed all exact integer, no-float, source provenance, 64-entry centered matrix and false-control gates successfully. The source audit accepts the **calculation**, but the actual first original Wilson weight is **HOLD** because the strict signed sufficient margin remains negative.
+
+All numbers below are exactly outward-rounded integers per 10^12. Because the joined source is the integer **O2=2(O−7/2 I)**, the first table is stated in the O2 units actually verified by the source.
+
+| Exact source quantity (O2 units) | Per trillion |
+|---|---:|
+| Certified fixed flat-direction source amplitude lower | 65,058,289,248 |
+| E1/E2 cosine-adjusted true transition signal lower | 65,055,154,676 |
+| Full Q/deflated/eigendirection contamination upper | 134,574,028,374 |
+| **Strict signed true flat transition margin** | **−69,518,873,698** |
+
+Dividing the signal, contamination and margin by **two** yields the physical centered observable O−7/2 I, whose matrix element between true distinct physical eigenstates is exactly the original seven-loop Wilson matrix element:
+
+- Guaranteed centered signal lower: 0.032527577338.
+- Certified centered contamination upper: 0.067287014187.
+- **Signed centered margin: −0.034759436849 (HOLD).**
+
+The previous unshifted original true-flat acceptance (#278) yielded signal 0.032060426466, contamination 0.103852473556, signed margin −0.071792047090. Thus centering improves this precise source-conditioned sufficient test substantially, although no positive true-state Wilson certificate follows.
+
+The **exact integer bisection sufficient frontiers** for the *centered* source, with all other accepted input bounds frozen, are:
+
+- Keep s1=0.003429010525 and require s2 **≤0.003418880542** (strict positivity at this recorded integer bound). Current s2=0.009197961975, so an improvement factor approximately 2.69 is still needed in this particular proof method.
+- Alternatively improve **both** accepted sine ceilings by a common multiplicative scale **≤0.484814396289** (the recorded sufficient integer scale). This is a sufficient but not physically necessary condition.
+
+Neither frozen original full-Schur bracket-splitting attempt in PR #279 (seven E2-only cutoffs; three E1 and three E2 simultaneous) tightened the source-conditional Stage E energy intervals. The previous simple 40/60-iteration Q Jacobi depth tests also failed to improve the unshifted entry error. Those negative controls favor source-specific projector and observable-action improvements rather than merely adding iterations or cutoffs.
+
+The original finite 3x4 S3 first energy gap remains conditionally accepted. Issue #137 original normalized first-excitation Wilson weight remains HOLD, and the four-dimensional continuum Yang–Mills theorem remains OPEN. Independent scientific review of all source-conditional Stage E, centered dual, centered matrix, and this joined inequality is still required.
