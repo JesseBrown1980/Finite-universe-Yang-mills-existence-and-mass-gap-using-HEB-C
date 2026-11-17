@@ -1,0 +1,130 @@
+name: "Y137 exact physical two-residual Htt eight-shard production"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-exact-htt-eight-shard.yml'
+      - 'independent/y137-htt-streamed-20261116/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  htt-pilot-source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Integer-only audit and whole repository no-floating-point gate
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-htt-streamed-20261116/exact_htt_stream.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Strict original S3, H20736, 20738-receipt SHA pins
+        run: |
+          set -euo pipefail
+          git hash-object independent/finite_s3_3x4_r9_first_gap.py |
+            grep -Fxq '91bd1e80cbfcfb76198966aa177d097ecfbe8143'
+          git hash-object independent/y137-h20736-shell3-20261116/sparse_h20736.py |
+            grep -Fxq 'd0d9d3d14d804450a31ed8e98c01a031b9a53596'
+          git hash-object independent/y137-two-residual-krylov-20261116/RESULT-TWO-RESIDUAL-AND-FOUR-ENVELOPE-20261116.hbp |
+            grep -Fxq '90f9c002f6fe8df2ecd4b5e725de3f9153fbab10'
+      - name: Toy positive Gram, exact Loewner ceiling and forged edges
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-htt-streamed-20261116/exact_htt_stream.py toy |
+            tee /tmp/y137-htt-toy.hbp
+          grep -Fq '|negative_controls=2_OF_2_REJECTED|' /tmp/y137-htt-toy.hbp
+          grep -Fq '|first_Wilson_weight=HOLD|json=0' /tmp/y137-htt-toy.hbp
+      - name: Rebuild exact original 20736 matrix for source authentication
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h20736 build/y137-htt-pilot
+          /usr/bin/time -v python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real |
+            tee build/y137-h20736/RESULT-H20736.hbp
+          grep -Fq '|matrix=EXACT_SPARSE_PHYSICAL_W_GALERKIN|dimension=20736|' build/y137-h20736/RESULT-H20736.hbp
+          test -s build/y137-h20736/H20736-SPARSE-UPPER.tsv
+      - name: Exact full-source residual reconstruction and physical reciprocal pilot
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-htt-streamed-20261116/exact_htt_stream.py pilot |
+            tee build/y137-htt-pilot/PILOT-ALL.hbp
+          grep '^Y137_HTT_PILOT|' build/y137-htt-pilot/PILOT-ALL.hbp > build/y137-htt-pilot/RESULT-PILOT.hbp
+          test "$(wc -l < build/y137-htt-pilot/RESULT-PILOT.hbp)" -eq 1
+          grep -Fq '|original_2x2_Gram_reproduction=EXACT|' build/y137-htt-pilot/RESULT-PILOT.hbp
+          grep -Fq '|Wilson_weight=HOLD|json=0' build/y137-htt-pilot/RESULT-PILOT.hbp
+          git rev-parse HEAD > build/y137-htt-pilot/COMMIT.txt
+          sha256sum independent/y137-htt-streamed-20261116/exact_htt_stream.py > build/y137-htt-pilot/SOURCE.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-htt-original-source-reciprocity-pilot
+          path: build/y137-htt-pilot/
+          retention-days: 90
+          if-no-files-found: warn
+  htt-exact-shards:
+    runs-on: ubuntu-24.04
+    needs: htt-pilot-source-controls
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        slot: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Rebuild authenticated exact H20736 sparse physical source
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-h20736 build/y137-htt
+          /usr/bin/time -v python3 -I -B independent/y137-h20736-shell3-20261116/sparse_h20736.py real |
+            tee build/y137-h20736/RESULT-H20736.hbp
+          grep -Fq '|matrix=EXACT_SPARSE_PHYSICAL_W_GALERKIN|dimension=20736|' build/y137-h20736/RESULT-H20736.hbp
+          test -s build/y137-h20736/H20736-SPARSE-UPPER.tsv
+      - name: Original-H 72-move streamed weighted exact Htt row shard
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-htt-streamed-20261116/exact_htt_stream.py shard ${{ matrix.slot }} |
+            tee build/y137-htt/ALL-HTT-SLICE-${{ matrix.slot }}.hbp
+          grep '^Y137_HTT_SHARD|' build/y137-htt/ALL-HTT-SLICE-${{ matrix.slot }}.hbp > build/y137-htt/RESULT-HTT-SLICE-${{ matrix.slot }}.hbp
+          test "$(wc -l < build/y137-htt/RESULT-HTT-SLICE-${{ matrix.slot }}.hbp)" -eq 1
+          grep -Fq '|W_Gram_original=EXACT|Wilson_weight=HOLD|json=0' build/y137-htt/RESULT-HTT-SLICE-${{ matrix.slot }}.hbp
+          git rev-parse HEAD > build/y137-htt/COMMIT.txt
+          sha256sum build/y137-htt/RESULT-HTT-SLICE-${{ matrix.slot }}.hbp > build/y137-htt/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: slice-${{ matrix.slot }}
+          path: |
+            build/y137-htt/RESULT-HTT-SLICE-${{ matrix.slot }}.hbp
+            build/y137-htt/COMMIT.txt
+            build/y137-htt/RESULT.sha256
+          retention-days: 90
+          if-no-files-found: error
+  htt-independent-fanin:
+    runs-on: ubuntu-24.04
+    needs: htt-exact-shards
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: slice-*
+          path: build/y137-htt-shards/
+          merge-multiple: false
+      - name: Original-source SHA, all eight shards and full exact Htt PSD
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-htt-final
+          python3 -I -B independent/y137-htt-streamed-20261116/exact_htt_stream.py fanin build/y137-htt-shards |
+            tee build/y137-htt-final/RESULT-HTT-EXACT.hbp
+          grep -Fq '|true_residual_to_residual_H=ACCEPTED_EXACT_2X2|' build/y137-htt-final/RESULT-HTT-EXACT.hbp
+          grep -Fq '|exact_global_468_Loewner_ceiling=PASS|' build/y137-htt-final/RESULT-HTT-EXACT.hbp
+          grep -Fq '|first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-htt-final/RESULT-HTT-EXACT.hbp
+          git rev-parse HEAD > build/y137-htt-final/COMMIT.txt
+          sha256sum build/y137-htt-final/RESULT-HTT-EXACT.hbp > build/y137-htt-final/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-exact-htt-original-physical-sharded-fanin
+          path: build/y137-htt-final/
+          retention-days: 90
+          if-no-files-found: warn
