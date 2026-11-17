@@ -1,0 +1,49 @@
+name: "Y137 original centered Wilson complete eight-flat effective matrix"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-original-centered-wilson-o8.yml'
+      - 'independent/y137-original-centered-wilson-o8-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-centered-original-eight-matrix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Original integer source and rational centering negative controls
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-original-centered-wilson-o8-20261117/centered_matrix.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-wilson-effective-20261113/check.py)" = 'b6da6140ca36b361bdd9a0c0477af23d681257cf'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
+          mkdir -p build/y137-centered-o8
+          python3 -I -B independent/y137-original-centered-wilson-o8-20261117/centered_matrix.py toy \
+            | tee build/y137-centered-o8/TOY.hbp
+          grep -Fq '|centered_original_observable=EXACT_RATIONAL_SHIFT|' build/y137-centered-o8/TOY.hbp
+      - name: Certified physical original centered Wilson 8x8 matrix and full Q residual
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v python3 -I -B independent/y137-original-centered-wilson-o8-20261117/centered_matrix.py real \
+            | tee build/y137-centered-o8/ALL.hbp
+          grep '^Y137_O8_CENTERED_SOURCE|' build/y137-centered-o8/ALL.hbp > build/y137-centered-o8/RESULT.hbp
+          grep '^Y137_O8_MATRIX|' build/y137-centered-o8/ALL.hbp >> build/y137-centered-o8/RESULT.hbp
+          grep '^Y137_O8_ENTRY|' build/y137-centered-o8/ALL.hbp >> build/y137-centered-o8/RESULT.hbp
+          grep '^Y137_O8_VERDICT|' build/y137-centered-o8/ALL.hbp >> build/y137-centered-o8/RESULT.hbp
+          test "$(grep -c '^Y137_O8_ENTRY|' build/y137-centered-o8/RESULT.hbp)" -eq 64
+          grep -Fq '|entire_true_original_Oeff_8x8=64_CENTERED_RATIONAL_ENTRY_INTERVALS|' build/y137-centered-o8/RESULT.hbp
+          grep -Fq '|true_normalized_first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-centered-o8/RESULT.hbp
+          grep -Fq '|rational_mu=7/2|' build/y137-centered-o8/RESULT.hbp
+          git rev-parse HEAD > build/y137-centered-o8/COMMIT.txt
+          sha256sum independent/y137-original-centered-wilson-o8-20261117/centered_matrix.py > build/y137-centered-o8/SOURCE.sha256
+          sha256sum build/y137-centered-o8/RESULT.hbp > build/y137-centered-o8/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-centered-wilson-fullQ-eight-matrix
+          path: build/y137-centered-o8/
+          retention-days: 90
+          if-no-files-found: warn
