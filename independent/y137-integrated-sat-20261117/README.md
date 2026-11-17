@@ -14,7 +14,7 @@ All parity variables are represented as exact affine functions of independent fr
 
 ## Source and independent replay
 
-The source fixtures are those from [#295's hierarchical SAT experiment](../y137-hierarchical-mtp-sat-20261117/README.md). Cases: parity n=48,72,384; mixed n=12,24,36,48,72; generic n=12,18,24. The independent verifier imports **only the prior clean-room source reconstruction** (its own generator and left-pivot checker), not the new engine. It checks every receipt's source hash, complete original clauses, exact counts when returned, witness, proof chain and rank. The prior #295 hosted verifier remains the baseline reference.
+The source fixtures are those from [#295's hierarchical SAT experiment](../y137-hierarchical-mtp-sat-20261117/README.md). Cases: parity n=48,72,384; mixed n=12,24,36,48,72; generic n=12,18,24. The independent verifier **reconstructs the CNF fixtures independently** with its own source generator, left-pivot checker and model-count oracle; it never imports the new engine. It checks every receipt's source hash, complete original clauses, exact counts when returned, witness, proof chain and rank. The prior #295 hosted verifier remains the baseline reference.
 
 The benchmark includes a **fixed-free-variable-order comparator** that is metered separately and included in the total work proxy when evaluated. This is an initial ordering baseline. A credible solver-scale comparison still requires standardized DIMACS input and external SAT/#SAT solvers on unseen structured, mixed, random, high-connectivity, SAT and UNSAT families. SAT decisions and full exact model counts must be reported separately.
 
@@ -28,7 +28,21 @@ The benchmark includes a **fixed-free-variable-order comparator** that is metere
 - Search: every visited decision-tree node and tested literal is counted; exceeding cap returns HOLD.
 - Peak resident memory is reported as Linux process high-water RSS including Python overhead; estimated operation counts are **defined proxies**, not full CPU instruction counts. External CI start-up, installing tools, and future benchmarking harness costs must be counted when comparing total systems.
 
-**Status on creation:** engineering candidate, pending hosted checks. The preceding #295 structured parity pilot is independently hosted; this particular integration has its own acceptance gate. P=NP is an open mathematical question. First Wilson spectral weight remains HOLD.
+## Hosted acceptance and measured first run
+
+[Hosted run #44184714711](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44184714711): **PASS**, including integer-only and whole-repository no-float gates, 11 actual source-generated cases, four tamper/error controls, independent SHA/proof-chain replay, independent left-pivot ranks, original-CNF witnesses and exact model-count comparisons.
+
+| Family, variables | CNF clauses | Result | Fischer search nodes | Fixed-order nodes |
+|---|---:|---:|---:|---:|
+| Parity 48 / 72 / 384 | 256 / 384 / 2,048 | exact counts **1 / 1 / 2** | 1 / 1 / 1 | 1 / 1 / 1 |
+| Mixed 12 / 24 / 36 | 30 / 60 / 90 | exact counts **36 / 848 / 31,472** | 33 / 305 / 3,477 | 29 / 293 / 3,325 |
+| Mixed 48 / 72 | 120 / 180 | **HOLD** at 6,000 nodes per ordering | 6,000 / 6,000 | 6,000 / 6,000 |
+| Generic 12 | 24 | exact count **110** | 1,641 | 1,641 |
+| Generic 18 / 24 | 36 / 48 | **HOLD** at 20,000 nodes per ordering | 20,000 / 20,000 | 20,000 / 20,000 |
+
+**7 exact / 4 bounded HOLD**. For these small mixed cases the current static Fischer-inspired variable heuristic uses **more** search nodes than fixed order; that observation is retained as a measured counterexample to an automatic speedup claim. The largest gain remains the exact parity representation itself. Across families the reported work-unit counter includes source bytes, source clause writes, proposal recognition, independent watchers, both search orders, exact checks, and input-generation time separately; full per-run details reside in the hosted HBP artifact. Timings are implementation measurements, not a complexity-law fit.
+
+The preceding #295 pilot remains the separately certified reference. **Current integration: hosted pilot PASS, held-out scaling and external solver comparison NEXT.** P=NP remains open. Original first-excitation Wilson spectral weight remains HOLD.
 
 ## Run on the stacked branch
 
