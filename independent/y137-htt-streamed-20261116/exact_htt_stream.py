@@ -110,7 +110,6 @@ def replace_col_det(core,idx,b):
 
 
 def new_scaled_vectors():
-    gauge=finite_s3_3x4_r9_first_gap
     need(residual_projection.h429.gitblob(
          os.path.join(ROOT,"independent","finite_s3_3x4_r9_first_gap.py"))
          ==ORIGINAL_S3_BLOB,"original_physical_S3_generator_sha_drift")
@@ -186,7 +185,7 @@ def new_scaled_vectors():
         if not va and not vb:
             continue
         wi=ball["eW"][f]
-        row=gauge.neighbors(key)
+        row=finite_s3_3x4_r9_first_gap.neighbors(key)
         need(sum(row.values())==72,"K3_original_72_move_source")
         source_moves+=72
         for dst,count in row.items():
@@ -226,7 +225,7 @@ def new_scaled_vectors():
     for key,(fa,fb) in shell4.items():
         if not fa and not fb:
             continue
-        wi=gauge.weight(key)
+        wi=finite_s3_3x4_r9_first_gap.weight(key)
         need(wi in (1,2,3,6) and fa%wi==0 and fb%wi==0,
              "K4_original_weighted_flux_nonintegral")
         need(key not in support,"external_K4_duplicate")
@@ -287,12 +286,11 @@ def new_scaled_vectors():
 
 
 def source_row(orbit,support):
-    gauge=finite_s3_3x4_r9_first_gap
     a,b,w=support[orbit]
-    neighbors=gauge.neighbors(orbit)
+    neighbors=finite_s3_3x4_r9_first_gap.neighbors(orbit)
     need(sum(neighbors.values())==72,
          "original_full_H_raw_row_not_72_moves")
-    magnetic=gauge.magnetic(gauge.from_key(orbit))
+    magnetic=finite_s3_3x4_r9_first_gap.magnetic(finite_s3_3x4_r9_first_gap.from_key(orbit))
     need(0<=magnetic<=36,"original_magnetic_plaquette_outside_0_36")
     d=(72+MAG_COUPLING*magnetic)
     k11=w*d*a*a
@@ -323,7 +321,6 @@ def pilot():
                len(ordered)-2,len(ordered)-1]
     selected=[ordered[idx] for idx in positions]
     checks=0;total=0;inner=0
-    gauge=finite_s3_3x4_r9_first_gap
     for key in selected:
         q=source_row(key,support)
         total+=72;inner+=q[4]
@@ -331,7 +328,7 @@ def pilot():
         for dst,c in q[5].items():
             if dst not in support:
                 continue
-            rev=gauge.neighbors(dst).get(key,0)
+            rev=finite_s3_3x4_r9_first_gap.neighbors(dst).get(key,0)
             need(src_w*c==support[dst][2]*rev,
                  "original_S3_weighted_reciprocal_edge_forged")
             checks+=1
