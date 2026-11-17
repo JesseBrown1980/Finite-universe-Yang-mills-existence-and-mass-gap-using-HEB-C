@@ -6,8 +6,7 @@ All positions/counters/thermal energy are integers; no continuous spacetime.
 Original 3x4 S3 Hamiltonian and accepted Wilson sources are not modified.
 """
 from hashlib import sha256
-from collections import Counter
-from dataclasses import dataclass, replace
+from collections import Counter, namedtuple
 from math import gcd
 
 SECTORS = ((0, 1), (0, -1), (1, 1), (1, -1), (2, 1), (2, -1))
@@ -55,16 +54,7 @@ def step_at_axis(axis, sign):
     return tuple(v)
 
 
-@dataclass(frozen=True)
-class Pixel:
-    pid: int
-    pos: tuple
-    sector: int
-    temp: int
-    clock: int = 0
-    errors: int = 0
-    residual: int = 0
-    locked: bool = False
+Pixel = namedtuple('Pixel', 'pid pos sector temp clock errors residual locked', defaults=(0,0,0,False))
 
 
 def snapshot_key(ps, t, radius, vacuum, epoch):
@@ -168,7 +158,7 @@ def step_slice(ps, t, R, vacuum, epoch, inject_errors):
         cooling_total += p.temp-newtemp
         newclock = p.clock + int(not paused)
         newresidual = p.residual + int(is_err and not paused)
-        next_ps.append(replace(p, pos=v, temp=newtemp, clock=newclock,
+        next_ps.append(p._replace( pos=v, temp=newtemp, clock=newclock,
                                errors=p.errors+is_err, residual=newresidual,
                                locked=(newtemp == 0 and occupancy[v] >= CORE_CELL_CAP)))
     next_ps = tuple(next_ps)
@@ -262,7 +252,7 @@ def main():
     # Separate controllable Big Loop threshold test: cold dense center is
     # supplied as a preset. Collapse/reheat is never claimed to arise from
     # the cooling run unless it actually meets CORE_TRIGGER.
-    core=tuple(replace(p,pos=(0,0,0),temp=0,clock=0,errors=0,
+    core=tuple(p._replace(pos=(0,0,0),temp=0,clock=0,errors=0,
                        residual=0,locked=True) for p in seed())
     reserve=N*TMAX
     assert sum(p.temp for p in core)+reserve==N*TMAX
@@ -273,7 +263,7 @@ def main():
     reheat_needed=N*TMAX-sum(p.temp for p in core)
     assert reserve>=reheat_needed
     reserve-=reheat_needed
-    loop=tuple(replace(p,temp=TMAX,locked=False) for p in core)
+    loop=tuple(p._replace(temp=TMAX,locked=False) for p in core)
     assert h(tuple(p.pos for p in loop))==h(tuple(p.pos for p in core))
     assert sum(p.temp for p in loop)+reserve==N*TMAX
     loop,R2,res2,rc=step_slice(loop,0,START_R,reserve,1,False)
