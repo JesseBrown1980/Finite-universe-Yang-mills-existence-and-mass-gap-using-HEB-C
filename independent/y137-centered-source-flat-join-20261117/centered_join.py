@@ -95,7 +95,7 @@ def source_data():
     s2,fac2,_=stage_e.transfer(stage_e.STAGE_E_PER_TRILLION[1],1)
     need(s1<old1 and s2<old2,"accepted_flat_angle_regression")
     rows=open(CENTERED,encoding="ascii").read().splitlines()
-    need(len(rows)==67,"centered_original_full_Q_64_receipt_rowcount")
+    need(len(rows)==68,"centered_original_full_Q_64_receipt_rowcount")
     meta=old.parse(rows[0])
     need(rows[0].startswith("Y137_CENTERED_O8_JOIN_SOURCE|")
          and meta["pr"]=="282"
