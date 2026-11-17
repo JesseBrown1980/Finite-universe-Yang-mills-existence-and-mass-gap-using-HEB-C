@@ -89,7 +89,7 @@ def toy():
     # original signed dual Jacobi equation uses b as energy scalar.
     U=o*qhat
     centre=A*o*qhat*qhat-2*residual*U
-    quad=o*residual*residual
+    quad=o*residual*residual//A
     need(centre+quad==A*o*qtrue*qtrue and
          residual==-2 and dual_exact==A*U,
          "signed_two_linear_one_quadratic_dual_identity")
