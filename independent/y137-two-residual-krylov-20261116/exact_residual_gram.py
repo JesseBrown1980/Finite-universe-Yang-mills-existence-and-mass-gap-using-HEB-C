@@ -164,8 +164,8 @@ def dual_of_old_space(x,z,entries,ball,cols,s132,s3,
 
 def schur_reduction(ball, cols, s132):
     """Original 4x4 Gram Schur: indicator block strictly positive diagonal."""
-    import nested_ritz as n
-    oldG, oldK=n.load_h12()
+    import nested_ritz
+    oldG, oldK=nested_ritz.load_h12()
     core=[[oldG[8+i][8+j] for j in range(4)]
           for i in range(4)]
     for idx in s132:
