@@ -1,0 +1,51 @@
+name: "Y137 independent original Wilson dual plus flat angle acceptance gate"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-original-wilson-parallel-join.yml'
+      - 'independent/y137-wilson-parallel-join-20261117/**'
+      - 'independent/y137-parallel-flat-angle-fourmoment-20261117/**'
+      - 'independent/y137-parallel-flat-projector-contraction-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-dual-flat-join:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Authenticated source receipts and no-float controls
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-wilson-parallel-join-20261117/join_gate.py
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-parallel-flat-angle-fourmoment-20261117/angle_transfer.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-parallel-flat-angle-fourmoment-20261117/INPUT-PR234-STAGE-E.hbp)" = 'daf746ca35e44005406be18a872b38a3257e83ff'
+          mkdir -p build/y137-wilson-join
+          python3 -I -B independent/y137-wilson-parallel-join-20261117/join_gate.py toy \
+            | tee build/y137-wilson-join/TOY.hbp
+          grep -Fq '|positive_small_angle=PASS|false_positive_at_real_source=NOT_ASSUMED|' build/y137-wilson-join/TOY.hbp
+      - name: Independent exact original full-Q dual and flat-eigenspace contraction
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-wilson-parallel-join-20261117/join_gate.py real \
+            | tee build/y137-wilson-join/ALL.hbp
+          grep '^Y137_WILSON_JOIN_INPUT|' build/y137-wilson-join/ALL.hbp > build/y137-wilson-join/RESULT.hbp
+          grep '^Y137_WILSON_JOIN_BUDGET|' build/y137-wilson-join/ALL.hbp >> build/y137-wilson-join/RESULT.hbp
+          grep '^Y137_WILSON_JOIN_FRONTIER|' build/y137-wilson-join/ALL.hbp >> build/y137-wilson-join/RESULT.hbp
+          grep '^Y137_WILSON_JOIN_VERDICT|' build/y137-wilson-join/ALL.hbp >> build/y137-wilson-join/RESULT.hbp
+          test "$(wc -l < build/y137-wilson-join/RESULT.hbp)" -eq 4
+          grep -Fq '|numerical_frontier=EXACT_INTEGER_ROOT_BISECTION|' build/y137-wilson-join/RESULT.hbp
+          grep -Fq '|original_fixed_flat_transition=POSITIVE_SOURCE_CONDITIONAL|' build/y137-wilson-join/RESULT.hbp
+          grep -Fq '|actual_first_excitation_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-wilson-join/RESULT.hbp
+          git rev-parse HEAD > build/y137-wilson-join/COMMIT.txt
+          sha256sum independent/y137-wilson-parallel-join-20261117/join_gate.py > build/y137-wilson-join/SOURCE.sha256
+          sha256sum build/y137-wilson-join/RESULT.hbp > build/y137-wilson-join/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-Wilson-dual-and-true-flat-join
+          path: build/y137-wilson-join/
+          retention-days: 90
+          if-no-files-found: warn
