@@ -1,0 +1,73 @@
+name: Y137 microcanonical thermal binding and exact global-table 3SAT scaling
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-finite-thermal-sat-20261117/**'
+      - '.github/workflows/y137-finite-thermal-sat.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-counting-and-hilbert-overlay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict integer-only and repo-wide no-float source audits
+        run: |
+          set -euo pipefail
+          D=independent/y137-finite-thermal-sat-20261117
+          python3 -I -B native/scripts/integer_only_audit.py "$D/derive_binding.py" "$D/sat_scaling.py" "$D/overlay_bigbang.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Reproduce original unchanged Yang-Mills and six-sector model controls
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-thermal-sat
+          python3 -I -B independent/y137-metatag-shell-overlap-20261117/pilot.py > build/y137-thermal-sat/PARENT-S3.hbp
+          python3 -I -B independent/y137-pixel-cloud-freeze-edit-play-20261117/pilot.py > build/y137-thermal-sat/PARENT-FREEZE.hbp
+          python3 -I -B independent/y137-mtp-table-driven-play-20261117/pilot.py > build/y137-thermal-sat/PARENT-MTP.hbp
+          python3 -I -B independent/y137-finite-bigbang-mtp-20261117/pilot.py > build/y137-thermal-sat/PARENT-BIGBANG.hbp
+          grep -Fq 'META_S3_FINAL|' build/y137-thermal-sat/PARENT-S3.hbp
+          grep -Fq 'original_Wilson_first_weight=HOLD|' build/y137-thermal-sat/PARENT-S3.hbp
+          grep -Fq 'PIXEL_CLOUD_VERDICT|' build/y137-thermal-sat/PARENT-FREEZE.hbp
+          grep -Fq 'MTP_FINAL|' build/y137-thermal-sat/PARENT-MTP.hbp
+          grep -Fq 'BANG_COMPLEXITY|' build/y137-thermal-sat/PARENT-BIGBANG.hbp
+      - name: Derive finite reservoir thresholds and prove detailed balance
+        run: |
+          set -euo pipefail
+          D=independent/y137-finite-thermal-sat-20261117
+          python3 -I -B "$D/derive_binding.py" | tee build/y137-thermal-sat/THERMAL.hbp
+          grep -Fq 'THERMAL_ORACLE|enumerated_cases=192|' build/y137-thermal-sat/THERMAL.hbp
+          grep -Fq 'bath_modes=24|available_separation_directions=6|max_bath_excitation_preferring_binding=2|' build/y137-thermal-sat/THERMAL.hbp
+          grep -Fq 'bath_modes=24|available_separation_directions=3|max_bath_excitation_preferring_binding=5|' build/y137-thermal-sat/THERMAL.hbp
+          grep -Fq 'bath_modes=24|available_separation_directions=1|max_bath_excitation_preferring_binding=11|' build/y137-thermal-sat/THERMAL.hbp
+          grep -Fq 'THERMAL_BIGLOOP_NEGATIVE|' build/y137-thermal-sat/THERMAL.hbp
+          grep -Fq '|full_six_pyramid_simulation=RULE_NOT_YET_WIRED|' build/y137-thermal-sat/THERMAL.hbp
+      - name: Recalculate finite Big Bang thermal binding candidates, source-only
+        run: |
+          set -euo pipefail
+          D=independent/y137-finite-thermal-sat-20261117
+          python3 -I -B "$D/overlay_bigbang.py" | tee build/y137-thermal-sat/OVERLAY.hbp
+          test "$(grep -c '^OVERLAY_SLICE|' build/y137-thermal-sat/OVERLAY.hbp)" -eq 8
+          grep -Fq 'OVERLAY_FINAL|evaluated_slices=8|archived_original_signature=96_PIXELS_48_TICKS_R6_84_77_7|' build/y137-thermal-sat/OVERLAY.hbp
+          grep -Fq '|source_dynamics_modified=NO|binding_is_merely_candidate_readout=YES|' build/y137-thermal-sat/OVERLAY.hbp
+      - name: Exact model-count growth and independent 3SAT oracles
+        run: |
+          set -euo pipefail
+          D=independent/y137-finite-thermal-sat-20261117
+          python3 -I -B "$D/sat_scaling.py" | tee build/y137-thermal-sat/SAT.hbp
+          test "$(grep -c '^SAT_BENCH|' build/y137-thermal-sat/SAT.hbp)" -eq 12
+          grep -Fq 'SAT_ORACLE|controls=4|models_7_6_0_1=PASS|' build/y137-thermal-sat/SAT.hbp
+          grep -Fq 'family=BOUNDED_WINDOW|variables=21|clauses=38|models_exact=14104|global_factor_bits=3|' build/y137-thermal-sat/SAT.hbp
+          grep -Fq 'family=CROSS_COUPLED|variables=21|clauses=42|models_exact=13722|global_factor_bits=16|' build/y137-thermal-sat/SAT.hbp
+          grep -Fq 'SAT_FINAL|families=2|sizes=6:9:12:15:18:21|bounded_frontier_max_joint_bits=3|cross_coupled_max_joint_bits=16|tested_sat_instances=12|complete_bruteforce_confirmed=8|' build/y137-thermal-sat/SAT.hbp
+          grep -Fq '|complexity_proof=NOT_CLAIMED|' build/y137-thermal-sat/SAT.hbp
+          sha256sum "$D/derive_binding.py" "$D/sat_scaling.py" "$D/overlay_bigbang.py" "$D/README.md" > build/y137-thermal-sat/SOURCES.sha256
+          sha256sum build/y137-thermal-sat/*.hbp > build/y137-thermal-sat/RESULTS.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-finite-microcanonical-binding-and-3sat-exact
+          path: build/y137-thermal-sat/
+          if-no-files-found: ignore
+          retention-days: 90
