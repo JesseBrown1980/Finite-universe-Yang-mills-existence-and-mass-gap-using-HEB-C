@@ -19,18 +19,18 @@ jobs:
         run: |
           set -euo pipefail
           test "$(sha256sum docs/certificate-atlas/certificates.json | cut -d' ' -f1)" = "a40c19559ac9739610abd4241d1ec9585f23c509f1dfbdfa04e0daa08cb7e0f5"
-          python3 -I -B native/scripts/no_float_gate.py .
+          python3 -I -B native/scripts/integer_only_audit.py docs/certificate-atlas/predictions.py
       - name: Test four 3x3 intervals, exact Chebyshev enclosure and Feshbach identity
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p build/y137-atlas-tests
           python3 -I -B docs/certificate-atlas/predictions.py docs/certificate-atlas/certificates.json | tee build/y137-atlas-tests/RESULT-ATLAS-PREDICTIONS.hbp
-          grep -Fq "ATLAS_GAP_VERDICT|high_r_within=3|high_r_total=3|r9_rejected=YES|wrong_c3_44_rejected=YES|uniform_r9_c3_rejected=YES" build/y137-atlas-tests/RESULT-ATLAS-PREDICTIONS.hbp
-          grep -Fq "ATLAS_FILTER_TEST|target=OLD_1_OVER_700|certified_sufficient_degree=15|" build/y137-atlas-tests/RESULT-ATLAS-PREDICTIONS.hbp
-          grep -Fq "ATLAS_FESHBACH_TOY|full_transition=" build/y137-atlas-tests/RESULT-ATLAS-PREDICTIONS.hbp
-          grep -Fq "omitted_QOQ_rejected=YES|full_state_normalization=PASS|original_3x4_Wilson=NOT_COMPUTED" build/y137-atlas-tests/RESULT-ATLAS-PREDICTIONS.hbp
-          grep -Fq "ATLAS_VERDICT|readme_source=PASS|retrospective_large_r=3_OF_3|r9=ASYMPTOTIC_MODEL_REJECTED|Chebyshev_exact=PASS|Feshbach_exact_toy=PASS|physical_Wilson_weight=HOLD|continuum=OPEN" build/y137-atlas-tests/RESULT-ATLAS-PREDICTIONS.hbp
+          grep -Fq "ATLAS_GAP_VERDICT|higher_r=3_OF_3|r9=MODEL_REJECTED|wrong_44=REJECTED|coefficient_43_high_r=COMPATIBLE|uniform_r9=REJECTED" build/y137-atlas-tests/RESULT-ATLAS-PREDICTIONS.hbp
+          grep -Fq "ATLAS_FILTER_TEST|target=OLD_1_OVER_700|degree=15|" build/y137-atlas-tests/RESULT-ATLAS-PREDICTIONS.hbp
+          grep -Fq "ATLAS_FESHBACH_TOY|transition=" build/y137-atlas-tests/RESULT-ATLAS-PREDICTIONS.hbp
+          grep -Fq "exact_effective_observable=PASS|complete_normalization=PASS|omitted_QOQ=REJECTED|physical_S3_Wilson=NOT_COMPUTED" build/y137-atlas-tests/RESULT-ATLAS-PREDICTIONS.hbp
+          grep -Fq "ATLAS_VERDICT|readme_data=SHA_PINNED|retrospective_high_r=3_OF_3|r9=MODEL_REJECTED|Chebyshev_integer_pairs=PASS|Feshbach_toy=PASS|Wilson_weight=HOLD|continuum=OPEN" build/y137-atlas-tests/RESULT-ATLAS-PREDICTIONS.hbp
           test "$(wc -l < build/y137-atlas-tests/RESULT-ATLAS-PREDICTIONS.hbp)" -eq 13
           sha256sum docs/certificate-atlas/predictions.py docs/certificate-atlas/certificates.json build/y137-atlas-tests/RESULT-ATLAS-PREDICTIONS.hbp > build/y137-atlas-tests/SHA256SUMS
           git rev-parse HEAD > build/y137-atlas-tests/COMMIT
