@@ -25,7 +25,7 @@ HERE=os.path.dirname(os.path.abspath(__file__))
 INDEP=os.path.dirname(HERE)
 sys.path.insert(0,os.path.join(INDEP,"y137-four-moment-fullstate-20261116"))
 import four_moment_transfer as e
-Q=e.exact.F
+Q=e.exact.Ratio
 
 UNIT=1000000000000
 DEN=1000000000
@@ -129,13 +129,13 @@ def moment_center():
     # The CENTRE width Wn/Wd is HALF the full Loewner width.
     eps_width=sum((Q(Wn[i][i],WF[i]*Wd*D)
                    for i in range(N)),Q(0))
-    need(eps_width>=0,"negative_Loewner_trace_width")
+    need(eps_width.numerator>=0,"negative_Loewner_trace_width")
     graw=FLOOR_NUM-max(z,E2_HI)
     need(graw>0,"Q_floor_not_above_E2")
     drift=Q(max(abs(z-E2_LO),abs(z-E2_HI)),DEN)
     eps_drift=drift*(Q(1)+Q(72*DEN*DEN,graw*graw))
     eps=eps_width+eps_drift
-    need(eps>0,"zero_Schur_source_uncertainty")
+    need(eps.numerator>0,"zero_Schur_source_uncertainty")
     vrec=e.ra.recentre(Cn,list(v2))
     need(sum(WF[i]*v2[i]*vrec[i] for i in range(N))>0,
          "center_pulse_wrong_orientation")
@@ -222,7 +222,7 @@ def main():
         pulse.append((p,res))
     need(pulse[0][1]==noQ and pulse[-1][1][0]>0,
          "center_pulse_source_negative_control")
-    need(eps_width>=0 and eps_drift>0,"source_uncertainty_terms")
+    need(eps_width.numerator>=0 and eps_drift.numerator>0,"source_uncertainty_terms")
     emit("Y137_REVERSE_SOURCE",
          source_M="PR282_ORIGINAL_CENTERED_64_PHYSICAL_HBP",
          source_Schur="PR234_SIGNED_REAL_MU3_FOUR_MOMENT_CENTER",
