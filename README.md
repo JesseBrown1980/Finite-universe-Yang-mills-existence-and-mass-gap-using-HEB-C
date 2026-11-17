@@ -14,6 +14,26 @@
 
 **Atlas prediction tests (November 17):** [Exact integer verifier and hosted receipts](docs/certificate-atlas/README.md#exact-hypothesis-tests-november-17-2026) independently reproduced the recorded 3×3 high-coupling asymptotic pattern: the `3r−21/r−43/r²` model matches three existing certified intervals (`r=27,81,243`) and **fails at `r=9`**. This reproduces the earlier `zgap2` observation. Exact Chebyshev Q-inverse calculations predict sufficient polynomial degree 15 for a **theoretical inverse residual** below `1/700`; a separate 5×5 effective-observable identity also passes exact integer controls. **Neither is a certified physical Wilson-transfer bound**; #137 remains HOLD. [Full scope and falsification checks](docs/certificate-atlas/HYPOTHESIS.md).
 
+## November 17, 2026 — Stage O: exact eight-flat coupling and Wilson energy-argument control PASS
+
+The original-source [Stage O draft PR #271](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/271) passed [hosted physical-source run #44101975588](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44101975588), with an [independent scientific review](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/271#pullrequestreview-5940182340). Reconstructing all **264 original first-shell orbits** and **64 weighted coupling entries** in two independently oriented source enumerations gives the exact full-physical eight-flat-to-Q identity
+
+\[
+\boxed{B^\dagger B=72I_8,\qquad \|B\|^2=72\,J_E^2,\quad B=QHP.}
+\]
+
+Eight normalized diagonal coupling entries equal 72; every off-diagonal entry is zero. Original W-weights for the eight flat orbits are \(1,3,2,3,3,2,2,2\). The signed integer 8×8 matrix SHA-256 is `b1e1c2a4eac79a1e465d3b7d5b6dd67b18b6b46895fc82df5761fd10942ff073`. This is eight times sharper than the trace bound 576 and substantially sharper than the global \(468^2\) operator fallback.
+
+For the **original coordinate-diagonal seven-loop Wilson observable** and original eight-flat coordinate projector, \(POQ=QOP=0\), so \(O_{\rm eff}(E_2,E_1)=POP+B^\dagger R(E_2)QOQR(E_1)B\). Using the whole-Q lift-free floor \(g_Q=94.0682J_E\), \(\|QOQ\|\le14\), the source-specific exact coupling norm, the historical fixed-sample energies and both certified Stage E true-physical energy intervals, the exact two-resolvent identity proves
+
+\[
+\boxed{\|O_{\rm eff}(E_2,E_1)-O_{\rm eff}(s_2,s_1)\|_{W_P}<0.000065346.}
+\]
+
+The corresponding rigorous **normalization-metric energy-argument** variations are below **0.000004556** (E1) and **0.000004780** (E2). These numbers were derived using integer rational inequalities and the authenticated original Hamiltonian; the six-row hosted HBP receipt SHA-256 is `f57ffd07b29b545f13746af3fa49ff83b5baad06406430e0e1503dcb8ccea3db`.
+
+**Scope:** The bound \(0.000065346\) measures the change in the **exact full-Q effective Wilson operator as its two energy arguments vary within the accepted Stage E windows**. It is **not** a bound on the 20-iteration Q-inverse approximation, full eigendirection mixing or normalized first Wilson transition. Its numerical size relative to \(1/700\) therefore does **not** prove the first-excitation Wilson spectral weight. The exact source-specific \(8\times8\) two-energy effective matrix and true flat-sector spectral projectors remain to be certified. **Source-conditional finite physical first gap PASS; Wilson first weight HOLD; issue #137 OPEN; 4D continuum Yang–Mills OPEN.**
+
 ## November 17, 2026 — Stage N: original seven-loop Wilson spectral-moment diagnostic (hosted calculation PASS; Wilson HOLD)
 
 **The current observable-specific research lane is Stage N, not Stage L.** [Draft PR #264](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/264) evaluates an exact weighted first Hamiltonian moment for the **original gauge-invariant seven-loop, 24-link summed-winding Wilson observable** \(O\), with the original source-authenticated **8-flat + 155,378-dimensional K3 trial**. The corrected [dedicated hosted source run #44083645726](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44083645726) finished **SUCCESS**, after correcting two *new* Python import/guard calls without changing the pinned original S₃ Hamiltonian or Wilson source.
@@ -181,7 +201,7 @@ The [accepted fan-in artifact](https://github.com/JesseBrown1980/Finite-universe
 | Full physical shards | **8/8 PASS** |
 | Independent exact source fan-in, \(H_{12}=H_{21}\), \(H_{tt}\succeq0\), \(468G_{tt}-H_{tt}\succeq0\) | **PASS** |
 
-[Hosted full source run #43992456055](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43992456055) passed the original-source pilot, all eight real matrix shards and exact fan-in. The 2×2 block's three independent coefficient bit lengths are **2,846, 2,815, and 2,797**. The [frozen exact integer source receipt and provenance](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/research/y137-exact-htt-four-ritz-20261116/independent/y137-exact-htt-ritz-20261116/RESULT-HTT-FULL-20261116.hbp) have Git blob SHA \`11e29b07aa910800731266bf1bd8fc50a6cf36fe\`.
+[Hosted full source run #43992456055](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43992456055) passed the original-source pilot, all eight real matrix shards and exact fan-in. The 2×2 block's three independent coefficient bit lengths are **2,846, 2,815, and 2,797**. The [frozen exact integer source receipt and provenance](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/research/y137-exact-htt-four-ritz-20261116/independent/y137-exact-htt-ritz-20261116/RESULT-HTT-FULL-20261116.hbp) have Git blob SHA `11e29b07aa910800731266bf1bd8fc50a6cf36fe`.
 
 **Exact four-vector projected Ritz results.** The [independent draft PR #252](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/252) consumes the authenticated exact \(H_{tt}\), the frozen old two-source \(G,K\) matrices and exact old-to-new \(H\) couplings. Its [hosted run #43993884360](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43993884360) passed both an independent **2×2 integer Schur-inertia** method and a **4×4 pivoted Bareiss-inertia** method, with agreement at every rational bisection threshold.
 
@@ -213,7 +233,7 @@ T_{ij}=\langle r_i,r_j\rangle_W
 b_i=(D K_{\rm old}-z_iG_{\rm old})x_i.
 \]
 
-The complete old-space inverse is reduced to a strict positive 4×4 integer Gram Schur and exact bordered Bareiss pairings. The new Gram determinant numerator is **strictly positive**, with **5,059 bits** (SHA-256 \`4937b004d0d903e203b5870093e975d4e537c41b31a87405d39b4777228a527e\`). The squared normalized cross-correlation is approximately **278 parts per million**, so the new residual vectors are linearly independent. **Certified nested Galerkin dimension: 20,738.** Exact source-to-new couplings satisfy \(\langle u_i,Ht_j\rangle_W=T_{ij}/D\) for the original two samples.
+The complete old-space inverse is reduced to a strict positive 4×4 integer Gram Schur and exact bordered Bareiss pairings. The new Gram determinant numerator is **strictly positive**, with **5,059 bits** (SHA-256 `4937b004d0d903e203b5870093e975d4e537c41b31a87405d39b4777228a527e`). The squared normalized cross-correlation is approximately **278 parts per million**, so the new residual vectors are linearly independent. **Certified nested Galerkin dimension: 20,738.** Exact source-to-new couplings satisfy \(\langle u_i,Ht_j\rangle_W=T_{ij}/D\) for the original two samples.
 
 [Hosted production run #43987301615](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43987301615) passed both source and rank gates. The later, more complete [run #43988576357](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43988576357) also passed both jobs, including **independent integer replay of all three exact 2×2 matrix entries, determinant and two forged-source rejection controls**.
 
