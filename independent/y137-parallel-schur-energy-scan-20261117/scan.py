@@ -104,7 +104,7 @@ def source_auth():
     need(orig.k.SCRIPT_SHA==
          "f3461aa8a50cfa9efb4a1bbdc2d7be44ec1d4a13c80c47fd55fa07de60be28ff",
          "source_original_gauge_S3_changed")
-    need(e.three_moment_windows()==BASE,
+    need(tuple(e.three_moment_windows())==BASE,
          "source_conditional_original_stage_E_windows_drift")
     need(e.ra.ROWS[1][3]==
          (111045317,-38181375,-112233220,1000000000,979217930,216249666,4169404,4169404),
