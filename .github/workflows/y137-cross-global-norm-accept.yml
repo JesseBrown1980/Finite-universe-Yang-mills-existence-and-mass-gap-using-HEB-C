@@ -1,0 +1,53 @@
+name: "Y137 independent global cross-coupling norm acceptance"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-cross-global-norm-accept.yml'
+      - 'independent/y137-cross-global-norm-20261116/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  independent-global-cross-ceiling:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Immutable prior source and accepted cross receipt
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-cross-global-norm-20261116/verify_cross_norm.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/finite_s3_3x4_r9_first_gap.py)" = '91bd1e80cbfcfb76198966aa177d097ecfbe8143'
+          test "$(git hash-object independent/y137-h20736-shell3-20261116/sparse_h20736.py)" = 'd0d9d3d14d804450a31ed8e98c01a031b9a53596'
+          test "$(git hash-object independent/y137-two-residual-krylov-20261116/RESULT-TWO-RESIDUAL-AND-FOUR-ENVELOPE-20261116.hbp)" = '90f9c002f6fe8df2ecd4b5e725de3f9153fbab10'
+          test "$(git hash-object independent/y137-cross-global-norm-20261116/RESULT-CROSS-FULL-20261116.hbp)" = '8f1b0292c31b9de795d67d5c28170a0f86c1f90a'
+      - name: Pull unmodified 20736x2 signed integer production artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: y137-full-20736x2-cross-coupling-exact-fanin
+          run-id: 43997180450
+          github-token: ${{ github.token }}
+          path: build/y137-cross-norm/
+      - name: Independent integer adjugate, bordered-Bareiss and PSD gates
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-cross-norm-results
+          test "$(sha256sum build/y137-cross-norm/H20736x2-CROSS-EXACT.tsv | cut -d' ' -f1)" = 'fafdd16b524af6e0f8aea96fcda5699fb89968c498e406792a1ed576a0226b7f'
+          python3 -I -B independent/y137-cross-global-norm-20261116/verify_cross_norm.py toy | tee build/y137-cross-norm-results/TOY.hbp
+          python3 -I -B independent/y137-cross-global-norm-20261116/verify_cross_norm.py accept build/y137-cross-norm/H20736x2-CROSS-EXACT.tsv | tee build/y137-cross-norm-results/ALL-ACCEPT.hbp
+          grep '^Y137_GLOBAL_C_MATRIX|' build/y137-cross-norm-results/ALL-ACCEPT.hbp > build/y137-cross-norm-results/RESULT-CROSS-NORM.hbp
+          grep '^Y137_GLOBAL_C_VERDICT|' build/y137-cross-norm-results/ALL-ACCEPT.hbp >> build/y137-cross-norm-results/RESULT-CROSS-NORM.hbp
+          grep -Fq '|two_independent_exact_inverse_methods=3_OF_3_AGREE|global_cross_operator_ceiling_468=PSD_EXACT_PASS|' build/y137-cross-norm-results/RESULT-CROSS-NORM.hbp
+          grep -Fq '|full_20738_Ritz=NEXT_GATE|first_Wilson_weight=HOLD|issue_137=OPEN|json=0' build/y137-cross-norm-results/RESULT-CROSS-NORM.hbp
+          git rev-parse HEAD > build/y137-cross-norm-results/COMMIT.txt
+          sha256sum independent/y137-cross-global-norm-20261116/verify_cross_norm.py > build/y137-cross-norm-results/SOURCE.sha256
+          sha256sum build/y137-cross-norm-results/RESULT-CROSS-NORM.hbp > build/y137-cross-norm-results/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-global-cross-norm-acceptance
+          path: build/y137-cross-norm-results/
+          retention-days: 90
+          if-no-files-found: warn
