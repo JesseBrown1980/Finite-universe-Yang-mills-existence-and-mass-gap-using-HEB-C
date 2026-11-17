@@ -1,0 +1,54 @@
+name: "Y137 independent exact Htt four-vector Ritz acceptance"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-htt-four-ritz-accept.yml'
+      - 'independent/y137-exact-htt-ritz-20261116/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-ritz:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict no-floating-point and integer source
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-exact-htt-ritz-20261116/independent_four_ritz.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Pin original 20,738 full physical residual Gram and source
+        run: |
+          set -euo pipefail
+          git hash-object independent/y137-two-residual-krylov-20261116/RESULT-TWO-RESIDUAL-AND-FOUR-ENVELOPE-20261116.hbp |
+            grep -Fxq '90f9c002f6fe8df2ecd4b5e725de3f9153fbab10'
+          git hash-object independent/finite_s3_3x4_r9_first_gap.py |
+            grep -Fxq '91bd1e80cbfcfb76198966aa177d097ecfbe8143'
+      - name: Exact 2x2 inertia, Bareiss and forged-offdiagonal toy controls
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-exact-htt-ritz-20261116/independent_four_ritz.py toy |
+            tee /tmp/y137-ritz-toy.hbp
+          grep -Fq '|forged_offdiagonal=REJECTED|' /tmp/y137-ritz-toy.hbp
+          grep -Fq '|Wilson_weight=HOLD|json=0' /tmp/y137-ritz-toy.hbp
+      - name: Independently authenticate 8-shard Htt and certify two 4D Ritz brackets
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-htt-ritz
+          /usr/bin/time -v python3 -I -B independent/y137-exact-htt-ritz-20261116/independent_four_ritz.py real |
+            tee build/y137-htt-ritz/RESULT-FOUR-RITZ.hbp
+          test "$(grep -c '^Y137_HTT_FOUR_RITZ|' build/y137-htt-ritz/RESULT-FOUR-RITZ.hbp)" -eq 2
+          grep -Fq '|two_independent_inertia_routes=2_OF_2_PASS|' build/y137-htt-ritz/RESULT-FOUR-RITZ.hbp
+          grep -Fq '|first_Wilson_spectral_weight=HOLD|issue_137=OPEN|json=0' build/y137-htt-ritz/RESULT-FOUR-RITZ.hbp
+          git rev-parse HEAD > build/y137-htt-ritz/COMMIT.txt
+          sha256sum independent/y137-exact-htt-ritz-20261116/independent_four_ritz.py > build/y137-htt-ritz/SOURCE.sha256
+          sha256sum independent/y137-exact-htt-ritz-20261116/RESULT-HTT-FULL-20261116.hbp > build/y137-htt-ritz/FROZEN-HTT.sha256
+          sha256sum build/y137-htt-ritz/RESULT-FOUR-RITZ.hbp > build/y137-htt-ritz/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-htt-four-vector-independent-exact-Schur-and-Bareiss-Ritz
+          path: build/y137-htt-ritz/
+          retention-days: 90
+          if-no-files-found: warn
