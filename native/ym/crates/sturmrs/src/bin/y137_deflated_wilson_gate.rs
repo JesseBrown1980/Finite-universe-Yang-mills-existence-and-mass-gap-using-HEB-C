@@ -154,7 +154,7 @@ fn calc(v: &BTreeMap<String,Rat>) -> Result<(Rat,Rat,bool),String> {
     if !m1.lt(&one) || !m2.lt(&one) || !ep1.lt(&one) || !ep2.lt(&one) {
         return Err("projection/mixing bound >=1 cannot establish fidelity".to_owned());
     }
-    if !w21.lt(&op) && w21!=op {
+    if !w21.lt(op) && w21!=op {
         return Err("Wilson signal lower bound exceeds operator norm".to_owned());
     }
     for (key,upper) in [
