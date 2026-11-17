@@ -70,7 +70,6 @@ def source():
     need(frozen["run_id"]=="43933360655"
          and frozen["status"]=="SCOPED_NUMERICAL_PASS_WILSON_HOLD",
          "unaccepted_original_four_moment")
-    c=parse(rows,"Y137_E_CELL") if False else None
     candidates=[old.parse(v) for v in rows if v.startswith("Y137_E_CELL|")]
     need(len(candidates)==4,"Stage_E_cell_count")
     moved=[v for v in candidates if v["case"]=="CENTRE_MOVED"]
