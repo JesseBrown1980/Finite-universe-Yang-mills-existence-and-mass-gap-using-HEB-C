@@ -5,7 +5,7 @@ import importlib.util
 import sys
 from pathlib import Path
 
-PRIOR = Path(__file__).resolve().parent.parent / "y137-hierarchical-mtp-sat-20261117" / "verify.py"
+PRIOR = Path(__file__).resolve().parent.parent.joinpath("y137-hierarchical-mtp-sat-20261117", "verify.py")
 
 
 def sha(x):
