@@ -4,6 +4,31 @@
 
 **Data on Hugging Face:** [Jessedbrown/ym-3x4-room-store](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store) holds the 3×4 store, the certificate vectors and an evidence archive, the files too large for git. Its card maps every folder, and the status of each result is read here.
 
+## November 16, 2026 — full 20,738D sparse Galerkin matrix: original-source coupling and independent global norm PASS
+
+**Latest finite 3×4 periodic S₃, r=9 matrix checkpoint.** [Draft scientific PR #254](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/254) computed the **complete 20,736×2 old-to-new Hamiltonian coupling block** for the two exact full-physical residual Krylov directions accepted by #249–#252. The complete 20,738-dimensional nested *Galerkin matrix data* now consist of the original source-authenticated 20,736-dimensional sparse weighted Gram and Hamiltonian blocks, the rank-two residual weighted Gram, the source-calculated 2×2 residual Hamiltonian (H_{tt}), and the full old-to-new block (C). The new source computation evaluates the original 72-move S₃ operator only on the 28,634 physical orbits supporting the old basis, including its four overlapping non-coordinate K2 Krylov columns.
+
+| Full old-to-new coupling acceptance | Exact hosted result |
+|---|---:|
+| Original old-basis physical source rows | **28,634** (8 flats, 8,034 K2, 20,592 selected K3) |
+| Original electric moves evaluated | **2,061,648** |
+| Full 20,736×2 matrix entries | **41,472** |
+| Original physical source shards | **8/8 PASS** |
+| Frozen original Gram–Hamiltonian identities (D u_i^T C_{cdot j}=E_{ij}) | **4/4 PASS** |
+| Complete cross-block source and integrity fan-in | **PASS** |
+
+[Source production run #43997180450](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43997180450) passed the pilot, all eight source shards and exact fan-in. Its original full integer matrix artifact `H20736x2-CROSS-EXACT.tsv` is SHA-256 **`fafdd16b524af6e0f8aea96fcda5699fb89968c498e406792a1ed576a0226b7f`**; the original 633,919-orbit residual physical support hash agrees with the earlier Stage I source.
+
+**Independent whole-block check.** [Draft scientific PR #255](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/255) downloaded that unchanged matrix artifact, verified its SHA, and used two independent exact integer routes (4×4 Schur adjugate and 5×5 bordered Bareiss determinant) to calculate the three entries of (C^T G_{m old}^{-1}C). **All three entries agree exactly; the global original-operator ceiling passes** as a positive-semidefinite 2×2 integer certificate:
+
+[
+468^2G_{m new}-C^TG_{m old}^{-1}Csucceq0.
+]
+
+[Independent norm acceptance run #43998446113](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43998446113) completed successfully. This second certificate contracts all 41,472 cross-block entries and supplements the four frozen trial-vector identities.
+
+**Next acceptance gates:** Assemble and compute certified first two Ritz roots/inertia for the *complete* 20,738-dimensional generalized matrix, then certify its full physical eigenvector residuals/normalizations and a strictly positive summed-winding first-excitation Wilson spectral weight. The earlier four-vector projected Ritz interval separation remains a statistic of its four-dimensional trial subspace. Previously accepted Stage E error **0.011911898006** remains above the sufficient threshold **( <1/700)**. **Wilson spectral weight HOLD; [issue #137](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/137) OPEN; continuum 4D Yang–Mills existence/mass-gap OPEN.** Scientific PRs #249, #251, #252, #254 and #255 remain unmerged research drafts undergoing separate review.
+
 ## November 16, 2026 — exact physical Htt and four-vector Ritz
 
 **Current finite 3×4 periodic S₃, r=9 evidence.** [Draft research PR #251](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/251) completed the exact physical 2×2 residual-to-residual Hamiltonian block \(H_{tt}=(\langle t_i,Ht_j\rangle_W)_{i,j=1,2}\) for the two full-state Krylov residual directions of [draft PR #249](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/249). The original H20,736 noncoordinate \(W\)-projector and 5,059-bit-determinant residual Gram are preserved and reverified. The source is the **original 72-move S₃ Hamiltonian and nine-times-magnetic plaquette action**, with integer-only exact physical orbit weights.
@@ -30,7 +55,7 @@
 
 The **four-vector Ritz separation**, in original \(J_E\) units, satisfies \(0.039601364 < \lambda^{(4)}_2-\lambda^{(4)}_1 < 0.039601366\). This is a **reduced-space statistic**, not a full physical first-excitation gap enclosure. By variational inclusion, the two new upper endpoints improve the upper bounds on the first two Ritz levels of the complete 20,738-dimensional Galerkin space.
 
-**Remaining mathematics:** Exact \(H_{tt}\) and the source-to-new 2×2 couplings do **not** yet determine all 20,736 old-to-new coupling rows required by the complete 20,738×20,738 projected Hamiltonian. Next gates: authenticate those old-to-new couplings, calculate full new Ritz vectors, bound their true full-H residuals (possibly into K5), and certify normalized Wilson observable transition weight. Previously accepted Stage E error **0.011911898006** remains above the strict sufficient threshold **\( <1/700\)**. **Wilson first weight HOLD; [issue #137](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/137) OPEN; 4D continuum mass-gap result OPEN.** Research PRs #249, #251, #252 remain draft; the independent [finite linear-size law](https://github.com/JesseBrown1980/The-linear-finite-size-law) keeps its own scope.
+**Updated acceptance after the source and independent norm computations in PRs #254 and #255:** The full 20,736×2 old-to-new block is now computed in exact integers, and its source and global 468-ceiling controls PASS as recorded in the newer section above. Next gates: compute the complete 20,738-dimensional generalized Ritz roots, certify full-physical Ritz residuals (possibly reaching K5), and certify normalized Wilson observable transition weight. Previously accepted Stage E error **0.011911898006** remains above the sufficient threshold **\( <1/700\)**. **Wilson first weight HOLD; [issue #137](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/issues/137) OPEN; 4D continuum mass-gap result OPEN.** Research PRs #249, #251, #252, #254 and #255 remain draft; the independent [finite linear-size law](https://github.com/JesseBrown1980/The-linear-finite-size-law) keeps its own scope.
 
 ## November 16, 2026 — two exact residual Krylov directions: 20,738D
 
