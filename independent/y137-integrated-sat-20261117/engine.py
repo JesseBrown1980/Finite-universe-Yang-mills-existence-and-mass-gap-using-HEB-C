@@ -7,7 +7,7 @@ from pathlib import Path
 from time import monotonic_ns
 
 HERE = Path(__file__).resolve().parent
-PARENT = HERE.parent / "y137-hierarchical-mtp-sat-20261117" / "pilot.py"
+PARENT = HERE.parent.joinpath("y137-hierarchical-mtp-sat-20261117", "pilot.py")
 
 
 def load_generator():
