@@ -80,8 +80,8 @@ jobs:
         run: |
           set -euo pipefail
           frozen=independent/y137-two-residual-krylov-20261116/RESULT-TWO-RESIDUAL-AND-FOUR-ENVELOPE-20261116.hbp
-          sed -nE '/^(S3_3X4_CENSUS|Y137_TWO_RESIDUAL_(SOURCE|MATRIX|GRAM|HBLOCK|VERDICT))\\|/p' "$frozen" > /tmp/frozen-two.hbp
-          sed -nE '/^(S3_3X4_CENSUS|Y137_TWO_RESIDUAL_(SOURCE|MATRIX|GRAM|HBLOCK|VERDICT))\\|/p' build/y137-two-residual/RESULT-TWO-RESIDUAL.hbp > /tmp/current-two.hbp
+          grep -E '^(S3_3X4_CENSUS|Y137_TWO_RESIDUAL_(SOURCE|MATRIX|GRAM|HBLOCK|VERDICT))[|]' "$frozen" > /tmp/frozen-two.hbp
+          grep -E '^(S3_3X4_CENSUS|Y137_TWO_RESIDUAL_(SOURCE|MATRIX|GRAM|HBLOCK|VERDICT))[|]' build/y137-two-residual/RESULT-TWO-RESIDUAL.hbp > /tmp/current-two.hbp
           cmp /tmp/frozen-two.hbp /tmp/current-two.hbp
           grep '^Y137_TWO_RESIDUAL_INDEPENDENT|' "$frozen" > /tmp/frozen-independent.hbp
           cmp /tmp/frozen-independent.hbp build/y137-two-residual/INDEPENDENT-ACCEPT.hbp
