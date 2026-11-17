@@ -18,6 +18,7 @@ jobs:
           set -euo pipefail
           python3 -I -B native/scripts/integer_only_audit.py independent/y137-two-residual-krylov-20261116/exact_residual_gram.py
           python3 -I -B native/scripts/integer_only_audit.py independent/y137-two-residual-krylov-20261116/independent_accept.py
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-two-residual-krylov-20261116/loewner_four_witness.py
           python3 -I -B native/scripts/no_float_gate.py .
       - name: Frozen original PR247 source and exact two-residual receipt
         run: |
@@ -33,6 +34,9 @@ jobs:
             tee /tmp/y137-two-residual-toy.hbp
           grep -Fq '|rank2_discriminator=PASS|' /tmp/y137-two-residual-toy.hbp
           grep -Fq '|Wilson_weight=HOLD|json=0' /tmp/y137-two-residual-toy.hbp
+          python3 -I -B independent/y137-two-residual-krylov-20261116/loewner_four_witness.py toy |
+            tee /tmp/y137-four-witness-toy.hbp
+          grep -Fq '|exact_upper_envelope_inertia=PASS|' /tmp/y137-four-witness-toy.hbp
   two-residual-real-production:
     runs-on: ubuntu-24.04
     needs: two-residual-source-controls
@@ -64,6 +68,14 @@ jobs:
           grep -Fq '|independent_2x2_determinant=POSITIVE|' build/y137-two-residual/INDEPENDENT-ACCEPT.hbp
           grep -Fq '|negative_controls=2_OF_2_REJECTED|' build/y137-two-residual/INDEPENDENT-ACCEPT.hbp
           grep -Fq '|Wilson_weight=HOLD|json=0' build/y137-two-residual/INDEPENDENT-ACCEPT.hbp
+      - name: Certified Loewner H<=468 and four-vector 2D Ritz upper envelope
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-two-residual-krylov-20261116/loewner_four_witness.py real |
+            tee build/y137-two-residual/RESULT-FOUR-WITNESS-LOEWNER.hbp
+          test "$(grep -c '^Y137_FOUR_ENVELOPE_RITZ|' build/y137-two-residual/RESULT-FOUR-WITNESS-LOEWNER.hbp)" -eq 2
+          grep -Fq '|universal_H_Loewner_ceiling=468|' build/y137-two-residual/RESULT-FOUR-WITNESS-LOEWNER.hbp
+          grep -Fq '|Wilson_first_excitation_weight=HOLD|issue_137=OPEN|json=0' build/y137-two-residual/RESULT-FOUR-WITNESS-LOEWNER.hbp
       - name: Source, original sparse matrix and new 2x2 Gram fingerprints
         if: always()
         run: |
@@ -71,6 +83,10 @@ jobs:
           git rev-parse HEAD > build/y137-two-residual/COMMIT.txt
           sha256sum independent/y137-two-residual-krylov-20261116/exact_residual_gram.py > build/y137-two-residual/SOURCE.sha256
           sha256sum independent/y137-two-residual-krylov-20261116/independent_accept.py > build/y137-two-residual/INDEPENDENT-SOURCE.sha256
+          sha256sum independent/y137-two-residual-krylov-20261116/loewner_four_witness.py > build/y137-two-residual/FOUR-WITNESS-SOURCE.sha256
+          if test -f build/y137-two-residual/RESULT-FOUR-WITNESS-LOEWNER.hbp; then
+            sha256sum build/y137-two-residual/RESULT-FOUR-WITNESS-LOEWNER.hbp > build/y137-two-residual/FOUR-WITNESS-RESULT.sha256
+          fi
           if test -f build/y137-two-residual/INDEPENDENT-ACCEPT.hbp; then
             sha256sum build/y137-two-residual/INDEPENDENT-ACCEPT.hbp > build/y137-two-residual/INDEPENDENT-RESULT.sha256
           fi
