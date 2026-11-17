@@ -37,6 +37,10 @@ A separate perturbative prediction is testable against the gap measurements: the
 
 **Status:** Stage K projected spectral inertia PASS; Stage L original full-physical H² PASS; Stage M four-witness source residual calculation PASS with insufficient isolation; Stage N centered trial-moment computation PASS with a **negative** diagnostic; true first-excitation Wilson spectral weight **HOLD**; four-dimensional continuum theorem **OPEN**. The atlas does not upgrade any of those verdicts.
 
+## Latest source-specific Wilson refinement (Stage O)
+
+The [original eight-flat coupling analysis, research PR #271](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/271) adds a physical source-verified relationship to the graph's hypothesis: **\(B^\dagger B=72I_8\)** exactly, reproduced with 64/64 forward/reverse original S₃ weighted-edge measurements. The true-energy interval variation of the **exact** simplified two-energy effective Wilson operator is therefore **less than 0.000065346**. [Read the detailed mathematics](HYPOTHESIS.md). This is an energy-argument sensitivity certificate, **not** the signed first-excitation Wilson spectral-weight certificate; that weight remains **HOLD**.
+
 ## Reproducibility
 
 The committed `index.html` contains 12 precomputed 3D projections, clickable source points, and all 80 records. Camera switching is by labeled buttons rather than free dragging, preserving the repository's strict no-floating-point gate. `certificates.json` is the separate human-auditable record register. No external package is needed to open the graph. The standalone SVG remains visible in GitHub's README even in clients that cannot execute HTML.
