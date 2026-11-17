@@ -1,0 +1,49 @@
+name: Y137 two-cloud pixel freeze edit play and no-signalling exact controls
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-pixel-cloud-freeze-edit-play-20261117/**'
+      - '.github/workflows/y137-pixel-cloud-freeze-edit-play.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-freeze-edit-play:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Integer-only and repository policy
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-pixel-cloud-freeze-edit-play-20261117/pilot.py independent/y137-metatag-shell-overlap-20261117/pilot.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Parent original S3 gauge and bounded-shell certificate controls
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-freeze-edit-play
+          python3 -I -B independent/y137-metatag-shell-overlap-20261117/pilot.py > build/y137-freeze-edit-play/PARENT.hbp
+          grep -Fq 'META_S3_FINAL|' build/y137-freeze-edit-play/PARENT.hbp
+          grep -Fq 'original_Wilson_first_weight=HOLD|' build/y137-freeze-edit-play/PARENT.hbp
+      - name: Frozen two-cloud exact matrix and trial catalog edit
+        run: |
+          set -euo pipefail
+          D=independent/y137-pixel-cloud-freeze-edit-play-20261117
+          python3 -I -B "$D/pilot.py" | tee build/y137-freeze-edit-play/RESULT.hbp
+          test "$(grep -c '^PIXEL_CLOUD_REPLAY|' build/y137-freeze-edit-play/RESULT.hbp)" -eq 5
+          test "$(grep -c '^PIXEL_CLOUD_LOCAL_PAIR_RETAG|' build/y137-freeze-edit-play/RESULT.hbp)" -eq 5
+          grep -Fq 'PIXEL_CLOUD_FROZEN|qubits=4|clouds=2|initial_entangled_pair=A0:B0|' build/y137-freeze-edit-play/RESULT.hbp
+          grep -Fq '|B0_Z_prob_one=1/2|B0_X_prob_plus=1/2|' build/y137-freeze-edit-play/RESULT.hbp
+          grep -Fq '|A0_B0_new_entanglement=NO|cross_cloud_physical_SWAP_changes_B_state=YES_NONLOCAL_GATE|' build/y137-freeze-edit-play/RESULT.hbp
+          grep -Fq '|globally_shared_table_message_visible=YES_CLASSICAL_CHANNEL|local_quantum_message_decodable=NO|' build/y137-freeze-edit-play/RESULT.hbp
+          grep -Fq '|retagging_moves_physical_entanglement=NO|initially_local_A_entanglement_migrates_by_retag=NO|' build/y137-freeze-edit-play/RESULT.hbp
+          grep -Fq '|experimental_superluminal_physics=NOT_TESTED|result=EXACT_TOY_NOSIGNALLING_PASS|' build/y137-freeze-edit-play/RESULT.hbp
+          sha256sum "$D/pilot.py" "$D/README.md" independent/y137-metatag-shell-overlap-20261117/pilot.py > build/y137-freeze-edit-play/SOURCE.sha256
+          sha256sum build/y137-freeze-edit-play/*.hbp > build/y137-freeze-edit-play/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-pixel-cloud-frozen-edit-play-exact-controls
+          path: build/y137-freeze-edit-play/
+          if-no-files-found: ignore
+          retention-days: 90
