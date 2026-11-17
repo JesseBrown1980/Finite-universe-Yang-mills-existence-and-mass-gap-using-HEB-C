@@ -10,7 +10,7 @@ No floats, Fractions, NumPy, JSON, clocks, RNG, process or network access.
 This is a small independent quantum-information toy, not a 2.17B S3 solve.
 """
 from hashlib import sha256
-from pathlib import Path
+import os
 
 QUBITS=('A0','A1','B0','B1')
 DIM=1<<len(QUBITS)
@@ -129,10 +129,12 @@ def table(distance):
 
 
 def main():
-    src=Path(__file__).resolve().parent.parent/'y137-metatag-shell-overlap-20261117'/'pilot.py'
-    if src.exists():
+    src=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                     'y137-metatag-shell-overlap-20261117','pilot.py')
+    if os.path.isfile(src):
         # Optional source-binding in the stacked PR. This never imports or modifies the S3 H.
-        parent_sha=sha256(src.read_bytes()).hexdigest()
+        with open(src,'rb') as f:
+            parent_sha=sha256(f.read()).hexdigest()
     else:
         parent_sha='STANDALONE_PARENT_FILE_ABSENT'
     initial=check_state(dict(BELL))
