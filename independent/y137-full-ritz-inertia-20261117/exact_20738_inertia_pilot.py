@@ -15,7 +15,7 @@ rigorous. Equal integer inertia of the two Schur bounds certifies the full
 
 All source artifacts are immutable original GitHub Actions production ZIPs.
 """
-import sys, zipfile, hashlib, itertools, time, resource, os
+import sys, zipfile, hashlib, itertools, time, os
 sys.set_int_max_str_digits(0)
 NOLD=20736
 NQ=NOLD-8
@@ -205,6 +205,17 @@ class Source:
     def T(self,z):return [[D*self.TK[i][j]-z*self.TG[i][j] for j in range(10)] for i in range(10)]
 
 
+def get_peak_rss_kib():
+    # Optional Linux diagnostics only, no platform resource module.
+    try:
+        with open('/proc/self/status',encoding='ascii') as source:
+            for line in source:
+                if line.startswith('VmHWM:'):
+                    return int(line.split()[1])
+    except OSError:
+        return 0
+    return 0
+
 def dot(a,b):return sum(x*y for x,y in zip(a,b))
 
 def cert(s,z,m):
@@ -263,7 +274,7 @@ def cert(s,z,m):
     elapsed_ms=(time.monotonic_ns()-start)//1000000
     return dict(z=z,degree=m,low_neg=il,upper_neg=iu,
                 interval_certified=(il==iu and il is not None),
-                ms=elapsed_ms,rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                ms=elapsed_ms,rss_kib=get_peak_rss_kib(),
                 approx_residual_bits=max(abs(v).bit_length() for x in qq for v in x),
                 upper_diag_bits=max(abs(nominal[i][i]).bit_length() for i in range(10)),
                 q_shape=NQ,source_old_sha=SHA_OLD,source_c_sha=SHA_C)
