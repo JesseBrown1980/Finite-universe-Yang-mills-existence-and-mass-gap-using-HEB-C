@@ -23,9 +23,15 @@ PR180=os.path.join(INDEP,"y137-q-dual-weight-20261113")
 PR178=os.path.join(INDEP,"y137-wilson-effective-20261113")
 sys.path.insert(0,PR180)
 sys.path.insert(0,PR178)
-print("Y137_COORD_BOOT|import=replay|json=0",flush=True)
-import replay as wilson_sample
-print("Y137_COORD_BOOT|import=replay_success|json=0",flush=True)
+# The original source-pinned k3_common module explicitly requires
+# sys.argv to contain only the program name while being imported.
+# Restore the caller's toy/real arguments before our own main command.
+_COORD_ARGS=sys.argv[:]
+try:
+    sys.argv=sys.argv[:1]
+    import replay as wilson_sample
+finally:
+    sys.argv=_COORD_ARGS
 
 PIN_ORIGINAL_WILSON="b6da6140ca36b361bdd9a0c0477af23d681257cf"
 PIN_SAMPLE="b9881651c51a278757bc0fef15de583277330da3"
