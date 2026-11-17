@@ -29,6 +29,7 @@ a true eigenstate angle or Wilson first-excitation spectral weight.
 import os
 import sys
 from hashlib import sha256
+from itertools import permutations
 
 HERE=os.path.dirname(os.path.abspath(__file__))
 ROOT=os.path.dirname(os.path.dirname(HERE))
@@ -138,14 +139,24 @@ def pencil(z,den,E,G,K):
 
 def inertia(z,den,E,G,K):
     q=pencil(z,den,E,G,K)
-    last=1
-    negatives=0
-    for k in range(1,5):
-        d=determinant([r[:k] for r in q[:k]])
-        need(d!=0,"zero_exact_leading_pencil_minor")
-        negatives+=int((d<0)!=(last<0))
-        last=d
-    return negatives
+    # A symmetric pencil can have an exact zero LEADING minor at a
+    # non-eigenvalue. Try every symmetric row/column permutation before
+    # refusing. Congruence permutations preserve Sylvester inertia.
+    for order in permutations(range(4)):
+        last=1
+        negatives=0
+        valid=True
+        for size in range(1,5):
+            ids=order[:size]
+            d=determinant([[q[i][j] for j in ids] for i in ids])
+            if d==0:
+                valid=False
+                break
+            negatives+=int((d<0)!=(last<0))
+            last=d
+        if valid:
+            return negatives
+    need(False,"no_nondegenerate_symmetric_principal_minor_order")
 
 
 def bracket(level,den,E,G,K):
