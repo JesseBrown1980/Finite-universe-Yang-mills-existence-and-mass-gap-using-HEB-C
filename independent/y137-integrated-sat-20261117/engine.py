@@ -1,20 +1,50 @@
 #!/usr/bin/env python3
 """Source-frozen MTP/Fischer/N-Nest SAT pilot. Exact integers only."""
 import hashlib
-import importlib.util
 import os
-from pathlib import Path
 from time import monotonic_ns
 
-HERE = Path(__file__).resolve().parent
-PARENT = HERE.parent.joinpath("y137-hierarchical-mtp-sat-20261117", "pilot.py")
+
+def hidden_fixture(n):
+    return sum((hashlib.sha256(("hidden:" + str(n) + ":" + str(i)).encode("ascii"))
+                .digest()[0] & 1) << i for i in range(n))
 
 
-def load_generator():
-    spec = importlib.util.spec_from_file_location("source_sat_pilot", PARENT)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+def xor_clauses(triple, rhs):
+    assert len(set(triple)) == 3
+    return tuple(tuple(-v if (mask >> j) & 1 else v
+                       for j, v in enumerate(triple))
+                 for mask in range(8) if (mask.bit_count() & 1) != rhs)
+
+
+def parity_family(n):
+    assert n >= 9 and n % 3 == 0
+    bits = hidden_fixture(n)
+    triples = [(i + 1, ((i + 1) % n) + 1, ((i + n // 3) % n) + 1)
+               for i in range(n)]
+    triples.extend((i + 1, ((i + n // 3 + 1) % n) + 1,
+                    ((i + 2 * n // 3 + 2) % n) + 1) for i in range(0, n, 3))
+    return tuple(clause for triple in triples
+                 for clause in xor_clauses(
+                     triple, sum((bits >> (v - 1)) & 1 for v in triple) & 1)), len(triples)
+
+
+def generic_family(n):
+    bits = hidden_fixture(n)
+    result = []
+    for i in range(n):
+        triples = ((i + 1, ((i + n // 3) % n) + 1, ((i + 2 * n // 3) % n) + 1),
+                   (i + 1, ((i + 1) % n) + 1, ((i + n // 2) % n) + 1))
+        for j, triple in enumerate(triples):
+            signs = []
+            for k, v in enumerate(triple):
+                h = hashlib.sha256(("generic:" + str(i) + ":" + str(j) + ":" +
+                                    str(k)).encode("ascii")).digest()[0]
+                signs.append(v if h & 1 else -v)
+            if not clauses_hold((tuple(signs),), bits):
+                signs[0] = -signs[0]
+            result.append(tuple(signs))
+    return tuple(result)
 
 
 def sha(value):
@@ -313,17 +343,17 @@ def execute(kind, n, clauses, limit=20000, injected=False):
 
 
 def fixture_sources():
-    pilot = load_generator()
+    # Generator creates clauses only; the solver receives no planted assignment.
     for n in (48, 72, 384):
         start = monotonic_ns()
-        source, _ = pilot.parity_family(n)
+        source, _ = parity_family(n)
         yield "parity", n, source, monotonic_ns() - start
     for n in (12, 24, 36, 48, 72):
         start = monotonic_ns()
-        parity, _ = pilot.parity_family(n)
+        parity, _ = parity_family(n)
         scopes = {tuple(sorted(abs(v) for v in c)) for c in parity[:4 * (n // 2)]}
         residual = []
-        for c in pilot.generic(n):
+        for c in generic_family(n):
             if tuple(sorted(abs(v) for v in c)) not in scopes:
                 residual.append(c)
             if len(residual) == n // 2:
@@ -331,7 +361,7 @@ def fixture_sources():
         yield "mixed", n, parity[:4 * (n // 2)] + tuple(residual), monotonic_ns() - start
     for n in (12, 18, 24):
         start = monotonic_ns()
-        source = pilot.generic(n)
+        source = generic_family(n)
         yield "generic", n, source, monotonic_ns() - start
 
 
@@ -339,15 +369,14 @@ def controls():
     m = {k: 0 for k in ("group_inserts", "local_literal_checks",
                          "watcher_clause_checks", "watcher_rejections",
                          "accepted_transforms")}
-    generator = load_generator()
-    c = generator.xor_clauses((1, 2, 3), 0)
+    c = xor_clauses((1, 2, 3), 0)
     rows, residual, _, corrected = compile_source(3, c, m, True)
     assert len(rows) == 1 and not residual and corrected == 1
     assert m["watcher_rejections"] == 1
     incomplete = c[:3]
     assert len(compile_source(3, incomplete, m)[0]) == 0
     assert source_fingerprint(c) != source_fingerprint(incomplete)
-    contradictory = c + generator.xor_clauses((1, 2, 3), 1)
+    contradictory = c + xor_clauses((1, 2, 3), 1)
     assert execute("negative", 3, contradictory)["model_count"] == 0
     print("SAT_CONTROL|wrong_proposal_rejected=PASS|incomplete_motif=PASS|tampered_source_sha=PASS|conflict_unsat=PASS")
 
