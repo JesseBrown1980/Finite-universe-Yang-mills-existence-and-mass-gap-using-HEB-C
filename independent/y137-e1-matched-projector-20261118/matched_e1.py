@@ -14,6 +14,7 @@ that source is independently recalculated at the matched witness.
 """
 import os
 import sys
+import hashlib
 from math import isqrt
 
 HERE=os.path.dirname(os.path.abspath(__file__))
@@ -78,6 +79,7 @@ def replay():
     need(e.flat_distance(list(v0),v1)==ORIGINAL_MOVED,
          "original_W_flat_E2_witness_movement")
     best=None
+    best_vec=None
     for k in range(0,6):
         # v_k=(4-k)*v0+k*v_moved, exact integer flat coordinate.
         v=[(PIECES-k)*v0[i]+k*v1[i] for i in range(8)]
@@ -105,9 +107,11 @@ def replay():
         if k==PIECES:need(total==ORIGINAL_FOUR_E1,
                            "original_E1_source_accepted_regression")
         result=(sine,direct,k,dist,ang["Hcenter"],ang["action"],full["extra"])
-        if best is None or result<best:best=result
+        if best is None or result<best:
+            best=result
+            best_vec=list(v)
         emit("Y137_E1_MATCHED_POINT",k=k,den=PIECES,
-             source_original_v2_delta_per_trillion=dist,
+             source_original_v1_delta_per_trillion=dist,
              source_Q_norm_spread_per_trillion=spread,
              source_fourth_moment_residual_per_trillion=ang["Hcenter"],
              source_fourth_moment_action_per_trillion=ang["action"],
@@ -118,6 +122,19 @@ def replay():
              new_source_specific_Wilson_required=int(k!=0),
              E1_diagnostic_target_reached=int(sine<TARGET))
     sine,direct,k,dist,residual,action,extra=best
+    need(best_vec is not None and len(best_vec)==8,
+         "no_original_E1_best_source_vector")
+    frozen=",".join(str(x) for x in best_vec)
+    emit("Y137_E1_MATCHED_VECTOR",
+         source_E1_original_v1=",".join(str(x) for x in v0),
+         source_E1_recentered_v1=",".join(str(x) for x in v1),
+         source_E1_best_v1=frozen,
+         source_E1_best_v1_sha256=hashlib.sha256(frozen.encode("ascii")).hexdigest(),
+         source_matched_fraction_num=k,
+         source_matched_fraction_den=PIECES,
+         true_E1_projector_moved="SOURCE_CONDITIONAL",
+         original_Wilson_rebuild="REQUIRED",
+         actual_original_first_Wilson_weight="HOLD")
     emit("Y137_E1_MATCHED_VERDICT",
          source="ORIGINAL_HOSTED_SIGNED_MU3_FOUR_MOMENT",
          original_fixed_E1_distance_per_trillion=ORIGINAL_FOUR_E1,
