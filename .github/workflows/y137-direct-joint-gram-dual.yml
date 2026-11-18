@@ -1,0 +1,45 @@
+name: Y137 original Wilson same-Q Gram-shifted direct dual
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-direct-joint-gram-dual-20261118/**'
+      - '.github/workflows/y137-direct-joint-gram-dual.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  joint-gram-true-energy-dual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 95
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Frozen source and exact integer rules
+        run: |
+          set -euo pipefail
+          D=independent/y137-direct-joint-gram-dual-20261118
+          python3 -I -B native/scripts/integer_only_audit.py "$D/joint_dual.py" "$D/verify.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp)" = '40762ceb865829156e4765b720f52d39a8be9b6f'
+          python3 -I -B "$D/joint_dual.py" toy | tee /tmp/y137-joint-gram-toy.hbp
+          grep -Fq '|signed_dual_identity=PASS|quadratic_error_term=RETAINED|' /tmp/y137-joint-gram-toy.hbp
+      - name: Original full-Q Wilson-minus-nine-Gram dual, shell4 residuals and independent replay
+        run: |
+          set -euo pipefail
+          D=independent/y137-direct-joint-gram-dual-20261118
+          mkdir -p build/y137-joint-gram-dual
+          /usr/bin/time -v python3 -I -B "$D/joint_dual.py" real | tee build/y137-joint-gram-dual/ALL.hbp
+          grep -E '^Y137_(DUAL_WINDOW_TOY|DUAL_WINDOW_SOURCE|DUAL_WINDOW_SIGNED|JOINT_DUAL_AUDIT|JOINT_DUAL_VERDICT)\|' build/y137-joint-gram-dual/ALL.hbp > build/y137-joint-gram-dual/RESULT.hbp
+          python3 -I -B "$D/verify.py" build/y137-joint-gram-dual/RESULT.hbp | tee build/y137-joint-gram-dual/REPLAY.hbp
+          grep -Fq '|tamper=6_REJECTED|' build/y137-joint-gram-dual/REPLAY.hbp
+          grep -Fq '|actual_original_first_excitation_Wilson_weight=HOLD|' build/y137-joint-gram-dual/RESULT.hbp
+          sha256sum "$D/joint_dual.py" "$D/verify.py" > build/y137-joint-gram-dual/SOURCE.sha256
+          sha256sum build/y137-joint-gram-dual/RESULT.hbp > build/y137-joint-gram-dual/RESULT.sha256
+          git rev-parse HEAD > build/y137-joint-gram-dual/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-S3-direct-same-Q-Gram-Wilson-dual
+          path: build/y137-joint-gram-dual/
+          retention-days: 90
+          if-no-files-found: error
