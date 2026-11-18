@@ -31,6 +31,18 @@ provided the whole-nonflat spectral bound, the signed-fourth-moment eigenproject
    The independent integer result must be strictly positive `+47,724,563/10^12`. It independently reconstructs the exact physical norm and O9-to-O factor, and confirms the strictly positive rational squared-weight bound has integer floor **451 parts per trillion**, although its parts-per-billion floor is zero.
 5. **Adversarial acceptance.** Eight mutations of source-Perron, original finite gap, physical link count, cosine direction, angular bound, physical weight, and selected E1/E2 angular source are all rejected.
 
+## New full-matrix signed fourth-moment independent check
+
+`schur.py` is a **separate mathematical implementation** of the original four-moment matrix Gauss/Lobatto bound. It imports none of the original `mu3_acceptance`, `moment_radau`, or Stage E code; it loads the four historically pinned original HBP sources and first authenticates their Git blob hashes and signed `mu3_six` SHA-256 values. It then:
+
+- Reconstructs exactly the original (8\times8) `U0`, `mu0`, `mu1`, `mu2`, and signed `mu3` for both actual original source energies.
+- Checks both (16\times16) lower/upper moment-localizer Gram matrices with integer fraction-free Sylvester/Bareiss tests.
+- Implements the **matrix Gauss** inverse of the exact `[[mu1,mu2],[mu2,mu3]]` block with a separate integer Bareiss solve and rational substitution, checking every solved linear equation exactly.
+- Implements the **matrix Lobatto** shifted Schur inversion independently and constructs both `S4_lower` and `S4_upper`.
+- Calculates exact rational matrix SHA-256 fingerprints across the full 128 original (8\times8) entries and compares with the original Stage D fingerprints. Finally, it independently recomputes original E1/E2 lower/upper exact matrix inertia counts.
+
+This closes a substantial piece of the signed fourth-moment **matrix arithmetic** independent of the original generator. Source provenance of the massive full-Q signed `mu3` production and the spectral branch transfer from matrix inequalities to physical eigendirections still require their own mathematical scrutiny; successful full SHA agreement is not a replacement for that review.
+
 ## Scientific disposition and further review
 
 **Perron source provenance: PASS as pinned receipt replay; fresh entire-sector/all-orbit independent-machine reconstruction: OPEN.**
