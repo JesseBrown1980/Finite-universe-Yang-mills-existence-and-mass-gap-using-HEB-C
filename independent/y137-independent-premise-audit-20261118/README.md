@@ -47,7 +47,7 @@ This closes a substantial piece of the signed fourth-moment **matrix arithmetic*
 
 **Perron source provenance: PASS as pinned receipt replay; fresh entire-sector/all-orbit independent-machine reconstruction: OPEN.**
 
-**Signed Stage E mathematical source: source-generated receipt replay and independent projected-flat angle conversion: PASS; independent construction and proof of the signed Schur enclosures and eigenbranch identification: OPEN.**
+**Signed Stage E matrix arithmetic: PASS in separate integer-only 16×16 localizer and 8×8 Gauss/Lobatto Schur calculation (all 128 exact entries and E1/E2 inertias), plus the accepted matched flat-angle arithmetic. Independent full-Q signed μ3 source-graph production and the formal eigenbranch/projector transfer proof: STILL UNDER REVIEW.**
 
 **Full-Q original Wilson source/graph: hosted PASS in PR #315, independent mathematical acceptance of the complete source and true transfer: REVIEW REQUIRED.**
 
