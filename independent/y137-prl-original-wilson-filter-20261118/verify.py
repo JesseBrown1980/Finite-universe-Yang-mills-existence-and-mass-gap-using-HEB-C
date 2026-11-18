@@ -20,7 +20,8 @@ def parse(data):
             continue
         parts = line.split('|')
         key = parts[0]
-        if key in ('Y137_QDUAL_GRAPH', 'Y137_QDUAL_TRIAL'):
+        if key in ('Y137_QDUAL_GRAPH', 'Y137_QDUAL_TRIAL',
+                   'S3_3X4_CENSUS', 'K3_BUILD_PROGRESS'):
             continue
         need(key in ('Y137_PRL_FILTER_TOY', 'Y137_PRL_SOURCE',
                      'Y137_PRL_MOMENTS', 'Y137_PRL_FILTER_VERDICT'),
