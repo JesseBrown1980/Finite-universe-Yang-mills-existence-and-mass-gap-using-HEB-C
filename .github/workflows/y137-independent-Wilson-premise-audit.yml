@@ -1,0 +1,73 @@
+name: Y137 independent Perron StageE first Wilson premise review
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-independent-premise-audit-20261118/**'
+      - '.github/workflows/y137-independent-Wilson-premise-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-Perron-StageE-Wilson-proof-premises:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact non-floating arithmetic policy and source artifacts
+        run: |
+          set -euo pipefail
+          D=independent/y137-independent-premise-audit-20261118
+          python3 -I -B native/scripts/integer_only_audit.py "$D/audit.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+          mkdir -p build/y137-proof-audit/accepted-source
+          gh run download 44411639918 \
+            --repo "$GITHUB_REPOSITORY" \
+            --name y137-original-S3-matched-Wilson-directional-action \
+            --dir build/y137-proof-audit/accepted-source
+          test -s build/y137-proof-audit/accepted-source/ALL.hbp
+          test -s build/y137-proof-audit/accepted-source/REPLAY_ACTION.hbp
+          grep -Fq '|tamper_controls=11_REJECTED|' \
+            build/y137-proof-audit/accepted-source/REPLAY_ACTION.hbp
+          grep -Fq '|tamper=8_REJECTED|' \
+            build/y137-proof-audit/accepted-source/REPLAY_SOURCE.hbp
+      - name: Generate authentic signed mu3 E1 and E2 matched witness receipts
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-proof-audit
+          python3 -I -B independent/y137-e1-matched-projector-20261118/matched_e1.py real \
+            > build/y137-proof-audit/E1.hbp
+          python3 -I -B independent/y137-e1-matched-projector-20261118/verify.py \
+            build/y137-proof-audit/E1.hbp \
+            > build/y137-proof-audit/E1_REPLAY.hbp
+          grep -Fq '|tamper=6_REJECTED|' build/y137-proof-audit/E1_REPLAY.hbp
+          python3 -I -B independent/y137-e2-matched-witness-20261117/matched.py real \
+            > build/y137-proof-audit/E2.hbp
+          grep -Fq '|best_matched_flat_sine_per_trillion=5047836049|' \
+            build/y137-proof-audit/E2.hbp
+      - name: Completely independent Perron and StageE source audit of strict original Wilson rational
+        run: |
+          set -euo pipefail
+          D=independent/y137-independent-premise-audit-20261118
+          python3 -I -B "$D/audit.py" \
+            native/ym/results/3x4_stream/perron/PERRON-RESULT.hbp \
+            native/ym/results/3x4_stream/perron/MEASURED-FINITE-HIGH-CLUSTER-VERDICT-20261107.hbp \
+            build/y137-proof-audit/accepted-source/ALL.hbp \
+            build/y137-proof-audit/E1.hbp \
+            build/y137-proof-audit/E2.hbp \
+            | tee build/y137-proof-audit/REVIEW.hbp
+          grep -Fq '|tamper=8_REJECTED|' build/y137-proof-audit/REVIEW.hbp
+          grep -Fq '|Wilson_weight_ppt_floor=451|' build/y137-proof-audit/REVIEW.hbp
+          sha256sum "$D/audit.py" build/y137-proof-audit/accepted-source/ALL.hbp \
+            build/y137-proof-audit/E1.hbp build/y137-proof-audit/E2.hbp \
+            > build/y137-proof-audit/SOURCE.sha256
+          git rev-parse HEAD > build/y137-proof-audit/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-original-Wilson-proof-premise-audit
+          path: build/y137-proof-audit/
+          retention-days: 90
+          if-no-files-found: error
