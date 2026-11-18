@@ -166,7 +166,8 @@ def third_moment(mode):
          original_K3_sha256=SOURCE_K3_SHA,
          field="FULL_ORIGINAL_S3_r9",
          first_Wilson_weight="HOLD")
-    emit("Y137_M3_BOUNDS", m0_sha256=digest(m0),m1_sha256=digest(m1),
+    emit("Y137_M3_BOUNDS", m0=m0,m1=m1,m2=m2,
+         m0_sha256=digest(m0),m1_sha256=digest(m1),
          m2_sha256=digest(m2),shell4_norm2_sha256=digest(shell4norm),
          m3_core_sha256=digest(core),
          cross4_sha256=digest(cross4),mag4_sha256=digest(mag4),
