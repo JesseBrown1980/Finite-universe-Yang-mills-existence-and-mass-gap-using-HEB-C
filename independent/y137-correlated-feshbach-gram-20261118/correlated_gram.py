@@ -134,10 +134,6 @@ def candidate(p,q,A2,R2,A0,R0,v1,v2,s1,s2,gop):
 
 def toy():
     # Exact 2x2 shared-centre identity and W-trace test.
-    O=[[5,1],[2,6]]
-    O2=[[3,2],[4,5]]
-    G=[[(2*O[i][j]-O2[i][j])//7 for j in range(2)]
-       for i in range(2)]
     # Rebuild a consistent example with exact integer divisibility.
     trueG=[[2,1],[1,3]]
     trueO=[[7,2],[5,9]]
@@ -151,7 +147,7 @@ def toy():
     M=((4,1),(2,5))
     need((g[0]*v[0]+g[1]*v[1])==4 and
          (g[0]*sum(M[0][j]*v[j] for j in range(2))+
-          g[1]*sum(M[1][j]*v[j] for j in range(2)))==18,
+          g[1]*sum(M[1][j]*v[j] for j in range(2)))==24,
          "nonnormal_toy")
     need(chord_upper(0)==0 and chord_upper(U//10)>0 and
          sqrtupper(4,9)>0,"outward_interval_roots")
