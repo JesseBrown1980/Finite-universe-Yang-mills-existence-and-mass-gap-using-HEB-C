@@ -1,0 +1,19 @@
+name: Y137 exact eigenprojector mathematical control
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-eigenbranch-projector-audit-20261118/**'
+      - '.github/workflows/y137-eigenbranch-projector-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-toy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact rational positive toy and 8 negative controls
+        run: python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/test_projector.py
