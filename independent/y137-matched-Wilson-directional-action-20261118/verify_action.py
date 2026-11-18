@@ -126,8 +126,10 @@ def verify(data):
     c1=isqrt(U*U-S1*S1);c2=isqrt(U*U-S2*S2)
     amp=isqrt(ppb*U*U//1000000000)
     sig=amp*c1*c2//(U*U)
-    pe1=ceildiv(S1*c2*atotal,U*U)
-    pe2=ceildiv(S2*c1*ftotal,U*U)
+    # Upper mixed-angle factor is one; the hosted source cosine c_i
+    # is a lower bound that cannot upper-bound cross-angle errors.
+    pe1=ceildiv(S1*atotal,U)
+    pe2=ceildiv(S2*ftotal,U)
     cross=ceildiv(S1*S2*op,U*U)
     margin=sig-pe1-pe2-cross
     per={
@@ -151,7 +153,13 @@ def verify(data):
     physical_num=max(0,margin)**2*gap1**2*gap2**2
     physical_den=4*U*U*(gap1*gap1+72*B*B*PS*PS)*(gap2*gap2+72*B*B*PS*PS)
     ppbfloor=physical_num*1000000000//physical_den
-    need(intval(bound["original_physical_weight_ppb_lower"])==ppbfloor and
+    pptfloor=physical_num*1000000000000//physical_den
+    need(intval(bound["original_physical_weight_ppt_lower"])==pptfloor and
+         intval(bound["original_weight_rational_num"])==physical_num and
+         intval(bound["original_weight_rational_den"])==physical_den and
+         intval(bound["strict_positive_weight_rational"])==int(physical_num>0) and
+         bound["mixed_projector_cosine_upper"]=="ONE_EXACT" and
+         intval(bound["original_physical_weight_ppb_lower"])==ppbfloor and
          bound["source_acceptance"]==
           ("CANDIDATE_INDEPENDENT_MATH_REVIEW" if margin>0 else "HOLD") and
          bound["actual_first_Wilson_weight"]=="HOLD",
@@ -173,6 +181,10 @@ def tamper(data):
         "|matched_fixed_amp_lower_per_trillion=99"),
        ("|signed_true_flat_transition_margin_per_trillion=",
         "|signed_true_flat_transition_margin_per_trillion=99"),
+       ("|original_physical_weight_ppt_lower=",
+        "|original_physical_weight_ppt_lower=0"),
+       ("|mixed_projector_cosine_upper=ONE_EXACT|",
+        "|mixed_projector_cosine_upper=LOWER_COSINE|"),
        ("|actual_first_Wilson_weight=HOLD|",
         "|actual_first_Wilson_weight=PASS|"),
        ("|matched_E2_Wflat_sine_upper_per_trillion=5047836049|",
@@ -184,7 +196,7 @@ def tamper(data):
         except ValueError: pass
         else: raise AssertionError("forged_original_true_action_receipt_accepted")
     print("Y137_MATCHED_ACTION_REPLAY|signed_margin="+str(margin)+
-          "|tamper_controls=8_REJECTED|true_original_Wilson_weight=HOLD|json=0")
+          "|tamper_controls=10_REJECTED|true_original_Wilson_weight=HOLD|json=0")
 
 
 if __name__=="__main__":
