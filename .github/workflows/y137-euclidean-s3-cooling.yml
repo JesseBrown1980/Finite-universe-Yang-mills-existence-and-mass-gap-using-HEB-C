@@ -1,0 +1,46 @@
+name: Y137 original S3 Euclidean heatbath cooling pilot (statistical HOLD)
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-euclidean-s3-cooling-20261117/**'
+      - '.github/workflows/y137-euclidean-s3-cooling.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-s3-euclidean-pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict integer-only audit of actual pilot source
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-euclidean-s3-cooling-20261117/pilot.py
+      - name: Independent exact local kernel and gauge controls (quick)
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-euclidean-cooling
+          python3 -I -B independent/y137-euclidean-s3-cooling-20261117/pilot.py --quick > build/y137-euclidean-cooling/quick.hbp
+          grep -Fq 'Fourier_sign=1/4|Fourier_std=1/2|trotter_a=ln2/3|r=9|status=PASS|' build/y137-euclidean-cooling/quick.hbp
+          grep -Fq '|flat_sheet_move=PASS|negative_controls=2|status=PASS|' build/y137-euclidean-cooling/quick.hbp
+      - name: Exact-weight hot and cold dual-chain runs with/without sheet moves
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-euclidean-s3-cooling-20261117/pilot.py --pilot > build/y137-euclidean-cooling/with-sheet.hbp
+          python3 -I -B independent/y137-euclidean-s3-cooling-20261117/pilot.py --no-sheet > build/y137-euclidean-cooling/local-only.hbp
+          for f in build/y137-euclidean-cooling/with-sheet.hbp build/y137-euclidean-cooling/local-only.hbp; do
+            test "$(grep -c '^S3_EUCLIDEAN_MEASUREMENT|' "$f")" -eq 12
+            test "$(grep -c '^S3_EUCLIDEAN_SNAPSHOT|' "$f")" -eq 24
+            grep -Fq '|exact_mass_gap_certificate=NO|first_Wilson_weight=HOLD|continuum=OPEN|status=PILOT_COMPLETE|' "$f"
+            grep -Fq '|gauge=8|conditional_class_multisets=8|spatial_cooling_monotone=8|flat_sheet_move=PASS|' "$f"
+          done
+          sha256sum independent/y137-euclidean-s3-cooling-20261117/pilot.py > build/y137-euclidean-cooling/SOURCE.sha256
+          sha256sum build/y137-euclidean-cooling/*.hbp > build/y137-euclidean-cooling/RESULTS.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-s3-euclidean-heatbath-cooling-pilot
+          path: build/y137-euclidean-cooling/
+          if-no-files-found: ignore
+          retention-days: 30
