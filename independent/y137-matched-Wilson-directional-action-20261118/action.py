@@ -243,8 +243,11 @@ def directional_action_gate(ball,O,t1,t2,u21,u12,g1sq,g2sq,d21sq,d12sq,
     c2=isqrt(U*U-s2*s2)
     amp_lb=isqrt(weight_ppb*U*U//1000000000)
     signal=amp_lb*c1*c2//(U*U)
-    e1pen=ceildiv(s1*c2*full_a,U*U)
-    e2pen=ceildiv(s2*c1*full_f,U*U)
+    # The unknown other-state cosine is at most ONE, not its lower
+    # bound sqrt(1-s²). Using a lower bound here would undercharge the
+    # possible first-order projector error.
+    e1pen=ceildiv(s1*full_a,U)
+    e2pen=ceildiv(s2*full_f,U)
     cross=ceildiv(s1*s2*operator,U*U)
     err=e1pen+e2pen+cross
     margin=signal-err
@@ -259,6 +262,7 @@ def directional_action_gate(ball,O,t1,t2,u21,u12,g1sq,g2sq,d21sq,d12sq,
              (gap2*gap2+72*B*B*PS*PS))
     need(physical_weight_den>0,"physical_W_normalization_positive")
     physical_ppb=physical_weight_num*1000000000//physical_weight_den
+    physical_ppt=physical_weight_num*1000000000000//physical_weight_den
     emit("Y137_MATCHED_ACTION_INPUT",
          source_original_flat_W="1,3,2,3,3,2,2,2",
          n1=n1,n2=n2,amp_source_ppb=weight_ppb,
@@ -288,6 +292,11 @@ def directional_action_gate(ball,O,t1,t2,u21,u12,g1sq,g2sq,d21sq,d12sq,
          two_angles_penalty_per_trillion=cross,
          signed_true_flat_transition_margin_per_trillion=margin,
          original_physical_weight_ppb_lower=physical_ppb,
+         original_physical_weight_ppt_lower=physical_ppt,
+         original_weight_rational_num=physical_weight_num,
+         original_weight_rational_den=physical_weight_den,
+         strict_positive_weight_rational=int(physical_weight_num>0),
+         mixed_projector_cosine_upper="ONE_EXACT",
          source_acceptance="CANDIDATE_INDEPENDENT_MATH_REVIEW" if margin>0 else "HOLD",
          actual_first_Wilson_weight="HOLD")
     return margin
