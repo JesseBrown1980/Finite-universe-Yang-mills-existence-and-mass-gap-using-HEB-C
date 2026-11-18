@@ -188,7 +188,7 @@ def replay(data):
          geo["source_two_constraint_den_sha256"]==sha(den) and
          geo["source_two_constraint_num_sha256"]==sha(num),
          "two_source_geometry")
-    choices=[(0,1),(1,1),(2,1),(5,2),(11,4),(3,1),(13,4),(7,2),(4,1),opt]
+    choices=[(0,1),(3,1),(6,1),(7,1),(8,1),(17,2),(35,4),(9,1),(10,1),opt]
     gop=UNIT+ceildiv(72*1000000000000000000*UNIT,
                       (94068200000-69909586556)*(94068200000-69949433884))
     best=None
