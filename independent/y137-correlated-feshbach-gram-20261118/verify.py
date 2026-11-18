@@ -208,7 +208,7 @@ def replay(data):
                       abs(V1[j]) for j in range(8)) for i in range(8)]
         ern=sum((6//WF[i])*radrows[i]*radrows[i] for i in range(8))
         error=sq_up(ern,6*d*d*n1)
-        op=21*UNIT+ceildiv(abs(p)*gop,q)
+        op=21*gop+ceildiv(abs(p)*gop,q)
         d1=shift_chord(S1);d2=shift_chord(S2)
         e1=ceildiv(op*d1,UNIT)
         rhs=ceildiv(d2*anorm,UNIT)+ceildiv((UNIT+d2)*(e1+error),UNIT)
