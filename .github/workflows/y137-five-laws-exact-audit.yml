@@ -1,0 +1,45 @@
+name: "Y137 exact audit of five proposed Padé and Wilson laws"
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/y137-five-laws-exact-audit.yml'
+      - 'independent/y137-five-laws-exact-audit-20261117/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-pade-chebyshev-wilson-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict integer-only source and frozen atlas
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-five-laws-exact-audit-20261117/audit.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(sha256sum docs/certificate-atlas/certificates.json | cut -d ' ' -f 1)" = 'a40c19559ac9739610abd4241d1ec9585f23c509f1dfbdfa04e0daa08cb7e0f5'
+      - name: Exact rational falsification and operator identities
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-five-laws
+          python3 -I -B independent/y137-five-laws-exact-audit-20261117/audit.py \
+            | tee build/y137-five-laws/RESULT.hbp
+          test "$(grep -c '^Y137_FIVE_PADE_POINT|' build/y137-five-laws/RESULT.hbp)" -eq 4
+          test "$(grep -c '^Y137_FIVE_RHO_DEGREE|' build/y137-five-laws/RESULT.hbp)" -eq 4
+          grep -Fq '|one_pole_accepted=2_OF_4|r9=EXCLUDED|r27=EXCLUDED|' build/y137-five-laws/RESULT.hbp
+          grep -Fq '|rho_upper_rational=49/81|' build/y137-five-laws/RESULT.hbp
+          grep -Fq '|certified_operator_norm_reduction=25_PERCENT|' build/y137-five-laws/RESULT.hbp
+          grep -Fq '|full_exterior_residual=MANDATORY|' build/y137-five-laws/RESULT.hbp
+          grep -Fq '|equality_negative_control=REJECTED|' build/y137-five-laws/RESULT.hbp
+          grep -Fq '|first_excitation_Wilson=HOLD|four_dimensional_continuum=OPEN|json=0' build/y137-five-laws/RESULT.hbp
+          git rev-parse HEAD > build/y137-five-laws/COMMIT.txt
+          sha256sum independent/y137-five-laws-exact-audit-20261117/audit.py > build/y137-five-laws/SOURCE.sha256
+          sha256sum build/y137-five-laws/RESULT.hbp > build/y137-five-laws/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-five-laws-exact-audit
+          path: build/y137-five-laws/
+          retention-days: 90
+          if-no-files-found: warn
