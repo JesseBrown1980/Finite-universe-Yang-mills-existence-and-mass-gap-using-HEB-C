@@ -159,6 +159,25 @@ def third_moment(mode):
     upper=min(base+ELEC_CAP*shell4norm,CAP*m2)
     need(0<=lower<=upper and lower*m1>=m2*m2,
          "third_moment_source_bounded_interval")
+    # The [E3,468]-supported moment matrix must have nonnegative
+    # determinant: [[m1-L*m0,m2-L*m1],[m2-L*m1,m3-L*m2]].
+    # Negative is a rigorous low-energy-support witness for THIS trial,
+    # subject to distinguishing E1 leakage from E2 visibility later.
+    den=1000000000
+    e3lo=69968699300
+    local_a=den*m1-e3lo*m0
+    local_b=den*m2-e3lo*m1
+    need(local_a>0,"original_E3_below_trial_mean")
+    local_lo=local_a*(den*lower-e3lo*m2)-local_b*local_b
+    local_hi=local_a*(den*upper-e3lo*m2)-local_b*local_b
+    need(local_lo<=local_hi,"shifted_moment_localizer_monotonic")
+    emit("Y137_M3_E3_INTERVAL",
+         certified_E3_floor_num=e3lo,energy_den=den,
+         determinant_lower_sign=(local_lo>0)-(local_lo<0),
+         determinant_upper_sign=(local_hi>0)-(local_hi<0),
+         all_above_E3_spectrum_excluded_by_interval=
+             int(local_hi<0),
+         actual_first_Wilson_weight="HOLD")
     emit("Y137_M3_SOURCE", original_Wilson="SEVEN_LOOP_24_LINK",
          flat_K3="8_AND_155378", shell4=n4,
          shell4_nonzero=num_nonzero,
@@ -213,10 +232,19 @@ def third_moment(mode):
     T3=CAP*CAP*CAP*m0-3*CAP*CAP*m1+3*CAP*m2-m3
     need(0<=T3<=CAP*T2 and T1*T3>=T2*T2,
          "filtered_third_moment_Cauchy")
+    # Independent upper-support localizing matrix is PSD by 0<=H<=468.
+    upper_a=den*(CAP*m0-m1)
+    upper_b=den*(CAP*m1-m2)
+    upper_c=den*(CAP*m2-m3)
+    need(upper_a*upper_c>=upper_b*upper_b,
+         "original_full_upper_spectral_localizer")
+    exact_local=local_a*(den*m3-e3lo*m2)-local_b*local_b
     emit("Y137_M3_EXACT", m3=m3,m3_sha256=digest(m3),
          electric4=electric4,electric4_sha256=digest(electric4),
          full_K4_nonzero=counted,
          third_T_sha256=digest(T3),
+         E3_localizer_det_sign=(exact_local>0)-(exact_local<0),
+         high_only_E3_support_excluded=int(exact_local<0),
          exact_H3="PASS", first_Wilson_weight="HOLD")
     emit("Y137_M3_VERDICT", source="K3_K4_PHYSICAL",
          physical_m3="EXACT", full_K4_E="EXHAUSTIVE_NONZERO_72_MOVES",
