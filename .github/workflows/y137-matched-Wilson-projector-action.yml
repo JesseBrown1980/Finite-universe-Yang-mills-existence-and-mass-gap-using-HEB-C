@@ -1,0 +1,46 @@
+name: Y137 matched original Wilson true projector-action source gate
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-matched-Wilson-directional-action-20261118/**'
+      - '.github/workflows/y137-matched-Wilson-projector-action.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  matched-source-projector-action:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Original Q and exact integer source policy
+        run: |
+          set -euo pipefail
+          D=independent/y137-matched-Wilson-directional-action-20261118
+          python3 -I -B native/scripts/integer_only_audit.py "$D/action.py" "$D/verify_action.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp)" = '40762ceb865829156e4765b720f52d39a8be9b6f'
+          python3 -I -B "$D/action.py" toy | grep '^Y137_DUAL_WINDOW_TOY|'
+      - name: Reconstruct same Q source, Wilson dual, deflated action and true projector margin
+        run: |
+          set -euo pipefail
+          D=independent/y137-matched-Wilson-directional-action-20261118
+          OLD=independent/y137-matched-e1e2-joint-wilson-20261118
+          mkdir -p build/y137-matched-Wilson-action
+          /usr/bin/time -v python3 -I -B "$D/action.py" real | tee build/y137-matched-Wilson-action/ALL.hbp
+          grep -E '^Y137_(DUAL_WINDOW_TOY|MATCHED_PAIR|DUAL_WINDOW_SOURCE|DUAL_WINDOW_SIGNED|JOINT_DUAL_AUDIT|MATCHED_PROJECTOR_BOUND|JOINT_DUAL_VERDICT)\|' build/y137-matched-Wilson-action/ALL.hbp > build/y137-matched-Wilson-action/SOURCE.hbp
+          python3 -I -B "$OLD/verify.py" build/y137-matched-Wilson-action/SOURCE.hbp | tee build/y137-matched-Wilson-action/REPLAY_SOURCE.hbp
+          python3 -I -B "$D/verify_action.py" build/y137-matched-Wilson-action/ALL.hbp | tee build/y137-matched-Wilson-action/REPLAY_ACTION.hbp
+          grep -Fq '|tamper_controls=11_REJECTED|' build/y137-matched-Wilson-action/REPLAY_ACTION.hbp
+          grep -Fq '|actual_first_Wilson_weight=HOLD|' build/y137-matched-Wilson-action/ALL.hbp
+          sha256sum "$D/action.py" "$D/verify_action.py" > build/y137-matched-Wilson-action/SOURCE.sha256
+          sha256sum build/y137-matched-Wilson-action/ALL.hbp > build/y137-matched-Wilson-action/RESULT.sha256
+          git rev-parse HEAD > build/y137-matched-Wilson-action/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-S3-matched-Wilson-directional-action
+          path: build/y137-matched-Wilson-action/
+          retention-days: 90
+          if-no-files-found: error
