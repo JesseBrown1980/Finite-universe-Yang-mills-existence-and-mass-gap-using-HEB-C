@@ -198,6 +198,33 @@ def source_weighted_effective_raw(ball,obs,p,dual):
     return raw
 
 
+def graph_adjoint_crosscheck(ball,obs,p,u,expected):
+    # Second route is sourced from original 8 FLAT row transitions,
+    # rather than assembling by the K3 Q->P C rows above.
+    states,_,sizes=source.mod.rebuild_states()
+    need(len(states)==8042 and sizes==[8,264,7770],
+         "original_flat_neighbour_K2_graph")
+    where={key:i for i,key in enumerate(states)}
+    edges=0
+    out=[]
+    for j in range(8):
+        v=ball["wf"][j]*obs[j]*p[j]
+        for key,cc in source.mod.c.neighbors(states[j]).items():
+            i=where.get(key)
+            need(i is not None,"flat_step_outside_original_K2")
+            if i<8:continue
+            q=i-8
+            need(q<len(u) and ball["C"][q] is not None and
+                 ball["wf"][j]*cc==ball["wq"][q]*ball["C"][q][j],
+                 "physical_PQ_W_adjoint_mismatch")
+            edges+=1
+            v+=ball["wf"][j]*cc*u[q]
+        out.append(v)
+    need(edges==264 and out==expected,
+         "original_flat_neighbour_W_action_not_equal_Q_row_route")
+    return edges
+
+
 def deflated_upper(raw,v1,v2):
     n1=sum(WFLAT[i]*v1[i]*v1[i] for i in range(8))
     n2=sum(WFLAT[i]*v2[i]*v2[i] for i in range(8))
@@ -218,6 +245,15 @@ def directional_action_gate(ball,O,t1,t2,u21,u12,g1sq,g2sq,d21sq,d12sq,
     n2=sum(WFLAT[i]*v2[i]*v2[i] for i in range(8))
     raw_f=source_weighted_effective_raw(ball,O,t1["p"],u21)
     raw_a=source_weighted_effective_raw(ball,O,t2["p"],u12)
+    edges1=graph_adjoint_crosscheck(ball,O,t1["p"],u21,raw_f)
+    edges2=graph_adjoint_crosscheck(ball,O,t2["p"],u12,raw_a)
+    need(edges1==edges2==264,"independent_PQ_adjoint_edge_census")
+    emit("Y137_MATCHED_ACTION_GRAPH",
+         original_PQ_edges=edges1,
+         matched_E1_forward_independent_flat_row="PASS",
+         matched_E2_adjoint_independent_flat_row="PASS",
+         physical_weighted_PQ_adjoint="PASS",
+         first_original_Wilson_weight="HOLD")
     f_nom,forward_amp,fn=deflated_upper(raw_f,v1,v2)
     a_nom,adj_amp,an=deflated_upper(raw_a,v2,v1)
     # Residuals s1,s2,d21,d12 are all D-times the physical
