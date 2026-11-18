@@ -1,0 +1,75 @@
+name: Y137 original S3 Wilson third-moment K4 exact spectral-localizer
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-original-wilson-third-moment-20261118/**'
+      - '.github/workflows/y137-original-wilson-third-moment.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bounded-original-H3:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Source SHA, exact arithmetic and negative controls
+        run: |
+          set -euo pipefail
+          D=independent/y137-original-wilson-third-moment-20261118
+          python3 -I -B native/scripts/integer_only_audit.py "$D/third.py" "$D/verify.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp)" = '40762ceb865829156e4765b720f52d39a8be9b6f'
+          python3 -I -B "$D/third.py" toy | grep '^Y137_M3_TOY|'
+      - name: Bounded original full source H3 moment and independent replay
+        run: |
+          set -euo pipefail
+          D=independent/y137-original-wilson-third-moment-20261118
+          mkdir -p build/y137-m3-bounds
+          /usr/bin/time -v python3 -I -B "$D/third.py" bounds | tee build/y137-m3-bounds/ALL.hbp
+          grep '^Y137_M3_' build/y137-m3-bounds/ALL.hbp > build/y137-m3-bounds/RESULT.hbp
+          python3 -I -B "$D/verify.py" build/y137-m3-bounds/RESULT.hbp | tee build/y137-m3-bounds/REPLAY.hbp
+          grep -Fq '|source=K3_K4_PHYSICAL|physical_m3=RATIONAL_INTERVAL|full_K4_E=BOUNDED_PSD_144|first_Wilson_weight=HOLD|' build/y137-m3-bounds/RESULT.hbp
+          sha256sum "$D/third.py" "$D/verify.py" > build/y137-m3-bounds/SOURCE.sha256
+          sha256sum build/y137-m3-bounds/RESULT.hbp > build/y137-m3-bounds/RESULT.sha256
+          git rev-parse HEAD > build/y137-m3-bounds/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-S3-Wilson-H3-bounds
+          path: build/y137-m3-bounds/
+          retention-days: 90
+          if-no-files-found: error
+  exhaustive-original-H3:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Source SHA and exact integer policy
+        run: |
+          set -euo pipefail
+          D=independent/y137-original-wilson-third-moment-20261118
+          python3 -I -B native/scripts/integer_only_audit.py "$D/third.py" "$D/verify.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp)" = '40762ceb865829156e4765b720f52d39a8be9b6f'
+      - name: Exact physical K4 electric all 72 moves and first-excitation E3 localizer
+        run: |
+          set -euo pipefail
+          D=independent/y137-original-wilson-third-moment-20261118
+          mkdir -p build/y137-m3-full
+          /usr/bin/time -v python3 -I -B "$D/third.py" full | tee build/y137-m3-full/ALL.hbp
+          grep '^Y137_M3_' build/y137-m3-full/ALL.hbp > build/y137-m3-full/RESULT.hbp
+          python3 -I -B "$D/verify.py" build/y137-m3-full/RESULT.hbp | tee build/y137-m3-full/REPLAY.hbp
+          grep -Fq '|physical_m3=EXACT|full_K4_E=EXHAUSTIVE_NONZERO_72_MOVES|first_Wilson_weight=HOLD|' build/y137-m3-full/RESULT.hbp
+          sha256sum "$D/third.py" "$D/verify.py" > build/y137-m3-full/SOURCE.sha256
+          sha256sum build/y137-m3-full/RESULT.hbp > build/y137-m3-full/RESULT.sha256
+          git rev-parse HEAD > build/y137-m3-full/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-S3-Wilson-H3-exhaustive
+          path: build/y137-m3-full/
+          retention-days: 90
+          if-no-files-found: error
