@@ -20,7 +20,7 @@ jobs:
         run: |
           set -euo pipefail
           D=independent/y137-independent-premise-audit-20261118
-          python3 -I -B native/scripts/integer_only_audit.py "$D/audit.py"
+          python3 -I -B native/scripts/integer_only_audit.py "$D/audit.py" "$D/schur.py"
           python3 -I -B native/scripts/no_float_gate.py .
           mkdir -p build/y137-proof-audit/accepted-source
           gh run download 44411639918 \
@@ -47,6 +47,18 @@ jobs:
             > build/y137-proof-audit/E2.hbp
           grep -Fq '|best_matched_flat_sine_per_trillion=5047836049|' \
             build/y137-proof-audit/E2.hbp
+      - name: Independent full signed mu3 Schur four-moment matrix reconstruction
+        run: |
+          set -euo pipefail
+          D=independent/y137-independent-premise-audit-20261118
+          python3 -I -B independent/y137-mu3-real-20261115/d_real_four_moment.py real \
+            > build/y137-proof-audit/STAGE-D.hbp
+          python3 -I -B "$D/schur.py" build/y137-proof-audit/STAGE-D.hbp \
+            | tee build/y137-proof-audit/INDEPENDENT-SCHUR.hbp
+          grep -Fq '|matrix_hash_replays=128_OF_128_EXACT|' \
+            build/y137-proof-audit/INDEPENDENT-SCHUR.hbp
+          grep -Fq '|signed_Schur_formula=SECOND_IMPLEMENTATION_PASS|' \
+            build/y137-proof-audit/INDEPENDENT-SCHUR.hbp
       - name: Completely independent Perron and StageE source audit of strict original Wilson rational
         run: |
           set -euo pipefail
