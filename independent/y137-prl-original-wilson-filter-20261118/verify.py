@@ -96,7 +96,8 @@ def selftest(data):
     for old, new in (
         ('|actual_Wilson_weight=HOLD|', '|actual_Wilson_weight=PASS|'),
         ('|source_trial=NOT_TRUE_PSI1|', '|source_trial=TRUE_PSI1|'),
-        ('|shell4=1985218|', '|shell4=0|'),
+        ('|first_shell=8_FLATS_PLUS_155378_K3|shell4=1985218|',
+         '|first_shell=8_FLATS_PLUS_155378_K3|shell4=0|'),
         ('|operator_cap=468|', '|operator_cap=469|'),
         ('|m2_sha256=', '|m2_sha256=bad'),
     ):
