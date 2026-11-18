@@ -49,7 +49,8 @@ def records(data):
     for line in data.splitlines():
         tag=line.split("|",1)[0]
         if tag not in ("Y137_MATCHED_PAIR","Y137_JOINT_DUAL_AUDIT",
-                       "Y137_MATCHED_ACTION_INPUT","Y137_MATCHED_ACTION_BOUND"):
+                       "Y137_MATCHED_ACTION_INPUT","Y137_MATCHED_ACTION_BOUND",
+                       "Y137_MATCHED_ACTION_GRAPH"):
             continue
         need(tag not in rows,"duplicate_action_row")
         row={}
@@ -80,6 +81,14 @@ def verify(data):
     for k,val in (("matched_E1_Wflat_sine_upper_per_trillion",S1),
                   ("matched_E2_Wflat_sine_upper_per_trillion",S2)):
         need(intval(pair[k])==val,"signed_mu3_projector_accepted_sine")
+    graph=r["Y137_MATCHED_ACTION_GRAPH"]
+    need(graph=={
+        "original_PQ_edges":"264",
+        "matched_E1_forward_independent_flat_row":"PASS",
+        "matched_E2_adjoint_independent_flat_row":"PASS",
+        "physical_weighted_PQ_adjoint":"PASS",
+        "first_original_Wilson_weight":"HOLD"},
+        "original_264_weighted_PQ_graph_crossroute")
     src=r["Y137_JOINT_DUAL_AUDIT"]
     inp=r["Y137_MATCHED_ACTION_INPUT"]
     bound=r["Y137_MATCHED_ACTION_BOUND"]
@@ -185,6 +194,8 @@ def tamper(data):
         "|original_physical_weight_ppt_lower=0"),
        ("|mixed_projector_cosine_upper=ONE_EXACT|",
         "|mixed_projector_cosine_upper=LOWER_COSINE|"),
+       ("|matched_E2_adjoint_independent_flat_row=PASS|",
+        "|matched_E2_adjoint_independent_flat_row=FAIL|"),
        ("|actual_first_Wilson_weight=HOLD|",
         "|actual_first_Wilson_weight=PASS|"),
        ("|matched_E2_Wflat_sine_upper_per_trillion=5047836049|",
@@ -196,7 +207,7 @@ def tamper(data):
         except ValueError: pass
         else: raise AssertionError("forged_original_true_action_receipt_accepted")
     print("Y137_MATCHED_ACTION_REPLAY|signed_margin="+str(margin)+
-          "|tamper_controls=10_REJECTED|true_original_Wilson_weight=HOLD|json=0")
+          "|tamper_controls=11_REJECTED|true_original_Wilson_weight=HOLD|json=0")
 
 
 if __name__=="__main__":
