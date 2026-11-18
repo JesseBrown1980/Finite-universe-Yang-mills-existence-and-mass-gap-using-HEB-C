@@ -190,7 +190,7 @@ def run():
     reduce=gcd(abs(optn),optd)
     optn//=reduce
     optd//=reduce
-    need(0<optn<4*optd,"original_optimal_shift_range")
+    need(0<optn<12*optd,"original_optimal_shift_range")
     g1=pt.old.FLOOR-pt.old.E1_HI
     g2=pt.old.FLOOR-pt.old.E2_HI
     B=1000000000
@@ -214,8 +214,8 @@ def run():
          source_two_constraint_den_sha256=digest(projection_den),
          source_two_constraint_num_sha256=digest(projection_num),
          actual_first_Wilson_weight="HOLD")
-    candidates=[(0,1),(1,1),(2,1),(5,2),(11,4),(3,1),
-                (13,4),(7,2),(4,1),(optn,optd)]
+    candidates=[(0,1),(3,1),(6,1),(7,1),(8,1),(17,2),
+                (35,4),(9,1),(10,1),(optn,optd)]
     allc=[]
     for p,q in candidates:
         result,C=candidate(p,q,A2,R2,A0,R0,v1,v2,s1,s2,gop)
