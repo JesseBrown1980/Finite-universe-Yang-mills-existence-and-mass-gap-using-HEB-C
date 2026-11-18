@@ -60,7 +60,7 @@ def records(data):
             row[k]=v
         need(row.pop("json",None)=="0","bad_HBP_end")
         rows[tag]=row
-    need(len(rows)==4,"missing_original_source_action_inputs")
+    need(len(rows)==5,"missing_original_source_action_inputs")
     return rows
 
 
