@@ -1,0 +1,42 @@
+name: Y137 original E1 four-moment matched flat projector
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-e1-matched-projector-20261118/**'
+      - '.github/workflows/y137-e1-matched-projector.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  matched-original-E1:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact original Stage E source and integer policy
+        run: |
+          set -euo pipefail
+          D=independent/y137-e1-matched-projector-20261118
+          python3 -I -B native/scripts/integer_only_audit.py "$D/matched_e1.py" "$D/verify.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+          python3 -I -B "$D/matched_e1.py" toy | grep '^Y137_E1_MATCHED_TOY|'
+      - name: Physical signed mu3 E1 matched flat witness and independently replayed source
+        run: |
+          set -euo pipefail
+          D=independent/y137-e1-matched-projector-20261118
+          mkdir -p build/y137-matched-E1
+          python3 -I -B "$D/matched_e1.py" real | tee build/y137-matched-E1/ALL.hbp
+          grep '^Y137_E1_MATCHED_' build/y137-matched-E1/ALL.hbp > build/y137-matched-E1/RESULT.hbp
+          python3 -I -B "$D/verify.py" build/y137-matched-E1/RESULT.hbp | tee build/y137-matched-E1/REPLAY.hbp
+          grep -Fq '|tamper=6_REJECTED|' build/y137-matched-E1/REPLAY.hbp
+          grep -Fq '|actual_original_first_Wilson_weight=HOLD|' build/y137-matched-E1/RESULT.hbp
+          sha256sum "$D/matched_e1.py" "$D/verify.py" > build/y137-matched-E1/SOURCE.sha256
+          sha256sum build/y137-matched-E1/RESULT.hbp > build/y137-matched-E1/RESULT.sha256
+          git rev-parse HEAD > build/y137-matched-E1/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-signed-mu3-matched-E1-projector
+          path: build/y137-matched-E1/
+          retention-days: 90
+          if-no-files-found: error
