@@ -1,0 +1,42 @@
+name: Y137 original S3 Wilson low-pass temporal moment from PRL memory lead
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-prl-original-wilson-filter-20261118/**'
+      - '.github/workflows/y137-prl-original-wilson-filter.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-real-moments:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Source SHA and exact integer gates
+        run: |
+          set -euo pipefail
+          D=independent/y137-prl-original-wilson-filter-20261118
+          python3 -I -B native/scripts/integer_only_audit.py "$D/moment_filter.py" "$D/verify.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/replay.py)" = 'b9881651c51a278757bc0fef15de583277330da3'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp)" = '40762ceb865829156e4765b720f52d39a8be9b6f'
+          python3 -I -B "$D/moment_filter.py" toy | tee /tmp/y137-prl-filter-toy.hbp
+          grep -Fq '|high_energy_dark_control=PASS|first_Wilson_weight=HOLD|' /tmp/y137-prl-filter-toy.hbp
+      - name: Physical source moments and separate receipt replay
+        run: |
+          set -euo pipefail
+          D=independent/y137-prl-original-wilson-filter-20261118
+          mkdir -p build/y137-prl-wilson-filter
+          /usr/bin/time -v python3 -I -B "$D/moment_filter.py" real | tee build/y137-prl-wilson-filter/RESULT.hbp
+          python3 -I -B "$D/verify.py" build/y137-prl-wilson-filter/RESULT.hbp | tee build/y137-prl-wilson-filter/REPLAY.hbp
+          sha256sum "$D/moment_filter.py" "$D/verify.py" > build/y137-prl-wilson-filter/SOURCE.sha256
+          sha256sum build/y137-prl-wilson-filter/RESULT.hbp > build/y137-prl-wilson-filter/RESULT.sha256
+          git rev-parse HEAD > build/y137-prl-wilson-filter/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-prl-original-s3-wilson-second-moment
+          path: build/y137-prl-wilson-filter/
+          retention-days: 90
+          if-no-files-found: error
