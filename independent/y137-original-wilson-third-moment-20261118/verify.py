@@ -29,7 +29,7 @@ def parse(lines):
             progress.append(s)
             continue
         need(name in ("Y137_M3_TOY","Y137_M3_SOURCE","Y137_M3_BOUNDS",
-                      "Y137_M3_EXACT","Y137_M3_VERDICT"),"unexpected_source_row")
+                      "Y137_M3_E3_INTERVAL","Y137_M3_EXACT","Y137_M3_VERDICT"),"unexpected_source_row")
         need(name not in records,"duplicate_receipt")
         fields={}
         for pair in s.split("|")[1:]:
@@ -40,7 +40,7 @@ def parse(lines):
         records[name]=fields
     need(all(k in records for k in
              ("Y137_M3_TOY","Y137_M3_SOURCE","Y137_M3_BOUNDS",
-              "Y137_M3_VERDICT")),"missing_row")
+              "Y137_M3_E3_INTERVAL","Y137_M3_VERDICT")),"missing_row")
     return records,progress
 
 
@@ -102,6 +102,25 @@ def verify(data):
          "exact_interval_replay")
     need(integer(b,"electric_Ceiling")==ECAP and
          b["all_K4_magnetic"]=="EXACT","K4_electric_bound_theorem")
+    d=1000000000
+    E3=69968699300
+    aa=d*m1-E3*m0
+    bb=d*m2-E3*m1
+    need(aa>0,"original_lower_E3_mean")
+    ll=aa*(d*lower-E3*m2)-bb*bb
+    hh=aa*(d*upper-E3*m2)-bb*bb
+    local=r["Y137_M3_E3_INTERVAL"]
+    need(set(local)=={"certified_E3_floor_num","energy_den",
+                      "determinant_lower_sign","determinant_upper_sign",
+                      "all_above_E3_spectrum_excluded_by_interval",
+                      "actual_first_Wilson_weight"},"E3_localizer_fields")
+    need(integer(local,"certified_E3_floor_num")==E3 and
+         integer(local,"energy_den")==d and
+         integer(local,"determinant_lower_sign")==(ll>0)-(ll<0) and
+         integer(local,"determinant_upper_sign")==(hh>0)-(hh<0) and
+         integer(local,"all_above_E3_spectrum_excluded_by_interval")==int(hh<0)
+         and local["actual_first_Wilson_weight"]=="HOLD",
+         "E3_localizer_bounds")
     v=r["Y137_M3_VERDICT"]
     need(v["source"]=="K3_K4_PHYSICAL" and
          v["first_Wilson_weight"]=="HOLD","physical_scope")
@@ -114,7 +133,8 @@ def verify(data):
         return "INTERVAL"
     x=r["Y137_M3_EXACT"]
     need(set(x)=={"m3","m3_sha256","electric4","electric4_sha256",
-                 "full_K4_nonzero","third_T_sha256","exact_H3",
+                 "full_K4_nonzero","third_T_sha256","E3_localizer_det_sign",
+                 "high_only_E3_support_excluded","exact_H3",
                  "first_Wilson_weight"},"full_fields")
     m3=integer(x,"m3")
     electric=integer(x,"electric4")
@@ -131,6 +151,15 @@ def verify(data):
     t3=CAP*CAP*CAP*m0-3*CAP*CAP*m1+3*CAP*m2-m3
     need(0<=t3<=CAP*t2 and t1*t3>=t2*t2 and
          hashint(t3)==x["third_T_sha256"],"full_filtered_H3")
+    exact_det=aa*(d*m3-E3*m2)-bb*bb
+    need(integer(x,"E3_localizer_det_sign")==
+         (exact_det>0)-(exact_det<0) and
+         integer(x,"high_only_E3_support_excluded")==int(exact_det<0),
+         "full_E3_localizer")
+    ua=d*(CAP*m0-m1)
+    ub=d*(CAP*m1-m2)
+    uc=d*(CAP*m2-m3)
+    need(ua*uc>=ub*ub,"original_H_upper_localizer")
     need(b["all_K4_electric"]=="RUNNING" and
          v=={"source":"K3_K4_PHYSICAL","physical_m3":"EXACT",
              "full_K4_E":"EXHAUSTIVE_NONZERO_72_MOVES",
