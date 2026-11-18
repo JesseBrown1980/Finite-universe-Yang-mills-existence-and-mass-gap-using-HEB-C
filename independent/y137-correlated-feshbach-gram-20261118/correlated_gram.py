@@ -105,7 +105,7 @@ def candidate(p,q,A2,R2,A0,R0,v1,v2,s1,s2,gop):
     gs1=pt.old.FLOOR-pt.old.E1_HI
     gs2=pt.old.FLOOR-pt.old.E2_HI
     need(gs1>0 and gs2>0,"source_true_energy_under_Q_floor")
-    op=21*U+ceildiv(abs(p)*gop,q)
+    op=21*gop+ceildiv(abs(p)*gop,q)
     c1=chord_upper(s1)
     c2=chord_upper(s2)
     e1=ceildiv(op*c1,U)
