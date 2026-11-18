@@ -1,0 +1,43 @@
+name: Y137 finite S3 metatag shell-overlap exact perturbation pilot
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-metatag-shell-overlap-20261117/**'
+      - '.github/workflows/y137-metatag-shell-overlap.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  gauge-invariant-overlap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Strict integer-only audit of source
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py independent/y137-metatag-shell-overlap-20261117/pilot.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - name: Source-based S3 gauge, Wilson, orbit-hash and min-max perturbation checks
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-metatag-shell
+          D=independent/y137-metatag-shell-overlap-20261117
+          python3 -I -B "$D/pilot.py" > build/y137-metatag-shell/RESULT.hbp
+          cat build/y137-metatag-shell/RESULT.hbp
+          grep -Fq 'META_S3_GAUGE|fixtures=256|gauge_tests=1536|translation_tests=768|' build/y137-metatag-shell/RESULT.hbp
+          grep -Fq 'flat_P_V_P=ZERO|P_V_Q=ZERO|positivity=ZERO_LE_V_LE_ALPHA_IDENTITY|' build/y137-metatag-shell/RESULT.hbp
+          grep -Fq 'alpha=1/64|alpha_nano=15625000|diagonal_nonnegative_gap_lower_nano=24052591|diagonal_verdict=POSITIVE_CONDITIONAL|' build/y137-metatag-shell/RESULT.hbp
+          grep -Fq 'alpha=1/32|alpha_nano=31250000|diagonal_nonnegative_gap_lower_nano=8427591|diagonal_verdict=POSITIVE_CONDITIONAL|' build/y137-metatag-shell/RESULT.hbp
+          grep -Fq 'alpha=1/16|alpha_nano=62500000|diagonal_nonnegative_gap_lower_nano=-22822409|diagonal_verdict=GAP_BUDGET_EXHAUSTED|' build/y137-metatag-shell/RESULT.hbp
+          grep -Fq 'META_TWO_CELL_EXCHANGE|overlap_parameter=1/2|state=3/5|10>-4i/5|01>|norm2=1|concurrence=24/25|' build/y137-metatag-shell/RESULT.hbp
+          grep -Fq 'original_Wilson_first_weight=HOLD|black_hole_EOS_and_GR=NOT_TESTED|continuum=OPEN|' build/y137-metatag-shell/RESULT.hbp
+          sha256sum "$D/pilot.py" "$D/README.md" > build/y137-metatag-shell/SOURCE.sha256
+          sha256sum build/y137-metatag-shell/RESULT.hbp > build/y137-metatag-shell/RESULT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-s3-metatag-shell-overlap-source-conditional
+          path: build/y137-metatag-shell/
+          if-no-files-found: ignore
+          retention-days: 90
