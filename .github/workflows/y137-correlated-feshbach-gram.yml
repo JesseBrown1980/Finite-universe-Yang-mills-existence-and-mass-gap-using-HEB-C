@@ -1,0 +1,45 @@
+name: Y137 original Wilson correlated Feshbach-Gram projector source
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-correlated-feshbach-gram-20261118/**'
+      - '.github/workflows/y137-correlated-feshbach-gram.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  correlated-gram-dark-witness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Exact source provenance and integer-only gates
+        run: |
+          set -euo pipefail
+          D=independent/y137-correlated-feshbach-gram-20261118
+          python3 -I -B native/scripts/integer_only_audit.py "$D/correlated_gram.py" "$D/verify.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object independent/y137-centered-source-flat-join-20261117/INPUT-CENTERED-O8-64.hbp)" = '61b9d1359f5cae2d19c3b4827ee942ca7dd085ea'
+          test "$(git hash-object independent/y137-parallel-flat-projector-contraction-20261117/INPUT-ORIGINAL-O8-64.hbp)" = '0d9ba8a202b2f77f2dbeb993af9d3f46a32c3024'
+          python3 -I -B "$D/correlated_gram.py" toy | tee /tmp/y137-gram-toy.hbp
+          grep -Fq '|shared_shift=PASS|weighted_W=PASS|two_energy_orthogonality=CONDITIONAL_EXACT|' /tmp/y137-gram-toy.hbp
+      - name: Frozen physical S3 Gram source, true angle bounds and independent signed margin replay
+        run: |
+          set -euo pipefail
+          D=independent/y137-correlated-feshbach-gram-20261118
+          mkdir -p build/y137-correlated-gram
+          python3 -I -B "$D/correlated_gram.py" real | tee build/y137-correlated-gram/RESULT.hbp
+          python3 -I -B "$D/verify.py" build/y137-correlated-gram/RESULT.hbp | tee build/y137-correlated-gram/REPLAY.hbp
+          grep -Fq '|candidate_count=10|' build/y137-correlated-gram/REPLAY.hbp
+          grep -Fq '|tamper_controls=6_REJECTED|' build/y137-correlated-gram/REPLAY.hbp
+          grep -Fq '|quantitative_original_weight=HOLD|' build/y137-correlated-gram/RESULT.hbp
+          sha256sum "$D/correlated_gram.py" "$D/verify.py" > build/y137-correlated-gram/SOURCE.sha256
+          sha256sum build/y137-correlated-gram/RESULT.hbp > build/y137-correlated-gram/RESULT.sha256
+          git rev-parse HEAD > build/y137-correlated-gram/COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-S3-correlated-Feshbach-Gram
+          path: build/y137-correlated-gram/
+          retention-days: 90
+          if-no-files-found: error
