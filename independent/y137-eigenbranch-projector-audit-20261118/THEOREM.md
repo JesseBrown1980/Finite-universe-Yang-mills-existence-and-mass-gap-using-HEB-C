@@ -112,3 +112,28 @@ The compressed singular separation is bounded more conservatively:
 The source's integer Schur bilinear matrices must first be divided by the original normalization D_original = DEN*UNIT^2 as defined in `recentred_angle.angle` to obtain physical J_E units; energy numerators must be divided by DEN. The new `source_window.py` enforces these conversions and tests the exact squared-sine criterion for both original matched E1/E2 witnesses. Its success still depends on formal source provenance, exact spectral endpoint branch identification and independent mathematical review, even when the interval arithmetic tests PASS.
 
 A failed sufficient inequality is a numerical HOLD, not evidence that the true Wilson transition vanishes.
+
+## Source-matched Q-resolvent and exact width eigenvalue refinement
+
+For t<=z, D>=gamma and R(t)=(D-t)^(-1), functional calculus gives ||R(t) B u|| <= ||R(z) B u|| for the same fixed normalized u. Suppose a source-authenticated q_upper(z,u) bounds the RHS. Then
+
+    ||Pi B*R(t)^2 B u|| <= ||B|| q_upper(z,u)/(gamma-z).
+
+This improves the projected-residual energy drift to
+
+    ||Pi S(E)u|| <= ||Pi T u||
+      + 1/2 sqrt(w_A * <u,A u>)
+      + ||B|| q_upper(z,u) * |E-z|/(gamma-z),
+
+where A=U-L>=0 and w_A is any exact upper on its W-generalized maximum eigenvalue. The previously used ||B||^2/(gamma-z)^2 bound remains for the *full compressed operator* perturbation unless separately strengthened.
+
+The original #187 full-state source supplies a norm enclosure for the historical flat direction v0. For a moved matched witness u, the triangle inequality and the accepted ||R(z) B|| <= ||B||/(gamma-z) transport that q norm by
+
+    q_upper(z,u) = q_upper(z,v0)
+                   + ||B||*||u-v0||/(gamma-z)
+
+with W-unit directions and outward-rounded roots. The numerical checker uses the historical exact integer q upper, original four-moment witness movement, original B_NORM_UP, and the pinned physical energy scale.
+
+The spectral upper w_A is obtained with exact 8x8 strict positive definiteness of w_A*W-A and rational bisection; a Frobenius upper is used only as a verified starting ceiling. This improves both the directional residual term and the compressed singular-value allowance, while every true-branch/source acceptance obligation stays separate.
+
+These are **additional sufficient conditional bounds**. A successful interval inequality would not independently authenticate the large full-Q source, whole Perron reconstruction, or original Wilson dual-action receipts.
