@@ -43,7 +43,24 @@ def interval(i,auth):
     # ||A|| <= ||A||_F for A = W^(-1) width.
     width_frob_sq=sum((width[j][k]**2/(WEIGHTS[j]*WEIGHTS[k])
                        for j in range(8) for k in range(8)),F(0))
-    width_norm=s.ceilrootfrac(width_frob_sq)
+    width_frob=s.ceilrootfrac(width_frob_sq)
+    # Exact eight-dimensional Loewner spectral-norm upper: A <= w W.
+    # The added 10^-12 ensures *strict* PD even at an exact eigenvalue.
+    def width_cert(t):
+        return c.pd([[((t*WEIGHTS[j] if j==k else F(0))-width[j][k])
+                       for k in range(8)] for j in range(8)])
+    high_width=width_frob+F(1,10**12)
+    c.need(width_cert(high_width),"weighted_width_spectral_initial_upper")
+    low_width=F(0)
+    for _ in range(14):
+        trial=(low_width+high_width)/2
+        if width_cert(trial):
+            high_width=trial
+        else:
+            low_width=trial
+    width_norm=high_width
+    c.need(width_cert(width_norm) and width_norm<=width_frob+F(1,10**12),
+           "weighted_width_spectral_final_upper")
     # -width/2 <= S(z)-T <= width/2.
     # E=(width)^(1/2) K (width)^(1/2)/2, ||K||<=1.
     # Hence ||E u|| <= 1/2 sqrt(||width|| <u,width u>).
@@ -61,9 +78,24 @@ def interval(i,auth):
     assert energy_hi<gamma
     B2=F(72)
     q_deriv=B2/(gamma-energy_hi)**2
-    # Since S'(E)=-I-B*R(E)^2B, its -I term annihilates
-    # under the witness-transverse projector; not under compression.
-    rho=residual+directional_error+q_deriv*shift
+    # For the *same matched* flat witness u, R(t) <= R(z) for t<=z
+    # in the commuting positive spectral calculus. The frozen original
+    # Q-norm for the historical witness transports to u via ||RB||.
+    c.need(b<=z,"directional_Q_monotonicity_requires_below_sample")
+    old_v=list(e.ra.ROWS[i][3])
+    moved_v=[int(t) for t in v]
+    dist=e.flat_distance(old_v,moved_v)
+    spread=e.ra.ceil_div(e.fw.B_NORM_UP*dist*e.DEN,
+                         e.UNIT*(e.FLOOR-z))
+    Q_upper=F(e.fw.Q_NORMS[i][1]+spread,e.UNIT)
+    B_upper=F(e.fw.B_NORM_UP,e.UNIT)
+    qder_directional=B_upper*Q_upper/(gamma-F(z)/den)
+    c.need(qder_directional<=q_deriv,
+           "directional_derivative_not_below_global")
+    # Since S'(t)=-I-B*R(t)^2B, the -I term vanishes under the
+    # transverse projector. ||B*R(t)^2 B u|| <= ||B|| ||R(t) B u||/
+    # (gamma-t), with both terms bounded uniformly for t<=z.
+    rho=residual+directional_error+qder_directional*shift
     delta_error=width_norm/2+(1+q_deriv)*shift
     pivot=max(range(8),key=lambda j:abs(WEIGHTS[j]*v[j]))
     assert v[pivot]
@@ -110,9 +142,15 @@ def interval(i,auth):
         "source_weight_metric":",".join(map(str,e.WF)),
         "physical_S_denominator":str(scale),
         "residual_mid_upper":str(residual),
-        "width_frobenius_upper":str(width_norm),
+        "width_frobenius_upper":str(width_frob),
+        "width_spectral_upper":str(width_norm),
+        "exact_width_spectral_bisection_steps":14,
         "directional_width_error_upper":str(directional_error),
-        "projected_Q_drift_upper":str(q_deriv*shift),
+        "source_moved_flat_distance_per_trillion":str(dist),
+        "source_Q_norm_upper":str(Q_upper),
+        "directional_Q_derivative_upper":str(qder_directional),
+        "projected_Q_drift_upper":str(qder_directional*shift),
+        "global_Q_drift_comparison":str(q_deriv*shift),
         "full_schur_drift_upper":str((1+q_deriv)*shift),
         "sample_coarse_power2_singular_lower":str(coarse),
         "sample_compressed_singular_lower":str(d0),
