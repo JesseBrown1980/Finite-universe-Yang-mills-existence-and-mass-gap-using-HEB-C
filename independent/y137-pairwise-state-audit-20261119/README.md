@@ -40,6 +40,20 @@ the original Stage C Rust generator.
    S3 weighted endpoint challenges. Source-free strict Rust toy rejects
    seven distinct forged pair/partition conditions.
 
+## Complete all-orbit pairwise reciprocity theorem
+
+[Exact root-fixed gauge-orbit reciprocity theorem](ORBIT-RECIPROCITY-THEOREM.md)
+proves `w_i*c_ij=w_j*c_ji` for **every** physical 3×4 `S3`
+electric pair by counting `6^11*w_i` full-link representatives and
+bijectively reversing each labeled involutive transposition move.
+It includes the entire `Q5↔Q5` principal graph and
+supported-to-flat transitions, independently of the numeric C-stage
+cross-block partitions. The original stored Q5-principal graph
+can be accepted from this **DERIVED** mathematical identity only
+together with faithful complete physical-state/72-move reconstruction;
+a second numerical exhaustive Q5-principal stored-pair audit is
+a distinct OPEN review option.
+
 ## Crucial scientific scope
 
 These 256 partitions represent the **new** original C-stage cross-block
