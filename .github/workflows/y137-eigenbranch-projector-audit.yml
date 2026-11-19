@@ -35,6 +35,11 @@ jobs:
           mkdir -p build/y137-eigenprojector
           python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/source_sample.py | tee build/y137-eigenprojector/samples.jsonl
           test "$(grep -c 'Y137_SCHUR_SAMPLE_DIAGNOSTIC' build/y137-eigenprojector/samples.jsonl)" = 2
+      - name: Original E1/E2 directional Schur interval angle calculation
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/source_window.py | tee build/y137-eigenprojector/interval.jsonl
+          test "$(grep -c 'Y137_SCHUR_INTERVAL_DIRECTIONAL' build/y137-eigenprojector/interval.jsonl)" = 2
       - uses: actions/upload-artifact@v4
         if: always()
         with:
