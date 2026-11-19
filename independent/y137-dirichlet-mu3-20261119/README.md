@@ -73,13 +73,17 @@ the identity implementation; **it is not a whole-Q source acceptance**.
    boundary counts; do not silently substitute the original B5
    Q5-principal matrix as a precomputed result in the new independent
    calculation.
-4. Require byte-identical entries to the original fully archived
+4. **Q5 principal independence is mandatory.** The original Stage C 256-partition `C-PAIR-*.bin` archives carry **139,517,148 new unordered non-Q5-principal pairs** and the original production imports the separate B5 `Q5↔Q5` principal matrix. A third independent full Dirichlet result must independently enumerate or regenerate the complete internal Q5↔Q5 pairs, not silently reuse the B5 matrix; it must separately check all original `125,005,512` raw Q5→Q5 move multiplicities and the Q5 exterior `1,088,585,976` raw move count. These are raw *move multiplicities*, not numbers of distinct unordered pairs; do not identify them with the 139,517,148 new pair count.
+
+5. Validate independent source support degrees on every row before applying the Dirichlet identity. For Q3/K3 and Q4 the original block counts are independently checked by their complete 72-move row census; Q5 must also preserve the full 72 moves, including the `Q5↔Q4` weighted reverse links and the external support-to-zero term. The fully independent matrix cannot be marked PASS from the 256 new pair partitions alone.
+
+6. Require byte-identical entries to the original fully archived
    signed-`mu3` matrix [#137 Stage C production](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/43894461180),
    exact 64/64 symmetry at each energy, and complete 20M-source provenance.
    Reject source signs, missing crossings, wrong energy, factor-six,
    nonreciprocal flux, omitted 72-move exterior boundaries and
    exact-arithmetic overflow.
-5. Only then consider independent Stage C full-source acceptance.
+7. Only then consider independent Stage C full-source acceptance.
    Stage D exact rational angle/Wilson arithmetic and formal Perron
    full-store verification still require the distinct final review
    gates.
