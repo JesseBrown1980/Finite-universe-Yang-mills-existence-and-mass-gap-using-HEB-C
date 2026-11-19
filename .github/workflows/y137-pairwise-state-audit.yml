@@ -1,0 +1,97 @@
+name: Y137 independent full pairwise physical state audit
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-pairwise-state-audit-20261119/**'
+      - '.github/workflows/y137-pairwise-state-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  independent-pair-toy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - name: Strict standalone Rust 1.81 physical pairwise auditor
+        run: |
+          set -euo pipefail
+          rustc --edition=2021 -D warnings -O \
+            independent/y137-pairwise-state-audit-20261119/pair_audit.rs \
+            -o /tmp/y137_pair_audit
+          /tmp/y137_pair_audit toy | tee /tmp/y137-pair-toy.hbp
+          grep -Fq '|planted_pair_tampers=7_REJECTED|' /tmp/y137-pair-toy.hbp
+      - name: Preserve global strict source-only integer policy
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+
+  complete-pairwise-archive:
+    needs: independent-pair-toy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - name: Download frozen 256-part original physical cross-block pair state archives
+        run: |
+          set -euo pipefail
+          df -h .
+          mkdir -p build/y137-pair-audit/archive build/y137-pair-audit/receipts
+          gh run download 43873674889 --repo "$GITHUB_REPOSITORY" \
+            --name y137-worker1-c-full-threeblock-256-pair-archives \
+            --dir build/y137-pair-audit/archive
+          gh run download 43873674889 --repo "$GITHUB_REPOSITORY" \
+            --name y137-worker1-c-full-threeblock-exact-graph-receipt \
+            --dir build/y137-pair-audit/receipts
+          test "$(find build/y137-pair-audit/archive -maxdepth 1 \
+            -name 'C-PAIR-*.bin' | wc -l)" -eq 256
+          test -s build/y137-pair-audit/receipts/PAIR-PARTITIONS.sha256
+          # The original signed SHA manifest names its original build path.
+          # Preserve that byte-exact manifest (and its pinned hash) by adding a
+          # read-only locator rather than rewriting any manifest entry.
+          mkdir -p build/y137-c-graph
+          ln -s ../y137-pair-audit/archive build/y137-c-graph/pairs
+          test -s build/y137-c-graph/pairs/C-PAIR-000.bin
+          df -h .
+      - name: Verify all 256 original partition SHA256 hashes before independent audit
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' \
+            'dda57b417ecb0bd0dd51842013981ef483ede7ddc509066786ce861ef277c027' \
+            build/y137-pair-audit/receipts/PAIR-PARTITIONS.sha256 \
+            | sha256sum -c -
+          sha256sum -c build/y137-pair-audit/receipts/PAIR-PARTITIONS.sha256 \
+            | tee build/y137-pair-audit/receipts/ORIGINAL-256-SHA-PASS.hbp
+          test "$(grep -c ': OK$' \
+            build/y137-pair-audit/receipts/ORIGINAL-256-SHA-PASS.hbp)" -eq 256
+      - name: Rebuild weighted reciprocal pairs and independently test physical S3 endpoints
+        run: |
+          set -euo pipefail
+          rustc --edition=2021 -D warnings -O \
+            independent/y137-pairwise-state-audit-20261119/pair_audit.rs \
+            -o build/y137-pair-audit/pair_audit
+          /usr/bin/time -v build/y137-pair-audit/pair_audit real \
+            build/y137-pair-audit/archive \
+            independent/y137-mu3-real-20261115/RESULT-WORKER1-C-EXACT-CROSS-GRAPH-20261116.hbp \
+            | tee build/y137-pair-audit/receipts/INDEPENDENT-PAIR-VERDICT.hbp
+          grep -Fq '|original_partition_digests=256_OF_256_PASS|' \
+            build/y137-pair-audit/receipts/INDEPENDENT-PAIR-VERDICT.hbp
+          grep -Fq '|all_reverse_weighted_edges=PASS|all_original_partition_routes=PASS|' \
+            build/y137-pair-audit/receipts/INDEPENDENT-PAIR-VERDICT.hbp
+          grep -Fq '|Q5_Q5_principal=SEPARATE_FULL_GATE|' \
+            build/y137-pair-audit/receipts/INDEPENDENT-PAIR-VERDICT.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-exhaustive-cross-pairwise-audit
+          path: |
+            build/y137-pair-audit/receipts/ORIGINAL-256-SHA-PASS.hbp
+            build/y137-pair-audit/receipts/INDEPENDENT-PAIR-VERDICT.hbp
+          retention-days: 60
+          if-no-files-found: warn
