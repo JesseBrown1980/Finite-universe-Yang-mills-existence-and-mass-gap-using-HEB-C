@@ -183,6 +183,7 @@ fn validate_pair_chunk(mut edges:Vec<Edge>,part_id:usize,rule:&S3,
     let mut flux_sum=0u64;
     let mut sampled=0u64;
     let mut i=0usize;
+    let sample_stride=(edges.len()/2/FULL_CHALLENGE_PER_PART).max(1) as u64;
     while i<edges.len(){
         let a=edges[i];
         check(a.lo<a.hi && a.hi<B && a.signed!=0,"valid_canonical_pair_and_nonzero_flux")?;
@@ -198,7 +199,7 @@ fn validate_pair_chunk(mut edges:Vec<Edge>,part_id:usize,rule:&S3,
         check(1<=positive && positive<=432,"weighted_flux_domain")?;
         fnv(&mut h,a.lo);fnv(&mut h,a.hi);fnv(&mut h,positive);
         accepted+=1;flux_sum+=positive;
-        if physics && (accepted==1||accepted%8192==0)&&sampled<FULL_CHALLENGE_PER_PART as u64{
+        if physics && ((accepted-1)%sample_stride==0)&&sampled<FULL_CHALLENGE_PER_PART as u64{
             let left=rule.decode(a.lo);
             let right=rule.decode(a.hi);
             check(rule.address(rule.canonical(rule.expand(left)))==a.lo &&
