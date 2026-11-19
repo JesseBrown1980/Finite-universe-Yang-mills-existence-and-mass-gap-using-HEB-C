@@ -82,3 +82,33 @@ For each energy produce one fail-closed signed machine-readable row:
 - stage-to-stage hash references and independent false-input controls
 
 Until the interval-valid delta/rho values have been generated, label the Stage E transfer **THEOREM FORMULATED / NUMERICAL PREMISES OPEN**, not PASS.
+
+## Directional Loewner refinement and interval drift (second numerical test)
+
+The frozen-sample source run #44444792307 passed execution and returned sampled angle HOLD for both E1 and E2 using a conservative *global* operator-envelope penalty. Its actual midpoint projected residuals were tiny (3.62e-10 and 4.20e-9 in that run's common-midpoint normalization); the normalized global half-width bounds were about 0.0005166 and 0.0007783. These numbers are diagnostics, not physical angle certificates.
+
+Here is a sharper valid estimate. In the physical W-flat Hilbert space let L <= S(z) <= U and let A=U-L >=0, T=(L+U)/2. Let u be a unit matched flat witness. The symmetric operator E=S(z)-T satisfies -A/2 <= E <= A/2; hence there is a self-adjoint contraction J on the range of A with E=A^(1/2) J A^(1/2)/2. Consequently
+
+    ||E u|| <= (1/2) sqrt( ||A|| * <u,A u> ).
+
+This bound is *directional* and can be much smaller than ||A||/2. Both ||A|| and <u,A u> admit exact-rational upper bounds using the original W-bilinear matrix and source witness. A weighted Frobenius upper ||A||_F supplies a safe bound on ||A||.
+
+With z the frozen source energy and true E in [a,b], let bmax=max(z,b)<gamma and h=max(|z-a|,|z-b|). The whole-Q resolvent derivative obeys
+
+    S'(t) = -I - B* (D-t)^(-2) B.
+
+The projected residual of the identity term vanishes because Pi u=0. Thus with ||B||^2 <= 72:
+
+    ||Pi S(E)u|| <= ||Pi T u||
+      + (1/2) sqrt(||A|| * <u,A u>)
+      + 72*h/(gamma-bmax)^2.
+
+The compressed singular separation is bounded more conservatively:
+
+    sigma_min(C(E)) >= sigma_min(C(T))
+      - ||A||/2
+      - (1+72/(gamma-bmax)^2)*h.
+
+The source's integer Schur bilinear matrices must first be divided by the original normalization D_original = DEN*UNIT^2 as defined in `recentred_angle.angle` to obtain physical J_E units; energy numerators must be divided by DEN. The new `source_window.py` enforces these conversions and tests the exact squared-sine criterion for both original matched E1/E2 witnesses. Its success still depends on formal source provenance, exact spectral endpoint branch identification and independent mathematical review, even when the interval arithmetic tests PASS.
+
+A failed sufficient inequality is a numerical HOLD, not evidence that the true Wilson transition vanishes.
