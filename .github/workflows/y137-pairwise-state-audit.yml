@@ -52,6 +52,12 @@ jobs:
           test "$(find build/y137-pair-audit/archive -maxdepth 1 \
             -name 'C-PAIR-*.bin' | wc -l)" -eq 256
           test -s build/y137-pair-audit/receipts/PAIR-PARTITIONS.sha256
+          # The original signed SHA manifest names its original build path.
+          # Preserve that byte-exact manifest (and its pinned hash) by adding a
+          # read-only locator rather than rewriting any manifest entry.
+          mkdir -p build/y137-c-graph
+          ln -s ../y137-pair-audit/archive build/y137-c-graph/pairs
+          test -s build/y137-c-graph/pairs/C-PAIR-000.bin
           df -h .
       - name: Verify all 256 original partition SHA256 hashes before independent audit
         run: |
