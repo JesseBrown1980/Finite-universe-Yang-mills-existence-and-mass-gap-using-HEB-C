@@ -24,8 +24,18 @@ def ceilrootfrac(x,den=10**12):
     if v*v<n:v+=1
     return F(v,den)
 
+def as_fraction(x):
+    # Historical Stage D defines its own rational type with (n,d) fields.
+    # Explicit conversion avoids silently introducing floating point.
+    if isinstance(x, F):
+        return x
+    if hasattr(x, "n") and hasattr(x, "d"):
+        return F(int(x.n), int(x.d))
+    return F(x)
+
 def midpoint(A,B):
-    return [[(F(A[i][j])+F(B[i][j]))/2 for j in range(8)] for i in range(8)]
+    return [[(as_fraction(A[i][j])+as_fraction(B[i][j]))/2
+             for j in range(8)] for i in range(8)]
 
 def certificate(i,authentic):
     z,lo,hi,v0,_,gap,_=e.ra.ROWS[i]
@@ -48,7 +58,6 @@ def certificate(i,authentic):
         mu0=ang["mu"]-ang["extra"]-e.ra.ceil_div(drift*e.UNIT,e.DEN)
         sep=(windows[1][0]-windows[0][1])*e.UNIT//e.DEN if i==0 else min(windows[1][0]-windows[0][1],e.ra.E3_LO-windows[1][1])*e.UNIT//e.DEN
         full=e.fw.compose(ang["Hcenter"]+ang["action"],mu0,sep,z,windows[i][0],windows[i][1],qlo,qhi)
-        sine= e.ra.ceil_div(full["error"]*e.UNIT, e.UNIT) # direct full-state distance; order by true published flat sine below
         # The published flat_sine conversion is a strictly monotone function of direct error.
         options.append((full["error"],k,v))
     _,k,v=min(options)
@@ -56,8 +65,8 @@ def certificate(i,authentic):
     T=midpoint(L,U)
     scale=max(abs(x) for row in T for x in row)
     assert scale>0
-    low=[[F(x)/scale for x in row] for row in L]
-    high=[[F(x)/scale for x in row] for row in U]
+    low=[[as_fraction(x)/scale for x in row] for row in L]
+    high=[[as_fraction(x)/scale for x in row] for row in U]
     T=midpoint(low,high)
     W=[F(x) for x in e.WF]
     norm=sum(W[j]*v[j]*v[j] for j in range(8))
@@ -65,8 +74,11 @@ def certificate(i,authentic):
     avg=sum(W[j]*v[j]*Tv[j] for j in range(8))/norm
     rsq=sum(W[j]*(Tv[j]-avg*v[j])**2 for j in range(8))/norm
     err=ceilrootfrac(rsq)
-    w=sum(abs((high[j][k]-low[j][k])/(2)) / ceilrootfrac(W[j]*W[k]) for j in range(8) for k in range(8))
-    # This entrywise bound on weighted Frobenius norm is intentionally conservative.
+    # Outward upper bound on the weighted Frobenius operator norm of
+    # (U-L)/2; never divide by an upper bound for sqrt(W_i W_j).
+    envelope_sq=sum(((high[j][k]-low[j][k])/2)**2/(W[j]*W[k])
+                    for j in range(8) for k in range(8))
+    w=ceilrootfrac(envelope_sq)
     eta=w
     pivot=next(j for j in range(8) if v[j])
     vectors=[]
