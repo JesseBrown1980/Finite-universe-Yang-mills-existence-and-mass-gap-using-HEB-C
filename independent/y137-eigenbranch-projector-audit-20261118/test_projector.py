@@ -2,6 +2,9 @@
 """Controls for exact conditional projector checker; synthetic only."""
 from fractions import Fraction as F
 import copy
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import check_projector as c
 
 def fixture():
