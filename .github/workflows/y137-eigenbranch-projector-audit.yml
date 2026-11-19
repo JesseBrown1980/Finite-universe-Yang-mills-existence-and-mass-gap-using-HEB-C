@@ -48,6 +48,20 @@ jobs:
           python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/source_branch.py toy
           python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/source_branch.py real | tee build/y137-eigenprojector/branch.jsonl
           test "$(grep -c 'Y137_ENDPOINT_BRANCH' build/y137-eigenprojector/branch.jsonl)" = 2
+      - name: Producer-free exact E1/E2 interval theorem receipt replay
+        run: |
+          set -euo pipefail
+          D=independent/y137-eigenbranch-projector-audit-20261118
+          python3 -I -B "$D/replay_interval.py" \
+            build/y137-eigenprojector/interval.jsonl build/y137-eigenprojector/branch.jsonl \
+            | tee build/y137-eigenprojector/INDEPENDENT-REPLAY.hbp
+          grep -Fq '|two_original_projector_angles=PASS|two_true_eigenbranches=PASS|tamper_controls=10_REJECTED|' \
+            build/y137-eigenprojector/INDEPENDENT-REPLAY.hbp
+          python3 -O -I -B "$D/replay_interval.py" \
+            build/y137-eigenprojector/interval.jsonl build/y137-eigenprojector/branch.jsonl \
+            > build/y137-eigenprojector/INDEPENDENT-REPLAY-OPTIMIZED.hbp
+          grep -Fq '|tamper_controls=10_REJECTED|' \
+            build/y137-eigenprojector/INDEPENDENT-REPLAY-OPTIMIZED.hbp
       - uses: actions/upload-artifact@v4
         if: always()
         with:
