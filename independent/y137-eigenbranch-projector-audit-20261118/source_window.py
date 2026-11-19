@@ -87,6 +87,20 @@ def interval(i,auth):
     while candidate>F(1,2**40) and not cert(candidate):
         candidate/=2
     d0=candidate if cert(candidate) else F(0)
+    # The historical first pass used a coarse power-of-two lower. Preserve
+    # it as a regression and improve using 12 exact rational bisections.
+    coarse=d0
+    if coarse>0:
+        lower, upper=coarse, 2*coarse
+        assert cert(lower) and not cert(upper), "failed strict singular bracket"
+        for _ in range(12):
+            middle=(lower+upper)/2
+            if cert(middle):
+                lower=middle
+            else:
+                upper=middle
+        d0=lower
+        assert d0>=coarse and cert(d0) and not cert(upper)
     delta=d0-delta_error
     target=F((2362700330,5047836049)[i],10**12)
     verified=(delta>0 and rho*rho*(1-target*target)<=target*target*delta*delta)
@@ -100,7 +114,9 @@ def interval(i,auth):
         "directional_width_error_upper":str(directional_error),
         "projected_Q_drift_upper":str(q_deriv*shift),
         "full_schur_drift_upper":str((1+q_deriv)*shift),
+        "sample_coarse_power2_singular_lower":str(coarse),
         "sample_compressed_singular_lower":str(d0),
+        "exact_singular_bisection_steps":12,
         "interval_compressed_singular_lower":str(delta),
         "interval_projected_residual_upper":str(rho),
         "target_sine":str(target),
