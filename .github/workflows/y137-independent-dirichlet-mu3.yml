@@ -1,0 +1,31 @@
+name: Y137 independent weighted Dirichlet third moment identity
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-dirichlet-mu3-20261119/**'
+      - '.github/workflows/y137-independent-dirichlet-mu3.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-source-free-dirichlet:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Two original-energy 8x8 exact integer Dirichlet identity checks
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-dirichlet-mu3-20261119/dirichlet_identity.py toy \
+            | tee /tmp/y137-dirichlet-toy.hbp
+          grep -Fq '|two_8x8_matrices_128_entries=EXACT|' /tmp/y137-dirichlet-toy.hbp
+          grep -Fq '|altered_source_boundary_factor_energy_pair_controls=8_REJECTED|' \
+            /tmp/y137-dirichlet-toy.hbp
+          grep -Fq '|full_20M_signed_mu3=INDEPENDENT_RECOMPUTATION_OPEN|' \
+            /tmp/y137-dirichlet-toy.hbp
+      - name: All source-only integer and no-floating-point controls unchanged
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py \
+            independent/y137-dirichlet-mu3-20261119/dirichlet_identity.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
