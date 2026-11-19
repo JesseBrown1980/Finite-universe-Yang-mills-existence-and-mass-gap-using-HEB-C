@@ -76,7 +76,7 @@ def corruptions(row):
     for col,change in (
         ("group","8"),("K3_challenged_rows","26"),
         ("Q4_challenged_rows","80"),("exact_signed_lanes","0"),
-        ("independent_raw_moves","7776"),("K3_original_archive_SHA","HOLD"),
+        ("independent_raw_moves","7775"),("K3_original_archive_SHA","HOLD"),
         ("Q4_original_archive_SHA","HOLD"),("signed_V1_two_energies","HOLD"),
         ("whole_Q_mu3","INDEPENDENT_PASS"),("first_Wilson_weight","PASS")):
         a=dict(row);a[col]=change;cases.append(a)
