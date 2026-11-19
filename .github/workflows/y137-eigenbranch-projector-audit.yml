@@ -17,3 +17,27 @@ jobs:
           python-version: '3.11'
       - name: Exact rational positive toy and 8 negative controls
         run: python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/test_projector.py
+
+  original-signed-source-samples:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve the immutable research-source commit
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin d0fd29b2fbef1f38ba9d3db381e133f2d131ffdc
+          test "$(git rev-parse FETCH_HEAD)" = d0fd29b2fbef1f38ba9d3db381e133f2d131ffdc
+          git checkout FETCH_HEAD -- independent/y137-four-moment-fullstate-20261116 independent/y137-independent-premise-audit-20261118 independent/y137-mu3-real-20261115 independent/y137-mu3-acceptance-20261115 independent/y137-moment-radau-20261114 independent/y137-radau-recentred-angle-20261114 independent/y137-radau-fullstate-windows-20261115 independent/y137-shell4-diagonal-cache-20261114 independent/y137-real-Q-moment-20261114 independent/y137-d11-shell5-spill-20261114
+      - name: Frozen E1/E2 source-linked 8x8 sample diagnostics
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-eigenprojector
+          python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/source_sample.py | tee build/y137-eigenprojector/samples.jsonl
+          test "$(grep -c 'Y137_SCHUR_SAMPLE_DIAGNOSTIC' build/y137-eigenprojector/samples.jsonl)" = 2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-signed-schur-frozen-sample-diagnostic
+          path: build/y137-eigenprojector/
+          if-no-files-found: warn
