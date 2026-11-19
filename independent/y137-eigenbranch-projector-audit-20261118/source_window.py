@@ -8,9 +8,11 @@ from the *projected residual* but included in compressed separation. No original
 Wilson result is promoted. All branch and source provenance gates remain distinct.
 """
 import json
+import os
 import sys
 from fractions import Fraction as F
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import source_sample as s
 import check_projector as c
 e=s.e
