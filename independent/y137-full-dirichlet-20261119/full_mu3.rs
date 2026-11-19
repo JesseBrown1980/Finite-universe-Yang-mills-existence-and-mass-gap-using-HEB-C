@@ -485,6 +485,21 @@ fn main(){
     let args:Vec<String>=std::env::args().collect();
     let result=match args.as_slice(){
         [_,cmd] if cmd=="toy"=>toy(),
+        [_,cmd,shard,signed,q5] if cmd=="real-both"=> {
+            let g=shard.parse::<usize>().map_err(|e|e.to_string());
+            match g{
+                Ok(g) if g<8=>{
+                    let mut outcome=Ok(());
+                    for i in 0..2{
+                        outcome=load_all(Path::new(signed),Path::new(q5),i)
+                            .and_then(|source|evaluate(&source,i,g));
+                        if outcome.is_err(){break;}
+                    }
+                    outcome
+                },
+                _=>Err("eight_disjoint_original_full_source_shards".into())
+            }
+        },
         [_,cmd,sample,shard,signed,q5] if cmd=="real"=>{
             let i=sample.parse::<usize>().map_err(|e|e.to_string());
             let g=shard.parse::<usize>().map_err(|e|e.to_string());
@@ -495,7 +510,7 @@ fn main(){
                 _=>Err("two_original_sample_or_eight_shard_range".into()),
             }
         }
-        _=>Err("usage: full_mu3 toy | real SAMPLE_0_1 SHARD_0_7 SIGNED_DIR Q5_DIR".into()),
+        _=>Err("usage: full_mu3 toy | real-both SHARD_0_7 SIGNED_DIR Q5_DIR | real SAMPLE SHARD SIGNED_DIR Q5_DIR".into()),
     };
     if let Err(e)=result{
         eprintln!("Y137_INDEPENDENT_FULL_DIRICHLET_HOLD|reason={}|full_mu3=OPEN|first_Wilson=FORMAL_HOLD|json=0",e.replace('|',"_"));
