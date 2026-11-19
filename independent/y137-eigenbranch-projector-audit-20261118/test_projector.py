@@ -23,7 +23,7 @@ def reject(a):
 
 def main():
     a=fixture()
-    assert c.verify(a)["status"]=="CONDITIONAL_NUMERICAL_PASS"
+    c.need(c.verify(a)["status"]=="CONDITIONAL_NUMERICAL_PASS", "synthetic_positive_control")
     bad=[]
     x=copy.deepcopy(a);x["envelope_norm_upper"]="0";bad.append(x)
     x=copy.deepcopy(a);x["projected_residual_upper"]="0";bad.append(x)
