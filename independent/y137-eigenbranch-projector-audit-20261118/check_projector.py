@@ -7,6 +7,9 @@ import json
 import sys
 from fractions import Fraction as F
 
+def need(ok, msg):
+    if not ok: raise ValueError(msg)
+
 def q(x):
     if isinstance(x,float): raise ValueError("float forbidden")
     return F(str(x))
@@ -40,29 +43,29 @@ def pd(A):
     return True
 def verify(a):
     W=[q(t) for t in a["weights"]];n=len(W)
-    assert n==8 and all(t>0 for t in W)
+    need(n==8 and all(t>0 for t in W), 'positive_W_8')
     L,U=M(a["schur_lower"]),M(a["schur_upper"])
-    assert len(L)==len(U)==n and all(len(r)==n for r in L+U)
-    assert all(L[i][j]==L[j][i] and U[i][j]==U[j][i] for i in range(n) for j in range(n))
+    need(len(L)==len(U)==n and all(len(r)==n for r in L+U), '8x8_shapes')
+    need(all(L[i][j]==L[j][i] and U[i][j]==U[j][i] for i in range(n) for j in range(n)), 'W_bilinear_symmetry')
     D=diff(U,L)
-    assert pd(D),"strict Loewner ordering not certified"
+    need(pd(D), 'strict_Loewner_ordering_not_certified')
     u=[q(t) for t in a["witness"]]
-    assert len(u)==n
-    nu=sum((W[i]*u[i]**2 for i in range(n)),F(0));assert nu>0
+    need(len(u)==n, 'witness_dimension')
+    nu=sum((W[i]*u[i]**2 for i in range(n)),F(0));need(nu>0, 'positive_witness_norm')
     z,gamma,b,drift=[q(a[k]) for k in ("sample_energy","gamma","upper_energy","window_drift")]
-    assert z<=b<gamma and drift>=abs(b-z)
-    bn=q(a["coupling_norm_sq_upper"]);assert bn>=0
+    need(z<=b<gamma and drift>=abs(b-z), 'energy_window')
+    bn=q(a['coupling_norm_sq_upper']);need(bn>=0, 'coupling_cap')
     T=[[(L[i][j]+U[i][j])/(2*W[i]) for j in range(n)] for i in range(n)]
     Tu=[sum((T[i][j]*u[j] for j in range(n)),F(0)) for i in range(n)]
     alpha=sum((W[i]*u[i]*Tu[i] for i in range(n)),F(0))/nu
     rsq=sum((W[i]*(Tu[i]-alpha*u[i])**2 for i in range(n)),F(0))/nu
     wsq=sum((D[i][j]**2/(4*W[i]*W[j]) for i in range(n) for j in range(n)),F(0))
-    w=q(a["envelope_norm_upper"]);assert w>=0 and w*w>=wsq
+    w=q(a['envelope_norm_upper']);need(w>=0 and w*w>=wsq, 'weighted_envelope_bound')
     eta=w+(1+bn/(gamma-b)**2)*drift
     rho=q(a["projected_residual_upper"]);delta=q(a["compressed_singular_lower"])
     target=q(a["target_sine_upper"])
-    assert rho>=eta and delta>0 and 0<target<1
-    assert (rho-eta)**2>=rsq,"residual upper failed"
+    need(rho>=eta and delta>0 and 0<target<1, 'positive_projector_inputs')
+    need((rho-eta)**2>=rsq, 'residual_upper_failed')
     pivot=next(i for i in range(n) if u[i])
     cols=[]
     for j in range(n):
@@ -72,14 +75,14 @@ def verify(a):
     B=transpose(cols)
     G=[[sum((W[k]*B[k][i]*B[k][j] for k in range(n)),F(0))
        for j in range(n-1)] for i in range(n-1)]
-    assert pd(G)
+    need(pd(G), 'positive_seven_dimensional_Gram')
     K=[[sum((B[k][i]*(L[k][l]+U[k][l])*B[l][j]/2
              for k in range(n) for l in range(n)),F(0))
        for j in range(n-1)] for i in range(n-1)]
-    assert all(K[i][j]==K[j][i] for i in range(n-1) for j in range(n-1))
+    need(all(K[i][j]==K[j][i] for i in range(n-1) for j in range(n-1)), 'compressed_Schur_symmetry')
     gap=delta+eta
-    assert pd(diff(mul(mul(K,inverse(G)),K),scaled(G,gap*gap))),"singular lower failed"
-    assert rho*rho*(1-target*target)<=target*target*delta*delta,"target sine failed"
+    need(pd(diff(mul(mul(K,inverse(G)),K),scaled(G,gap*gap))), 'compressed_singular_bound_failed')
+    need(rho*rho*(1-target*target)<=target*target*delta*delta, 'target_sine_failed')
     return {"status":"CONDITIONAL_NUMERICAL_PASS","rho":str(rho),
             "delta":str(delta),"eta":str(eta),"target":str(target),
             "projector_angle":"PASS",
@@ -88,7 +91,7 @@ def verify(a):
             "first_wilson":"FORMAL_HOLD"}
 def main():
     try:
-        assert len(sys.argv)==2,"usage: check_projector.py input.json"
+        need(len(sys.argv)==2, 'usage: check_projector.py input.json')
         with open(sys.argv[1],encoding="utf-8") as h:
             a=json.load(h,parse_float=lambda _: (_ for _ in ()).throw(ValueError("float forbidden")))
         result=verify(a);code=0
