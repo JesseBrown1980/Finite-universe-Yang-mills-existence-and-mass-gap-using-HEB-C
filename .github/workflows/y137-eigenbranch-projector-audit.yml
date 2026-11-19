@@ -16,7 +16,9 @@ jobs:
         with:
           python-version: '3.11'
       - name: Exact rational positive toy and 8 negative controls
-        run: python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/test_projector.py
+        run: |
+          python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/test_projector.py
+          python3 -O -I -B independent/y137-eigenbranch-projector-audit-20261118/test_projector.py
 
   original-signed-source-samples:
     runs-on: ubuntu-latest
