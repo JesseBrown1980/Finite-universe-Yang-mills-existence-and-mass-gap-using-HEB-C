@@ -258,7 +258,7 @@ fn take_exact(reader:&mut impl Read,n:usize)->Result<Vec<u8>,String>{
     Ok(out)
 }
 fn bytes_u64(s:&[u8])->Result<u64,String>{
-    let x:<[u8;8]>=s.try_into().map_err(|_|"bad_u64_buffer")?;
+    let x: [u8;8] = s.try_into().map_err(|_|"bad_u64_buffer")?;
     Ok(u64::from_le_bytes(x))
 }
 fn read_signed(path:&Path,shell:u8,sample:usize,all:&mut Sources)->Result<usize,String>{
@@ -307,7 +307,7 @@ fn unpack82(input:&[u8])->Result<[i128;COLS],String>{
         let start=82*lane;
         let byte=start/8;
         let shift=start%8;
-        let block:<[u8;16]>=padded[byte..byte+16].try_into()
+        let block: [u8;16] = padded[byte..byte+16].try_into()
             .map_err(|_|"Q5_lane_window")?;
         let number=(u128::from_le_bytes(block)>>shift)&U82;
         let physical=number*B as u128;
@@ -467,10 +467,10 @@ fn toy()->Result<(),String>{
     let mut z=x;z.add(&y)?;
     require(z==Int320::default(),"exact_signed_320_cancellation")?;
     let v=Int320::multiply((1i128<<110)+1,(1i128<<109)+1,1_000_000_000)?;
-    require(v.decimal()=="6959708428107618027355061365701298719437696875367137578914606145430273415476737",
+    require(v.decimal()=="842498333348457493583344221469365405662482713764753588970611277825000000000",
             "exact_320_integer_golden_product")?;
     let lane=1u128<<81;
-    let mut packed=vec![0u8;82];
+    let mut packed=vec![0u8;11];
     let u=lane;
     packed[..11].copy_from_slice(&u.to_le_bytes()[..11]);
     let decoded=unpack82(&packed)?;
