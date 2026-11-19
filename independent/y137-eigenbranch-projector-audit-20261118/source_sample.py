@@ -29,9 +29,11 @@ def as_fraction(x):
     # Explicit conversion avoids silently introducing floating point.
     if isinstance(x, F):
         return x
-    if hasattr(x, "n") and hasattr(x, "d"):
-        return F(int(x.n), int(x.d))
-    return F(x)
+    if hasattr(x, "numerator") and hasattr(x, "denominator"):
+        return F(int(x.numerator), int(x.denominator))
+    if isinstance(x, int):
+        return F(x)
+    raise TypeError("unsupported exact rational source: " + type(x).__name__)
 
 def midpoint(A,B):
     return [[(as_fraction(A[i][j])+as_fraction(B[i][j]))/2
@@ -80,7 +82,8 @@ def certificate(i,authentic):
                     for j in range(8) for k in range(8))
     w=ceilrootfrac(envelope_sq)
     eta=w
-    pivot=next(j for j in range(8) if v[j])
+    pivot=max(range(8),key=lambda j:abs(W[j]*v[j]))
+    assert v[pivot]
     vectors=[]
     for j in range(8):
         if j==pivot:continue
@@ -113,6 +116,9 @@ def certificate(i,authentic):
 def main():
     with open(e.source.MU3_FILE,encoding="ascii") as f:
         authentic=e.source.parse_pinned_mu3(f.read())
-    out=[certificate(i,authentic) for i in range(2)]
-    for item in out:print("Y137_SCHUR_SAMPLE_DIAGNOSTIC|"+json.dumps(item,sort_keys=True))
+    assert as_fraction(e.exact.Ratio(2,3))==F(2,3)
+    print("Y137_RATIO_ADAPTER|original_Ratio=PASS|json=0",flush=True)
+    for i in range(2):
+        item=certificate(i,authentic)
+        print("Y137_SCHUR_SAMPLE_DIAGNOSTIC|"+json.dumps(item,sort_keys=True),flush=True)
 if __name__=="__main__":main()
