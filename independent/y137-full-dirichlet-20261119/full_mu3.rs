@@ -453,6 +453,65 @@ fn evaluate(sources:&Sources,sample:usize,shard:usize)->Result<(),String>{
         ENERGIES[sample],flat.join(","),encode(&result),started.elapsed().as_secs());
     Ok(())
 }
+fn toy_dirichlet()->Result<(),String>{
+    // Two distinct exact original-energy signed 8x8 matrix calculations:
+    // full symmetric row regrouping vs supported-edge Dirichlet squares.
+    let w=[1i64,2,3];
+    let mag=[5i64,7,9];
+    let edges=[[0i64,2,3],[1,0,3],[1,2,0]];
+    let exterior=[67i64,68,69];
+    let v=[
+        [3i128,-5,7,-11,13,-17,19,-23],
+        [-29,31,-37,41,-43,47,-53,59],
+        [61,-67,71,-73,79,-83,89,-97],
+    ];
+    for &z in &ENERGIES {
+        let mut symmetric=blank();
+        let mut dirichlet=blank();
+        for i in 0..3 {
+            require(exterior[i]+edges[i].iter().sum::<i64>()==72,
+                    "source_free_full_72_raw_moves")?;
+            let mut near=[0i128;COLS];
+            for (j,other) in v.iter().enumerate(){
+                for k in 0..COLS {near[k]+=i128::from(edges[i][j])*other[k];}
+                require(w[i]*edges[i][j]==w[j]*edges[j][i],
+                        "source_free_weighted_pair_reciprocity")?;
+            }
+            let d=6*w[i]*(B*(72+9*mag[i])-z);
+            let cross=-3*w[i]*B;
+            let effective=6*w[i]*(B*(9*mag[i]+exterior[i])-z);
+            for a in 0..COLS {for b in a..COLS{
+                for (x,y,c) in [
+                    (v[i][a],v[i][b],d),
+                    (v[i][a],near[b],cross),
+                    (near[a],v[i][b],cross)
+                ]{
+                    symmetric[a][b].add(&Int320::multiply(x,y,c)?)?;
+                }
+                dirichlet[a][b].add(&Int320::multiply(v[i][a],v[i][b],effective)?)?;
+            }}
+        }
+        for i in 0..3 {for j in (i+1)..3{
+            let coef=6*w[i]*B*edges[i][j];
+            for a in 0..COLS {for b in a..COLS{
+                dirichlet[a][b].add(&Int320::multiply(
+                    v[i][a]-v[j][a],v[i][b]-v[j][b],coef)?)?;
+            }}
+        }}
+        for a in 0..COLS {for b in 0..a{
+            symmetric[a][b]=symmetric[b][a];
+            dirichlet[a][b]=dirichlet[b][a];
+        }}
+        require(symmetric==dirichlet,
+                "independent_8x8_symmetric_row_vs_Dirichlet_difference_identity")?;
+        let mut corrupted=dirichlet;
+        corrupted[0][0].add(&Int320::multiply(v[0][0],v[0][0],-6*w[0]*B)?)?;
+        require(corrupted!=symmetric,
+                "missing_original_support_zero_boundary_refused")?;
+    }
+    Ok(())
+}
+
 fn toy()->Result<(),String>{
     let rule=Gauge::new()?;
     let zero=[0;13];
@@ -478,7 +537,8 @@ fn toy()->Result<(),String>{
             decoded[1..].iter().all(|&x|x==0),
             "original_Q5_82bit_packed_lanes")?;
     require(K3+Q4+Q5==N,"frozen_20M_threeblock_support")?;
-    println!("Y137_INDEPENDENT_FULL_DIRICHLET_TOY|S3_gauge_72moves=PASS|original_threeblock_support=20738636|signed_320_integer_golden=PASS|Q5_physical_82bit_packed=PASS|full_original_third_moment=NOT_RUN|no_B5_precomputed_principal=PASS|json=0");
+    toy_dirichlet()?;
+    println!("Y137_INDEPENDENT_FULL_DIRICHLET_TOY|S3_gauge_72moves=PASS|original_threeblock_support=20738636|signed_320_integer_golden=PASS|Q5_physical_82bit_packed=PASS|two_8x8_Dirichlet_toy_matrices=128_ENTRIES_PASS|full_original_third_moment=NOT_RUN|no_B5_precomputed_principal=PASS|json=0");
     Ok(())
 }
 fn main(){
