@@ -1,0 +1,111 @@
+name: Y137 independent signed K3 Q4 source challenge
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-source-challenge-20261119/**'
+      - '.github/workflows/y137-independent-source-challenge.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-toys:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Independent S3 72-move and deterministic source challenge controls
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-source-challenge-20261119/source_challenge.py \
+            | tee /tmp/y137-source-challenge-toy.hbp
+          python3 -I -B independent/y137-source-challenge-20261119/aggregate.py toy \
+            | tee /tmp/y137-source-challenge-fanin-toy.hbp
+          grep -Fq '|selected_K3_per_part=27|selected_Q4_per_part=81|' \
+            /tmp/y137-source-challenge-toy.hbp
+          grep -Fq '|tamper_controls=10_REJECTED|' \
+            /tmp/y137-source-challenge-fanin-toy.hbp
+      - name: Verify repository no-floating policy unchanged
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+          python3 -I -X utf8 native/scripts/integer_only_audit.py \
+            independent/y137-source-challenge-20261119/source_challenge.py
+          python3 -I -X utf8 native/scripts/integer_only_audit.py \
+            independent/y137-source-challenge-20261119/aggregate.py
+
+  physical-source-challenges:
+    needs: source-toys
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [0,1,2,3,4,5,6,7]
+    env:
+      C_GROUP: ${{ matrix.group }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve independently hashed historical full-signed physical sources
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-source-challenge/k3 build/y137-source-challenge/q4
+          gh run download 43867088509 --repo "$GITHUB_REPOSITORY" \
+            --name y137-stage-c-full-signed-K3 \
+            --dir build/y137-source-challenge/k3
+          gh run download 43867088509 --repo "$GITHUB_REPOSITORY" \
+            --name "y137-stage-c-full-signed-Q4-${C_GROUP}" \
+            --dir build/y137-source-challenge/q4
+          test -s build/y137-source-challenge/k3/SIGNED-K3.v1
+          test -s "build/y137-source-challenge/q4/SIGNED-Q4-${C_GROUP}.v1"
+      - name: Rebuild 27 K3 and 81 Q4 physical signed V1 rows from independent S3 moves
+        env:
+          Y137_CHALLENGE_MODE: real
+          Y137_CHALLENGE_GROUP: ${{ matrix.group }}
+          Y137_CHALLENGE_K3: build/y137-source-challenge/k3/SIGNED-K3.v1
+          Y137_CHALLENGE_Q4: build/y137-source-challenge/q4/SIGNED-Q4-${{ matrix.group }}.v1
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-source-challenge-20261119/source_challenge.py \
+            | tee "build/y137-source-challenge/GROUP-${C_GROUP}.hbp"
+          grep -Fq '|K3_original_archive_SHA=PASS|Q4_original_archive_SHA=PASS' \
+            "build/y137-source-challenge/GROUP-${C_GROUP}.hbp"
+          grep -Fq '|independent_S3_72moves=PASS|signed_V1_two_energies=PASS|' \
+            "build/y137-source-challenge/GROUP-${C_GROUP}.hbp"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-source-challenge-${{ matrix.group }}
+          path: build/y137-source-challenge/GROUP-${{ matrix.group }}.hbp
+          retention-days: 60
+          if-no-files-found: warn
+
+  exact-fanin:
+    needs: physical-source-challenges
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-independent-source-challenge-*
+          path: build/y137-source-challenge
+          merge-multiple: true
+      - name: Exact independent 864-row source challenge fan-in
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-source-challenge-20261119/aggregate.py \
+            aggregate build/y137-source-challenge \
+            | tee build/y137-source-challenge/FANIN.hbp
+          grep -Fq '|K3_Q4_archive_SHA=9_OF_9_PASS|S3_graph_and_signed_V1=SOURCE_CHALLENGE_PASS|' \
+            build/y137-source-challenge/FANIN.hbp
+          grep -Fq '|whole_Q_mu3=INDEPENDENT_RECONSTRUCTION_OPEN|' \
+            build/y137-source-challenge/FANIN.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-signed-source-challenge-fanin
+          path: build/y137-source-challenge/
+          retention-days: 60
+          if-no-files-found: warn
