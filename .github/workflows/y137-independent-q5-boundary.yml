@@ -1,0 +1,105 @@
+name: Y137 independently reconstruct original Q5 physical V1 boundary
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-q5-boundary-20261119/**'
+      - '.github/workflows/y137-independent-q5-boundary.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  q5-boundary-toys:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Independent original Q5 boundary source toys and receipt tampering
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-q5-boundary-20261119/q5_boundary.py \
+            | tee /tmp/y137-q5-source-toy.hbp
+          python3 -I -B independent/y137-q5-boundary-20261119/aggregate.py toy \
+            | tee /tmp/y137-q5-source-aggregate-toy.hbp
+          grep -Fq '|packed_eight_82bit_lanes=PASS|' /tmp/y137-q5-source-toy.hbp
+          grep -Fq '|bad_receipts=11_REJECTED|' /tmp/y137-q5-source-aggregate-toy.hbp
+      - name: Enforce existing exact integer and no-float gates
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/integer_only_audit.py \
+            independent/y137-q5-boundary-20261119/q5_boundary.py
+          python3 -I -X utf8 native/scripts/integer_only_audit.py \
+            independent/y137-q5-boundary-20261119/aggregate.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+
+  original-q5-physical-boundary:
+    needs: q5-boundary-toys
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [0,1,2,3,4,5,6,7]
+    env:
+      GH_TOKEN: ${{ github.token }}
+      G: ${{ matrix.group }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve one immutable original Q5 source group from frozen run
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-q5-boundary
+          gh run download 43615270310 --repo "$GITHUB_REPOSITORY" \
+            --name "y137-d11-v1-actual-Q5-group${G}" \
+            --dir build/y137-q5-boundary
+          test -s "build/y137-q5-boundary/GROUP-${G}.v1"
+      - name: Reconstruct original Q5 V1 over all 72 moves on 27 SHA-selected real states
+        env:
+          Y137_Q5_MODE: real
+          Y137_Q5_GROUP: ${{ matrix.group }}
+          Y137_Q5_ARCHIVE: build/y137-q5-boundary/GROUP-${{ matrix.group }}.v1
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-q5-boundary-20261119/q5_boundary.py \
+            | tee "build/y137-q5-boundary/GROUP-${G}.hbp"
+          grep -Fq '|original_Q5_archive_identity=PASS|independent_S3_and_Q4_boundary=PASS|' \
+            "build/y137-q5-boundary/GROUP-${G}.hbp"
+          grep -Fq '|two_original_Q5_packed_amplitudes=EXACT|' \
+            "build/y137-q5-boundary/GROUP-${G}.hbp"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-Q5-physical-boundary-${{ matrix.group }}
+          path: build/y137-q5-boundary/GROUP-${{ matrix.group }}.hbp
+          retention-days: 60
+          if-no-files-found: warn
+
+  q5-exact-fanin:
+    needs: original-q5-physical-boundary
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-independent-Q5-physical-boundary-*
+          path: build/y137-q5-boundary
+          merge-multiple: true
+      - name: Fail closed on eight real source receipts and 11 forged receipts
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-q5-boundary-20261119/aggregate.py \
+            aggregate build/y137-q5-boundary \
+            | tee build/y137-q5-boundary/FANIN.hbp
+          grep -Fq '|independent_Q5_from_Q4_source=PASS|corrupt_receipts=11_REJECTED|' \
+            build/y137-q5-boundary/FANIN.hbp
+          grep -Fq '|whole_Q_mu3=INDEPENDENT_RECONSTRUCTION_OPEN|' \
+            build/y137-q5-boundary/FANIN.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-Q5-boundary-fanin
+          path: build/y137-q5-boundary/FANIN.hbp
+          retention-days: 60
+          if-no-files-found: warn
