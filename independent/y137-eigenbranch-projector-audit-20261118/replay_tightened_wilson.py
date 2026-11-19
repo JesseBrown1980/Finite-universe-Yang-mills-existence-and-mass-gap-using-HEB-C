@@ -134,9 +134,6 @@ def verify(raw,intervals,branches,samples):
         checks.test_one(i,intervals[i],branches[i])
         sample=samples[i]
         need(sample.get("sample_num")==checks.SAMPLES[i] and
-             sample.get("source_selected_k","MISSING")==4 if False else True,
-             "source_sample") # selected fraction checked explicitly below
-        need(sample.get("sample_num")==checks.SAMPLES[i] and
              sample.get("selected_fraction_num")==4 and
              sample.get("selected_fraction_den")==4,"sample_matched_k4")
         v=tuple(map(int,sample["source_matched_direction"].split(",")))
