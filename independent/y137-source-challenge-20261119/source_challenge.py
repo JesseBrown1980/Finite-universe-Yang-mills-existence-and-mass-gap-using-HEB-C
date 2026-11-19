@@ -18,10 +18,9 @@ import sys
 HERE=os.path.dirname(os.path.abspath(__file__))
 ROOT=os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0,os.path.join(ROOT,"independent","y137-real-Q-moment-20261114"))
-old_argv=sys.argv[:]
-sys.argv=sys.argv[:1]
+# Accept run parameters via the process environment so the historical
+# source import sees the original no-argument Python program invocation.
 import mu1_shard as frozen_source
-sys.argv=old_argv
 sys.path.insert(0,os.path.join(ROOT,"independent","y137-d11-shell5-spill-20261114"))
 import independent_move_rule as rule
 
@@ -265,18 +264,22 @@ def toy():
           "|selected_K3_per_part=27|selected_Q4_per_part=81"+
           "|real_signed_sources=NOT_RUN|json=0",flush=True)
 
-def main(args):
+def main():
     try:
-        if args==["toy"]:
+        need(len(sys.argv)==1,"unexpected_cli_arguments")
+        mode=os.environ.get("Y137_CHALLENGE_MODE","toy")
+        if mode=="toy":
             toy()
-        elif len(args)==4 and args[0]=="real":
-            challenge(int(args[1]),args[2],args[3])
+        elif mode=="real":
+            group=int(os.environ["Y137_CHALLENGE_GROUP"])
+            challenge(group,os.environ["Y137_CHALLENGE_K3"],
+                      os.environ["Y137_CHALLENGE_Q4"])
         else:
-            raise Refuse("usage_toy_or_real_GROUP_K3_SPOOL_Q4_SPOOL")
+            raise Refuse("usage_Y137_CHALLENGE_MODE_toy_or_real")
     except (Refuse,KeyError,ValueError,OSError,OverflowError,MemoryError) as e:
         print("Y137_INDEPENDENT_SOURCE_CHALLENGE_HOLD|reason="+str(e)+
               "|first_Wilson_weight=FORMAL_HOLD|json=0",flush=True)
         raise SystemExit(1) from None
 
 if __name__=="__main__":
-    main(sys.argv[1:])
+    main()
