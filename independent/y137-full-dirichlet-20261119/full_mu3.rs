@@ -477,7 +477,7 @@ fn toy()->Result<(),String>{
     require(decoded[0]==(lane*B as u128) as i128 &&
             decoded[1..].iter().all(|&x|x==0),
             "original_Q5_82bit_packed_lanes")?;
-    require(K3+Q4+Q5==N,"frozen_20M_threeblock_support");
+    require(K3+Q4+Q5==N,"frozen_20M_threeblock_support")?;
     println!("Y137_INDEPENDENT_FULL_DIRICHLET_TOY|S3_gauge_72moves=PASS|original_threeblock_support=20738636|signed_320_integer_golden=PASS|Q5_physical_82bit_packed=PASS|full_original_third_moment=NOT_RUN|no_B5_precomputed_principal=PASS|json=0");
     Ok(())
 }
