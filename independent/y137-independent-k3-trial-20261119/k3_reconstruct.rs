@@ -513,7 +513,7 @@ fn expected_matrix_digits(source:&Path,z:u128,field:&str)
            "original_8x8_matrix_shape")?;
     Ok(result)
 }
-fn compare_original_G(source:&Path,z:u128,gram:[[Int320;LANE_COUNT];LANE_COUNT])
+fn compare_original_g(source:&Path,z:u128,gram:[[Int320;LANE_COUNT];LANE_COUNT])
       ->Result<(),String>{
     let original=expected_matrix_digits(source,z,"G0")?;
     for i in 0..LANE_COUNT{for j in 0..LANE_COUNT{
@@ -554,7 +554,7 @@ fn exact_u(rows:&[QRow],y:&[[u128;LANE_COUNT]],
             .all(|j|u[i][j]==u[j][i])),"new_exact_K3_U_matrix_symmetry")?;
     Ok(u)
 }
-fn expected_source_U(path:&Path,z:u128)
+fn expected_source_u(path:&Path,z:u128)
       ->Result<[[i128;LANE_COUNT];LANE_COUNT],String>{
     let text=std::fs::read_to_string(path).map_err(|e|e.to_string())?;
     let lines=text.lines().filter(|l|l.starts_with("Y137_CACHE_POINT|"))
@@ -575,9 +575,9 @@ fn expected_source_U(path:&Path,z:u128)
     }
     Ok(out)
 }
-fn compare_U_source(path:&Path,z:u128,
+fn compare_u_source(path:&Path,z:u128,
       observed:[[i128;LANE_COUNT];LANE_COUNT])->Result<(),String>{
-    let original=expected_source_U(path,z)?;
+    let original=expected_source_u(path,z)?;
     for i in 0..LANE_COUNT{for j in 0..LANE_COUNT{
         require(observed[i][j]==original[i][j],
                 &format!("new_K3_U0_mismatch_energy_{z}_row_{i}_column_{j}"))?;
@@ -608,8 +608,8 @@ fn execute(archive:&Path,source:&Path)->Result<(),String>{
     for &energy in &ENERGY{
         let y=jacobi(&states,energy)?;
         let r=residuals(&states,&y,energy)?;
-        compare_U_source(source,energy,exact_u(&states,&y,&r,energy)?)?;
-        compare_original_G(source,energy,full_source_gram(&rule,&states,&y,&r)?)?;
+        compare_u_source(source,energy,exact_u(&states,&y,&r,energy)?)?;
+        compare_original_g(source,energy,full_source_gram(&rule,&states,&y,&r)?)?;
     }
     println!("Y137_INDEPENDENT_K3_VERDICT|K3=155378|two_original_energy_trials=20_JACOBI_EACH|original_U0_matrix_entries=128_OF_128_MATCH|original_G0_matrix_entries=128_OF_128_MATCH|original_K3_Q4_R_source=INDEPENDENTLY_GENERATED|original_K3_support_and_weights=FULL_PASS|original_Q4_residual=SEPARATE_FULL_SOURCE_GATE|original_StageC_signed_V1=SEPARATE_SOURCE_GATE|whole_Perron_store=SEPARATE_GATE|Wilson=SOURCE_CONDITIONAL_FORMAL_HOLD|elapsed_seconds={}|json=0",start.elapsed().as_secs());
     Ok(())
