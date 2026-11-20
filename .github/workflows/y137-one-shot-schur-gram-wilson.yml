@@ -1,0 +1,48 @@
+name: Y137 exact Schur Gram centered Wilson shortcut
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-one-shot-schur-gram-wilson-20261120/**'
+      - '.github/workflows/y137-one-shot-schur-gram-wilson.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  schur-gram-center-exact:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exact independent Schur-Gram shift, minimax center and filter thresholds
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-schur-gram
+          python3 -I -B independent/y137-one-shot-schur-gram-wilson-20261120/check_shortcut.py \
+            | tee build/y137-schur-gram/SHORTCUT.hbp
+          grep -Fq '|full_Wilson_Gram_shift=PASS|' build/y137-schur-gram/SHORTCUT.hbp || \
+            grep -Fq '|math=PASS|' build/y137-schur-gram/SHORTCUT.hbp
+          grep -Fq '|new_O7_norm=21|' build/y137-schur-gram/SHORTCUT.hbp
+          grep -Fq '|cheb14_old_ppt=13006928810|' build/y137-schur-gram/SHORTCUT.hbp
+          grep -Fq '|cheb14_new_ppt=9104850167|' build/y137-schur-gram/SHORTCUT.hbp
+          grep -Fq '|cheb15_old_ppt=7864055405|' build/y137-schur-gram/SHORTCUT.hbp
+          grep -Fq '|original_Wilson=FORMAL_HOLD|' build/y137-schur-gram/SHORTCUT.hbp
+      - name: Optimized Python result must be byte-identical
+        run: |
+          set -euo pipefail
+          python3 -O -I -B independent/y137-one-shot-schur-gram-wilson-20261120/check_shortcut.py \
+            > build/y137-schur-gram/SHORTCUT-OPTIMIZED.hbp
+          cmp build/y137-schur-gram/SHORTCUT.hbp build/y137-schur-gram/SHORTCUT-OPTIMIZED.hbp
+      - name: Integer-only and no-float policies
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py \
+            independent/y137-one-shot-schur-gram-wilson-20261120/check_shortcut.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          sha256sum build/y137-schur-gram/SHORTCUT.hbp \
+            > build/y137-schur-gram/SHORTCUT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-exact-schur-gram-center-one-shot-receipt
+          path: build/y137-schur-gram
+          retention-days: 60
