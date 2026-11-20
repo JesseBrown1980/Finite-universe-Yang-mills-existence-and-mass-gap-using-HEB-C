@@ -1,0 +1,98 @@
+name: GitRAM triadic wave readouts 9 to 2187 (r12 only)
+on:
+  push:
+    paths:
+      - '.github/workflows/gitram-ym-r12-triadic-readouts.yml'
+      - 'independent/gitram-ym-r12-spectrum-20261112/triadic_wave_readouts.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: triadic-r12-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  replay:
+    name: Exact finite-core replica ${{ matrix.replica }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [1, 2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Retrieve pinned cutoff-9 at r12 (never r9)
+        uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43222707802
+          github-token: ${{ github.token }}
+          name: gitram-cutoff-9
+          path: source
+      - name: Verify immutable source
+        run: |
+          set -euo pipefail
+          (cd source && sha256sum -c SHA256SUMS)
+          printf '%s  %s\n' 865dae9216a87a0ed1caa0594c1273eb36f9785c6b4984815384a254ff670d78 source/rows.txt | sha256sum -c -
+      - name: Full-wave reversible test and six nested readout scales
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          python3 -B independent/gitram-ym-r12-spectrum-20261112/nine_leaf_play.py source evidence/NINE-BASELINE.hbp > evidence/nine.log
+          python3 -B independent/gitram-ym-r12-spectrum-20261112/triadic_wave_readouts.py source evidence/TRIADIC-READOUTS.hbp > evidence/triadic.log
+          (cd evidence && sha256sum -c NINE-BASELINE.hbp.sha256 && sha256sum -c TRIADIC-READOUTS.hbp.sha256)
+          grep -q '^GATE|NINE_LEAVES|PASS|' evidence/NINE-BASELINE.hbp
+          grep -q '^GITRAM_TRIADIC_WAVE_READOUTS_PASS|levels=6|largest=2187|' evidence/TRIADIC-READOUTS.hbp
+          test "$(grep -c '^LEVEL|leaves=' evidence/TRIADIC-READOUTS.hbp)" -eq 6
+          test "$(grep -c '^MEASURE|leaves=' evidence/TRIADIC-READOUTS.hbp)" -eq 24
+          grep -q '^LIMIT|new_independent_ternary_columns=0|new_physical_lattice_scales=0|' evidence/TRIADIC-READOUTS.hbp
+          (cd evidence && sha256sum NINE-BASELINE.hbp TRIADIC-READOUTS.hbp nine.log triadic.log > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - name: Upload complete evidence, including failed runs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitram-triadic-r12-replica-${{ matrix.replica }}
+          retention-days: 30
+          if-no-files-found: warn
+          path: evidence/
+  seal:
+    name: All-or-nothing exact triadic seal
+    needs: replay
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gitram-triadic-r12-replica-*
+          path: collected
+          merge-multiple: false
+      - name: Check both receipts and exact replica equality
+        run: |
+          set -euo pipefail
+          test '${{ needs.replay.result }}' = 'success'
+          test "$(find collected -mindepth 1 -maxdepth 1 -type d -name 'gitram-triadic-r12-replica-*' | wc -l)" -eq 2
+          for seat in 1 2; do
+            p="collected/gitram-triadic-r12-replica-$seat"
+            (cd "$p" && sha256sum -c SHA256SUMS && sha256sum -c TRIADIC-READOUTS.hbp.sha256)
+          done
+          cmp collected/gitram-triadic-r12-replica-1/TRIADIC-READOUTS.hbp collected/gitram-triadic-r12-replica-2/TRIADIC-READOUTS.hbp
+          cmp collected/gitram-triadic-r12-replica-1/NINE-BASELINE.hbp collected/gitram-triadic-r12-replica-2/NINE-BASELINE.hbp
+          {
+            echo 'SEAL|schema=GITRAM-TRIADIC-WAVE-READOUTS-V1|replicas=2|r=12|classes=2880|readouts=9,27,81,243,729,2187|new_spatial_scales=0|json=0'
+            cat collected/gitram-triadic-r12-replica-1/TRIADIC-READOUTS.hbp
+            echo 'GITRAM_TRIADIC_READOUTS_SEAL_PASS|replicas=2|sha256=PASS|matching_bytes=1|continuum=UNPROVED|json=0'
+          } > TRIADIC-SEALED.hbp
+          sha256sum TRIADIC-SEALED.hbp > TRIADIC-SEALED.hbp.sha256
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: gitram-triadic-wave-readouts-r12-sealed
+          retention-days: 30
+          path: |
+            TRIADIC-SEALED.hbp
+            TRIADIC-SEALED.hbp.sha256

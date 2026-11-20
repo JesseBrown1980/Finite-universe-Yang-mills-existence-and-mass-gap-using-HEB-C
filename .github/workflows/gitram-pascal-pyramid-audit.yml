@@ -1,0 +1,60 @@
+name: GitRAM Pascal-pyramid frozen trit audit
+on:
+  push:
+    paths:
+      - '.github/workflows/gitram-pascal-pyramid-audit.yml'
+      - 'independent/gitram-ym-r12-spectrum-20261112/pascal_pyramid_audit.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit:
+    name: Exact baseline nine-trit composition and dissent
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          repository: JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C
+          run-id: 43231913054
+          github-token: ${{ github.token }}
+          name: gitram-nineleaf-replica-1
+          path: source
+      - name: Authenticate source and baseline composition
+        run: |
+          set -euo pipefail
+          (cd source/results && sha256sum -c SHA256SUMS)
+          printf '%s  %s\n' 2220ee3a11c66281b586de77f44999c06e863f0e9f83509a867047048326bbc7 source/results/NINE-LEAVES-FROZEN.hbp | sha256sum -c -
+          python3 -B independent/gitram-ym-r12-spectrum-20261112/pascal_pyramid_audit.py source/results/NINE-LEAVES-FROZEN.hbp results/PASCAL-PYRAMID-9.hbp 2220ee3a11c66281b586de77f44999c06e863f0e9f83509a867047048326bbc7
+          (cd results && sha256sum -c PASCAL-PYRAMID-9.hbp.sha256)
+          grep -q '^GEOMETRY|corners=110|edges=496|interior=76|compositions=38|possible_compositions=55|unique_labeled_patterns=148|' results/PASCAL-PYRAMID-9.hbp
+          grep -q '^DISSENTER|column=0|rows=305|' results/PASCAL-PYRAMID-9.hbp
+          grep -q '^PAIR_MARGINS|tables=36|' results/PASCAL-PYRAMID-9.hbp
+          grep -q '^GITRAM_PASCAL_PYRAMID_AUDIT_PASS|columns=9|rows=682|' results/PASCAL-PYRAMID-9.hbp
+          (cd results && sha256sum PASCAL-PYRAMID-9.hbp > SHA256SUMS)
+      - name: Mutation controls
+        run: |
+          set -euo pipefail
+          if python3 -B independent/gitram-ym-r12-spectrum-20261112/pascal_pyramid_audit.py source/results/NINE-LEAVES-FROZEN.hbp /tmp/WRONG.hbp 0000000000000000000000000000000000000000000000000000000000000000 >/dev/null 2>&1; then
+            echo 'MUTATION_CONTROL_FAILED: wrong pinned hash accepted'
+            exit 1
+          fi
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('source/results/NINE-LEAVES-FROZEN.hbp')
+          rows=p.read_text().splitlines()
+          rows[1],rows[2]=rows[2],rows[1]
+          Path('/tmp/out-of-order.hbp').write_text('\n'.join(rows)+'\n')
+          PY
+          if python3 -B independent/gitram-ym-r12-spectrum-20261112/pascal_pyramid_audit.py /tmp/out-of-order.hbp /tmp/WRONG.hbp >/dev/null 2>&1; then
+            echo 'MUTATION_CONTROL_FAILED: non-canonical key order accepted'
+            exit 1
+          fi
+          echo 'PASCAL_AUDIT_MUTATIONS_REJECTED'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gitram-pascal-pyramid-nine-exact-audit
+          retention-days: 30
+          path: results/
