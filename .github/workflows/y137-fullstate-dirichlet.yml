@@ -1,0 +1,131 @@
+name: Y137 independent full 20M Dirichlet signed third moment
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-full-dirichlet-20261119/**'
+      - '.github/workflows/y137-fullstate-dirichlet.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  strict-source-free-toys:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - name: Compile Rust 1.81 independent signed-320 source and S3 gauge
+        run: |
+          set -euo pipefail
+          rustc --edition=2021 -D warnings -O independent/y137-full-dirichlet-20261119/full_mu3.rs -o /tmp/y137_full_mu3
+          /tmp/y137_full_mu3 toy | tee /tmp/y137-full-mu3-toy.hbp
+          grep -Fq '|signed_320_integer_golden=PASS|' /tmp/y137-full-mu3-toy.hbp
+          grep -Fq '|no_B5_precomputed_principal=PASS|' /tmp/y137-full-mu3-toy.hbp
+      - name: Independent Python exact fan-in toy and no-float policy
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-full-dirichlet-20261119/accept.py toy | tee /tmp/y137-full-mu3-accept-toy.hbp
+          grep -Fq '|tampered_receipts=12_REJECTED|' /tmp/y137-full-mu3-accept-toy.hbp
+          python3 -I -X utf8 native/scripts/integer_only_audit.py independent/y137-full-dirichlet-20261119/accept.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+  full-physical-source-and-operator:
+    needs: strict-source-free-toys
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7]
+    env:
+      SHARD: ${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - name: Download all original archived K3 Q4 signed physical sources
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43867088509
+          github-token: ${{ github.token }}
+          pattern: y137-stage-c-full-signed-*
+          path: build/y137-full/signed
+          merge-multiple: true
+      - name: Download all original Q5 physical V1/b sources
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 43615270310
+          github-token: ${{ github.token }}
+          pattern: y137-d11-v1-actual-Q5-group*
+          path: build/y137-full/q5
+          merge-multiple: true
+      - name: Verify complete SHA256 identities of all 17 original physical source files
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-full/receipts
+          sha256sum -c independent/y137-full-dirichlet-20261119/SOURCE-SHA256.txt | tee build/y137-full/receipts/PHYSICAL-SOURCES-SHA256.hbp
+          test "$(grep -c ': OK$' build/y137-full/receipts/PHYSICAL-SOURCES-SHA256.hbp)" -eq 17
+          df -h .
+          free -h
+      - name: Compile independent exact-320 physical Dirichlet reenumerator
+        run: |
+          set -euo pipefail
+          rustc --edition=2021 -D warnings -O independent/y137-full-dirichlet-20261119/full_mu3.rs -o build/y137-full/dirichlet_mu3
+      - name: Rebuild physical S3 rows and complete Q5 principal for both original energies
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v build/y137-full/dirichlet_mu3 real-both "$SHARD" build/y137-full/signed build/y137-full/q5 \
+            | tee "build/y137-full/receipts/WHOLE-SHARD-$SHARD.hbp"
+          test "$(grep -c '^Y137_INDEPENDENT_FULL_DIRICHLET_SHARD|' "build/y137-full/receipts/WHOLE-SHARD-$SHARD.hbp")" -eq 2
+          for s in 0 1; do
+            if test "$s" -eq 0; then Z=69909875505; else Z=69949729820; fi
+            grep "^Y137_INDEPENDENT_FULL_DIRICHLET_SHARD|sample_num=$Z|shard=$SHARD|" "build/y137-full/receipts/WHOLE-SHARD-$SHARD.hbp" \
+              > "build/y137-full/receipts/RESULT-$s-$SHARD.hbp"
+            test "$(wc -l < "build/y137-full/receipts/RESULT-$s-$SHARD.hbp")" -eq 1
+            grep -Fq '|Q5_principal=REBUILT_NOT_IMPORTED|' "build/y137-full/receipts/RESULT-$s-$SHARD.hbp"
+          done
+          sha256sum build/y137-full/receipts/RESULT-*.hbp > "build/y137-full/receipts/RESULT-SHA256-$SHARD.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-full-dirichlet-shard-${{ matrix.shard }}
+          path: |
+            build/y137-full/receipts/RESULT-*.hbp
+            build/y137-full/receipts/RESULT-SHA256-*.txt
+            build/y137-full/receipts/PHYSICAL-SOURCES-SHA256.hbp
+          retention-days: 60
+          if-no-files-found: warn
+  independently-accept-both-full-8x8:
+    needs: full-physical-source-and-operator
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-independent-full-dirichlet-shard-*
+          path: build/y137-full/aggregate
+          merge-multiple: true
+      - name: Independent Python exact 128-entry original third-moment comparison
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-full-dirichlet-20261119/accept.py real \
+            build/y137-full/aggregate independent/y137-mu3-real-20261115/RESULT-WORKER1-C-FULL-SIGNED-MU3-TWO-ENERGY-20261116.hbp \
+            | tee build/y137-full/aggregate/RESULT-INDEPENDENT-FULL-DIRICHLET.hbp
+          grep -Fq '|original_8x8_signed_entries=128_OF_128_EXACT|' build/y137-full/aggregate/RESULT-INDEPENDENT-FULL-DIRICHLET.hbp
+          grep -Fq '|Q5_principal=RECOMPUTED_FROM_ORIGINAL_SOURCE_NO_B5_IMPORT|' build/y137-full/aggregate/RESULT-INDEPENDENT-FULL-DIRICHLET.hbp
+          grep -Fq '|modified_partial_receipts=12_REJECTED|' build/y137-full/aggregate/RESULT-INDEPENDENT-FULL-DIRICHLET.hbp
+      - name: Seal exact independently recalculated two-energy matrices
+        run: |
+          set -euo pipefail
+          sha256sum build/y137-full/aggregate/RESULT-INDEPENDENT-FULL-DIRICHLET.hbp > build/y137-full/aggregate/RESULT-INDEPENDENT-FULL-DIRICHLET.sha256
+          git rev-parse HEAD > build/y137-full/aggregate/SOURCE-COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-full-dirichlet-two-energy-acceptance
+          path: |
+            build/y137-full/aggregate/RESULT-INDEPENDENT-FULL-DIRICHLET.hbp
+            build/y137-full/aggregate/RESULT-INDEPENDENT-FULL-DIRICHLET.sha256
+            build/y137-full/aggregate/SOURCE-COMMIT.txt
+          retention-days: 60
+          if-no-files-found: warn
