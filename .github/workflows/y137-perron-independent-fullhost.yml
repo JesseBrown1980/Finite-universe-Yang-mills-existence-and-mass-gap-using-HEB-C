@@ -5,6 +5,12 @@ on:
       - 'independent/y137-perron-hosted-stream-20261119/**'
       - '.github/workflows/y137-perron-independent-fullhost.yml'
   workflow_dispatch:
+    inputs:
+      full_replay:
+        description: 'Explicitly rerun all 45,508,080 physical rows (composite check runs by default)'
+        required: false
+        default: false
+        type: boolean
 permissions:
   contents: read
 jobs:
@@ -28,6 +34,7 @@ jobs:
           sha256sum native/ym/results/3x4_stream/perron/second-seat/fullrebuild.rs
           echo '2e9ea99595f29efb53b7a1430e5ea4b7369396e1c70fefc7ab794cdd0b915850  native/ym/results/3x4_stream/perron/second-seat/fullrebuild.rs' | sha256sum -c -
   independent-last-sector-sha-probe:
+    if: github.event_name == 'workflow_dispatch' && inputs.full_replay
     needs: fullhost-source-free-controls
     runs-on: ubuntu-24.04
     timeout-minutes: 90
@@ -48,6 +55,7 @@ jobs:
           retention-days: 60
           if-no-files-found: warn
   complete-independent-machine-rebuild:
+    if: github.event_name == 'workflow_dispatch' && inputs.full_replay
     needs: [fullhost-source-free-controls, independent-last-sector-sha-probe]
     runs-on: ubuntu-24.04
     timeout-minutes: 360
@@ -111,5 +119,63 @@ jobs:
             build/y137-perron-hosted/FULLREBUILD-SECOND-MACHINE.err
             build/y137-perron-hosted/SECOND-MACHINE-EVIDENCE.sha256
             build/y137-perron-hosted/FINAL-VERDICT.hbp
+          retention-days: 60
+          if-no-files-found: warn
+  independent-composite-34-sector-source-acceptance:
+    needs: fullhost-source-free-controls
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve original immutable hosted full-row and full-last-sector receipts
+        run: |
+          set -euo pipefail
+          DIR=build/y137-perron-composite
+          mkdir -p "$DIR/probe"
+          gh run download 44749925095 --repo "$GITHUB_REPOSITORY" \
+            --name y137-complete-perron-fresh-host-rebuild --dir "$DIR"
+          gh run download 44749925095 --repo "$GITHUB_REPOSITORY" \
+            --name y137-independent-frozen-sector374-sha-diagnostic \
+            --dir "$DIR/probe"
+          test -s "$DIR/FULLREBUILD-SECOND-MACHINE.out"
+          test -s "$DIR/STREAM-ORIGINAL-SHA.log"
+          test -s "$DIR/probe/RESULT-LAST-SECTOR.hbp"
+      - name: Independently parse pinned source, proof receipts, and six altered-premise controls
+        run: |
+          set -euo pipefail
+          DIR=build/y137-perron-composite
+          python3 -I -B independent/y137-perron-hosted-stream-20261119/composite_accept.py toy "$DIR" \
+            | tee "$DIR/COMPOSITE-TOY.hbp"
+          grep -Fq '|six_changed_sources=6_REJECTED|' "$DIR/COMPOSITE-TOY.hbp"
+      - name: Hash entire authentic final source plus exact previously consumed physical prefix
+        run: |
+          set -euo pipefail
+          DIR=build/y137-perron-composite
+          python3 -I -B independent/y137-perron-hosted-stream-20261119/composite_accept.py real "$DIR" \
+            | tee "$DIR/RESULT-COMPOSITE-PERRON.hbp"
+          grep -Fq '|independent_physical_rows=45508080_OF_45508080_PASS|' \
+            "$DIR/RESULT-COMPOSITE-PERRON.hbp"
+          grep -Fq '|sector374_original_prefix_match=PASS|' "$DIR/RESULT-COMPOSITE-PERRON.hbp"
+          grep -Fq '|original_sector_files_cryptographically_authenticated=34_OF_34|' \
+            "$DIR/RESULT-COMPOSITE-PERRON.hbp"
+          grep -Fq '|same_run_full_34_sector_stream_SHA=NOT_CLAIMED|' \
+            "$DIR/RESULT-COMPOSITE-PERRON.hbp"
+          sha256sum "$DIR/RESULT-COMPOSITE-PERRON.hbp" "$DIR/COMPOSITE-TOY.hbp" \
+            > "$DIR/COMPOSITE-RECEIPT.sha256"
+      - name: Enforce exact-only native repository policies
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py \
+            independent/y137-perron-hosted-stream-20261119/composite_accept.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-45m-perron-composite-34-sector-source-certificate
+          path: |
+            build/y137-perron-composite/COMPOSITE-TOY.hbp
+            build/y137-perron-composite/RESULT-COMPOSITE-PERRON.hbp
+            build/y137-perron-composite/COMPOSITE-RECEIPT.sha256
           retention-days: 60
           if-no-files-found: warn
