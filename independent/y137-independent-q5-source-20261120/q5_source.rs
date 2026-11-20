@@ -860,7 +860,7 @@ fn q5_original_group(group:usize,archive:&Path,group_keys:&Path)
         File::open(archive).map_err(|e|e.to_string())?);
     let mut collected=Vec::with_capacity(Q5_GROUP_ROWS[group]);
     let mut last_bucket=(group as i32)-8;
-    let mut last_addr=0u64;
+    let mut last_addr:Option<u64>=None;
     let mut bucket_counts=[0u64;8];
     let mut raw_moves=0u64;
     let mut edge_hits=0u64;
@@ -886,11 +886,10 @@ fn q5_original_group(group:usize,archive:&Path,group_keys:&Path)
         if bucket!=last_bucket{
             require(bucket==last_bucket+8,"Q5_original_all_eight_buckets_ordered")?;
             last_bucket=bucket;
-            last_addr=0;
-        }else{
-            require(address>last_addr,"Q5_original_bucket_canonical_sort")?;
+        }else if let Some(previous)=last_addr{
+            require(address>previous,"Q5_original_bucket_canonical_sort")?;
         }
-        last_addr=address;
+        last_addr=Some(address);
         bucket_counts[(bucket as usize-group)/8]+=1;
         let key=rule.key(address);
         require(rule.address(rule.canonical(rule.expand(key)))==address,
