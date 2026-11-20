@@ -7,6 +7,16 @@ Do not import producing modules or infer an unconditional Wilson result.
 """
 from math import gcd, isqrt
 
+def integer_power_nonnegative(base, exponent):
+    if not isinstance(exponent,int) or exponent<0:
+        raise ValueError("integer_power_exponent_must_be_nonnegative")
+    acc=1
+    while exponent:
+        if exponent&1: acc*=base
+        base*=base
+        exponent//=2
+    return acc
+
 class F:
     """Exact reduced rational implemented with integer arithmetic only."""
     __slots__ = ("n", "d")
@@ -37,7 +47,7 @@ class F:
         return F(self.n*b.d,self.d*b.n)
     def __pow__(self,n):
         if not isinstance(n,int) or n<0: raise ValueError("positive_int_exponent_only")
-        return F(pow(self.n,n),pow(self.d,n))
+        return F(integer_power_nonnegative(self.n,n),integer_power_nonnegative(self.d,n))
     def _comp(self,b):
         b=self._coerce(b)
         return self.n*b.d-b.n*self.d
@@ -113,6 +123,16 @@ def toy():
     difference=dot(q,col(mm(m7,[[x] for x in p]),0))-dot(q,col(mm(m9,[[x] for x in p]),0))
     need(mix!=0 and difference==9*mix,"nonorthogonal_fixed_trial_shift_must_stay")
 
+def rational_power_nonnegative(base, exponent):
+    if not isinstance(exponent,int) or exponent<0:
+        raise ValueError("rational_power_exponent_must_be_nonnegative")
+    acc=F(1)
+    while exponent:
+        if exponent&1: acc=acc*base
+        base=base*base
+        exponent//=2
+    return acc
+
 def sqrt_lower(x):
     return F(isqrt(x.n*S*S//x.d),S)
 def sqrt_upper(x):
@@ -124,24 +144,25 @@ def budget(n,cap,method):
     if method=="cheb":
         rate=[(sqrt_upper(b)-sqrt_lower(a)).div(sqrt_upper(b)+sqrt_lower(a))
               for a,b in zip(g,h)]
-        eps=[(2*r**n).div(a) for r,a in zip(rate,g)]
+        eps=[(2*rational_power_nonnegative(r,n)).div(a) for r,a in zip(rate,g)]
     else:
         rate=[(b-a).div(b+a) for a,b in zip(g,h)]
-        eps=[(r**n).div(a) for r,a in zip(rate,g)]
+        eps=[rational_power_nonnegative(r,n).div(a) for r,a in zip(rate,g)]
     need(all(0<r<1 for r in rate),"contractive_spectral_envelope")
     return 72*cap*(eps[1].div(g[0])+eps[0].div(g[1])+eps[0]*eps[1])
 def ceil_ppt(x):
     return (x.n*S+x.d-1)//x.d
 def ternary(k):
     p=[1]
+    d=1
     for j in range(k):
-        d=3**j
         factor=[0]*(2*d+1);factor[0]=factor[d]=factor[2*d]=1
         nxt=[0]*(len(p)+len(factor)-1)
         for a,x in enumerate(p):
             for b,y in enumerate(factor):nxt[a+b]+=x*y
         p=nxt
-    need(p==[1]*(3**k),"ternary_3power_Geometric_resolvent_identity")
+        d*=3
+    need(p==[1]*d,"ternary_3power_Geometric_resolvent_identity")
 def main():
     original=(14,8,5,6,0,2,-7,-7)
     need(max(abs(2*x-16) for x in original)==30 and
