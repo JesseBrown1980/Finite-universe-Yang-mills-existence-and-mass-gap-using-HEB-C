@@ -163,6 +163,29 @@ def ternary(k):
         p=nxt
         d*=3
     need(p==[1]*d,"ternary_3power_Geometric_resolvent_identity")
+
+def original_pinned_flat_source():
+    """Actual frozen original eight-flat matched directions; Q action separate."""
+    from hashlib import sha256
+    w=(1,3,2,3,3,2,2,2)
+    o=(14,8,5,6,0,2,-7,-7)
+    a=(1000000000,997998757,997000845,39006811,38860510,2944164,80455,80455)
+    b=(112491544,-39124838,-114340075,1000000000,978089453,221700078,53011,53011)
+    ha=sha256(",".join(map(str,a)).encode("ascii")).hexdigest()
+    hb=sha256(",".join(map(str,b)).encode("ascii")).hexdigest()
+    need(ha=="b143c480b2a7ef813e38acc1f1a89db94af27a8cef02c6eb05fdab5791afe164"
+         and hb=="a7e40e835dc2fac1eaf6eba891fa6623d67dafa829b37d7e95c6b932cbfb7732",
+         "original_matched_flat_vectors_SHA")
+    n1=sum(w[i]*a[i]*a[i] for i in range(8))
+    n2=sum(w[i]*b[i]*b[i] for i in range(8))
+    gram=sum(w[i]*a[i]*b[i] for i in range(8))
+    raw9=sum(w[i]*a[i]*b[i]*(2*o[i]-16) for i in range(8))
+    raw7=sum(w[i]*a[i]*b[i]*(2*o[i]-7) for i in range(8))
+    need(raw7-raw9==9*gram and gram<0,"original_P_flat_shift_equals_Gram")
+    need((9*gram*S)*(9*gram*S)<(9285530088*9285530088)*n1*n2,
+         "original_P_flat_shift_smaller_than_conditional_margin")
+    return gram,raw9,raw7
+
 def main():
     original=(14,8,5,6,0,2,-7,-7)
     need(max(abs(2*x-16) for x in original)==30 and
@@ -171,6 +194,7 @@ def main():
     need(62163774481-25196361952-27389725641-292156800==9285530088,
          "original_source_conditional_signed_margin")
     toy();ternary(4)
+    original_pinned_flat_source()
     vals=(budget(14,30,"cheb"),budget(14,21,"cheb"),
           budget(15,30,"cheb"),budget(18,30,"cheb"),
           budget(27,30,"cheb"),budget(81,30,"geo"))
@@ -178,7 +202,7 @@ def main():
          vals[3]<MARGIN.div(2) and vals[4]<MARGIN.div(400) and vals[5]<MARGIN.div(20),
          "independent_rational_Wilson_filter_enclosure")
     print("Y137_SCHUR_GRAM_CENTER_JUMP|math=PASS|true_eigendirection=PASS"+
-          "|frozen_trial_shift_control=PASS|old_O9_norm=30|new_O7_norm=21"+
+          "|frozen_trial_shift_control=PASS|original_8flat_sample_W_Gram=PASS|old_O9_norm=30|new_O7_norm=21"+
           "|ternary_3power_identity=PASS|original_full_Q_polynomial=NOT_RUN"+
           "|original_Wilson=FORMAL_HOLD|continuum_4D=OPEN|json=0")
     print("Y137_SCHUR_SHORTCUT_BOUNDS|source_conditional_margin_ppt=9285530088"+
