@@ -1,5 +1,14 @@
 # Three-dimensional Yang–Mills certificate atlas
 
+## November 20, 2026 — combined original + new certificates
+
+![Four updated 3D projections showing original evidence and November 20 certificates](overview-current-20261120.svg)
+
+The [**updated offline 3D viewer**](atlas-current-20261120.html) combines all **80 original frozen source-linked measurements** with **24 new source-verification and mathematical milestone records**, **three true-physical spectral revalidation overlays**, **one high-cluster Perron revalidation overlay**, **seven exact Wilson-related bound records**, and a full **77-PR history since the original atlas** (35 merged, 40 open, 2 closed unmerged). Four updated graph families each have three selectable camera angles. It uses precomputed SVG/CSS with **no JavaScript, external requests or runtime calculation**. Download the HTML file and open it locally if GitHub renders its source.
+
+[**Machine-readable combined inventory**](certificates-current-20261120.json) · [**Complete repository and certificate audit**](ATLAS-UPDATE-20261120.md) · [**Static full overview**](overview-current-20261120.svg). The original 80-record `certificates.json` and its old graph remain the pinned reference. New rechecks of existing physical results are highlighted at the **same numerical coordinates**, not double-counted as new eigenvalues. The original finite **first Wilson spectral-weight** lower candidate remains **SOURCE-CONDITIONAL / FORMAL HOLD**; the 4D continuum Yang–Mills problem remains **OPEN**.
+
+
 **What does the research look like?** This is a source-linked map of the finite Yang–Mills certificates reported throughout this repository's main README, captured at [commit `98c39fbaa1e6ecf9e6454062e90801f385356063`](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/98c39fbaa1e6ecf9e6454062e90801f385356063/README.md) on November 17, 2026.
 
 ![Static 3D overview of finite-gap and algorithmic certificates](overview.svg)

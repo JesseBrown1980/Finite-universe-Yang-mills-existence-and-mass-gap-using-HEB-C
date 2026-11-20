@@ -1,5 +1,12 @@
 # Finite-universe Yang–Mills with HEB-C
 
+## November 20, 2026 — updated 3D Certificate Atlas: original + newer independent evidence
+
+![Combined four-panel 3D Yang–Mills certificate atlas](docs/certificate-atlas/overview-current-20261120.svg)
+
+**[Explore the updated offline 3D atlas](docs/certificate-atlas/atlas-current-20261120.html)** · [all 80 original + 24 new method milestones + 77 post-atlas PR audit](docs/certificate-atlas/certificates-current-20261120.json) · [audit and graph-axis explanations](docs/certificate-atlas/ATLAS-UPDATE-20261120.md). Preserves 39 original high-cluster gap, 15 spectrum and 26 algorithm records, with 24 additional source/mathematical milestones and old-quantity revalidation overlays. Source-conditional original first Wilson positivity **FORMAL HOLD**, 4D continuum **OPEN**. No original physics or certificate values changed by this visualization.
+
+
 > **Connected research index (2026-11-04):** [17-repository evidence map](https://github.com/JesseBrown1980/Hard-drive-and-USB-as-GPU/blob/main/ECOSYSTEM-RESEARCH-MAP-20261104.md) · [same-gate Google qsim test in QNN](https://github.com/JesseBrown1980/GGUF-files-operating-as-trained-quantum-neural-network-models/blob/main/docs/GOOGLE-QSIM-LIKE-FOR-LIKE-20261104.md) · [physical 96³ HTTP-0 results](https://github.com/JesseBrown1980/qoled-internet-HEB-C-revisted-HTTP---free-0-hbi-hbp-sha-sh-hash/blob/main/engine96/MEASURED-20261104.hbp). These are navigation links; the verdicts and limits of this project remain as recorded here.
 
 **Data on Hugging Face:** [Jessedbrown/ym-3x4-room-store](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store) holds the 3×4 store, the certificate vectors and an evidence archive, the files too large for git. Its card maps every folder, and the status of each result is read here.
