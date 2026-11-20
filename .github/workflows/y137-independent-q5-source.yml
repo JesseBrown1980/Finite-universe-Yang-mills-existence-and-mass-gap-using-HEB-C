@@ -1,0 +1,160 @@
+name: Y137 independent complete original Q5 first-principles source
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-independent-q5-source-20261120/**'
+      - '.github/workflows/y137-independent-q5-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  q5-source-free-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - name: Compile independent exact Q5 source and verify packed 82-bit lane algebra
+        run: |
+          set -euo pipefail
+          rustc --edition=2021 -D warnings -O \
+            independent/y137-independent-q5-source-20261120/q5_source.rs \
+            -o /tmp/y137_independent_q5_source
+          /tmp/y137_independent_q5_source toy | tee /tmp/y137-q5-k3-toy.hbp
+          /tmp/y137_independent_q5_source q5-toy | tee /tmp/y137-q5-packing-toy.hbp
+          grep -Fq '|82bit_eight_lane_roundtrip=PASS|' /tmp/y137-q5-packing-toy.hbp
+          grep -Fq '|corrupted_source_byte=REJECTED|' /tmp/y137-q5-packing-toy.hbp
+          python3 -I -B independent/y137-independent-q5-source-20261120/q5_fanin.py toy \
+            | tee /tmp/y137-q5-fanin-toy.hbp
+          grep -Fq '|missing_duplicate_replaced_key_controls=3_REJECTED|' \
+            /tmp/y137-q5-fanin-toy.hbp
+          python3 -I -X utf8 native/scripts/integer_only_audit.py \
+            independent/y137-independent-q5-source-20261120/q5_fanin.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+  q5-complete-first-principles-targets:
+    needs: q5-source-free-acceptance
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - name: Generate all Q5 targets from every physical Q4 boundary move
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-q5-independent-targets
+          rustc --edition=2021 -D warnings -O \
+            independent/y137-independent-q5-source-20261120/q5_source.rs \
+            -o build/y137-q5-independent-targets/rebuild
+          /usr/bin/time -v build/y137-q5-independent-targets/rebuild \
+            q5-support build/y137-q5-independent-targets/ALL-INDEPENDENT-Q5-KEYS.bin \
+            | tee build/y137-q5-independent-targets/RESULT-Q5-TARGET-SUPPORT.hbp
+          grep -Fq '|complete_Q5_destinations=18598040|' \
+            build/y137-q5-independent-targets/RESULT-Q5-TARGET-SUPPORT.hbp
+          test "$(stat -c '%s' build/y137-q5-independent-targets/ALL-INDEPENDENT-Q5-KEYS.bin)" -eq 148784320
+          sha256sum build/y137-q5-independent-targets/ALL-INDEPENDENT-Q5-KEYS.bin \
+            > build/y137-q5-independent-targets/RESULT-Q5-TARGET-KEYS.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-first-principles-all-18598040-Q5-targets
+          path: |
+            build/y137-q5-independent-targets/ALL-INDEPENDENT-Q5-KEYS.bin
+            build/y137-q5-independent-targets/RESULT-Q5-TARGET-SUPPORT.hbp
+            build/y137-q5-independent-targets/RESULT-Q5-TARGET-KEYS.sha256
+          retention-days: 60
+          compression-level: 1
+          if-no-files-found: warn
+  independently-verify-all-original-q5-v1:
+    needs: q5-source-free-acceptance
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [0,1,2,3,4,5,6,7]
+    env:
+      GROUP: ${{ matrix.group }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 43615270310
+          github-token: ${{ github.token }}
+          name: y137-d11-v1-actual-Q5-group${{ matrix.group }}
+          path: build/y137-q5-original
+      - name: Verify unchanged historical full Q5 packed source SHA256
+        run: |
+          set -euo pipefail
+          test -s "build/y137-q5-original/GROUP-$GROUP.v1"
+          grep -E "  build/y137-q5-original/GROUP-$GROUP.v1$" \
+            independent/y137-independent-q5-source-20261120/ORIGINAL-Q5-SHA256.txt \
+            | sha256sum -c -
+      - name: Independently regenerate original Q5 V1/b from newly rebuilt K3/Q4 residuals
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-q5-verdict
+          rustc --edition=2021 -D warnings -O \
+            independent/y137-independent-q5-source-20261120/q5_source.rs \
+            -o build/y137-q5-verdict/rebuild
+          /usr/bin/time -v build/y137-q5-verdict/rebuild q5-group "$GROUP" \
+            "build/y137-q5-original/GROUP-$GROUP.v1" \
+            "build/y137-q5-verdict/ORIGINAL-Q5-KEYS-$GROUP.bin" \
+            | tee "build/y137-q5-verdict/RESULT-Q5-SHARD-$GROUP.hbp"
+          grep -Fq '|original_packed_V1_over_b=EXACT_ALL_LANES|' \
+            "build/y137-q5-verdict/RESULT-Q5-SHARD-$GROUP.hbp"
+          sha256sum "build/y137-q5-verdict/ORIGINAL-Q5-KEYS-$GROUP.bin" \
+            "build/y137-q5-verdict/RESULT-Q5-SHARD-$GROUP.hbp" \
+            > "build/y137-q5-verdict/RESULT-Q5-SOURCE-$GROUP.sha256"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-first-principles-original-Q5-V1-group-${{ matrix.group }}
+          path: |
+            build/y137-q5-verdict/ORIGINAL-Q5-KEYS-*.bin
+            build/y137-q5-verdict/RESULT-Q5-SHARD-*.hbp
+            build/y137-q5-verdict/RESULT-Q5-SOURCE-*.sha256
+          retention-days: 60
+          compression-level: 1
+          if-no-files-found: warn
+  q5-independent-eight-way-exact-source-fanin:
+    needs: [q5-complete-first-principles-targets, independently-verify-all-original-q5-v1]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-first-principles-original-Q5-V1-group-*
+          path: build/y137-q5-fanin
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: y137-first-principles-all-18598040-Q5-targets
+          path: build/y137-q5-fanin
+      - name: Independent 8-way 18,598,040-target exact original source and geometry union
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-independent-q5-source-20261120/q5_fanin.py toy \
+            | tee build/y137-q5-fanin/RESULT-Q5-FANIN-TOY.hbp
+          grep -Fq '|missing_duplicate_replaced_key_controls=3_REJECTED|' \
+            build/y137-q5-fanin/RESULT-Q5-FANIN-TOY.hbp
+          python3 -I -B independent/y137-independent-q5-source-20261120/q5_fanin.py real \
+            build/y137-q5-fanin | tee build/y137-q5-fanin/RESULT-Q5-ACCEPT.hbp
+          grep -Fq '|original_Q5_V1_over_b_two_energy_components=297568640_OF_297568640_EXACT|' \
+            build/y137-q5-fanin/RESULT-Q5-ACCEPT.hbp
+          grep -Fq '|independent_target_source=FULL_Q4_S3_PHYSICAL_BOUNDARY|' \
+            build/y137-q5-fanin/RESULT-Q5-ACCEPT.hbp
+          sha256sum build/y137-q5-fanin/RESULT-Q5-ACCEPT.hbp \
+            > build/y137-q5-fanin/RESULT-Q5-ACCEPT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-complete-original-Q5-V1-acceptance
+          path: |
+            build/y137-q5-fanin/RESULT-Q5-ACCEPT.hbp
+            build/y137-q5-fanin/RESULT-Q5-ACCEPT.sha256
+            build/y137-q5-fanin/RESULT-Q5-FANIN-TOY.hbp
+          retention-days: 60
+          if-no-files-found: warn
