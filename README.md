@@ -4,6 +4,27 @@
 
 **Data on Hugging Face:** [Jessedbrown/ym-3x4-room-store](https://huggingface.co/datasets/Jessedbrown/ym-3x4-room-store) holds the 3×4 store, the certificate vectors and an evidence archive, the files too large for git. Its card maps every folder, and the status of each result is read here.
 
+## November 20, 2026 — independently verified original W-weighted signed source-to-Schur identity and G0/6 normalization: MATHEMATICAL PASS
+
+[**PR #343 — merged into main**](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/343), commit **3dac4cb064bb9761b86365c5b8506966475075df**; [independent hosted exact arithmetic #44792292108](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44792292108), [refreshed acceptance #44792665791](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44792665791), [sealed proof receipt #14656413829](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44792292108/artifacts/14656413829): the independent integer-only **algebraic identity and archival source scaling PASS**, with **7/7 altered source/normalization controls rejected**, normal and optimized Python identical, and all required repository checks passed.
+
+For the original weighted physical P/Q basis independently accepted in merged PR #341, let **b=10⁹**, trial scale **σ=10¹²**, **X=bQHQ−zI**, and **B=QHP** with its exact W-adjoint. The original signed whole-Q trial residual and its physical W bilinear are
+
+\[
+R=bB\sigma+XY,\qquad U_0=T^\ast_W(bH-zI)T,\qquad T=(\sigma I,Y).
+\]
+
+The exact physical Schur matrix satisfies the identity, **for any approximate trial Y**,
+
+\[
+\boxed{S(z)=U_0-R^\top W_Q X^{-1}R},\qquad
+\mu_k=R^\top W_Q X^k R\quad(k=0,1,2,3).
+\]
+
+The original K3 source generator's integer Gram accumulator uses **six times the physical orbit weight**. Its archived source **G₀ therefore equals 6μ₀**, and the four-moment input must use **μ₀=G₀/6**; the accepted moment verifier does exactly that. The independent test reconstructs a nontrivial W-weighted P=2/Q=3 example at the actual original b,σ scales, checks the Schur equality by exact integer cross multiplication and rejects forged residual, bilinear, resolvent, Gram and sixfold normalization inputs.
+
+The **physical P/Q operator and W-adjoint** are already independently signed off in PR #341; the complete original K3/Q4/Q5 source and signed μ₃ matrices passed their separate full-scale numerical verification (merged PRs #331/#335 and run #44581486671). PR #343 establishes the exact mathematical source-to-Schur identification and archive normalization under those physical source premises. **Next acceptance:** independently join the original strictly positive Perron comparison witness and spatial-symmetry-sector lift to the whole nonflat Q spectral floor and the accepted source/Schur moment matrices. The original first-Wilson squared-weight lower candidate **17074763/10¹²** retains **SOURCE-CONDITIONAL / FORMAL HOLD** until that last joint premise review. Four-dimensional continuum Yang–Mills remains **OPEN**.
+
 ## November 20, 2026 — independently signed original whole-space weighted physical P/Q operator and Wilson projection: PASS
 
 [**PR #341 — merged into main**](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/341), merge commit **612e37664209cd14976d09c8bfed8252a167ecd7**; [independent hosted full-operator run #44789976047](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44789976047), [sealed full P/Q physical-operator receipt #14655902047](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44789976047/artifacts/14655902047). **Independent weighted physical-operator PASS**: hosted exact original-group verifier, integer tools, both repository no-floating-point checks and seven deliberately altered-operator controls all passed.
@@ -19,7 +40,7 @@ O_P=\operatorname{diag}(14,8,5,6,0,2,-7,-7),\qquad
 
 Because O acts by gauge-invariant multiplication in the full physical orbit basis, **POQ=QOP=0**. The exact global O₉=2O−16I identity and **B*B=72I₈** supply the independently verified physical-operator inputs used by the conditional original E₁/E₂ Wilson projector/action/normalization transfer in [merged PR #337](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/337).
 
-**Remaining mathematical acceptance:** The physical weighted P/Q operator itself is **SIGNED OFF**. Independent joint review of the **full nonflat whole-Q Perron positive witness and symmetry lift** and the **original signed source moments' identification with the same physical Schur/Loewner operator** remains pending. The accepted candidate original finite first-Wilson squared spectral-weight floor **17074763/10^12** remains **SOURCE-CONDITIONAL / FORMAL HOLD** until those links and final theorem acceptance are established. Four-dimensional continuum Yang–Mills remains **OPEN**.
+**Remaining mathematical acceptance:** The physical weighted P/Q operator itself is **SIGNED OFF**. The original signed source-to-Schur algebra and G₀/6 normalization have now independently **PASSED** in merged PR #343. The remaining joint review concerns the **positive Perron comparison witness, entire-Q spectral floor and spatial-symmetry-sector lift** connecting those authenticated operator and moment sources. The accepted candidate original finite first-Wilson squared spectral-weight floor **17074763/10^12** remains **SOURCE-CONDITIONAL / FORMAL HOLD** until those links and final theorem acceptance are established. Four-dimensional continuum Yang–Mills remains **OPEN**.
 
 ## November 20, 2026 — complete independent 45,508,080-row Perron physical-store and original 34-sector source acceptance: COMPOSITE PASS
 
