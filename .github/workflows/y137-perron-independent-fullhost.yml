@@ -27,8 +27,28 @@ jobs:
           set -euo pipefail
           sha256sum native/ym/results/3x4_stream/perron/second-seat/fullrebuild.rs
           echo '2e9ea99595f29efb53b7a1430e5ea4b7369396e1c70fefc7ab794cdd0b915850  native/ym/results/3x4_stream/perron/second-seat/fullrebuild.rs' | sha256sum -c -
-  complete-independent-machine-rebuild:
+  independent-last-sector-sha-probe:
     needs: fullhost-source-free-controls
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Authenticate immutable original sector 374 independently, without FIFO
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-perron-probe
+          python3 -I -B independent/y137-perron-hosted-stream-20261119/stream_perron.py probe-last \
+            | tee build/y137-perron-probe/RESULT-LAST-SECTOR.hbp
+          grep -Fq '|sha_match=TRUE|' build/y137-perron-probe/RESULT-LAST-SECTOR.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-frozen-sector374-sha-diagnostic
+          path: build/y137-perron-probe/RESULT-LAST-SECTOR.hbp
+          retention-days: 60
+          if-no-files-found: warn
+  complete-independent-machine-rebuild:
+    needs: [fullhost-source-free-controls, independent-last-sector-sha-probe]
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     steps:
