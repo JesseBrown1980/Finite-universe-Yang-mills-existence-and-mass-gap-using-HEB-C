@@ -529,6 +529,87 @@ fn compare_original_g(source:&Path,z:u128,gram:[[Int320;LANE_COUNT];LANE_COUNT])
     println!("Y137_INDEPENDENT_K3_Q4_GRAM|sample_num={z}|K3_states=155378|Q4_states=1985218|new_original_R_K3_AND_R_Q4=INDEPENDENTLY_GENERATED|all_original_8x8_G0_entries=64_OF_64_MATCH|original_source=IMMUTABLE_CACHE|json=0");
     Ok(())
 }
+
+fn rebuild_k3_v1(rule:&Gauge,rows:&[QRow],
+           y:&[[u128;LANE_COUNT]],r:&[[i128;LANE_COUNT]],z:u128)
+           ->Result<Vec<[i128;LANE_COUNT]>,String>{
+    // V1 = X R, X=b QHQ-z. The R support is K3+Q4, with all
+    // Q5 rows zero. Re-enumerate Q4 values from the new K3 trial.
+    let exterior=new_q4_source(rule,rows,y)?;
+    let mut v=Vec::with_capacity(rows.len());
+    for (i,row) in rows.iter().enumerate(){
+        let diagonal=(B*u128::from(row.diagonal)-z) as i128;
+        let mut lane=[0i128;LANE_COUNT];
+        for k in 0..LANE_COUNT{
+            let mut ans=diagonal.checked_mul(r[i][k])
+                .ok_or_else(||"original_K3_V1_diagonal_overflow".to_owned())?;
+            for &(j,coeff) in &row.inside{
+                let term=(B as i128).checked_mul(i128::from(coeff))
+                    .and_then(|t|t.checked_mul(r[j][k]))
+                    .ok_or_else(||"new_K3_V1_inner_term_overflow".to_owned())?;
+                ans=ans.checked_sub(term)
+                    .ok_or_else(||"new_K3_V1_inner_accum_overflow".to_owned())?;
+            }
+            for &(dest,coeff) in &row.outside{
+                let q=exterior.get(&dest).ok_or_else(||"missing_Q4_R_source".to_owned())?;
+                let positive=i128::try_from(q.incoming[k])
+                    .map_err(|e|e.to_string())?;
+                // Original Q4 R is -B*positive. Therefore -B*c*R4
+                // contributes +B^2*c*positive to V1.
+                let term=(B as i128).checked_mul(B as i128)
+                    .and_then(|t|t.checked_mul(i128::from(coeff)))
+                    .and_then(|t|t.checked_mul(positive))
+                    .ok_or_else(||"new_K3_V1_Q4_term_overflow".to_owned())?;
+                ans=ans.checked_add(term)
+                    .ok_or_else(||"new_K3_V1_Q4_accum_overflow".to_owned())?;
+            }
+            require(ans.unsigned_abs()<(1u128<<123),
+                    "new_K3_V1_signed_123bit_bound")?;
+            lane[k]=ans;
+        }
+        v.push(lane);
+    }
+    Ok(v)
+}
+fn compare_original_k3_v1(path:&Path,rows:&[QRow],
+                   new_values:&[Vec<[i128;LANE_COUNT]>;2])
+                   ->Result<(),String>{
+    require(new_values.iter().all(|v|v.len()==ORIGINAL_K3),
+            "new_original_K3_V1_row_count")?;
+    let index=rows.iter().enumerate().map(|(i,r)|(r.key,i)).collect::<HashMap<_,_>>();
+    let mut reader=BufReader::with_capacity(1<<20,
+        File::open(path).map_err(|e|e.to_string())?);
+    let mut total=0usize;
+    let mut previous=None;
+    loop{
+        let mut header=[0u8;11];
+        if reader.read(&mut header[..1]).map_err(|e|e.to_string())?==0{break;}
+        reader.read_exact(&mut header[1..]).map_err(|e|e.to_string())?;
+        let address=u64::from_le_bytes(header[..8].try_into()
+            .map_err(|_|"K3_V1_address_header")?);
+        require(header[9]==3&&header[10]==2,
+                "K3_V1_original_archive_shell_and_samples")?;
+        if let Some(prev)=previous{
+            require(address>prev,"K3_V1_original_sorted_canonical_addresses")?;
+        }
+        previous=Some(address);
+        let i=*index.get(&address).ok_or_else(||"K3_V1_missing_address".to_owned())?;
+        require(header[8]==rows[i].weight,"K3_V1_original_weight")?;
+        for (sample,source) in new_values.iter().enumerate(){
+            for k in 0..LANE_COUNT{
+                let observed=read_i128(&mut reader)?;
+                let expected=source[i][k];
+                require(observed==expected,
+                    &format!("K3_first_principles_V1_mismatch_sample_{sample}_address_{address}_lane_{k}_new_{expected}_original_{observed}"))?;
+                total+=1;
+            }
+        }
+    }
+    require(total==ORIGINAL_K3*LANE_COUNT*2,
+            "all_2486048_original_K3_V1_signed_channels")?;
+    println!("Y137_INDEPENDENT_K3_V1_ACCEPT|physical_K3_states=155378|energies=2|signed_archive_V1=X_R_values=2486048_OF_2486048_MATCH|intermediate_R=FIRST_PRINCIPLES_S3_JACOBI|original_Q4_signed_R=FIRST_PRINCIPLES_S3_ELECTRIC|original_V1_archive=IMMUTABLE_SHA256_PIN|json=0");
+    Ok(())
+}
 fn exact_u(rows:&[QRow],y:&[[u128;LANE_COUNT]],
            residual:&[[i128;LANE_COUNT]],z:u128)
      ->Result<[[i128;LANE_COUNT];LANE_COUNT],String>{
@@ -611,13 +692,16 @@ fn execute(archive:&Path,source:&Path)->Result<(),String>{
     let keys=layers(&rule)?;
     let states=graph(&rule,&keys)?;
     compare_archive(archive,&rule,&states)?;
-    for &energy in &ENERGY{
+    let mut v1_source: [Vec<[i128;LANE_COUNT]>;2]=[Vec::new(),Vec::new()];
+    for (sample,&energy) in ENERGY.iter().enumerate(){
         let y=jacobi(&states,energy)?;
         let r=residuals(&states,&y,energy)?;
         compare_u_source(source,energy,exact_u(&states,&y,&r,energy)?)?;
         compare_original_g(source,energy,full_source_gram(&rule,&states,&y,&r)?)?;
+        v1_source[sample]=rebuild_k3_v1(&rule,&states,&y,&r,energy)?;
     }
-    println!("Y137_INDEPENDENT_K3_VERDICT|K3=155378|two_original_energy_trials=20_JACOBI_EACH|original_U0_matrix_entries=128_OF_128_MATCH|original_G0_matrix_entries=128_OF_128_MATCH|original_K3_Q4_R_source=INDEPENDENTLY_GENERATED|original_K3_support_and_weights=FULL_PASS|original_Q4_residual=SEPARATE_FULL_SOURCE_GATE|original_StageC_signed_V1=SEPARATE_SOURCE_GATE|whole_Perron_store=SEPARATE_GATE|Wilson=SOURCE_CONDITIONAL_FORMAL_HOLD|elapsed_seconds={}|json=0",start.elapsed().as_secs());
+    compare_original_k3_v1(archive,&states,&v1_source)?;
+    println!("Y137_INDEPENDENT_K3_VERDICT|K3=155378|two_original_energy_trials=20_JACOBI_EACH|original_U0_matrix_entries=128_OF_128_MATCH|original_G0_matrix_entries=128_OF_128_MATCH|original_V1_K3_signed_archive=2486048_OF_2486048_MATCH|original_K3_Q4_R_source=INDEPENDENTLY_GENERATED|original_K3_support_and_weights=FULL_PASS|original_Q4_V1=SEPARATE_SOURCE_GATE|whole_Perron_store=SEPARATE_GATE|Wilson=SOURCE_CONDITIONAL_FORMAL_HOLD|elapsed_seconds={}|json=0",start.elapsed().as_secs());
     Ok(())
 }
 fn main(){
