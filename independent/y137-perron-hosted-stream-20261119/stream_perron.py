@@ -103,8 +103,13 @@ def prepare(root):
 
 def serve(root):
     manifest=load_manifest(root)
-    need(hash_hex((root/"passA.bin").read_bytes())==PASSA_SHA,
-         "original_passA_prechecked")
+    h=hashlib.sha256()
+    with open(root/"passA.bin","rb") as inp:
+        while True:
+            b=inp.read(CHUNK)
+            if not b:break
+            h.update(b)
+    need(h.hexdigest()==PASSA_SHA,"original_passA_prechecked")
     summary=hashlib.sha256()
     matched=0
     total=0
@@ -120,7 +125,7 @@ def serve(root):
             n=0
             pipe_broken=False
             # Open blocks until fullrebuild opens the matching sequential pipe.
-            with urllib.request.urlopen(url,timeout=120) as source,open(fifo,"wb",buffering=0) as sink:
+            with open(fifo,"wb",buffering=0) as sink,urllib.request.urlopen(url,timeout=120) as source:
                 while True:
                     b=source.read(CHUNK)
                     if not b:break
