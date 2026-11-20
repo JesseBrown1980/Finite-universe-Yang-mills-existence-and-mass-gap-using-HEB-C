@@ -5,8 +5,52 @@ Proof-only toy and certified norm envelope; original 3x4 Q polynomial action
 and original Q-dual source authentication are separate production obligations.
 Do not import producing modules or infer an unconditional Wilson result.
 """
-from fractions import Fraction as F
-from math import isqrt
+from math import gcd, isqrt
+
+class F:
+    """Exact reduced rational implemented with integer arithmetic only."""
+    __slots__ = ("n", "d")
+    def __init__(self,n,d=1):
+        if isinstance(n,F):
+            self.n,self.d=n.n,n.d
+            return
+        n,d=int(n),int(d)
+        if d==0: raise ZeroDivisionError("zero_rational_denominator")
+        if d<0: n,d=-n,-d
+        k=gcd(abs(n),d)
+        self.n,self.d=n//k,d//k
+    def _coerce(self,other):
+        return other if isinstance(other,F) else F(other)
+    def __add__(self,b):
+        b=self._coerce(b)
+        return F(self.n*b.d+b.n*self.d,self.d*b.d)
+    def __radd__(self,b): return self.__add__(b)
+    def __neg__(self): return F(-self.n,self.d)
+    def __sub__(self,b): return self+self._coerce(b).__neg__()
+    def __rsub__(self,b): return self._coerce(b)+(-self)
+    def __mul__(self,b):
+        b=self._coerce(b)
+        return F(self.n*b.n,self.d*b.d)
+    def __rmul__(self,b): return self.__mul__(b)
+    def div(self,b):
+        b=self._coerce(b)
+        return F(self.n*b.d,self.d*b.n)
+    def __pow__(self,n):
+        if not isinstance(n,int) or n<0: raise ValueError("positive_int_exponent_only")
+        return F(pow(self.n,n),pow(self.d,n))
+    def _comp(self,b):
+        b=self._coerce(b)
+        return self.n*b.d-b.n*self.d
+    def __eq__(self,b):
+        try:return self._comp(b)==0
+        except (TypeError,ValueError):return False
+    def __lt__(self,b):return self._comp(b)<0
+    def __le__(self,b):return self._comp(b)<=0
+    def __gt__(self,b):return self._comp(b)>0
+    def __ge__(self,b):return self._comp(b)>=0
+    def __bool__(self):return self.n!=0
+    def __repr__(self):return "F("+str(self.n)+","+str(self.d)+")"
+
 
 S=10**12
 GAMMA=F(94068200,10**6)
@@ -41,9 +85,9 @@ def toy():
     B=[H[2][:2]]
     d=H[2][2]
     need(d>2 and all(B[0]),"nontrivial_two_energy_Q_mass")
-    R1,R2=1/(d-1),1/(d-2)
+    R1,R2=F(1).div(d-1),F(1).div(d-2)
     def schur(e):
-        return op(op(A,mul(D((1,1)),e),-1),mul(mm(t(B),B),1/(d-e)),-1)
+        return op(op(A,mul(D((1,1)),e),-1),mul(mm(t(B),B),F(1).div(d-e)),-1)
     s1,s2=schur(F(1)),schur(F(2))
     cross=op(D((1,1)),mul(mm(t(B),B),R1*R2))
     need(cross==op(s1,s2,-1),"Schur_divided_difference_full_Gram")
@@ -78,14 +122,14 @@ def sqrt_upper(x):
 def budget(n,cap,method):
     g=[GAMMA-e for e in EHI];h=[F(468)-e for e in EHI]
     if method=="cheb":
-        rate=[(sqrt_upper(b)-sqrt_lower(a))/(sqrt_upper(b)+sqrt_lower(a))
+        rate=[(sqrt_upper(b)-sqrt_lower(a)).div(sqrt_upper(b)+sqrt_lower(a))
               for a,b in zip(g,h)]
-        eps=[2*r**n/a for r,a in zip(rate,g)]
+        eps=[(2*r**n).div(a) for r,a in zip(rate,g)]
     else:
-        rate=[(b-a)/(b+a) for a,b in zip(g,h)]
-        eps=[r**n/a for r,a in zip(rate,g)]
+        rate=[(b-a).div(b+a) for a,b in zip(g,h)]
+        eps=[(r**n).div(a) for r,a in zip(rate,g)]
     need(all(0<r<1 for r in rate),"contractive_spectral_envelope")
-    return 72*cap*(eps[1]/g[0]+eps[0]/g[1]+eps[0]*eps[1])
+    return 72*cap*(eps[1].div(g[0])+eps[0].div(g[1])+eps[0]*eps[1])
 def ceil_ppt(x):
     return (x.numerator*S+x.denominator-1)//x.denominator
 def ternary(k):
@@ -110,7 +154,7 @@ def main():
           budget(15,30,"cheb"),budget(18,30,"cheb"),
           budget(27,30,"cheb"),budget(81,30,"geo"))
     need(vals[0]>MARGIN and vals[1]<MARGIN and vals[2]<MARGIN and
-         vals[3]<MARGIN/2 and vals[4]<MARGIN/400 and vals[5]<MARGIN/20,
+         vals[3]<MARGIN.div(2) and vals[4]<MARGIN.div(400) and vals[5]<MARGIN.div(20),
          "independent_rational_Wilson_filter_enclosure")
     print("Y137_SCHUR_GRAM_CENTER_JUMP|math=PASS|true_eigendirection=PASS"+
           "|frozen_trial_shift_control=PASS|old_O9_norm=30|new_O7_norm=21"+
