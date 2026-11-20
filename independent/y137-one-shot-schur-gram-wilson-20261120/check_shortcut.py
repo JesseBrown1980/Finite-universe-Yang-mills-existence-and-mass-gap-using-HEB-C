@@ -114,9 +114,9 @@ def toy():
     need(mix!=0 and difference==9*mix,"nonorthogonal_fixed_trial_shift_must_stay")
 
 def sqrt_lower(x):
-    return F(isqrt(x.numerator*S*S//x.denominator),S)
+    return F(isqrt(x.n*S*S//x.d),S)
 def sqrt_upper(x):
-    j=isqrt(x.numerator*S*S//x.denominator)
+    j=isqrt(x.n*S*S//x.d)
     if F(j*j,S*S)<x:j+=1
     return F(j,S)
 def budget(n,cap,method):
@@ -131,7 +131,7 @@ def budget(n,cap,method):
     need(all(0<r<1 for r in rate),"contractive_spectral_envelope")
     return 72*cap*(eps[1].div(g[0])+eps[0].div(g[1])+eps[0]*eps[1])
 def ceil_ppt(x):
-    return (x.numerator*S+x.denominator-1)//x.denominator
+    return (x.n*S+x.d-1)//x.d
 def ternary(k):
     p=[1]
     for j in range(k):
