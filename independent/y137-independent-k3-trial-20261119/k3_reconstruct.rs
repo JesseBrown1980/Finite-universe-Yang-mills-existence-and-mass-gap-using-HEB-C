@@ -176,7 +176,7 @@ fn layers(rule:&Gauge)->Result<Vec<u64>,String>{
                 if !seen.contains(&target){next.insert(target);}
             }
         }
-        require(next.len()==want,"independent_K3_shell_"+&step.to_string())?;
+        require(next.len()==want,&format!("independent_K3_shell_{step}"))?;
         last=next.into_iter().collect();
         for &address in &last {
             require(seen.insert(address),"repeated_K3_canonical_source_orbit")?;
