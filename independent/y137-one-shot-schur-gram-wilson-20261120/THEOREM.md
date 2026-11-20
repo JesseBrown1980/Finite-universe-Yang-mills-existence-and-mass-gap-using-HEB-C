@@ -47,6 +47,20 @@ For exact distinct true states the \(9G_{21}\) matrix element vanishes, and eith
 
 The eight original flat diagonal values are \(O_P=(14,8,5,6,0,2,-7,-7)\), so the new integer-centered values are \(O_{\rm opt,P}=(21,9,3,5,-7,-3,-21,-21)\). This recentering is an exact shift, not a new Wilson observable.
 
+## Original archived eight-flat matched source cross-check
+
+The original artifact [hosted run #44560968064](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44560968064), file \`original-Wilson/SOURCE.hbp\`, supplies the original *source-matched approximate* vectors \(v_1,v_2\), each with 8 W-flat entries and SHA-256 pins \`b143c480b2a7ef813e38acc1f1a89db94af27a8cef02c6eb05fdab5791afe164\`, \`a7e40e835dc2fac1eaf6eba891fa6623d67dafa829b37d7e95c6b932cbfb7732\`. In particular **the second vector's final two entries are both 5,301,152**; substituting 53,011 must fail its SHA check.
+
+Independent exact \(W_P\)-integer arithmetic on the **original eight flat components** gives:
+
+- \(\|v_1\|_{W_P}^2=5\,985\,138\,300\,502\,958\,552\);
+- \(\|v_2\|_{W_P}^2=6\,011\,785\,104\,049\,132\,129\);
+- \(\langle v_2,v_1\rangle_{W_P}=-287\,631\,158\,976\,534\), hence the approximate flat directions are not orthogonal;
+- original shifted P-block action \(\langle v_2,O_{9,P}v_1\rangle_W=409\,631\,480\,361\,936\,852\);
+- midpoint shifted P-block action \(\langle v_2,O_{\mathrm{opt},P}v_1\rangle_W=407\,042\,799\,931\,148\,046\).
+
+Thus \(407042799931148046-409631480361936852=9(-287631158976534)\) exactly. The P-only normalized shift has magnitude around \(0.000431558447\), below the previously reported **source-conditional** signed O9 margin \(0.009285530088\). This **P-only** test is informative source verification and cannot be substituted for the physical **full P+Q** cross Gram: a real acceptance gate must compute the Q correction via the same physical Schur matrices and true-energy eigenbranch projectors.
+
 ## Quantitative one-shot polynomial corridor
 
 For either true-energy interval, use its upper endpoint \(E_i^{hi}\), the accepted conservative \(\gamma=94.068200\) and \(H_Q\le468\). Set \(g_i=\gamma-E_i^{hi}>0\), \(h_i=468-E_i^{hi}\), and
