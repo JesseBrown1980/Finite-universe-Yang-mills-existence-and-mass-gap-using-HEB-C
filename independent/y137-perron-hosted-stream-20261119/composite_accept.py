@@ -19,7 +19,7 @@ ROOT_URL=("https://huggingface.co/datasets/Jessedbrown/"
           "ym-3x4-room-store/resolve/160726aaaf87386090b2b0b9ecf2815ca2634009")
 MANIFEST_SHA="9213927b3b60cfbeae8efef10730e8c7df2ad52f56159017b048539377886ce3"
 LAST_SHA="abc3ee22e5f736eba608bd98c93010b600f477e830fb8ce93f580ece41f2a55f"
-LAST_PREFIX_SHA="2142b2efa9723611786e02100500435e333f154e1f3f50590d01cadc132fcff1"
+LAST_PREFIX_SHA="2142b2efa9723611786e02100500435e333f154e1e3f50590d01cadc132fcff1"
 LAST_PREFIX_BYTES=474451863
 SECTOR_BYTES=800000000
 N=45508080
@@ -197,6 +197,7 @@ def main(argv):
                                      timeout=120) as response:
             manifest=parse_manifest(response.read(1<<20))
         prefix_len,prefix_sha,last_sha=validate(values,manifest)
+        need(len(prefix_sha)==64 and len(last_sha)==64,"original_SHA256_64hex_format")
         negative_controls(values,manifest)
         if argv[0]=="toy":return
         actual_prefix,actual_whole=rehash_original_last(
