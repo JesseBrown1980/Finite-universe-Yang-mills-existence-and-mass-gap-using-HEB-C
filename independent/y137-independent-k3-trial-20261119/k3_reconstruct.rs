@@ -144,6 +144,7 @@ struct QRow {
     diagonal:u32,
     to_flat:[u8;LANE_COUNT],
     inside:Vec<(usize,u8)>,
+    outside:Vec<(u64,u8)>,
 }
 fn flats(rule:&Gauge)->Result<Vec<u64>,String>{
     let mut keys=BTreeSet::new();
@@ -202,6 +203,7 @@ fn graph(rule:&Gauge,all:&[u64])->Result<Vec<QRow>,String>{
         magnetic_min=magnetic_min.min(magnetic);
         magnetic_max=magnetic_max.max(magnetic);
         let mut inside=Vec::new();
+        let mut outside=Vec::new();
         let mut to_flat=[0u8;LANE_COUNT];
         let mut self_edges=0u32;
         let near=rule.moves(key)?;
@@ -221,6 +223,7 @@ fn graph(rule:&Gauge,all:&[u64])->Result<Vec<QRow>,String>{
                 }
             }else{
                 census[3]+=u64::from(coeff);
+                outside.push((target,u8::try_from(coeff).map_err(|e|e.to_string())?));
             }
         }
         require(raw==72,"original_72_K3_raw_moves")?;
@@ -228,7 +231,7 @@ fn graph(rule:&Gauge,all:&[u64])->Result<Vec<QRow>,String>{
         rows.push(QRow{
             key:address,
             weight:u8::try_from(rule.orbit_weight(key)).map_err(|e|e.to_string())?,
-            diagonal,to_flat,inside,
+            diagonal,to_flat,inside,outside,
         });
     }
     require(rows.len()==ORIGINAL_K3 &&
@@ -336,6 +339,190 @@ fn compare_archive(path:&Path,rule:&Gauge,rows:&[QRow])
     println!("Y137_INDEPENDENT_K3_SUPPORT|original_archive_states=155378|independent_canonical_keys=ALL_MATCH|original_orbit_weights=ALL_MATCH|original_archive_V1_not_conflated_with_R=PASS|json=0");
     Ok(())
 }
+#[derive(Clone,Copy,Default,PartialEq,Eq)]
+struct Int320([u64;5]);
+impl Int320 {
+    fn neg(&self)->bool{self.0[4]>>63!=0}
+    fn negate(&mut self){
+        let mut carry=1u128;
+        for word in &mut self.0{
+            let v=u128::from(!*word)+carry;
+            *word=v as u64;
+            carry=v>>64;
+        }
+    }
+    fn abs_word(&self)->[u64;5]{
+        let mut x=*self;
+        if x.neg(){x.negate();}
+        x.0
+    }
+    fn bounded(&self)->bool{self.abs_word()[4]<(1u64<<38)}
+    fn add(&mut self,other:&Self)->Result<(),String>{
+        let same=self.neg()==other.neg();
+        let sign=self.neg();
+        let mut carry=0u128;
+        let mut result=[0u64;5];
+        for k in 0..5{
+            let t=u128::from(self.0[k])+u128::from(other.0[k])+carry;
+            result[k]=t as u64;
+            carry=t>>64;
+        }
+        let value=Self(result);
+        require(!same||value.neg()==sign,"signed_320bit_overflow")?;
+        require(value.bounded(),"independent_2pow294_partial_bound")?;
+        *self=value;Ok(())
+    }
+    fn multiply(a:i128,b:i128,c:i64)->Result<Self,String>{
+        let negative=(a<0)^(b<0)^(c<0);
+        let aa=a.unsigned_abs();
+        let bb=b.unsigned_abs();
+        let cc=c.unsigned_abs();
+        require(aa<(1u128<<123)&&bb<(1u128<<123)&&cc<(1u64<<48),
+                "independent_signed_source_or_coefficient_bound")?;
+        let al=[aa as u64,(aa>>64) as u64];
+        let bl=[bb as u64,(bb>>64) as u64];
+        let mut raw=[0u64;4];
+        for i in 0..2{
+            let mut carry=0u128;
+            for j in 0..2{
+                let k=i+j;
+                let v=u128::from(al[i])*u128::from(bl[j])+u128::from(raw[k])+carry;
+                raw[k]=v as u64;
+                carry=v>>64;
+            }
+            let k=i+2;
+            let v=u128::from(raw[k])+carry;
+            require(v>>64==0,"exact_128x128_mul_carry")?;
+            raw[k]=v as u64;
+        }
+        let mut result=[0u64;5];
+        let mut carry=0u128;
+        for k in 0..4{
+            let v=u128::from(raw[k])*u128::from(cc)+carry;
+            result[k]=v as u64;
+            carry=v>>64;
+        }
+        result[4]=carry as u64;
+        let mut term=Self(result);
+        require(!term.neg()&&term.bounded(),"exact_product_exceeds_2pow294")?;
+        if negative && aa!=0 && bb!=0 && cc!=0{term.negate();}
+        Ok(term)
+    }
+    fn decimal(&self)->String{
+        let negative=self.neg();
+        let mut words=self.abs_word();
+        if words.iter().all(|&x|x==0){return "0".into();}
+        let mut digits=Vec::new();
+        while words.iter().any(|&x|x!=0){
+            let mut carry=0u128;
+            for word in words.iter_mut().rev(){
+                let v=(carry<<64)+u128::from(*word);
+                *word=(v/10) as u64;
+                carry=v%10;
+            }
+            digits.push((b'0'+carry as u8) as char);
+        }
+        if negative{digits.push('-');}
+        digits.iter().rev().collect()
+    }
+}
+
+
+struct Q4Residual {
+    weight:u8,
+    incoming:[u128;LANE_COUNT],
+}
+fn new_q4_source(rule:&Gauge,rows:&[QRow],y:&[[u128;LANE_COUNT]])
+         ->Result<HashMap<u64,Q4Residual>,String>{
+    use std::collections::hash_map::Entry;
+    let mut all=HashMap::with_capacity(1_985_218);
+    let mut raw_edges=0u64;
+    for (i,row) in rows.iter().enumerate(){
+        for &(dest,coeff) in &row.outside{
+            let current=match all.entry(dest){
+                Entry::Occupied(o)=>o.into_mut(),
+                Entry::Vacant(o)=>{
+                    let w=rule.orbit_weight(rule.key(dest));
+                    require((w==1||w==2||w==3||w==6)&&w>0,
+                            "independent_Q4_orbit_weight")?;
+                    o.insert(Q4Residual{weight:w as u8,incoming:[0u128;LANE_COUNT]})
+                }
+            };
+            let w_q4=u64::from(current.weight);
+            let weighted=u64::from(row.weight)*u64::from(coeff);
+            require(weighted%w_q4==0,
+                    "new_Q4_K3_exact_weighted_reciprocity")?;
+            let reverse=weighted/w_q4;
+            for k in 0..LANE_COUNT{
+                let term=u128::from(reverse).checked_mul(y[i][k])
+                    .ok_or_else(||"Q4_residual_source_mul_overflow".to_owned())?;
+                current.incoming[k]=current.incoming[k].checked_add(term)
+                    .ok_or_else(||"Q4_residual_source_add_overflow".to_owned())?;
+            }
+            raw_edges+=u64::from(coeff);
+        }
+    }
+    require(all.len()==1_985_218 && raw_edges==9_789_408,
+            "all_original_Q4_1985218_external_states")?;
+    println!("Y137_INDEPENDENT_Q4_RESIDUAL|actual_Q4_states={}|original_K3_Q4_raw_edges={}|independent_source=WEIGHTED_ELECTRIC_CONTRACTION|original_Q4_S3_orbit_weights=REBUILT|original_StageC_V1=SEPARATE_CHECK|json=0",
+            all.len(),raw_edges);
+    Ok(all)
+}
+fn gram_add(out:&mut [[Int320;LANE_COUNT];LANE_COUNT],
+            row:&[i128;LANE_COUNT],weight:i64)->Result<(),String>{
+    for a in 0..LANE_COUNT{for b in a..LANE_COUNT{
+        out[a][b].add(&Int320::multiply(row[a],row[b],weight)?)?;
+    }}
+    Ok(())
+}
+fn full_source_gram(rule:&Gauge,rows:&[QRow],y:&[[u128;LANE_COUNT]],
+                   r:&[[i128;LANE_COUNT]])
+       ->Result<[[Int320;LANE_COUNT];LANE_COUNT],String>{
+    let mut result=[[Int320::default();LANE_COUNT];LANE_COUNT];
+    for (i,row) in rows.iter().enumerate(){
+        gram_add(&mut result,&r[i],6*i64::from(row.weight))?;
+    }
+    let q4=new_q4_source(rule,rows,y)?;
+    for source in q4.values(){
+        let mut r4=[0i128;LANE_COUNT];
+        for k in 0..LANE_COUNT{
+            let p=(B).checked_mul(source.incoming[k])
+                .ok_or_else(||"Q4_original_R4_positive_source_overflow".to_owned())?;
+            require(p<(1u128<<122),"Q4_R4_122bit_bound")?;
+            r4[k]=-(p as i128);
+        }
+        gram_add(&mut result,&r4,6*i64::from(source.weight))?;
+    }
+    for i in 0..LANE_COUNT{for j in 0..i{result[i][j]=result[j][i];}}
+    Ok(result)
+}
+fn expected_matrix_digits(source:&Path,z:u128,field:&str)
+          ->Result<Vec<Vec<String>>,String>{
+    let text=std::fs::read_to_string(source).map_err(|e|e.to_string())?;
+    let rows=text.lines().filter(|x|x.starts_with("Y137_CACHE_POINT|"))
+        .filter(|line|line.split('|').any(|f|f==format!("sample_num={z}")))
+        .collect::<Vec<_>>();
+    require(rows.len()==1,"single_accepted_G0_source_energy")?;
+    let name=format!("{field}=");
+    let raw=rows[0].split('|').find_map(|x|x.strip_prefix(&name))
+        .ok_or_else(||"missing_original_source_8x8_matrix".to_owned())?;
+    let result=raw.split(';').map(|r|r.split(',').map(str::to_owned)
+                       .collect::<Vec<_>>()).collect::<Vec<_>>();
+    require(result.len()==LANE_COUNT &&
+           result.iter().all(|r|r.len()==LANE_COUNT),
+           "original_8x8_matrix_shape")?;
+    Ok(result)
+}
+fn compare_original_G(source:&Path,z:u128,gram:[[Int320;LANE_COUNT];LANE_COUNT])
+      ->Result<(),String>{
+    let original=expected_matrix_digits(source,z,"G0")?;
+    for i in 0..LANE_COUNT{for j in 0..LANE_COUNT{
+        require(gram[i][j].decimal()==original[i][j],
+                &format!("new_original_K3_Q4_G0_mismatch_energy_{z}_row_{i}_col_{j}"))?;
+    }}
+    println!("Y137_INDEPENDENT_K3_Q4_GRAM|sample_num={z}|K3_states=155378|Q4_states=1985218|new_original_R_K3_AND_R_Q4=INDEPENDENTLY_GENERATED|all_original_8x8_G0_entries=64_OF_64_MATCH|original_source=IMMUTABLE_CACHE|json=0");
+    Ok(())
+}
 fn exact_u(rows:&[QRow],y:&[[u128;LANE_COUNT]],
            residual:&[[i128;LANE_COUNT]],z:u128)
      ->Result<[[i128;LANE_COUNT];LANE_COUNT],String>{
@@ -422,8 +609,9 @@ fn execute(archive:&Path,source:&Path)->Result<(),String>{
         let y=jacobi(&states,energy)?;
         let r=residuals(&states,&y,energy)?;
         compare_U_source(source,energy,exact_u(&states,&y,&r,energy)?)?;
+        compare_original_G(source,energy,full_source_gram(&rule,&states,&y,&r)?)?;
     }
-    println!("Y137_INDEPENDENT_K3_VERDICT|K3=155378|two_original_energy_trials=20_JACOBI_EACH|original_U0_matrix_entries=128_OF_128_MATCH|original_K3_support_and_weights=FULL_PASS|original_Q4_residual=SEPARATE_FULL_SOURCE_GATE|original_StageC_signed_V1=SEPARATE_SOURCE_GATE|whole_Perron_store=SEPARATE_GATE|Wilson=SOURCE_CONDITIONAL_FORMAL_HOLD|elapsed_seconds={}|json=0",start.elapsed().as_secs());
+    println!("Y137_INDEPENDENT_K3_VERDICT|K3=155378|two_original_energy_trials=20_JACOBI_EACH|original_U0_matrix_entries=128_OF_128_MATCH|original_G0_matrix_entries=128_OF_128_MATCH|original_K3_Q4_R_source=INDEPENDENTLY_GENERATED|original_K3_support_and_weights=FULL_PASS|original_Q4_residual=SEPARATE_FULL_SOURCE_GATE|original_StageC_signed_V1=SEPARATE_SOURCE_GATE|whole_Perron_store=SEPARATE_GATE|Wilson=SOURCE_CONDITIONAL_FORMAL_HOLD|elapsed_seconds={}|json=0",start.elapsed().as_secs());
     Ok(())
 }
 fn main(){
