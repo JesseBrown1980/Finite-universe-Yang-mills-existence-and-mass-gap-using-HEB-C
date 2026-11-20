@@ -3,7 +3,7 @@
 //! Read-only original signed K3 archive is the comparison target, never used to construct Y.
 use std::collections::{BTreeMap,BTreeSet,HashMap,HashSet};
 use std::fs::File;
-use std::io::{BufReader,Read};
+use std::io::{BufReader,Read,Write};
 use std::path::Path;
 use std::time::Instant;
 const PERM:[[u8;3];6]=[[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
@@ -672,6 +672,131 @@ fn compare_u_source(path:&Path,z:u128,
     println!("Y137_INDEPENDENT_K3_TRIAL_U|sample_num={z}|new_original_20_Jacobi_sweeps=PASS|all_original_8x8_U0_entries=64_OF_64_MATCH|original_U0_source=IMMUTABLE_CACHE|K3_signed_residual=INDEPENDENTLY_GENERATED|original_StageC_V1=SEPARATE_SOURCE_GATE|json=0");
     Ok(())
 }
+
+fn q4_shard(group:usize,original:&Path,group_keys:&Path,all_keys:&Path)
+         ->Result<(),String>{
+    require(group<8,"Q4_source_group_0_to_7")?;
+    let start=std::time::Instant::now();
+    let rule=Gauge::new()?;
+    let keys=layers(&rule)?;
+    let rows=graph(&rule,&keys)?;
+    let mut inner=HashMap::with_capacity(ORIGINAL_K3);
+    for (i,row) in rows.iter().enumerate(){
+        require(inner.insert(row.key,i).is_none(),
+                "independent_K3_duplicate_address")?;
+    }
+    let mut rlist:[Vec<[i128;LANE_COUNT]>;2]=[Vec::new(),Vec::new()];
+    let mut q4list:[HashMap<u64,Q4Residual>;2]=[HashMap::new(),HashMap::new()];
+    for (s,&z) in ENERGY.iter().enumerate(){
+        let y=jacobi(&rows,z)?;
+        rlist[s]=residuals(&rows,&y,z)?;
+        q4list[s]=new_q4_source(&rule,&rows,&y)?;
+    }
+    require(q4list.iter().all(|q|q.len()==1_985_218),
+            "both_source_Q4_1985218_full_census")?;
+    let mut independent_keys=q4list[0].keys().copied().collect::<Vec<_>>();
+    independent_keys.sort_unstable();
+    require(independent_keys.windows(2).all(|w|w[0]<w[1]),
+            "independent_Q4_source_addresses_unique")?;
+    require(independent_keys.iter().all(|k|q4list[1].contains_key(k)),
+            "both_Q4_source_geometry_sets_match")?;
+    // One shard writes the exact full 15.9 MB source key set for a
+    // separately implemented original-source union comparison.
+    if group==0{
+        let mut writer=std::io::BufWriter::new(
+            File::create(all_keys).map_err(|e|e.to_string())?);
+        for a in &independent_keys{
+            writer.write_all(&a.to_le_bytes()).map_err(|e|e.to_string())?;
+        }
+        writer.flush().map_err(|e|e.to_string())?;
+    }
+    drop(independent_keys);
+    let mut reader=BufReader::with_capacity(1<<20,
+        File::open(original).map_err(|e|e.to_string())?);
+    let mut output=std::io::BufWriter::new(
+        File::create(group_keys).map_err(|e|e.to_string())?);
+    let mut previous=None;
+    let mut records=0usize;
+    let mut comparisons=0usize;
+    let mut raw_moves=0usize;
+    loop{
+        let mut header=[0u8;11];
+        if reader.read(&mut header[..1]).map_err(|e|e.to_string())?==0{break;}
+        reader.read_exact(&mut header[1..]).map_err(|e|e.to_string())?;
+        let addr=u64::from_le_bytes(header[..8].try_into()
+            .map_err(|_|"Q4_stageC_header_addr")?);
+        require(header[9]==4&&header[10]==2,
+                "Q4_stageC_original_shell_and_two_samples")?;
+        if let Some(prev)=previous{
+            require(addr>prev,"Q4_original_shard_canonical_address_order")?;
+        }
+        previous=Some(addr);
+        let canonical=rule.key(addr);
+        require(rule.address(rule.canonical(rule.expand(canonical)))==addr,
+                "original_Q4_source_not_S3_canonical")?;
+        let weight=rule.orbit_weight(canonical);
+        require(u8::try_from(weight).map_err(|e|e.to_string())?==header[8],
+                "original_Q4_source_W_weight")?;
+        require((4..=16).contains(&rule.magnetic(canonical)),
+                "original_Q4_magnetic_support")?;
+        let m=rule.magnetic(canonical);
+        let neighbors=rule.moves(canonical)?;
+        require(neighbors.values().map(|&v|v as usize).sum::<usize>()==72,
+                "Q4_complete_original_72_raw_moves")?;
+        raw_moves+=72;
+        for sample in 0..2{
+            let z=ENERGY[sample];
+            let source=q4list[sample].get(&addr)
+                .ok_or_else(||"original_Q4_state_absent_from_independent_sources".to_owned())?;
+            require(source.weight==header[8],"Q4_original_source_weight_vs_new_boundary")?;
+            let diag=(B*(72+9*u128::from(m))-z) as i128;
+            for lane in 0..LANE_COUNT{
+                let self_positive=i128::try_from(source.incoming[lane])
+                    .map_err(|e|e.to_string())?;
+                let rs=(B as i128).checked_mul(self_positive)
+                    .and_then(|a|a.checked_neg())
+                    .ok_or_else(||"Q4_original_R_source_overflow".to_owned())?;
+                let mut v=diag.checked_mul(rs)
+                    .ok_or_else(||"Q4_V1_magnetic_diagonal_overflow".to_owned())?;
+                for (&dest,&cc) in &neighbors{
+                    let factor=(B as i128).checked_mul(i128::from(cc))
+                        .ok_or_else(||"Q4_V1_weighted_coeff_overflow".to_owned())?;
+                    if let Some(&index)=inner.get(&dest){
+                        let term=factor.checked_mul(rlist[sample][index][lane])
+                            .ok_or_else(||"Q4_V1_K3_term_overflow".to_owned())?;
+                        v=v.checked_sub(term)
+                            .ok_or_else(||"Q4_V1_K3_sum_overflow".to_owned())?;
+                    }else if let Some(other)=q4list[sample].get(&dest){
+                        let pos=i128::try_from(other.incoming[lane])
+                            .map_err(|e|e.to_string())?;
+                        let term=factor.checked_mul(B as i128)
+                            .and_then(|a|a.checked_mul(pos))
+                            .ok_or_else(||"Q4_V1_Q4_term_overflow".to_owned())?;
+                        v=v.checked_add(term)
+                            .ok_or_else(||"Q4_V1_Q4_sum_overflow".to_owned())?;
+                    }
+                    // All further Q5 source R values are identically zero.
+                }
+                let original_v=read_i128(&mut reader)?;
+                require(v==original_v,
+                        &format!("original_Q4_V1_first_principles_mismatch_group_{group}_address_{addr}_sample_{sample}_lane_{lane}_new_{v}_archive_{original_v}"))?;
+                comparisons+=1;
+            }
+        }
+        output.write_all(&addr.to_le_bytes()).map_err(|e|e.to_string())?;
+        records+=1;
+        if records%40000==0{
+            println!("Y137_INDEPENDENT_Q4_V1_PROGRESS|shard={group}|records={records}|raw_moves={raw_moves}|sources=FIRST_PRINCIPLES|json=0");
+        }
+    }
+    output.flush().map_err(|e|e.to_string())?;
+    let expected=1_985_218*(group+1)/8-1_985_218*group/8;
+    require(records==expected,"exact_Q4_original_archive_group_census")?;
+    require(comparisons==16*expected,"Q4_source_two_energy_sixteen_lanes")?;
+    println!("Y137_INDEPENDENT_Q4_V1_SHARD|group={group}|rows={records}|exact_source_components={comparisons}|raw_72_electric_moves={raw_moves}|all_original_signed_V1_entries=EXACT_FIRST_PRINCIPLES|original_archive_immutable=SHA_PINNED|independent_Q4_set=1985218|elapsed_seconds={}|json=0",
+             start.elapsed().as_secs());
+    Ok(())
+}
 fn synthetic()->Result<(),String>{
     let rule=Gauge::new()?;
     require(flats(&rule)?.len()==8,"flat_source_toy")?;
@@ -709,6 +834,11 @@ fn main(){
     let result=match args.as_slice(){
         [_,mode] if mode=="toy"=>synthetic(),
         [_,mode,archive,source] if mode=="real"=>execute(Path::new(archive),Path::new(source)),
+        [_,mode,group,original,group_keys,all_keys] if mode=="q4-shard"=>
+            match group.parse::<usize>(){
+                Ok(g)=>q4_shard(g,Path::new(original),Path::new(group_keys),Path::new(all_keys)),
+                Err(e)=>Err("invalid_Q4_shard_number_".to_string()+&e.to_string()),
+            },
         _=>Err("usage_k3_source toy_or_real ORIGINAL_SIGNED_V1_K3_FILE ORIGINAL_U0_CACHE".to_string()),
     };
     if let Err(e)=result{
