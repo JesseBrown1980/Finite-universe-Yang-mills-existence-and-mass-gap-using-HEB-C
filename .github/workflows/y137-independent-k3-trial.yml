@@ -70,3 +70,96 @@ jobs:
           path: build/y137-independent-K3/results
           retention-days: 60
           if-no-files-found: warn
+
+  original-q4-physical-v1-shards:
+    needs: full-independent-k3-source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [0,1,2,3,4,5,6,7]
+    env:
+      GROUP: ${{ matrix.group }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 43867088509
+          github-token: ${{ github.token }}
+          name: y137-stage-c-full-signed-Q4-${{ matrix.group }}
+          path: build/y137-q4-original
+      - name: Authenticate immutable original Stage C Q4 group source
+        run: |
+          set -euo pipefail
+          test -s "build/y137-q4-original/SIGNED-Q4-$GROUP.v1"
+          grep -E "  build/y137-q4-original/SIGNED-Q4-$GROUP.v1$" \
+            independent/y137-independent-k3-trial-20261119/ORIGINAL-Q4-SHA256.txt \
+            | sha256sum -c -
+      - name: Independently rebuild complete K3/Q4 R source and original Q4 signed V1 for shard
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-q4-verdict
+          rustc --edition=2021 -D warnings -O \
+            independent/y137-independent-k3-trial-20261119/k3_reconstruct.rs \
+            -o build/y137-q4-verdict/rebuild
+          /usr/bin/time -v build/y137-q4-verdict/rebuild q4-shard "$GROUP" \
+            "build/y137-q4-original/SIGNED-Q4-$GROUP.v1" \
+            "build/y137-q4-verdict/ORIGINAL-Q4-KEYS-$GROUP.bin" \
+            "build/y137-q4-verdict/ALL-INDEPENDENT-Q4-KEYS.bin" \
+            | tee "build/y137-q4-verdict/RESULT-Q4-SHARD-$GROUP.hbp"
+          grep -Fq "|group=$GROUP|" "build/y137-q4-verdict/RESULT-Q4-SHARD-$GROUP.hbp"
+          grep -Fq '|all_original_signed_V1_entries=EXACT_FIRST_PRINCIPLES|' \
+            "build/y137-q4-verdict/RESULT-Q4-SHARD-$GROUP.hbp"
+          sha256sum "build/y137-q4-verdict/ORIGINAL-Q4-KEYS-$GROUP.bin" \
+            "build/y137-q4-verdict/RESULT-Q4-SHARD-$GROUP.hbp" \
+            > "build/y137-q4-verdict/ORIGINAL-Q4-RECEIPT-$GROUP.sha256"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-Q4-V1-source-shard-${{ matrix.group }}
+          path: |
+            build/y137-q4-verdict/ORIGINAL-Q4-KEYS-*.bin
+            build/y137-q4-verdict/ALL-INDEPENDENT-Q4-KEYS.bin
+            build/y137-q4-verdict/RESULT-Q4-SHARD-*.hbp
+            build/y137-q4-verdict/ORIGINAL-Q4-RECEIPT-*.sha256
+          retention-days: 60
+          if-no-files-found: warn
+  independently-accept-complete-q4-original-source:
+    needs: original-q4-physical-v1-shards
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y137-independent-Q4-V1-source-shard-*
+          path: build/y137-q4-fanin
+          merge-multiple: true
+      - name: Exact eight-shard original Q4 signed source and complete physical key set fan-in
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-independent-k3-trial-20261119/q4_fanin.py toy \
+            | tee build/y137-q4-fanin/RESULT-Q4-FANIN-TOY.hbp
+          grep -Fq '|altered_address_duplicate_and_missing=3_REJECTED|' \
+            build/y137-q4-fanin/RESULT-Q4-FANIN-TOY.hbp
+          python3 -I -B independent/y137-independent-k3-trial-20261119/q4_fanin.py real \
+            build/y137-q4-fanin \
+            | tee build/y137-q4-fanin/RESULT-Q4-FANIN.hbp
+          grep -Fq '|original_Q4_keys=FULL_SET_EXACT_MATCH|' \
+            build/y137-q4-fanin/RESULT-Q4-FANIN.hbp
+          grep -Fq '|original_two_energy_signed_V1_components=31763488_OF_31763488_MATCH|' \
+            build/y137-q4-fanin/RESULT-Q4-FANIN.hbp
+          sha256sum build/y137-q4-fanin/RESULT-Q4-FANIN.hbp \
+            > build/y137-q4-fanin/RESULT-Q4-FANIN.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-complete-original-Q4-V1-acceptance
+          path: |
+            build/y137-q4-fanin/RESULT-Q4-FANIN.hbp
+            build/y137-q4-fanin/RESULT-Q4-FANIN.sha256
+            build/y137-q4-fanin/RESULT-Q4-FANIN-TOY.hbp
+          retention-days: 60
+          if-no-files-found: warn
