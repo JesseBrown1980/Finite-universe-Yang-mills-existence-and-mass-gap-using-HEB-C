@@ -1,0 +1,54 @@
+name: Y137 independent original full-Q Perron W symmetry lift
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-wholeQ-perron-lift-20261120/**'
+      - '.github/workflows/y137-wholeQ-perron-lift.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  wholeQ-lift-proof-exact:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Independently check positive weighted Perron lift and exact groundstate transform
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-perron-wholeQ-lift
+          python3 -I -B independent/y137-wholeQ-perron-lift-20261120/verify_lift.py \
+            | tee build/y137-perron-wholeQ-lift/EXACT-WHOLEQ-LIFT.hbp
+          grep -Fq '|wholeQ_groundstate_sum_squares=PASS|' \
+            build/y137-perron-wholeQ-lift/EXACT-WHOLEQ-LIFT.hbp
+          grep -Fq '|strict_spectral_floor_slack_microJE=2473|' \
+            build/y137-perron-wholeQ-lift/EXACT-WHOLEQ-LIFT.hbp
+          grep -Fq '|negative_controls=9_REJECTED|' \
+            build/y137-perron-wholeQ-lift/EXACT-WHOLEQ-LIFT.hbp
+          grep -Fq '|first_original_Wilson=SOURCE_CONDITIONAL_FORMAL_HOLD|' \
+            build/y137-perron-wholeQ-lift/EXACT-WHOLEQ-LIFT.hbp
+      - name: Recheck full theorem under optimized Python with assertions removed
+        run: |
+          set -euo pipefail
+          python3 -O -I -B independent/y137-wholeQ-perron-lift-20261120/verify_lift.py \
+            | tee build/y137-perron-wholeQ-lift/EXACT-WHOLEQ-LIFT-O.hbp
+          cmp build/y137-perron-wholeQ-lift/EXACT-WHOLEQ-LIFT.hbp \
+              build/y137-perron-wholeQ-lift/EXACT-WHOLEQ-LIFT-O.hbp
+      - name: Strict standalone and whole repository exact integer-only policies
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py \
+            independent/y137-wholeQ-perron-lift-20261120/verify_lift.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          sha256sum build/y137-perron-wholeQ-lift/EXACT-WHOLEQ-LIFT.hbp \
+            > build/y137-perron-wholeQ-lift/EXACT-WHOLEQ-LIFT.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-original-weighted-wholeQ-perron-lift-proof
+          path: |
+            build/y137-perron-wholeQ-lift/EXACT-WHOLEQ-LIFT.hbp
+            build/y137-perron-wholeQ-lift/EXACT-WHOLEQ-LIFT-O.hbp
+            build/y137-perron-wholeQ-lift/EXACT-WHOLEQ-LIFT.sha256
+          retention-days: 60
+          if-no-files-found: warn
