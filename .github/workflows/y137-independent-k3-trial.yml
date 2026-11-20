@@ -1,0 +1,69 @@
+name: Y137 independent full K3 Jacobi source generator
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-independent-k3-trial-20261119/**'
+      - '.github/workflows/y137-independent-k3-trial.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  k3-reconstruction-toy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - name: Compile strict independent Rust 1.81 exact 20-Jacobi-step generator
+        run: |
+          set -euo pipefail
+          rustc --edition=2021 -D warnings -O \
+            independent/y137-independent-k3-trial-20261119/k3_reconstruct.rs \
+            -o /tmp/y137_k3_reconstruct
+          /tmp/y137_k3_reconstruct toy | tee /tmp/y137-k3-source-toy.hbp
+          grep -Fq '|floor_rounding_forgery=REJECTED|' /tmp/y137-k3-source-toy.hbp
+          grep -Fq '|original_S3_flats=8|raw_moves=72|' /tmp/y137-k3-source-toy.hbp
+      - name: Preserve repository exact-only numerical policy
+        run: |
+          set -euo pipefail
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+  full-independent-k3-source:
+    needs: k3-reconstruction-toy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 43867088509
+          github-token: ${{ github.token }}
+          name: y137-stage-c-full-signed-K3
+          path: build/y137-independent-K3/original
+      - name: Precheck immutable original K3 full signed source SHA
+        run: |
+          set -euo pipefail
+          test -s build/y137-independent-K3/original/SIGNED-K3.v1
+          echo '36e22e87ed5d5af87f00c3712fb4020ff189325862a449d4899281a2f104de45  build/y137-independent-K3/original/SIGNED-K3.v1' | sha256sum -c -
+      - name: Independently construct 155378-state K3, run 20 upward Jacobi sweeps at both original energies and compare all signed source lanes
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-independent-K3/results
+          rustc --edition=2021 -D warnings -O \
+            independent/y137-independent-k3-trial-20261119/k3_reconstruct.rs \
+            -o build/y137-independent-K3/rebuild
+          /usr/bin/time -v build/y137-independent-K3/rebuild real \
+            build/y137-independent-K3/original/SIGNED-K3.v1 \
+            | tee build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp
+          grep -Fq '|new_trial_source=INDEPENDENT_GENERATION_PASS|' build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp
+          grep -Fq '|full_original_K3_signed_vectors=EXACT|' build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp
+          sha256sum build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp \
+            > build/y137-independent-K3/results/RESULT-K3-SOURCE.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-full-K3-original-20-Jacobi-source
+          path: build/y137-independent-K3/results
+          retention-days: 60
+          if-no-files-found: warn
