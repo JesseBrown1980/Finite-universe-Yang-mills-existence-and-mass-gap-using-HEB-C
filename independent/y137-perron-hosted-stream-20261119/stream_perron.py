@@ -56,7 +56,7 @@ def manifest_parse(content):
     expected=["sector-"+str(i)+".rooms" for i in range(FIRST,FIRST+COUNT)]
     need(set(name for _,name in result)==set(expected),
          "exact_34_original_pinned_sector_names")
-    return dict(result)
+    return {name:sha for sha,name in result}
 
 def load_manifest(root):
     raw=(root/"SECTORS-341-374.sha256").read_bytes()
