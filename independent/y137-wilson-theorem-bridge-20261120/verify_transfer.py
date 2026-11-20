@@ -64,10 +64,17 @@ def get_hbp(raw,tag):
 
 def json_values(line):
     # Exactly the expected plain scalar JSON subset; no eval, no floats.
+    # The separately checked endpoint arrays intentionally repeat fields.
+    endpoint_fields={
+        "endpoint_count","energy_den","energy_num","label","nneg_lower",
+        "nneg_upper","nzero_lower","nzero_upper","required_nneg"
+    }
     data={}
     for m in re.finditer(r'"([A-Za-z_][A-Za-z_0-9]*)":\s*(?:"([^"]*)"|(-?\d+))',line):
         key=m.group(1)
-        need(key not in data,"duplicate_JSON_scalar_"+key)
+        if key in data:
+            need(key in endpoint_fields,"duplicate_JSON_scalar_"+key)
+            continue
         data[key]=m.group(2) if m.group(2) is not None else m.group(3)
     return data
 
