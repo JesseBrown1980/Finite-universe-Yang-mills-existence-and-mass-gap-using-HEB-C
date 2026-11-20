@@ -59,7 +59,7 @@ def manifest_parse(content):
     return {name:sha for sha,name in result}
 
 def load_manifest(root):
-    raw=(root/"SECTORS-341-374.sha256").read_bytes()
+    raw=(root.joinpath("SECTORS-341-374.sha256")).read_bytes()
     need(hash_hex(raw)==MANIFEST_SHA,"original_sector_manifest_SHA_mismatch")
     return manifest_parse(raw)
 
@@ -89,10 +89,10 @@ def prepare(root):
         data=inp.read(1<<20)
     need(hash_hex(data)==MANIFEST_SHA,"remote_manifest_SHA256")
     manifest_parse(data)
-    (root/"SECTORS-341-374.sha256").write_bytes(data)
-    download(ORIGINAL_PERRON+"/passA.bin",root/"passA.bin",PASSA_SHA,PASSA_BYTES)
+    (root.joinpath("SECTORS-341-374.sha256")).write_bytes(data)
+    download(ORIGINAL_PERRON+"/passA.bin",root.joinpath("passA.bin"),PASSA_SHA,PASSA_BYTES)
     for i in range(FIRST,FIRST+COUNT):
-        fifo=root/("sector-"+str(i)+".rooms")
+        fifo=root.joinpath("sector-"+str(i)+".rooms")
         need(not fifo.exists(),"refuse_overwrite_input_sector")
         os.mkfifo(fifo,0o600)
     print("Y137_PERRON_STREAM_PREPARE|original_sector_manifest_sha256="+MANIFEST_SHA+
@@ -104,7 +104,7 @@ def prepare(root):
 def serve(root):
     manifest=load_manifest(root)
     h=hashlib.sha256()
-    with open(root/"passA.bin","rb") as inp:
+    with open(root.joinpath("passA.bin"),"rb") as inp:
         while True:
             b=inp.read(CHUNK)
             if not b:break
@@ -113,13 +113,13 @@ def serve(root):
     summary=hashlib.sha256()
     matched=0
     total=0
-    record=root/"ORIGINAL-34-SECTORS-SHA.hbp"
+    record=root.joinpath("ORIGINAL-34-SECTORS-SHA.hbp")
     with open(record,"w",encoding="ascii",buffering=1) as out:
         for i in range(FIRST,FIRST+COUNT):
             name="sector-"+str(i)+".rooms"
             expected=manifest[name]
             url=ORIGINAL_STORE+"/"+name
-            fifo=root/name
+            fifo=root.joinpath(name)
             need(fifo.is_fifo(),"missing_unmodified_source_named_pipe")
             h=hashlib.sha256()
             n=0
