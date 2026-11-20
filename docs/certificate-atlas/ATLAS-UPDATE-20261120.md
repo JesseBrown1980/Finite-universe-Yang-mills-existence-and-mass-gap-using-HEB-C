@@ -33,7 +33,7 @@ The project tree at the snapshot has 1,197 `.hbp` files and 207 tracked files un
 
 ## Graph descriptions and safety checks
 
-The [new offline combined 3D viewer](atlas-current-20261120.html) has **four modes and three precomputed camera angles**. It is SVG/CSS-only, with no JavaScript, external network calls or runtime floating-point arithmetic. Click points for direct evidence.
+The [new live-rendered combined 3D viewer](https://raw.githack.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/main/docs/certificate-atlas/atlas-current-20261120.html) has **four modes and three precomputed camera angles**. It is SVG/CSS-only, with no JavaScript, external network calls or runtime floating-point arithmetic. Click points for direct evidence.
 
 1. **Gap landscape:** physical size × log coupling × high-cluster gap lower divided by coupling. A triangle denotes a **lower bound**; other points may be certified intervals. The November 20 validation overlays, without moving, the original `3×4 r=9` coordinate.
 2. **Spectral scatter:** log support dimension × energy index × energy in J_E. Source-conditional full-physical and Ritz/trial quantities are labeled separately; the new physical E₁/E₂ and Q floor overlays keep their exact old values.
