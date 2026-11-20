@@ -140,6 +140,11 @@ def serve(root):
                             # without presenting it as additional store data.
                             pipe_broken=True
             actual=h.hexdigest()
+            if actual!=expected:
+                print("Y137_PERRON_SECTOR_MISMATCH|sector="+str(i)+
+                      "|actual_bytes="+str(n)+"|original_sha256="+expected+
+                      "|streamed_sha256="+actual+
+                      "|physical_fullrebuild_status=READ_SEPARATELY|json=0",flush=True)
             need(actual==expected,"immutable_original_sector_SHA_"+str(i))
             need(i==FIRST+COUNT-1 or n==SEGMENT_BYTES,
                  "nonterminal_original_sector_length_"+str(i))
@@ -159,6 +164,44 @@ def serve(root):
               "|streamed_original_bytes="+str(total)+
               "|fingerprint="+summary.hexdigest()+
               "|fullrebuild_rows=VERIFY_SEPARATELY|json=0",flush=True)
+
+def probe_last():
+    # Independent single-sector SHA diagnostic. Requires no full-store
+    # physical regeneration and changes no original source bytes.
+    url=ORIGINAL_STORE+"/SECTORS-341-374.sha256"
+    with urllib.request.urlopen(url,timeout=120) as src:
+        manifest_bytes=src.read(1<<20)
+    need(hash_hex(manifest_bytes)==MANIFEST_SHA,
+         "last_sector_probe_original_manifest_changed")
+    manifest=manifest_parse(manifest_bytes)
+    name="sector-374.rooms"
+    expected=manifest[name]
+    h=hashlib.sha256()
+    n=0
+    # Follow exactly the same pinned original source URL as the FIFO
+    # adapter, but without opening/closing any reader pipe.
+    with urllib.request.urlopen(ORIGINAL_STORE+"/"+name,timeout=120) as src:
+        content_length=src.headers.get("Content-Length","unknown")
+        etag=src.headers.get("ETag","unknown")
+        http_status=str(src.status)
+        while True:
+            block=src.read(CHUNK)
+            if not block:break
+            h.update(block)
+            n+=len(block)
+    actual=h.hexdigest()
+    print("Y137_PERRON_LAST_SOURCE_PROBE|sector=374"+
+          "|source=IMMUTABLE_HF_COMMIT"+
+          "|bytes="+str(n)+
+          "|http_status="+http_status+
+          "|content_length="+content_length+
+          "|etag="+etag.replace("|","_")+
+          "|original_manifest_sha256="+expected+
+          "|downloaded_original_sha256="+actual+
+          "|sha_match="+str(actual==expected).upper()+
+          "|physical_row_rebuild_from_prior=45508080_ROWS_MERKLE_PASS"+
+          "|json=0",flush=True)
+    need(actual==expected,"last_original_sector_SHA256_not_authenticated")
 
 def toy():
     # Structural and SHA-corruption controls are independently tested
@@ -185,8 +228,9 @@ def toy():
 
 def main():
     try:
-        need(len(sys.argv) in (2,3),"usage_toy_or_prepare_or_serve_ROOT")
+        need(len(sys.argv) in (2,3),"usage_toy_or_probe_last_or_prepare_or_serve_ROOT")
         if sys.argv[1:]==["toy"]:toy()
+        elif sys.argv[1:]==["probe-last"]:probe_last()
         elif len(sys.argv)==3 and sys.argv[1]=="prepare":
             prepare(pathlib.Path(sys.argv[2]))
         elif len(sys.argv)==3 and sys.argv[1]=="serve":
