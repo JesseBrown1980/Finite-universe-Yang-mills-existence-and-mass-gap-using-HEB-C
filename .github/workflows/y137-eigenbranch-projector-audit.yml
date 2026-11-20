@@ -1,0 +1,109 @@
+name: Y137 exact eigenprojector mathematical control
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-eigenbranch-projector-audit-20261118/**'
+      - '.github/workflows/y137-eigenbranch-projector-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-toy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Print exact-rational verifier evidence pins for mandatory no-float review
+        run: |
+          python3 -I -X utf8 native/scripts/no_float_gate.py --pins \
+            independent/y137-eigenbranch-projector-audit-20261118/check_projector.py \
+            independent/y137-eigenbranch-projector-audit-20261118/replay_interval.py \
+            independent/y137-eigenbranch-projector-audit-20261118/replay_tightened_wilson.py \
+            independent/y137-eigenbranch-projector-audit-20261118/source_branch.py \
+            independent/y137-eigenbranch-projector-audit-20261118/source_sample.py \
+            independent/y137-eigenbranch-projector-audit-20261118/source_window.py \
+            independent/y137-eigenbranch-projector-audit-20261118/test_projector.py
+      - name: Exact rational positive toy and 8 negative controls
+        run: |
+          python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/test_projector.py
+          python3 -O -I -B independent/y137-eigenbranch-projector-audit-20261118/test_projector.py
+
+  original-signed-source-samples:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve the immutable research-source commit
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin d0fd29b2fbef1f38ba9d3db381e133f2d131ffdc
+          test "$(git rev-parse FETCH_HEAD)" = d0fd29b2fbef1f38ba9d3db381e133f2d131ffdc
+          git checkout FETCH_HEAD -- independent/y137-four-moment-fullstate-20261116 independent/y137-independent-premise-audit-20261118 independent/y137-mu3-real-20261115 independent/y137-mu3-acceptance-20261115 independent/y137-moment-radau-20261114 independent/y137-radau-recentred-angle-20261114 independent/y137-radau-fullstate-windows-20261115 independent/y137-shell4-diagonal-cache-20261114 independent/y137-real-Q-moment-20261114 independent/y137-d11-shell5-spill-20261114 independent/y137-matched-Wilson-directional-action-20261118
+      - name: Frozen E1/E2 source-linked 8x8 sample diagnostics
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-eigenprojector
+          python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/source_sample.py | tee build/y137-eigenprojector/samples.jsonl
+          test "$(grep -c 'Y137_SCHUR_SAMPLE_DIAGNOSTIC' build/y137-eigenprojector/samples.jsonl)" = 2
+      - name: Original E1/E2 directional Schur interval angle calculation
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/source_window.py | tee build/y137-eigenprojector/interval.jsonl
+          test "$(grep -c 'Y137_SCHUR_INTERVAL_DIRECTIONAL' build/y137-eigenprojector/interval.jsonl)" = 2
+      - name: Original E1/E2 Schur energy endpoint inertia counts
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/source_branch.py toy
+          python3 -I -B independent/y137-eigenbranch-projector-audit-20261118/source_branch.py real | tee build/y137-eigenprojector/branch.jsonl
+          test "$(grep -c 'Y137_ENDPOINT_BRANCH' build/y137-eigenprojector/branch.jsonl)" = 2
+      - name: Producer-free exact E1/E2 interval theorem receipt replay
+        run: |
+          set -euo pipefail
+          D=independent/y137-eigenbranch-projector-audit-20261118
+          python3 -I -B "$D/replay_interval.py" \
+            build/y137-eigenprojector/interval.jsonl build/y137-eigenprojector/branch.jsonl \
+            | tee build/y137-eigenprojector/INDEPENDENT-REPLAY.hbp
+          grep -Fq '|two_original_projector_angles=PASS|two_true_eigenbranches=PASS|tamper_controls=10_REJECTED|' \
+            build/y137-eigenprojector/INDEPENDENT-REPLAY.hbp
+          python3 -O -I -B "$D/replay_interval.py" \
+            build/y137-eigenprojector/interval.jsonl build/y137-eigenprojector/branch.jsonl \
+            > build/y137-eigenprojector/INDEPENDENT-REPLAY-OPTIMIZED.hbp
+          grep -Fq '|tamper_controls=10_REJECTED|' \
+            build/y137-eigenprojector/INDEPENDENT-REPLAY-OPTIMIZED.hbp
+      - name: Frozen original matched Wilson source and tightened true-projector replay
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          D=independent/y137-eigenbranch-projector-audit-20261118
+          SRC=build/y137-eigenprojector/original-Wilson
+          mkdir -p "$SRC"
+          gh run download 44411639918 --repo "$GITHUB_REPOSITORY" \
+            --name y137-original-S3-matched-Wilson-directional-action --dir "$SRC"
+          test -s "$SRC/ALL.hbp"
+          python3 -I -B independent/y137-matched-Wilson-directional-action-20261118/verify_action.py \
+            "$SRC/ALL.hbp" | tee build/y137-eigenprojector/ORIGINAL-WILSON-REPLAY.hbp
+          grep -Fq '|tamper_controls=11_REJECTED|' build/y137-eigenprojector/ORIGINAL-WILSON-REPLAY.hbp
+          python3 -I -B "$D/replay_tightened_wilson.py" "$SRC/ALL.hbp" \
+            build/y137-eigenprojector/interval.jsonl \
+            build/y137-eigenprojector/branch.jsonl \
+            build/y137-eigenprojector/samples.jsonl \
+            | tee build/y137-eigenprojector/TIGHTENED-WILSON.hbp
+          grep -Fq '|strict_positive_weight=SOURCE_CONDITIONAL_PASS|tamper_controls=9_REJECTED|' \
+            build/y137-eigenprojector/TIGHTENED-WILSON.hbp
+          python3 -O -I -B "$D/replay_tightened_wilson.py" "$SRC/ALL.hbp" \
+            build/y137-eigenprojector/interval.jsonl \
+            build/y137-eigenprojector/branch.jsonl \
+            build/y137-eigenprojector/samples.jsonl \
+            > build/y137-eigenprojector/TIGHTENED-WILSON-OPTIMIZED.hbp
+          grep -Fq '|tamper_controls=9_REJECTED|' \
+            build/y137-eigenprojector/TIGHTENED-WILSON-OPTIMIZED.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-original-signed-schur-frozen-sample-diagnostic
+          path: build/y137-eigenprojector/
+          if-no-files-found: warn
