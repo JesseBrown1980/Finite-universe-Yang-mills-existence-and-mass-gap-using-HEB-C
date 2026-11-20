@@ -1,0 +1,38 @@
+name: Y137 independent finite matrix Gauss-Lobatto proof
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-independent-loewner-theorem-20261120/**'
+      - '.github/workflows/y137-independent-loewner-lemma.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-sign-mathematical-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate exact matrix Gauss/Lobatto scalar witness, 6 wrong-premise controls
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-loewner-proof
+          python3 -I -B independent/y137-independent-loewner-theorem-20261120/test_scalar.py \
+            | tee build/y137-loewner-proof/RESULT-EXACT-SIGN.hbp
+          grep -Fq '|exact_Gauss_less_than_F_less_than_Lobatto=PASS|' \
+            build/y137-loewner-proof/RESULT-EXACT-SIGN.hbp
+          grep -Fq '|wrong_support_and_reversed_bounds=6_REJECTED|' \
+            build/y137-loewner-proof/RESULT-EXACT-SIGN.hbp
+      - name: Independently enforce strict integer-only project source policy
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py \
+            independent/y137-independent-loewner-theorem-20261120/test_scalar.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-matrix-loewner-gram-theorem-toy
+          path: build/y137-loewner-proof/RESULT-EXACT-SIGN.hbp
+          retention-days: 60
+          if-no-files-found: warn

@@ -1,0 +1,64 @@
+name: Y137 independent original Wilson theorem transfer
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-wilson-theorem-bridge-20261120/**'
+      - '.github/workflows/y137-wilson-theorem-bridge.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-mathematical-transfer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Standalone original Hilbert-space O9-to-O theorem toy
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-wilson-theorem-bridge
+          python3 -I -B independent/y137-wilson-theorem-bridge-20261120/verify_transfer.py toy \
+            | tee build/y137-wilson-theorem-bridge/TOY.hbp
+          grep -Fq '|full_state_orthogonality=PASS|' \
+            build/y137-wilson-theorem-bridge/TOY.hbp
+      - name: Verify original immutable signed Schur and matched Wilson source artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run download 44560968064 --repo "$GITHUB_REPOSITORY" \
+            --name y137-original-signed-schur-frozen-sample-diagnostic \
+            --dir build/y137-wilson-theorem-bridge/original
+          test -s build/y137-wilson-theorem-bridge/original/original-Wilson/ALL.hbp
+          test -s build/y137-wilson-theorem-bridge/original/TIGHTENED-WILSON.hbp
+      - name: Independent exact E1/E2 projector, source action and original full-state Wilson normalization
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-wilson-theorem-bridge-20261120/verify_transfer.py real \
+            build/y137-wilson-theorem-bridge/original \
+            | tee build/y137-wilson-theorem-bridge/EXACT-TRANSFER.hbp
+          grep -Fq '|original_squared_weight_lower_ppt=17074763|' \
+            build/y137-wilson-theorem-bridge/EXACT-TRANSFER.hbp
+          grep -Fq '|negative_controls=9_REJECTED|' \
+            build/y137-wilson-theorem-bridge/EXACT-TRANSFER.hbp
+          grep -Fq '|first_original_Wilson_theorem=FORMAL_HOLD|' \
+            build/y137-wilson-theorem-bridge/EXACT-TRANSFER.hbp
+          sha256sum build/y137-wilson-theorem-bridge/EXACT-TRANSFER.hbp \
+            > build/y137-wilson-theorem-bridge/EXACT-TRANSFER.sha256
+      - name: Integer-only policy and complete repository strict no-float gate
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py \
+            independent/y137-wilson-theorem-bridge-20261120/verify_transfer.py
+          python3 -I -B native/scripts/no_float_gate.py .
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-original-wilson-theorem-transfer-receipt
+          path: |
+            build/y137-wilson-theorem-bridge/TOY.hbp
+            build/y137-wilson-theorem-bridge/EXACT-TRANSFER.hbp
+            build/y137-wilson-theorem-bridge/EXACT-TRANSFER.sha256
+          retention-days: 60
+          if-no-files-found: warn
