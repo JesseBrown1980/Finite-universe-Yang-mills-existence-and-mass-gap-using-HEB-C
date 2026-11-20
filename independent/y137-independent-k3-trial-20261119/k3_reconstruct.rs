@@ -580,7 +580,7 @@ fn compare_u_source(path:&Path,z:u128,
     let original=expected_source_u(path,z)?;
     for i in 0..LANE_COUNT{for j in 0..LANE_COUNT{
         require(observed[i][j]==original[i][j],
-                &format!("new_K3_U0_mismatch_energy_{z}_row_{i}_column_{j}"))?;
+                &format!("new_K3_U0_mismatch_energy_{z}_row_{i}_column_{j}_computed_{}_original_{}_diff_{}",observed[i][j],original[i][j],observed[i][j]-original[i][j]))?;
     }}
     println!("Y137_INDEPENDENT_K3_TRIAL_U|sample_num={z}|new_original_20_Jacobi_sweeps=PASS|all_original_8x8_U0_entries=64_OF_64_MATCH|original_U0_source=IMMUTABLE_CACHE|K3_signed_residual=INDEPENDENTLY_GENERATED|original_StageC_V1=SEPARATE_SOURCE_GATE|json=0");
     Ok(())
