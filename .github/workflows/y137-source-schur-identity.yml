@@ -1,0 +1,52 @@
+name: Y137 independent original weighted physical source Schur identity
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-source-schur-identity-20261120/**'
+      - '.github/workflows/y137-source-schur-identity.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-original-source-schur-bridge:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Independent original integer scales and W Schur/Feshbach source identity
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-schur-identity
+          python3 -I -B independent/y137-source-schur-identity-20261120/verify_identity.py \
+            | tee build/y137-schur-identity/EXACT-PHYSICAL-SOURCE-SCHUR.hbp
+          grep -Fq '|original_G0_equals_6_mu0=EXACT|' \
+            build/y137-schur-identity/EXACT-PHYSICAL-SOURCE-SCHUR.hbp
+          grep -Fq '|full_physical_Schur_identity_U0_minus_F=PASS|' \
+            build/y137-schur-identity/EXACT-PHYSICAL-SOURCE-SCHUR.hbp
+          grep -Fq '|changed_premises=7_REJECTED|' \
+            build/y137-schur-identity/EXACT-PHYSICAL-SOURCE-SCHUR.hbp
+      - name: Exact same result with Python assertions optimized out
+        run: |
+          set -euo pipefail
+          python3 -O -I -B independent/y137-source-schur-identity-20261120/verify_identity.py \
+            | tee build/y137-schur-identity/EXACT-PHYSICAL-SOURCE-SCHUR-O.hbp
+          cmp build/y137-schur-identity/EXACT-PHYSICAL-SOURCE-SCHUR.hbp \
+              build/y137-schur-identity/EXACT-PHYSICAL-SOURCE-SCHUR-O.hbp
+      - name: Independent repository exact integer-only and no-float gates
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py \
+            independent/y137-source-schur-identity-20261120/verify_identity.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          sha256sum build/y137-schur-identity/EXACT-PHYSICAL-SOURCE-SCHUR.hbp \
+            > build/y137-schur-identity/EXACT-PHYSICAL-SOURCE-SCHUR.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-original-physical-W-Schur-G0-sixfold-acceptance
+          path: |
+            build/y137-schur-identity/EXACT-PHYSICAL-SOURCE-SCHUR.hbp
+            build/y137-schur-identity/EXACT-PHYSICAL-SOURCE-SCHUR-O.hbp
+            build/y137-schur-identity/EXACT-PHYSICAL-SOURCE-SCHUR.sha256
+          retention-days: 60
+          if-no-files-found: warn
