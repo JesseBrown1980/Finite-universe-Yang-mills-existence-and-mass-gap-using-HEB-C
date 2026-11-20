@@ -307,9 +307,12 @@ fn read_i128(reader:&mut impl Read)->Result<i128,String>{
     require(abs<(1u128<<124),"original_K3_archive_signed_magnitude")?;
     Ok(if negative{-(abs as i128)}else{abs as i128})
 }
-fn compare_archive(path:&Path,rule:&Gauge,rows:&[QRow],
-       all_residual:&[Vec<[i128;LANE_COUNT]>;2])->Result<(),String>{
-    let index=rows.iter().enumerate().map(|(i,r)|(r.key,i)).collect::<HashMap<_,_>>();
+fn compare_archive(path:&Path,rule:&Gauge,rows:&[QRow])
+      ->Result<(),String>{
+    // Original Stage C K3 spool stores V1=X*R, not R. This is a
+    // source *support* comparison only; V1 amplitudes are verified by
+    // the separate complete signed full-Q replay.
+    let index=rows.iter().map(|r|(r.key,r.weight)).collect::<HashMap<_,_>>();
     let file=File::open(path).map_err(|e|e.to_string())?;
     let mut reader=BufReader::with_capacity(1<<20,file);
     let mut count=0usize;
@@ -320,28 +323,79 @@ fn compare_archive(path:&Path,rule:&Gauge,rows:&[QRow],
         reader.read_exact(&mut h[1..]).map_err(|e|e.to_string())?;
         let addr=u64::from_le_bytes(h[..8].try_into().map_err(|_|"K3_header_addr")?);
         require(h[9]==3 && h[10]==2,"original_K3_archive_header")?;
-        if let Some(prev)=last{
-            require(addr>prev,"original_K3_canonical_order")?;
-        }
+        if let Some(prev)=last{require(addr>prev,"original_K3_canonical_order")?;}
         last=Some(addr);
-        let idx=*index.get(&addr).ok_or("new_source_K3_state_missing_from_original")?;
-        require(rows[idx].weight==h[8],"independent_K3_orbit_weight")?;
+        let w=*index.get(&addr).ok_or("new_K3_geometry_state_missing_from_StageC")?;
+        require(w==h[8],"independent_K3_orbit_weight")?;
         require(rule.address(rule.canonical(rule.expand(rule.key(addr))))==addr,
-                "archive_not_original_S3_canonical")?;
-        for (s,expected) in all_residual.iter().enumerate(){
-            for k in 0..LANE_COUNT{
-                let actual=read_i128(&mut reader)?;
-                if actual!=expected[idx][k]{
-                    return Err(format!("K3_new_Jacobi_source_disagrees_sample={s},state={addr},lane={k},expected={},original={}",
-                                       expected[idx][k],actual));
-                }
-            }
-        }
+                "original_K3_archive_not_S3_canonical")?;
+        for _ in 0..(2*LANE_COUNT){let _=read_i128(&mut reader)?;}
         count+=1;
     }
-    require(count==ORIGINAL_K3,
-            "original_155378_K3_full_signed_source_rows")?;
-    println!("Y137_INDEPENDENT_K3_SOURCE_ACCEPT|new_S3_K3_states={ORIGINAL_K3}|Jacobi_sweeps=20|two_original_energies=69909875505,69949729820|all_16_source_lanes_per_state={}|all_original_signed_K3_rows=EXACT|new_trial_source=INDEPENDENT_GENERATION_PASS|full_original_signed_K3_source_SHA=CI_PRECHECK|original_Q4_residual=SEPARATE_FULL_CHECK|original_Wilson=SOURCE_CONDITIONAL_FORMAL_HOLD|json=0",ORIGINAL_K3*16);
+    require(count==ORIGINAL_K3,"original_155378_K3_archive_states")?;
+    println!("Y137_INDEPENDENT_K3_SUPPORT|original_archive_states=155378|independent_canonical_keys=ALL_MATCH|original_orbit_weights=ALL_MATCH|original_archive_V1_not_conflated_with_R=PASS|json=0");
+    Ok(())
+}
+fn exact_u(rows:&[QRow],y:&[[u128;LANE_COUNT]],
+           residual:&[[i128;LANE_COUNT]],z:u128)
+     ->Result<[[i128;LANE_COUNT];LANE_COUNT],String>{
+    let mut u=[[0i128;LANE_COUNT];LANE_COUNT];
+    let wf=[1i128,3,2,3,3,2,2,2];
+    for k in 0..LANE_COUNT{
+        let diagonal=(B*72-z) as i128;
+        u[k][k]=diagonal*(SCALE as i128)*(SCALE as i128)*wf[k];
+    }
+    for (i,row) in rows.iter().enumerate(){
+        let w=i128::from(row.weight);
+        for k in 0..LANE_COUNT{
+            let yi=y[i][k] as i128;
+            for j in 0..LANE_COUNT{
+                let yj=y[i][j] as i128;
+                let r=residual[i][j];
+                let positive=w.checked_mul(yi).and_then(|v|v.checked_mul(r))
+                    .ok_or_else(||"exact_U_trial_residual_product_overflow".to_owned())?;
+                let negative=w*i128::from(row.to_flat[k])*
+                               (B as i128)*(SCALE as i128)*yj;
+                let change=positive.checked_sub(negative)
+                    .ok_or_else(||"exact_U_PQ_coupling_overflow".to_owned())?;
+                u[k][j]=u[k][j].checked_add(change)
+                    .ok_or_else(||"exact_U_128bit_accumulation_overflow".to_owned())?;
+            }
+        }
+    }
+    require((0..LANE_COUNT).all(|i|(0..LANE_COUNT)
+            .all(|j|u[i][j]==u[j][i])),"new_exact_K3_U_matrix_symmetry")?;
+    Ok(u)
+}
+fn expected_source_U(path:&Path,z:u128)
+      ->Result<[[i128;LANE_COUNT];LANE_COUNT],String>{
+    let text=std::fs::read_to_string(path).map_err(|e|e.to_string())?;
+    let lines=text.lines().filter(|l|l.starts_with("Y137_CACHE_POINT|"))
+        .filter(|l|l.split('|').any(|f|f==format!("sample_num={z}")))
+        .collect::<Vec<_>>();
+    require(lines.len()==1,"single_immutable_original_U_source_energy")?;
+    let field=lines[0].split('|').find_map(|x|x.strip_prefix("U0="))
+        .ok_or_else(||"original_U0_matrix_missing".to_owned())?;
+    let mut out=[[0i128;LANE_COUNT];LANE_COUNT];
+    let rr=field.split(';').collect::<Vec<_>>();
+    require(rr.len()==LANE_COUNT,"original_U0_row_count")?;
+    for (i,line) in rr.iter().enumerate(){
+        let nums=line.split(',').collect::<Vec<_>>();
+        require(nums.len()==LANE_COUNT,"original_U0_column_count")?;
+        for (j,n) in nums.iter().enumerate(){
+            out[i][j]=n.parse::<i128>().map_err(|e|e.to_string())?;
+        }
+    }
+    Ok(out)
+}
+fn compare_U_source(path:&Path,z:u128,
+      observed:[[i128;LANE_COUNT];LANE_COUNT])->Result<(),String>{
+    let original=expected_source_U(path,z)?;
+    for i in 0..LANE_COUNT{for j in 0..LANE_COUNT{
+        require(observed[i][j]==original[i][j],
+                &format!("new_K3_U0_mismatch_energy_{z}_row_{i}_column_{j}"))?;
+    }}
+    println!("Y137_INDEPENDENT_K3_TRIAL_U|sample_num={z}|new_original_20_Jacobi_sweeps=PASS|all_original_8x8_U0_entries=64_OF_64_MATCH|original_U0_source=IMMUTABLE_CACHE|K3_signed_residual=INDEPENDENTLY_GENERATED|original_StageC_V1=SEPARATE_SOURCE_GATE|json=0");
     Ok(())
 }
 fn synthetic()->Result<(),String>{
@@ -358,27 +412,26 @@ fn synthetic()->Result<(),String>{
     println!("Y137_INDEPENDENT_K3_TOY|original_S3_flats=8|raw_moves=72|upward_integer_rounding=PASS|floor_rounding_forgery=REJECTED|frozen_b_and_scale=PASS|real_K3_signed_source=NOT_YET_COMPUTED|json=0");
     Ok(())
 }
-fn execute(path:&Path)->Result<(),String>{
+fn execute(archive:&Path,source:&Path)->Result<(),String>{
     let start=Instant::now();
     let rule=Gauge::new()?;
     let keys=layers(&rule)?;
     let states=graph(&rule,&keys)?;
-    let mut residual: [Vec<[i128;LANE_COUNT]>;2]=[Vec::new(),Vec::new()];
-    for (s,&energy) in ENERGY.iter().enumerate(){
+    compare_archive(archive,&rule,&states)?;
+    for &energy in &ENERGY{
         let y=jacobi(&states,energy)?;
-        residual[s]=residuals(&states,&y,energy)?;
-        println!("Y137_INDEPENDENT_K3_NEW_TRIAL|sample_num={energy}|K3_orbits={ORIGINAL_K3}|sweeps={STEPS}|construction=INDEPENDENT_S3_20_JACOBI|status=READY_FOR_ORIGINAL_SOURCE_COMPARISON|json=0");
+        let r=residuals(&states,&y,energy)?;
+        compare_U_source(source,energy,exact_u(&states,&y,&r,energy)?)?;
     }
-    compare_archive(path,&rule,&states,&residual)?;
-    println!("Y137_INDEPENDENT_K3_VERDICT|K3=155378|both_original_energies=PASS|independent_source_generation=PASS|full_original_K3_signed_vectors=EXACT|full_Q4=REQUIRES_INDEPENDENT_SOURCE_REBUILD|all_Perron_store=SEPARATE_GATE|Wilson=FORMAL_HOLD|elapsed_seconds={}|json=0",start.elapsed().as_secs());
+    println!("Y137_INDEPENDENT_K3_VERDICT|K3=155378|two_original_energy_trials=20_JACOBI_EACH|original_U0_matrix_entries=128_OF_128_MATCH|original_K3_support_and_weights=FULL_PASS|original_Q4_residual=SEPARATE_FULL_SOURCE_GATE|original_StageC_signed_V1=SEPARATE_SOURCE_GATE|whole_Perron_store=SEPARATE_GATE|Wilson=SOURCE_CONDITIONAL_FORMAL_HOLD|elapsed_seconds={}|json=0",start.elapsed().as_secs());
     Ok(())
 }
 fn main(){
     let args=std::env::args().collect::<Vec<_>>();
     let result=match args.as_slice(){
         [_,mode] if mode=="toy"=>synthetic(),
-        [_,mode,path] if mode=="real"=>execute(Path::new(path)),
-        _=>Err("usage_k3_source toy_or_real SIGNED_K3_FILE".to_string()),
+        [_,mode,archive,source] if mode=="real"=>execute(Path::new(archive),Path::new(source)),
+        _=>Err("usage_k3_source toy_or_real ORIGINAL_SIGNED_V1_K3_FILE ORIGINAL_U0_CACHE".to_string()),
     };
     if let Err(e)=result{
         eprintln!("Y137_INDEPENDENT_K3_REFUSE|reason={}|source=HOLD|Wilson=FORMAL_HOLD|json=0",
