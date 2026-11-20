@@ -158,7 +158,13 @@ fn flats(rule:&Gauge)->Result<Vec<u64>,String>{
         }
     }
     require(keys.len()==8,"original_S3_eight_commuting_flat_orbits")?;
-    let flat=keys.into_iter().collect::<Vec<_>>();
+    // Historical physical P basis is lexicographically sorted by the
+    // 13 retained-link tuple; little-endian base-6 addresses sort differently.
+    let mut flat=keys.into_iter().collect::<Vec<_>>();
+    flat.sort_by_key(|&a|rule.key(a));
+    require(flat.iter().map(|&a|rule.orbit_weight(rule.key(a))).collect::<Vec<_>>()
+            ==vec![1,3,2,3,3,2,2,2],
+            "original_eight_flat_channel_tuple_order_and_WF")?;
     require(flat.iter().map(|&x|rule.orbit_weight(rule.key(x))).sum::<usize>()==18,
             "original_18_flat_raw_commuting_classes")?;
     Ok(flat)
