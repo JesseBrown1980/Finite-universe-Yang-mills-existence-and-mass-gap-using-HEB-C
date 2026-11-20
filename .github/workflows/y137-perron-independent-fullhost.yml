@@ -1,0 +1,182 @@
+name: Y137 separate-host complete 45M Perron full row rebuild
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-perron-hosted-stream-20261119/**'
+      - '.github/workflows/y137-perron-independent-fullhost.yml'
+  workflow_dispatch:
+    inputs:
+      full_replay:
+        description: 'Explicitly rerun all 45,508,080 physical rows (composite check runs by default)'
+        required: false
+        default: false
+        type: boolean
+permissions:
+  contents: read
+  actions: read
+jobs:
+  fullhost-source-free-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Strict source-only manifest, named-pipe, and altered-input control
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-perron-hosted-stream-20261119/stream_perron.py toy \
+            | tee /tmp/y137-perron-stream-toy.hbp
+          grep -Fq '|wrong_sector_and_forged_SHA=2_REJECTED|' /tmp/y137-perron-stream-toy.hbp
+          python3 -I -X utf8 native/scripts/integer_only_audit.py \
+            independent/y137-perron-hosted-stream-20261119/stream_perron.py
+          python3 -I -X utf8 native/scripts/no_float_gate.py .
+      - name: Preserve historical independently authored Rust fullrebuild
+        run: |
+          set -euo pipefail
+          sha256sum native/ym/results/3x4_stream/perron/second-seat/fullrebuild.rs
+          echo '2e9ea99595f29efb53b7a1430e5ea4b7369396e1c70fefc7ab794cdd0b915850  native/ym/results/3x4_stream/perron/second-seat/fullrebuild.rs' | sha256sum -c -
+  independent-last-sector-sha-probe:
+    if: github.event_name == 'workflow_dispatch' && inputs.full_replay
+    needs: fullhost-source-free-controls
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Authenticate immutable original sector 374 independently, without FIFO
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-perron-probe
+          python3 -I -B independent/y137-perron-hosted-stream-20261119/stream_perron.py probe-last \
+            | tee build/y137-perron-probe/RESULT-LAST-SECTOR.hbp
+          grep -Fq '|sha_match=TRUE|' build/y137-perron-probe/RESULT-LAST-SECTOR.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-frozen-sector374-sha-diagnostic
+          path: build/y137-perron-probe/RESULT-LAST-SECTOR.hbp
+          retention-days: 60
+          if-no-files-found: warn
+  complete-independent-machine-rebuild:
+    if: github.event_name == 'workflow_dispatch' && inputs.full_replay
+    needs: [fullhost-source-free-controls, independent-last-sector-sha-probe]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.81.0
+      - name: Pin unmodified original Rust physical row source and compile
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-perron-hosted
+          echo '2e9ea99595f29efb53b7a1430e5ea4b7369396e1c70fefc7ab794cdd0b915850  native/ym/results/3x4_stream/perron/second-seat/fullrebuild.rs' | sha256sum -c -
+          rustc --edition=2021 -O native/ym/results/3x4_stream/perron/second-seat/fullrebuild.rs \
+            -o build/y137-perron-hosted/fullrebuild
+      - name: Authenticate immutable HF store manifest and original 45M passA table
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-perron-hosted-stream-20261119/stream_perron.py prepare \
+            build/y137-perron-hosted \
+            | tee build/y137-perron-hosted/PREFLIGHT.hbp
+          grep -Fq '|named_pipe_sectors=34|' build/y137-perron-hosted/PREFLIGHT.hbp
+          df -h .
+      - name: Stream all 34 frozen sectors into separate-machine 45,508,080-row physical rebuild
+        run: |
+          set -euo pipefail
+          DIR=build/y137-perron-hosted
+          python3 -I -B independent/y137-perron-hosted-stream-20261119/stream_perron.py serve "$DIR" \
+            > "$DIR/STREAM-ORIGINAL-SHA.log" 2>&1 &
+          PRODUCER=$!
+          trap 'kill "$PRODUCER" 2>/dev/null || true' EXIT
+          set +e
+          /usr/bin/time -v "$DIR/fullrebuild" \
+            "341:34:800000000:$DIR/sector-" "$DIR/passA.bin" 3 4 2 \
+            > "$DIR/FULLREBUILD-SECOND-MACHINE.out" \
+            2> "$DIR/FULLREBUILD-SECOND-MACHINE.err"
+          CODE=$?
+          set -e
+          if test "$CODE" -ne 0; then
+            echo "Y137_PERRON_INDEPENDENT_HOST_HOLD|reason=physical_fullrebuild_exit_$CODE|json=0"
+            exit 2
+          fi
+          wait "$PRODUCER"
+          trap - EXIT
+          grep -Fq '|rows_rebuilt=45508080|rows_read=45508080|canonical_key_mismatch=0|weight_mismatch=0|M_mismatch=0|entries_mismatch=0|merkle=PASS|' \
+            "$DIR/FULLREBUILD-SECOND-MACHINE.out"
+          grep -Fq '|all_sector_hashes=34_OF_34_PASS|' \
+            "$DIR/ORIGINAL-34-SECTORS-SHA.hbp"
+          sha256sum "$DIR/FULLREBUILD-SECOND-MACHINE.out" \
+            "$DIR/ORIGINAL-34-SECTORS-SHA.hbp" "$DIR/passA.bin" \
+            > "$DIR/SECOND-MACHINE-EVIDENCE.sha256"
+          echo 'Y137_PERRON_INDEPENDENT_HOST_VERDICT|recomputed_physical_rows=45508080|source_sector_SHA=34_OF_34_PASS|original_passA_SHA=PASS|canonical_weights_magnetic_electric=ALL_EXACT|original_store_merkle=PASS|independent_host=GITHUB_ACTIONS|original_finite_Perron_floor=94070673_CONDITIONAL_ON_TOP_VECTOR|first_Wilson=FORMAL_HOLD|json=0' \
+            | tee "$DIR/FINAL-VERDICT.hbp"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-complete-perron-fresh-host-rebuild
+          path: |
+            build/y137-perron-hosted/PREFLIGHT.hbp
+            build/y137-perron-hosted/STREAM-ORIGINAL-SHA.log
+            build/y137-perron-hosted/ORIGINAL-34-SECTORS-SHA.hbp
+            build/y137-perron-hosted/FULLREBUILD-SECOND-MACHINE.out
+            build/y137-perron-hosted/FULLREBUILD-SECOND-MACHINE.err
+            build/y137-perron-hosted/SECOND-MACHINE-EVIDENCE.sha256
+            build/y137-perron-hosted/FINAL-VERDICT.hbp
+          retention-days: 60
+          if-no-files-found: warn
+  independent-composite-34-sector-source-acceptance:
+    needs: fullhost-source-free-controls
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve original immutable hosted full-row and full-last-sector receipts
+        run: |
+          set -euo pipefail
+          DIR=build/y137-perron-composite
+          mkdir -p "$DIR/probe"
+          gh run download 44749925095 --repo "$GITHUB_REPOSITORY" \
+            --name y137-complete-perron-fresh-host-rebuild --dir "$DIR"
+          gh run download 44749925095 --repo "$GITHUB_REPOSITORY" \
+            --name y137-independent-frozen-sector374-sha-diagnostic \
+            --dir "$DIR/probe"
+          test -s "$DIR/FULLREBUILD-SECOND-MACHINE.out"
+          test -s "$DIR/STREAM-ORIGINAL-SHA.log"
+          test -s "$DIR/probe/RESULT-LAST-SECTOR.hbp"
+      - name: Independently parse pinned source, proof receipts, and six altered-premise controls
+        run: |
+          set -euo pipefail
+          DIR=build/y137-perron-composite
+          python3 -I -B independent/y137-perron-hosted-stream-20261119/composite_accept.py toy "$DIR" \
+            | tee "$DIR/COMPOSITE-TOY.hbp"
+          grep -Fq '|six_changed_sources=6_REJECTED|' "$DIR/COMPOSITE-TOY.hbp"
+      - name: Hash entire authentic final source plus exact previously consumed physical prefix
+        run: |
+          set -euo pipefail
+          DIR=build/y137-perron-composite
+          python3 -I -B independent/y137-perron-hosted-stream-20261119/composite_accept.py real "$DIR" \
+            | tee "$DIR/RESULT-COMPOSITE-PERRON.hbp"
+          grep -Fq '|independent_physical_rows=45508080_OF_45508080_PASS|' \
+            "$DIR/RESULT-COMPOSITE-PERRON.hbp"
+          grep -Fq '|sector374_original_prefix_match=PASS|' "$DIR/RESULT-COMPOSITE-PERRON.hbp"
+          grep -Fq '|original_sector_files_cryptographically_authenticated=34_OF_34|' \
+            "$DIR/RESULT-COMPOSITE-PERRON.hbp"
+          grep -Fq '|same_run_full_34_sector_stream_SHA=NOT_CLAIMED|' \
+            "$DIR/RESULT-COMPOSITE-PERRON.hbp"
+          sha256sum "$DIR/RESULT-COMPOSITE-PERRON.hbp" "$DIR/COMPOSITE-TOY.hbp" \
+            > "$DIR/COMPOSITE-RECEIPT.sha256"
+      - name: Enforce exact-only native repository policies
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py \
+            independent/y137-perron-hosted-stream-20261119/composite_accept.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-45m-perron-composite-34-sector-source-certificate
+          path: |
+            build/y137-perron-composite/COMPOSITE-TOY.hbp
+            build/y137-perron-composite/RESULT-COMPOSITE-PERRON.hbp
+            build/y137-perron-composite/COMPOSITE-RECEIPT.sha256
+          retention-days: 60
+          if-no-files-found: warn
