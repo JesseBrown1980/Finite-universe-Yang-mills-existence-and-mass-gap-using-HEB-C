@@ -1,0 +1,58 @@
+name: Y137 independent exact original physical weighted PQ operator
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-physical-pq-signoff-20261120/**'
+      - '.github/workflows/y137-physical-pq-signoff.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-whole-physical-pq-operator:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Independently rebuild 8 S3 physical flats, 264 PQ boundary, W-adjoint and Wilson
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-independent-physical-pq
+          python3 -I -B independent/y137-physical-pq-signoff-20261120/verify_pq.py \
+            | tee build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ.hbp
+          grep -Fq '|P_Q_distinct_original_physical_orbits=264|' \
+            build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ.hbp
+          grep -Fq '|original_BstarB=72_I8_EXACT|' \
+            build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ.hbp
+          grep -Fq '|original_Wilson_P=14,8,5,6,0,2,-7,-7|' \
+            build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ.hbp
+          grep -Fq '|negative_controls=7_REJECTED|' \
+            build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ.hbp
+          grep -Fq '|original_Wilson=SOURCE_CONDITIONAL_FORMAL_HOLD|' \
+            build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ.hbp
+      - name: Verify strict negative controls survive optimized Python
+        run: |
+          set -euo pipefail
+          python3 -O -I -B independent/y137-physical-pq-signoff-20261120/verify_pq.py \
+            | tee build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ-OPTIMIZED.hbp
+          cmp build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ.hbp \
+              build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ-OPTIMIZED.hbp
+          grep -Fq '|negative_controls=7_REJECTED|' \
+            build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ-OPTIMIZED.hbp
+      - name: Strict integer-only and complete repository no-float policies
+        run: |
+          set -euo pipefail
+          python3 -I -B native/scripts/integer_only_audit.py \
+            independent/y137-physical-pq-signoff-20261120/verify_pq.py
+          python3 -I -B native/scripts/no_float_gate.py .
+          sha256sum build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ.hbp \
+            > build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-original-physical-WPQ-8-flat-264-edge-signoff
+          path: |
+            build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ.hbp
+            build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ-OPTIMIZED.hbp
+            build/y137-independent-physical-pq/EXACT-PHYSICAL-PQ.sha256
+          retention-days: 60
+          if-no-files-found: warn
