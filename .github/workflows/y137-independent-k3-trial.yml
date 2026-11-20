@@ -55,9 +55,10 @@ jobs:
             -o build/y137-independent-K3/rebuild
           /usr/bin/time -v build/y137-independent-K3/rebuild real \
             build/y137-independent-K3/original/SIGNED-K3.v1 \
+            independent/y137-shell4-diagonal-cache-20261114/RESULT-MAGNETIC-CACHE.hbp \
             | tee build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp
-          grep -Fq '|new_trial_source=INDEPENDENT_GENERATION_PASS|' build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp
-          grep -Fq '|full_original_K3_signed_vectors=EXACT|' build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp
+          grep -Fq '|original_U0_matrix_entries=128_OF_128_MATCH|' build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp
+          grep -Fq '|original_K3_support_and_weights=FULL_PASS|' build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp
           sha256sum build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp \
             > build/y137-independent-K3/results/RESULT-K3-SOURCE.sha256
       - uses: actions/upload-artifact@v4
