@@ -59,6 +59,7 @@ jobs:
             | tee build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp
           grep -Fq '|original_U0_matrix_entries=128_OF_128_MATCH|' build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp
           grep -Fq '|original_G0_matrix_entries=128_OF_128_MATCH|' build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp
+          grep -Fq '|signed_archive_V1=X_R_values=2486048_OF_2486048_MATCH|' build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp
           grep -Fq '|original_K3_support_and_weights=FULL_PASS|' build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp
           sha256sum build/y137-independent-K3/results/RESULT-K3-SOURCE.hbp \
             > build/y137-independent-K3/results/RESULT-K3-SOURCE.sha256
