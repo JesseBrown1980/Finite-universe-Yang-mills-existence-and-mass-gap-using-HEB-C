@@ -72,12 +72,46 @@ def transformed_quadratic(h,w,c,d,t,u):
          "positive_groundstate_transform_Z_matrix")
     return lhs
 
+def flat_projection_control():
+    """Seven flat quotient rows are omitted before testing positive Q witness.
+
+    A smaller one-flat analogue has actual P-Q electric links, so a vector
+    zero on P has a negative full-H flat-row residual. QHQ nonetheless has
+    a strictly positive lifted witness and the same nonflat row ratios.
+    """
+    w=(1,1,2,2)
+    full=((4,-3,-2,-2),(-3,6,-2,-2),
+          (-1,-1,7,0),(-1,-1,0,7))
+    nonflat=(1,2,3)
+    full_d=(0,2,1,1)
+    need(all(w[i]*full[i][j]==w[j]*full[j][i]
+             for i in range(4) for j in range(4)),
+         "flat_boundary_weighted_adjoint")
+    need(full_d[0]==0 and all(full_d[i]>0 for i in nonflat),
+         "zero_on_flat_strictly_positive_on_all_Q")
+    qh=tuple(tuple(full[i][j] for j in nonflat) for i in nonflat)
+    need(qh==fullop(W,C,D),
+         "flat_principal_compression_preserves_Q_diagonal")
+    qd=tuple(full_d[i] for i in nonflat)
+    need(tuple(sum(qh[i][j]*qd[j] for j in range(3))
+               for i in range(3))==(8,5,5),
+         "flat_boundary_couplings_removed_from_QHQ")
+    need(sum(full[0][j]*full_d[j] for j in range(4))==-10,
+         "uncompressed_flat_row_must_not_be_checked_for_Perron")
+    need(all(sum(qh[i][j]*qd[j] for j in range(3))>=THRESHOLD*qd[i]
+             for i in range(3)),
+         "compressed_nonflat_comparison_inequality")
+    need(45508080-7==45508073 and 2177317873-8==2177317865,
+         "original_seven_sector_flats_eight_whole_flats")
+    return True
+
 def refuse(fn):
     try:fn()
     except Hold:return
     raise Hold("bad_wholeQ_positive_vector_or_symmetry_lift_accepted")
 
 def checks():
+    need(flat_projection_control(),"original_flat_Q_compression_control")
     h=fullop(W,C,D)
     q=quotient(h)
     need(q==SECTOR,"exact_original_sector_orbit_row_sum_in_toy")
@@ -110,6 +144,8 @@ def checks():
           "|spatial_quotient_invariant=EXACT"+
           "|strict_positive_quotient_vector=PASS"+
           "|wholeQ_row_lift=EXACT"+
+          "|flat_boundary_Q_principal_compression=PASS"+
+          "|sector_rows_total=45508080|sector_flats=7|sector_nonflat=45508073"+
           "|wholeQ_groundstate_sum_squares=PASS"+
           "|original_cert_t_microJE=94070673"+
           "|original_conservative_gamma_microJE=94068200"+
