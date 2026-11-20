@@ -40,6 +40,37 @@ preceq U_0-F_{mathrm{Gauss}}quad}.
 
 These are exactly the orientations in the source's `bracket4` calculation.
 
+## Preliminary localizer theorem — the exact admissible signed fourth moment
+
+For the same `C=[V,XV]`, the two endpoint localizer matrices are themselves Hilbert-space Grams:
+
+[
+G_g=C^*(X-gI)C=
+egin{pmatrix}
+mu_1-gmu_0 & mu_2-gmu_1\
+mu_2-gmu_1 & mu_3-gmu_2
+end{pmatrix}succeq0,
+]
+
+[
+G_h=C^*(hI-X)C=
+egin{pmatrix}
+hmu_0-mu_1 & hmu_1-mu_2\
+hmu_1-mu_2 & hmu_2-mu_3
+end{pmatrix}succeq0.
+]
+
+Assume their upper-left blocks `D=mu1-g mu0` and `E=h mu0-mu1` are strictly positive definite. Their exact **matrix** Schur complements give a necessary whole-Q fourth-moment window:
+
+[
+gmu_2+(mu_2-gmu_1)D^{-1}(mu_2-gmu_1)
+preceqmu_3
+preceq
+hmu_2-(hmu_1-mu_2)E^{-1}(hmu_1-mu_2).
+]
+
+This proves the source's `mu3_acceptance.window` inequalities and their orientations with no commutativity assumption between `mu0`, `mu1`, `mu2` and `mu3`. The two archived signed full-Q 16×16 original localizers can be checked directly by exact integer principal minors or a valid fraction-free LDL factorization. They are **necessary source-consistency checks**. Actual equality with the Hamiltonian's full-Q signed `mu3` requires the separately accepted complete physical matrix reconstruction, and is *not* inferred merely from being within this window.
+
 ## Proof A — matrix Gauss lower bound by the full Hilbert Gram
 
 Consider the trial operator `C=[V, XV]` mapping two copies of the (m)-space into Q. Its `X`-weighted Gram is
