@@ -14,7 +14,7 @@ from math import gcd, isqrt
 from pathlib import Path
 from zipfile import ZipFile
 
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"y137-one-shot-schur-gram-wilson-20261120"))
+sys.path.insert(0,str(Path(__file__).resolve().parents[1].joinpath("y137-one-shot-schur-gram-wilson-20261120")))
 from check_shortcut import F
 
 U=1000000000000
@@ -48,7 +48,7 @@ class Artifact:
     def __exit__(self,*args):
         if self.archive is not None:self.archive.close()
     def read(self,name):
-        return (self.path/name).read_bytes() if self.archive is None else self.archive.read(name)
+        return self.path.joinpath(name).read_bytes() if self.archive is None else self.archive.read(name)
 
 def get_zip(z,name,pin_name=None):
     raw=z.read(name)
