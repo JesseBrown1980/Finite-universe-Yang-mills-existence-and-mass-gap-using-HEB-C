@@ -40,6 +40,16 @@ PINS={
 def need(q,msg):
     if not q:raise ValueError(msg)
 def sha(s):return hashlib.sha256(s).hexdigest()
+class Artifact:
+    def __init__(self,path):
+        self.path=Path(path)
+        self.archive=None if self.path.is_dir() else ZipFile(self.path)
+    def __enter__(self):return self
+    def __exit__(self,*args):
+        if self.archive is not None:self.archive.close()
+    def read(self,name):
+        return (self.path/name).read_bytes() if self.archive is None else self.archive.read(name)
+
 def get_zip(z,name,pin_name=None):
     raw=z.read(name)
     need(sha(raw)==PINS[pin_name or name],"pinned_artifact_sha_"+name)
@@ -273,7 +283,7 @@ def forged_controls(ir,br,sm,pair,raw):
     need(count==12,"adversarial_count")
     return count
 def audit(diagnostic,source):
-    with ZipFile(diagnostic) as a,ZipFile(source) as b:
+    with Artifact(diagnostic) as a,Artifact(source) as b:
         raw=get_zip(b,"ALL.hbp")
         need(raw==get_zip(a,"original-Wilson/ALL.hbp","ALL.hbp"),
              "two_original_frozen_hosted_artifacts_equal")
@@ -300,7 +310,7 @@ def audit(diagnostic,source):
         tests=forged_controls(ir,br,sm,pair,raw)
     return margin,ppt,tests
 def main():
-    need(len(sys.argv)==3,"usage: verify_joined.py DIAGNOSTIC.zip ACTION.zip")
+    need(len(sys.argv)==3,"usage: verify_joined.py DIAGNOSTIC_DIR_OR_ZIP ACTION_DIR_OR_ZIP")
     margin,ppt,tests=audit(sys.argv[1],sys.argv[2])
     print("Y137_JOINED_ORIGINAL_WILSON|two_hosted_archives=SHA256_PASS"+
           "|true_E1_E2_branches=2_PASS|true_projector_cones=2_PASS"+
