@@ -1,0 +1,93 @@
+name: Y137 independent original full-Q Wilson dual origin
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-dual-cleanroom-20261120/**'
+      - '.github/workflows/y137-dual-cleanroom.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  independent-original-S3-Qdual-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 115
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clean source and exact-integer audits
+        run: |
+          set -euo pipefail
+          D=independent/y137-dual-cleanroom-20261120
+          python3 -I -B native/scripts/integer_only_audit.py "$D/verify.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object native/ym/results/3x4_stream/perron/PERRON-RESULT.hbp)" = cbd428014a4d440732a5c0a541ed57a9041becee
+      - name: Compile the entirely fresh safe Rust physical S3 source and dual engine
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.81.0 --profile minimal
+          mkdir -p build/y137-dual-cleanroom
+          rustc +1.81.0 --edition=2021 -O -D warnings \
+            independent/y137-dual-cleanroom-20261120/graph.rs \
+            -o build/y137-dual-cleanroom/fresh-S3-graph
+      - name: Retrieve frozen original matched forward and adjoint Wilson action
+        run: |
+          set -euo pipefail
+          gh run download 44411639918 --repo "$GITHUB_REPOSITORY" \
+            --name y137-original-S3-matched-Wilson-directional-action \
+            --dir build/y137-dual-cleanroom/original
+          test -s build/y137-dual-cleanroom/original/ALL.hbp
+          echo 'bffa172b395dc1ad47b03907315c57ac0625390abaf6ba484ebc4980dcddce5e  build/y137-dual-cleanroom/original/ALL.hbp' \
+            | sha256sum -c
+      - name: Independently enumerate 24-link physical S3 through Q3 and full Q4 boundary
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v build/y137-dual-cleanroom/fresh-S3-graph \
+            build/y137-dual-cleanroom/SOURCE.bin \
+            2>&1 | tee build/y137-dual-cleanroom/GRAPH.log
+          grep -Fq '|Q_states=155378|Q_adj=1356528|Q4_states=1985218|PQ_weighted_edges=264|W_reciprocity=PASS' \
+            build/y137-dual-cleanroom/GRAPH.log
+          test -s build/y137-dual-cleanroom/SOURCE.bin
+      - name: Independently compute signed Q3 plus complete Q4 source residuals in Python big integers
+        run: |
+          set -euo pipefail
+          D=independent/y137-dual-cleanroom-20261120
+          /usr/bin/time -v python3 -I -B "$D/verify.py" \
+            build/y137-dual-cleanroom/SOURCE.bin \
+            build/y137-dual-cleanroom/original/ALL.hbp \
+            2>&1 | tee build/y137-dual-cleanroom/RAW-DUAL.hbp
+          grep -Fq '|all_four_full_Q_W_norms=EXACT_AGREE_ORIGINAL' \
+            build/y137-dual-cleanroom/RAW-DUAL.hbp
+          grep -Fq '|eight_forward_action_entries=EXACT_AGREE_ORIGINAL' \
+            build/y137-dual-cleanroom/RAW-DUAL.hbp
+          grep -Fq '|eight_adjoint_action_entries=EXACT_AGREE_ORIGINAL' \
+            build/y137-dual-cleanroom/RAW-DUAL.hbp
+          grep -Fq '|changed_inputs=8_REJECTED|' \
+            build/y137-dual-cleanroom/RAW-DUAL.hbp
+      - name: Independent executable source and artifact fingerprints
+        run: |
+          set -euo pipefail
+          D=independent/y137-dual-cleanroom-20261120
+          sha256sum "$D/graph.rs" "$D/verify.py" \
+            build/y137-dual-cleanroom/original/ALL.hbp \
+            build/y137-dual-cleanroom/SOURCE.bin \
+            build/y137-dual-cleanroom/RAW-DUAL.hbp \
+            > build/y137-dual-cleanroom/SOURCE.sha256
+          git rev-parse HEAD > build/y137-dual-cleanroom/COMMIT.txt
+          printf '%s\n' \
+            'Y137_CLEANROOM_SOURCE_ORIGIN_VERDICT|original_24link_S3=INDEPENDENT_PASS|complete_Q3_Q4_source=INDEPENDENT_PASS|matched_forward_adjoint_dual_action=EXACT_AGREEMENT|original_finite_Wilson=READY_FOR_FINAL_JOINT_REVIEW|continuum_4D=OPEN|json=0' \
+            | tee build/y137-dual-cleanroom/VERDICT.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-independent-full-physical-S3-Wilson-Qdual-origin
+          path: |
+            build/y137-dual-cleanroom/SOURCE.bin
+            build/y137-dual-cleanroom/RAW-DUAL.hbp
+            build/y137-dual-cleanroom/GRAPH.log
+            build/y137-dual-cleanroom/VERDICT.hbp
+            build/y137-dual-cleanroom/SOURCE.sha256
+            build/y137-dual-cleanroom/COMMIT.txt
+          retention-days: 90
+          if-no-files-found: warn
