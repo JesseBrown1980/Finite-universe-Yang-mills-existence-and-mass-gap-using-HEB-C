@@ -1,5 +1,10 @@
 # Finite-universe Yang–Mills with HEB-C
 
+## November 21, 2026 — linked 4D continuum certificate atlas
+
+**[▶ OPEN THE 4D SU(2) CERTIFICATE ATLAS — LIVE 3D VIEW](https://raw.githack.com/JesseBrown1980/yang-mills-4-dimensional-continum-proof/main/docs/certificate-atlas/index.html)** · [Eleven OPEN physical/continuum certificates and cross-repository match ledger](https://github.com/JesseBrown1980/yang-mills-4-dimensional-continum-proof/blob/main/docs/certificate-atlas/BRIDGE-LEDGER.md). The 4D graph links back here and distinguishes our accepted **finite S₃** first-Wilson source certificate from conditional, draft and open **continuous SU(2)** proof obligations. Both viewer graphs remain source-linked and independently scoped.
+
+
 ## November 20, 2026 — original finite S₃ first Wilson spectral-weight: independent source and mathematical acceptance PASS
 
 [**Final source-independent Wilson acceptance, PR #350**](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/350) · [**All 14 checks passed, hosted final joined proof**](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44845098209) · [**Full certificate and source lineage**](docs/certificate-atlas/WILSON-FORMAL-ACCEPTANCE-20261120.md).

@@ -1,5 +1,9 @@
 # Three-dimensional Yang–Mills certificate atlas
 
+
+**[▶ Companion 4D continuous-SU(2) Certificate Atlas — interactive 3D viewer](https://raw.githack.com/JesseBrown1980/yang-mills-4-dimensional-continum-proof/main/docs/certificate-atlas/index.html)** · [Eleven 4D OPEN proof gates and outside certificate matches](https://github.com/JesseBrown1980/yang-mills-4-dimensional-continum-proof/blob/main/docs/certificate-atlas/BRIDGE-LEDGER.md). This link is a cross-repository index: the original finite 3×4 S₃ r=9 first-Wilson acceptance remains finite-model evidence, while the 4D interacting continuum construction and mass gap remain OPEN.
+
+
 ## November 20 source-independent first Wilson certificate accepted
 
 [**Original finite 3×4 S₃ r=9 first Wilson mathematical acceptance: PASS**](WILSON-FORMAL-ACCEPTANCE-20261120.md). After the original atlas snapshot, [PR #348](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/348) established the exact Schur–Gram shift, [#349](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/349) independently joined the physical/moment/projector/Wilson arithmetic, and [**#350**](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/350) independently regenerated the physical 24-link S₃ Q-dual source from new Rust and Python code. All four full-Q residual norms and all 16 original forward/adjoint Wilson action entries agree exactly; all 14 required checks passed. **Certified original finite squared Wilson lower bound: strictly greater than 17,074,763/10¹².** The four-dimensional continuum mass-gap objective remains **OPEN**.
