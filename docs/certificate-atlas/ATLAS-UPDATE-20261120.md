@@ -1,5 +1,8 @@
 # Certificate Atlas refresh — full repository inventory and November 17–20 update
 
+> **Later certificate update, 20 November 2026:** This document preserves the original PR #345 atlas audit snapshot. The [#348–#350 original finite first-Wilson acceptance addendum](WILSON-FORMAL-ACCEPTANCE-20261120.md) supersedes the historical source-conditional HOLD for the finite S₃ r=9 first-excitation Wilson transition. The current [combined JSON](certificates-current-20261120.json) includes **27 new verification milestones, 28 Wilson chain nodes and 82 PR events** through #350. The 4D continuum target remains OPEN.
+
+
 **Snapshot audit:** complete recursive current-`main` Git tree at `3180c0111a3123d9c605eba79c22942bc4f1824c`, **5,966 entries; not truncated**. Original certificate-atlas PR [#267](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/267) merged 17 November 2026; its dataset had **80 source-linked records** (39 gap, 15 spectrum, 26 algorithm) pinned to original README commit `98c39fbaa1e6ecf9e6454062e90801f385356063`.
 
 ## Full-scope change audit

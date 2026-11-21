@@ -1,5 +1,8 @@
 # Open the rendered 3D Yang–Mills Certificate Atlas
 
+**Updated finite Wilson certificate:** [original first Wilson formal mathematical acceptance PASS, PR #350](WILSON-FORMAL-ACCEPTANCE-20261120.md), with [hosted proof #44845098209](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44845098209). The 4D continuum problem remains OPEN. The plotted chart coordinates are the earlier frozen snapshot.
+
+
 ## [▶ OPEN THE UPDATED 3D CERTIFICATE ATLAS — LIVE VIEW](https://raw.githack.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/main/docs/certificate-atlas/atlas-current-20261120.html)
 
 **Click the link above to see the 3D plots, rather than the HTML source.** This is the current combined November 20 certificate atlas, with four graph families and three selectable camera positions, including the old 80 measurements and new certificate-verification evidence.
@@ -22,4 +25,4 @@ The viewer is a standalone, pre-rendered HTML/SVG/CSS page from the public repos
 
 Download [the updated standalone HTML file](atlas-current-20261120.html) using **Download raw file** on GitHub; open that saved `.html` file in your normal browser. All 12 SVG camera/chart panels are self-contained. Links to the original PRs may still require internet when clicked.
 
-These are visualization links, not changes to proof acceptance. The first original finite Wilson spectral-weight claim remains **SOURCE-CONDITIONAL / FORMAL HOLD**; the four-dimensional continuum Yang–Mills problem remains **OPEN**.
+These are visualization links. Subsequent independent physical Q source and joined mathematical verification now establish the original **finite-model first Wilson acceptance PASS** via PR #350; the four-dimensional continuum Yang–Mills problem remains **OPEN**.
