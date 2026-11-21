@@ -8,22 +8,24 @@
     "readme_url": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/blob/98c39fbaa1e6ecf9e6454062e90801f385356063/README.md"
   },
   "audit": {
-    "head": "3180c0111a3123d9c605eba79c22942bc4f1824c",
+    "head": "1f8fb0c72ef9f25d067bedee94e1cdbf6836583e",
     "since_pr": 267,
     "original_records": 80,
-    "new_algorithm_milestones": 24,
+    "new_algorithm_milestones": 27,
     "new_spectral_rechecks": 3,
     "new_gap_rechecks": 1,
     "new_wilson_bounds": 7,
-    "new_proof_chain_nodes": 25,
-    "pr_events": 77,
-    "merged": 35,
+    "new_proof_chain_nodes": 28,
+    "pr_events": 82,
+    "merged": 40,
     "open": 40,
     "closed_unmerged": 2,
-    "scope": "All branches and PRs scanned for post-atlas metadata; original 80 measurements preserved with immutable pins. New milestone records are provenance/verification, not 24 new independent eigenvalue measurements. No theorem upgraded from draft by PR merge alone.",
-    "wilson_formal": "HOLD",
+    "scope": "Frozen original 80 physical measurements preserved. Complete post-atlas PR ledger through merged #350. Finite first Wilson mathematical acceptance depends on joined W-weighted proof #349 and independent full physical Q3+Q4 raw dual reconstruction #350. New milestones are separate from eigenvalue measurements.",
+    "wilson_formal": "FINITE_S3_3x4_R9_INTERNAL_FORMAL_MATHEMATICAL_ACCEPTANCE_PASS",
     "continuum_4D": "OPEN",
-    "documentation_only": true
+    "documentation_only": true,
+    "original_Wilson_certified_squared_weight_lower": "17074763/1000000000000",
+    "original_Wilson_strict_signed_shifted_margin": "9285530088/1000000000000"
   },
   "gap_measurements": [
     {
@@ -1539,6 +1541,51 @@
       "source": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/345",
       "generation": "new_after_267",
       "measurement_type": "verification_or_theorem_milestone"
+    },
+    {
+      "id": "update-pr-348",
+      "pr": 348,
+      "key": "Exact Schur–Gram Wilson recentering",
+      "dimension": 8,
+      "work": 12,
+      "order": 5,
+      "unit": "source/theorem controls",
+      "status": "THEOREM_PASS",
+      "group": "Schur",
+      "description": "Exact two-energy overlap and optimal 2O-7 centering",
+      "source": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/348",
+      "generation": "new_after_267",
+      "measurement_type": "verification_or_theorem_milestone"
+    },
+    {
+      "id": "update-pr-349",
+      "pr": 349,
+      "key": "Joined E1/E2 original Wilson proof",
+      "dimension": 8,
+      "work": 12,
+      "order": 5,
+      "unit": "forged evidence controls",
+      "status": "SOURCE_PASS",
+      "group": "Wilson",
+      "description": "Physical source, four moments, true projectors and signed amplitude joined",
+      "source": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/349",
+      "generation": "new_after_267",
+      "measurement_type": "verification_or_theorem_milestone"
+    },
+    {
+      "id": "update-pr-350",
+      "pr": 350,
+      "key": "Cleanroom original S3 Q Wilson dual",
+      "dimension": 155378,
+      "work": 1985218,
+      "order": 2,
+      "unit": "complete Q4 exterior orbit states",
+      "status": "THEOREM_PASS",
+      "group": "Wilson",
+      "description": "Fresh Rust S3 source, full W Q3/Q4 residuals, 16 original action entries exactly reproduced",
+      "source": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/350",
+      "generation": "new_after_267",
+      "measurement_type": "verification_or_theorem_milestone"
     }
   ],
   "new_proof_chain": [
@@ -1816,6 +1863,39 @@
       "note": "Full symmetry lift",
       "source": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/345",
       "date": "2026-11-20T18:36:03Z"
+    },
+    {
+      "id": "chain-348",
+      "pr": 348,
+      "label": "Exact Schur/Gram source jump",
+      "dimension": 8,
+      "status": "THEOREM_PASS",
+      "gate": 3,
+      "note": "Exact two-energy full-state cross Gram identity",
+      "source": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/348",
+      "date": "2026-11-20T23:35:21Z"
+    },
+    {
+      "id": "chain-349",
+      "pr": 349,
+      "label": "Original Wilson joined physical proof",
+      "dimension": 8,
+      "status": "SOURCE_PASS",
+      "gate": 2,
+      "note": "Exact 8×8, projector, action and positive normalized inequality",
+      "source": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/349",
+      "date": "2026-11-21T00:16:57Z"
+    },
+    {
+      "id": "chain-350",
+      "pr": 350,
+      "label": "Independent raw Wilson Q dual",
+      "dimension": 2177317865,
+      "status": "THEOREM_PASS",
+      "gate": 3,
+      "note": "24-link S3 physical graph, K3 and complete Q4 source; final finite first weight acceptance",
+      "source": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/350",
+      "date": "2026-11-21T00:34:57Z"
     }
   ],
   "new_wilson_bounds": [
@@ -2658,6 +2738,56 @@
       "development": "MERGED",
       "category": "RESEARCH_OR_VERIFICATION",
       "note": "PR lifecycle is not equivalent to theorem acceptance"
+    },
+    {
+      "pr": 346,
+      "title": "Atlas: audit 77 post-baseline PRs and visualize old + new Yang–Mills certificates in 3D",
+      "link": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/346",
+      "created": "2026-11-20T22:52:04Z",
+      "merged": "2026-11-20T22:58:43Z",
+      "development": "MERGED",
+      "category": "DOCUMENTATION",
+      "note": "Lifecycle and proof acceptance are independently audited"
+    },
+    {
+      "pr": 347,
+      "title": "Fix atlas links: open rendered 3D viewer instead of GitHub HTML source",
+      "link": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/347",
+      "created": "2026-11-20T23:15:29Z",
+      "merged": "2026-11-20T23:19:02Z",
+      "development": "MERGED",
+      "category": "DOCUMENTATION",
+      "note": "Lifecycle and proof acceptance are independently audited"
+    },
+    {
+      "pr": 348,
+      "title": "Y137: exact Schur–Gram Wilson recentering and one-shot certification corridor",
+      "link": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/348",
+      "created": "2026-11-20T23:35:21Z",
+      "merged": "2026-11-20T23:46:44Z",
+      "development": "MERGED",
+      "category": "RESEARCH_OR_VERIFICATION",
+      "note": "Lifecycle and proof acceptance are independently audited"
+    },
+    {
+      "pr": 349,
+      "title": "Y137: one-shot exact joined original physical Wilson source/projector acceptance",
+      "link": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/349",
+      "created": "2026-11-21T00:16:57Z",
+      "merged": "2026-11-21T00:23:43Z",
+      "development": "MERGED",
+      "category": "RESEARCH_OR_VERIFICATION",
+      "note": "Lifecycle and proof acceptance are independently audited"
+    },
+    {
+      "pr": 350,
+      "title": "Y137: independently reconstruct original S3 full-Q matched Wilson dual source",
+      "link": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/350",
+      "created": "2026-11-21T00:34:57Z",
+      "merged": "2026-11-21T00:42:41Z",
+      "development": "MERGED",
+      "category": "RESEARCH_OR_VERIFICATION",
+      "note": "Lifecycle and proof acceptance are independently audited"
     }
   ],
   "hypothesis_parameters": {
@@ -2668,5 +2798,24 @@
     "cheb_kappa": 16.503769894428373,
     "cheb_rho": 0.6049369619653981,
     "projector_gamma": 0.01391416262573323
+  },
+  "wilson_acceptance": {
+    "id": "finite-Wilson-350",
+    "pr": 350,
+    "source": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/350",
+    "run": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44845098209",
+    "joined_proof": "https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/pull/349",
+    "original_model": "3x4 periodic S3 gauge finite model at r=9",
+    "observable": "original seven-loop Wilson O",
+    "lower_squared_weight": "17074763/1000000000000",
+    "strict_signed_shifted_margin": "9285530088/1000000000000",
+    "independent_source": "Rust S3 original gauge K3 + Python complete Q4 residual",
+    "Q3_states": 155378,
+    "Q4_boundary_states": 1985218,
+    "source_negative_controls": 8,
+    "joined_negative_controls": 12,
+    "final_negative_controls": 9,
+    "status": "INTERNAL_FORMAL_MATHEMATICAL_ACCEPTANCE_PASS",
+    "continuum_4D": "OPEN"
   }
 }
