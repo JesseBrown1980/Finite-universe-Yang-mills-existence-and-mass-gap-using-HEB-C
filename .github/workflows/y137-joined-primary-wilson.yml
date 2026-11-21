@@ -1,0 +1,110 @@
+name: Y137 one-shot joined physical Schur projector Wilson acceptance
+on:
+  pull_request:
+    paths:
+      - 'independent/y137-joined-primary-wilson-20261120/**'
+      - '.github/workflows/y137-joined-primary-wilson.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  joined-true-first-Wilson-proof-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Strict source policy and original physical Perron artifact pin
+        run: |
+          set -euo pipefail
+          D=independent/y137-joined-primary-wilson-20261120
+          python3 -I -B native/scripts/integer_only_audit.py "$D/verify_joined.py" "$D/verify_main_moments.py"
+          python3 -I -B native/scripts/no_float_gate.py .
+          test "$(git hash-object native/ym/results/3x4_stream/perron/PERRON-RESULT.hbp)" = 'cbd428014a4d440732a5c0a541ed57a9041becee'
+          test "$(git hash-object independent/y137-q-dual-weight-20261113/RESULT-WILSON-Q-DUAL.hbp)" = '40762ceb865829156e4765b720f52d39a8be9b6f'
+      - name: Independently replay original group physical P Q Wilson and whole-Q lift
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-joined-wilson
+          python3 -I -B independent/y137-physical-pq-signoff-20261120/verify_pq.py \
+            | tee build/y137-joined-wilson/PHYSICAL-PQ.hbp
+          grep -Fq '|original_BstarB=72_I8_EXACT|' build/y137-joined-wilson/PHYSICAL-PQ.hbp
+          python3 -I -B independent/y137-wholeQ-perron-lift-20261120/verify_lift.py \
+            | tee build/y137-joined-wilson/WHOLEQ-PERRON.hbp
+          grep -Fq '|wholeQ_groundstate_sum_squares=PASS|' build/y137-joined-wilson/WHOLEQ-PERRON.hbp
+          python3 -I -B independent/y137-source-schur-identity-20261120/verify_identity.py \
+            | tee build/y137-joined-wilson/WEIGHTED-SOURCE-SCHUR.hbp
+          grep -Fq '|full_physical_Schur_identity_U0_minus_F=PASS|' \
+            build/y137-joined-wilson/WEIGHTED-SOURCE-SCHUR.hbp
+      - name: Original full signed mu3, four source blobs and four 16x16 localizers
+        run: |
+          set -euo pipefail
+          D=independent/y137-joined-primary-wilson-20261120
+          python3 -I -B "$D/verify_main_moments.py" | tee build/y137-joined-wilson/MOMENTS.hbp
+          grep -Fq '|four_signed_16x16_localizers=STRICT_PD|' build/y137-joined-wilson/MOMENTS.hbp
+      - name: Second first-principles exact 8x8 Schur matrix and source digest reconstruction
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin d0fd29b2fbef1f38ba9d3db381e133f2d131ffdc
+          test "$(git rev-parse FETCH_HEAD)" = 'd0fd29b2fbef1f38ba9d3db381e133f2d131ffdc'
+          git checkout FETCH_HEAD -- independent/y137-independent-premise-audit-20261118/schur.py
+          python3 -I -B independent/y137-mu3-real-20261115/d_real_four_moment.py real \
+            > build/y137-joined-wilson/STAGE-D.hbp
+          python3 -I -B independent/y137-independent-premise-audit-20261118/schur.py \
+            build/y137-joined-wilson/STAGE-D.hbp \
+            | tee build/y137-joined-wilson/INDEPENDENT-SCHUR.hbp
+          grep -Fq '|matrix_hash_replays=128_OF_128_EXACT|' build/y137-joined-wilson/INDEPENDENT-SCHUR.hbp
+          grep -Fq '|signed_Schur_formula=SECOND_IMPLEMENTATION_PASS|' \
+            build/y137-joined-wilson/INDEPENDENT-SCHUR.hbp
+      - name: Download both immutable hosted original E1 E2 and Wilson evidence archives
+        run: |
+          set -euo pipefail
+          mkdir -p build/y137-joined-wilson/diagnostic build/y137-joined-wilson/action
+          gh run download 44560968064 --repo "$GITHUB_REPOSITORY" \
+            --name y137-original-signed-schur-frozen-sample-diagnostic \
+            --dir build/y137-joined-wilson/diagnostic
+          gh run download 44411639918 --repo "$GITHUB_REPOSITORY" \
+            --name y137-original-S3-matched-Wilson-directional-action \
+            --dir build/y137-joined-wilson/action
+          test -s build/y137-joined-wilson/diagnostic/interval.jsonl
+          test -s build/y137-joined-wilson/action/ALL.hbp
+      - name: Independent one-shot archive and physical Wilson fan-in with twelve forged controls
+        run: |
+          set -euo pipefail
+          D=independent/y137-joined-primary-wilson-20261120
+          python3 -I -B "$D/verify_joined.py" build/y137-joined-wilson/diagnostic \
+            build/y137-joined-wilson/action \
+            | tee build/y137-joined-wilson/JOINED-WILSON.hbp
+          grep -Fq '|signed_O9_margin_ppt=9285530088|' build/y137-joined-wilson/JOINED-WILSON.hbp
+          grep -Fq '|original_squared_Wilson_weight_ppt=17074763|' \
+            build/y137-joined-wilson/JOINED-WILSON.hbp
+          grep -Fq '|altered_controls=12_REJECTED|' build/y137-joined-wilson/JOINED-WILSON.hbp
+          grep -Fq '|original_finite_Wilson=SOURCE_CONDITIONAL_FORMAL_HOLD|' \
+            build/y137-joined-wilson/JOINED-WILSON.hbp
+          python3 -O -I -B "$D/verify_joined.py" build/y137-joined-wilson/diagnostic \
+            build/y137-joined-wilson/action \
+            > build/y137-joined-wilson/JOINED-WILSON-OPTIMIZED.hbp
+          cmp build/y137-joined-wilson/JOINED-WILSON.hbp \
+              build/y137-joined-wilson/JOINED-WILSON-OPTIMIZED.hbp
+      - name: Compare pinned original Matrices Law Schur Gram shortcut and seal final receipt
+        run: |
+          set -euo pipefail
+          python3 -I -B independent/y137-one-shot-schur-gram-wilson-20261120/check_shortcut.py \
+            | tee build/y137-joined-wilson/SHORTCUT.hbp
+          grep -Fq '|math=PASS|' build/y137-joined-wilson/SHORTCUT.hbp
+          sha256sum build/y137-joined-wilson/*.hbp > build/y137-joined-wilson/SOURCE-RECEIPT.sha256
+          git rev-parse HEAD > build/y137-joined-wilson/PR-COMMIT.txt
+          printf '%s\n' 'Y137_FINAL_JOINED_VERDICT|physical_source=PINNED_PASS|exact_matrix_and_Schur=PASS|two_true_projector_cones=PASS|original_Wilson_action=PINNED_ARITHMETIC_PASS|positive_weight=SOURCE_CONDITIONAL_PASS|raw_Q_dual_full_independent_source=FURTHER_ACCEPTANCE_REQUIRED|original_first_Wilson=FORMAL_HOLD|continuum_4D=OPEN|json=0' \
+            | tee build/y137-joined-wilson/VERDICT.hbp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y137-one-shot-original-physical-Wilson-source-and-math-acceptance
+          path: |
+            build/y137-joined-wilson/*.hbp
+            build/y137-joined-wilson/*.sha256
+            build/y137-joined-wilson/PR-COMMIT.txt
+          retention-days: 90
+          if-no-files-found: warn
