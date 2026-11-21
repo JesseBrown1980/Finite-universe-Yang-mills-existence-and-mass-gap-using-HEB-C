@@ -1,5 +1,11 @@
 # Open the rendered 3D Yang–Mills Certificate Atlas
 
+
+## [▶ OPEN THE COMPANION 4D CONTINUUM SU(2) 3D ATLAS](https://raw.githack.com/JesseBrown1980/yang-mills-4-dimensional-continum-proof/main/docs/certificate-atlas/index.html)
+
+The connected 4D graph marks eleven remaining certificates **OPEN**, links to the finite-model first Wilson acceptance as a *separate gauge-model result*, and indexes external Lean/one-cube candidates without claiming they solve the continuum gap. [4D certificate matching ledger](https://github.com/JesseBrown1980/yang-mills-4-dimensional-continum-proof/blob/main/docs/certificate-atlas/BRIDGE-LEDGER.md).
+
+
 **Updated finite Wilson certificate:** [original first Wilson formal mathematical acceptance PASS, PR #350](WILSON-FORMAL-ACCEPTANCE-20261120.md), with [hosted proof #44845098209](https://github.com/JesseBrown1980/Finite-universe-Yang-mills-existence-and-mass-gap-using-HEB-C/actions/runs/44845098209). The 4D continuum problem remains OPEN. The plotted chart coordinates are the earlier frozen snapshot.
 
 
