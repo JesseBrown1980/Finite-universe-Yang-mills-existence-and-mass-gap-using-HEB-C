@@ -49,24 +49,24 @@ def check(legacy,clean):
          "no_fresh_original_raw_Q_source")
     need(sha(s.joinpath("SOURCE.bin").read_bytes())==SOURCE_SHA,
          "fresh_complete_S3_gauge_graph_source_SHA")
-    p=line(d/"PHYSICAL-PQ.hbp","Y137_INDEPENDENT_FULL_PHYSICAL_PQ")
+    p=line(d.joinpath("PHYSICAL-PQ.hbp"),"Y137_INDEPENDENT_FULL_PHYSICAL_PQ")
     equal(p,{"whole_flat_orbits":"8",
              "original_BstarB":"72_I8_EXACT",
              "physical_weighted_HPQ_HQP_adjoint":"PASS",
              "original_operator_PQ_boundary_SHA256":"8d41471666def3e72caf199cd87f6bfbb94fc06a66c037f1c88156c4d6c78d34",
              "negative_controls":"7_REJECTED"},"original_exact_physical_PQ_not_accepted")
-    q=line(d/"WHOLEQ-PERRON.hbp","Y137_INDEPENDENT_WHOLEQ_PERRON_LIFT")
+    q=line(d.joinpath("WHOLEQ-PERRON.hbp"),"Y137_INDEPENDENT_WHOLEQ_PERRON_LIFT")
     equal(q,{"wholeQ_groundstate_sum_squares":"PASS",
              "original_cert_t_microJE":"94070673",
              "original_conservative_gamma_microJE":"94068200",
              "strict_spectral_floor_slack_microJE":"2473",
              "negative_controls":"9_REJECTED"},"all_space_Q_Perron_not_accepted")
-    s0=line(d/"WEIGHTED-SOURCE-SCHUR.hbp","Y137_ORIGINAL_SOURCE_SCHUR_IDENTITY")
+    s0=line(d.joinpath("WEIGHTED-SOURCE-SCHUR.hbp"),"Y137_ORIGINAL_SOURCE_SCHUR_IDENTITY")
     equal(s0,{"original_G0_equals_6_mu0":"EXACT",
               "full_physical_Schur_identity_U0_minus_F":"PASS",
               "source_mu0_mu1_mu2_mu3_all_W_GRAM":"PASS",
               "changed_premises":"7_REJECTED"},"same_W_signed_Schur_identity")
-    m=line(d/"MOMENTS.hbp","Y137_JOINED_MAIN_MOMENT_VERDICT")
+    m=line(d.joinpath("MOMENTS.hbp"),"Y137_JOINED_MAIN_MOMENT_VERDICT")
     equal(m,{"original_sources":"4_BLOBS_PINNED","two_energies":"PASS",
              "four_signed_16x16_localizers":"STRICT_PD",
              "same_Perron_floor":"PASS"},"two_original_signed_8x8_Schur_moments")
@@ -74,7 +74,7 @@ def check(legacy,clean):
     need("|matrix_hash_replays=128_OF_128_EXACT|" in matrix and
          "|signed_Schur_formula=SECOND_IMPLEMENTATION_PASS|" in matrix,
          "independent_original_Schur_inertia_missing")
-    joined=line(d/"JOINED-WILSON.hbp","Y137_JOINED_ORIGINAL_WILSON")
+    joined=line(d.joinpath("JOINED-WILSON.hbp"),"Y137_JOINED_ORIGINAL_WILSON")
     equal(joined,{"two_hosted_archives":"SHA256_PASS",
                   "true_E1_E2_branches":"2_PASS",
                   "true_projector_cones":"2_PASS",
@@ -82,7 +82,7 @@ def check(legacy,clean):
                   "signed_O9_margin_ppt":"9285530088",
                   "original_squared_Wilson_weight_ppt":"17074763",
                   "altered_controls":"12_REJECTED"},"original_E1_E2_Wilson_joint_math_failure")
-    raw=line(s/"RAW-DUAL.hbp","Y137_CLEANROOM_FULL_Q_DUAL_SOURCE")
+    raw=line(s.joinpath("RAW-DUAL.hbp"),"Y137_CLEANROOM_FULL_Q_DUAL_SOURCE")
     equal(raw,{"physical_orbit_graph":"FRESH_24_LINK_S3",
                "original_Q3_states":"155378",
                "original_Q4_exterior":"1985218",
@@ -95,7 +95,7 @@ def check(legacy,clean):
                "eight_forward_action_entries":"EXACT_AGREE_ORIGINAL",
                "eight_adjoint_action_entries":"EXACT_AGREE_ORIGINAL",
                "changed_inputs":"8_REJECTED"},"original_fullQ_primary_source_independence")
-    digest=line(s/"RAW-DUAL.hbp","Y137_CLEANROOM_SOURCE_HASH")
+    digest=line(s.joinpath("RAW-DUAL.hbp"),"Y137_CLEANROOM_SOURCE_HASH")
     equal(digest,{"full_Q_original_dual_source_sha256":SOURCE_SHA,
                   "original_action_receipt_sha256":ORIGINAL_SHA},
           "cleanroom_source_crypto_pins")
@@ -124,8 +124,8 @@ def check(legacy,clean):
 def reject_controls(legacy,clean):
     # Primitive semantic acceptance negative controls enforce mandatory data gates.
     # The dedicated #349 and #350 proof jobs contain another 12+8 real mutations.
-    a=Path(legacy)/"JOINED-WILSON.hbp"
-    b=Path(clean)/"RAW-DUAL.hbp"
+    a=Path(legacy).joinpath("JOINED-WILSON.hbp")
+    b=Path(clean).joinpath("RAW-DUAL.hbp")
     x=line(a,"Y137_JOINED_ORIGINAL_WILSON")
     y=line(b,"Y137_CLEANROOM_FULL_Q_DUAL_SOURCE")
     count=0
