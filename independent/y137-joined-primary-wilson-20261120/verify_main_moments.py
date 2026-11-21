@@ -35,7 +35,7 @@ def digest(m):
     return hashlib.sha256("|".join(str(x) for row in m for x in row).encode("ascii")).hexdigest()
 def parse(root,src):
     file,sha,tag=src
-    content=(root/file).read_bytes()
+    content=root.joinpath(file).read_bytes()
     need(git_blob(content)==sha,"original_immutable_source_SHA_"+tag)
     records=[]
     for line in content.decode("ascii").splitlines():
