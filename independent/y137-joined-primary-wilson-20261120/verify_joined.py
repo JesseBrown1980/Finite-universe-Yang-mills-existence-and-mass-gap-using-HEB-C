@@ -8,7 +8,6 @@ independent primary dual-producer acceptance.
 """
 import copy
 import hashlib
-import json
 import sys
 from math import gcd, isqrt
 from pathlib import Path
@@ -74,9 +73,72 @@ def one(s,tag):
     x=rows(s,tag)
     need(len(x)==1,"single_"+tag)
     return x[0]
+def pinned_json(raw):
+    """Strict minimal JSON grammar for the audited fixed archived integer records.
+
+    JSON floats, escaped strings, duplicate keys and nonfinite values fail closed.
+    The four archived source files contain only plain ASCII strings, integers,
+    booleans, lists and dictionaries; no broad JSON implementation is needed.
+    """
+    s=raw.strip()
+    i=0
+    def skip():
+        nonlocal i
+        while i<len(s) and s[i] in " \t\r\n":i+=1
+    def string():
+        nonlocal i
+        need(i<len(s) and s[i]=='"',"quoted_json_string")
+        i+=1
+        start=i
+        while i<len(s) and s[i]!='"':
+            need(s[i]!='\\' and ord(s[i])>=32 and ord(s[i])<=126,
+                 "escaped_or_nonascii_json_string")
+            i+=1
+        need(i<len(s),"unterminated_json_string")
+        result=s[start:i]
+        i+=1
+        return result
+    def value():
+        nonlocal i
+        skip()
+        need(i<len(s),"incomplete_json")
+        ch=s[i]
+        if ch=='"':return string()
+        if ch=='{':
+            i+=1;out={};skip()
+            if i<len(s) and s[i]=='}':i+=1;return out
+            while True:
+                skip();key=string();need(key not in out,"duplicate_json_key")
+                skip();need(i<len(s) and s[i]==':',"json_colon");i+=1
+                out[key]=value();skip()
+                need(i<len(s),"json_object_close")
+                if s[i]=='}':i+=1;return out
+                need(s[i]==',',"json_object_comma");i+=1
+        if ch=='[':
+            i+=1;out=[];skip()
+            if i<len(s) and s[i]==']':i+=1;return out
+            while True:
+                out.append(value());skip()
+                need(i<len(s),"json_array_close")
+                if s[i]==']':i+=1;return out
+                need(s[i]==',',"json_array_comma");i+=1
+        for word,result in (("true",True),("false",False),("null",None)):
+            if s.startswith(word,i):
+                i+=len(word)
+                return result
+        start=i
+        if ch=='-':i+=1
+        need(i<len(s) and s[i].isdigit(),"integer_json_only")
+        need(s[i]!='0' or i+1==len(s) or not s[i+1].isdigit(),"json_no_leading_zero")
+        while i<len(s) and s[i].isdigit():i+=1
+        need(s[i:i+1] not in (".","e","E","-","+"),"json_float_exponent_rejected")
+        return int(s[start:i])
+    result=value()
+    skip();need(i==len(s),"json_trailing_characters")
+    return result
+
 def jrows(s,tag,quantity=2):
-    x=[json.loads(line.partition("|")[2],parse_float=lambda _:need(False,"float_json"),
-       parse_constant=lambda _:need(False,"nonfinite_json")) for line in s.splitlines()
+    x=[pinned_json(line.partition("|")[2]) for line in s.splitlines()
        if line.startswith(tag+"|")]
     need(len(x)==quantity and all(isinstance(y,dict) for y in x),"json_source_"+tag)
     return x
