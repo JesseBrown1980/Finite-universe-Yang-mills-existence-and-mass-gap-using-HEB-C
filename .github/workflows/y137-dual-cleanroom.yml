@@ -65,14 +65,29 @@ jobs:
             build/y137-dual-cleanroom/RAW-DUAL.hbp
           grep -Fq '|changed_inputs=8_REJECTED|' \
             build/y137-dual-cleanroom/RAW-DUAL.hbp
+      - name: Join the independent raw full-Q source with previously authenticated exact Wilson mathematical proof
+        run: |
+          set -euo pipefail
+          gh run download 44843012537 --repo "$GITHUB_REPOSITORY" \
+            --name y137-one-shot-original-physical-Wilson-source-and-math-acceptance \
+            --dir build/y137-dual-cleanroom/old-joined
+          test -s build/y137-dual-cleanroom/old-joined/JOINED-WILSON.hbp
+          test -s build/y137-dual-cleanroom/old-joined/MOMENTS.hbp
+          python3 -I -B independent/y137-dual-cleanroom-20261120/final_accept.py \
+            build/y137-dual-cleanroom/old-joined build/y137-dual-cleanroom \
+            | tee build/y137-dual-cleanroom/FINAL-WILSON.hbp
+          grep -Fq '|finite_S3_3x4_r9_first_Wilson=FORMAL_MATHEMATICAL_ACCEPTANCE_PASS|' \
+            build/y137-dual-cleanroom/FINAL-WILSON.hbp
+          grep -Fq '|continuum_4D=OPEN|' build/y137-dual-cleanroom/FINAL-WILSON.hbp
       - name: Independent executable source and artifact fingerprints
         run: |
           set -euo pipefail
           D=independent/y137-dual-cleanroom-20261120
-          sha256sum "$D/graph.rs" "$D/verify.py" \
+          sha256sum "$D/graph.rs" "$D/verify.py" "$D/final_accept.py" \
             build/y137-dual-cleanroom/original/ALL.hbp \
             build/y137-dual-cleanroom/SOURCE.bin \
             build/y137-dual-cleanroom/RAW-DUAL.hbp \
+            build/y137-dual-cleanroom/FINAL-WILSON.hbp \
             > build/y137-dual-cleanroom/SOURCE.sha256
           git rev-parse HEAD > build/y137-dual-cleanroom/COMMIT.txt
           printf '%s\n' \
@@ -85,6 +100,7 @@ jobs:
           path: |
             build/y137-dual-cleanroom/SOURCE.bin
             build/y137-dual-cleanroom/RAW-DUAL.hbp
+            build/y137-dual-cleanroom/FINAL-WILSON.hbp
             build/y137-dual-cleanroom/GRAPH.log
             build/y137-dual-cleanroom/VERDICT.hbp
             build/y137-dual-cleanroom/SOURCE.sha256
